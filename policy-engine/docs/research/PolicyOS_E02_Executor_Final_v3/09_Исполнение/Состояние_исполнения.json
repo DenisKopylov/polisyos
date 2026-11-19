@@ -9079,9 +9079,64 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE. Hosted fresh reader/removals qualified. Scientific R16 B2/B3 terminal and C R11 admitted within Step-Up with acquired input selected. Numerical C is pending. Native R21 identifies the exact decision-route history fold; scoped selector and 23 route cases pass. Native R23 preserved the completed B purchase. Admission, numerical re-entry and restart are pending.",
-        "main_commit": "31cec25329cc36eebc4df852ae32073bfc8cbebd",
-        "main_tree": "fc87d622035180bf1a7a92ac03a6182788d558c0",
+        "status": "ACTIVE. Scientific C N5 is selected in SQL with original journal 4→6 and 0 protected use. R14 hit the wall cap during post-N5 replay at frontier 3. Same-job checkpoint continuation is active. Native R27 produced the complete A+B collection. The N7 v2 Foundry handshake is repaired and verified on exact saved data. Full R28 from pristine R25 is active.",
+        "main_commit": "4c5686f0c0dbb8438872fb3970d5fe0e86d8fd1a",
+        "main_tree": "4a110e86f7dcfb2172df48770ed0f18b5eaad370",
+        "continued_20261119": {
+          "scientific_c": {
+            "source_commit": "53079a9cb041c27688ba76cb1fdab163d4a26b26",
+            "source_tree": "bd4d6c2e1cb0772e3abe2ddad59d95637bdb8c6b",
+            "status": "SQL-selected N5 checkpoint. Attempt 3, pending head 5, frontier 3 after wall cap. Exact checkpoint continuation claimed the same job at 19:12 Kyiv time. Finalization and fresh API remain open.",
+            "checkpoint_event": "evt_candidate_source_reentry_n5_checkpoint_c0275d13861f4dbe5342512f1f34d6df1159302e78aa3c8317dfef66b26dbe08",
+            "n5_result_ref": "sha256:3fcbed2afa64054463e0624ef9cd8ea2d899baebcb4125323261bc09be065993",
+            "n5_result_profile": "sha256:7f575a2faa1ecf121e515cf58af62cee576b71fc25968bede24fba30453dc2dd",
+            "old_b1_outcome": "0.17699999701976776",
+            "changed_c_outcome": "0.21199999344348908",
+            "effect": "0.0020000000000000018",
+            "samples": 2,
+            "ledger_revision": [
+              37,
+              41
+            ],
+            "completed_standard_units": [
+              4,
+              6
+            ],
+            "protected_used": 0,
+            "protected_available": 1,
+            "elapsed_seconds": 10002.176,
+            "peak_sampled_process_tree_rss_bytes": 2352168960,
+            "output": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r14-20261119/"
+          },
+          "native": {
+            "route_setup_commit": "aa85629bdec92ac89c1cc603f3384c1538338235",
+            "retained_signature_commit": "b17c4dccc30095eee74ebdb112a9baef020d834f",
+            "binding_commit": "5b06c2e4cdf22c75aeb4edb7a0674dd600aebcc7",
+            "status": "R27 generation 3 has complete A+B collection. Attempt 2 failed at world materialization before the numerical fence. Exact short repaired composition passes. R28 active with the original paid input and signature.",
+            "r27_output": "Primary:policy-engine/_cache/e02/native-retained-second-leaf-r27-20261119/",
+            "r27_resume_receipt": "Primary:policy-engine/_cache/e02/native-r27-owner-resume-NBhWLu-r2/journal-reconciled-final.json",
+            "binding_readback": "Primary:policy-engine/_cache/e02/native-r27-world-patched-Y90p8x/binding-readback.json",
+            "r28_output": "Primary:policy-engine/_cache/e02/native-retained-second-leaf-r28-20261119/budget/"
+          },
+          "pattern_pass": {
+            "ids": [
+              "P04",
+              "P05",
+              "P07",
+              "P12",
+              "P29",
+              "P31",
+              "P32",
+              "P37",
+              "P38",
+              "P41"
+            ],
+            "c_predicates": "Current action and lease are recomputed. Selected world and exact original ledger resource/revision are independently reconciled. Unrelated later ledger mutation also refuses a fresh pre-work retry.",
+            "native_predicates": "Exact manifest and parent joins are independently reconciled. Core recomputes correspondence. N7 lineage remains candidate-only; a complete collection can retain a partial immutable plan.",
+            "remaining": "verification_missing for C frontier 4 and fresh API, and Native full numerical execution and restart. G stays separate. DA-06 loaded build after LANE-12, DA-07 affected consumers changed by LANE-03, DA-08 and X03 after shared freeze."
+          },
+          "denominator_receipt": "Primary:policy-engine/_cache/e02/lane01-c-native-common-verification-20261119/lane01-census.json"
+        },
         "author_checkpoint": "8cd3ec9ae0ce32f23daa5625e81a3085c9e31567",
         "current_composed_r14": {
           "source_commit": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
@@ -9574,7 +9629,7 @@
           "repair": "Main 0e003218d, independent review and 58 affected checks pass",
           "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. R18 on cc646d605 returns HTTP 409 at decision request and completes with no new job. Its exact selected typed manifest waited 2.048 s at a 1.5 s guard. Main bfefb6188 extends the existing single retry to raw and typed profile reads. Focused checks and the path-aware docs/API gate pass. R19 loses acknowledgement of a completed payload CAS write (1.903 s). It leaves exact CAS links, without durable event or acquisition job. Main 24d5538e4 adds read-only recovery with 73 tests and docs/API gate PASS. R20 records zero CAS wait timeouts, then HTTP 503 at decision-request after its event lands 49 s beyond the Step-Up deadline. No new acquisition job or N5. R21 resolves the Native route in 264.615 s of 265.480 s total, with no observed CAS wait timeout. The exact mutation selects one node/supplier group and replays all competing profiles within it."
         },
-        "next": "Reconcile the exact scientific C start marker, no-reservation ledger and action lease through the canonical owner before any retry. Verify changed result, frontier 4 and fresh API on the original 7/1 journal. Diagnose Native generation-2 route eligibility and verify a new authorized action from the generation-1 paid input, with one numerical kernel and no repeated work on restart. Compose affected consumers before final freeze and G handoff.",
+        "next": "Continue the already computed C checkpoint on the same job, verify frontier 4 and exact result by fresh authenticated API. Complete R28 from the original paid B, reconcile zero new provider calls and one physical calculation, and reopen the exact result in a fresh API. Recheck affected consumers on the integrated source and prepare the separate G handoff.",
         "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",

@@ -3858,6 +3858,104 @@ def _replay_selected_scoped_measurement(
     return occurrence, replayed, source
 
 
+def _read_selected_derivation_bundle(
+    store: CoreJSONArtifactStore,
+    selection: ResolvedDerivedInput,
+    *,
+    obligation_set_ref: ArtifactRef,
+    registered: bool,
+) -> dict[str, Any] | None:
+    """Read candidate-only N7 lineage for the exact Foundry input selection."""
+    ref = selection.derivation_bundle_ref
+    if ref is None:
+        return None
+    manifest = store.get_manifest(ref)
+    bundle = load_core_json_artifact(store, ref)
+    schema = manifest.artifact_schema
+    if (
+        schema is None
+        or schema.name != "polisyos.runtime.quality.N7DerivationBundle"
+        or schema.version not in (("1.0", "2.0") if registered else ("1.0",))
+        or not isinstance(bundle, dict)
+        or bundle.get("schema_version")
+        != f"policyos.runtime.n7_derivation_bundle.v{schema.version[0]}"
+    ):
+        raise ValueError("foundry_input_bindings_derived_bundle_profile_mismatch")
+    target_fields = (
+        (
+            "model_input_obligation_ref",
+            "selected_model_input_obligation",
+            selection.model_input_obligation_ref,
+        ),
+        ("obligation_set_ref", "selected_obligation_set", obligation_set_ref),
+    )
+    for field, _role, expected in target_fields:
+        if artifact_ref_identity_key(ArtifactRef.model_validate(bundle.get(field))) != (
+            artifact_ref_identity_key(expected)
+        ):
+            raise ValueError("foundry_input_bindings_derived_bundle_target_mismatch")
+    if schema.version == "1.0":
+        return bundle
+
+    if (
+        manifest.producer
+        != ProducerInfo(component="polisyos.runtime.quality.acquisition_planner", version="1.0")
+        or bundle.get("authority_purpose") != "candidate_acquisition_routing_only"
+        or bundle.get("target_satisfaction_status") != "unsatisfied"
+    ):
+        raise ValueError("foundry_input_bindings_composition_bundle_authority_mismatch")
+    profile_ref = ArtifactRef.model_validate(bundle.get("registered_profile_ref"))
+    if artifact_ref_identity_key(profile_ref) != artifact_ref_identity_key(selection.profile_ref):
+        raise ValueError("foundry_input_bindings_composition_bundle_profile_mismatch")
+    routing_ref = ArtifactRef.model_validate(bundle.get("model_input_routing_report_ref"))
+    if (
+        routing_ref.kind != "runtime.quality.model_input_routing_report"
+        or routing_ref.media_type != "application/json"
+        or routing_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("foundry_input_bindings_composition_bundle_routing_mismatch")
+    for role, expected in (
+        *((role, expected) for _field, role, expected in target_fields),
+        ("selected_registered_semantic_profile", selection.profile_ref),
+        ("selected_model_input_routing_report", routing_ref),
+    ):
+        if [edge for edge in manifest.inputs if edge.role == role] != [
+            input_ref_from_artifact_ref(expected, role=role)
+        ]:
+            raise ValueError("foundry_input_bindings_composition_bundle_lineage_mismatch")
+
+    routing = load_core_json_artifact(store, routing_ref)
+    routing_manifest = store.get_manifest(routing_ref)
+    routing_schema = routing_manifest.artifact_schema
+    if (
+        routing_schema is None
+        or routing_schema.name != "polisyos.runtime.quality.ModelInputRoutingReport"
+        or routing_schema.version not in ("1.0", "2.0")
+        or not isinstance(routing, dict)
+        or routing.get("schema_version") != routing_schema.version
+        or routing.get("authority_purpose") != "candidate_acquisition_routing_only"
+        or artifact_ref_identity_key(ArtifactRef.model_validate(routing.get("obligation_set_ref")))
+        != artifact_ref_identity_key(obligation_set_ref)
+        or [edge for edge in routing_manifest.inputs if edge.role == "selected_obligation_set"]
+        != [input_ref_from_artifact_ref(obligation_set_ref, role="selected_obligation_set")]
+    ):
+        raise ValueError("foundry_input_bindings_composition_bundle_routing_mismatch")
+    routes = routing.get("routes")
+    if (
+        not isinstance(routes, list)
+        or sum(
+            isinstance(route, dict)
+            and route.get("port_id") == selection.model_port_id
+            and artifact_ref_identity_key(ArtifactRef.model_validate(route.get("obligation_ref")))
+            == artifact_ref_identity_key(selection.model_input_obligation_ref)
+            for route in routes
+        )
+        != 1
+    ):
+        raise ValueError("foundry_input_bindings_composition_bundle_routing_mismatch")
+    return bundle
+
+
 def _verify_selected_derived_input(
     store: CoreJSONArtifactStore,
     selection: ResolvedDerivedInput,
@@ -3975,26 +4073,14 @@ def _verify_selected_derived_input(
             "foundry_input_bindings_derived_correspondence_refused:"
             + ",".join(result.refusal_codes)
         )
-    bundle_limitation = "n7_derivation_bundle_not_established"
-    if selection.derivation_bundle_ref is not None:
-        ref = selection.derivation_bundle_ref
-        manifest = store.get_manifest(ref)
-        bundle = load_core_json_artifact(store, ref)
-        if (
-            manifest.artifact_schema
-            != SchemaInfo(name="polisyos.runtime.quality.N7DerivationBundle", version="1.0")
-            or not isinstance(bundle, dict)
-            or bundle.get("schema_version") != "policyos.runtime.n7_derivation_bundle.v1"
-        ):
-            raise ValueError("foundry_input_bindings_derived_bundle_profile_mismatch")
-        for field, expected in (
-            ("model_input_obligation_ref", selection.model_input_obligation_ref),
-            ("obligation_set_ref", obligation_set_ref),
-        ):
-            actual = ArtifactRef.model_validate(bundle.get(field))
-            if artifact_ref_identity_key(actual) != artifact_ref_identity_key(expected):
-                raise ValueError("foundry_input_bindings_derived_bundle_target_mismatch")
-        bundle_limitation = "n7_derivation_bundle_provenance_only"
+    bundle = _read_selected_derivation_bundle(
+        store, selection, obligation_set_ref=obligation_set_ref, registered=False
+    )
+    bundle_limitation = (
+        "n7_derivation_bundle_not_established"
+        if bundle is None
+        else "n7_derivation_bundle_provenance_only"
+    )
     return result.value, profile.output_projection, (*result.limitation_codes, bundle_limitation)
 
 
@@ -4131,24 +4217,10 @@ def _verify_registered_composition_input(
             + ",".join(result.refusal_codes)
         )
     bundle_limitation = "n7_derivation_bundle_not_established"
-    if selection.derivation_bundle_ref is not None:
-        ref = selection.derivation_bundle_ref
-        manifest = store.get_manifest(ref)
-        bundle = load_core_json_artifact(store, ref)
-        if (
-            manifest.artifact_schema
-            != SchemaInfo(name="polisyos.runtime.quality.N7DerivationBundle", version="1.0")
-            or not isinstance(bundle, dict)
-            or bundle.get("schema_version") != "policyos.runtime.n7_derivation_bundle.v1"
-        ):
-            raise ValueError("foundry_input_bindings_derived_bundle_profile_mismatch")
-        for field, expected in (
-            ("model_input_obligation_ref", selection.model_input_obligation_ref),
-            ("obligation_set_ref", obligation_set_ref),
-        ):
-            actual = ArtifactRef.model_validate(bundle.get(field))
-            if artifact_ref_identity_key(actual) != artifact_ref_identity_key(expected):
-                raise ValueError("foundry_input_bindings_derived_bundle_target_mismatch")
+    bundle = _read_selected_derivation_bundle(
+        store, selection, obligation_set_ref=obligation_set_ref, registered=True
+    )
+    if bundle is not None:
         nodes = bundle.get("operation_nodes")
         roots = (
             []

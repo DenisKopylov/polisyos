@@ -2,21 +2,34 @@
 
 from __future__ import annotations
 
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
 
 from polisyos.core import artifacts
-from polisyos.core.contracts import load_resolved_input_binding_manifest
+from polisyos.core.contracts import (
+    SelectedVariableBindingRef,
+    load_resolved_input_binding_manifest,
+)
 from polisyos.core.contracts.semantic_composition_binding import (
     persist_registered_derived_input_profile,
 )
+from polisyos.foundry.data_plane import load_input_bindings
 from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
 from polisyos.runtime.quality import acquisition_planner as planner
 from polisyos.runtime.quality import acquisition_world_growth as owner
-from polisyos.runtime.quality.model_input_routing import materialize_registered_derived_model_inputs
+from polisyos.runtime.quality.model_input_requirements import SelectedProgramGraphInputBasis
+from polisyos.runtime.quality.model_input_routing import (
+    materialize_registered_derived_model_inputs,
+    plan_selected_model_input_routing,
+)
+from tests._helpers.acquisition_production import _resolver
 from tests._helpers.registered_derived_method_input import materialize_registered_method_input_case
 from tests._helpers.selected_method_input import prepare_selected_method_input_case
+from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority_model_input_discovery import (
+    _authority_entry,
+)
 from tests.unit.runtime.quality.test_n7_derivation_bundle import (
     _marker,
     _pending_source,
@@ -25,8 +38,10 @@ from tests.unit.runtime.quality.test_n7_derivation_bundle import (
 )
 
 
+@pytest.mark.parametrize("registered_bundle", [False, True], ids=("historical-v1", "registered-v2"))
 def test_native_n7_roles_reach_registered_batch_and_incomplete_inputs_stay_pending(
     tmp_path: Path,
+    registered_bundle: bool,
 ) -> None:
     """Opaque native names and registered roles travel through persisted owners."""
     case, metadata = prepare_selected_method_input_case(
@@ -39,6 +54,39 @@ def test_native_n7_roles_reach_registered_batch_and_incomplete_inputs_stay_pendi
         selected_set_ref = metadata["preflight"].obligation_set_ref
         budget, budget_ref = _profile(case.store)
         supplier = _marker(case.store, "selected-native-semantic-supplier")
+        selected_parents = {}
+        if registered_bundle:
+            invocation = metadata["preflight"].invocation
+            authority, _entry = _resolver(
+                tmp_path / "catalog-authority",
+                authority_entry=_authority_entry(
+                    obligation.port.semantic_definition_ref,
+                    obligation.port.representation_ref,
+                    suffix="registered-native-materialization",
+                ),
+            )
+            routing = plan_selected_model_input_routing(
+                case.store,
+                obligation_set_ref=selected_set_ref,
+                selected_basis=SelectedProgramGraphInputBasis(
+                    context=invocation.context,
+                    program_graph_ref=invocation.program_graph_ref,
+                    exec_plan_ref=invocation.exec_plan_ref,
+                    registry_bundle_ref=invocation.registry_bundle_ref,
+                    input_bindings_ref=invocation.input_bindings_ref,
+                    steps=invocation.steps,
+                    parameter_override_bundle_ref=invocation.parameter_override_bundle_ref,
+                ),
+                catalog_authority=authority,
+                report_version="2.0",
+            )
+            selected_parents = {
+                "schema_version": "policyos.runtime.n7_derivation_bundle.v2",
+                "registered_profile_ref": artifacts.ArtifactRef.model_validate(
+                    metadata["registered_profile_ref"].model_dump(mode="python")
+                ),
+                "model_input_routing_report_ref": routing.report_ref,
+            }
 
         def basis(value):
             return planner.N7DerivationBasis.model_validate(value.model_dump(mode="python"))
@@ -78,6 +126,7 @@ def test_native_n7_roles_reach_registered_batch_and_incomplete_inputs_stay_pendi
             ),
             root_node_id="selected-root",
             input_closure_status="partial",
+            **selected_parents,
         )
         bundle_ref = planner.persist_n7_derivation_bundle(case.store, bundle)
         original_bundle_bytes = case.store.get_bytes(bundle_ref)
@@ -128,6 +177,66 @@ def test_native_n7_roles_reach_registered_batch_and_incomplete_inputs_stay_pendi
         assert case.store.get_bytes(bundle_ref) == original_bundle_bytes
         assert complete.target_satisfaction_status == "unsatisfied"
         assert complete.semantic_admissibility == "not_established"
+        bindings = load_input_bindings(case.store, batch.input_bindings_ref)
+        assert bindings.selected_method_inputs is not None
+        (foundry_input,) = bindings.selected_method_inputs
+        assert foundry_input.canonical_value == Decimal("-6000000000")
+        assert "warning:n7_derivation_bundle_structure_only" in bindings.notes
+        if registered_bundle:
+            # Preserve the profile content ID, graph, roles, and wire schema
+            # while substituting an unselected manifest profile. Make the
+            # forged bundle internally agree with its own substituted edge.
+            selected_profile = metadata["registered_profile_ref"]
+            wrong_profile = selected_profile.model_copy(
+                update={"manifest_profile_sha256": "sha256:" + "1" * 64}
+            )
+            bundle_manifest = case.store.get_manifest(bundle_ref)
+            wrong_profile_edges = [
+                artifacts.input_ref_from_artifact_ref(wrong_profile, role=edge.role)
+                if edge.role == "selected_registered_semantic_profile"
+                else edge
+                for edge in bundle_manifest.inputs
+            ]
+            for patch, edges, reason in (
+                (
+                    {"registered_profile_ref": wrong_profile.model_dump(mode="json")},
+                    wrong_profile_edges,
+                    "foundry_input_bindings_composition_bundle_profile_mismatch",
+                ),
+                (
+                    {"authority_purpose": "measurement_admission"},
+                    bundle_manifest.inputs,
+                    "foundry_input_bindings_composition_bundle_authority_mismatch",
+                ),
+            ):
+                wrong_bundle = case.store.put_json(
+                    bundle.model_dump(mode="json") | patch,
+                    artifacts.PutOptions(
+                        kind=bundle_ref.kind,
+                        media_type=bundle_ref.media_type,
+                        schema=bundle_manifest.artifact_schema,
+                        producer=bundle_manifest.producer,
+                        canon=bundle_manifest.canon,
+                        inputs=edges,
+                    ),
+                    canon_spec=planner._n7_derivation_bundle_write_profile(bundle)[1],
+                    return_selected_profile=True,
+                )
+                assert case.store.verify(wrong_bundle).ok
+                wrong_bundle_selection = SelectedVariableBindingRef.model_validate(
+                    wrong_bundle.model_dump(mode="python")
+                )
+                with pytest.raises(ValueError, match=reason):
+                    materialize_registered_derived_model_inputs(
+                        case.store,
+                        base_data_snapshot_ref=case.data_snapshot_ref,
+                        obligation_set_ref=selected_set_ref,
+                        inputs=(
+                            request.model_copy(
+                                update={"derivation_bundle_ref": wrong_bundle_selection}
+                            ),
+                        ),
+                    )
 
         partial = complete.model_copy(
             update={

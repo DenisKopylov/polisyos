@@ -858,18 +858,19 @@ def _native_epoch_scenario_for_paid_attempt(
     bridge: Any,
     institution_store: Any,
     closure: Any,
+    retained_b_quarantine_retry: dict[str, Any] | None = None,
 ) -> Any:
-    """Snapshot exact paid refs and reopen their existing prepared epoch without issuance."""
+    """Reopen exact paid B inputs or a selected later deferral without issuance."""
     from types import SimpleNamespace
 
-    from polisyos.core import contracts
+    from polisyos.core import artifacts, contracts
     from polisyos.runtime.quality import semantic_epoch
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRoutePhaseReceipt
     from polisyos.runtime.quality.semantic_epoch_store import FileSemanticEpochHistoryRepository
 
     assert institution_store.root.resolve() == bridge.artifact_store.root.resolve()
     _ref, deferral, attempt = bridge._load_deferral(closure)
     state["paid_attempt"] = attempt
-    assert deferral.negative_receipt.failure_codes == ("policy_admission_missing",)
     outcome = bridge.action_head_sink.current_action_outcome(
         tenant_id=closure.tenant_id,
         cell_id=closure.cell_id,
@@ -879,17 +880,129 @@ def _native_epoch_scenario_for_paid_attempt(
     )
     assert outcome is not None
     assert outcome.latest_receipt.terminal_outcome == "quarantined_no_growth"
-    assert outcome.executing_phase_ref == attempt.action_phase_ref
+    paid_selection = closure.prior_paid_input_admission
+    if retained_b_quarantine_retry is None:
+        assert paid_selection is None
+        assert deferral.negative_receipt.failure_codes == ("policy_admission_missing",)
+        assert outcome.executing_phase_ref == attempt.action_phase_ref
+        original_job_id = outcome.head.job_id
+        paid_phase_ref = outcome.executing_phase_ref
+        paid_terminal_ref = outcome.head.receipt_ref
+        paid_negative_ref = deferral.negative_receipt.receipt_ref
+        prepared_ref = deferral.negative_receipt.prepared_epoch_ref
+    else:
+        if paid_selection is None:
+            raise ValueError("retained_native_retry_paid_purchase_missing")
+        retry = retained_b_quarantine_retry
+
+        def selected_ref(value: object, kind: str) -> ArtifactRef:
+            ref = ArtifactRef.model_validate(value)
+            manifest = institution_store.get_manifest(ref)
+            if (
+                ref.kind != kind
+                or ref.manifest_profile_sha256 is None
+                or artifact_ref_identity_key(artifacts.artifact_ref_for_manifest(manifest))
+                != artifact_ref_identity_key(ref)
+                or not institution_store.verify(ref).ok
+            ):
+                raise ValueError("retained_native_retry_selected_profile_invalid")
+            return ref
+
+        expected_deferral_ref = selected_ref(
+            retry["deferral_ref"],
+            "runtime_quality.acquisition_world_growth_deferral",
+        )
+        expected_negative_ref = selected_ref(
+            retry["negative_receipt_ref"],
+            "epoch.production_receipt",
+        )
+        expected_prepared_ref = selected_ref(
+            retry["prepared_epoch_ref"],
+            "epoch.prepared",
+        )
+        expected_admitted_ref = selected_ref(
+            retry["admitted_boundary_evidence_ref"],
+            "epoch.admitted_acquisition_boundary_evidence",
+        )
+        if (
+            _ref != str(expected_deferral_ref.artifact_id)
+            or deferral.attempt_ref != str(paid_selection.attempt_ref.artifact_id)
+            or deferral.action_phase_ref != outcome.executing_phase_ref
+            or outcome.head.job_id != retry["job_id"]
+            or outcome.head.action_generation != retry["action_generation"]
+            or outcome.head.head_generation != retry["head_generation"]
+            or outcome.executing_phase_ref != retry["head_chain_refs"][1]
+            or outcome.latest_receipt.predecessor_receipt_ref != retry["head_chain_refs"][2]
+            or deferral.negative_receipt.receipt_ref != expected_negative_ref
+            or deferral.negative_receipt.status != "not_established"
+            or deferral.negative_receipt.failure_codes != ("epoch_scope_unresolved",)
+            or deferral.negative_receipt.prepared_epoch_ref != expected_prepared_ref
+            or paid_selection.prepared_epoch_ref != expected_prepared_ref
+            or deferral.negative_receipt.admitted_boundary_evidence_ref != expected_admitted_ref
+            or attempt.action_phase_ref != str(paid_selection.executing_phase_ref.artifact_id)
+            or paid_selection.original_action_job_id != retry["prior_paid_job_id"]
+        ):
+            raise ValueError("retained_native_retry_deferral_binding_mismatch")
+        negative_mapping = contracts.epoch.load_verified_epoch_statement(
+            store=institution_store,
+            ref=expected_negative_ref,
+            expected_kind="epoch.production_receipt",
+            expected_media_type=expected_negative_ref.media_type,
+        )
+        if negative_mapping != deferral.negative_receipt.statement_projection():
+            raise ValueError("retained_native_retry_negative_receipt_readback_mismatch")
+        paid_negative_ref = selected_ref(
+            paid_selection.negative_receipt_ref, "epoch.production_receipt"
+        )
+        paid_negative_mapping = contracts.epoch.load_verified_epoch_statement(
+            store=institution_store,
+            ref=paid_negative_ref,
+            expected_kind="epoch.production_receipt",
+            expected_media_type=paid_negative_ref.media_type,
+        )
+        paid_negative = contracts.epoch.SemanticEpochProductionReceiptStatement.model_validate(
+            paid_negative_mapping
+        )
+        paid_ref_kinds = (
+            ("attempt_ref", "runtime_quality.acquisition_world_growth_attempt"),
+            ("executing_phase_ref", "runtime_quality.acquisition_route_phase_receipt"),
+            ("terminal_ref", "runtime_quality.acquisition_route_loop_receipt"),
+            ("deferral_ref", "runtime_quality.acquisition_world_growth_deferral"),
+            ("negative_receipt_ref", "epoch.production_receipt"),
+            ("prepared_epoch_ref", "epoch.prepared"),
+            ("owner_declared_profile_ref", "runtime.quality.native_derivation_leaf_cost_profile"),
+        )
+        for name, kind in paid_ref_kinds:
+            selected_ref(getattr(paid_selection, name), kind)
+        if (
+            paid_negative.prepared_epoch_ref != expected_prepared_ref
+            or paid_negative.admitted_boundary_evidence_ref != expected_admitted_ref
+        ):
+            raise ValueError("retained_native_retry_paid_provenance_changed")
+        original_job_id = paid_selection.original_action_job_id
+        paid_phase_ref = str(paid_selection.executing_phase_ref.artifact_id)
+        paid_terminal_ref = str(paid_selection.terminal_ref.artifact_id)
+        prepared_ref = expected_prepared_ref
+
     executing_head = bridge.control_store.get_acquisition_action_head_by_receipt(
         tenant_id=closure.tenant_id,
         cell_id=closure.cell_id,
         run_id=closure.run_id,
         source_job_id=closure.source_job_id,
         route_id=closure.route_id,
-        action_generation=outcome.head.action_generation,
-        receipt_ref=outcome.executing_phase_ref,
+        action_generation=(
+            outcome.head.action_generation
+            if retained_b_quarantine_retry is None
+            else AcquisitionRoutePhaseReceipt.model_validate(
+                artifacts.load_core_json_artifact(
+                    institution_store, paid_selection.executing_phase_ref
+                )
+            ).action_generation
+        ),
+        receipt_ref=paid_phase_ref,
     )
-    assert executing_head is not None
+    if executing_head is None:
+        raise ValueError("retained_native_paid_phase_head_missing")
     assert executing_head.receipt_manifest_profile_sha256 is not None
     assert outcome.head.receipt_manifest_profile_sha256 is not None
     pointer = bridge._growth_pointer(attempt.selection, create=False)
@@ -901,31 +1014,53 @@ def _native_epoch_scenario_for_paid_attempt(
         require_selected=True,
         expected_kind="runtime_quality.acquisition_world_growth_deferral",
     )
-    assert str(attempt_ref.artifact_id) == deferral.attempt_ref
-    assert str(deferral_ref.artifact_id) == _ref
-    # Snapshot the actual purchase's independent SQL selections and owner
-    # pointers before the new admission-selection producer can run.
-    state["paid_reference_snapshot"] = {
-        "original_action_job_id": outcome.head.job_id,
-        "attempt_ref": attempt_ref,
-        "executing_phase_ref": ArtifactRef(
-            artifact_id=outcome.executing_phase_ref,
-            kind="runtime_quality.acquisition_route_phase_receipt",
-            media_type="application/json",
-            manifest_profile_sha256=executing_head.receipt_manifest_profile_sha256,
-        ),
-        "terminal_ref": ArtifactRef(
-            artifact_id=outcome.head.receipt_ref,
-            kind="runtime_quality.acquisition_route_loop_receipt",
-            media_type="application/json",
-            manifest_profile_sha256=outcome.head.receipt_manifest_profile_sha256,
-        ),
-        "deferral_ref": deferral_ref,
-        "negative_receipt_ref": deferral.negative_receipt.receipt_ref,
-        "prepared_epoch_ref": deferral.negative_receipt.prepared_epoch_ref,
-        "owner_declared_profile_ref": closure.owner_declared_profile_ref,
-    }
-    prepared_ref = deferral.negative_receipt.prepared_epoch_ref
+    if retained_b_quarantine_retry is None:
+        assert str(attempt_ref.artifact_id) == deferral.attempt_ref
+        assert str(deferral_ref.artifact_id) == _ref
+        # Snapshot the actual purchase's independent SQL selections and owner
+        # pointers before the new admission-selection producer can run.
+        state["paid_reference_snapshot"] = {
+            "original_action_job_id": original_job_id,
+            "attempt_ref": attempt_ref,
+            "executing_phase_ref": ArtifactRef(
+                artifact_id=paid_phase_ref,
+                kind="runtime_quality.acquisition_route_phase_receipt",
+                media_type="application/json",
+                manifest_profile_sha256=executing_head.receipt_manifest_profile_sha256,
+            ),
+            "terminal_ref": ArtifactRef(
+                artifact_id=paid_terminal_ref,
+                kind="runtime_quality.acquisition_route_loop_receipt",
+                media_type="application/json",
+                manifest_profile_sha256=outcome.head.receipt_manifest_profile_sha256,
+            ),
+            "deferral_ref": deferral_ref,
+            "negative_receipt_ref": paid_negative_ref,
+            "prepared_epoch_ref": prepared_ref,
+            "owner_declared_profile_ref": closure.owner_declared_profile_ref,
+        }
+    else:
+        if str(attempt_ref.artifact_id) != str(
+            paid_selection.attempt_ref.artifact_id
+        ) or artifact_ref_identity_key(deferral_ref) != artifact_ref_identity_key(
+            ArtifactRef.model_validate(retained_b_quarantine_retry["deferral_ref"])
+        ):
+            raise ValueError("retained_native_retry_owner_pointer_changed")
+        state["paid_reference_snapshot"] = {
+            "original_action_job_id": paid_selection.original_action_job_id,
+            **{
+                name: getattr(paid_selection, name)
+                for name in (
+                    "attempt_ref",
+                    "executing_phase_ref",
+                    "terminal_ref",
+                    "deferral_ref",
+                    "negative_receipt_ref",
+                    "prepared_epoch_ref",
+                    "owner_declared_profile_ref",
+                )
+            },
+        }
     statement = contracts.epoch.load_verified_epoch_statement(
         store=bridge.artifact_store, ref=prepared_ref, expected_kind="epoch.prepared"
     )
@@ -956,6 +1091,7 @@ def _appoint_exact_native_epoch_policy(
     institution_store: Any,
     closure: Any,
     root: Path,
+    retained_b_quarantine_retry: dict[str, Any] | None = None,
 ) -> None:
     """Supply independent test-root admission for the actual persisted prepared epoch."""
     from tests._helpers.semantic_epoch_native import sign_native_epoch_scenario
@@ -965,6 +1101,7 @@ def _appoint_exact_native_epoch_policy(
         bridge=bridge,
         institution_store=institution_store,
         closure=closure,
+        retained_b_quarantine_retry=retained_b_quarantine_retry,
     )
     appointments = state["appointments"]
     previous = appointments[-1] if appointments else None
@@ -1302,6 +1439,7 @@ def _run_signed_native_leaf_action(
     action_checkpoint_root: Path | None = None,
     runtime_exposure_via_http: bool = False,
     stop_before_execute: bool = False,
+    require_fresh_action: bool = False,
 ) -> dict[str, Any]:
     """Perform each real PA2/DS9 exchange and worker in fresh app instances."""
     from datetime import UTC, datetime, timedelta
@@ -1310,6 +1448,7 @@ def _run_signed_native_leaf_action(
 
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.http.services.acquisition_action_service import (
+        AcquisitionActionService,
         AcquisitionRouteMutationRequest,
     )
     from tests._helpers.acquisition_served_history import (
@@ -1378,6 +1517,16 @@ def _run_signed_native_leaf_action(
                 closure = action_service._route_loop(
                     tenant_id=served.claims.tenant_id, cell_id=served.claims.cell_id
                 ).resolve_current_route(run_id=served.control_run_id, route_id=route_id)
+            expected_job_id = AcquisitionActionService._job_id(closure, request)
+            if require_fresh_action and (
+                retained_mandate is not None
+                or control._control_store.get_job(expected_job_id) is not None
+                or (
+                    human_decision_submission_root is not None
+                    and (human_decision_submission_root / f"{expected_job_id}.json").exists()
+                )
+            ):
+                raise ValueError("retained_native_retry_fresh_action_replayed")
             refused, resource_digest = trust.post(
                 client,
                 route_path + "/decision-request",
@@ -1387,11 +1536,6 @@ def _run_signed_native_leaf_action(
             assert refused.status_code == 200, refused.text
             if retained_mandate is None:
                 if human_decision_submission_root is not None:
-                    from polisyos.runtime.http.services.acquisition_action_service import (
-                        AcquisitionActionService,
-                    )
-
-                    expected_job_id = AcquisitionActionService._job_id(closure, request)
                     if (human_decision_submission_root / f"{expected_job_id}.json").exists():
                         raise ValueError(
                             "saved_human_decision_requires_existing_mandate_checkpoint"
@@ -1406,11 +1550,7 @@ def _run_signed_native_leaf_action(
                     identities=identities,
                 )
             else:
-                from polisyos.runtime.http.services.acquisition_action_service import (
-                    AcquisitionActionService,
-                )
-
-                job_id = AcquisitionActionService._job_id(closure, request)
+                job_id = expected_job_id
                 assert job_id == retained_mandate.action_job_id
                 assert slot["resource_digest"] == resource_digest
                 assert (slot["tenant_id"], slot["cell_id"], slot["run_id"], slot["route_id"]) == (
@@ -3014,16 +3154,17 @@ def assert_retained_native_second_leaf_completion(
     purchase_idempotency_key: str,
     admission_idempotency_key: str,
     retained_b_purchase: dict[str, Any] | None = None,
+    retained_b_quarantine_retry: dict[str, Any] | None = None,
     authority_valid_for_seconds: int = 3600,
 ) -> dict[str, Any]:
     """Acquire or resume one retained leaf, then consume both inputs.
 
     Exact existing A purchase/collection/profile selectors are server fixture
-    inputs. An optional exact retained B purchase selector resumes its current
-    terminal without repeating provider transport. Neither path renews A's
-    quote, mandate or HumanDecision. The caller supplies controlled transport
-    at the actual HTTP boundary and a real N5 entry observer; it must not
-    replace provider, model or numerical owners.
+    inputs. An optional retained B purchase selector can resume its original
+    terminal or an exact later quarantine while preserving generation-1 paid
+    provenance. Neither path repeats provider transport. The caller supplies
+    controlled transport at the actual HTTP boundary and a real N5 entry
+    observer; it must not replace provider, model or numerical owners.
     """
     import json
     from decimal import Decimal
@@ -3041,6 +3182,7 @@ def assert_retained_native_second_leaf_completion(
     from polisyos.runtime.http.services import acquisition_surface_execution as surface_owner
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionRouteLoopReceipt,
+        NativePaidInputAdmissionSelection,
         VerifiedAcquisitionRouteClosure,
     )
     from polisyos.runtime.quality.acquisition_world_growth import (
@@ -3158,6 +3300,8 @@ def assert_retained_native_second_leaf_completion(
             }
             if retained_b_purchase is not None:
                 selection_record["retained_b_purchase"] = retained_b_purchase
+            if retained_b_quarantine_retry is not None:
+                selection_record["retained_b_quarantine_retry"] = retained_b_quarantine_retry
             config_path.write_text(json.dumps(selection_record, sort_keys=True) + "\n")
             policy_config = load_retained_native_epoch_policy(case, epoch_policy_selection)
             from types import SimpleNamespace
@@ -3201,6 +3345,8 @@ def assert_retained_native_second_leaf_completion(
         a_journal = Path(case.attempt.evidence.request_ref.journal_path)
         a_journal_before = a_journal.read_bytes()
         retained_purchase = None
+        retained_retry_heads_before: tuple[Any, ...] = ()
+        retained_retry_paid_head_before: Any | None = None
         with TestClient(case.app_factory()) as client:
             control = client.app.state.runtime_container.control_service
             stop_embedded_control_worker(control)
@@ -3246,41 +3392,186 @@ def assert_retained_native_second_leaf_completion(
                     )
                     if outcome is None:
                         raise ValueError("retained_native_b_purchase_head_missing")
-                    head = outcome.head
-                    if (
-                        head.job_id != expected_job_id
-                        or head.route_id != expected_route_id
-                        or head.action_generation != retained_b_purchase["action_generation"]
-                        or head.head_generation != retained_b_purchase["head_generation"]
-                        or head.receipt_phase != "terminal"
-                        or head.recovery_state != "complete"
-                        or head.receipt_manifest_profile_sha256
-                        != expected_b_terminal_ref.manifest_profile_sha256
-                        or str(head.receipt_ref) != str(expected_b_terminal_ref.artifact_id)
-                        or outcome.latest_receipt != expected_b_terminal
-                        or outcome.latest_receipt.terminal_outcome != "quarantined_no_growth"
-                        or outcome.latest_receipt.route_id != expected_route_id
-                        or outcome.latest_receipt.source_job_id != case.job_id
-                        or outcome.latest_receipt.job_id != expected_job_id
-                        or outcome.latest_receipt.action_generation != head.action_generation
-                        or (
-                            outcome.latest_receipt.tenant_id,
-                            outcome.latest_receipt.cell_id,
-                            outcome.latest_receipt.run_id,
+                    if retained_b_quarantine_retry is None:
+                        head = outcome.head
+                        if (
+                            head.job_id != expected_job_id
+                            or head.route_id != expected_route_id
+                            or head.action_generation != retained_b_purchase["action_generation"]
+                            or head.head_generation != retained_b_purchase["head_generation"]
+                            or head.receipt_phase != "terminal"
+                            or head.recovery_state != "complete"
+                            or head.receipt_manifest_profile_sha256
+                            != expected_b_terminal_ref.manifest_profile_sha256
+                            or str(head.receipt_ref) != str(expected_b_terminal_ref.artifact_id)
+                            or outcome.latest_receipt != expected_b_terminal
+                            or outcome.latest_receipt.terminal_outcome != "quarantined_no_growth"
+                            or outcome.latest_receipt.route_id != expected_route_id
+                            or outcome.latest_receipt.source_job_id != case.job_id
+                            or outcome.latest_receipt.job_id != expected_job_id
+                            or outcome.latest_receipt.action_generation != head.action_generation
+                            or (
+                                outcome.latest_receipt.tenant_id,
+                                outcome.latest_receipt.cell_id,
+                                outcome.latest_receipt.run_id,
+                            )
+                            != (claims.tenant_id, claims.cell_id, case.control_run_id)
+                            or outcome.latest_receipt.owner_declared_profile_ref
+                            != selected_b_profile_ref
+                            or outcome.executing_phase is None
+                            or outcome.executing_phase.owner_declared_profile_ref
+                            != selected_b_profile_ref
+                        ):
+                            raise ValueError("retained_native_b_purchase_head_binding_mismatch")
+                        leaf = route_loop.resolve_current_route(
+                            run_id=case.control_run_id,
+                            route_id=expected_route_id,
+                            action_job_id=expected_job_id,
                         )
-                        != (claims.tenant_id, claims.cell_id, case.control_run_id)
-                        or outcome.latest_receipt.owner_declared_profile_ref
-                        != selected_b_profile_ref
-                        or outcome.executing_phase is None
-                        or outcome.executing_phase.owner_declared_profile_ref
-                        != selected_b_profile_ref
-                    ):
-                        raise ValueError("retained_native_b_purchase_head_binding_mismatch")
-                    leaf = route_loop.resolve_current_route(
-                        run_id=case.control_run_id,
-                        route_id=expected_route_id,
-                        action_job_id=expected_job_id,
-                    )
+                    else:
+                        retry = retained_b_quarantine_retry
+                        if (
+                            retained_b_purchase["action_generation"] != 1
+                            or retained_b_purchase["head_generation"] != 4
+                            or retry["prior_paid_job_id"] != expected_job_id
+                        ):
+                            raise ValueError("retained_native_retry_not_generation_one_purchase")
+                        original_head = control._control_store.get_acquisition_action_head(
+                            tenant_id=claims.tenant_id,
+                            cell_id=claims.cell_id,
+                            run_id=case.control_run_id,
+                            source_job_id=case.job_id,
+                            route_id=expected_route_id,
+                            action_generation=1,
+                        )
+                        if (
+                            original_head is None
+                            or original_head.job_id != expected_job_id
+                            or original_head.head_generation
+                            != retained_b_purchase["head_generation"]
+                            or original_head.receipt_phase != "terminal"
+                            or original_head.recovery_state != "complete"
+                            or original_head.receipt_ref != str(expected_b_terminal_ref.artifact_id)
+                            or original_head.receipt_manifest_profile_sha256
+                            != expected_b_terminal_ref.manifest_profile_sha256
+                        ):
+                            raise ValueError("retained_native_retry_paid_terminal_head_mismatch")
+                        retained_retry_paid_head_before = original_head
+                        selected_retry_terminal = _selected_retained_ref(
+                            case.store,
+                            ArtifactRef.model_validate(retry["terminal_ref"]),
+                            "runtime_quality.acquisition_route_loop_receipt",
+                        )
+                        retry_terminal = AcquisitionRouteLoopReceipt.model_validate(
+                            artifacts.load_core_json_artifact(case.store, selected_retry_terminal)
+                        )
+                        retry_head = outcome.head
+                        retry_job = control._control_store.get_job(retry["job_id"])
+                        if (
+                            retry_job is None
+                            or retry_job.kind != "acquisition"
+                            or retry_job.run_id != case.control_run_id
+                            or retry_job.state != "completed"
+                            or retry_head.job_id != retry["job_id"]
+                            or retry_head.route_id != expected_route_id
+                            or retry_head.action_generation != retry["action_generation"]
+                            or retry_head.head_generation != retry["head_generation"]
+                            or retry_head.receipt_phase != "terminal"
+                            or retry_head.recovery_state != "complete"
+                            or retry_head.receipt_ref != str(selected_retry_terminal.artifact_id)
+                            or retry_head.receipt_manifest_profile_sha256
+                            != selected_retry_terminal.manifest_profile_sha256
+                            or outcome.latest_receipt != retry_terminal
+                            or retry_terminal.terminal_outcome != "quarantined_no_growth"
+                            or retry_terminal.job_id != retry["job_id"]
+                            or retry_terminal.route_id != expected_route_id
+                            or retry_terminal.action_generation != retry["action_generation"]
+                            or retry_terminal.predecessor_receipt_ref != retry["head_chain_refs"][2]
+                            or retry_terminal.owner_declared_profile_ref != selected_b_profile_ref
+                            or retry_head.source_job_id != case.job_id
+                            or (
+                                retry_terminal.tenant_id,
+                                retry_terminal.cell_id,
+                                retry_terminal.run_id,
+                            )
+                            != (claims.tenant_id, claims.cell_id, case.control_run_id)
+                        ):
+                            raise ValueError("retained_native_retry_latest_head_mismatch")
+                        expected_chain = tuple(retry["head_chain_refs"])
+                        expected_phases = ("requested", "executing", "outcome_selected", "terminal")
+                        chain_heads_before = []
+                        for index, receipt_ref in enumerate(expected_chain, start=1):
+                            chain_head = (
+                                control._control_store.get_acquisition_action_head_by_receipt(
+                                    tenant_id=claims.tenant_id,
+                                    cell_id=claims.cell_id,
+                                    run_id=case.control_run_id,
+                                    source_job_id=case.job_id,
+                                    route_id=expected_route_id,
+                                    action_generation=retry["action_generation"],
+                                    receipt_ref=receipt_ref,
+                                )
+                            )
+                            if (
+                                chain_head is None
+                                or chain_head.job_id != retry["job_id"]
+                                or chain_head.head_generation != index
+                                or chain_head.receipt_phase != expected_phases[index - 1]
+                                or chain_head.receipt_ref != receipt_ref
+                                or chain_head.receipt_sha256 != receipt_ref
+                                or chain_head.predecessor_receipt_ref
+                                != (expected_chain[index - 2] if index > 1 else None)
+                            ):
+                                raise ValueError("retained_native_retry_head_chain_mismatch")
+                            chain_heads_before.append(chain_head)
+                        retained_retry_heads_before = tuple(chain_heads_before)
+                        action_heads = control._control_store.list_acquisition_action_heads(
+                            tenant_id=claims.tenant_id,
+                            cell_id=claims.cell_id,
+                            run_id=case.control_run_id,
+                            source_job_id=case.job_id,
+                            route_id=expected_route_id,
+                        )
+                        if tuple(
+                            (row.action_generation, row.job_id, row.receipt_ref)
+                            for row in action_heads
+                        ) != (
+                            (1, expected_job_id, str(expected_b_terminal_ref.artifact_id)),
+                            (
+                                retry["action_generation"],
+                                retry["job_id"],
+                                str(selected_retry_terminal.artifact_id),
+                            ),
+                        ):
+                            raise ValueError("retained_native_retry_unexpected_action_history")
+                        leaf = route_loop.resolve_current_route(
+                            run_id=case.control_run_id,
+                            route_id=expected_route_id,
+                            action_job_id=retry["job_id"],
+                        )
+                        selected_prior = NativePaidInputAdmissionSelection.model_validate(
+                            retry["prior_paid_input_admission"]
+                        )
+                        if (
+                            type(leaf) is not VerifiedAcquisitionRouteClosure
+                            or leaf.prior_paid_input_admission != selected_prior
+                            or leaf.prior_paid_input_admission.original_action_job_id
+                            != expected_job_id
+                            or leaf.owner_declared_profile_ref != selected_b_profile_ref
+                            or leaf.route_id != expected_route_id
+                        ):
+                            raise ValueError(
+                                "retained_native_retry_current_route_paid_binding_mismatch"
+                            )
+                        head = retry_head
+                        expected_b_terminal_ref = _selected_retained_ref(
+                            case.store,
+                            ArtifactRef.model_validate(retained_b_purchase["terminal_ref"]),
+                            "runtime_quality.acquisition_route_loop_receipt",
+                        )
+                        expected_b_terminal = AcquisitionRouteLoopReceipt.model_validate(
+                            artifacts.load_core_json_artifact(case.store, expected_b_terminal_ref)
+                        )
                     if type(leaf) is not VerifiedAcquisitionRouteClosure:
                         raise ValueError("retained_native_b_current_route_unverified")
                     reconciled_outcome = control.acquisition_route_sink.current_action_outcome(
@@ -3293,7 +3584,12 @@ def assert_retained_native_second_leaf_completion(
                     if (
                         reconciled_outcome is None
                         or reconciled_outcome.head != head
-                        or reconciled_outcome.latest_receipt != expected_b_terminal
+                        or reconciled_outcome.latest_receipt
+                        != (
+                            retry_terminal
+                            if retained_b_quarantine_retry is not None
+                            else expected_b_terminal
+                        )
                         or leaf.route_id != expected_route_id
                         or leaf.owner_declared_profile_ref != selected_b_profile_ref
                         or leaf.native_derivation_leaf_scope is None
@@ -3304,7 +3600,11 @@ def assert_retained_native_second_leaf_completion(
                     retained_purchase = {
                         "job_id": head.job_id,
                         "head": head,
-                        "terminal": outcome.latest_receipt,
+                        "terminal": (
+                            retry_terminal
+                            if retained_b_quarantine_retry is not None
+                            else outcome.latest_receipt
+                        ),
                         "closure": leaf,
                     }
         # A distinct B route uses the existing fixture's same declared scope
@@ -3354,6 +3654,7 @@ def assert_retained_native_second_leaf_completion(
                 institution_store=case.store,
                 closure=purchase["closure"],
                 root=output_root / "new-b-epoch-institution",
+                retained_b_quarantine_retry=retained_b_quarantine_retry,
             )
         b_attempt = state["paid_attempt"]
         b_trace = resolve_live_transport_trace(b_attempt.evidence.raw_evidence_ref)
@@ -3367,23 +3668,37 @@ def assert_retained_native_second_leaf_completion(
             identities=demo.identities,
             institution_key_root=base / "trust",
             route_id=leaf.route_id,
-            idempotency_key=admission_idempotency_key,
+            idempotency_key=(
+                retained_b_quarantine_retry["fresh_idempotency_key"]
+                if retained_b_quarantine_retry is not None
+                else admission_idempotency_key
+            ),
             authority_valid_for_seconds=authority_valid_for_seconds,
             human_decision_submission_root=output_root / "human-decision-submissions",
             action_checkpoint_root=output_root / "action-checkpoints",
             runtime_exposure_via_http=True,
+            require_fresh_action=retained_b_quarantine_retry is not None,
         )
         if retained_b_purchase is not None:
             paid = completed["closure"].prior_paid_input_admission
             assert paid is not None
-            assert paid.original_action_job_id == purchase["job_id"]
+            assert paid.original_action_job_id == retained_b_purchase["job_id"]
             assert artifact_ref_identity_key(paid.terminal_ref) == artifact_ref_identity_key(
                 expected_b_terminal_ref
             )
+            if retained_b_quarantine_retry is not None:
+                assert paid == NativePaidInputAdmissionSelection.model_validate(
+                    retained_b_quarantine_retry["prior_paid_input_admission"]
+                )
         terminal = completed["terminal"]
         assert terminal.terminal_outcome == "reentry_completed"
         assert terminal.reentry_receipt_ref is not None
         assert completed["job_id"] != purchase["job_id"]
+        if retained_b_quarantine_retry is not None:
+            assert completed["job_id"] != retained_b_quarantine_retry["job_id"]
+            assert completed["head"].action_generation == (
+                retained_b_quarantine_retry["action_generation"] + 1
+            )
         assert tuple(transport_calls) == after_purchase_calls
         assert semantic_kernel_entry_count() - before_kernels == 1
         n4_receipts = {
@@ -3577,6 +3892,59 @@ def assert_retained_native_second_leaf_completion(
                 )
             assert exact_outcome is not None and exact_outcome.head == completed["head"]
             assert exact_outcome.latest_receipt == terminal
+            if retained_b_quarantine_retry is not None:
+                final_action_heads = control._control_store.list_acquisition_action_heads(
+                    tenant_id=claims.tenant_id,
+                    cell_id=claims.cell_id,
+                    run_id=case.control_run_id,
+                    source_job_id=case.job_id,
+                    route_id=leaf.route_id,
+                )
+                expected_prior_heads = (
+                    (
+                        1,
+                        retained_b_purchase["job_id"],
+                        str(expected_b_terminal_ref.artifact_id),
+                    ),
+                    (
+                        retained_b_quarantine_retry["action_generation"],
+                        retained_b_quarantine_retry["job_id"],
+                        str(
+                            ArtifactRef.model_validate(
+                                retained_b_quarantine_retry["terminal_ref"]
+                            ).artifact_id
+                        ),
+                    ),
+                )
+                if tuple(
+                    (row.action_generation, row.job_id, row.receipt_ref)
+                    for row in final_action_heads
+                ) != (
+                    *expected_prior_heads,
+                    (
+                        completed["head"].action_generation,
+                        completed["job_id"],
+                        completed["head"].receipt_ref,
+                    ),
+                ):
+                    raise ValueError("retained_native_retry_generation_append_mismatch")
+                if retained_retry_paid_head_before is None or any(
+                    control._control_store.get_acquisition_action_head_by_receipt(
+                        tenant_id=claims.tenant_id,
+                        cell_id=claims.cell_id,
+                        run_id=case.control_run_id,
+                        source_job_id=case.job_id,
+                        route_id=leaf.route_id,
+                        action_generation=head.action_generation,
+                        receipt_ref=head.receipt_ref,
+                    )
+                    != head
+                    for head in (
+                        retained_retry_paid_head_before,
+                        *retained_retry_heads_before,
+                    )
+                ):
+                    raise ValueError("retained_native_retry_historical_heads_changed")
             detail_again = client.get(
                 f"/api/v1/runs/{case.core_run_id}",
                 headers={
@@ -3610,6 +3978,14 @@ def assert_retained_native_second_leaf_completion(
         assert resolve_live_transport_trace(b_attempt.evidence.raw_evidence_ref) == b_trace
         return {
             "purchase_job_id": purchase["job_id"],
+            "prior_paid_purchase_job_id": (
+                retained_b_purchase["job_id"] if retained_b_purchase is not None else None
+            ),
+            "quarantine_retry_job_id": (
+                retained_b_quarantine_retry["job_id"]
+                if retained_b_quarantine_retry is not None
+                else None
+            ),
             "admission_job_id": completed["job_id"],
             "reentry_receipt_ref": terminal.reentry_receipt_ref,
             "native_input_collection_ref": rows[0]["native_input_collection_ref"],
@@ -3638,6 +4014,7 @@ def test_retained_native_second_leaf_completes_and_restart_reuses_result(
     import json
     import os
 
+    from polisyos.runtime.quality.acquisition_route_loop import NativePaidInputAdmissionSelection
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationHorizonController,
     )
@@ -3666,6 +4043,7 @@ def test_retained_native_second_leaf_completes_and_restart_reuses_result(
         "admission_idempotency_key",
     }
     retained_b_purchase = selected.get("retained_b_purchase")
+    retained_b_quarantine_retry = selected.get("retained_b_quarantine_retry")
     expected_retained_b_purchase = {
         "job_id",
         "route_id",
@@ -3674,11 +4052,28 @@ def test_retained_native_second_leaf_completes_and_restart_reuses_result(
         "terminal_ref",
         "owner_declared_profile_ref",
     }
-    if retained_b_purchase is None:
+    expected_retained_b_quarantine_retry = {
+        "job_id",
+        "action_generation",
+        "head_generation",
+        "terminal_ref",
+        "head_chain_refs",
+        "prior_paid_job_id",
+        "prior_paid_input_admission",
+        "deferral_ref",
+        "negative_receipt_ref",
+        "prepared_epoch_ref",
+        "admitted_boundary_evidence_ref",
+        "fresh_idempotency_key",
+    }
+    if retained_b_purchase is None and retained_b_quarantine_retry is None:
         if set(selected) != expected:
             raise ValueError("retained_native_second_leaf_selector_fields_invalid")
-    elif (
-        set(selected) != expected | {"retained_b_purchase"}
+    elif retained_b_purchase is None or (
+        set(selected)
+        != expected
+        | {"retained_b_purchase"}
+        | ({"retained_b_quarantine_retry"} if retained_b_quarantine_retry is not None else set())
         or type(retained_b_purchase) is not dict
         or set(retained_b_purchase) != expected_retained_b_purchase
         or type(retained_b_purchase["job_id"]) is not str
@@ -3703,6 +4098,57 @@ def test_retained_native_second_leaf_completes_and_restart_reuses_result(
             or retained_b_profile.manifest_profile_sha256 is None
         ):
             raise ValueError("retained_native_second_leaf_purchase_selector_unselected")
+    if retained_b_quarantine_retry is not None:
+        if (
+            type(retained_b_quarantine_retry) is not dict
+            or set(retained_b_quarantine_retry) != expected_retained_b_quarantine_retry
+            or type(retained_b_quarantine_retry["job_id"]) is not str
+            or type(retained_b_quarantine_retry["action_generation"]) is not int
+            or type(retained_b_quarantine_retry["head_generation"]) is not int
+            or retained_b_quarantine_retry["action_generation"] != 2
+            or retained_b_quarantine_retry["head_generation"] != 4
+            or type(retained_b_quarantine_retry["head_chain_refs"]) is not list
+            or len(retained_b_quarantine_retry["head_chain_refs"]) != 4
+            or any(type(ref) is not str for ref in retained_b_quarantine_retry["head_chain_refs"])
+            or type(retained_b_quarantine_retry["prior_paid_job_id"]) is not str
+            or type(retained_b_quarantine_retry["fresh_idempotency_key"]) is not str
+            or not retained_b_quarantine_retry["fresh_idempotency_key"].strip()
+            or retained_b_quarantine_retry["fresh_idempotency_key"]
+            in {selected["purchase_idempotency_key"], selected["admission_idempotency_key"]}
+        ):
+            raise ValueError("retained_native_second_leaf_retry_selector_invalid")
+        retry_terminal = ArtifactRef.model_validate(retained_b_quarantine_retry["terminal_ref"])
+        if (
+            retry_terminal.kind != "runtime_quality.acquisition_route_loop_receipt"
+            or retry_terminal.manifest_profile_sha256 is None
+        ):
+            raise ValueError("retained_native_second_leaf_retry_terminal_unselected")
+        retry_paid = NativePaidInputAdmissionSelection.model_validate(
+            retained_b_quarantine_retry["prior_paid_input_admission"]
+        )
+        if (
+            retry_paid.original_action_job_id != retained_b_quarantine_retry["prior_paid_job_id"]
+            or retry_paid.original_action_job_id != retained_b_purchase["job_id"]
+            or retained_b_quarantine_retry["job_id"] == retry_paid.original_action_job_id
+            or str(retry_paid.terminal_ref.artifact_id)
+            != str(ArtifactRef.model_validate(retained_b_purchase["terminal_ref"]).artifact_id)
+        ):
+            raise ValueError("retained_native_second_leaf_retry_paid_provenance_invalid")
+        retry_ref_kinds = {
+            "deferral_ref": "runtime_quality.acquisition_world_growth_deferral",
+            "negative_receipt_ref": "epoch.production_receipt",
+            "prepared_epoch_ref": "epoch.prepared",
+            "admitted_boundary_evidence_ref": "epoch.admitted_acquisition_boundary_evidence",
+        }
+        for name, kind in retry_ref_kinds.items():
+            ref = ArtifactRef.model_validate(retained_b_quarantine_retry[name])
+            if ref.kind != kind or ref.manifest_profile_sha256 is None:
+                raise ValueError("retained_native_second_leaf_retry_ref_unselected")
+        if any(
+            not ref.startswith("sha256:") or len(ref) != 71
+            for ref in retained_b_quarantine_retry["head_chain_refs"]
+        ):
+            raise ValueError("retained_native_second_leaf_retry_head_chain_invalid")
     provider_profile = CandidateWDIProfile(**selected["pending_provider_profile"])
 
     def response_factory(_method: str, url: str, params: Any) -> bytes:
@@ -3757,6 +4203,7 @@ def test_retained_native_second_leaf_completes_and_restart_reuses_result(
             purchase_idempotency_key=selected["purchase_idempotency_key"],
             admission_idempotency_key=selected["admission_idempotency_key"],
             retained_b_purchase=retained_b_purchase,
+            retained_b_quarantine_retry=retained_b_quarantine_retry,
         )
         (output / "result.json").write_text(json.dumps(result, sort_keys=True) + "\n")
     finally:

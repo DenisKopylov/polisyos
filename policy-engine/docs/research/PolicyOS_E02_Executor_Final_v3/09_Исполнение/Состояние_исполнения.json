@@ -9548,6 +9548,7 @@
           "retained_projection": "sha256:7e32cf89e1250c058fff248fb27e32d4b5d15370e82bfcd3711f0390d5c4c98e / sha256:7df26cd276b2e72f6e2e8ca1174222ee9978a572dc07326d039c5fd7f10a8607",
           "retained_elapsed_seconds": 13.413,
           "retained_peak_rss_bytes": 1454948352,
+          "retained_b_activation": "PASS on b0f644ee12b76cafe15b1592e2c220c6c141620d. The production owner activates the exact R24d prepared epoch from the saved paid B attempt in an isolated clone. Fresh guarded read reconciles one admitted observation; original terminals stay unchanged. 23.209 s, 1,510,424,576 B sampled peak. Output actual-retained/b-activation-r3 under the same output root. New signed action, N4/N5 and restart are separate.",
           "tests": "32 PASS across chronology bridge, native qualification and epoch store; fresh-proof-preserving old manifest removal, profileless denominator recovery and unrelated revocation refusal. Ruff, independent review and static architecture pass.",
           "output": "Primary:policy-engine/_cache/e02/native-additive-composed-20261119/",
           "guarded_result_sha256": "f469355fa427a23f80761017e20287c58a15e0a5826f364e8db380f2956c818f",

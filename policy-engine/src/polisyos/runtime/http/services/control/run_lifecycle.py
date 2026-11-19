@@ -4374,8 +4374,8 @@ class AcquisitionRouteLoopAuthoritySink:
         self,
         phase: AcquisitionCandidateExperimentPhaseReceipt,
         request: object,
-    ) -> VerifiedCandidateExperimentOrigin | None:
-        """Verify prejob PA2/DS9 and return the checked origin for an execution action."""
+    ) -> tuple[VerifiedCandidateExperimentOrigin, AcquisitionActionService] | None:
+        """Verify prejob PA2/DS9 and return the checked origin and its owner."""
         from polisyos.runtime.quality.candidate_experiment_reuse import (
             CandidateExperimentReuseActionSelection,
         )
@@ -4509,7 +4509,7 @@ class AcquisitionRouteLoopAuthoritySink:
             or str(persisted.write_result.cas_ref.artifact_id) != decision_ref
         ):
             raise ValueError("candidate_experiment_live_authority_not_established")
-        return current_origin
+        return current_origin, action_service
 
     def _verify_candidate_experiment_reuse_prejob_live_authority(
         self,
@@ -6920,17 +6920,18 @@ class AcquisitionRouteLoopAuthoritySink:
         ):
             raise ValueError("candidate_experiment_terminal_frontier_is_owner_derived")
         verified_pending_origin = None
+        pending_origin_owner = None
         if (
             type(typed) is AcquisitionCandidateExperimentPhaseReceipt
             and candidate_experiment_request is None
         ):
             self._verify_candidate_experiment_live_authority(typed)
         elif type(typed) is AcquisitionCandidateExperimentPhaseReceipt:
-            origin = self._verify_candidate_experiment_prejob_live_authority(
+            checked = self._verify_candidate_experiment_prejob_live_authority(
                 typed, candidate_experiment_request
             )
-            if pending_authorization_cas is not None:
-                verified_pending_origin = origin
+            if pending_authorization_cas is not None and checked is not None:
+                verified_pending_origin, pending_origin_owner = checked
         current = self.get_head(typed)
         if (
             verified_pending_origin is not None
@@ -7305,7 +7306,19 @@ class AcquisitionRouteLoopAuthoritySink:
             != selected_action_ref.manifest_profile_sha256
         ):
             raise RuntimeError("acquisition_action_receipt_profile_readback_failed")
-        verified = self.verify_action_head(head)
+        if verified_pending_origin is not None and pending_origin_owner is not None:
+            # This transaction changed the pending head. Reopen the configured
+            # source and exact head set without unfolding verified terminal history.
+            readback_origin = pending_origin_owner._revalidate_candidate_experiment_execute_origin(
+                origin=replace(verified_pending_origin, current_action_head=None),
+                request=cast(
+                    "CandidateExperimentRouteMutationRequest", candidate_experiment_request
+                ),
+                expected_head=head,
+            )
+            verified = self._verify_action_head_with_origin(head, verified_origin=readback_origin)
+        else:
+            verified = self.verify_action_head(head)
         if isinstance(typed, AcquisitionCandidateRouteLoopReceipt):
             readback_matches = _candidate_model_values_same(verified.latest_receipt, typed)
         else:

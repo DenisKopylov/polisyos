@@ -7,6 +7,7 @@ external approval was issued or remains current, and never invoke N5.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
 from types import SimpleNamespace
@@ -233,7 +234,10 @@ def test_prejob_authority_reuses_one_origin_and_bound_source_rows(
     action_service._candidate_experiment_action_tuple = lambda *_: (object(), object(), object())
 
     try:
-        assert sink._verify_candidate_experiment_prejob_live_authority(phase, request) is origin
+        assert sink._verify_candidate_experiment_prejob_live_authority(phase, request) == (
+            origin,
+            action_service,
+        )
         assert order == [
             "source_job",
             "source_event",
@@ -315,18 +319,29 @@ def test_pending_refresh_persists_new_authority_without_replacing_job_or_root(
         planner_record=None,
         current_action_head=initial if head_current else None,
     )
+    request = object()
+    readback_origins = []
+
+    def reopen_origin(*, origin, request: object, expected_head):
+        assert origin.current_action_head is None
+        assert expected_head == sink.get_head(refreshed)
+        checked = replace(origin, current_action_head=expected_head)
+        readback_origins.append((request, checked))
+        return checked
+
+    owner = SimpleNamespace(_revalidate_candidate_experiment_execute_origin=reopen_origin)
     monkeypatch.setattr(
         AcquisitionRouteLoopAuthoritySink,
         "_verify_candidate_experiment_prejob_live_authority",
-        lambda *_args: origin,
+        lambda *_args: (origin, owner),
     )
     verify = AcquisitionRouteLoopAuthoritySink._verify_action_head_with_origin
-    predecessor_origins = []
+    phase_origins = []
 
-    def record_origin(owner, head, **kwargs):
-        if owner is sink and head == initial:
-            predecessor_origins.append(kwargs.get("verified_origin"))
-        return verify(owner, head, **kwargs)
+    def record_origin(phase_owner, head, **kwargs):
+        if phase_owner is sink:
+            phase_origins.append((head, kwargs.get("verified_origin")))
+        return verify(phase_owner, head, **kwargs)
 
     monkeypatch.setattr(
         AcquisitionRouteLoopAuthoritySink, "_verify_action_head_with_origin", record_origin
@@ -337,13 +352,16 @@ def test_pending_refresh_persists_new_authority_without_replacing_job_or_root(
             with pytest.raises(
                 ValueError, match="candidate_experiment_refresh_pending_head_changed"
             ):
-                sink.refresh_experiment_authorization(refreshed, object(), expected_job=job)
+                sink.refresh_experiment_authorization(refreshed, request, expected_job=job)
             assert sink.get_head(requested) == initial
             assert database.get_job(job.job_id) == job
-            assert predecessor_origins == []
+            assert phase_origins == []
+            assert readback_origins == []
             return
-        head = sink.refresh_experiment_authorization(refreshed, object(), expected_job=job)
-        assert predecessor_origins == [origin]
+        head = sink.refresh_experiment_authorization(refreshed, request, expected_job=job)
+        expected_origin = replace(origin, current_action_head=head)
+        assert readback_origins == [(request, expected_origin)]
+        assert phase_origins == [(initial, origin), (head, expected_origin)]
         assert head.head_generation == 2
         assert head.job_id == job.job_id
         assert head.action_generation == initial.action_generation

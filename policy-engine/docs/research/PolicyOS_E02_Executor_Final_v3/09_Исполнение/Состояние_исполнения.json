@@ -9514,6 +9514,32 @@
           "output": "Primary:policy-engine/_cache/e02/lane01-composed-temporal-foundry-20261119/",
           "supervisor_sha256": "4331b21ce16b00c325b60357d619fa807da534da0a6366089b30964dd34d9615"
         },
+        "retained_c_r12": {
+          "source": [
+            "2282b5a807d93d4350827964ebba058149a7a48c",
+            "6ff0d4aaeb8cf5262ae7bb972fabff56e0892e99"
+          ],
+          "result": "Exact job reclaimed at attempt 2. Durable Catalog registry binding mismatch before N5; selected input, frontier 3 and original four standard units unchanged.",
+          "catalog_positive": "Original R16 location passes canonical check against B3 registry sha256:59a0a94576f19ff7cc9494c8eee71eaa0f3e26bfa75f16b5458f6b72d4535366. R12 same-byte clone refuses due to different absolute source identity.",
+          "r13": "Original R16 Catalog opened read-only, CAS/SQLite cloned from the exact R11 source. Runtime completion in progress.",
+          "elapsed_seconds": 2078.912,
+          "peak_process_tree_rss_bytes": 2243903488,
+          "output": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r12-20261119/budget-r4/",
+          "supervisor_sha256": "892e32baedfd6a4844de63b41b564ae0033a0c8887b9adaf0f3b139e756c9271"
+        },
+        "native_r24d": {
+          "source": [
+            "45ef3f51923b9ef8cb795f37979fc0bd06a73423",
+            "02563d9492bb663b8e103ea8ad73d283fac5663e"
+          ],
+          "result": "Both signed decision requests succeed under the original time limit. Distinct generation-2 admission job completes attempt 1; the exact saved B purchase remains selected. Its finalization produces epoch_scope_unresolved, then terminal quarantine. Zero observed numerical-kernel entries.",
+          "terminal": "sha256:026569cf1d0df002fbb9f93d8a03941717f0314ddad0a468c09440e93b25095f",
+          "deferral": "sha256:c19748ff6268a2102c68418982af00d2ccf74a677e9b2a83c861202b14617f68",
+          "resources": "RESOURCE_ABORT / rss_cap_observed after the terminal was durable. 2,406.388 s and 5,804,933,120 bytes peak process-tree RSS against 5 GiB.",
+          "provider_profile": "Canonical locked-wheel providers using 62 local archives verified against uv.lock; no installation.",
+          "output": "Primary:policy-engine/_cache/e02/native-retained-second-leaf-r24d-20261119/",
+          "supervisor_sha256": "8bba94990ff9073ee6f2422e21848f0cb5fff90b88fb6c5621340c39a23b3ffc"
+        },
         "native_authority_byte_retry": {
           "r14_result": "HTTP 409 native_paid_input_history_not_verified; no new job, fetch or N5",
           "r14_timed_read": "authority get_bytes over 1.5 s; exact link to refusal unestablished",

@@ -6,6 +6,7 @@ import asyncio
 import contextvars
 import math
 import os
+import re
 import sqlite3
 import sys
 import threading
@@ -517,16 +518,28 @@ class GuardedDependencyProxy:
         return _run_guarded_dependency(self._guard, operation)
 
     def _run_registered_stock_scoped_read(
-        self, operation: str, reader: Callable[..., Any], selector: Any
+        self, operation: str, reader: Callable[..., Any], selector: Any, *args: Any, **kwargs: Any
     ) -> Any:
         """Retry one registered ambient CAS read after its exact guard timeout."""
         from polisyos.core.artifacts import ArtifactID, ArtifactRef, artifact_reference_parts
 
         def ordinary() -> Any:
-            return _run_guarded_dependency(self._guard, reader, selector)
+            return _run_guarded_dependency(self._guard, reader, selector, *args, **kwargs)
 
+        profile = args[0] if args else kwargs.get("manifest_profile_sha256")
         if (
             type(selector) not in (str, ArtifactID, ArtifactRef)
+            or (
+                operation == "get_manifest_by_profile"
+                and (type(selector) is ArtifactRef or profile is None)
+            )
+            or (
+                profile is not None
+                and (
+                    type(profile) is not str
+                    or re.fullmatch(r"sha256:[0-9a-f]{64}", profile) is None
+                )
+            )
             or getattr(self._guard._execution, "attempt", None) is not None
         ):
             return ordinary()
@@ -545,10 +558,12 @@ class GuardedDependencyProxy:
         ):
             return ordinary()
         try:
-            aid, _profile, ref = artifact_reference_parts(selector)
+            aid, selector_profile, ref = artifact_reference_parts(selector)
         except (TypeError, ValueError):
             return ordinary()
-        if type(aid) is not ArtifactID:
+        if type(aid) is not ArtifactID or (
+            profile is not None and selector_profile is not None and profile != selector_profile
+        ):
             return ordinary()
         if type(selector) is ArtifactRef and type(ref) is not ArtifactRef:
             return ordinary()
@@ -586,7 +601,11 @@ class GuardedDependencyProxy:
         def read() -> Any:
             selected_id, _selected_profile, selected_ref = artifact_reference_parts(snapshot)
             try:
-                return reader(str(selected_id) if return_text else selected_ref or selected_id)
+                return reader(
+                    str(selected_id) if return_text else selected_ref or selected_id,
+                    *args,
+                    **kwargs,
+                )
             except _BlockingDependencyWaitTimeoutError as target_error:
                 return target_error
 
@@ -632,11 +651,19 @@ class GuardedDependencyProxy:
         @wraps(attr)
         def _wrapped(*args: Any, **kwargs: Any) -> Any:
             if (
-                name in {"get_bytes", "get_manifest", "has", "verify"}
-                and len(args) == 1
-                and not kwargs
+                (
+                    name in {"get_bytes", "get_manifest", "has", "verify"}
+                    and len(args) == 1
+                    and not kwargs
+                )
+                or (name == "get_manifest_by_profile" and len(args) == 2 and not kwargs)
+                or (
+                    name == "get_raw_manifest_bytes"
+                    and len(args) == 1
+                    and kwargs.keys() <= {"manifest_profile_sha256"}
+                )
             ):
-                return self._run_registered_stock_scoped_read(name, attr, args[0])
+                return self._run_registered_stock_scoped_read(name, attr, *args, **kwargs)
             return _run_guarded_dependency(self._guard, attr, *args, **kwargs)
 
         return _wrapped

@@ -660,8 +660,11 @@ A served acquisition re-entry using receipt schema v3 appends a continued `Gener
 `decision_packet_ref` before projecting source-contract or quantity data. The
 Core reader checks a present raw manifest profile against the same selected
 bytes; malformed declarations and declared-profile mismatches return HTTP `409`
-with a typed `canon_profile_*` refusal. Quantity inventory reports
-`canon_read_status` for this read. An absent profile is refused by default. Only explicit candidate-only compatibility
+with a typed `canon_profile_*` refusal. If a guarded filesystem CAS read of
+those bytes or the typed manifest times out while waiting, the Runtime can make
+one retry for the same profile and current tenant/cell. The reader still
+compares the raw and typed selections before serving the result. Quantity
+inventory reports `canon_read_status` for this read. An absent profile is refused by default. Only explicit candidate-only compatibility
 reads return `profile_absent_unqualified_candidate`; this does not establish historical
 eligibility or producer attestation.
 The current acquisition-route projection v1.1 reports `world_growth` from the

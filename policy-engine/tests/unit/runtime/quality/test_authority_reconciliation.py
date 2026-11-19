@@ -12,7 +12,12 @@ from types import SimpleNamespace
 import pytest
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
-from polisyos.core.artifacts import VerificationReport, artifact_manifest_profile_sha256
+from polisyos.core.artifacts import (
+    ArtifactManifest,
+    ArtifactOwnershipError,
+    VerificationReport,
+    artifact_manifest_profile_sha256,
+)
 from polisyos.core.artifacts._integrity_ops import verify_loaded_artifact
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.ids import ArtifactID
@@ -2540,6 +2545,103 @@ def test_registered_guard_retries_one_get_manifest_wait_timeout(
         first_release.set()
     assert first_finished.wait(timeout=1.0)
     guarded.close()
+
+
+@pytest.mark.parametrize(
+    ("reader_form", "profile_case"),
+    [
+        ("typed", "selected"),
+        ("typed", "foreign"),
+        ("typed", "malformed"),
+        ("raw-explicit", "selected"),
+        ("raw-explicit", "foreign"),
+        ("raw-explicit", "malformed"),
+        ("raw-ref", "selected"),
+        ("raw-ref", "foreign"),
+        ("raw-ref", "conflict"),
+    ],
+)
+def test_registered_guard_retries_exact_profile_manifest_reads(
+    tmp_path, monkeypatch: pytest.MonkeyPatch, reader_form: str, profile_case: str
+) -> None:
+    """A delayed same-content read keeps its exact selected profile and ownership."""
+    monkeypatch.setenv("POLISYOS_RUNTIME_CAS_TIMEOUT_SECONDS", "0.1")
+    writer = FileSystemCAS(tmp_path / "cas")
+    own = writer.for_tenant("tenant-a", cell_id="cell-a").put_bytes(
+        b"same profile retry bytes",
+        PutOptions(kind="test.owner", media_type="application/octet-stream"),
+        return_selected_profile=True,
+    )
+    foreign = writer.for_tenant("tenant-b", cell_id="cell-b").put_bytes(
+        b"same profile retry bytes",
+        PutOptions(kind="test.foreign", media_type="application/octet-stream"),
+        return_selected_profile=True,
+    )
+    assert own.artifact_id == foreign.artifact_id
+    assert own.manifest_profile_sha256 != foreign.manifest_profile_sha256
+    profile = {
+        "selected": own.manifest_profile_sha256,
+        "foreign": foreign.manifest_profile_sha256,
+        "malformed": "sha256:" + "F" * 64,
+        "conflict": foreign.manifest_profile_sha256,
+    }[profile_case]
+    assert profile is not None
+    backing = FileSystemCAS(
+        tmp_path / "cas", ownership_enforced=True, ownership_requires_scope=True
+    )
+    guarded = guard_runtime_cas(backing)
+    raw = reader_form != "typed"
+    method = "get_raw_manifest_bytes" if raw else "get_manifest_by_profile"
+    original = getattr(FileSystemCAS, method)
+    calls = []
+    first_release = threading.Event()
+    first_finished = threading.Event()
+
+    @wraps(original)
+    def delayed(store, selector, *args, **kwargs):
+        calls.append((selector, args, kwargs))
+        if len(calls) == 1 and profile_case != "conflict":
+            assert first_release.wait(timeout=3.0)
+            try:
+                return original(store, selector, *args, **kwargs)
+            finally:
+                first_finished.set()
+        return original(store, selector, *args, **kwargs)
+
+    monkeypatch.setattr(FileSystemCAS, method, delayed)
+    selector = str(own.artifact_id)
+    args = () if raw else (profile,)
+    kwargs = {"manifest_profile_sha256": profile} if raw else {}
+    if reader_form == "raw-ref":
+        selector = foreign if profile_case == "foreign" else own
+        if profile_case != "conflict":
+            kwargs = {}
+    try:
+        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+            read = getattr(guarded, method)
+            if profile_case == "foreign":
+                with pytest.raises(ArtifactOwnershipError):
+                    read(selector, *args, **kwargs)
+            elif profile_case == "malformed":
+                with pytest.raises(_BlockingDependencyWaitTimeoutError):
+                    read(selector, *args, **kwargs)
+            elif profile_case == "conflict":
+                with pytest.raises(ValueError, match="conflicting manifest profile selectors"):
+                    read(selector, *args, **kwargs)
+            else:
+                result = read(selector, *args, **kwargs)
+                manifest = ArtifactManifest.model_validate_json(result) if raw else result
+                assert manifest.kind == own.kind
+                assert artifact_manifest_profile_sha256(manifest) == profile
+        assert calls == [(selector, args, kwargs)] * (
+            1 if profile_case in {"malformed", "conflict"} else 2
+        )
+        assert not first_finished.is_set()
+    finally:
+        first_release.set()
+        if profile_case != "conflict":
+            assert first_finished.wait(timeout=1.0)
+        guarded.close()
 
 
 def test_read_retry_policy_leaves_custom_backend_and_cas_writes_single_call(

@@ -17,6 +17,7 @@ from polisyos.core.contracts.model_input_requirements import load_model_input_ob
 from polisyos.core.contracts.semantic_input_binding import load_resolved_input_binding_manifest
 from polisyos.ir.trinity import load_trinity_bundle_artifact
 from polisyos.pdc import WorldModelRecord, world_model_record_content_hash
+from polisyos.runtime.quality.acquisition_world_growth import _read_native_world_checkpoint_outputs
 from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextInputs
 from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextOwnerError
 from polisyos.runtime.quality.data_state_substrate import (
@@ -35,7 +36,10 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     _require_program_graph_input_preflight,
 )
 from polisyos.runtime.quality.model_input_requirements import ProgramGraphInputPreflight
-from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+from polisyos.runtime.quality.world_model_record import (
+    load_world_model_record,
+    world_model_artifact_views,
+)
 from polisyos.scientist.orchestration.engine import BudgetInvocationQuotaPolicy
 from tests._helpers.derived_input_world import build_selected_method_base_world
 from tests._helpers.registered_derived_method_input import materialize_registered_method_input_case
@@ -88,6 +92,20 @@ def test_registered_derived_method_world_reaches_actual_generic_port_before_n5(
             )
             world = built.world_model.record
             views = world_model_artifact_views(world)
+            assert (
+                views.input_bindings_ref.artifact_id != materialized.input_bindings_ref.artifact_id
+            )
+            assert (
+                views.input_bindings_ref.manifest_profile_sha256
+                == materialized.input_bindings_ref.manifest_profile_sha256
+            )
+            selected_views, manifest_ref, correspondence_refs = (
+                _read_native_world_checkpoint_outputs(case.store, world_model=world)
+            )
+            assert load_world_model_record(case.store, built.world_model.record_ref) == world
+            assert selected_views == views
+            assert manifest_ref == materialized.resolved_binding_manifest_ref
+            assert correspondence_refs == (materialized.correspondence_ref,)
             for actual, expected in (
                 (views.input_bindings_ref, built.world_model.input_bindings_ref),
                 (views.bound_state_snapshot_ref, case.bound_state_snapshot_ref),

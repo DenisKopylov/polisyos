@@ -74,6 +74,7 @@ if TYPE_CHECKING:
         RegisteredDerivedModelInputRequest,
     )
     from polisyos.foundry.data_plane import InputBindingValuesPreparation
+    from polisyos.pdc import WorldModelArtifactViews
     from polisyos.runtime.http.services.acquisition_surface_execution import (
         WorldBankWDIRouteExecutionBinding,
     )
@@ -1936,6 +1937,46 @@ class NativeDerivationWorldCheckpoint(_Strict):
         return tuple(artifacts.input_ref_from_artifact_ref(ref, role=role) for role, ref in rows)
 
 
+def _read_native_world_checkpoint_outputs(
+    store: artifacts.ArtifactStore,
+    *,
+    world_model: WorldModelRecord,
+    checkpoint: NativeDerivationWorldCheckpoint | None = None,
+) -> tuple[WorldModelArtifactViews, artifacts.ArtifactRef, tuple[artifacts.ArtifactRef, ...]]:
+    """Reopen the selected world outputs and reconcile a checkpoint when supplied."""
+    from polisyos.core.contracts import load_resolved_input_binding_manifest
+    from polisyos.foundry.data_plane import load_input_bindings
+    from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+
+    views = world_model_artifact_views(world_model)
+    bindings = load_input_bindings(store, views.input_bindings_ref)
+    manifest_ref = bindings.resolved_binding_manifest_ref
+    if manifest_ref is None:
+        raise ValueError("native_derivation_world_output_manifest_missing")
+    manifest = load_resolved_input_binding_manifest(store, manifest_ref)
+    snapshot_key = _native_derivation_ref_key(views.data_snapshot_ref)
+    if (
+        not manifest.derivations
+        or _native_derivation_ref_key(bindings.data_snapshot_ref) != snapshot_key
+        or _native_derivation_ref_key(manifest.data_snapshot_ref) != snapshot_key
+    ):
+        raise ValueError("native_derivation_world_output_binding_mismatch")
+    correspondences = tuple(row.correspondence_ref for row in manifest.derivations)
+    if checkpoint is not None:
+        actual = (views.data_snapshot_ref, views.input_bindings_ref, manifest_ref, *correspondences)
+        expected = (
+            checkpoint.data_snapshot_ref,
+            checkpoint.input_bindings_ref,
+            checkpoint.resolved_binding_manifest_ref,
+            *checkpoint.correspondence_refs,
+        )
+        if tuple(map(_native_derivation_ref_key, actual)) != tuple(
+            map(_native_derivation_ref_key, expected)
+        ):
+            raise ValueError("native_derived_world_selected_transport_mismatch")
+    return views, manifest_ref, correspondences
+
+
 @dataclass(frozen=True)
 class NativeDerivedWorldSelection:
     """Reopened action-owned world facts, not an NL worker admission.
@@ -2540,7 +2581,6 @@ def replay_native_derived_world_selection(
     default manifest or presents the old action as today's permission.
     """
     from polisyos.core.artifacts import load_core_json_artifact
-    from polisyos.foundry.data_plane import load_input_bindings
     from polisyos.runtime.http.services.control.run_lifecycle import (
         AcquisitionRouteLoopAuthoritySink,
     )
@@ -2674,26 +2714,20 @@ def replay_native_derived_world_selection(
         raise ValueError("native_derived_world_original_generic_basis_invalid")
     owner.resolve_n5_execution(source.n5_execution_ref, expected=execution)
     world = load_world_model_record(store, checkpoint.world_model_ref)
-    views = world_model_artifact_views(world)
+    views, _manifest_ref, _correspondences = _read_native_world_checkpoint_outputs(
+        store, world_model=world, checkpoint=checkpoint
+    )
     original_views = world_model_artifact_views(
         input_record.profile.context_inputs.world_model_record
     )
-    bindings = load_input_bindings(store, views.input_bindings_ref)
     if (
         world.authority_status != "limited"
-        or _native_derivation_ref_key(views.data_snapshot_ref)
-        != _native_derivation_ref_key(checkpoint.data_snapshot_ref)
-        or _native_derivation_ref_key(views.input_bindings_ref)
-        != _native_derivation_ref_key(checkpoint.input_bindings_ref)
         or _native_derivation_ref_key(original_views.data_snapshot_ref)
         != _native_derivation_ref_key(checkpoint.base_data_snapshot_ref)
         or _native_derivation_ref_key(views.bound_state_snapshot_ref)
         != _native_derivation_ref_key(original_views.bound_state_snapshot_ref)
         or _native_derivation_ref_key(views.registry_bundle_ref)
         != _native_derivation_ref_key(original_views.registry_bundle_ref)
-        or bindings.resolved_binding_manifest_ref is None
-        or _native_derivation_ref_key(bindings.resolved_binding_manifest_ref)
-        != _native_derivation_ref_key(checkpoint.resolved_binding_manifest_ref)
     ):
         raise ValueError("native_derived_world_selected_transport_mismatch")
     _replay_native_derivation_world_bindings(
@@ -8630,15 +8664,9 @@ class AcquisitionWorldGrowthBridge:
                 world = load_world_model_record(self.artifact_store, checkpoint.world_model_ref)
                 # The WMR owner reopens exact selected bindings, manifest and
                 # predecessor state; no stored success flag is an admission.
-                views = world_model_artifact_views(world)
-                if _native_derivation_ref_key(
-                    views.input_bindings_ref
-                ) != _native_derivation_ref_key(
-                    checkpoint.input_bindings_ref
-                ) or _native_derivation_ref_key(
-                    views.data_snapshot_ref
-                ) != _native_derivation_ref_key(checkpoint.data_snapshot_ref):
-                    raise ValueError("native_derivation_world_checkpoint_output_mismatch")
+                _read_native_world_checkpoint_outputs(
+                    self.artifact_store, world_model=world, checkpoint=checkpoint
+                )
             else:
                 transaction_time = datetime.now(UTC)
                 materialization = materialize_registered_derived_model_inputs(
@@ -8660,15 +8688,18 @@ class AcquisitionWorldGrowthBridge:
                     transaction_time=transaction_time,
                 )
                 world = built.world_model.record
+                selected_views, manifest_ref, correspondences = (
+                    _read_native_world_checkpoint_outputs(self.artifact_store, world_model=world)
+                )
                 checkpoint = NativeDerivationWorldCheckpoint(
                     collection_refs=collection_refs,
                     configured_port_source_ref=configuration.configured_port_source_ref,
                     registered_profile_refs=tuple(request.profile_ref for request in requests),
                     base_data_snapshot_ref=base_views.data_snapshot_ref,
-                    data_snapshot_ref=materialization.data_snapshot_ref,
-                    resolved_binding_manifest_ref=materialization.resolved_binding_manifest_ref,
-                    correspondence_refs=materialization.correspondence_refs,
-                    input_bindings_ref=materialization.input_bindings_ref,
+                    data_snapshot_ref=selected_views.data_snapshot_ref,
+                    resolved_binding_manifest_ref=manifest_ref,
+                    correspondence_refs=correspondences,
+                    input_bindings_ref=selected_views.input_bindings_ref,
                     world_model_ref=built.world_model.record_ref,
                     action_phase_ref=growth.action_phase_ref,
                     pending_action_phase_ref=pending_phase_ref,

@@ -27,7 +27,10 @@ from polisyos.runtime.http.services.control_plane_store import (
 )
 from polisyos.runtime.http.services.control_worker import ControlWorker
 from polisyos.runtime.quality.acquisition_movement import AcquisitionMovementService
+from tests._helpers.acquisition_epoch_production import production_admission_inputs
 from tests._helpers.acquisition_production import (
+    _resolver,
+    bind_fixture_l1_catalog_source,
     install_fixture_wdi_cost_basis,
     persist_wdi_route,
 )
@@ -114,6 +117,7 @@ class _Port:
     closure: object
     calls: list[str]
     owner_ref: str
+    job_id: str
     disposition: str = "quarantined_no_growth"
     admitted_observation_delta: int = 0
     overlay_admission_receipt_ref: str | None = None
@@ -124,7 +128,7 @@ class _Port:
         assert closure == self.closure
         seed = self.service._phase_receipt(
             closure=closure,
-            job_id="job-acquisition",
+            job_id=self.job_id,
             decision_ref="sha256:" + "9" * 64,
             receipt_phase="requested",
             predecessor_receipt_ref=None,
@@ -196,7 +200,22 @@ async def _worker_harness(
     monkeypatch: pytest.MonkeyPatch,
 ):
     artifact_store = FileSystemCAS(tmp_path / ".polisyos").with_ambient_ownership_enforcement()
-    control = _build_control_service(tmp_path, artifact_store=artifact_store)
+    catalog_root = tmp_path / "catalog-owner"
+    authority, _ = _resolver(catalog_root)
+    bind_fixture_l1_catalog_source(
+        catalog_root, authority.baseline_path, include_n7_dataset_bundle=True
+    )
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        production_admission_inputs(
+            catalog_root,
+            store=artifact_store,
+            authority=authority,
+            overlay_path=tmp_path / "overlay.duckdb",
+            epoch_history_root=tmp_path / "epochs",
+        )
+    control = _build_control_service(
+        tmp_path, artifact_store=artifact_store, repo_root=catalog_root
+    )
     install_fixture_wdi_cost_basis(monkeypatch)
     fixture_closure, _source_request = await persist_wdi_route(
         control,
@@ -204,6 +223,7 @@ async def _worker_harness(
         cell_id="cell-a",
         run_id="run-ds15",
         job_id="job-natural-language",
+        generation_cycle_repo_root=catalog_root,
     )
 
     service = object.__new__(AcquisitionActionService)
@@ -220,13 +240,6 @@ async def _worker_harness(
             kind="runtime_quality.acquisition_owner_receipt",
             schema_name="polisyos.runtime.AcquisitionOwnerReceipt",
         )
-    service._execution_port = _Port(
-        service=service,
-        closure=closure,
-        calls=calls,
-        owner_ref=owner_ref,
-    )
-    control.bind_acquisition_job_handler(service.handle_job)
     projection = service._projection(closure)
     request = AcquisitionRouteMutationRequest(
         route_projection_hash=projection.route_projection_hash,
@@ -235,6 +248,15 @@ async def _worker_harness(
         idempotency_key="worker-order",
         human_decision_record_ref="sha256:" + "8" * 64,
     )
+    job_id = service._job_id(closure, request)
+    service._execution_port = _Port(
+        service=service,
+        closure=closure,
+        calls=calls,
+        owner_ref=owner_ref,
+        job_id=job_id,
+    )
+    control.bind_acquisition_job_handler(service.handle_job)
     operation, invocation, intent = service._action_tuple(closure, request)
     payload = {
         "tenant_id": "tenant-a",
@@ -252,7 +274,7 @@ async def _worker_harness(
     # tenant scope; the worker itself later installs the admitted job scope.
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         queued = control.enqueue_acquisition_job(
-            job_id="job-acquisition",
+            job_id=job_id,
             run_id="run-ds15",
             payload=payload,
             principal=RuntimePrincipal(
@@ -265,7 +287,7 @@ async def _worker_harness(
         )
         requested = service._phase_receipt(
             closure=closure,
-            job_id="job-acquisition",
+            job_id=job_id,
             decision_ref="sha256:" + "9" * 64,
             receipt_phase="requested",
             predecessor_receipt_ref=None,
@@ -273,7 +295,7 @@ async def _worker_harness(
         )
         requested_head = control.acquisition_route_sink.persist_phase(requested)
 
-        persisted_job = control._control_store.get_job("job-acquisition")
+        persisted_job = control._control_store.get_job(job_id)
         assert persisted_job is not None
         assert persisted_job.payload_ref == queued.payload_ref
         assert persisted_job.capability_manifest_ref == queued.capability_manifest_ref
@@ -351,7 +373,7 @@ async def test_worker_missing_durable_decision_fails_before_owner_effect(
         decision_missing=True,
         monkeypatch=monkeypatch,
     ) as (control, _service, calls, requested, _artifact_store):
-        job = control._control_store.get_job("job-acquisition")
+        job = control._control_store.get_job(requested.job_id)
         assert job is not None
 
         dispatch_one_control_job(
@@ -360,7 +382,7 @@ async def test_worker_missing_durable_decision_fails_before_owner_effect(
             expected_job_id=job.job_id,
         )
 
-        failed = control._control_store.get_job("job-acquisition")
+        failed = control._control_store.get_job(requested.job_id)
         assert failed is not None
         assert failed.state == "failed"
         assert calls == ["load-decision"]
@@ -378,12 +400,12 @@ async def test_worker_loads_durable_decision_before_sealed_effect_and_terminal(
         decision_missing=False,
         monkeypatch=monkeypatch,
     ) as (control, _service, calls, requested, _artifact_store):
-        job = control._control_store.get_job("job-acquisition")
+        job = control._control_store.get_job(requested.job_id)
         assert job is not None
 
         store = control._control_store
         job = store.lease_next_job(worker_id="worker-current", lease_seconds=30)
-        assert job is not None and job.job_id == "job-acquisition"
+        assert job is not None and job.job_id == requested.job_id
         worker = ControlWorker(
             store=store,
             handler=control._process_control_job,
@@ -393,7 +415,7 @@ async def test_worker_loads_durable_decision_before_sealed_effect_and_terminal(
         worker._heartbeat_interval_s = 60.0
         worker._run_with_lease_heartbeat(job)
 
-        completed = store.get_job("job-acquisition")
+        completed = store.get_job(requested.job_id)
         assert completed is not None
         assert completed.state == "completed"
         assert calls == ["load-decision", "execute-bound-effect", "effect"]
@@ -625,7 +647,7 @@ async def test_stale_guarded_worker_terminal_evidence_does_not_advance_head_afte
             # durably written, while the action-head append has not yet run.
             event_rows = control._diagnostic_event_log.list_events(
                 run_id="run-ds15",
-                job_id="job-acquisition",
+                job_id=requested.job_id,
             )
             terminal_events = [
                 row

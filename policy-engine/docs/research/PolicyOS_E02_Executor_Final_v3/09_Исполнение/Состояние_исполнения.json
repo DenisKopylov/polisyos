@@ -9080,8 +9080,8 @@
       "lane_id": "LANE-01",
       "current_execution": {
         "status": "ACTIVE on published 8454bd50c. Hosted fresh reader/removals qualified. Scientific R16 B2/B3 terminal, C pending after expiry refusal and no C physical work. Native R13 signed decision durable, then execute CAS verification timeout with no new job/N5.",
-        "main_commit": "10f2bc4cd8450a3b970ec5acd507928d8fc6ce2e",
-        "main_tree": "975202161e9767811c74d618c69ddc5438001740",
+        "main_commit": "1699733a0668435453c827db5ff274c29e01d69e",
+        "main_tree": "e7f58bcbdbc44c349e77bf9289df0cb61ad4e08a",
         "author_checkpoint": "8cd3ec9ae0ce32f23daa5625e81a3085c9e31567",
         "current_composed_r14": {
           "source_commit": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
@@ -9443,14 +9443,25 @@
           "peak_rss_bytes": 1998716928,
           "output": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r7-20261118/budget/"
         },
+        "retained_c_r8": {
+          "source": [
+            "44b2343cc8711b18481b9dc9fe534674ddd16b0f",
+            "1e99e688bf869b29a162979619ed5d57bb7f61d4"
+          ],
+          "result": "HTTP 403 at transactional expiry fence; authorization_refreshed CAS and event prepared 49 s late",
+          "effects": "unchanged pending attempt 0/head 1, frontier revision 3, original four standard units",
+          "elapsed_seconds": 1476.642,
+          "output": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r8-20261118/budget/",
+          "next": "Reuse the verified origin in prejob authority checks; preserve current PA2/DS9 and expiry."
+        },
         "native_authority_byte_retry": {
           "r14_result": "HTTP 409 native_paid_input_history_not_verified; no new job, fetch or N5",
           "r14_timed_read": "authority get_bytes over 1.5 s; exact link to refusal unestablished",
           "r14_exact_request_preflight": "PASS, old source only, no effects",
           "repair": "Main 0e003218d, independent review and 58 affected checks pass",
-          "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 full route pending."
+          "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. Second-leaf and restart verification pending."
         },
-        "next": "Qualify the retained C execute within its unchanged step-up window while preserving the original 7/1 journal. Finish the Native retained second-leaf and restart run. Compose qualified source and repeat affected consumers before final freeze and G handoff.",
+        "next": "The independently reviewed C repair passes 38 focused refresh and retry tests. Qualify retained C within its unchanged step-up window and original 7/1 journal. Run Native second-leaf and restart verification on a fresh COW clone of retained A after checking disk capacity. Compose qualified source and repeat affected consumers before final freeze and G handoff.",
         "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",

@@ -4401,6 +4401,15 @@ class AcquisitionRouteLoopAuthoritySink:
         if type(request) is not CandidateExperimentRouteMutationRequest:
             raise ValueError("candidate_experiment_request_untyped")
         try:
+            source_job = self._control_store.get_job(phase.source_job_id)
+            source_event = self._control_store.get_job_created_event_payload(phase.source_job_id)
+            source_outbox = self._control_store.get_job_created_outbox_event(phase.source_job_id)
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("candidate_experiment_source_not_current") from exc
+        if source_job is None or source_event is None or source_outbox is None:
+            raise ValueError("candidate_experiment_source_not_current")
+        source_inputs = source_job, source_event, source_outbox
+        try:
             origin = self._resolve_candidate_experiment_source(
                 tenant_id=phase.tenant_id,
                 cell_id=phase.cell_id,
@@ -4428,9 +4437,12 @@ class AcquisitionRouteLoopAuthoritySink:
         if (
             type(control_service) is not ControlPlaneService
             or type(action_service) is not AcquisitionActionService
-            or action_service.control_service is not control_service
-            or type(action_service._authority_provider)
-            is not ProductionAcquisitionAuthorityProvider
+        ):
+            raise ValueError("candidate_experiment_authority_owner_not_composed")
+        provider = action_service._authority_provider
+        if (
+            action_service.control_service is not control_service
+            or type(provider) is not ProductionAcquisitionAuthorityProvider
         ):
             raise ValueError("candidate_experiment_authority_owner_not_composed")
         decision_ref = str(phase.authority_decision_ref.artifact_id)
@@ -4459,12 +4471,18 @@ class AcquisitionRouteLoopAuthoritySink:
                 request=request,
                 job_id=phase.job_id,
                 decision_ref=decision_ref,
+                verified_origin=origin,
+                verified_source_inputs=source_inputs,
             )
-            gateway = action_service.replay_candidate_experiment_authority(
-                tenant_id=phase.tenant_id,
-                cell_id=phase.cell_id,
-                run_id=phase.run_id,
-                route_id=phase.route_id,
+            current_origin = action_service._revalidate_candidate_experiment_execute_origin(
+                origin=origin,
+                request=request,
+                expected_head=origin.current_action_head,
+            )
+            if action_service._authority_provider is not provider:
+                raise ValueError("candidate_experiment_authority_owner_not_composed")
+            gateway = provider.for_candidate_experiment_job(
+                origin=current_origin,
                 request=request,
                 job_id=phase.job_id,
                 decision_ref=decision_ref,
@@ -4474,7 +4492,7 @@ class AcquisitionRouteLoopAuthoritySink:
             )
             persisted = gateway.load_persisted_decision(decision_ref)
             operation, invocation, intent = action_service._candidate_experiment_action_tuple(
-                origin, request
+                current_origin, request
             )
             gateway.verify_bound_authorization(
                 operation=operation, invocation=invocation, intent=intent, persisted=persisted

@@ -913,7 +913,7 @@ def _candidate_experiment_reentry_read_operation(
     parents, current source selection, head set, live admission and window.
     Intermediate candidate artifacts cannot promote this carrier into a permit.
     """
-    from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+    from polisyos.runtime.quality.n5_execution_basis import _exact_n5_content_snapshot
 
     service = _require_canonical_action_bridge(bridge)
     initial = _current_candidate_experiment_reentry_action_context(
@@ -936,17 +936,17 @@ def _candidate_experiment_reentry_read_operation(
             control.get_job_created_outbox_event(origin.source_job_id),
         )
 
-    source_bytes = exact_n5_content_bytes(source_rows())
+    source_snapshot = _exact_n5_content_snapshot(source_rows())
     source_heads = tuple(control.list_acquisition_action_heads_for_source(**scope))
     if source_heads != (
         *(item.head for item in origin.candidate_terminal_history_chain),
         initial.head,
     ):
         raise ValueError("candidate_experiment_read_operation_initial_heads_changed")
-    source_head_bytes = exact_n5_content_bytes(source_heads)
-    origin_bytes = exact_n5_content_bytes(origin)
-    initial_bytes = exact_n5_content_bytes(_reentry_read_context_values(initial))
-    action_ref_bytes = exact_n5_content_bytes(candidate_action_ref)
+    source_head_snapshot = _exact_n5_content_snapshot(source_heads)
+    origin_snapshot = _exact_n5_content_snapshot(origin)
+    initial_snapshot = _exact_n5_content_snapshot(_reentry_read_context_values(initial))
+    action_ref_snapshot = _exact_n5_content_snapshot(candidate_action_ref)
     active = True
     carried: _VerifiedCurrentCandidateExperimentReentryAction
 
@@ -961,15 +961,18 @@ def _candidate_experiment_reentry_read_operation(
             or supplied_context is not carried
             or supplied_bridge is not bridge
             or _require_canonical_action_bridge(bridge) is not service
-            or exact_n5_content_bytes(supplied_origin) != origin_bytes
-            or exact_n5_content_bytes(origin) != origin_bytes
-            or exact_n5_content_bytes(supplied_ref) != action_ref_bytes
-            or exact_n5_content_bytes(_reentry_read_context_values(carried)) != initial_bytes
-            or exact_n5_content_bytes(source_rows()) != source_bytes
-            or exact_n5_content_bytes(
+            or _exact_n5_content_snapshot(supplied_origin) != origin_snapshot
+            or (
+                supplied_origin is not origin
+                and _exact_n5_content_snapshot(origin) != origin_snapshot
+            )
+            or _exact_n5_content_snapshot(supplied_ref) != action_ref_snapshot
+            or _exact_n5_content_snapshot(_reentry_read_context_values(carried)) != initial_snapshot
+            or _exact_n5_content_snapshot(source_rows()) != source_snapshot
+            or _exact_n5_content_snapshot(
                 tuple(control.list_acquisition_action_heads_for_source(**scope))
             )
-            != source_head_bytes
+            != source_head_snapshot
         ):
             raise ValueError("candidate_experiment_read_operation_changed")
         admission = control.current_execution_job_admission()
@@ -1009,11 +1012,11 @@ def _candidate_experiment_reentry_read_operation(
             receipt != initial.action
             or window != initial.budget_window
             or not control.current_execution_job_admission().same_execution_identity(admission)
-            or exact_n5_content_bytes(source_rows()) != source_bytes
-            or exact_n5_content_bytes(
+            or _exact_n5_content_snapshot(source_rows()) != source_snapshot
+            or _exact_n5_content_snapshot(
                 tuple(control.list_acquisition_action_heads_for_source(**scope))
             )
-            != source_head_bytes
+            != source_head_snapshot
         ):
             raise ValueError("candidate_experiment_read_operation_parents_changed")
         return receipt
@@ -1027,8 +1030,10 @@ def _candidate_experiment_reentry_read_operation(
         if (
             type(final) is not _VerifiedCurrentCandidateExperimentReentryAction
             or not final.admission.same_execution_identity(initial.admission)
-            or exact_n5_content_bytes(_reentry_read_context_values(final, include_admission=False))
-            != exact_n5_content_bytes(
+            or _exact_n5_content_snapshot(
+                _reentry_read_context_values(final, include_admission=False)
+            )
+            != _exact_n5_content_snapshot(
                 _reentry_read_context_values(initial, include_admission=False)
             )
         ):

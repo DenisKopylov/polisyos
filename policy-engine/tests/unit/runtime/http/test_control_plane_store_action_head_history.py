@@ -8,6 +8,7 @@ from typing import Any
 
 import pytest
 
+import polisyos.runtime.http.services.control_plane_store as store_module
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
 from polisyos.runtime.http.services.control_plane_store import (
     AcquisitionActionHeadRecord,
@@ -23,7 +24,10 @@ from polisyos.runtime.quality.diagnostic_events import (
     DiagnosticEventContractError,
 )
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
-from tests.unit.runtime.http.test_control_plane_store_evaluation_frontier import _create_action_job
+from tests.unit.runtime.http.test_control_plane_store_evaluation_frontier import (
+    _bootstrap,
+    _create_action_job,
+)
 
 type _CheckpointPublication = tuple[
     ControlPlaneStore,
@@ -207,6 +211,126 @@ def test_authorization_refreshed_appends_for_exact_pending_job_and_preserves_req
     assert (refreshed.coarse_phase, refreshed.recovery_state) == ("requested", "none")
     assert requested.receipt_manifest_profile_sha256 == initial_profile
     assert refreshed.receipt_manifest_profile_sha256 == refreshed_profile
+
+
+def test_authorization_refresh_step_up_expiring_under_sql_lock_preserves_pending_state(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """An expired refresh performs no head SQL; a fresh retry keeps the same job."""
+    store = _make_store(tmp_path)
+    scope = _action_scope()
+    _, frontier, _ = _bootstrap(store, tmp_path, source_job_id=scope["source_job_id"])
+    job = _create_pending_action_job(store)
+    requested = _append_head(
+        store,
+        scope,
+        receipt_ref=_receipt_ref("c"),
+        expected_head_generation=0,
+        predecessor_receipt_ref=None,
+        receipt_phase="requested",
+        receipt_manifest_profile_sha256=_receipt_ref("a"),
+        job_id=job.job_id,
+    )
+    now = 2_000_000_000
+    deadline = now + 1
+    cas = replace(_pending_authorization_cas(job), step_up_expires_at=deadline)
+    before_outbox = store.list_outbox_events(state=None, limit=500)
+    route_scope = {name: value for name, value in scope.items() if name != "action_generation"}
+    before_heads = store.list_acquisition_action_heads(**route_scope)
+    monkeypatch.setattr(store_module.time, "time", lambda: now)
+    read_head = store.get_acquisition_action_head
+
+    def expire_after_locked_head_read(**kwargs):
+        nonlocal now
+        result = read_head(**kwargs)
+        now = deadline
+        return result
+
+    with sqlite3.connect(tmp_path / "control-plane.sqlite3") as connection:
+        connection.execute(
+            "CREATE TRIGGER reject_unchecked_step_up_refresh "
+            "BEFORE INSERT ON runtime_acquisition_action_heads "
+            "BEGIN SELECT RAISE(ABORT, 'unchecked_step_up_refresh_write'); END"
+        )
+    with monkeypatch.context() as admission:
+        admission.setattr(store, "get_acquisition_action_head", expire_after_locked_head_read)
+        with pytest.raises(
+            ValueError, match=r"^candidate_experiment_step_up_expired_before_admission$"
+        ):
+            _append_head(
+                store,
+                scope,
+                receipt_ref=_receipt_ref("d"),
+                expected_head_generation=requested.head_generation,
+                predecessor_receipt_ref=requested.receipt_ref,
+                receipt_phase="authorization_refreshed",
+                receipt_manifest_profile_sha256=_receipt_ref("b"),
+                job_id=job.job_id,
+                pending_authorization_cas=cas,
+            )
+    assert now == deadline
+    assert store.get_job(job.job_id) == job
+    assert store.get_acquisition_action_head(**scope) == requested
+    assert store.list_acquisition_action_heads(**route_scope) == before_heads
+    assert (
+        store.get_acquisition_action_head_by_receipt(**scope, receipt_ref=_receipt_ref("d")) is None
+    )
+    assert store.read_acquisition_evaluation_frontier(frontier.key) == frontier
+    assert store.list_outbox_events(state=None, limit=500) == before_outbox
+
+    with sqlite3.connect(tmp_path / "control-plane.sqlite3") as connection:
+        connection.execute("DROP TRIGGER reject_unchecked_step_up_refresh")
+    refreshed = _append_head(
+        store,
+        scope,
+        receipt_ref=_receipt_ref("d"),
+        expected_head_generation=requested.head_generation,
+        predecessor_receipt_ref=requested.receipt_ref,
+        receipt_phase="authorization_refreshed",
+        receipt_manifest_profile_sha256=_receipt_ref("b"),
+        job_id=job.job_id,
+        pending_authorization_cas=replace(cas, step_up_expires_at=now + 1),
+    )
+    assert refreshed.head_generation == requested.head_generation + 1
+    assert refreshed.job_id == job.job_id and refreshed.receipt_phase == "authorization_refreshed"
+    assert store.get_job(job.job_id) == job
+    assert store.get_acquisition_action_head(**scope) == refreshed
+    assert store.read_acquisition_evaluation_frontier(frontier.key) == frontier
+
+
+@pytest.mark.parametrize("deadline", [True, 0, -1, 2_000_000_001.0, "2000000001"])
+def test_authorization_refresh_step_up_deadline_requires_an_exact_positive_int(
+    tmp_path: Path, deadline: Any
+) -> None:
+    store = _make_store(tmp_path)
+    scope = _action_scope()
+    job = _create_pending_action_job(store)
+    requested = _append_head(
+        store,
+        scope,
+        receipt_ref=_receipt_ref("c"),
+        expected_head_generation=0,
+        predecessor_receipt_ref=None,
+        receipt_phase="requested",
+        receipt_manifest_profile_sha256=_receipt_ref("a"),
+        job_id=job.job_id,
+    )
+    with pytest.raises(ValueError, match=r"^candidate_experiment_step_up_expiry_invalid$"):
+        _append_head(
+            store,
+            scope,
+            receipt_ref=_receipt_ref("d"),
+            expected_head_generation=requested.head_generation,
+            predecessor_receipt_ref=requested.receipt_ref,
+            receipt_phase="authorization_refreshed",
+            receipt_manifest_profile_sha256=_receipt_ref("b"),
+            job_id=job.job_id,
+            pending_authorization_cas=replace(
+                _pending_authorization_cas(job), step_up_expires_at=deadline
+            ),
+        )
+    assert store.get_job(job.job_id) == job
+    assert store.get_acquisition_action_head(**scope) == requested
 
 
 def test_authorization_refreshed_duplicate_stale_predecessor_does_not_append(

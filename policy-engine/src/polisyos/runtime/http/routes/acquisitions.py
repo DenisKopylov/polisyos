@@ -243,6 +243,11 @@ def _raise_service_error(exc: AcquisitionActionServiceError) -> None:
         "model_input_use_successor_owner_unavailable",
     }:
         raise service_unavailable("Acquisition producer is unavailable", code=code) from exc
+    if code == "candidate_experiment_step_up_expired_before_admission":
+        raise forbidden(
+            "Step-up expired before candidate experiment admission. Use a fresh assertion.",
+            code=code,
+        ) from exc
     if code in {
         "candidate_experiment_n5_result_scope_refused",
         "candidate_experiment_reuse_source_scope_refused",
@@ -426,10 +431,7 @@ def request_run_candidate_acquisition_experiment_decision(
             }
         }
     },
-    dependencies=[
-        Depends(_CANDIDATE_EXPERIMENT_EXECUTION_AUTHZ),
-        Depends(_MUTATION_STEP_UP),
-    ],
+    dependencies=[Depends(_CANDIDATE_EXPERIMENT_EXECUTION_AUTHZ)],
 )
 def execute_run_candidate_acquisition_experiment(
     run_id: str,
@@ -437,6 +439,7 @@ def execute_run_candidate_acquisition_experiment(
     body: CandidateExperimentRouteExecutionRequest,
     request: Request,
     service: _Service,
+    step_up: Annotated[StepUpAssertionVerification, Depends(_MUTATION_STEP_UP)],
 ) -> AcquisitionExecutionResponse:
     """Queue a candidate experiment from its exact request and PA2 decision ref."""
     tenant_id, cell_id, principal = _scope(request)
@@ -456,6 +459,7 @@ def execute_run_candidate_acquisition_experiment(
             decision_ref=body.decision_ref,
             request_id=ensure_request_id(request),
             principal=principal,
+            step_up_expires_at=step_up.expires_at,
         )
     except AcquisitionActionServiceError as exc:
         _raise_service_error(exc)

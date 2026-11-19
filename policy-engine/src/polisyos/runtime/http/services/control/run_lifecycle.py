@@ -4374,15 +4374,15 @@ class AcquisitionRouteLoopAuthoritySink:
         self,
         phase: AcquisitionCandidateExperimentPhaseReceipt,
         request: object,
-    ) -> None:
-        """Verify source and current PA2/DS9 without requiring an inserted job row."""
+    ) -> tuple[VerifiedCandidateExperimentOrigin, AcquisitionActionService] | None:
+        """Verify prejob PA2/DS9 and return the checked origin and its owner."""
         from polisyos.runtime.quality.candidate_experiment_reuse import (
             CandidateExperimentReuseActionSelection,
         )
 
         if type(request) is CandidateExperimentReuseActionSelection:
             self._verify_candidate_experiment_reuse_prejob_live_authority(phase, request)
-            return
+            return None
         from polisyos.runtime.http.services.acquisition_action_service import (
             AcquisitionActionService,
             CandidateExperimentRouteMutationRequest,
@@ -4400,6 +4400,15 @@ class AcquisitionRouteLoopAuthoritySink:
 
         if type(request) is not CandidateExperimentRouteMutationRequest:
             raise ValueError("candidate_experiment_request_untyped")
+        try:
+            source_job = self._control_store.get_job(phase.source_job_id)
+            source_event = self._control_store.get_job_created_event_payload(phase.source_job_id)
+            source_outbox = self._control_store.get_job_created_outbox_event(phase.source_job_id)
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("candidate_experiment_source_not_current") from exc
+        if source_job is None or source_event is None or source_outbox is None:
+            raise ValueError("candidate_experiment_source_not_current")
+        source_inputs = source_job, source_event, source_outbox
         try:
             origin = self._resolve_candidate_experiment_source(
                 tenant_id=phase.tenant_id,
@@ -4428,9 +4437,12 @@ class AcquisitionRouteLoopAuthoritySink:
         if (
             type(control_service) is not ControlPlaneService
             or type(action_service) is not AcquisitionActionService
-            or action_service.control_service is not control_service
-            or type(action_service._authority_provider)
-            is not ProductionAcquisitionAuthorityProvider
+        ):
+            raise ValueError("candidate_experiment_authority_owner_not_composed")
+        provider = action_service._authority_provider
+        if (
+            action_service.control_service is not control_service
+            or type(provider) is not ProductionAcquisitionAuthorityProvider
         ):
             raise ValueError("candidate_experiment_authority_owner_not_composed")
         decision_ref = str(phase.authority_decision_ref.artifact_id)
@@ -4459,12 +4471,18 @@ class AcquisitionRouteLoopAuthoritySink:
                 request=request,
                 job_id=phase.job_id,
                 decision_ref=decision_ref,
+                verified_origin=origin,
+                verified_source_inputs=source_inputs,
             )
-            gateway = action_service.replay_candidate_experiment_authority(
-                tenant_id=phase.tenant_id,
-                cell_id=phase.cell_id,
-                run_id=phase.run_id,
-                route_id=phase.route_id,
+            current_origin = action_service._revalidate_candidate_experiment_execute_origin(
+                origin=origin,
+                request=request,
+                expected_head=origin.current_action_head,
+            )
+            if action_service._authority_provider is not provider:
+                raise ValueError("candidate_experiment_authority_owner_not_composed")
+            gateway = provider.for_candidate_experiment_job(
+                origin=current_origin,
                 request=request,
                 job_id=phase.job_id,
                 decision_ref=decision_ref,
@@ -4474,7 +4492,7 @@ class AcquisitionRouteLoopAuthoritySink:
             )
             persisted = gateway.load_persisted_decision(decision_ref)
             operation, invocation, intent = action_service._candidate_experiment_action_tuple(
-                origin, request
+                current_origin, request
             )
             gateway.verify_bound_authorization(
                 operation=operation, invocation=invocation, intent=intent, persisted=persisted
@@ -4491,6 +4509,7 @@ class AcquisitionRouteLoopAuthoritySink:
             or str(persisted.write_result.cas_ref.artifact_id) != decision_ref
         ):
             raise ValueError("candidate_experiment_live_authority_not_established")
+        return current_origin, action_service
 
     def _verify_candidate_experiment_reuse_prejob_live_authority(
         self,
@@ -5787,6 +5806,7 @@ class AcquisitionRouteLoopAuthoritySink:
         request: object,
         *,
         expected_job: ControlJobRecord,
+        step_up_expires_at: int | None = None,
     ) -> AcquisitionActionHeadRecord:
         """Append fresh authority for the same pending pre-effect action atomically.
 
@@ -5810,6 +5830,7 @@ class AcquisitionRouteLoopAuthoritySink:
             expected_job_attempt=expected_job.attempt,
             expected_payload_ref=expected_job.payload_ref,
             expected_submitted_by=expected_job.submitted_by,
+            step_up_expires_at=step_up_expires_at,
         )
         self._verify_candidate_experiment_prejob_live_authority(typed, request)
         recovered = self._recover_orphan_experiment_phase(
@@ -6898,16 +6919,25 @@ class AcquisitionRouteLoopAuthoritySink:
             and candidate_frontier_cas is not None
         ):
             raise ValueError("candidate_experiment_terminal_frontier_is_owner_derived")
+        verified_pending_origin = None
+        pending_origin_owner = None
         if (
             type(typed) is AcquisitionCandidateExperimentPhaseReceipt
             and candidate_experiment_request is None
         ):
             self._verify_candidate_experiment_live_authority(typed)
         elif type(typed) is AcquisitionCandidateExperimentPhaseReceipt:
-            self._verify_candidate_experiment_prejob_live_authority(
+            checked = self._verify_candidate_experiment_prejob_live_authority(
                 typed, candidate_experiment_request
             )
+            if pending_authorization_cas is not None and checked is not None:
+                verified_pending_origin, pending_origin_owner = checked
         current = self.get_head(typed)
+        if (
+            verified_pending_origin is not None
+            and current != verified_pending_origin.current_action_head
+        ):
+            raise ValueError("candidate_experiment_refresh_pending_head_changed")
         reuse_owner = None
         if type(typed) is AcquisitionCandidateExperimentTerminalReceiptV2:
             if current is None or current.receipt_phase != "executing":
@@ -6936,7 +6966,13 @@ class AcquisitionRouteLoopAuthoritySink:
                 )
                 previous_receipt = previous_chain[-1].receipt
             else:
-                previous = self.verify_action_head(current)
+                previous = (
+                    self._verify_action_head_with_origin(
+                        current, verified_origin=verified_pending_origin
+                    )
+                    if verified_pending_origin is not None
+                    else self.verify_action_head(current)
+                )
                 previous_chain = previous.phase_chain
                 previous_receipt = previous.latest_receipt
             if type(typed) in {
@@ -7270,7 +7306,19 @@ class AcquisitionRouteLoopAuthoritySink:
             != selected_action_ref.manifest_profile_sha256
         ):
             raise RuntimeError("acquisition_action_receipt_profile_readback_failed")
-        verified = self.verify_action_head(head)
+        if verified_pending_origin is not None and pending_origin_owner is not None:
+            # This transaction changed the pending head. Reopen the configured
+            # source and exact head set without unfolding verified terminal history.
+            readback_origin = pending_origin_owner._revalidate_candidate_experiment_execute_origin(
+                origin=replace(verified_pending_origin, current_action_head=None),
+                request=cast(
+                    "CandidateExperimentRouteMutationRequest", candidate_experiment_request
+                ),
+                expected_head=head,
+            )
+            verified = self._verify_action_head_with_origin(head, verified_origin=readback_origin)
+        else:
+            verified = self.verify_action_head(head)
         if isinstance(typed, AcquisitionCandidateRouteLoopReceipt):
             readback_matches = _candidate_model_values_same(verified.latest_receipt, typed)
         else:

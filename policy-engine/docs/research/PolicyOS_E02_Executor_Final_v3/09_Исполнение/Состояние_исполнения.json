@@ -9079,10 +9079,10 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE on published bcd7. Exact R15 B2 historical refusal reproduced at the compiled reference comparison. Hosted R16 running; Native full R11 remains stopped before B dispatch.",
-        "main_commit": "bcd7f928e3530fe8b051066e69d2f20bb4e6b150",
-        "main_tree": "1bd3a1fec3c8b7ab6200129705acabcb4971f007",
-        "author_checkpoint": "bcd7f928e3530fe8b051066e69d2f20bb4e6b150",
+        "status": "ACTIVE on published 8454bd50c. Hosted fresh reader/removals qualified. Scientific R16 B2/B3 terminal, C pending after expiry refusal and no C physical work. Native R13 signed decision durable, then execute CAS verification timeout with no new job/N5.",
+        "main_commit": "24d5538e42555795e4c284af65a2095166034fa4",
+        "main_tree": "ade54763c7559f4a55da06ceb230469bc958b3f7",
+        "author_checkpoint": "8cd3ec9ae0ce32f23daa5625e81a3085c9e31567",
         "current_composed_r14": {
           "source_commit": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
           "source_tree": "28059c3e03ba4cdbc83eb567650915855ee638b6",
@@ -9432,8 +9432,62 @@
           "scope": "synthetic Core/control discovery; exact C/B bytes/request binding and foreign-action/404 controls; no ownership/whole-lane claim",
           "outputs": "Secondary:policy-engine/_cache/e02/lane01-history-browser-r3-20261117/"
         },
-        "next": "Publish the qualified historical reader repair after Hosted R16 releases Main. Run the maintained fresh scientific sequence with bounded worker cause telemetry. Native second leaf and restart remain open.",
-        "author_tree": "1bd3a1fec3c8b7ab6200129705acabcb4971f007",
+        "retained_c_r7": {
+          "source": [
+            "4af234ddbe4e9bafcd9ee22049e1939da53da00d",
+            "9ac9bd0da1f504d41119d61e1a4373fd6a0c268d"
+          ],
+          "result": "HTTP 403 candidate_experiment_step_up_expired_before_admission",
+          "state": "same pending generation-4 requested head, attempt 0, frontier revision 3, four standard units, zero protected; execute-scoped replay reuse passes 28 affected checks and proceeds to R8",
+          "elapsed_seconds": 1745.608,
+          "peak_rss_bytes": 1998716928,
+          "output": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r7-20261118/budget/"
+        },
+        "retained_c_r8": {
+          "source": [
+            "44b2343cc8711b18481b9dc9fe534674ddd16b0f",
+            "1e99e688bf869b29a162979619ed5d57bb7f61d4"
+          ],
+          "result": "HTTP 403 at transactional expiry fence; authorization_refreshed CAS and event prepared 49 s late",
+          "effects": "unchanged pending attempt 0/head 1, frontier revision 3, original four standard units",
+          "elapsed_seconds": 1476.642,
+          "output": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r8-20261118/budget/",
+          "next": "Reuse the verified origin in prejob authority checks; preserve current PA2/DS9 and expiry."
+        },
+        "retained_c_r9": {
+          "source": [
+            "7114d39244288272d0fccfa03ab12477760cac71",
+            "bbb789218eebb4771bcd6a79c576d524d7829853"
+          ],
+          "result": "HTTP 403 after 256.841 s at the unchanged 240 s deadline; generation 4 pending at attempt 0; frontier 3 and original 7/1 ledger unchanged",
+          "remaining_cost": "55.957 s cold pending predecessor replay. The pending writer now reuses its exact freshly verified origin and still rereads the current head, selected CAS/events and SQL admission fence. 39 focused cases PASS.",
+          "output": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r9-20261118/budget-r2/"
+        },
+        "retained_c_r10": {
+          "source": [
+            "1c509a8e27fbb8fbe05ddd3a5387849203a028f3",
+            "b23abe827216c28c7aa3ed421a45c3b12f5a5513"
+          ],
+          "result": "Generation 4 authorization_refreshed committed 46 s before expiry. HTTP 503 after 274.063 s, with an 80.060 s post-commit cold replay. Pending attempt 0 and original 7/1 ledger unchanged.",
+          "repair": "Fresh configured-source and exact-head revalidation with the verified terminal prefix for selected phase readback. 69 focused refresh, retry and SQL history cases PASS; R11 awaits full HTTP/worker/reader verification.",
+          "output": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r10-20261119/budget/"
+        },
+        "retained_c_r11": {
+          "source": [
+            "c6de16654fb124ca15ca12136759bb17a807b90f",
+            "737766d3643a7f3bac312cc10a84f62e7e1f542e"
+          ],
+          "result": "Actual HTTP 200 in 202.330 s at the unchanged 240 s Step-Up deadline; generation 4 advances to executing at worker attempt 1. Numerical C and final readback pending."
+        },
+        "native_authority_byte_retry": {
+          "r14_result": "HTTP 409 native_paid_input_history_not_verified; no new job, fetch or N5",
+          "r14_timed_read": "authority get_bytes over 1.5 s; exact link to refusal unestablished",
+          "r14_exact_request_preflight": "PASS, old source only, no effects",
+          "repair": "Main 0e003218d, independent review and 58 affected checks pass",
+          "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. R18 on cc646d605 returns HTTP 409 at decision request and completes with no new job. Its exact selected typed manifest waited 2.048 s at a 1.5 s guard. Main bfefb6188 extends the existing single retry to raw and typed profile reads. Focused checks and the path-aware docs/API gate pass. R19 loses acknowledgement of a completed payload CAS write (1.903 s). It leaves exact CAS links, without durable event or acquisition job. Main 24d5538e4 adds read-only recovery with 73 tests and docs/API gate PASS. R20 records zero CAS wait timeouts, then HTTP 503 at decision-request after its event lands 49 s beyond the Step-Up deadline. No new acquisition job or N5."
+        },
+        "next": "Finish retained C R11 worker, frontier 4 and fresh API readback using the original 7/1 journal. Bind and measure the Native decision issuance cutoff before the next retained second-leaf completion and restart run. Compose qualified source and repeat affected consumers before final freeze and G handoff.",
+        "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",
           "mechanism": "sharedconstructor/readonlyrehydrationcanonicalPathnormalization;absolutephysicalpathidentity;noQCper-fieldladder/privateinputdropping",
@@ -10034,6 +10088,51 @@
             "scope_result_sha256": "7ef6095477135fce91831bd89d14e026d841dd11a1df7eec597fb35c540a9ad1",
             "retained_authenticated_gate": "pending"
           }
+        },
+        "ncm_r16": {
+          "source_commit": "4f4bde5c3772c45a3d0fc37134d061164f3ed14a",
+          "source_tree": "c8e92820af987954d03a80b61c197f56c78da3ab",
+          "status": "COMMAND_FAIL, exit 1, quiescent. Exact live B2/B3 terminal heads and unchanged physical spend qualify at their original bound stages.",
+          "elapsed_seconds": 7908.411,
+          "peak_sampled_process_tree_rss_bytes": 2137096192,
+          "b2_terminal_ref": "sha256:4cb870659954fa600d0a936235f33f52b488934044d69607ae431e7c5af12fa7",
+          "b3_terminal_ref": "sha256:230e26bfc00cbf3246dcf4a423a88cab7eea31693768c16e7c710024808f23ac",
+          "b3_terminal_profile": "sha256:28d9681ee83896a82ef8d3e253ed89882c04a6f52e8699d13fcaefe9b163af79",
+          "frontier_revision": 3,
+          "c_job": "candidate-experiment-07571cfa874d3d5139134c8d76681953aa054b6738cb22c94be034c8566703b3",
+          "c_requested_at": "2026-11-18T17:32:28Z",
+          "c_step_up_consumed_at": "2026-11-18T17:25:18Z",
+          "c_step_up_expired_at": "2026-11-18T17:29:18Z",
+          "c_response": "503 authorization_binding_integrity_violation. C pending, no C worker or numerical result.",
+          "completed_standard_units": 4,
+          "pending_units": 0,
+          "protected_units_used": 0,
+          "ledger_sha256": "0259595b1ce33b8a3b105d295f0515c9e49749dba49d6e0b710a204e1e785b8f",
+          "supervisor_sha256": "ef383d19d6175b3c3aff3aeaa28cf8fb54258a6e14eac0b05d9c95f0459342d6",
+          "qualification_sha256": "2d1408d8f3602cbfe53356269e9321d17034c61714e1ad2a4452e932af8e7371",
+          "output": "Secondary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r16-20261118/"
+        },
+        "native_current_exposure": {
+          "source_commit": "a9e62e7c6e21724db6982c1a645ffda5dd8aa951",
+          "source_tree": "24ca8261e9c604af4a868b48cf1f88c10cfdcb17",
+          "retained_gate": "PASS: authentic gate HTTP 200, fresh session HTTP 200, same scoped reference; blocked pre-evidence decision, zero acquisition/N5, original fixture and ledger preserved.",
+          "elapsed_seconds": 23.82,
+          "peak_sampled_process_tree_rss_bytes": 1665859584,
+          "retained_receipt_sha256": "b1a06186852990f07024951d70913423e5b877962576db0290395466f1abb019",
+          "retained_output": "Primary:policy-engine/_cache/e02/native-r12-retained-gate-20261118/",
+          "full_r13": "COMMAND_FAIL after signed decision, HTTP 504 before a new job. Exact locked-wheel a9e62e7c6, source stable, 1422.819 s / 4279140352 B / quiescent. FileSystemCAS.verify from Core Derivations ran 1.963776 s at a 1.5 s guard, queue 0.000018292 s. Exact selector and underlying wait cause remain open. Zero N5 and no new job.",
+          "full_supervisor_sha256": "ffc5763fbdeee384162f0ca8867350044d19de5a0851337d58a089974b8a20fe",
+          "full_output": "Primary:policy-engine/_cache/e02/native-retained-second-leaf-r13-20261118/"
+        },
+        "scientific_c_admission_repair": {
+          "status": "AUTHOR_C_REPAIR_COMPONENT_PASS; actual retained C unrun",
+          "http_service_cases": 23,
+          "sql_cases": 27,
+          "runtime_api_contract": "PASS",
+          "scope": "C-only transport deadline and same-operation historical-source proof. Keeps later live authority, worker and selected-source checks.",
+          "http_service_supervisor_sha256": "a47da829d8599fbb09547e637020442fb3d9a347aac65a805b69a9865236bbb6",
+          "sql_supervisor_sha256": "9ac9da026161fd60e5e77052cf6354b3118b9d5de2427f8a20719739b554a87a",
+          "output": "Secondary:policy-engine/_cache/e02/lane01-c-expiry-20261118/"
         }
       },
       "current_execution_20261114": {

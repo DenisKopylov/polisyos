@@ -7,6 +7,7 @@ external approval was issued or remains current, and never invoke N5.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
 from types import SimpleNamespace
@@ -25,6 +26,7 @@ from polisyos.runtime.http.services.control.run_lifecycle import AcquisitionRout
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionCandidateExperimentPhaseReceipt,
+    VerifiedCandidateExperimentOrigin,
 )
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 from tests.unit.runtime.http.test_control_plane_store_evaluation_frontier import _create_job
@@ -75,6 +77,204 @@ def _pending_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     return database, cas, sink, requested, job, head
 
 
+def test_prejob_authority_reuses_one_origin_and_bound_source_rows(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """PA2 history and current gateway share one folded origin, with fresh row checks."""
+    from polisyos.runtime.http.deployment_security import DeploymentHumanDecisionCustody
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        AcquisitionActionService,
+    )
+    from polisyos.runtime.http.services.acquisition_authority_provider import (
+        ProductionAcquisitionAuthorityProvider,
+    )
+    from polisyos.runtime.http.services.human_decision_contracts import HumanDecisionResolverPolicy
+    from polisyos.runtime.http.services.human_decisions import HumanDecisionService
+    from polisyos.runtime.quality.agent_action_authority import CANDIDATE_EXPERIMENT_ACTION_KIND
+    from tests._helpers.runtime_http import _build_control_service
+    from tests.unit.runtime.http.services.test_acquisition_action_service import (
+        _candidate_experiment_action_fixture,
+    )
+    from tests.unit.runtime.http.test_control_plane_store_evaluation_frontier import _create_job
+
+    control = _build_control_service(tmp_path / "control")
+    store = control._control_store
+    base, request = _candidate_experiment_action_fixture(run_id="prejob-origin-run")
+    job = _create_job(
+        store, job_id=base.source_job_id, kind="natural_language_run", run_id=base.run_id
+    )
+    request = request.model_copy(
+        update={
+            "replay_pins": request.replay_pins.model_copy(
+                update={"source_payload_ref": job.payload_ref}
+            )
+        }
+    )
+    phase_base = _requested_phase()
+    phase = phase_base.model_copy(
+        update={
+            "tenant_id": base.tenant_id,
+            "cell_id": base.cell_id,
+            "run_id": base.run_id,
+            "source_job_id": job.job_id,
+            "source_payload_ref": job.payload_ref,
+            "capability_manifest_ref": job.capability_manifest_ref,
+            "request_content_hash": base.request_content_hash,
+            "route_id": request.route_id,
+            "policy_scope": base.policy_scope,
+            "policy_ref": base.policy_ref,
+            "job_id": "pending-action",
+        }
+    )
+    origin = VerifiedCandidateExperimentOrigin(
+        schema_version="polisyos.runtime.candidate_experiment_origin.v1",
+        tenant_id=base.tenant_id,
+        cell_id=base.cell_id,
+        run_id=base.run_id,
+        source_job_id=job.job_id,
+        source_payload_ref=job.payload_ref,
+        capability_manifest_ref=job.capability_manifest_ref,
+        request_content_hash=base.request_content_hash,
+        route_id=request.route_id,
+        policy_ref=base.policy_ref,
+        policy_scope=base.policy_scope,
+        generation_run=None,
+        source_cycle=SimpleNamespace(voi_decision=phase.voi_decision),
+        design_problem_basis=None,
+        planner_report=None,
+        planner_record=None,
+    )
+    phase = phase.model_copy(
+        update={"job_id": AcquisitionActionService._candidate_experiment_job_id(origin, request)}
+    )
+    decision_ref = str(phase.authority_decision_ref.artifact_id)
+    decision = SimpleNamespace(outcome="allowed", action_kind=CANDIDATE_EXPERIMENT_ACTION_KIND)
+    history = SimpleNamespace(
+        current_authority="not_revalidated",
+        decision_ref=decision_ref,
+        payload_sha256=decision_ref.removeprefix("sha256:"),
+        decision=decision,
+    )
+    persisted = SimpleNamespace(
+        decision=decision,
+        write_result=SimpleNamespace(cas_ref=SimpleNamespace(artifact_id=decision_ref)),
+    )
+    order: list[str] = []
+    original_get_job = store.get_job
+    original_get_event = store.get_job_created_event_payload
+    original_get_outbox = store.get_job_created_outbox_event
+
+    def get_job(job_id: str):
+        if job_id == phase.source_job_id:
+            order.append("source_job")
+        return original_get_job(job_id)
+
+    def get_event(job_id: str):
+        if job_id == phase.source_job_id:
+            order.append("source_event")
+        return original_get_event(job_id)
+
+    def get_outbox(job_id: str):
+        if job_id == phase.source_job_id:
+            order.append("source_outbox")
+        return original_get_outbox(job_id)
+
+    monkeypatch.setattr(store, "get_job", get_job)
+    monkeypatch.setattr(store, "get_job_created_event_payload", get_event)
+    monkeypatch.setattr(store, "get_job_created_outbox_event", get_outbox)
+    sink = control.acquisition_route_sink
+    monkeypatch.setattr(
+        AcquisitionRouteLoopAuthoritySink,
+        "_resolve_candidate_experiment_source",
+        lambda _self, **_: order.append("source_origin") or origin,
+    )
+    human = HumanDecisionService(
+        authority_sink=control.human_decision_sink,
+        custody=DeploymentHumanDecisionCustody(
+            available=False, unavailability_code="DS9-DECISION-PRODUCER-MISSING"
+        ),
+        resolver_policy=HumanDecisionResolverPolicy(
+            expected_consumer="polisyos.runtime.quality.agent_action_authority",
+            expected_audience="polisyos-runtime",
+            principal_audience="polisyos-runtime",
+            expected_agent_operation=None,
+            required_permission="runs.human_decisions.create",
+        ),
+        access_audit_path=tmp_path / "audit.jsonl",
+    )
+    provider = object.__new__(ProductionAcquisitionAuthorityProvider)
+    gateway = SimpleNamespace(
+        load_persisted_decision=lambda _ref: order.append("pa2_ds9") or persisted,
+        verify_bound_authorization=lambda **_: order.append("verify_bound_authorization"),
+    )
+    provider_calls: list[dict[str, object]] = []
+    provider.for_candidate_experiment_job = lambda **kwargs: (
+        provider_calls.append(kwargs) or order.append("provider") or gateway
+    )
+    action_service = AcquisitionActionService(
+        control_service=control,
+        human_decision_service=human,
+        authority_provider=provider,
+        execution_port=SimpleNamespace(
+            execute=lambda *_: None, reenter=lambda *_: None, resume_reentry=lambda *_: None
+        ),
+    )
+    origin_calls: list[dict[str, object]] = []
+    action_service._candidate_experiment_origin_for_request = lambda **kwargs: (
+        origin_calls.append(kwargs) or order.append("fold_origin") or origin
+    )
+    history_calls: list[dict[str, object]] = []
+    action_service.load_candidate_experiment_decision_history = lambda **kwargs: (
+        history_calls.append(kwargs) or order.append("history") or history
+    )
+    revalidation_calls: list[dict[str, object]] = []
+    action_service._revalidate_candidate_experiment_execute_origin = lambda **kwargs: (
+        revalidation_calls.append(kwargs) or order.append("revalidate_current") or origin
+    )
+    action_service._candidate_experiment_action_tuple = lambda *_: (object(), object(), object())
+
+    try:
+        assert sink._verify_candidate_experiment_prejob_live_authority(phase, request) == (
+            origin,
+            action_service,
+        )
+        assert order == [
+            "source_job",
+            "source_event",
+            "source_outbox",
+            "source_origin",
+            "fold_origin",
+            "history",
+            "revalidate_current",
+            "provider",
+            "pa2_ds9",
+            "verify_bound_authorization",
+        ]
+        assert origin_calls == [
+            {
+                "tenant_id": phase.tenant_id,
+                "cell_id": phase.cell_id,
+                "run_id": phase.run_id,
+                "request": request,
+                "require_current": True,
+            }
+        ]
+        assert history_calls[0]["verified_origin"] is origin
+        assert history_calls[0]["verified_source_inputs"] == (
+            job,
+            original_get_event(phase.source_job_id),
+            original_get_outbox(phase.source_job_id),
+        )
+        assert revalidation_calls == [
+            {"origin": origin, "request": request, "expected_head": origin.current_action_head}
+        ]
+        assert provider_calls[0]["origin"] is origin
+        assert provider_calls[0]["request"] is request
+        assert provider_calls[0]["decision_ref"] == decision_ref
+    finally:
+        store.close()
+
+
 def test_refresh_is_versioned_and_preserves_original_v1_wire() -> None:
     requested = _requested_phase()
     original_wire = requested.model_dump(mode="json")
@@ -93,14 +293,75 @@ def test_refresh_is_versioned_and_preserves_original_v1_wire() -> None:
         )
 
 
+@pytest.mark.parametrize("head_current", [True, False], ids=["current", "changed"])
 def test_pending_refresh_persists_new_authority_without_replacing_job_or_root(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, head_current: bool
 ) -> None:
     database, cas, sink, requested, job, initial = _pending_case(tmp_path, monkeypatch)
     original_bytes = cas.get_bytes(initial.receipt_ref)
     refreshed = _refreshed(requested, initial.receipt_ref)
+    origin = VerifiedCandidateExperimentOrigin(
+        schema_version="polisyos.runtime.candidate_experiment_origin.v1",
+        tenant_id=requested.tenant_id,
+        cell_id=requested.cell_id,
+        run_id=requested.run_id,
+        source_job_id=requested.source_job_id,
+        source_payload_ref=requested.source_payload_ref,
+        capability_manifest_ref=requested.capability_manifest_ref,
+        request_content_hash=requested.request_content_hash,
+        route_id=requested.route_id,
+        policy_scope=requested.policy_scope,
+        policy_ref=requested.policy_ref,
+        generation_run=None,
+        source_cycle=SimpleNamespace(voi_decision=requested.voi_decision),
+        design_problem_basis=None,
+        planner_report=None,
+        planner_record=None,
+        current_action_head=initial if head_current else None,
+    )
+    request = object()
+    readback_origins = []
+
+    def reopen_origin(*, origin, request: object, expected_head):
+        assert origin.current_action_head is None
+        assert expected_head == sink.get_head(refreshed)
+        checked = replace(origin, current_action_head=expected_head)
+        readback_origins.append((request, checked))
+        return checked
+
+    owner = SimpleNamespace(_revalidate_candidate_experiment_execute_origin=reopen_origin)
+    monkeypatch.setattr(
+        AcquisitionRouteLoopAuthoritySink,
+        "_verify_candidate_experiment_prejob_live_authority",
+        lambda *_args: (origin, owner),
+    )
+    verify = AcquisitionRouteLoopAuthoritySink._verify_action_head_with_origin
+    phase_origins = []
+
+    def record_origin(phase_owner, head, **kwargs):
+        if phase_owner is sink:
+            phase_origins.append((head, kwargs.get("verified_origin")))
+        return verify(phase_owner, head, **kwargs)
+
+    monkeypatch.setattr(
+        AcquisitionRouteLoopAuthoritySink, "_verify_action_head_with_origin", record_origin
+    )
+
     try:
-        head = sink.refresh_experiment_authorization(refreshed, object(), expected_job=job)
+        if not head_current:
+            with pytest.raises(
+                ValueError, match="candidate_experiment_refresh_pending_head_changed"
+            ):
+                sink.refresh_experiment_authorization(refreshed, request, expected_job=job)
+            assert sink.get_head(requested) == initial
+            assert database.get_job(job.job_id) == job
+            assert phase_origins == []
+            assert readback_origins == []
+            return
+        head = sink.refresh_experiment_authorization(refreshed, request, expected_job=job)
+        expected_origin = replace(origin, current_action_head=head)
+        assert readback_origins == [(request, expected_origin)]
+        assert phase_origins == [(initial, origin), (head, expected_origin)]
         assert head.head_generation == 2
         assert head.job_id == job.job_id
         assert head.action_generation == initial.action_generation

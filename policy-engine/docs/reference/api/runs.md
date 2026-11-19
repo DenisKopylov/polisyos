@@ -664,7 +664,10 @@ with a typed `canon_profile_*` refusal. If a guarded filesystem CAS read of
 those bytes or the typed manifest times out while waiting, the Runtime can make
 one retry for the same profile and current tenant/cell. The reader still
 compares the raw and typed selections before serving the result. Quantity
-inventory reports `canon_read_status` for this read. An absent profile is refused by default. Only explicit candidate-only compatibility
+inventory reports `canon_read_status` for this read. When the final authority
+payload write loses its acknowledgement, Runtime can continue only after the
+registered CAS proves the stored payload, exact envelope and event links. This
+readback issues no second write. An absent profile is refused by default. Only explicit candidate-only compatibility
 reads return `profile_absent_unqualified_candidate`; this does not establish historical
 eligibility or producer attestation.
 The current acquisition-route projection v1.1 reports `world_growth` from the

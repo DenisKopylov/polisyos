@@ -33,6 +33,10 @@ from polisyos.core.canon import (
     content_hash,
     to_canonical_bytes,
 )
+from polisyos.runtime.http.resilience import (
+    _BlockingDependencyWaitTimeoutError,
+    _require_runtime_ambient_ownership,
+)
 from polisyos.runtime.http.services.control.production_data import (
     production_data_bundle_path,
 )
@@ -455,23 +459,49 @@ def write_authority_artifact(
     if authority_envelope_ref.manifest_profile_sha256 is None:
         raise ValueError("authority_envelope_selected_profile_missing")
 
-    cas_ref = store.put_json(
-        payload,
-        _authority_payload_write_options(
-            opts,
-            inputs=manifest_inputs,
-            tenant_id=tenant_id,
-            cell_id=cell_id,
-            same_input_closure=closure,
-            authority_envelope_ref=authority_envelope_ref,
-            diagnostic_event_ref=str(diagnostic_event_ref.artifact_id),
-            diagnostic_event_manifest_profile_sha256=(diagnostic_event_ref.manifest_profile_sha256),
-            manifest_ref=manifest_ref,
-            payload_sha256=payload_sha256,
-        ),
-        canon_spec,
-        return_selected_profile=True,
+    payload_options = _authority_payload_write_options(
+        opts,
+        inputs=manifest_inputs,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        same_input_closure=closure,
+        authority_envelope_ref=authority_envelope_ref,
+        diagnostic_event_ref=str(diagnostic_event_ref.artifact_id),
+        diagnostic_event_manifest_profile_sha256=diagnostic_event_ref.manifest_profile_sha256,
+        manifest_ref=manifest_ref,
+        payload_sha256=payload_sha256,
     )
+    try:
+        cas_ref = store.put_json(payload, payload_options, canon_spec, return_selected_profile=True)
+    except _BlockingDependencyWaitTimeoutError as write_timeout:
+        if (
+            type(write_timeout) is not _BlockingDependencyWaitTimeoutError
+            or write_timeout.dependency != "content_addressed_storage"
+            or write_timeout.code != "content_addressed_storage_timeout"
+        ):
+            raise
+        # The original worker may have published these bytes. Never repeat the
+        # write or use its late response as proof. Reopen the exact stored links.
+        try:
+            _require_runtime_ambient_ownership(store)
+            recovered = _existing_authority_result_for_visible_views(
+                store,
+                cas_ref_value=cas_ref_value,
+                payload_sha256=payload_sha256,
+                opts=opts,
+                expected_context=expected_context,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError):
+            raise write_timeout from None
+        if (
+            recovered is None
+            or core_artifacts.artifact_ref_identity_key(recovered.authority_envelope_ref)
+            != core_artifacts.artifact_ref_identity_key(authority_envelope_ref)
+            or core_artifacts.artifact_ref_identity_key(recovered.diagnostic_event_ref)
+            != core_artifacts.artifact_ref_identity_key(diagnostic_event_ref)
+        ):
+            raise
+        return recovered
     if cas_ref.manifest_profile_sha256 is None:
         raise ValueError("authority_payload_selected_profile_missing")
     if str(cas_ref.artifact_id) != cas_ref_value:

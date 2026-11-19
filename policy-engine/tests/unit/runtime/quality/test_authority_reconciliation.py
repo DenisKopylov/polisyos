@@ -179,6 +179,79 @@ def test_runtime_authority_writer_appends_durable_event_and_reconciles(tmp_path)
     assert report.durable_event_id == records[0].event.event_id
 
 
+@pytest.mark.parametrize("committed", [True, False], ids=["lost-ack", "still-writing"])
+def test_runtime_authority_writer_recovers_only_committed_exact_payload(
+    tmp_path, monkeypatch: pytest.MonkeyPatch, committed: bool
+) -> None:
+    """Read back a late payload without repeating the original CAS write."""
+    monkeypatch.setenv("POLISYOS_RUNTIME_CAS_TIMEOUT_SECONDS", "0.2")
+    backing = FileSystemCAS(
+        tmp_path / "cas", ownership_enforced=True, ownership_requires_scope=True
+    )
+    store = guard_runtime_cas(backing)
+    database = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    event_log = RuntimeDiagnosticEventLog(store=database, artifact_store=store)
+    release = threading.Event()
+    finished = threading.Event()
+    original = FileSystemCAS.put_json
+    payload = {"status": "pass", "claims": [{"claim_id": "lost-final-write-ack"}]}
+    writes = []
+
+    @wraps(original)
+    def pause_payload(backend, value, options, *args, **kwargs):
+        if value != payload:
+            return original(backend, value, options, *args, **kwargs)
+        writes.append(value)
+        try:
+            if committed:
+                result = original(backend, value, options, *args, **kwargs)
+                assert release.wait(timeout=5.0)
+                return result
+            assert release.wait(timeout=5.0)
+            return original(backend, value, options, *args, **kwargs)
+        finally:
+            finished.set()
+
+    monkeypatch.setattr(FileSystemCAS, "put_json", pause_payload)
+    try:
+        with tenant_scope(None, tenant_id="tenant-1", cell_id="cell-a"):
+            source = store.put_json(
+                {"source": "runtime-input"},
+                PutOptions(kind="runtime.input", media_type="application/json"),
+            )
+            source_id = str(source.artifact_id)
+            if committed:
+                result = write_runtime_authority_artifact(
+                    store, event_log, payload, _opts(source_id), **_runtime_context(source_id)
+                )
+                assert result.cas_ref.manifest_profile_sha256 is not None
+                report = reconcile_authority_ref(
+                    artifact_store=store,
+                    event_log=event_log,
+                    cas_ref=result.cas_ref,
+                    expected_tenant_id="tenant-1",
+                    expected_cell_id="cell-a",
+                    expected_run_id="run-wave-2",
+                    expected_job_id="job-wave-2",
+                )
+                assert report.status == "pass"
+                assert len(event_log.list_events(run_id="run-wave-2", job_id="job-wave-2")) == 1
+            else:
+                with pytest.raises(_BlockingDependencyWaitTimeoutError):
+                    write_runtime_authority_artifact(
+                        store, event_log, payload, _opts(source_id), **_runtime_context(source_id)
+                    )
+                assert event_log.list_events(run_id="run-wave-2", job_id="job-wave-2") == []
+        assert writes == [payload]
+        assert not finished.is_set()
+    finally:
+        release.set()
+        if writes:
+            assert finished.wait(timeout=1.0)
+        store.close()
+        database.close()
+
+
 def test_runtime_authority_writer_preserves_selected_envelope_profile_and_lineage(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,

@@ -520,8 +520,7 @@ class GuardedDependencyProxy:
         self, operation: str, reader: Callable[..., Any], selector: Any
     ) -> Any:
         """Retry one registered ambient CAS read after its exact guard timeout."""
-        from polisyos.core.artifacts.ids import ArtifactID
-        from polisyos.core.artifacts.manifest import ArtifactRef, artifact_reference_parts
+        from polisyos.core.artifacts import ArtifactID, ArtifactRef, artifact_reference_parts
 
         def ordinary() -> Any:
             return _run_guarded_dependency(self._guard, reader, selector)

@@ -1555,13 +1555,15 @@ def _run_signed_native_leaf_action(
             if outcome is not None and action_checkpoint_root is not None:
                 from dataclasses import asdict
 
+                head = asdict(outcome.head)
+                head["created_at"] = outcome.head.created_at.isoformat()
                 save_action(
                     "canonical_outcome",
                     job_id=job_id,
                     request=request,
                     mandate_slot=slot,
                     progress=job.progress,
-                    head=asdict(outcome.head),
+                    head=head,
                     terminal=outcome.latest_receipt.model_dump(mode="json"),
                 )
             assert outcome is not None and outcome.head.job_id == job_id

@@ -9521,11 +9521,18 @@
           ],
           "result": "Exact job reclaimed at attempt 2. Durable Catalog registry binding mismatch before N5; selected input, frontier 3 and original four standard units unchanged.",
           "catalog_positive": "Original R16 location passes canonical check against B3 registry sha256:59a0a94576f19ff7cc9494c8eee71eaa0f3e26bfa75f16b5458f6b72d4535366. R12 same-byte clone refuses due to different absolute source identity.",
-          "r13": "Original R16 Catalog opened read-only, CAS/SQLite cloned from the exact R11 source. Runtime completion in progress.",
+          "r13": "Original R16 Catalog opened read-only, CAS/SQLite cloned from exact R11 source. See retained_c_r13 for the final run readback.",
           "elapsed_seconds": 2078.912,
           "peak_process_tree_rss_bytes": 2243903488,
           "output": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r12-20261119/budget-r4/",
           "supervisor_sha256": "892e32baedfd6a4844de63b41b564ae0033a0c8887b9adaf0f3b139e756c9271"
+        },
+        "retained_c_r13": {
+          "source": ["2282b5a807d93d4350827964ebba058149a7a48c", "6ff0d4aaeb8cf5262ae7bb972fabff56e0892e99"],
+          "status": "Worker and supervisor absent at readback. Final supervisor receipt and worker completion are unavailable. Exit reason and numerical verdict unestablished.",
+          "durable_state": "Exact original job, attempt 2, candidate_input_reentry_pending head 5. Candidate-world checkpoint at 14:51 and exact C start marker at 15:04 Kyiv time. Frontier revision 3. Zero selected C N5 checkpoints.",
+          "physical_ledger": "sha256:093a86eb4d560650329d3f6d45074f39245b0e1d03a3ee3b1a26c4f0e868a594. Four completed standard units, zero new reservations and zero protected use.",
+          "output": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r13-20261119/"
         },
         "native_r24d": {
           "source": [
@@ -9554,6 +9561,12 @@
           "guarded_result_sha256": "f469355fa427a23f80761017e20287c58a15e0a5826f364e8db380f2956c818f",
           "affected_result_sha256": "f8ed4e41e06d0fdc74c20308bb8cbf6e9e415c53911399ab7f05936577cf8c37"
         },
+        "native_r25": {
+          "source": ["e849ca8347d167bcb7cf97ba5f56858b065b7c57", "a207923b2d5d726849800ace9fddbbd6e9dff1f4"],
+          "status": "JUnit FAIL: native_leaf_route_not_current during retained generation-2 route resolution, before new decision request, execution or final restart. Suite recorded 383.929 s. Final supervisor receipt unavailable.",
+          "retained_readback": "All five selected job rows, 17 action heads, provider journal bytes and the numerical ledger match the original retained fixture. Exact kernel observer reports zero calls. No new action or purchase.",
+          "output": "Primary:policy-engine/_cache/e02/native-retained-second-leaf-r25-20261119/budget-r25/"
+        },
         "native_authority_byte_retry": {
           "r14_result": "HTTP 409 native_paid_input_history_not_verified; no new job, fetch or N5",
           "r14_timed_read": "authority get_bytes over 1.5 s; exact link to refusal unestablished",
@@ -9561,7 +9574,7 @@
           "repair": "Main 0e003218d, independent review and 58 affected checks pass",
           "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. R18 on cc646d605 returns HTTP 409 at decision request and completes with no new job. Its exact selected typed manifest waited 2.048 s at a 1.5 s guard. Main bfefb6188 extends the existing single retry to raw and typed profile reads. Focused checks and the path-aware docs/API gate pass. R19 loses acknowledgement of a completed payload CAS write (1.903 s). It leaves exact CAS links, without durable event or acquisition job. Main 24d5538e4 adds read-only recovery with 73 tests and docs/API gate PASS. R20 records zero CAS wait timeouts, then HTTP 503 at decision-request after its event lands 49 s beyond the Step-Up deadline. No new acquisition job or N5. R21 resolves the Native route in 264.615 s of 265.480 s total, with no observed CAS wait timeout. The exact mutation selects one node/supplier group and replays all competing profiles within it."
         },
-        "next": "Verify the exact retained C worker's changed result, frontier 4 and fresh API with the original 7/1 journal. Qualify Native additive-key revalidation and the saved epoch evidence before a fresh protected continuation from the paid B input under unchanged guards. Verify actual numerical completion and restart. Compose qualified source and repeat affected consumers before final freeze and G handoff.",
+        "next": "Reconcile the exact scientific C start marker, no-reservation ledger and action lease through the canonical owner before any retry. Verify changed result, frontier 4 and fresh API on the original 7/1 journal. Diagnose Native generation-2 route eligibility and verify a new authorized action from the generation-1 paid input, with one numerical kernel and no repeated work on restart. Compose affected consumers before final freeze and G handoff.",
         "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",

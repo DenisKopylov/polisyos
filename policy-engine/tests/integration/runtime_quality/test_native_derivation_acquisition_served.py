@@ -3221,6 +3221,27 @@ def assert_retained_native_second_leaf_completion(
     ) as demo:
         case, trust = demo.case, demo.trust
         claims, state = demo.claims, demo.case.state
+
+        def configure_b_growth_route(route_id: str, design_problem_ref: str) -> None:
+            # Both leaves use the declared scope and time/facet evidence of
+            # this two-leaf deployment. Each has its own route and epoch.
+            a_route = case.attempt.selection
+            b_route = AcquisitionWorldGrowthRoute.model_validate(
+                {
+                    **a_route.model_dump(mode="python"),
+                    "route_id": route_id,
+                    "epoch_id": a_route.epoch_id + 1,
+                    "design_problem_ref": design_problem_ref,
+                }
+            )
+            configuration = state["holder"]["configuration"]
+            state["holder"]["configuration"] = AcquisitionWorldGrowthConfig.model_validate(
+                {
+                    **configuration.model_dump(mode="python"),
+                    "routes": (*case.configuration.routes, b_route),
+                }
+            )
+
         with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
             # The immutable unpaired profile asks for one inclusive step. No
             # profile, horizon or seed is rewritten to manufacture dispatch.
@@ -3261,6 +3282,7 @@ def assert_retained_native_second_leaf_completion(
             )
             selected_b_profile_ref = None
             expected_b_terminal_ref = None
+            expected_b_terminal = None
             if retained_b_purchase is not None:
                 selected_b_profile_ref = _selected_retained_ref(
                     case.store,
@@ -3275,6 +3297,23 @@ def assert_retained_native_second_leaf_completion(
                 expected_b_terminal = AcquisitionRouteLoopReceipt.model_validate(
                     artifacts.load_core_json_artifact(case.store, expected_b_terminal_ref)
                 )
+                if (
+                    expected_b_terminal.route_id != retained_b_purchase["route_id"]
+                    or expected_b_terminal.job_id != retained_b_purchase["job_id"]
+                    or expected_b_terminal.action_generation
+                    != retained_b_purchase["action_generation"]
+                    or expected_b_terminal.terminal_outcome != "quarantined_no_growth"
+                    or expected_b_terminal.owner_declared_profile_ref != selected_b_profile_ref
+                    or expected_b_terminal.compiled_ref != str(case.compiled_ref.artifact_id)
+                    or (
+                        expected_b_terminal.tenant_id,
+                        expected_b_terminal.cell_id,
+                        expected_b_terminal.run_id,
+                        expected_b_terminal.source_job_id,
+                    )
+                    != (claims.tenant_id, claims.cell_id, case.control_run_id, case.job_id)
+                ):
+                    raise ValueError("retained_native_b_purchase_scope_mismatch")
                 if artifact_ref_identity_key(selected_b_profile_ref) not in {
                     artifact_ref_identity_key(ref) for ref in new_refs
                 }:
@@ -3292,6 +3331,12 @@ def assert_retained_native_second_leaf_completion(
                     ),
                 }
             )
+            if expected_b_terminal is not None:
+                # Install the declared B route before the resolver replays the
+                # purchase. Current action authority is established separately.
+                configure_b_growth_route(
+                    expected_b_terminal.route_id, case.compiled.design_problem_ref
+                )
             config_path = output_root / "server-cost-profile-selection.json"
             selection_record = {
                 "cost_profile_refs": [ref.model_dump(mode="json") for ref in new_refs],
@@ -3564,14 +3609,6 @@ def assert_retained_native_second_leaf_completion(
                                 "retained_native_retry_current_route_paid_binding_mismatch"
                             )
                         head = retry_head
-                        expected_b_terminal_ref = _selected_retained_ref(
-                            case.store,
-                            ArtifactRef.model_validate(retained_b_purchase["terminal_ref"]),
-                            "runtime_quality.acquisition_route_loop_receipt",
-                        )
-                        expected_b_terminal = AcquisitionRouteLoopReceipt.model_validate(
-                            artifacts.load_core_json_artifact(case.store, expected_b_terminal_ref)
-                        )
                     if type(leaf) is not VerifiedAcquisitionRouteClosure:
                         raise ValueError("retained_native_b_current_route_unverified")
                     reconciled_outcome = control.acquisition_route_sink.current_action_outcome(
@@ -3607,23 +3644,8 @@ def assert_retained_native_second_leaf_completion(
                         ),
                         "closure": leaf,
                     }
-        # A distinct B route uses the existing fixture's same declared scope
-        # and independent time/facet evidence; no A action permit is copied.
-        route = AcquisitionWorldGrowthRoute.model_validate(
-            {
-                **case.attempt.selection.model_dump(mode="python"),
-                "route_id": leaf.route_id,
-                "epoch_id": case.attempt.selection.epoch_id + 1,
-                "design_problem_ref": leaf.design_problem_ref,
-            }
-        )
-        state["holder"]["configuration"] = AcquisitionWorldGrowthConfig.model_validate(
-            {
-                **state["holder"]["configuration"].model_dump(mode="python"),
-                "routes": (*case.configuration.routes, route),
-            }
-        )
         if retained_purchase is None:
+            configure_b_growth_route(leaf.route_id, leaf.design_problem_ref)
             purchase = _run_signed_native_leaf_action(
                 served=case,
                 trust=trust,
@@ -3797,6 +3819,16 @@ def assert_retained_native_second_leaf_completion(
                     expected_tenant_id=claims.tenant_id,
                     expected_cell_id=claims.cell_id,
                 )
+                assert verified.progress.n5_completed is not None
+                _, n5_completed = verified.progress.n5_completed
+                assert (
+                    ArtifactRef.model_validate(result_row["n5_execution_ref"])
+                    == n5_completed.n5_execution_ref
+                )
+                assert (
+                    ArtifactRef.model_validate(result_row["n5_result_ref"])
+                    == n5_completed.n5_result_ref
+                )
                 actual_result, actual_request = verified.result.result, verified.result.request
                 assert type(verified.input_record.n5) is GenericCycleN5ProgramGraphRequestProfileV4
                 assert actual_request.horizon.steps() == (0,)
@@ -3962,7 +3994,8 @@ def assert_retained_native_second_leaf_completion(
             ]
             assert rows_again == [completed_history_row]
         assert tuple(transport_calls) == after_purchase_calls
-        assert semantic_kernel_entry_count() == after_completion_kernels
+        restart_kernel_entries = semantic_kernel_entry_count() - after_completion_kernels
+        assert restart_kernel_entries == 0
         assert {
             path.relative_to(output_root / "controlled-n4").as_posix(): path.read_bytes()
             for path in (output_root / "controlled-n4").rglob("receipt.json")
@@ -3991,7 +4024,11 @@ def assert_retained_native_second_leaf_completion(
             "native_input_collection_ref": rows[0]["native_input_collection_ref"],
             "new_provider_calls": len(transport_calls) - len(before_calls),
             "kernel_entries": after_completion_kernels - before_kernels,
-            "physical_work_units": 1,
+            "restart_kernel_entries": restart_kernel_entries,
+            "n5_input_ref": completed_history_row["n5_input_ref"],
+            "n5_execution_ref": completed_history_row["n5_execution_ref"],
+            "n5_result_ref": completed_history_row["n5_result_ref"],
+            "physical_work_units": len(actual_result.physical_work_observations),
             "semantic_steps": [0],
             "derived_method_argument": "-6000000000",
             "actual_method_argument_value_sha256": actual_argument.value_sha256,

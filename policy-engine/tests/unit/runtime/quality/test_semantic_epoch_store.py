@@ -399,6 +399,7 @@ def test_history_manifest_reader_requires_profile_and_empty_input_closure(
         profileless_history._manifest(profileless_ref)
 
     profiled_store = FileSystemCAS(tmp_path / "profiled-cas")
+    clean_ref = _persist_manifest(profiled_store, manifest)
     anchor = profiled_store.put_bytes(
         b"hidden-manifest-parent",
         ArtifactWriteOptions(kind="epoch.test_anchor", media_type="application/octet-stream"),
@@ -417,7 +418,11 @@ def test_history_manifest_reader_requires_profile_and_empty_input_closure(
         root=tmp_path / "profiled-history",
         artifacts=profiled_store,
     )
-    with pytest.raises(ValueError, match="input closure differs"):
+    assert clean_ref.artifact_id == hidden_edge_ref.artifact_id
+    assert profiled_history._manifest(clean_ref) == (manifest, raw)
+    with pytest.raises(
+        CanonicalProfileRefusalError, match="canon_profile_typed_artifact_profile_mismatch"
+    ):
         profiled_history._manifest(hidden_edge_ref)
 
 
@@ -441,7 +446,7 @@ def test_manifest_artifact_profile_must_be_exact(tmp_path: Path) -> None:
     )
     native_ref = _persist_native(store, "wrong-profile")
 
-    with pytest.raises(ValueError, match="semantic manifest artifact profile mismatch"):
+    with pytest.raises(ValueError, match="epoch statement reference profile differs"):
         repository.append_if_current(
             expected_head_refs=(),
             manifest_ref=wrong_ref,

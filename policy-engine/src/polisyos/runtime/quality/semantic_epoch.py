@@ -65,6 +65,26 @@ class _EpochModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
+class _NativePolicyTrustSnapshot(_EpochModel):
+    """Exact wire shape emitted by the native chronology owner."""
+
+    schema_version: Literal["polisyos.epoch.native-policy-trust.v1"]
+    keys: tuple[tuple[str, Digest, tuple[str, ...]], ...]
+    revoked_key_ids: tuple[str, ...]
+
+
+class _NativeOwnerVerificationReceipt(_EpochModel):
+    """Exact wire shape binding one owner verification to its trust snapshot."""
+
+    schema_version: Literal["polisyos.epoch.native-owner-verification.v1"]
+    candidate_content_hash: Digest
+    signed_policy_admission_ref: ArtifactRef
+    owner_relation_ref: ArtifactRef
+    native_predicate_evidence_refs: tuple[ArtifactRef, ...]
+    trust_snapshot_ref: ArtifactRef
+    verifier_provenance_ref: ArtifactRef
+
+
 def _sha256(*chunks: bytes) -> Digest:
     digest = hashlib.sha256()
     for chunk in chunks:
@@ -609,6 +629,416 @@ def _load_owner_projection_mapping(
     return selected_ref, mapping
 
 
+def _read_native_owner_wire_artifact[ModelT: BaseModel](
+    store: ArtifactStore,
+    ref: ArtifactRef,
+    *,
+    expected_kind: str,
+    model: type[ModelT],
+) -> tuple[ArtifactRef, ModelT, bytes]:
+    """Read one exact canonical raw owner artifact with its selected manifest."""
+    from polisyos.core import FileSystemSignedArtifactEvidenceRepository
+
+    if ref.kind != expected_kind or ref.media_type != "application/octet-stream":
+        raise ValueError("native owner wire artifact selector differs")
+    manifest = store.get_manifest(ref)
+    profile = artifact_manifest_profile_sha256(manifest)
+    if (
+        manifest.artifact_id != ref.artifact_id
+        or manifest.kind != ref.kind
+        or manifest.media_type != ref.media_type
+        or not profile
+        or (ref.manifest_profile_sha256 is not None and ref.manifest_profile_sha256 != profile)
+        or manifest.artifact_schema is not None
+        or manifest.canon is not None
+        or manifest.inputs
+    ):
+        raise ValueError("native owner wire manifest differs")
+    selected_ref = ArtifactRef.model_validate(
+        ref.model_dump(mode="json") | {"manifest_profile_sha256": profile}
+    )
+    payload = FileSystemSignedArtifactEvidenceRepository(store).read_raw(artifact_ref=selected_ref)
+    if _raw_cas_hash(payload) != str(selected_ref.artifact_id):
+        raise ValueError("native owner wire bytes differ from CAS identity")
+    frames = chronology_contract._split_framed_records(payload)
+    if len(frames) != 1:
+        raise ValueError("native owner wire artifact has an unexpected frame count")
+    mapping = json.loads(frames[0])
+    if (
+        not isinstance(mapping, dict)
+        or chronology_contract._canonical_raw_bytes(mapping) != frames[0]
+    ):
+        raise ValueError("native owner wire artifact is not canonical")
+    decoded = model.model_validate(mapping)
+    if (
+        chronology_contract._canonical_raw_bytes(chronology_contract._raw_model_mapping(decoded))
+        != frames[0]
+    ):
+        raise ValueError("native owner wire artifact differs from its strict codec")
+    return selected_ref, decoded, payload
+
+
+def _replace_epoch_model[ModelT: BaseModel](model: ModelT, **updates: object) -> ModelT:
+    mapping = model.model_dump(mode="python")
+    mapping.update(updates)
+    return type(model).model_validate(mapping)
+
+
+def _read_native_applicable_denominator(
+    store: ArtifactStore,
+    denominator: chronology_contract.PersistedApplicablePredicateDenominator,
+    reconciliation: chronology_contract.NativeChronologyReconciliation,
+) -> tuple[ArtifactRef, tuple[InputRef, ...]]:
+    """Reopen the typed denominator under its exact Core schema and input closure."""
+    from polisyos.core.artifacts import load_core_json_frame_records
+
+    ref = denominator.artifact_ref
+    manifest = store.get_manifest(ref)
+    schema = manifest.artifact_schema
+    profile = artifact_manifest_profile_sha256(manifest)
+    candidate = reconciliation.owner_context.owner_qualified_candidate.candidate
+    owner = reconciliation.owner_context.owner_qualified_candidate.owner_relation_verification
+    expected_inputs = (
+        artifacts.input_ref_from_artifact_ref(
+            owner.verification_receipt_ref, role="owner_qualification_receipt"
+        ),
+        artifacts.input_ref_from_artifact_ref(
+            candidate.native_denominator_artifact_ref, role="native_denominator"
+        ),
+        artifacts.input_ref_from_artifact_ref(
+            candidate.query_context_artifact_ref, role="query_context"
+        ),
+        *(
+            artifacts.input_ref_from_artifact_ref(member.native_artifact_ref, role="native_member")
+            for member in candidate.ordered_members
+        ),
+    )
+    if (
+        manifest.artifact_id != ref.artifact_id
+        or manifest.kind != "core.chronology.applicable_predicate_denominator"
+        or manifest.media_type != "application/octet-stream"
+        or schema is None
+        or schema.name != "polisyos.chronology.ApplicablePredicateDenominator"
+        or schema.version != "1"
+        or manifest.canon
+        != chronology_contract.CanonInfo.from_spec(chronology_contract.CHRONOLOGY_CANON_SPEC)
+        or tuple(manifest.inputs) != expected_inputs
+        or not profile
+        or (ref.manifest_profile_sha256 is not None and ref.manifest_profile_sha256 != profile)
+    ):
+        raise ValueError("native applicable denominator manifest differs")
+    selected_ref = ArtifactRef.model_validate(
+        ref.model_dump(mode="json") | {"manifest_profile_sha256": profile}
+    )
+    if not store.verify(selected_ref).ok:
+        raise ValueError("native applicable denominator integrity is not established")
+    payload = store.get_bytes(selected_ref)
+    if _raw_cas_hash(payload) != str(selected_ref.artifact_id):
+        raise ValueError("native applicable denominator bytes differ")
+    frames = chronology_contract._split_framed_records(payload)
+    if len(frames) != 1:
+        raise ValueError("native applicable denominator frame count differs")
+    raw = load_core_json_frame_records(store, selected_ref, raw_payload_bytes=payload)[0]
+    if not isinstance(raw, dict) or chronology_contract._canonical_raw_bytes(raw) != frames[0]:
+        raise ValueError("native applicable denominator is not canonical")
+    statement = chronology_contract.ApplicablePredicateDenominatorStatement.model_validate(raw)
+    if (
+        statement != denominator.statement
+        or chronology_contract._denominator_content_hash(statement)
+        != denominator.denominator_content_hash
+        or _raw_cas_hash(payload) != denominator.cas_raw_bytes_hash
+    ):
+        raise ValueError("native applicable denominator statement differs")
+    return selected_ref, expected_inputs
+
+
+def _native_trust_rows_are_well_formed(snapshot: _NativePolicyTrustSnapshot) -> bool:
+    key_pairs = [(identity, pem_hash) for identity, pem_hash, _ in snapshot.keys]
+    return (
+        all(
+            identity and roles and len(roles) == len(set(roles))
+            for identity, _, roles in snapshot.keys
+        )
+        and len(key_pairs) == len(set(key_pairs))
+        and len(snapshot.revoked_key_ids) == len(set(snapshot.revoked_key_ids))
+    )
+
+
+def _native_projection_requalification_is_exact(
+    selected_ref: ArtifactRef,
+    persisted: chronology_contract.NativeChronologyProjectionStatement,
+    fresh: chronology_contract.NativeChronologyQualified,
+) -> bool:
+    return (
+        fresh.reconciliation == persisted.reconciliation
+        and fresh.proof_result == persisted.proof_result
+        and fresh.projection_receipt.statement == persisted
+        and _selected_cas_ref_matches_owner_projection(
+            selected_ref, fresh.projection_receipt.artifact_ref
+        )
+    )
+
+
+def _native_projection_requalification_matches(
+    *,
+    store: ArtifactStore,
+    selected_projection_ref: ArtifactRef,
+    persisted: chronology_contract.NativeChronologyProjectionStatement,
+    fresh: chronology_contract.NativeChronologyQualified,
+    deployment: object,
+) -> bool:
+    """Allow only a verified additive trust snapshot refresh of a native projection.
+
+    The existing exact path returns before opening additional owner artifacts.
+    The compatibility path reopens the historical projection, receipts and trust
+    snapshots, then proves the original signed admission remains trusted under
+    the current deployment and that every non-trust semantic field is unchanged.
+    """
+    if not isinstance(fresh, chronology_contract.NativeChronologyQualified):
+        return False
+    fresh_projection = fresh.projection_receipt
+    if _native_projection_requalification_is_exact(selected_projection_ref, persisted, fresh):
+        return True
+
+    try:
+        from polisyos.core import FileSystemSignedArtifactEvidenceRepository, security
+
+        old_selected_ref, old_mapping = _load_owner_projection_mapping(
+            store, selected_projection_ref
+        )
+        old_reopened = chronology_contract.NativeChronologyProjectionStatement.model_validate(
+            old_mapping
+        )
+        if (
+            old_reopened != persisted
+            or not _selected_cas_ref_matches_owner_projection(
+                old_selected_ref, selected_projection_ref
+            )
+            or fresh.proof_result != persisted.proof_result
+            or fresh.reconciliation.owner_context.query
+            != persisted.reconciliation.owner_context.query
+        ):
+            return False
+        fresh_selected_ref, fresh_mapping = _load_owner_projection_mapping(
+            store, fresh_projection.artifact_ref
+        )
+        if chronology_contract.NativeChronologyProjectionStatement.model_validate(
+            fresh_mapping
+        ) != fresh_projection.statement or not _selected_cas_ref_matches_owner_projection(
+            fresh_selected_ref, fresh_projection.artifact_ref
+        ):
+            return False
+
+        old_context = persisted.reconciliation.owner_context
+        old_qualified = old_context.owner_qualified_candidate
+        old_owner = old_qualified.owner_relation_verification
+        old_provenance = old_owner.policy_owner_provenance
+        current_reconciliation = fresh.reconciliation
+        current_context = current_reconciliation.owner_context
+        current_owner = current_context.owner_qualified_candidate.owner_relation_verification
+        current_provenance = current_owner.policy_owner_provenance
+        old_receipt_ref, old_receipt, old_receipt_bytes = _read_native_owner_wire_artifact(
+            store,
+            old_owner.verification_receipt_ref,
+            expected_kind="epoch.native_owner_verification",
+            model=_NativeOwnerVerificationReceipt,
+        )
+        current_receipt_ref, current_receipt, current_receipt_bytes = (
+            _read_native_owner_wire_artifact(
+                store,
+                current_owner.verification_receipt_ref,
+                expected_kind="epoch.native_owner_verification",
+                model=_NativeOwnerVerificationReceipt,
+            )
+        )
+        if (
+            old_receipt_ref.artifact_id != old_owner.verification_receipt_ref.artifact_id
+            or current_receipt_ref.artifact_id != current_owner.verification_receipt_ref.artifact_id
+            or old_receipt.candidate_content_hash
+            != chronology_contract._native_candidate_content_hash(old_qualified.candidate)
+            or current_receipt.candidate_content_hash
+            != chronology_contract._native_candidate_content_hash(
+                current_context.owner_qualified_candidate.candidate
+            )
+            or old_receipt.signed_policy_admission_ref != old_provenance.verification_receipt_ref
+            or current_receipt.signed_policy_admission_ref
+            != current_provenance.verification_receipt_ref
+            or old_receipt.owner_relation_ref != old_owner.owner_relation_ref
+            or current_receipt.owner_relation_ref != current_owner.owner_relation_ref
+            or old_receipt.trust_snapshot_ref != old_provenance.trust_snapshot_ref
+            or current_receipt.trust_snapshot_ref != current_provenance.trust_snapshot_ref
+            or old_provenance.trust_snapshot_content_hash
+            != str(old_provenance.trust_snapshot_ref.artifact_id)
+            or current_provenance.trust_snapshot_content_hash
+            != str(current_provenance.trust_snapshot_ref.artifact_id)
+            or old_owner.verification_receipt_content_hash
+            != str(old_owner.verification_receipt_ref.artifact_id)
+            or current_owner.verification_receipt_content_hash
+            != str(current_owner.verification_receipt_ref.artifact_id)
+            or old_receipt_bytes
+            != chronology_contract._frame_record(
+                chronology_contract._canonical_raw_bytes(
+                    chronology_contract._raw_model_mapping(old_receipt)
+                )
+            )
+        ):
+            return False
+
+        normalized_old_receipt = _replace_epoch_model(
+            old_receipt, trust_snapshot_ref=current_receipt.trust_snapshot_ref
+        )
+        expected_current_receipt_bytes = chronology_contract._frame_record(
+            chronology_contract._canonical_raw_bytes(
+                chronology_contract._raw_model_mapping(normalized_old_receipt)
+            )
+        )
+        if expected_current_receipt_bytes != current_receipt_bytes:
+            return False
+
+        old_trust_ref, old_trust, _ = _read_native_owner_wire_artifact(
+            store,
+            old_receipt.trust_snapshot_ref,
+            expected_kind="epoch.native_policy_trust",
+            model=_NativePolicyTrustSnapshot,
+        )
+        current_trust_ref, current_trust, _ = _read_native_owner_wire_artifact(
+            store,
+            current_receipt.trust_snapshot_ref,
+            expected_kind="epoch.native_policy_trust",
+            model=_NativePolicyTrustSnapshot,
+        )
+        if (
+            old_trust_ref.artifact_id != old_receipt.trust_snapshot_ref.artifact_id
+            or current_trust_ref.artifact_id != current_receipt.trust_snapshot_ref.artifact_id
+            or not _native_trust_rows_are_well_formed(old_trust)
+            or not _native_trust_rows_are_well_formed(current_trust)
+            or old_trust.revoked_key_ids != current_trust.revoked_key_ids
+        ):
+            return False
+
+        state = deployment._state()
+        current_state_keys = tuple(
+            (identity, security.raw_content_hash(pem), tuple(roles))
+            for identity, pem, roles in state.keys
+        )
+        if current_trust.keys != current_state_keys or current_trust.revoked_key_ids != tuple(
+            state.config.revoked_key_ids
+        ):
+            return False
+        if not set(old_trust.keys).issubset(set(current_trust.keys)):
+            return False
+
+        old_denominator = persisted.reconciliation.applicable_predicate_denominator
+        current_denominator = current_reconciliation.applicable_predicate_denominator
+        old_denominator_ref, old_denominator_inputs = _read_native_applicable_denominator(
+            store, old_denominator, persisted.reconciliation
+        )
+        current_denominator_ref, current_denominator_inputs = _read_native_applicable_denominator(
+            store, current_denominator, current_reconciliation
+        )
+        if (
+            current_denominator_ref.manifest_profile_sha256 is None
+            or (old_denominator_inputs[0].role != "owner_qualification_receipt")
+            or (current_denominator_inputs[0].role != "owner_qualification_receipt")
+            or old_denominator_inputs[1:] != current_denominator_inputs[1:]
+            or old_denominator_ref.artifact_id != current_denominator_ref.artifact_id
+            or old_denominator_ref.kind != current_denominator_ref.kind
+            or old_denominator_ref.media_type != current_denominator_ref.media_type
+            or old_denominator.statement != current_denominator.statement
+            or old_denominator.denominator_content_hash
+            != current_denominator.denominator_content_hash
+            or old_denominator.cas_raw_bytes_hash != current_denominator.cas_raw_bytes_hash
+        ):
+            return False
+        normalized_old_provenance = _replace_epoch_model(
+            old_provenance,
+            trust_snapshot_ref=current_provenance.trust_snapshot_ref,
+            trust_snapshot_content_hash=current_provenance.trust_snapshot_content_hash,
+        )
+        normalized_old_owner = _replace_epoch_model(
+            old_owner,
+            verification_receipt_ref=current_owner.verification_receipt_ref,
+            verification_receipt_content_hash=current_owner.verification_receipt_content_hash,
+            policy_owner_provenance=normalized_old_provenance,
+        )
+        normalized_old_candidate = _replace_epoch_model(
+            old_qualified, owner_relation_verification=normalized_old_owner
+        )
+        normalized_old_context = _replace_epoch_model(
+            old_context, owner_qualified_candidate=normalized_old_candidate
+        )
+        if (
+            normalized_old_context != fresh.reconciliation.owner_context
+            or persisted.reconciliation.authoritative_native_schema_profile
+            != fresh.reconciliation.authoritative_native_schema_profile
+        ):
+            return False
+
+        # The old receipt names a signed admission record. Verify that the old
+        # trust rows actually include its signer, using current public key bytes
+        # only where both identity and PEM digest match the historical snapshot.
+        evidence_repository = FileSystemSignedArtifactEvidenceRepository(store)
+        signed_admission = evidence_repository.read_exact(
+            evidence_record_ref=old_receipt.signed_policy_admission_ref
+        )
+        signed_record = security.parse_canonical_statement(
+            signed_admission.persisted.record_bytes,
+            chronology_contract.SignedArtifactEvidenceRecord,
+        )
+        admission = security.parse_canonical_statement(
+            signed_admission.blob_bytes,
+            chronology_contract.PredicatePolicyAdmissionStatement,
+        )
+        query = old_context.query
+        expected_key = chronology_contract.PredicatePolicySelectionKey(
+            family=query.domain.family,
+            proof_domain=query.domain.proof_domain,
+            scope_ref=query.domain.scope_ref,
+            authority_purpose=query.domain.authority_purpose,
+            requested_cutoff_ref=query.requested_cutoff_ref,
+        )
+        if (
+            signed_admission.persisted.evidence_record_ref
+            != old_receipt.signed_policy_admission_ref
+            or signed_record.artifact_ref != old_context.policy_admission_ref
+            or old_context.policy_admission_content_hash
+            != chronology_contract._policy_admission_content_hash(admission)
+            or admission.key != expected_key
+            or admission.requested_query_context_ref != query.requested_query_context_ref
+            or admission.native_schema_profile
+            != persisted.reconciliation.authoritative_native_schema_profile
+            or admission.policy_ref != old_context.predicate_admission_policy_ref
+            or admission.policy_content_hash != old_context.predicate_admission_policy_content_hash
+            or admission.owner_relation_ref != old_owner.owner_relation_ref
+            or admission.owner_relation_content_hash != old_owner.owner_relation_content_hash
+        ):
+            return False
+
+        old_admission_rows = {
+            (identity, pem_hash, roles)
+            for identity, pem_hash, roles in old_trust.keys
+            if "predicate_policy_admission" in roles
+        }
+        verifier = artifacts.Ed25519Verifier(strict_identity=True)
+        signer_key_ids: set[str] = set()
+        for identity, pem, roles in state.keys:
+            row = (identity, security.raw_content_hash(pem), tuple(roles))
+            if row in old_admission_rows:
+                signer_key_ids.add(verifier.load_trusted_key_pem(pem, identity=identity))
+        if not signer_key_ids:
+            return False
+        for key_id in old_trust.revoked_key_ids:
+            verifier.add_revoked_key_id(key_id)
+        signature = artifacts.DetachedSignature.model_validate_json(
+            signed_admission.detached_signature_bytes
+        )
+        return signature.key_id in signer_key_ids and security.verify_signed_evidence(
+            signed_admission, verifier=verifier
+        )
+    except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        return False
+
+
 def _data_snapshot_manifest_inputs_match(
     store: ArtifactStore,
     selected_snapshot_ref: ArtifactRef,
@@ -691,6 +1121,15 @@ def _walk_verified_reference_graph(
     native_projection_qualifier: Callable[
         [ArtifactRef, chronology_contract.NativeChronologyProjectionStatement],
         chronology_contract.NativeChronologyQualified,
+    ]
+    | None = None,
+    native_projection_requalification_matches: Callable[
+        [
+            ArtifactRef,
+            chronology_contract.NativeChronologyProjectionStatement,
+            chronology_contract.NativeChronologyQualified,
+        ],
+        bool,
     ]
     | None = None,
 ) -> dict[tuple[str, str, str], str] | None:
@@ -801,6 +1240,9 @@ def _walk_verified_reference_graph(
                     store,
                     mapping,
                     native_projection_qualifier=native_projection_qualifier,
+                    native_projection_requalification_matches=(
+                        native_projection_requalification_matches
+                    ),
                 )
                 if qualified_projection is not None:
                     qualified_native_projections.add(qualified_projection)
@@ -857,6 +1299,15 @@ def _resolve_selected_reference_graph(
         chronology_contract.NativeChronologyQualified,
     ]
     | None = None,
+    native_projection_requalification_matches: Callable[
+        [
+            ArtifactRef,
+            chronology_contract.NativeChronologyProjectionStatement,
+            chronology_contract.NativeChronologyQualified,
+        ],
+        bool,
+    ]
+    | None = None,
 ) -> dict[tuple[str, str, str], str] | None:
     """Resolve the complete selected CAS graph, including nested owner refs.
 
@@ -874,6 +1325,7 @@ def _resolve_selected_reference_graph(
         dict(root_profiles),
         allow_profileless_roots=False,
         native_projection_qualifier=native_projection_qualifier,
+        native_projection_requalification_matches=(native_projection_requalification_matches),
     )
 
 
@@ -884,6 +1336,15 @@ def _verify_epoch_production_chronology_chain(
     native_projection_qualifier: Callable[
         [ArtifactRef, chronology_contract.NativeChronologyProjectionStatement],
         chronology_contract.NativeChronologyQualified,
+    ]
+    | None = None,
+    native_projection_requalification_matches: Callable[
+        [
+            ArtifactRef,
+            chronology_contract.NativeChronologyProjectionStatement,
+            chronology_contract.NativeChronologyQualified,
+        ],
+        bool,
     ]
     | None = None,
 ) -> tuple[tuple[str, str, str], str] | None:
@@ -1101,15 +1562,17 @@ def _verify_epoch_production_chronology_chain(
     if native_projection_qualifier is None:
         raise ValueError("persisted native projection lacks fresh owner requalification")
     fresh = native_projection_qualifier(selected_projection_ref, projection)
-    if (
-        not isinstance(fresh, chronology_contract.NativeChronologyQualified)
-        or fresh.reconciliation != projection.reconciliation
-        or fresh.proof_result != projection.proof_result
-        or fresh.projection_receipt.statement != projection
-        or not _selected_cas_ref_matches_owner_projection(
-            selected_projection_ref, fresh.projection_receipt.artifact_ref
+    if not isinstance(fresh, chronology_contract.NativeChronologyQualified):
+        raise ValueError("fresh native owner qualification differs from persisted projection")
+    if native_projection_requalification_matches is None:
+        matches = _native_projection_requalification_is_exact(
+            selected_projection_ref, projection, fresh
         )
-    ):
+    else:
+        matches = native_projection_requalification_matches(
+            selected_projection_ref, projection, fresh
+        )
+    if not matches:
         raise ValueError("fresh native owner qualification differs from persisted projection")
     selected_profile = selected_projection_ref.manifest_profile_sha256
     if selected_profile is None:
@@ -1257,6 +1720,15 @@ def _owner_reference_graph_matches_selected(
         chronology_contract.NativeChronologyQualified,
     ]
     | None = None,
+    native_projection_requalification_matches: Callable[
+        [
+            ArtifactRef,
+            chronology_contract.NativeChronologyProjectionStatement,
+            chronology_contract.NativeChronologyQualified,
+        ],
+        bool,
+    ]
+    | None = None,
 ) -> bool:
     """Resolve every owner ref leaf and reconcile it with the verified CAS graph.
 
@@ -1272,6 +1744,7 @@ def _owner_reference_graph_matches_selected(
             dict(selected_profiles),
             allow_profileless_roots=True,
             native_projection_qualifier=native_projection_qualifier,
+            native_projection_requalification_matches=(native_projection_requalification_matches),
         )
         is not None
     )
@@ -4671,17 +5144,41 @@ class SemanticEpochService:
             adapter=self._chronology_adapter.for_history(history),
             request=query,
         )
-        if (
-            not isinstance(fresh, chronology_contract.NativeChronologyQualified)
-            or fresh.reconciliation != projection.reconciliation
-            or fresh.proof_result != projection.proof_result
-            or fresh.projection_receipt.statement != projection
-            or not _selected_cas_ref_matches_owner_projection(
-                selected_projection_ref, fresh.projection_receipt.artifact_ref
+        if not isinstance(fresh, chronology_contract.NativeChronologyQualified) or not (
+            self._native_projection_requalification_matches(
+                selected_projection_ref, projection, fresh
             )
         ):
             raise ValueError("fresh owner qualification differs from persisted projection")
         return fresh
+
+    def _native_projection_requalification_matches(
+        self,
+        selected_projection_ref: ArtifactRef,
+        projection: chronology_contract.NativeChronologyProjectionStatement,
+        fresh: chronology_contract.NativeChronologyQualified,
+    ) -> bool:
+        """Apply the exact-or-bounded-additive owner-trust comparison."""
+        from polisyos.runtime.quality.epoch_deployment import EpochDeployment
+
+        if _native_projection_requalification_is_exact(selected_projection_ref, projection, fresh):
+            return True
+        owner = getattr(self._chronology_adapter, "_policy_owner", None)
+        deployment = getattr(owner, "deployment", None)
+        if type(deployment) is not EpochDeployment:
+            return False
+        try:
+            before = deployment.attestation_state()
+            matches = _native_projection_requalification_matches(
+                store=self._artifact_store,
+                selected_projection_ref=selected_projection_ref,
+                persisted=projection,
+                fresh=fresh,
+                deployment=deployment,
+            )
+            return matches and deployment.attestation_state() == before
+        except (RuntimeError, TypeError, ValueError):
+            return False
 
     def _require_resolution_components(self) -> None:
         if not self._resolution_components_established:
@@ -5293,7 +5790,11 @@ class SemanticEpochService:
             )
             native_projection_qualification_cache: dict[
                 tuple[tuple[str, str, str], str],
-                chronology_contract.NativeChronologyQualified,
+                tuple[
+                    ArtifactRef,
+                    chronology_contract.NativeChronologyProjectionStatement,
+                    chronology_contract.NativeChronologyQualified,
+                ],
             ] = {}
 
             def qualify_persisted_projection(
@@ -5306,22 +5807,33 @@ class SemanticEpochService:
                 key = (_selected_ref_identity(ref), profile)
                 cached = native_projection_qualification_cache.get(key)
                 if cached is not None:
-                    if (
-                        cached.projection_receipt.statement != projection
-                        or not _selected_cas_ref_matches_owner_projection(
-                            ref, cached.projection_receipt.artifact_ref
-                        )
-                    ):
+                    if cached[0] != ref or cached[1] != projection:
                         raise ValueError("cached native owner qualification differs")
-                    return cached
+                    return cached[2]
                 fresh = self._requalify_persisted_native_projection(ref, projection)
-                native_projection_qualification_cache[key] = fresh
+                native_projection_qualification_cache[key] = (ref, projection, fresh)
                 return fresh
+
+            def projection_requalification_matches(
+                ref: ArtifactRef,
+                projection: chronology_contract.NativeChronologyProjectionStatement,
+                fresh: chronology_contract.NativeChronologyQualified,
+            ) -> bool:
+                profile = ref.manifest_profile_sha256
+                if profile is None:
+                    return False
+                cached = native_projection_qualification_cache.get(
+                    (_selected_ref_identity(ref), profile)
+                )
+                if cached is not None:
+                    return cached == (ref, projection, fresh)
+                return self._native_projection_requalification_matches(ref, projection, fresh)
 
             selected_ref_profiles = _resolve_selected_reference_graph(
                 self._artifact_store,
                 admitted,
                 native_projection_qualifier=qualify_persisted_projection,
+                native_projection_requalification_matches=(projection_requalification_matches),
             )
             if selected_ref_profiles is None:
                 raise ValueError("admitted acquisition selected reference graph is unresolved")
@@ -5405,6 +5917,7 @@ class SemanticEpochService:
                     owner_graph,
                     store=self._artifact_store,
                     native_projection_qualifier=qualify_persisted_projection,
+                    native_projection_requalification_matches=(projection_requalification_matches),
                 )
                 for owner_graph in owner_reference_graphs
             ):

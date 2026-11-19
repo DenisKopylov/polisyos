@@ -2346,7 +2346,12 @@ def resolve_activated_semantic_epoch_admission(
     """
     from polisyos.core import security
     from polisyos.runtime.quality.chronology_qualification import QualificationConsumer
-    from polisyos.runtime.quality.semantic_epoch import SemanticEpochProductionReceipt
+    from polisyos.runtime.quality.semantic_epoch import (
+        SemanticEpochProductionReceipt,
+        _native_projection_requalification_matches,
+        _selected_cas_ref_matches_owner_projection,
+        _verify_epoch_production_chronology_chain,
+    )
 
     chronology = contracts.chronology
 
@@ -2513,17 +2518,48 @@ def resolve_activated_semantic_epoch_admission(
         ):
             raise ValueError("projection belongs to another semantic epoch")
         with epoch_deployment.composition_scope(runtime_artifact_store=artifact_store):
+            attestation = epoch_deployment.attestation_state()
             qualified = QualificationConsumer.from_deployment(epoch_deployment).qualify(
                 adapter=RecordedCandidate(), request=query
             )
-        if (
-            not isinstance(qualified, chronology.NativeChronologyQualified)
-            or qualified.projection_receipt.artifact_ref != production.chronology_projection_ref
-            or qualified.persisted_proof.artifact_ref != production.chronology_bundle_ref
-            or qualified.persisted_proof.verifier_result_ref
-            != production.chronology_verification_ref
-        ):
-            raise ValueError("native qualification replay did not reproduce production evidence")
+            if not isinstance(qualified, chronology.NativeChronologyQualified):
+                raise ValueError("native qualification replay did not qualify production evidence")
+            if (
+                qualified.projection_receipt.artifact_ref != production.chronology_projection_ref
+                or qualified.persisted_proof.artifact_ref != production.chronology_bundle_ref
+                or qualified.persisted_proof.verifier_result_ref
+                != production.chronology_verification_ref
+            ):
+                # The active deployment can refresh custody without reproducing
+                # historical proof locators. Reverify that exact stored chain.
+                def current_qualification(
+                    selected_ref: ArtifactRef,
+                    statement: contracts.chronology.NativeChronologyProjectionStatement,
+                ) -> contracts.chronology.NativeChronologyQualified:
+                    if statement != projection or not _selected_cas_ref_matches_owner_projection(
+                        selected_ref, production.chronology_projection_ref
+                    ):
+                        raise ValueError("activation chronology projection selection differs")
+                    return qualified
+
+                historical = _verify_epoch_production_chronology_chain(
+                    artifact_store,
+                    production.statement_projection(),
+                    native_projection_qualifier=current_qualification,
+                    native_projection_requalification_matches=(
+                        lambda ref, statement, fresh: _native_projection_requalification_matches(
+                            store=artifact_store,
+                            selected_projection_ref=ref,
+                            persisted=statement,
+                            fresh=fresh,
+                            deployment=epoch_deployment,
+                        )
+                    ),
+                )
+                if historical is None:
+                    raise ValueError("native qualification requires the exact historical chain")
+            if epoch_deployment.attestation_state() != attestation:
+                raise ValueError("native qualification deployment changed during readback")
         return activated
     except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
         raise SemanticEpochAdmissionResolutionError(

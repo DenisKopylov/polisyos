@@ -11,6 +11,18 @@ from polisyos.core.contracts import chronology as chronology_contract
 from polisyos.core.contracts import epoch as epoch_contract
 from polisyos.runtime.quality import chronology_proof
 from polisyos.runtime.quality import semantic_epoch as epoch
+from polisyos.runtime.quality.acquisition_executor import (
+    SemanticEpochAdmissionResolutionError,
+    resolve_activated_semantic_epoch_admission,
+)
+from polisyos.runtime.quality.chronology_qualification import QualificationConsumer
+from polisyos.runtime.quality.epoch_deployment import (
+    EpochDeployment,
+    EpochTrustedIssuerConfig,
+)
+from polisyos.runtime.quality.semantic_epoch_qualification import (
+    build_semantic_epoch_native_deployment,
+)
 from tests._helpers.semantic_epoch_native import (
     _real_epoch_scenario,
     finalize_native_epoch_case,
@@ -307,6 +319,174 @@ def test_current_owner_requalification_rejects_a_changed_owner_receipt_ref(
         )
         is None
     )
+
+
+def test_additive_native_trust_requalifies_historical_projection_and_graph(
+    tmp_path: Path,
+) -> None:
+    scenario = _real_epoch_scenario(tmp_path / "scenario")
+    case = sign_native_epoch_scenario(scenario, tmp_path / "policy")
+    finalized = finalize_native_epoch_case(case)
+    projection_ref, projection_mapping = epoch._load_owner_projection_mapping(
+        case.store, finalized.production.chronology_projection_ref
+    )
+    projection = chronology_contract.NativeChronologyProjectionStatement.model_validate(
+        projection_mapping
+    )
+
+    exact = case.service._requalify_persisted_native_projection(projection_ref, projection)
+    assert scenario.service._native_projection_requalification_matches(
+        projection_ref, projection, exact
+    )
+    unrelated = type(case.custodian).create(case.store, tmp_path / "unrelated-issuer")
+    current_config = case.config.model_copy(
+        update={
+            "trusted_issuers": (
+                *case.config.trusted_issuers,
+                EpochTrustedIssuerConfig(
+                    identity="fixture-native-epoch-independent-reviewer",
+                    public_key_path=unrelated.public_key_path,
+                    roles=("predicate_policy_admission",),
+                ),
+            )
+        }
+    )
+    deployment = build_semantic_epoch_native_deployment(current_config)
+    policy_owner = deployment._state().chronology_policy_owner
+    assert policy_owner is not None
+    current_service = epoch.SemanticEpochService(
+        boundary_registry=case.service._boundary_registry,
+        boundary_adapters=case.service._boundary_adapters,
+        facet_registry=case.service._facet_registry,
+        facet_provider=case.service._facet_provider,
+        history=scenario.history,
+        artifact_store=case.store,
+        qualification_consumer=QualificationConsumer.from_deployment(
+            deployment, runtime_artifact_store=case.store
+        ),
+        chronology_adapter=epoch.SemanticEpochQualificationAdapter(
+            history=scenario.history,
+            artifacts=case.store,
+            policy_owner=policy_owner,
+        ),
+    )
+
+    fresh = current_service._requalify_persisted_native_projection(projection_ref, projection)
+    assert fresh.proof_result == projection.proof_result
+    assert fresh.reconciliation.owner_context.query == projection.reconciliation.owner_context.query
+    assert fresh.projection_receipt.statement != projection
+    assert (
+        epoch._resolve_selected_reference_graph(
+            case.store,
+            finalized.production.receipt_ref,
+            native_projection_qualifier=current_service._requalify_persisted_native_projection,
+            native_projection_requalification_matches=(
+                current_service._native_projection_requalification_matches
+            ),
+        )
+        is not None
+    )
+
+    def read_activation(owner: EpochDeployment) -> object:
+        return resolve_activated_semantic_epoch_admission(
+            receipt=finalized.receipt,
+            artifact_store=case.store,
+            overlay=scenario.overlay,
+            authority=scenario.authority,
+            epoch_deployment=owner,
+        )
+
+    original_activation = read_activation(case.deployment)
+    assert read_activation(deployment) == original_activation
+    original_bundle = finalized.production.chronology_bundle_ref
+    assert original_bundle is not None
+    fresh_bundle = fresh.persisted_proof.artifact_ref
+    assert fresh_bundle != original_bundle
+    bundle_path = case.store._manifest_path_for_ref(
+        original_bundle.artifact_id, original_bundle.manifest_profile_sha256
+    )
+    removed = bundle_path.with_suffix(".removed-for-readback")
+    bundle_path.rename(removed)
+    try:
+        assert case.store.verify(fresh_bundle).ok
+        with pytest.raises(SemanticEpochAdmissionResolutionError, match="basis_mismatch"):
+            read_activation(deployment)
+    finally:
+        removed.rename(bundle_path)
+    assert read_activation(deployment) == original_activation
+
+    historical_denominator = projection.reconciliation.applicable_predicate_denominator
+    profileless_denominator_ref = artifacts.ArtifactRef.model_validate(
+        historical_denominator.artifact_ref.model_dump(mode="json")
+        | {"manifest_profile_sha256": None}
+    )
+    profileless_denominator = epoch._replace_epoch_model(
+        historical_denominator, artifact_ref=profileless_denominator_ref
+    )
+    profileless_reconciliation = epoch._replace_epoch_model(
+        projection.reconciliation,
+        applicable_predicate_denominator=profileless_denominator,
+    )
+    profileless_projection = epoch._replace_epoch_model(
+        projection, reconciliation=profileless_reconciliation
+    )
+    projection_manifest = case.store.get_manifest(projection_ref)
+    profileless_projection_bytes = chronology_contract._frame_record(
+        chronology_contract._canonical_raw_bytes(
+            chronology_contract._raw_model_mapping(profileless_projection)
+        )
+    )
+    profileless_projection_ref = case.store.put_bytes(
+        profileless_projection_bytes,
+        artifacts.ArtifactWriteOptions(
+            kind=projection_ref.kind,
+            media_type=projection_ref.media_type,
+            schema=projection_manifest.artifact_schema,
+            inputs=list(
+                chronology_contract._native_chronology_projection_manifest_input_refs(
+                    profileless_projection
+                )
+            ),
+            canon=projection_manifest.canon,
+        ),
+        return_selected_profile=True,
+    )
+    assert profileless_projection_ref is not None
+    assert (
+        current_service._requalify_persisted_native_projection(
+            profileless_projection_ref, profileless_projection
+        ).proof_result
+        == projection.proof_result
+    )
+
+    revoked_config = current_config.model_copy(
+        update={"revoked_key_ids": (unrelated.signer.key_id,)}
+    )
+    revoked_deployment = build_semantic_epoch_native_deployment(revoked_config)
+    revoked_owner = revoked_deployment._state().chronology_policy_owner
+    assert revoked_owner is not None
+    revoked_service = epoch.SemanticEpochService(
+        boundary_registry=case.service._boundary_registry,
+        boundary_adapters=case.service._boundary_adapters,
+        facet_registry=case.service._facet_registry,
+        facet_provider=case.service._facet_provider,
+        history=scenario.history,
+        artifact_store=case.store,
+        qualification_consumer=QualificationConsumer.from_deployment(
+            revoked_deployment, runtime_artifact_store=case.store
+        ),
+        chronology_adapter=epoch.SemanticEpochQualificationAdapter(
+            history=scenario.history,
+            artifacts=case.store,
+            policy_owner=revoked_owner,
+        ),
+    )
+    assert isinstance(
+        revoked_service.qualify_chronology_query(query=case.query),
+        chronology_contract.NativeChronologyQualified,
+    )
+    with pytest.raises(ValueError):
+        revoked_service._requalify_persisted_native_projection(projection_ref, projection)
 
 
 def test_native_query_context_default_writer_profile_has_no_manifest_inputs(

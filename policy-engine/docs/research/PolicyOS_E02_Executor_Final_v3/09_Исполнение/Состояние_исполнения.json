@@ -9542,6 +9542,17 @@
           "output": "Primary:policy-engine/_cache/e02/native-retained-second-leaf-r24d-20261119/",
           "supervisor_sha256": "8bba94990ff9073ee6f2422e21848f0cb5fff90b88fb6c5621340c39a23b3ffc"
         },
+        "native_epoch_additive_requalification": {
+          "status": "PASS for composed epoch verification, guarded retained A readback and active admission readback; new B action, N4/N5 and fresh restart remain open.",
+          "mechanism": "Reopen exact old and fresh manifest closures, compare only allowed trust/receipt differences, retain each historical key/role and verify its signed policy, and replay the old Core proof before using a historical activated receipt.",
+          "retained_projection": "sha256:7e32cf89e1250c058fff248fb27e32d4b5d15370e82bfcd3711f0390d5c4c98e / sha256:7df26cd276b2e72f6e2e8ca1174222ee9978a572dc07326d039c5fd7f10a8607",
+          "retained_elapsed_seconds": 13.413,
+          "retained_peak_rss_bytes": 1454948352,
+          "tests": "32 PASS across chronology bridge, native qualification and epoch store; fresh-proof-preserving old manifest removal, profileless denominator recovery and unrelated revocation refusal. Ruff, independent review and static architecture pass.",
+          "output": "Primary:policy-engine/_cache/e02/native-additive-composed-20261119/",
+          "guarded_result_sha256": "f469355fa427a23f80761017e20287c58a15e0a5826f364e8db380f2956c818f",
+          "affected_result_sha256": "f8ed4e41e06d0fdc74c20308bb8cbf6e9e415c53911399ab7f05936577cf8c37"
+        },
         "native_authority_byte_retry": {
           "r14_result": "HTTP 409 native_paid_input_history_not_verified; no new job, fetch or N5",
           "r14_timed_read": "authority get_bytes over 1.5 s; exact link to refusal unestablished",

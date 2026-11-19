@@ -1540,7 +1540,6 @@ def _run_signed_native_leaf_action(
                 mandate_slot=slot,
                 state=job.state if job else None,
                 attempt=job.attempt if job else None,
-                error_code=job.error_code if job else None,
                 error_message=job.error_message if job else None,
                 progress=job.progress if job else None,
             )
@@ -3012,14 +3011,17 @@ def assert_retained_native_second_leaf_completion(
     semantic_kernel_entry_count: Callable[[], int],
     purchase_idempotency_key: str,
     admission_idempotency_key: str,
+    retained_b_purchase: dict[str, Any] | None = None,
     authority_valid_for_seconds: int = 3600,
 ) -> dict[str, Any]:
-    """Acquire one remaining leaf under new demo acts, then consume both inputs.
+    """Acquire or resume one retained leaf, then consume both inputs.
 
     Exact existing A purchase/collection/profile selectors are server fixture
-    inputs. This never renews A's quote, mandate or HumanDecision. The caller
-    supplies controlled transport at the actual HTTP boundary and a real N5
-    entry observer; it must not replace provider, model or numerical owners.
+    inputs. An optional exact retained B purchase selector resumes its current
+    terminal without repeating provider transport. Neither path renews A's
+    quote, mandate or HumanDecision. The caller supplies controlled transport
+    at the actual HTTP boundary and a real N5 entry observer; it must not
+    replace provider, model or numerical owners.
     """
     import json
     from decimal import Decimal
@@ -3035,7 +3037,10 @@ def assert_retained_native_second_leaf_completion(
     from polisyos.fabric.data_plane import resolve_live_transport_trace
     from polisyos.foundry.data_plane import load_input_bindings, replay_selected_method_input_facts
     from polisyos.runtime.http.services import acquisition_surface_execution as surface_owner
-    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceipt
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionRouteLoopReceipt,
+        VerifiedAcquisitionRouteClosure,
+    )
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionWorldGrowthRoute,
         NativeDerivationWorldCheckpoint,
@@ -3099,13 +3104,37 @@ def assert_retained_native_second_leaf_completion(
             old_a_inputs = tuple(collection.source_inputs)
             if len(old_a_inputs) != 1 or collection.input_closure_status != "partial":
                 raise ValueError("retained_native_owned_leaf_collection_not_partial")
-            new_refs = prepare_retained_native_leaf_quote(
-                case.store,
-                collection_ref=owned_a.native_input_collection_ref,
-                cost_profile_refs=cost_profile_refs,
-                source_node_id=pending_source_node_id,
-                amount_usd=pending_quote_usd,
+            new_refs = (
+                cost_profile_refs
+                if retained_b_purchase is not None
+                else prepare_retained_native_leaf_quote(
+                    case.store,
+                    collection_ref=owned_a.native_input_collection_ref,
+                    cost_profile_refs=cost_profile_refs,
+                    source_node_id=pending_source_node_id,
+                    amount_usd=pending_quote_usd,
+                )
             )
+            selected_b_profile_ref = None
+            expected_b_terminal_ref = None
+            if retained_b_purchase is not None:
+                selected_b_profile_ref = _selected_retained_ref(
+                    case.store,
+                    ArtifactRef.model_validate(retained_b_purchase["owner_declared_profile_ref"]),
+                    "runtime.quality.native_derivation_leaf_cost_profile",
+                )
+                expected_b_terminal_ref = _selected_retained_ref(
+                    case.store,
+                    ArtifactRef.model_validate(retained_b_purchase["terminal_ref"]),
+                    "runtime_quality.acquisition_route_loop_receipt",
+                )
+                expected_b_terminal = AcquisitionRouteLoopReceipt.model_validate(
+                    artifacts.load_core_json_artifact(case.store, expected_b_terminal_ref)
+                )
+                if artifact_ref_identity_key(selected_b_profile_ref) not in {
+                    artifact_ref_identity_key(ref) for ref in new_refs
+                }:
+                    raise ValueError("retained_native_b_profile_not_in_selected_cost_profiles")
             selected_config = case.configuration.native_derivation_routes[0]
             state["holder"]["configuration"] = AcquisitionWorldGrowthConfig.model_validate(
                 {
@@ -3120,17 +3149,14 @@ def assert_retained_native_second_leaf_completion(
                 }
             )
             config_path = output_root / "server-cost-profile-selection.json"
-            config_path.write_text(
-                json.dumps(
-                    {
-                        "cost_profile_refs": [ref.model_dump(mode="json") for ref in new_refs],
-                        "original_purchase_ref": original_purchase_ref.model_dump(mode="json"),
-                        "owned_a_terminal_ref": owned_a_terminal_ref.model_dump(mode="json"),
-                    },
-                    sort_keys=True,
-                )
-                + "\n"
-            )
+            selection_record = {
+                "cost_profile_refs": [ref.model_dump(mode="json") for ref in new_refs],
+                "original_purchase_ref": original_purchase_ref.model_dump(mode="json"),
+                "owned_a_terminal_ref": owned_a_terminal_ref.model_dump(mode="json"),
+            }
+            if retained_b_purchase is not None:
+                selection_record["retained_b_purchase"] = retained_b_purchase
+            config_path.write_text(json.dumps(selection_record, sort_keys=True) + "\n")
             policy_config = load_retained_native_epoch_policy(case, epoch_policy_selection)
             from types import SimpleNamespace
 
@@ -3172,26 +3198,113 @@ def assert_retained_native_second_leaf_completion(
         a_trace = resolve_live_transport_trace(case.attempt.evidence.raw_evidence_ref)
         a_journal = Path(case.attempt.evidence.request_ref.journal_path)
         a_journal_before = a_journal.read_bytes()
+        retained_purchase = None
         with TestClient(case.app_factory()) as client:
             control = client.app.state.runtime_container.control_service
             stop_embedded_control_worker(control)
+            action_service = client.app.state.runtime_container.acquisition_action_service
             with tenant_scope(None, tenant_id=claims.tenant_id, cell_id=claims.cell_id):
-                routes = client.app.state.runtime_container.acquisition_action_service._route_loop(
+                route_loop = action_service._route_loop(
                     tenant_id=claims.tenant_id,
                     cell_id=claims.cell_id,
-                ).resolve_native_derivation_leaf_routes(run_id=case.control_run_id)
-                chosen = tuple(
-                    row
-                    for row in routes
-                    if (
-                        getattr(row, "native_derivation_leaf_scope", None) is not None
-                        and row.native_derivation_leaf_scope.source_node_id
-                        == pending_source_node_id
-                    )
                 )
-            if len(chosen) != 1:
-                raise ValueError("retained_native_pending_costed_route_not_unique")
-            leaf = chosen[0]
+                if retained_b_purchase is None:
+                    routes = route_loop.resolve_native_derivation_leaf_routes(
+                        run_id=case.control_run_id
+                    )
+                    chosen = tuple(
+                        row
+                        for row in routes
+                        if (
+                            getattr(row, "native_derivation_leaf_scope", None) is not None
+                            and row.native_derivation_leaf_scope.source_node_id
+                            == pending_source_node_id
+                        )
+                    )
+                    if len(chosen) != 1:
+                        raise ValueError("retained_native_pending_costed_route_not_unique")
+                    leaf = chosen[0]
+                else:
+                    expected_route_id = retained_b_purchase["route_id"]
+                    expected_job_id = retained_b_purchase["job_id"]
+                    job = control._control_store.get_job(expected_job_id)
+                    if (
+                        job is None
+                        or job.kind != "acquisition"
+                        or job.run_id != case.control_run_id
+                        or job.state != "completed"
+                    ):
+                        raise ValueError("retained_native_b_purchase_job_not_completed")
+                    outcome = control.acquisition_route_sink.current_action_outcome(
+                        tenant_id=claims.tenant_id,
+                        cell_id=claims.cell_id,
+                        run_id=case.control_run_id,
+                        source_job_id=case.job_id,
+                        route_id=expected_route_id,
+                    )
+                    if outcome is None:
+                        raise ValueError("retained_native_b_purchase_head_missing")
+                    head = outcome.head
+                    if (
+                        head.job_id != expected_job_id
+                        or head.route_id != expected_route_id
+                        or head.action_generation != retained_b_purchase["action_generation"]
+                        or head.head_generation != retained_b_purchase["head_generation"]
+                        or head.receipt_phase != "terminal"
+                        or head.recovery_state != "complete"
+                        or head.receipt_manifest_profile_sha256
+                        != expected_b_terminal_ref.manifest_profile_sha256
+                        or str(head.receipt_ref) != str(expected_b_terminal_ref.artifact_id)
+                        or outcome.latest_receipt != expected_b_terminal
+                        or outcome.latest_receipt.terminal_outcome != "quarantined_no_growth"
+                        or outcome.latest_receipt.route_id != expected_route_id
+                        or outcome.latest_receipt.source_job_id != case.job_id
+                        or outcome.latest_receipt.job_id != expected_job_id
+                        or outcome.latest_receipt.action_generation != head.action_generation
+                        or (
+                            outcome.latest_receipt.tenant_id,
+                            outcome.latest_receipt.cell_id,
+                            outcome.latest_receipt.run_id,
+                        )
+                        != (claims.tenant_id, claims.cell_id, case.control_run_id)
+                        or outcome.latest_receipt.owner_declared_profile_ref
+                        != selected_b_profile_ref
+                        or outcome.executing_phase is None
+                        or outcome.executing_phase.owner_declared_profile_ref
+                        != selected_b_profile_ref
+                    ):
+                        raise ValueError("retained_native_b_purchase_head_binding_mismatch")
+                    leaf = route_loop.resolve_current_route(
+                        run_id=case.control_run_id,
+                        route_id=expected_route_id,
+                        action_job_id=expected_job_id,
+                    )
+                    if type(leaf) is not VerifiedAcquisitionRouteClosure:
+                        raise ValueError("retained_native_b_current_route_unverified")
+                    reconciled_outcome = control.acquisition_route_sink.current_action_outcome(
+                        tenant_id=claims.tenant_id,
+                        cell_id=claims.cell_id,
+                        run_id=case.control_run_id,
+                        source_job_id=case.job_id,
+                        route_id=expected_route_id,
+                    )
+                    if (
+                        reconciled_outcome is None
+                        or reconciled_outcome.head != head
+                        or reconciled_outcome.latest_receipt != expected_b_terminal
+                        or leaf.route_id != expected_route_id
+                        or leaf.owner_declared_profile_ref != selected_b_profile_ref
+                        or leaf.native_derivation_leaf_scope is None
+                        or leaf.native_derivation_leaf_scope.source_node_id
+                        != pending_source_node_id
+                    ):
+                        raise ValueError("retained_native_b_current_route_binding_mismatch")
+                    retained_purchase = {
+                        "job_id": head.job_id,
+                        "head": head,
+                        "terminal": outcome.latest_receipt,
+                        "closure": leaf,
+                    }
         # A distinct B route uses the existing fixture's same declared scope
         # and independent time/facet evidence; no A action permit is copied.
         route = AcquisitionWorldGrowthRoute.model_validate(
@@ -3208,21 +3321,26 @@ def assert_retained_native_second_leaf_completion(
                 "routes": (*case.configuration.routes, route),
             }
         )
-        purchase = _run_signed_native_leaf_action(
-            served=case,
-            trust=trust,
-            signers=demo.signers,
-            identities=demo.identities,
-            institution_key_root=base / "trust",
-            route_id=leaf.route_id,
-            idempotency_key=purchase_idempotency_key,
-            authority_valid_for_seconds=authority_valid_for_seconds,
-            human_decision_submission_root=output_root / "human-decision-submissions",
-            action_checkpoint_root=output_root / "action-checkpoints",
-            runtime_exposure_via_http=True,
-        )
+        if retained_purchase is None:
+            purchase = _run_signed_native_leaf_action(
+                served=case,
+                trust=trust,
+                signers=demo.signers,
+                identities=demo.identities,
+                institution_key_root=base / "trust",
+                route_id=leaf.route_id,
+                idempotency_key=purchase_idempotency_key,
+                authority_valid_for_seconds=authority_valid_for_seconds,
+                human_decision_submission_root=output_root / "human-decision-submissions",
+                action_checkpoint_root=output_root / "action-checkpoints",
+                runtime_exposure_via_http=True,
+            )
+        else:
+            purchase = retained_purchase
         assert purchase["terminal"].terminal_outcome == "quarantined_no_growth"
-        assert len(transport_calls) == len(before_calls) + 1
+        assert len(transport_calls) == len(before_calls) + (
+            0 if retained_b_purchase is not None else 1
+        )
         assert semantic_kernel_entry_count() == before_kernels
         with (
             _live_native_fixture_bridge(served=case, state=state) as bridge,
@@ -3253,6 +3371,13 @@ def assert_retained_native_second_leaf_completion(
             action_checkpoint_root=output_root / "action-checkpoints",
             runtime_exposure_via_http=True,
         )
+        if retained_b_purchase is not None:
+            paid = completed["closure"].prior_paid_input_admission
+            assert paid is not None
+            assert paid.original_action_job_id == purchase["job_id"]
+            assert artifact_ref_identity_key(paid.terminal_ref) == artifact_ref_identity_key(
+                expected_b_terminal_ref
+            )
         terminal = completed["terminal"]
         assert terminal.terminal_outcome == "reentry_completed"
         assert terminal.reentry_receipt_ref is not None
@@ -3523,6 +3648,8 @@ def test_retained_native_second_leaf_completes_and_restart_reuses_result(
     if not path:
         pytest.skip("explicit retained A/source/quote and effect admission required")
     selected = json.loads(Path(path).read_text())
+    if type(selected) is not dict:
+        raise ValueError("retained_native_second_leaf_selector_untyped")
     expected = {
         "base",
         "original_purchase_ref",
@@ -3536,13 +3663,49 @@ def test_retained_native_second_leaf_completes_and_restart_reuses_result(
         "purchase_idempotency_key",
         "admission_idempotency_key",
     }
-    if set(selected) != expected:
+    retained_b_purchase = selected.get("retained_b_purchase")
+    expected_retained_b_purchase = {
+        "job_id",
+        "route_id",
+        "action_generation",
+        "head_generation",
+        "terminal_ref",
+        "owner_declared_profile_ref",
+    }
+    if retained_b_purchase is None:
+        if set(selected) != expected:
+            raise ValueError("retained_native_second_leaf_selector_fields_invalid")
+    elif (
+        set(selected) != expected | {"retained_b_purchase"}
+        or type(retained_b_purchase) is not dict
+        or set(retained_b_purchase) != expected_retained_b_purchase
+        or type(retained_b_purchase["job_id"]) is not str
+        or type(retained_b_purchase["route_id"]) is not str
+        or type(retained_b_purchase["action_generation"]) is not int
+        or type(retained_b_purchase["head_generation"]) is not int
+        or retained_b_purchase["action_generation"] < 1
+        or retained_b_purchase["head_generation"] < 1
+    ):
         raise ValueError("retained_native_second_leaf_selector_fields_invalid")
     if selected["purchase_idempotency_key"] == selected["admission_idempotency_key"]:
         raise ValueError("retained_native_second_leaf_action_identities_not_distinct")
+    if retained_b_purchase is not None:
+        retained_b_terminal = ArtifactRef.model_validate(retained_b_purchase["terminal_ref"])
+        retained_b_profile = ArtifactRef.model_validate(
+            retained_b_purchase["owner_declared_profile_ref"]
+        )
+        if (
+            retained_b_terminal.kind != "runtime_quality.acquisition_route_loop_receipt"
+            or retained_b_terminal.manifest_profile_sha256 is None
+            or retained_b_profile.kind != "runtime.quality.native_derivation_leaf_cost_profile"
+            or retained_b_profile.manifest_profile_sha256 is None
+        ):
+            raise ValueError("retained_native_second_leaf_purchase_selector_unselected")
     provider_profile = CandidateWDIProfile(**selected["pending_provider_profile"])
 
     def response_factory(_method: str, url: str, params: Any) -> bytes:
+        if retained_b_purchase is not None:
+            raise AssertionError("retained_native_b_purchase_must_not_refetch")
         assert provider_profile.indicator_id in url, url
         assert params["date"] in {
             str(provider_profile.year),
@@ -3591,6 +3754,7 @@ def test_retained_native_second_leaf_completes_and_restart_reuses_result(
             ],
             purchase_idempotency_key=selected["purchase_idempotency_key"],
             admission_idempotency_key=selected["admission_idempotency_key"],
+            retained_b_purchase=retained_b_purchase,
         )
         (output / "result.json").write_text(json.dumps(result, sort_keys=True) + "\n")
     finally:

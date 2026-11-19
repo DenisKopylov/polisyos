@@ -9079,9 +9079,9 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE. Hosted fresh reader/removals qualified. Scientific R16 B2/B3 terminal and C R11 admitted within Step-Up with acquired input selected. Numerical C is pending. Native R21 identifies the exact decision-route history fold; scoped selector and 23 route cases pass. Native second-leaf completion and restart are pending.",
-        "main_commit": "ad6438463328d4e6cdfd05fbb62440a1a1cde604",
-        "main_tree": "ac3fc29b6171b43b15e918e00de802a966b67a1c",
+        "status": "ACTIVE. Hosted fresh reader/removals qualified. Scientific R16 B2/B3 terminal and C R11 admitted within Step-Up with acquired input selected. Numerical C is pending. Native R21 identifies the exact decision-route history fold; scoped selector and 23 route cases pass. Native R23 preserved the completed B purchase. Admission, numerical re-entry and restart are pending.",
+        "main_commit": "31cec25329cc36eebc4df852ae32073bfc8cbebd",
+        "main_tree": "fc87d622035180bf1a7a92ac03a6182788d558c0",
         "author_checkpoint": "8cd3ec9ae0ce32f23daa5625e81a3085c9e31567",
         "current_composed_r14": {
           "source_commit": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
@@ -9485,6 +9485,34 @@
           "repair": "Operation-local exact typed graph snapshot with complete byte comparison. Persisted hashes and live owner checks unchanged. Independent review and 140 affected PASS / 2 profile SKIP; 1 additional collision regression PASS.",
           "output": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r11-20261119/budget/",
           "next": "Reclaim the exact expired job and reopen its selected receipt through the ordinary worker. Numerical C, frontier 4 and fresh API readback remain unrun."
+        },
+        "native_r23": {
+          "source": [
+            "31cec25329cc36eebc4df852ae32073bfc8cbebd",
+            "fc87d622035180bf1a7a92ac03a6182788d558c0"
+          ],
+          "result": "Signed decision requests and real execute reach completed B purchase attempt 1. Test observer fails after worker return on missing ControlJobRecord.error_code. B admission, N4/N5 and restart UNRUN.",
+          "terminal": "sha256:b6eb78c3e4b4ebe50d487bdf9556f296d1decc29fa0a564b9ddf85026813742f",
+          "terminal_phase": "generation 1/head 4, quarantined_no_growth",
+          "route_resolution_seconds": [
+            13.7496,
+            13.4788
+          ],
+          "elapsed_seconds": 359.008,
+          "peak_process_tree_rss_bytes": 2485452800,
+          "output": "Primary:policy-engine/_cache/e02/native-retained-second-leaf-r23-20261119/",
+          "supervisor_sha256": "910811fe82e09939d207d890cd902a660e8e8aceda9bd8df7a5ad5da8cdc74c1"
+        },
+        "temporal_selected_input_composed": {
+          "source": [
+            "31cec25329cc36eebc4df852ae32073bfc8cbebd",
+            "fc87d622035180bf1a7a92ac03a6182788d558c0"
+          ],
+          "result": "PASS maintained two-step Foundry producer and fresh reader. 10B to 4B to 8.2B, exact method-call argument hashes and predecessor. Synthetic period inputs.",
+          "elapsed_seconds": 46.359,
+          "peak_process_tree_rss_bytes": 1752350720,
+          "output": "Primary:policy-engine/_cache/e02/lane01-composed-temporal-foundry-20261119/",
+          "supervisor_sha256": "4331b21ce16b00c325b60357d619fa807da534da0a6366089b30964dd34d9615"
         },
         "native_authority_byte_retry": {
           "r14_result": "HTTP 409 native_paid_input_history_not_verified; no new job, fetch or N5",

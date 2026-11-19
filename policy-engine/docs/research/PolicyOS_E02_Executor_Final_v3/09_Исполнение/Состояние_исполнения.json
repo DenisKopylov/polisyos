@@ -9080,8 +9080,8 @@
       "lane_id": "LANE-01",
       "current_execution": {
         "status": "ACTIVE. Hosted fresh reader/removals qualified. Scientific R16 B2/B3 terminal and C R11 admitted within Step-Up with acquired input selected. Numerical C is pending. Native R21 identifies the exact decision-route history fold; scoped selector and 23 route cases pass. Native second-leaf completion and restart are pending.",
-        "main_commit": "4e7bfd63ad27276767810258b17e576f6934c328",
-        "main_tree": "677c6300d5e231ff983686b4a19d32d6203064d3",
+        "main_commit": "ad6438463328d4e6cdfd05fbb62440a1a1cde604",
+        "main_tree": "ac3fc29b6171b43b15e918e00de802a966b67a1c",
         "author_checkpoint": "8cd3ec9ae0ce32f23daa5625e81a3085c9e31567",
         "current_composed_r14": {
           "source_commit": "5da605925b4224f35cf3a34f1d35924b24aaafa8",
@@ -9477,7 +9477,14 @@
             "c6de16654fb124ca15ca12136759bb17a807b90f",
             "737766d3643a7f3bac312cc10a84f62e7e1f542e"
           ],
-          "result": "Actual HTTP 200 in 202.330 s at the unchanged 240 s Step-Up deadline; worker attempt 1 persists outcome_selected and candidate_input_reentry_pending. Numerical C and final readback pending."
+          "result": "HTTP 200 in 202.330 s under unchanged 240 s Step-Up; worker reached generation 4/head 5 candidate_input_reentry_pending. RESOURCE_ABORT at the RSS cap during expanded origin serialization.",
+          "elapsed_seconds": 6714.438,
+          "peak_process_tree_rss_bytes": 3274260480,
+          "supervisor_sha256": "408caa4036813ed783e1b15961db5299c72fb4272b50839db51085280d77822f",
+          "durable": "Same expired job attempt 1, selected acquisition receipt and open budget window. No current-action N5 fence or checkpoint. Four completed standard units, protected capacity untouched, frontier 3.",
+          "repair": "Operation-local exact typed graph snapshot with complete byte comparison. Persisted hashes and live owner checks unchanged. Independent review and 140 affected PASS / 2 profile SKIP; 1 additional collision regression PASS.",
+          "output": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r11-20261119/budget/",
+          "next": "Reclaim the exact expired job and reopen its selected receipt through the ordinary worker. Numerical C, frontier 4 and fresh API readback remain unrun."
         },
         "native_authority_byte_retry": {
           "r14_result": "HTTP 409 native_paid_input_history_not_verified; no new job, fetch or N5",

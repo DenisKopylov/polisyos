@@ -16,6 +16,45 @@ from polisyos.runtime.quality import confidence_ledger as ledger
 from polisyos.runtime.quality import n5_execution_basis as basis
 
 
+def test_exact_reentry_snapshot_does_not_expand_shared_history() -> None:
+    history: object = "start"
+    for generation in range(40):
+        history = (generation, history, history)
+
+    _root, nodes = basis._exact_n5_content_snapshot(history)
+
+    assert len(nodes) == 81
+    assert sum(map(len, nodes.values())) < 10_000
+
+
+def test_exact_reentry_snapshot_compares_content_and_reobserves_mutation() -> None:
+    shared = [{"points": {2, 5}, "score": -0.0}]
+    history = (shared, shared)
+    before = basis._exact_n5_content_snapshot(history)
+    rebuilt = ([{"score": -0.0, "points": {5, 2}}], [{"points": {2, 5}, "score": -0.0}])
+
+    assert basis._exact_n5_content_snapshot(rebuilt) == before
+    shared[0]["score"] = 0.0
+    assert basis._exact_n5_content_snapshot(history) != before
+    assert basis.exact_n5_content_bytes((1, "a")) == b'{"tuple":[{"int":1},{"str":"a"}]}'
+
+
+def test_exact_reentry_snapshot_refuses_cycles() -> None:
+    history: list[object] = []
+    history.append(history)
+
+    with pytest.raises(ValueError, match="n5_native_content_cycle"):
+        basis._exact_n5_content_snapshot(history)
+
+
+def test_exact_reentry_snapshot_refuses_digest_collisions(monkeypatch: pytest.MonkeyPatch) -> None:
+    fixed_digest = SimpleNamespace(hexdigest=lambda: "0" * 64)
+    monkeypatch.setattr(basis, "hashlib", SimpleNamespace(sha256=lambda _data: fixed_digest))
+
+    with pytest.raises(ValueError, match="n5_native_content_snapshot_collision"):
+        basis._exact_n5_content_snapshot((1, 2))
+
+
 def test_controller_observer_captures_first_frame_once_per_code_key(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -1112,9 +1151,7 @@ operation = factory()
     recorder.install()
     try:
         module = importlib.import_module(module_name)
-        monkeypatch.setattr(
-            ledger, "_candidate_n5_host_capture", lambda: (recorder, None)
-        )
+        monkeypatch.setattr(ledger, "_candidate_n5_host_capture", lambda: (recorder, None))
         wire = basis._N5ContentGraph().wire(module.operation)
         rows = json.loads(wire)["nodes"]
         bindings = [row["binding"] for row in rows if row["kind"] == "recorded_binding"]

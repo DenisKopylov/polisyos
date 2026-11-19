@@ -51,10 +51,16 @@ if TYPE_CHECKING:
     )
 
 
-def _exact_native_content(value: object, *, strict: bool = False) -> object:
+def _exact_native_content(
+    value: object,
+    *,
+    strict: bool = False,
+    project_child: Callable[[object], object] | None = None,
+) -> object:
     """Project native typed content; strict mode refuses unsupported protocols."""
     if strict:
         return _strict_n5_native_content(value, seen=set(), budget=[10000, 1024**2])
+    project = project_child or _exact_native_content
     if value is None or type(value) in {bool, int, str}:
         return {type(value).__name__: value}
     if type(value) is float:
@@ -66,7 +72,7 @@ def _exact_native_content(value: object, *, strict: bool = False) -> object:
     if isinstance(value, Enum):
         return {
             "enum": f"{type(value).__module__}.{type(value).__qualname__}",
-            "value": _exact_native_content(value.value),
+            "value": project(value.value),
         }
     if isinstance(value, (date, datetime)):
         return {type(value).__name__: value.isoformat()}
@@ -74,25 +80,18 @@ def _exact_native_content(value: object, *, strict: bool = False) -> object:
         model_field_names = exact_n5_model_field_names(value)
         return {
             "model": f"{type(value).__module__}.{type(value).__qualname__}",
-            "fields": {
-                name: _exact_native_content(getattr(value, name)) for name in model_field_names
-            },
+            "fields": {name: project(getattr(value, name)) for name in model_field_names},
         }
     if is_dataclass(value) and not isinstance(value, type):
         return {
             "dataclass": f"{type(value).__module__}.{type(value).__qualname__}",
-            "fields": {
-                field.name: _exact_native_content(getattr(value, field.name))
-                for field in fields(value)
-            },
+            "fields": {field.name: project(getattr(value, field.name)) for field in fields(value)},
         }
     if isinstance(value, dict):
-        rows = [
-            (_exact_native_content(key), _exact_native_content(item)) for key, item in value.items()
-        ]
+        rows = [(project(key), project(item)) for key, item in value.items()]
         return {"mapping": sorted(rows, key=lambda row: json.dumps(row[0], sort_keys=True))}
     if isinstance(value, (tuple, list, set, frozenset)):
-        items = [_exact_native_content(item) for item in value]
+        items = [project(item) for item in value]
         if isinstance(value, (set, frozenset)):
             items.sort(key=lambda item: json.dumps(item, sort_keys=True))
         return {type(value).__name__: items}
@@ -104,6 +103,41 @@ def exact_n5_content_bytes(value: object) -> bytes:
     return json.dumps(
         _exact_native_content(value), sort_keys=True, separators=(",", ":"), ensure_ascii=False
     ).encode()
+
+
+def _exact_n5_content_snapshot(value: object) -> tuple[str, dict[str, bytes]]:
+    """Snapshot an acyclic graph for local equality by comparing every node's bytes.
+
+    Node digests are references within this snapshot. Equality also compares
+    the complete node table. Object identities only avoid walking aliases
+    twice in the same snapshot, so rebuilding equal content compares equal.
+    """
+    visited: dict[int, tuple[object, str]] = {}
+    active: set[int] = set()
+    nodes: dict[str, bytes] = {}
+
+    def project(item: object) -> str:
+        identity = id(item)
+        cached = visited.get(identity)
+        if cached is not None:
+            return cached[1]
+        if identity in active:
+            raise ValueError("n5_native_content_cycle")
+        active.add(identity)
+        try:
+            descriptor = _exact_native_content(item, project_child=project)
+            encoded = json.dumps(
+                descriptor, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+            ).encode()
+            digest = hashlib.sha256(encoded).hexdigest()
+            if nodes.setdefault(digest, encoded) != encoded:
+                raise ValueError("n5_native_content_snapshot_collision")
+            visited[identity] = (item, digest)
+            return digest
+        finally:
+            active.remove(identity)
+
+    return project(value), nodes
 
 
 def exact_n5_content_hash(value: object) -> str:

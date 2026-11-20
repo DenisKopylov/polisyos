@@ -26,7 +26,10 @@ from polisyos.runtime.quality.generation_cycle import (
 from polisyos.scientist import SchedulingDecision
 
 if TYPE_CHECKING:
-    from polisyos.runtime.http.services.control_plane_store import AcquisitionActionHeadRecord
+    from polisyos.runtime.http.services.control_plane_store import (
+        AcquisitionActionHeadRecord,
+        ControlDiagnosticEventRecord,
+    )
     from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionWorldGrowthBridge,
@@ -820,6 +823,34 @@ def read_native_source_reentry_history(
     return NativeSourceReentryHistory(progress, record, selection, resolved)
 
 
+type _SelectedMember = tuple[artifacts.ArtifactRef, _Member]
+type _SelectedIdentity = tuple[str, str, str, str | None]
+type _SelectedVector = tuple[tuple[Member, _SelectedIdentity | None], ...]
+
+
+def _selected_member_identity(member: _SelectedMember | None) -> _SelectedIdentity | None:
+    return artifacts.artifact_ref_identity_key(member[0]) if member is not None else None
+
+
+@dataclass(frozen=True, slots=True)
+class _NativeTransitionCut:
+    """Bind one exact live owner and selected member vector for a single transition."""
+
+    head: AcquisitionActionHeadRecord
+    subject: NativeSourceReentrySubject
+    target: Member
+    predecessors: _SelectedVector
+    target_identity: _SelectedIdentity | None
+
+    def selection(self, published: artifacts.ArtifactRef | None = None) -> _SelectedVector:
+        target = (
+            artifacts.artifact_ref_identity_key(published)
+            if published is not None
+            else self.target_identity
+        )
+        return (*self.predecessors, (self.target, target))
+
+
 class NativeSourceReentryCoordinator:
     """Fence every selected Native phase by its real current action owner."""
 
@@ -845,6 +876,9 @@ class NativeSourceReentryCoordinator:
             GenericCycleNativeWorldContextHandoffV1,
             GenericCycleSimulationAdmissionOwner,
         )
+        from polisyos.runtime.quality.native_generic_context import (
+            _resolve_native_world_handoff_selection,
+        )
 
         bridge, closure, handoff = self.bridge, self.closure, self.handoff
         if (
@@ -862,18 +896,18 @@ class NativeSourceReentryCoordinator:
             or owner.store is not bridge.artifact_store
         ):
             raise ValueError("native_reentry_current_owner_mismatch")
-        owner.resolve_native_world_handoff(handoff=handoff, problem=closure.design_problem_basis)
-        selection = bridge.resolve_native_derived_world_selection(
-            closure, handoff.native_world_checkpoint_ref
+        selection = _resolve_native_world_handoff_selection(
+            owner,
+            handoff=handoff,
+            problem=closure.design_problem_basis,
+            expected_bridge=bridge,
+            expected_closure=closure,
         )
-        pending_ref, _ = bridge._native_derivation_pending_phase(closure)
-        if artifacts.artifact_ref_identity_key(
-            selection.pending_action_phase_ref
-        ) != artifacts.artifact_ref_identity_key(pending_ref) or tuple(
+        pending_ref = selection.pending_action_phase_ref
+        if tuple(
             artifacts.artifact_ref_identity_key(ref) for ref in selection.checkpoint.collection_refs
         ) != (artifacts.artifact_ref_identity_key(self.collection_ref),):
             raise ValueError("native_reentry_current_selection_mismatch")
-        admission = bridge.control_store.current_execution_job_admission()
         snapshot = bridge.action_head_sink.current_action_outcome(
             tenant_id=closure.tenant_id,
             cell_id=closure.cell_id,
@@ -881,9 +915,11 @@ class NativeSourceReentryCoordinator:
             source_job_id=closure.source_job_id,
             route_id=closure.route_id,
         )
+        admission = bridge.control_store.current_execution_job_admission()
         if (
             snapshot is None
             or snapshot.head.receipt_phase != "world_committed_reentry_pending"
+            or snapshot.head.job_id != handoff.job_id
             or snapshot.head.receipt_ref != str(pending_ref.artifact_id)
             or snapshot.head.receipt_manifest_profile_sha256 != pending_ref.manifest_profile_sha256
             or admission.job.kind != "acquisition"
@@ -930,28 +966,110 @@ class NativeSourceReentryCoordinator:
         """Return the already bound real Native Generic owner, never a new grant."""
         return self.bridge._source_control_service._generic_cycle_simulation_admission_owner
 
-    def _read(self, member: Member) -> tuple[artifacts.ArtifactRef, _Member] | None:
-        _, subject = self._current()
-        result = read_native_source_reentry_member(
+    def _read_selected(
+        self, subject: NativeSourceReentrySubject, member: Member
+    ) -> tuple[artifacts.ArtifactRef, _Member] | None:
+        return read_native_source_reentry_member(
             store=self.bridge.artifact_store,
             events=self.bridge.event_log,
             subject=subject,
             member=member,
         )
+
+    def _read(self, member: Member) -> tuple[artifacts.ArtifactRef, _Member] | None:
+        _, subject = self._current()
+        result = self._read_selected(subject, member)
         self._current()
         return result
 
-    def _publish(self, value: _Member, member: Member) -> artifacts.ArtifactRef:
-        head, subject = self._current()
-        if not _same_subject(value.subject, subject):
+    def _start_transition(
+        self, target: Member, *predecessors: Member
+    ) -> tuple[_NativeTransitionCut, dict[Member, _SelectedMember | None]]:
+        head, live_subject = self._current()
+        subject = live_subject.model_copy(deep=True)
+        selected = {
+            member: self._read_selected(subject, member) for member in (*predecessors, target)
+        }
+        cut = _NativeTransitionCut(
+            head=head,
+            subject=subject,
+            target=target,
+            predecessors=tuple(
+                (member, _selected_member_identity(selected[member])) for member in predecessors
+            ),
+            target_identity=_selected_member_identity(selected[target]),
+        )
+        return cut, selected
+
+    def _reopen_transition_members(
+        self, cut: _NativeTransitionCut, *, published: artifacts.ArtifactRef | None = None
+    ) -> _SelectedMember | None:
+        for member, expected in cut.predecessors:
+            if _selected_member_identity(self._read_selected(cut.subject, member)) != expected:
+                raise ValueError("native_reentry_checkpoint_selection_changed")
+        target = self._read_selected(cut.subject, cut.target)
+        if _selected_member_identity(target) != cut.selection(published)[-1][1]:
+            if published is not None:
+                raise ValueError("native_reentry_checkpoint_selection_missing")
+            if cut.target in {"n5_claimed", "tail_claimed"} and target is not None:
+                raise ValueError("native_reentry_uncommitted_claim_not_established")
+            raise ValueError("native_reentry_checkpoint_selection_changed")
+        return target
+
+    def _selected_events(
+        self, subject: NativeSourceReentrySubject, selection: _SelectedVector
+    ) -> tuple[ControlDiagnosticEventRecord, ...]:
+        events: list[ControlDiagnosticEventRecord] = []
+        for member, expected in selection:
+            rows = self.bridge.event_log.list_events(event_id=_event_id(subject, member), limit=2)
+            if expected is None:
+                if rows:
+                    raise ValueError("native_reentry_checkpoint_selection_changed")
+                continue
+            artifact_id, _kind, _media_type, profile = expected
+            event_subject = (
+                f"run/{subject.run_id}/job/{subject.action_job_id}/phase/{_phase(member)}"
+                f"/selected-manifest/{profile}"
+            )
+            if (
+                len(rows) != 1
+                or rows[0].payload_ref != artifact_id
+                or rows[0].event.event_subject != event_subject
+            ):
+                raise ValueError("native_reentry_checkpoint_selection_changed")
+            events.append(rows[0])
+        return tuple(events)
+
+    def _require_current_cut(
+        self,
+        head: AcquisitionActionHeadRecord,
+        subject: NativeSourceReentrySubject,
+        selection: _SelectedVector,
+    ) -> None:
+        events = self._selected_events(subject, selection)
+        # All CAS/member reopens precede this complete Catalog/source sweep.
+        # Follow it only with SQL, so selection drift during the sweep is
+        # observed without opening a new expensive window after currentness.
+        if self._current() != (head, subject):
+            raise ValueError("native_reentry_current_head_changed")
+        if self._selected_events(subject, selection) != events:
+            raise ValueError("native_reentry_checkpoint_selection_changed")
+        self._require_live_head(head, subject)
+
+    def _publish(self, value: _Member, cut: _NativeTransitionCut) -> artifacts.ArtifactRef:
+        head, subject, member = cut.head, cut.subject, cut.target
+        value_member = value.member if isinstance(value, NativeSourceReentryClaim) else value.MEMBER
+        if value_member != member or not _same_subject(value.subject, subject):
             raise ValueError("native_reentry_checkpoint_subject_mismatch")
-        existing = self._read(member)
+        existing = self._reopen_transition_members(cut)
         if existing is not None:
             if member in {"n5_claimed", "tail_claimed"}:
                 raise ValueError("native_reentry_uncommitted_claim_not_established")
             ref, previous = existing
             if previous.model_dump(mode="json") != value.model_dump(mode="json"):
                 raise ValueError("native_reentry_checkpoint_conflict")
+            self._reopen_transition_members(cut)
+            self._require_current_cut(head, subject, cut.selection())
             return ref
         if value.subject.originating_attempt != subject.originating_attempt:
             raise ValueError("native_reentry_checkpoint_attempt_mismatch")
@@ -962,28 +1080,26 @@ class NativeSourceReentryCoordinator:
         )
         if artifacts.load_core_json_artifact(store, ref) != value.model_dump(mode="json"):
             raise ValueError("native_reentry_checkpoint_readback_mismatch")
-        fresh_head, _ = self._current()
-        if fresh_head != head:
-            raise ValueError("native_reentry_current_head_changed")
-        admission = self.bridge.control_store.current_execution_job_admission()
+
+        self._reopen_transition_members(cut)
+        self._require_current_cut(head, subject, cut.selection())
         event = _n5_checkpoint_event(
             head=head,
             ref=ref,
             options=options,
             event_id=_event_id(subject, member),
             event_time=datetime.now(UTC),
-            execution_profile=admission.job.effective_execution_profile,
+            execution_profile=subject.execution_profile,
             phase=_phase(member),
         )
         self.bridge.control_store.append_native_source_reentry_checkpoint(
             pending_head=head,
             prepared_event=self.bridge.event_log.prepare(event),
         )
-        selected = self._read(member)
-        if selected is None or artifacts.artifact_ref_identity_key(
-            selected[0]
-        ) != artifacts.artifact_ref_identity_key(ref):
-            raise ValueError("native_reentry_checkpoint_selection_missing")
+
+        self._reopen_transition_members(cut, published=ref)
+        self._reopen_transition_members(cut, published=ref)
+        self._require_current_cut(head, subject, cut.selection(ref))
         return ref
 
     def _verify_prepared(self, value: NativeSourceReentryPrepared) -> GenerationSourceHandoff:
@@ -992,25 +1108,61 @@ class NativeSourceReentryCoordinator:
         )
 
     def progress(self) -> NativeSourceReentryProgress:
-        """Reopen selected cuts under the separate current action admission."""
-        prepared = self._read("prepared")
-        n5 = self._read("n5_completed")
-        cycle = self._read("cycle_completed")
-        n5_claim = self._read("n5_claimed")
-        tail_claim = self._read("tail_claimed")
+        """Read one member vector across two independent current action cuts."""
+        head, live_subject = self._current()
+        # The subject borrows selected references from the handoff. Detach
+        # the opening values before comparing them to independently read ones.
+        subject = live_subject.model_copy(deep=True)
+        members: tuple[Member, ...] = (
+            "prepared",
+            "n5_completed",
+            "cycle_completed",
+            "n5_claimed",
+            "tail_claimed",
+        )
+        selected = {member: self._read_selected(subject, member) for member in members}
         progress, _result = _verify_native_source_reentry_progress(
             store=self.bridge.artifact_store,
             owner=self.owner,
             source_generation_run=self.closure.generation_run,
             world_model_record_content_hash=self.handoff.context.world_model_record_content_hash,
-            prepared=prepared,
-            n5=n5,
-            cycle=cycle,
-            n5_claim=n5_claim,
-            tail_claim=tail_claim,
+            prepared=selected["prepared"],
+            n5=selected["n5_completed"],
+            cycle=selected["cycle_completed"],
+            n5_claim=selected["n5_claimed"],
+            tail_claim=selected["tail_claimed"],
         )
-        self._current()
+        if any(
+            self._read_selected(subject, member) != original
+            for member, original in selected.items()
+        ):
+            raise ValueError("native_reentry_checkpoint_selection_changed")
+        selection = tuple(
+            (member, _selected_member_identity(value)) for member, value in selected.items()
+        )
+        self._require_current_cut(head, subject, selection)
         return progress
+
+    def _require_live_head(
+        self, head: AcquisitionActionHeadRecord, subject: NativeSourceReentrySubject
+    ) -> None:
+        # Selected-member readback can outlast the lease or overlap a new head.
+        control = self.bridge.control_store
+        admission = control.current_execution_job_admission()
+        heads = control.list_acquisition_action_heads(
+            tenant_id=head.tenant_id,
+            cell_id=head.cell_id,
+            run_id=head.run_id,
+            source_job_id=head.source_job_id,
+            route_id=head.route_id,
+        )
+        if (
+            not heads
+            or heads[-1] != head
+            or admission.attempt != subject.originating_attempt
+            or admission.job.job_id != head.job_id
+        ):
+            raise ValueError("native_reentry_current_head_changed")
 
     def prepare(
         self,
@@ -1024,9 +1176,9 @@ class NativeSourceReentryCoordinator:
         schedule: SchedulingDecision,
     ) -> artifacts.ArtifactRef:
         """Select actual completed preparation before any N5 claim."""
-        _, subject = self._current()
+        cut, _selected = self._start_transition("prepared")
         value = NativeSourceReentryPrepared(
-            subject=subject,
+            subject=cut.subject,
             n4_source_ref=n4_source_ref,
             n5_input_ref=input_ref,
             candidate_id=candidate_id,
@@ -1036,51 +1188,58 @@ class NativeSourceReentryCoordinator:
             schedule=schedule,
         )
         self._verify_prepared(value)
-        return self._publish(value, "prepared")
+        return self._publish(value, cut)
 
     def claim(
         self, member: Literal["n5_claimed", "tail_claimed"], predecessor_ref: artifacts.ArtifactRef
     ) -> None:
         """Select one start; an already claimed incomplete operation never restarts."""
-        _, subject = self._current()
-        if self._read(member) is not None:
+        predecessor = "prepared" if member == "n5_claimed" else "n5_completed"
+        cut, selected = self._start_transition(member, predecessor)
+        if selected[member] is not None:
             raise ValueError("native_reentry_uncommitted_claim_not_established")
-        previous = self._read("prepared" if member == "n5_claimed" else "n5_completed")
+        previous = selected[predecessor]
         if previous is None or artifacts.artifact_ref_identity_key(
             previous[0]
         ) != artifacts.artifact_ref_identity_key(predecessor_ref):
             raise ValueError("native_reentry_claim_predecessor_mismatch")
         value = NativeSourceReentryClaim(
-            subject=subject, member=member, predecessor_ref=predecessor_ref
+            subject=cut.subject, member=member, predecessor_ref=predecessor_ref
         )
-        self._publish(value, member)
+        self._publish(value, cut)
 
     def complete_n5(
         self, prepared_ref: artifacts.ArtifactRef, simulation: SimulationPortObservation
     ) -> artifacts.ArtifactRef:
         """Select only a reopened, fully completed Generic physical result."""
-        _, subject = self._current()
-        prepared = self._read("prepared")
-        if prepared is None or artifacts.artifact_ref_identity_key(
-            prepared[0]
-        ) != artifacts.artifact_ref_identity_key(prepared_ref):
+        cut, selected = self._start_transition("n5_completed", "prepared", "n5_claimed")
+        prepared = selected["prepared"]
+        if (
+            prepared is None
+            or type(prepared[1]) is not NativeSourceReentryPrepared
+            or artifacts.artifact_ref_identity_key(prepared[0])
+            != artifacts.artifact_ref_identity_key(prepared_ref)
+        ):
             raise ValueError("native_reentry_prepared_checkpoint_missing")
-        claim = self._read("n5_claimed")
-        if claim is None or artifacts.artifact_ref_identity_key(
-            claim[1].predecessor_ref
-        ) != artifacts.artifact_ref_identity_key(prepared_ref):
+        claim = selected["n5_claimed"]
+        if (
+            claim is None
+            or type(claim[1]) is not NativeSourceReentryClaim
+            or artifacts.artifact_ref_identity_key(claim[1].predecessor_ref)
+            != artifacts.artifact_ref_identity_key(prepared_ref)
+        ):
             raise ValueError("native_reentry_n5_claim_missing")
         if simulation.generic_n5_execution_ref is None or simulation.simulation_result_ref is None:
             raise ValueError("native_reentry_n5_completion_not_established")
         value = NativeSourceReentryN5Completed(
-            subject=subject,
+            subject=cut.subject,
             prepared_ref=prepared_ref,
             n5_execution_ref=simulation.generic_n5_execution_ref,
             n5_result_ref=simulation.simulation_result_ref,
             simulation=SimulationPortObservation.model_validate_json(simulation.model_dump_json()),
         )
         self._verify_n5(prepared[1], value)
-        return self._publish(value, "n5_completed")
+        return self._publish(value, cut)
 
     def _verify_n5(
         self, prepared: NativeSourceReentryPrepared, value: NativeSourceReentryN5Completed
@@ -1114,22 +1273,29 @@ class NativeSourceReentryCoordinator:
         receipt: AcquisitionOverlayReentryReceipt,
     ) -> artifacts.ArtifactRef:
         """Select actual returned ports before the final existing receipt publisher."""
-        _, subject = self._current()
-        prepared, n5 = self._read("prepared"), self._read("n5_completed")
+        cut, selected = self._start_transition(
+            "cycle_completed", "prepared", "n5_completed", "tail_claimed"
+        )
+        prepared, n5 = selected["prepared"], selected["n5_completed"]
         if (
             prepared is None
+            or type(prepared[1]) is not NativeSourceReentryPrepared
             or n5 is None
+            or type(n5[1]) is not NativeSourceReentryN5Completed
             or artifacts.artifact_ref_identity_key(n5[0])
             != artifacts.artifact_ref_identity_key(n5_ref)
         ):
             raise ValueError("native_reentry_n5_completion_not_established")
-        claim = self._read("tail_claimed")
-        if claim is None or artifacts.artifact_ref_identity_key(
-            claim[1].predecessor_ref
-        ) != artifacts.artifact_ref_identity_key(n5_ref):
+        claim = selected["tail_claimed"]
+        if (
+            claim is None
+            or type(claim[1]) is not NativeSourceReentryClaim
+            or artifacts.artifact_ref_identity_key(claim[1].predecessor_ref)
+            != artifacts.artifact_ref_identity_key(n5_ref)
+        ):
             raise ValueError("native_reentry_tail_claim_missing")
         value = NativeSourceReentryCycleCompleted(
-            subject=subject, n5_completed_ref=n5_ref, receipt=receipt
+            subject=cut.subject, n5_completed_ref=n5_ref, receipt=receipt
         )
         self._verify_cycle(prepared[1], n5_ref, n5[1], value)
-        return self._publish(value, "cycle_completed")
+        return self._publish(value, cut)

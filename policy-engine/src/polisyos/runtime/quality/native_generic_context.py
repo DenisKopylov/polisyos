@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from polisyos.core.registry import RegistryBundleContent
+    from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionWorldGrowthBridge,
         NativeDerivedWorldSelection,
@@ -192,11 +193,15 @@ def _current_selection(
     *,
     checkpoint_ref: artifacts.ArtifactRef,
     problem: DesignProblem,
+    expected_bridge: AcquisitionWorldGrowthBridge | None = None,
+    expected_closure: VerifiedAcquisitionRouteClosure | None = None,
 ) -> NativeDerivedWorldSelection:
     from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
     from polisyos.runtime.quality.acquisition_world_growth import NativeDerivationWorldCheckpoint
 
     bridge = _current_bridge(owner)
+    if expected_bridge is not None and bridge is not expected_bridge:
+        raise _error("generic_native_world_bridge_owner_mismatch")
     service = bridge._source_control_service
     # Untrusted bytes locate the exact requested occurrence only. The current
     # route and the bridge independently replay every selected fact below.
@@ -226,6 +231,8 @@ def _current_selection(
     closure = reader.resolve_current_route(
         run_id=checkpoint.run_id, route_id=checkpoint.route_id, action_job_id=current.job_id
     )
+    if expected_closure is not None and closure != expected_closure:
+        raise _error("generic_native_world_current_route_changed")
     if closure.design_problem_basis.model_dump(mode="python") != problem.model_dump(mode="python"):
         raise _error("generic_native_world_current_problem_mismatch")
     return bridge.resolve_native_derived_world_selection(closure, checkpoint_ref)
@@ -340,6 +347,27 @@ def resolve_native_world_handoff(
     repo_root: Path | None,
 ) -> GenericCycleNativeWorldContextHandoffV1:
     """Recheck current ownership separately from the saved original profile."""
+    _resolve_native_world_handoff_selection(
+        owner,
+        handoff=handoff,
+        problem=problem,
+        context_owner=context_owner,
+        repo_root=repo_root,
+    )
+    return handoff
+
+
+def _resolve_native_world_handoff_selection(
+    owner: GenericCycleSimulationAdmissionOwner,
+    *,
+    handoff: GenericCycleNativeWorldContextHandoffV1,
+    problem: DesignProblem,
+    context_owner: CycleSubstrateContextArtifactOwner | None = None,
+    repo_root: Path | None = None,
+    expected_bridge: AcquisitionWorldGrowthBridge | None = None,
+    expected_closure: VerifiedAcquisitionRouteClosure | None = None,
+) -> NativeDerivedWorldSelection:
+    """Return the verified selection to a caller in the same live read."""
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContextArtifactOwner,
         cycle_job_profile_selection_ref,
@@ -351,7 +379,11 @@ def resolve_native_world_handoff(
     if type(handoff) is not GenericCycleNativeWorldContextHandoffV1:
         raise _error("generic_native_world_handoff_untyped")
     selection = _current_selection(
-        owner, checkpoint_ref=handoff.native_world_checkpoint_ref, problem=problem
+        owner,
+        checkpoint_ref=handoff.native_world_checkpoint_ref,
+        problem=problem,
+        expected_bridge=expected_bridge,
+        expected_closure=expected_closure,
     )
     service = owner._native_world_action_owner
     if context_owner is None:
@@ -377,7 +409,7 @@ def resolve_native_world_handoff(
         resolved.cell_id,
     ) != (handoff.job_id, handoff.run_id, handoff.tenant_id, handoff.cell_id):
         raise _error("generic_native_world_context_current_readback_mismatch")
-    return handoff
+    return selection
 
 
 def _selected_graph_for_handoff(

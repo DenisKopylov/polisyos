@@ -7616,7 +7616,6 @@ class AcquisitionWorldGrowthBridge:
             if native_budget_observer is not None:
                 controller_kwargs["_producer_budget_reconciler"] = native_budget_observer
             native_reentry_coordinator = None
-            native_progress = None
             if native_collections:
                 context, handoff, context_owner, currentness_resolver = (
                     self._native_derivation_context_handoff(
@@ -7644,7 +7643,6 @@ class AcquisitionWorldGrowthBridge:
                         handoff=handoff,
                         collection_ref=native_collections[0],
                     )
-                    native_progress = native_reentry_coordinator.progress()
                     controller_kwargs.update(
                         {
                             "cycle_substrate_context": context,
@@ -7711,16 +7709,13 @@ class AcquisitionWorldGrowthBridge:
                         currentness_resolver=currentness_resolver,
                     )
                     controller_kwargs["simulation_port"] = native_context.port
-            if started and (native_progress is None or native_progress.prepared is None):
-                raise ValueError("acquisition_reentry_outcome_not_established")
-            if model is None and (native_progress is None or native_progress.prepared is None):
-                raise ValueError("acquisition_reentry_model_unconfigured")
-            if native_budget_observer is not None:
-                self._native_derivation_reentry_readiness(
-                    closure=closure,
-                    observer=native_budget_observer,
-                    coordinator=native_reentry_coordinator,
-                )
+            self._native_derivation_reentry_readiness(
+                closure=closure,
+                observer=native_budget_observer,
+                coordinator=native_reentry_coordinator,
+                started=started,
+                model_configured=model is not None,
+            )
             controller = GenerationCycleController(
                 repo_root=self.repo_root,
                 model_id=model,
@@ -8115,10 +8110,12 @@ class AcquisitionWorldGrowthBridge:
         self,
         *,
         closure: VerifiedAcquisitionRouteClosure,
-        observer: ProducerBudgetObserver,
+        observer: ProducerBudgetObserver | None,
         coordinator: NativeSourceReentryCoordinator | None,
+        started: bool = False,
+        model_configured: bool = True,
     ) -> None:
-        """Let canonical selected cuts decide which new producers are still needed."""
+        """Read one selected cut for preparation and remaining producer readiness."""
         from polisyos.runtime.quality.native_source_reentry_history import (
             NativeSourceReentryCoordinator,
         )
@@ -8132,9 +8129,16 @@ class AcquisitionWorldGrowthBridge:
         # The coordinator independently replays selected CAS/event/SQL members.
         # A caller flag, `.started` file or claimed completion is insufficient.
         progress = coordinator.progress() if coordinator is not None else None
+        prepared = progress is not None and progress.prepared is not None
+        if started and not prepared:
+            raise ValueError("acquisition_reentry_outcome_not_established")
+        if not model_configured and not prepared:
+            raise ValueError("acquisition_reentry_model_unconfigured")
+        if observer is None:
+            return
         if progress is None or progress.n5_completed is None:
             self._require_native_reentry_standard_capacity(closure, observer)
-        if progress is None or progress.prepared is None:
+        if not prepared:
             self._require_native_reentry_n4_producer(closure)
 
     def prepare_native_derivation_reentry_budget(

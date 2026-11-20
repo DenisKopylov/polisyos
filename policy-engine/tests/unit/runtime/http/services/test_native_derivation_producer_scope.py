@@ -327,6 +327,50 @@ def test_native_readiness_refuses_a_caller_supplied_completion_marker():
 
 
 @pytest.mark.parametrize(
+    ("started", "model_configured", "error"),
+    [
+        (True, True, "acquisition_reentry_outcome_not_established"),
+        (False, False, "acquisition_reentry_model_unconfigured"),
+    ],
+)
+def test_native_readiness_uses_one_selected_cut_for_preparation_and_producer_gates(
+    monkeypatch, started, model_configured, error
+):
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+    from polisyos.runtime.quality.native_source_reentry_history import (
+        NativeSourceReentryCoordinator,
+        NativeSourceReentryProgress,
+    )
+
+    bridge = AcquisitionWorldGrowthBridge.__new__(AcquisitionWorldGrowthBridge)
+    closure = object()
+    coordinator = NativeSourceReentryCoordinator.__new__(NativeSourceReentryCoordinator)
+    coordinator.bridge, coordinator.closure = bridge, closure
+    calls = []
+
+    def read_progress():
+        calls.append("progress")
+        return NativeSourceReentryProgress(prepared=None, n5_completed=None, cycle_completed=None)
+
+    monkeypatch.setattr(coordinator, "progress", read_progress)
+    monkeypatch.setattr(
+        bridge, "_require_native_reentry_standard_capacity", lambda *_: calls.append("quota")
+    )
+    monkeypatch.setattr(
+        bridge, "_require_native_reentry_n4_producer", lambda *_: calls.append("gateway")
+    )
+    with pytest.raises(ValueError, match=f"^{error}$"):
+        bridge._native_derivation_reentry_readiness(
+            closure=closure,
+            observer=object(),
+            coordinator=coordinator,
+            started=started,
+            model_configured=model_configured,
+        )
+    assert calls == ["progress"]
+
+
+@pytest.mark.parametrize(
     ("mode", "configured", "models", "expected_code"),
     [
         (None, False, ["original-model"], "native_reentry_n4_producer_unconfigured"),

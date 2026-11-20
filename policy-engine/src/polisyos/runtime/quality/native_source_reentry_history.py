@@ -845,6 +845,9 @@ class NativeSourceReentryCoordinator:
             GenericCycleNativeWorldContextHandoffV1,
             GenericCycleSimulationAdmissionOwner,
         )
+        from polisyos.runtime.quality.native_generic_context import (
+            _resolve_native_world_handoff_selection,
+        )
 
         bridge, closure, handoff = self.bridge, self.closure, self.handoff
         if (
@@ -862,18 +865,18 @@ class NativeSourceReentryCoordinator:
             or owner.store is not bridge.artifact_store
         ):
             raise ValueError("native_reentry_current_owner_mismatch")
-        owner.resolve_native_world_handoff(handoff=handoff, problem=closure.design_problem_basis)
-        selection = bridge.resolve_native_derived_world_selection(
-            closure, handoff.native_world_checkpoint_ref
+        selection = _resolve_native_world_handoff_selection(
+            owner,
+            handoff=handoff,
+            problem=closure.design_problem_basis,
+            expected_bridge=bridge,
+            expected_closure=closure,
         )
-        pending_ref, _ = bridge._native_derivation_pending_phase(closure)
-        if artifacts.artifact_ref_identity_key(
-            selection.pending_action_phase_ref
-        ) != artifacts.artifact_ref_identity_key(pending_ref) or tuple(
+        pending_ref = selection.pending_action_phase_ref
+        if tuple(
             artifacts.artifact_ref_identity_key(ref) for ref in selection.checkpoint.collection_refs
         ) != (artifacts.artifact_ref_identity_key(self.collection_ref),):
             raise ValueError("native_reentry_current_selection_mismatch")
-        admission = bridge.control_store.current_execution_job_admission()
         snapshot = bridge.action_head_sink.current_action_outcome(
             tenant_id=closure.tenant_id,
             cell_id=closure.cell_id,
@@ -881,9 +884,11 @@ class NativeSourceReentryCoordinator:
             source_job_id=closure.source_job_id,
             route_id=closure.route_id,
         )
+        admission = bridge.control_store.current_execution_job_admission()
         if (
             snapshot is None
             or snapshot.head.receipt_phase != "world_committed_reentry_pending"
+            or snapshot.head.job_id != handoff.job_id
             or snapshot.head.receipt_ref != str(pending_ref.artifact_id)
             or snapshot.head.receipt_manifest_profile_sha256 != pending_ref.manifest_profile_sha256
             or admission.job.kind != "acquisition"
@@ -930,14 +935,19 @@ class NativeSourceReentryCoordinator:
         """Return the already bound real Native Generic owner, never a new grant."""
         return self.bridge._source_control_service._generic_cycle_simulation_admission_owner
 
-    def _read(self, member: Member) -> tuple[artifacts.ArtifactRef, _Member] | None:
-        _, subject = self._current()
-        result = read_native_source_reentry_member(
+    def _read_selected(
+        self, subject: NativeSourceReentrySubject, member: Member
+    ) -> tuple[artifacts.ArtifactRef, _Member] | None:
+        return read_native_source_reentry_member(
             store=self.bridge.artifact_store,
             events=self.bridge.event_log,
             subject=subject,
             member=member,
         )
+
+    def _read(self, member: Member) -> tuple[artifacts.ArtifactRef, _Member] | None:
+        _, subject = self._current()
+        result = self._read_selected(subject, member)
         self._current()
         return result
 
@@ -992,24 +1002,56 @@ class NativeSourceReentryCoordinator:
         )
 
     def progress(self) -> NativeSourceReentryProgress:
-        """Reopen selected cuts under the separate current action admission."""
-        prepared = self._read("prepared")
-        n5 = self._read("n5_completed")
-        cycle = self._read("cycle_completed")
-        n5_claim = self._read("n5_claimed")
-        tail_claim = self._read("tail_claimed")
+        """Read one member vector across two independent current action cuts."""
+        head, live_subject = self._current()
+        # The subject borrows selected references from the handoff. Detach
+        # the opening values before comparing them to independently read ones.
+        subject = live_subject.model_copy(deep=True)
+        members: tuple[Member, ...] = (
+            "prepared",
+            "n5_completed",
+            "cycle_completed",
+            "n5_claimed",
+            "tail_claimed",
+        )
+        selected = {member: self._read_selected(subject, member) for member in members}
         progress, _result = _verify_native_source_reentry_progress(
             store=self.bridge.artifact_store,
             owner=self.owner,
             source_generation_run=self.closure.generation_run,
             world_model_record_content_hash=self.handoff.context.world_model_record_content_hash,
-            prepared=prepared,
-            n5=n5,
-            cycle=cycle,
-            n5_claim=n5_claim,
-            tail_claim=tail_claim,
+            prepared=selected["prepared"],
+            n5=selected["n5_completed"],
+            cycle=selected["cycle_completed"],
+            n5_claim=selected["n5_claimed"],
+            tail_claim=selected["tail_claimed"],
         )
-        self._current()
+        if self._current() != (head, subject):
+            raise ValueError("native_reentry_current_head_changed")
+        if any(
+            self._read_selected(subject, member) != original
+            for member, original in selected.items()
+        ):
+            raise ValueError("native_reentry_checkpoint_selection_changed")
+
+        # Member artifact readback can outlast the lease or overlap a new head.
+        # Keep this last check SQL-only: both full source sweeps ran above.
+        control = self.bridge.control_store
+        admission = control.current_execution_job_admission()
+        heads = control.list_acquisition_action_heads(
+            tenant_id=head.tenant_id,
+            cell_id=head.cell_id,
+            run_id=head.run_id,
+            source_job_id=head.source_job_id,
+            route_id=head.route_id,
+        )
+        if (
+            not heads
+            or heads[-1] != head
+            or admission.attempt != subject.originating_attempt
+            or admission.job.job_id != head.job_id
+        ):
+            raise ValueError("native_reentry_current_head_changed")
         return progress
 
     def prepare(

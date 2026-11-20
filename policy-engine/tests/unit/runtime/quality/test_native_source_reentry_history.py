@@ -273,6 +273,294 @@ def _read(
     )
 
 
+def _progress_under_selected_owner(
+    case: _Case, monkeypatch: pytest.MonkeyPatch
+) -> tuple[history.NativeSourceReentryCoordinator, list[AcquisitionActionHeadRecord]]:
+    # Only the full upstream Native semantic sweep is substituted. Every
+    # checkpoint read, diagnostic selection and current lease/head stays real.
+    coordinator = object.__new__(history.NativeSourceReentryCoordinator)
+    coordinator.bridge = SimpleNamespace(
+        artifact_store=case.cas,
+        event_log=case.events,
+        control_store=case.control,
+        _source_control_service=SimpleNamespace(_generic_cycle_simulation_admission_owner=None),
+    )
+    coordinator.closure = SimpleNamespace(generation_run=None)
+    coordinator.handoff = SimpleNamespace(
+        context=SimpleNamespace(world_model_record_content_hash="test-owned selected world")
+    )
+    observed = []
+
+    def current(self):
+        assert self is coordinator
+        admission = case.control.current_execution_job_admission()
+        head = case.control.get_acquisition_action_head(
+            tenant_id=case.head.tenant_id,
+            cell_id=case.head.cell_id,
+            run_id=case.head.run_id,
+            source_job_id=case.head.source_job_id,
+            route_id=case.head.route_id,
+            action_generation=case.head.action_generation,
+        )
+        assert head is not None
+        observed.append(head)
+        return head, case.prepared.subject.model_copy(
+            update={"originating_attempt": admission.attempt}
+        )
+
+    monkeypatch.setattr(history.NativeSourceReentryCoordinator, "_current", current)
+    return coordinator, observed
+
+
+def test_native_generic_selection_reuse_requires_the_exact_live_route_and_bridge(
+    selected_case: _Case,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality import native_generic_context
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionRouteLoop,
+        VerifiedAcquisitionRouteClosure,
+    )
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthBridge,
+        NativeDerivationWorldCheckpoint,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContextArtifactOwner,
+        cycle_job_profile_selection_ref,
+    )
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleNativeWorldContextHandoffV1,
+        GenericCycleSimulationAdmissionOwner,
+    )
+    from tests.unit.runtime.quality.test_generic_simulation_admission_program_graph import (
+        _linkage_problem,
+    )
+
+    case = selected_case
+    subject = case.prepared.subject
+    owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=case.cas)
+    bridge = object.__new__(AcquisitionWorldGrowthBridge)
+    bridge.artifact_store = case.cas
+    bridge.control_store = case.control
+    bridge.action_head_sink = SimpleNamespace(
+        current_action_outcome=lambda **scope: SimpleNamespace(
+            head=case.control.list_acquisition_action_heads(**scope)[-1]
+        )
+    )
+    bridge._source_control_service = SimpleNamespace(
+        _generic_cycle_simulation_admission_owner=owner,
+        _control_store=case.control,
+        _diagnostic_event_log=case.events,
+        resolve_completed_control_job_core_run_source=lambda *args: None,
+        acquisition_route_sink=None,
+    )
+    owner._native_world_action_owner = bridge._source_control_service
+    problem = _linkage_problem()
+    # Substitutes stop at the complete upstream route and World selection
+    # owners. Lease admission and the exact binding between them remain real.
+    closure = VerifiedAcquisitionRouteClosure.model_construct(
+        tenant_id=subject.tenant_id,
+        cell_id=subject.cell_id,
+        run_id=subject.run_id,
+        source_job_id=subject.source_job_id,
+        route_id=subject.route_id,
+        source_payload_ref="sha256:" + "a" * 64,
+        generation_run=SimpleNamespace(
+            run_id=subject.source_run_id, design_problem_ref=subject.stable_design_problem_ref
+        ),
+        source_cycle=SimpleNamespace(cycle_index=subject.cycle_index - 1),
+    )
+    checkpoint = SimpleNamespace(
+        tenant_id=subject.tenant_id,
+        cell_id=subject.cell_id,
+        run_id=subject.run_id,
+        action_job_id=subject.action_job_id,
+        route_id=subject.route_id,
+        source_job_id=subject.source_job_id,
+        collection_refs=(subject.native_input_collection_ref,),
+    )
+    context = object()
+    handoff = GenericCycleNativeWorldContextHandoffV1.model_construct(
+        context=context,
+        context_job_ref=subject.context_job_ref,
+        profile=SimpleNamespace(profile_selection_ref=subject.original_profile_selection_ref),
+        profile_ref=subject.original_profile_ref,
+        native_world_checkpoint_ref=subject.native_world_checkpoint_ref,
+        original_generic_input_ref=subject.original_generic_input_ref,
+        current_profile_selection_ref=cycle_job_profile_selection_ref(problem),
+        source_job_id=subject.source_job_id,
+        job_id=subject.action_job_id,
+        run_id=subject.run_id,
+        tenant_id=subject.tenant_id,
+        cell_id=subject.cell_id,
+    )
+    selected = SimpleNamespace(
+        checkpoint=checkpoint,
+        checkpoint_ref=subject.native_world_checkpoint_ref,
+        pending_action_phase_ref=subject.pending_action_ref,
+        original_generic_input_ref=subject.original_generic_input_ref,
+        original_profile=handoff.profile,
+        original_profile_ref=subject.original_profile_ref,
+    )
+    seen = []
+
+    def resolve_route(self, *, run_id, route_id, action_job_id):
+        assert (run_id, route_id, action_job_id) == (
+            subject.run_id,
+            subject.route_id,
+            subject.action_job_id,
+        )
+        return closure
+
+    def resolve_selection(self, actual_closure, actual_ref):
+        assert self is bridge
+        seen.append((actual_closure, actual_ref))
+        return selected
+
+    monkeypatch.setattr(native_generic_context, "_current_bridge", lambda actual: bridge)
+    monkeypatch.setattr(NativeDerivationWorldCheckpoint, "model_validate", lambda _wire: checkpoint)
+    monkeypatch.setattr(
+        VerifiedAcquisitionRouteClosure, "design_problem_basis", property(lambda _: problem)
+    )
+    monkeypatch.setattr(AcquisitionRouteLoop, "resolve_current_route", resolve_route)
+    monkeypatch.setattr(native_generic_context, "_context", lambda *_: context)
+    monkeypatch.setattr(
+        CycleSubstrateContextArtifactOwner,
+        "resolve_for_current_job",
+        lambda *_args, **_kwargs: handoff,
+    )
+    monkeypatch.setattr(
+        AcquisitionWorldGrowthBridge, "resolve_native_derived_world_selection", resolve_selection
+    )
+
+    inputs = {"checkpoint_ref": subject.native_world_checkpoint_ref, "problem": problem}
+    with case.fence():
+        history.NativeSourceReentryCoordinator(
+            bridge=bridge,
+            closure=closure,
+            handoff=handoff,
+            collection_ref=subject.native_input_collection_ref,
+        )
+        assert seen == [(closure, subject.native_world_checkpoint_ref)]
+        with pytest.raises(ValueError, match="generic_native_world_bridge_owner_mismatch"):
+            native_generic_context._current_selection(
+                owner,
+                **inputs,
+                expected_bridge=object.__new__(AcquisitionWorldGrowthBridge),
+                expected_closure=closure,
+            )
+        changed = closure.model_copy(update={"source_payload_ref": "sha256:" + "b" * 64})
+        with pytest.raises(ValueError, match="generic_native_world_current_route_changed"):
+            native_generic_context._current_selection(
+                owner,
+                **inputs,
+                expected_bridge=bridge,
+                expected_closure=changed,
+            )
+    assert seen == [(closure, subject.native_world_checkpoint_ref)]
+
+
+def test_native_progress_bounds_full_currentness_to_two_cuts(
+    selected_case: _Case,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    coordinator, observed = _progress_under_selected_owner(selected_case, monkeypatch)
+    with selected_case.fence():
+        assert coordinator.progress() == history.NativeSourceReentryProgress()
+    assert observed == [selected_case.head, selected_case.head]
+
+
+@pytest.mark.parametrize("change", ["selected-event", "head", "lease"])
+def test_native_progress_refuses_changed_observed_cut(
+    selected_case: _Case,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    change: str,
+) -> None:
+    case = selected_case
+    coordinator, _observed = _progress_under_selected_owner(case, monkeypatch)
+    verify = history._verify_native_source_reentry_progress
+
+    def verify_then_change(**kwargs):
+        result = verify(**kwargs)
+        if change == "selected-event":
+            assert _select(case, case.prepared, "prepared") is not None
+        elif change == "head":
+            ref = _parent(case.cas, "test.native_terminal_owner", "successor")
+            case.control.advance_acquisition_action_head(
+                tenant_id=case.head.tenant_id,
+                cell_id=case.head.cell_id,
+                run_id=case.head.run_id,
+                source_job_id=case.head.source_job_id,
+                route_id=case.head.route_id,
+                action_generation=case.head.action_generation,
+                expected_head_generation=case.head.head_generation,
+                receipt_ref=str(ref.artifact_id),
+                receipt_sha256=str(ref.artifact_id),
+                durable_event_id="test-terminal-successor",
+                coarse_phase="terminal",
+                receipt_phase="terminal",
+                recovery_state="complete",
+                job_id=case.head.job_id,
+                predecessor_receipt_ref=case.head.receipt_ref,
+                receipt_manifest_profile_sha256=ref.manifest_profile_sha256,
+            )
+        else:
+            with sqlite3.connect(tmp_path / "control.sqlite3") as connection:
+                connection.execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ("2000-01-01T00:00:00Z", case.head.job_id),
+                )
+        return result
+
+    monkeypatch.setattr(history, "_verify_native_source_reentry_progress", verify_then_change)
+    reason = {
+        "selected-event": "native_reentry_checkpoint_selection_changed",
+        "head": "native_reentry_current_head_changed",
+        "lease": "lease is not current",
+    }[change]
+    try:
+        with case.fence(), pytest.raises((ValueError, ControlJobLeaseLostError), match=reason):
+            coordinator.progress()
+    finally:
+        if change == "selected-event":
+            assert _read(case, "prepared")[1] == case.prepared
+
+
+def test_native_progress_refuses_lease_expiry_during_final_member_read(
+    selected_case: _Case,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    case = selected_case
+    coordinator, observed = _progress_under_selected_owner(case, monkeypatch)
+    read = history.read_native_source_reentry_member
+    reads = 0
+
+    def read_then_expire(**kwargs):
+        nonlocal reads
+        value = read(**kwargs)
+        reads += 1
+        if reads == 10:
+            assert observed == [case.head, case.head]
+            with sqlite3.connect(tmp_path / "control.sqlite3") as connection:
+                connection.execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ("2000-01-01T00:00:00Z", case.head.job_id),
+                )
+        return value
+
+    monkeypatch.setattr(history, "read_native_source_reentry_member", read_then_expire)
+    events_before = case.control.list_diagnostic_events(job_id=case.head.job_id)
+    artifacts_before = tuple(case.cas.root.rglob("*.json"))
+    with case.fence(), pytest.raises(ControlJobLeaseLostError, match="lease is not current"):
+        coordinator.progress()
+    assert reads == 10
+    assert case.control.list_diagnostic_events(job_id=case.head.job_id) == events_before
+    assert tuple(case.cas.root.rglob("*.json")) == artifacts_before
+
+
 def test_native_preparation_requires_selected_event_and_exact_profile(selected_case: _Case) -> None:
     """Orphan CAS bytes and a same-blob sibling profile do not select preparation."""
     case = selected_case

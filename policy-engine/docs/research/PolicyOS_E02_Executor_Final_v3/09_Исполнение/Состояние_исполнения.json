@@ -9149,6 +9149,16 @@
             "r31_max_renewal_gap_seconds": 6.448,
             "r31_recovered_ref_postimage": "Primary:policy-engine/_cache/e02/native-r31-postimage-PCAGnt/recovered-checkpoint-identity.json",
             "r31_exact_postimage_seconds": 22.345,
+            "r32_live_reentry_boundary": {
+              "source_commit": "c0cc0ecee0e865d8030d16b9c7fb669b4f2bf5b5",
+              "handoff_return_kyiv": "2026-11-20T21:28:42+02:00",
+              "first_native_currentness_seconds": 1786.604,
+              "first_native_currentness_pending_seconds": 94.759,
+              "first_native_currentness_return_kyiv": "2026-11-20T21:58:29+02:00",
+              "scope": "Actual stock coordinator progress enters the prepared-member read under a renewed lease. No observed provider or N5 activity at this cut.",
+              "trace": "Primary:policy-engine/_cache/e02/native-r32-from-r30-Q3FuQK/lease-lifecycle.jsonl",
+              "candidate": "Share the verified Native world selection only inside one exact Generic handoff check. Reopen all five progress members within two independently verified current cuts and check the live SQL lease and head at return. Use one progress read for initial preparation/readiness. Actual effect-path timing remains verification_missing."
+            },
             "r31_identity_repair_commit": "e8faa2cb2c2c7a5cf5221e379549a41ee8d7c014",
             "r31_reference_predicate": "Exact original data reproduce strict Python-class equality refusal. Whole recovered input scope and adjacent consumers now use ordered full selected identity. Eight substitution controls refuse. No new numerical work or fresh terminal API."
           },

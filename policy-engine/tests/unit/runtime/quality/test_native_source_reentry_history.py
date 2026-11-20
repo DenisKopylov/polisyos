@@ -273,6 +273,29 @@ def _read(
     )
 
 
+def _advance_test_terminal(case: _Case) -> None:
+    """Publish an independently selected successor in the test SQL owner."""
+    ref = _parent(case.cas, "test.native_terminal_owner", "successor")
+    case.control.advance_acquisition_action_head(
+        tenant_id=case.head.tenant_id,
+        cell_id=case.head.cell_id,
+        run_id=case.head.run_id,
+        source_job_id=case.head.source_job_id,
+        route_id=case.head.route_id,
+        action_generation=case.head.action_generation,
+        expected_head_generation=case.head.head_generation,
+        receipt_ref=str(ref.artifact_id),
+        receipt_sha256=str(ref.artifact_id),
+        durable_event_id="test-terminal-successor",
+        coarse_phase="terminal",
+        receipt_phase="terminal",
+        recovery_state="complete",
+        job_id=case.head.job_id,
+        predecessor_receipt_ref=case.head.receipt_ref,
+        receipt_manifest_profile_sha256=ref.manifest_profile_sha256,
+    )
+
+
 def _progress_under_selected_owner(
     case: _Case, monkeypatch: pytest.MonkeyPatch
 ) -> tuple[history.NativeSourceReentryCoordinator, list[AcquisitionActionHeadRecord]]:
@@ -487,25 +510,7 @@ def test_native_progress_refuses_changed_observed_cut(
         if change == "selected-event":
             assert _select(case, case.prepared, "prepared") is not None
         elif change == "head":
-            ref = _parent(case.cas, "test.native_terminal_owner", "successor")
-            case.control.advance_acquisition_action_head(
-                tenant_id=case.head.tenant_id,
-                cell_id=case.head.cell_id,
-                run_id=case.head.run_id,
-                source_job_id=case.head.source_job_id,
-                route_id=case.head.route_id,
-                action_generation=case.head.action_generation,
-                expected_head_generation=case.head.head_generation,
-                receipt_ref=str(ref.artifact_id),
-                receipt_sha256=str(ref.artifact_id),
-                durable_event_id="test-terminal-successor",
-                coarse_phase="terminal",
-                receipt_phase="terminal",
-                recovery_state="complete",
-                job_id=case.head.job_id,
-                predecessor_receipt_ref=case.head.receipt_ref,
-                receipt_manifest_profile_sha256=ref.manifest_profile_sha256,
-            )
+            _advance_test_terminal(case)
         else:
             with sqlite3.connect(tmp_path / "control.sqlite3") as connection:
                 connection.execute(
@@ -528,37 +533,392 @@ def test_native_progress_refuses_changed_observed_cut(
             assert _read(case, "prepared")[1] == case.prepared
 
 
-def test_native_progress_refuses_lease_expiry_during_final_member_read(
+def test_native_progress_refuses_lease_expiry_after_final_source_read(
     selected_case: _Case,
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
     case = selected_case
     coordinator, observed = _progress_under_selected_owner(case, monkeypatch)
-    read = history.read_native_source_reentry_member
-    reads = 0
+    current = history.NativeSourceReentryCoordinator._current
 
-    def read_then_expire(**kwargs):
-        nonlocal reads
-        value = read(**kwargs)
-        reads += 1
-        if reads == 10:
-            assert observed == [case.head, case.head]
+    def check_then_expire(self):
+        cut = current(self)
+        if len(observed) == 2:
             with sqlite3.connect(tmp_path / "control.sqlite3") as connection:
                 connection.execute(
                     "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
                     ("2000-01-01T00:00:00Z", case.head.job_id),
                 )
-        return value
+        return cut
 
-    monkeypatch.setattr(history, "read_native_source_reentry_member", read_then_expire)
+    monkeypatch.setattr(history.NativeSourceReentryCoordinator, "_current", check_then_expire)
     events_before = case.control.list_diagnostic_events(job_id=case.head.job_id)
     artifacts_before = tuple(case.cas.root.rglob("*.json"))
     with case.fence(), pytest.raises(ControlJobLeaseLostError, match="lease is not current"):
         coordinator.progress()
-    assert reads == 10
+    assert observed == [case.head, case.head]
     assert case.control.list_diagnostic_events(job_id=case.head.job_id) == events_before
     assert tuple(case.cas.root.rglob("*.json")) == artifacts_before
+
+
+def test_native_progress_refuses_sql_member_selected_during_final_source_read(
+    selected_case: _Case,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    case = selected_case
+    coordinator, observed = _progress_under_selected_owner(case, monkeypatch)
+    current = history.NativeSourceReentryCoordinator._current
+
+    def check_then_select(self):
+        cut = current(self)
+        if len(observed) == 2:
+            _select(case, case.prepared, "prepared")
+        return cut
+
+    monkeypatch.setattr(history.NativeSourceReentryCoordinator, "_current", check_then_select)
+    with (
+        case.fence(),
+        pytest.raises(ValueError, match="native_reentry_checkpoint_selection_changed"),
+    ):
+        coordinator.progress()
+    assert observed == [case.head, case.head]
+    assert _read(case, "prepared")[1] == case.prepared
+
+
+def _prepare_selected(case: _Case, coordinator: history.NativeSourceReentryCoordinator):
+    value = case.prepared
+    return coordinator.prepare(
+        n4_source_ref=value.n4_source_ref,
+        input_ref=value.n5_input_ref,
+        candidate_id=value.candidate_id,
+        candidate_hash=value.candidate_content_hash,
+        grounding=value.grounding_observations,
+        summaries=value.candidate_summaries,
+        schedule=value.schedule,
+    )
+
+
+def test_native_transition_selects_five_members_under_three_full_cuts_each(
+    selected_case: _Case,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality.generation_cycle import (
+        AcquisitionOverlayReentryReceipt,
+        GenerationCycleRecord,
+        SimulationPortObservation,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle_model_input_wire import _v3_fixture
+
+    case = selected_case
+    coordinator, observed = _progress_under_selected_owner(case, monkeypatch)
+    # This selection-owner fixture has no numerical producer. Supply shaped
+    # external evidence and bound semantic verifier substitutes at that seam.
+    checked = []
+    monkeypatch.setattr(coordinator, "_verify_prepared", lambda value: checked.append(value))
+    monkeypatch.setattr(coordinator, "_verify_n5", lambda *values: checked.append(values[-1]))
+    monkeypatch.setattr(coordinator, "_verify_cycle", lambda *values: checked.append(values[-1]))
+    value = case.prepared
+    subject = value.subject
+    simulation = SimulationPortObservation(
+        candidate_id=value.candidate_id,
+        status="joint_simulated",
+        generic_n4_source_ref=value.n4_source_ref,
+        generic_context_job_ref=subject.context_job_ref,
+        generic_profile_ref=subject.original_profile_ref,
+        generic_n5_input_ref=value.n5_input_ref,
+        generic_profile_selection_ref=subject.original_profile_selection_ref,
+        generic_n5_execution_ref=_parent(
+            case.cas, "runtime.quality.generic_cycle_simulation_n5_execution", "N5 execution"
+        ),
+        simulation_result_ref=_parent(
+            case.cas, "runtime.quality.joint_simulation_result", "N5 result"
+        ),
+    )
+    digest = subject.stable_design_problem_ref
+    _, fixture = _v3_fixture()
+    receipt = AcquisitionOverlayReentryReceipt.issue(
+        schema_version="policyos.runtime.acquisition_overlay_reentry.v1",
+        source_run_id=subject.source_run_id,
+        design_problem_ref=digest,
+        source_cycle_index=0,
+        source_candidate_ref=value.candidate_id,
+        overlay_receipt_ref=digest,
+        overlay_receipt_content_hash=digest,
+        baseline_content_hash=digest,
+        overlay_path="fixture-overlay",
+        epoch_id=1,
+        passport_id="fixture-passport",
+        passport_variable_id="fixture-variable",
+        admitted_observation_count=1,
+        semantic_epoch_ref=digest,
+        semantic_epoch_production_receipt_ref=digest,
+        semantic_epoch_production_receipt_content_hash=digest,
+        new_cycle=GenerationCycleRecord.model_validate(fixture["cycles"][0]),
+        candidate_summaries=value.candidate_summaries,
+    )
+
+    with case.fence():
+        prepared = _prepare_selected(case, coordinator)
+        cuts = [len(observed)]
+        coordinator.claim("n5_claimed", prepared)
+        cuts.append(len(observed))
+        n5_completed = coordinator.complete_n5(prepared, simulation)
+        cuts.append(len(observed))
+        coordinator.claim("tail_claimed", n5_completed)
+        cuts.append(len(observed))
+        cycle_completed = coordinator.complete_cycle(n5_completed, receipt)
+        cuts.append(len(observed))
+
+        selected = {
+            key: _read(case, key)
+            for key in ("prepared", "n5_claimed", "n5_completed", "tail_claimed", "cycle_completed")
+        }
+        ids = {history._event_id(subject, key) for key in selected}
+        rows = case.control.list_diagnostic_events(job_id=case.head.job_id)
+        assert {row.event.event_id for row in rows if row.event.event_id in ids} == ids
+        assert selected["prepared"][0] == prepared
+        assert selected["n5_claimed"][1].predecessor_ref == prepared
+        assert selected["n5_completed"][0] == n5_completed
+        assert selected["tail_claimed"][1].predecessor_ref == n5_completed
+        assert selected["cycle_completed"][0] == cycle_completed
+        assert checked == [
+            selected[key][1] for key in ("prepared", "n5_completed", "cycle_completed")
+        ]
+    assert cuts == [3, 6, 9, 12, 15]
+
+
+@pytest.mark.parametrize(
+    "boundary", ["cas-put", "sql-append", "pre-member", "post-member", "progress-member"]
+)
+def test_native_transition_rechecks_actual_active_catalog_around_event(
+    selected_case: _Case,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    boundary: str,
+) -> None:
+    import duckdb
+
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import OverlayAdmissionError
+    from tests._helpers.semantic_epoch_native import _real_epoch_scenario
+    from tests.unit.runtime.quality.test_acquisition_executor import _activate_real_epoch_scenario
+
+    case = selected_case
+    coordinator, _observed = _progress_under_selected_owner(case, monkeypatch)
+    monkeypatch.setattr(coordinator, "_verify_prepared", lambda _value: None)
+    scenario = _real_epoch_scenario(tmp_path / "catalog-owner")
+    _production, activation = _activate_real_epoch_scenario(scenario)
+    epoch = (scenario.passport.epoch_id, scenario.passport.passport_id)
+    current = history.NativeSourceReentryCoordinator._current
+    saved = None
+    target = "n5_claimed" if boundary == "pre-member" else "prepared"
+    prepared = None
+    if target == "n5_claimed":
+        with case.fence():
+            prepared = _select(case, case.prepared, "prepared")
+    expect_selected = boundary in {"sql-append", "post-member"}
+    staged = False
+    appended = False
+    post_reads = reads = 0
+
+    def deactivate():
+        nonlocal saved
+        if saved is not None:
+            return
+        assert (_read(case, target) is not None) is expect_selected
+        with duckdb.connect(str(scenario.overlay.overlay_path)) as connection:
+            saved = connection.execute(
+                "SELECT semantic_epoch_production_receipt_ref, activated_overlay_receipt_ref "
+                "FROM acquisition_epochs WHERE epoch_id = ? AND passport_id = ?",
+                epoch,
+            ).fetchone()
+            connection.execute(
+                "UPDATE acquisition_epochs SET epoch_activation_state = 'pending_epoch_activation', "
+                "semantic_epoch_production_receipt_ref = NULL, activated_overlay_receipt_ref = NULL "
+                "WHERE epoch_id = ? AND passport_id = ?",
+                epoch,
+            )
+
+    put_json = case.cas.put_json
+    append = case.control.append_native_source_reentry_checkpoint
+    read = coordinator._read_selected
+
+    def put_then_deactivate(*args, **kwargs):
+        nonlocal staged
+        ref = put_json(*args, **kwargs)
+        if ref.kind == history._KIND:
+            staged = True
+            if boundary == "cas-put":
+                deactivate()
+        return ref
+
+    def append_then_deactivate(**kwargs):
+        nonlocal appended
+        row = append(**kwargs)
+        appended = True
+        if boundary == "sql-append":
+            deactivate()
+        return row
+
+    def read_then_deactivate(subject, member):
+        nonlocal post_reads, reads
+        selected = read(subject, member)
+        reads += 1
+        if appended:
+            post_reads += 1
+        if (
+            (boundary == "pre-member" and staged and not appended and member == "prepared")
+            or (boundary == "post-member" and post_reads == 2)
+            or (boundary == "progress-member" and reads == 10)
+        ):
+            if boundary in {"pre-member", "post-member"}:
+                assert selected is not None and selected[0].manifest_profile_sha256 is not None
+            deactivate()
+        return selected
+
+    def check_current(self):
+        scenario.overlay.read_activated_semantic_epoch_observations(
+            receipt_ref=activation.receipt_ref,
+            artifact_store=scenario.store,
+            passport=scenario.passport,
+            authority=scenario.authority,
+        )
+        return current(self)
+
+    monkeypatch.setattr(case.cas, "put_json", put_then_deactivate)
+    monkeypatch.setattr(
+        case.control, "append_native_source_reentry_checkpoint", append_then_deactivate
+    )
+    monkeypatch.setattr(history.NativeSourceReentryCoordinator, "_current", check_current)
+    monkeypatch.setattr(coordinator, "_read_selected", read_then_deactivate)
+
+    def observe():
+        if prepared is not None:
+            return coordinator.claim("n5_claimed", prepared)
+        if boundary == "progress-member":
+            return coordinator.progress()
+        return _prepare_selected(case, coordinator)
+
+    with (
+        case.fence(),
+        pytest.raises(OverlayAdmissionError, match="epoch_activation_state_not_active"),
+    ):
+        observe()
+    assert saved is not None
+    selected = _read(case, target)
+    assert (selected is not None) is expect_selected
+    if expect_selected:
+        original = case.control.list_diagnostic_events(job_id=case.head.job_id)
+        with duckdb.connect(str(scenario.overlay.overlay_path)) as connection:
+            connection.execute(
+                "UPDATE acquisition_epochs SET epoch_activation_state = 'active', "
+                "semantic_epoch_production_receipt_ref = ?, activated_overlay_receipt_ref = ? "
+                "WHERE epoch_id = ? AND passport_id = ?",
+                (*saved, *epoch),
+            )
+        with case.fence():
+            assert _prepare_selected(case, coordinator) == selected[0]
+        assert case.control.list_diagnostic_events(job_id=case.head.job_id) == original
+
+
+def test_native_transition_keeps_sql_claim_absence_decisive_at_append(
+    selected_case: _Case,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    case = selected_case
+    coordinator, observed = _progress_under_selected_owner(case, monkeypatch)
+    append = ControlPlaneStore.append_native_source_reentry_checkpoint
+    with case.fence():
+        prepared = _select(case, case.prepared, "prepared")
+        competing = history.NativeSourceReentryClaim(
+            subject=case.prepared.subject,
+            member="n5_claimed",
+            predecessor_ref=prepared,
+        )
+        winning_ref = _write(case, competing)
+        competing_event = case.events.prepare(_event(case, winning_ref, competing, "n5_claimed"))
+
+        def competing_append(self, **kwargs):
+            assert observed == [case.head, case.head]
+            assert _read(case, "n5_claimed") is None
+            append(self, pending_head=case.head, prepared_event=competing_event)
+            return append(self, **kwargs)
+
+        monkeypatch.setattr(
+            ControlPlaneStore, "append_native_source_reentry_checkpoint", competing_append
+        )
+        with pytest.raises(
+            ValueError, match="native_source_reentry_checkpoint_claim_already_selected"
+        ):
+            coordinator.claim("n5_claimed", prepared)
+        with pytest.raises(ValueError, match="native_reentry_uncommitted_claim_not_established"):
+            coordinator.claim("n5_claimed", prepared)
+        event_id = history._event_id(case.prepared.subject, "n5_claimed")
+        assert len(case.control.list_diagnostic_events(event_id=event_id)) == 1
+        assert _read(case, "n5_claimed") == (winning_ref, competing)
+        assert _read(case, "n5_completed") is None
+
+
+@pytest.mark.parametrize("change", ["lease", "head", "selected-predecessor-profile"])
+def test_native_transition_refuses_late_changed_effect_inputs(
+    selected_case: _Case,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    change: str,
+) -> None:
+    case = selected_case
+    coordinator, observed = _progress_under_selected_owner(case, monkeypatch)
+    current = history.NativeSourceReentryCoordinator._current
+    put_json = case.cas.put_json
+    with case.fence():
+        prepared = _select(case, case.prepared, "prepared")
+    sibling = case.cas.put_json(
+        case.prepared.model_dump(mode="json"),
+        artifacts.ArtifactWriteOptions(kind=prepared.kind, media_type=prepared.media_type),
+        history._CANON,
+        return_selected_profile=True,
+    )
+    assert sibling.artifact_id == prepared.artifact_id and sibling != prepared
+    profile = case.cas._manifest_path_for_ref(
+        prepared.artifact_id, prepared.manifest_profile_sha256
+    )
+    held = profile.with_name(profile.name + ".held")
+
+    def check_then_change(self):
+        cut = current(self)
+        if len(observed) == 2:
+            if change == "lease":
+                with sqlite3.connect(tmp_path / "control.sqlite3") as connection:
+                    connection.execute(
+                        "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                        ("2000-01-01T00:00:00Z", case.head.job_id),
+                    )
+            elif change == "head":
+                _advance_test_terminal(case)
+        return cut
+
+    def put_then_remove_profile(*args, **kwargs):
+        ref = put_json(*args, **kwargs)
+        if change == "selected-predecessor-profile" and ref.kind == history._KIND:
+            profile.rename(held)
+            assert case.cas.verify(sibling).ok
+        return ref
+
+    monkeypatch.setattr(history.NativeSourceReentryCoordinator, "_current", check_then_change)
+    monkeypatch.setattr(case.cas, "put_json", put_then_remove_profile)
+    try:
+        error, reason = {
+            "lease": (ControlJobLeaseLostError, "lease is not current"),
+            "head": (ValueError, "native_reentry_current_head_changed"),
+            "selected-predecessor-profile": (FileNotFoundError, None),
+        }[change]
+        with case.fence(), pytest.raises(error, match=reason):
+            coordinator.claim("n5_claimed", prepared)
+    finally:
+        if held.exists():
+            held.rename(profile)
+    assert _read(case, "prepared")[0] == prepared
+    assert _read(case, "n5_claimed") is None
 
 
 def test_native_preparation_requires_selected_event_and_exact_profile(selected_case: _Case) -> None:

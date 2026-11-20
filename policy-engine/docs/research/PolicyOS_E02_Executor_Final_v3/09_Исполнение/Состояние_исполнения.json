@@ -9079,9 +9079,9 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE. Historical C precommit verification passes. Failed-attempt admission and orphan settlement remain bridge_missing at frontier 3. R31 qualified stock lease handling but failed recovered-world identity before any physical work; exact input repair passes. Native new N5 and both fresh selected results remain verification_missing.",
-        "main_commit": "e8faa2cb2c2c7a5cf5221e379549a41ee8d7c014",
-        "main_tree": "6a1a5a53758ab5a73f3bf3391821867c7af8509a",
+        "status": "ACTIVE. Scientific C passed exact R17 authenticated settlement and fresh numerical read at frontier 4 on the isolated custody source. Native R32 passed recovered-world handoff and entered coordinator progress. Native numerical execution, its cold replay and shared-source consumer verification remain open.",
+        "main_commit": "c0cc0ecee0e865d8030d16b9c7fb669b4f2bf5b5",
+        "main_tree": "4e62a9b0babe8cb68a5cdd9e2bb0ed07d9aa89ba",
         "continued_20261120": {
           "scientific_c": {
             "producer_commit": "53079a9cb041c27688ba76cb1fdab163d4a26b26",
@@ -9101,11 +9101,28 @@
             "r17_quiescent_boundary": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r14-20261119/original-path-recover-r17/post-exit-boundary.json",
             "r17_historical_readback": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r14-20261119/historical-precommit-witness-r17/independent-post-run-readback.json",
             "r17_historical_readback_seconds": 67.680,
-            "r17_terminal_custody_next": {
+            "r17_terminal_custody": {
               "authority": "Direct authenticated original actor, exact current EVIDENCE_ACQUIRE request and consumed Step-Up. The same live request reaches the SQL effect before the JWT and Step-Up deadline.",
               "atomic_effect": "Reopen the already emitted terminal and its evaluated basis before taking SQL locks. Then take the exact job lease, preserve the failed-attempt history, and select its terminal and candidate frontier in the transaction that completes the job.",
               "comparison": "Historical B comparison remains not_established. Candidate selection requires the independently recomputed positive C basis and a distinct selected N5 execution.",
-              "acceptance_pending": "Authenticated settlement on the exact R17 copy, separate fresh API numerical read, and original R16 Catalog plus 4→6 physical-unit ledger reconciliation."
+              "qualified_commit": "cd8bd574e068a660566d568c769a1b4ebfb98780",
+              "qualified_tree": "6a21752cee28826f7e315eaf0a04a3e9971c2f90",
+              "status": "PASS on the exact isolated R17 copy. Actual foreign initiator and missing selected input refusals precede HTTP 200 settlement. Same job completed at attempt 6. Frontier 4 and exact C body returned by an independent fresh Run Details API.",
+              "frontier_ref": "sha256:07692c0c5f6bca7513ba4e5cf68cbe0748ae6bdfc7e492bfafb7314ec2f3d014",
+              "outcome": "0.21199999344348908",
+              "effect": "0.0020000000000000018",
+              "standard_units_used": 6,
+              "protected_units_used": 0,
+              "extra_provider_calls": 0,
+              "extra_n5_calls": 0,
+              "bound_ratio": ["0.17499999701976776", "0.20999999344348907"],
+              "physical_unit_revisions": [[38, 39], [40, 41]],
+              "historical_bound_quota_receipt": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r14-20261119/historical-precommit-witness-r17/scalar-quota-c0cc-budget-final/command.log",
+              "negative_receipt": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r14-20261119/terminal-custody-r17-cow-r2-20261120/negative-receipt.json",
+              "settlement_receipt": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r14-20261119/terminal-custody-r17-cow-r2-20261120/custody-receipt.json",
+              "fresh_numeric_receipt": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r14-20261119/terminal-custody-r17-cow-r2-20261120/fresh-numeric-only-api-receipt.json",
+              "fresh_numeric_receipt_sha256": "65a1f0a81b88202bb0f8370cb57eeb6c4a7dffa6d9f449e46022f1a5f45d4173",
+              "authorization_inventory_provenance": "Primary:policy-engine/_cache/e02/lane01-c-terminal-custody-p41-20261120-H6BmAy/denominators.json. Both broad reds reproduce on c0cc0ecee with identical mismatches. Custody is added on both sides. Changed paths overlap both gates."
             },
             "r17_stock_gap": "bridge_missing for failed attempt admission and historical orphan settlement. Fresh selected API and revision 4 remain verification_missing. Retained equivalence remains restricted to recomputed comparison. A distinct verified fresh C outcome requires exact consumed input, producer witness, permission, ledger and frontier CAS.",
             "evaluated_basis_ref": "sha256:cbfdbf7f5328090599ff6d5d228c5f0ecfdf59c90194a345d433993654f9c577",
@@ -9153,7 +9170,7 @@
             ],
             "c_predicates": "Selected reentry and original reservations independently reconcile. Active image, profile, selected method and callable are recomputed. Archived numerical custody and current-use outcome are recorded separately.",
             "native_predicates": "World checkpoint selected transport is independently reconciled. Current live lease is recomputed and fails closed before the physical fence. R28/R30 lease loss is the same class. Prioritize timing the complete renewal lifecycle.",
-            "remaining": "verification_missing for Scientific frontier 4 and fresh admitted numeric body, and Native new physical execution and fresh restart. DA-06, DA-07, DA-08, X03 and G acceptance retain separate criteria."
+            "remaining": "verification_missing for Native new physical execution and fresh restart, plus affected consumers on the composed source. Scientific frontier 4 and the fresh admitted numeric body pass on the custody source. DA-06, DA-07, DA-08, X03 and G acceptance retain separate criteria."
           },
           "shared_consumer_receipt": "Primary:policy-engine/_cache/e02/lane01-shared-source-20261120/affected-f1eaa081/result.json",
           "shared_consumer_passes": 314,
@@ -9707,7 +9724,7 @@
           "repair": "Main 0e003218d, independent review and 58 affected checks pass",
           "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. R18 on cc646d605 returns HTTP 409 at decision request and completes with no new job. Its exact selected typed manifest waited 2.048 s at a 1.5 s guard. Main bfefb6188 extends the existing single retry to raw and typed profile reads. Focused checks and the path-aware docs/API gate pass. R19 loses acknowledgement of a completed payload CAS write (1.903 s). It leaves exact CAS links, without durable event or acquisition job. Main 24d5538e4 adds read-only recovery with 73 tests and docs/API gate PASS. R20 records zero CAS wait timeouts, then HTTP 503 at decision-request after its event lands 49 s beyond the Step-Up deadline. No new acquisition job or N5. R21 resolves the Native route in 264.615 s of 265.480 s total, with no observed CAS wait timeout. The exact mutation selects one node/supplier group and replays all competing profiles within it."
         },
-        "next": "For Scientific C, isolate the settlement rule for a fresh evaluated outcome with a historical predecessor whose current-implementation comparison is unestablished. Preserve the exact R17 terminal and original ledger. Require frontier 4 and the exact authenticated fresh numerical body. For Native, continue stock from the preserved pre-R31 expired R30 cut on the repaired recovered-world predicate with lifecycle instrumentation. Require one physical calculation, zero provider work and an exact cold numerical replay. Verify affected consumers on the shared source and prepare the separate G handoff.",
+        "next": "Monitor Native R32 on the frozen pre-R31 expired R30 cut and reconciled recovered-world predicate. Require one physical calculation, zero provider work and an exact cold numerical replay. Then verify affected consumers on the shared source and prepare the separate G handoff. Preserve the qualified Scientific C R17 and its audit evidence.",
         "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",

@@ -6,6 +6,19 @@
 
 ## Current execution — 20 November
 
+### Scientific C terminal custody implementation
+
+The selected design uses a fresh request-bound acquisition permission and consumed Step-Up for the original submitting actor. The request binds the run, route, job, failed attempt, pending head and orphan terminal profiles. The historical verifier independently replays the saved positive candidate result and the predecessor frontier before the write. The same request performs the exact-job lease, terminal/frontier CAS and completion in one SQL transaction. Its expiry is checked at commit. A refused or interrupted transaction leaves the original failure available for inspection.
+
+- [ ] Verify the historical orphan with its full profile and exact N5 result. Carry the comparison with B as `not_established` and prevent retention on that basis.
+- [ ] Exercise the bound HTTP request and same-actor check, one-shot transaction, expiry and stale head/frontier refusals. Force a head write failure after the frontier write to verify rollback.
+- [ ] Reopen the real R17 cut in a separate copy. Apply the authenticated request, verify revision 4 and the numerical body from a fresh API process, and compare the original acquisition and physical quota journals before and after.
+- [ ] Verify affected consumers on the composed source, including the generated API contract. Record the proof in this plan and the existing execution-state JSON.
+
+Pattern pass covers P04/P05, P07, P12, P29 and P37/P38. The R17 refusal used the B comparison as a proxy for whether the new candidate result could be selected. Historical result provenance and the earlier physical work must resolve through their owners. The live request establishes custody for this one transition. The R17 acceptance status is `verification_missing` until the authenticated path and its fresh consumer exercise the retained evidence.
+
+The isolated implementation passed 25 focused evaluation tests, 85 affected SQLite tests, 57 Rego tests, and the four HTTP binding/admission checks. A PostgreSQL 16 smoke verified the exact DLQ lock and preservation of a concurrent acknowledgement before the later failed-progress repair. The SQL regression reproduces attempt 5's old execution-owner projection before the fix and rederives the new owner after the fix. The canonical API schema adds one route and two DTOs. The full API byte check and 61 generated-client tests pass. The exact R17 copy is admitted for the refusal and fresh-reader sequence. Its SQL still records failed attempt 5, pending head 5 and frontier revision 3.
+
 ### Live execution cut
 
 This table and `lanes[7].current_execution` in the existing execution-state JSON are the current execution view; dated objects/paragraphs retain their own historical source/evidence scope. An older `incomplete`, `UNRUN` or branch-composition statement does not override a later qualified result. Preserve the 11 packets/66 requirements/64 contracts and all repeated bindings.

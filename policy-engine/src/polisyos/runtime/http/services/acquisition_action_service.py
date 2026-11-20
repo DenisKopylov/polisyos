@@ -99,6 +99,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.model_input_successor_action import (
         ModelInputSuccessorIdentity,
     )
+    from polisyos.runtime.http.step_up import StepUpAssertionVerification
     from polisyos.runtime.quality.acquisition_evaluation_history import (
         _CandidateExperimentHistoryPrefix,
     )
@@ -120,6 +121,9 @@ if TYPE_CHECKING:
 
 _SHA256_PATTERN = r"^sha256:[0-9a-f]{64}$"
 _IMPLEMENTATION_REF = "polisyos.runtime.acquisition_route_loop.owner_port.v1"
+CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_RESOURCE_KIND = (
+    "runtime.evidence.acquisition.candidate_experiment.terminal_custody"
+)
 
 
 class AcquisitionActionServiceError(ValueError):
@@ -297,6 +301,67 @@ class CandidateExperimentRouteExecutionRequest(BaseModel):
 
     request: CandidateExperimentRouteMutationRequest
     decision_ref: str = Field(pattern=_SHA256_PATTERN)
+
+
+class CandidateExperimentTerminalCustodyRequest(BaseModel):
+    """Identify one failed candidate attempt and its already published terminal."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    run_id: str = Field(min_length=1)
+    route_id: str = Field(pattern=_SHA256_PATTERN)
+    job_id: str = Field(min_length=1)
+    failed_attempt: int = Field(ge=1, strict=True)
+    pending_head_ref: artifacts.ArtifactRef = Field(
+        json_schema_extra={
+            "required": ["artifact_id", "kind", "media_type", "manifest_profile_sha256"],
+            "properties": {
+                "kind": {"const": "runtime_quality.acquisition_candidate_experiment_phase_receipt"},
+                "media_type": {"const": "application/json"},
+                "manifest_profile_sha256": {"type": "string", "pattern": _SHA256_PATTERN},
+            },
+        }
+    )
+    terminal_ref: artifacts.ArtifactRef = Field(
+        json_schema_extra={
+            "required": ["artifact_id", "kind", "media_type", "manifest_profile_sha256"],
+            "properties": {
+                "kind": {"const": "runtime_quality.acquisition_route_loop_receipt"},
+                "media_type": {"const": "application/json"},
+                "manifest_profile_sha256": {"type": "string", "pattern": _SHA256_PATTERN},
+            },
+        }
+    )
+
+    @model_validator(mode="after")
+    def _require_selected_profiles(self) -> CandidateExperimentTerminalCustodyRequest:
+        for ref, kind in (
+            (
+                self.pending_head_ref,
+                "runtime_quality.acquisition_candidate_experiment_phase_receipt",
+            ),
+            (self.terminal_ref, "runtime_quality.acquisition_route_loop_receipt"),
+        ):
+            if (
+                type(ref) is not artifacts.ArtifactRef
+                or ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("candidate_experiment_terminal_custody_profile_required")
+        return self
+
+
+class CandidateExperimentTerminalCustodyResponse(BaseModel):
+    """The candidate terminal and frontier revision selected by this request."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    run_id: str
+    route_id: str
+    job_id: str
+    terminal_ref: artifacts.ArtifactRef
+    frontier_revision: int = Field(ge=1)
 
 
 class CandidateExperimentReuseActionExecutionRequest(BaseModel):
@@ -4633,6 +4698,159 @@ class AcquisitionActionService:
         )
 
     @_receipt_verification_scoped
+    def settle_candidate_experiment_terminal_custody(
+        self,
+        *,
+        request: CandidateExperimentTerminalCustodyRequest,
+        principal: RuntimePrincipal,
+        bound_permission: BoundActionPermissionVerification,
+        step_up: StepUpAssertionVerification,
+        authorize_effect: Callable[[], int],
+    ) -> CandidateExperimentTerminalCustodyResponse:
+        """Select an already verified candidate terminal under one live request."""
+        from polisyos.runtime.http.authorization import BoundActionPermissionVerification
+        from polisyos.runtime.http.services.acquisition_admission_bundle import (
+            require_candidate_experiment_terminal_custody_bound_permission,
+        )
+        from polisyos.runtime.http.step_up import StepUpAssertionVerification, StepUpClass
+        from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+            prepare_candidate_experiment_terminal_custody,
+        )
+        from polisyos.runtime.quality.substrate_registry import run_catalog_source_call
+
+        refused = "candidate_experiment_terminal_custody_scope_refused"
+        if (
+            principal.authenticated is not True
+            or not principal.cell_id
+            or type(bound_permission) is not BoundActionPermissionVerification
+            or type(step_up) is not StepUpAssertionVerification
+        ):
+            raise AcquisitionActionServiceError(refused)
+        try:
+            resource_digest = require_candidate_experiment_terminal_custody_bound_permission(
+                bound_permission, request
+            )
+        except (TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(refused) from exc
+        proof = bound_permission.verification
+        if (
+            proof.subject != principal.subject
+            or proof.tenant_id != principal.tenant_id
+            or frozenset(proof.roles) != principal.roles
+            or step_up.context.subject != principal.subject
+            or step_up.context.tenant_id != principal.tenant_id
+            or step_up.context.resource_digest != resource_digest
+            or step_up.context.step_up_class is not StepUpClass.ACQUISITION_APPROVAL
+        ):
+            raise AcquisitionActionServiceError(refused)
+
+        control = self.control_service
+        store = control._control_store
+        job = store.get_job(request.job_id)
+        if (
+            job is None
+            or job.job_id != request.job_id
+            or job.kind != "acquisition"
+            or job.run_id != request.run_id
+            or not job.payload_ref
+            or job.submitted_by != principal.subject
+        ):
+            raise AcquisitionActionServiceError(refused)
+        try:
+            scope, _ = store._reconcile_control_job_creation_envelope(job)
+        except (RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(refused) from exc
+        if (
+            scope.status != "established"
+            or not scope.actor_authenticated
+            or (scope.actor_subject, scope.tenant_id, scope.cell_id)
+            != (principal.subject, principal.tenant_id, principal.cell_id)
+        ):
+            raise AcquisitionActionServiceError(refused)
+        if job.state != "failed" or job.attempt != request.failed_attempt:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_terminal_custody_failed_attempt_changed"
+            )
+        try:
+            payload = control._load_payload_ref(
+                job.payload_ref, kind="runtime.control_job_payload.acquisition"
+            )
+            payload = ControlPlaneService._job_payload_without_telemetry(payload)
+            original = CandidateExperimentRouteMutationRequest.model_validate(
+                payload.get("request")
+            )
+            if (
+                payload.get("action_kind") != CANDIDATE_EXPERIMENT_ACTION_KIND
+                or payload.get("tenant_id") != principal.tenant_id
+                or payload.get("cell_id") != principal.cell_id
+                or payload.get("run_id") != request.run_id
+                or payload.get("route_id") != request.route_id
+                or original.route_id != request.route_id
+            ):
+                raise ValueError(refused)
+            heads = store.list_acquisition_action_heads(
+                tenant_id=principal.tenant_id,
+                cell_id=principal.cell_id,
+                run_id=request.run_id,
+                source_job_id=original.replay_pins.source_job_id,
+                route_id=request.route_id,
+            )
+            head = heads[-1] if heads else None
+            if (
+                head is None
+                or head.job_id != job.job_id
+                or head.receipt_phase != "candidate_input_reentry_pending"
+                or self._candidate_experiment_phase_head_ref(head) != request.pending_head_ref
+            ):
+                raise ValueError("candidate_experiment_terminal_custody_predecessor_changed")
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_terminal_custody_predecessor_not_established"
+            ) from exc
+        try:
+            frontier_cas, event_id = run_catalog_source_call(
+                control.catalog_serving_source,
+                prepare_candidate_experiment_terminal_custody,
+                control_service=control,
+                head=head,
+                terminal_ref=request.terminal_ref,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_terminal_custody_history_not_established"
+            ) from exc
+
+        # The historical verifier supplies evidence only. The request must
+        # still own the exact permission and consumed Step-Up at the effect.
+        authority_expires_at = min(authorize_effect(), step_up.expires_at)
+        assertion_sha256 = hashlib.sha256(step_up.assertion_id.encode("utf-8")).hexdigest()
+        try:
+            store.settle_candidate_experiment_terminal_custody(
+                expected_job=job,
+                expected_head=head,
+                terminal_ref=request.terminal_ref,
+                terminal_event_id=event_id,
+                frontier_cas=frontier_cas,
+                actor_subject=principal.subject,
+                resource_digest=resource_digest,
+                authority_expires_at=authority_expires_at,
+                step_up_sha256=f"sha256:{assertion_sha256}",
+            )
+        except (RuntimeError, TypeError, ValueError) as exc:
+            if str(exc) == "candidate_experiment_step_up_expired_before_admission":
+                raise AcquisitionActionServiceError(str(exc)) from exc
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_terminal_custody_commit_refused"
+            ) from exc
+        return CandidateExperimentTerminalCustodyResponse(
+            run_id=request.run_id,
+            route_id=request.route_id,
+            job_id=request.job_id,
+            terminal_ref=request.terminal_ref,
+            frontier_revision=frontier_cas.expected_revision + 1,
+        )
+
+    @_receipt_verification_scoped
     def execute_candidate_experiment(
         self,
         *,
@@ -6205,6 +6423,8 @@ __all__ = [
     "CandidateExperimentRouteMutationRequest",
     "CandidateExperimentRouteProjection",
     "CandidateExperimentRouteReplayPins",
+    "CandidateExperimentTerminalCustodyRequest",
+    "CandidateExperimentTerminalCustodyResponse",
     "NativeDerivationLeafRouteProjection",
     "NativeModelInputTargetProjection",
 ]

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+import pytest
 from _helpers.runtime_http import _runtime_api_request
 from fastapi.routing import APIRoute
 
@@ -18,6 +19,7 @@ from polisyos.runtime.http.permissions import (
     CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND,
     RuntimePermission,
 )
+from polisyos.runtime.http.routes import acquisitions
 from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionActionServiceError,
     AcquisitionDecisionRequestResponse,
@@ -26,6 +28,10 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     CandidateExperimentRouteMutationRequest,
     CandidateExperimentRouteProjection,
     CandidateExperimentRouteReplayPins,
+)
+from polisyos.runtime.http.services.acquisition_admission_bundle import (
+    AcquisitionAdmissionBundleBlocked,
+    require_candidate_experiment_terminal_custody_bound_permission,
 )
 from polisyos.runtime.http.step_up import StepUpClass, get_route_step_up_dependency
 from polisyos.runtime.quality.candidate_experiment_reuse import (
@@ -647,6 +653,125 @@ def test_candidate_experiment_execute_transport_is_scoped_and_step_up_protected(
     assert retry.json()["world_growth"] == "not_established"
     assert expired.status_code == 403, expired.text
     assert expired.json()["code"] == "candidate_experiment_step_up_expired_before_admission"
+
+
+def test_candidate_experiment_terminal_custody_requires_a_fresh_bound_request(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    run_id = "run-candidate-experiment"
+    route_id = "sha256:" + "a" * 64
+    path = f"/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/terminal-custody"
+    body = {
+        "run_id": run_id,
+        "route_id": route_id,
+        "job_id": "job-candidate-experiment",
+        "failed_attempt": 5,
+        "pending_head_ref": {
+            "artifact_id": "sha256:" + "b" * 64,
+            "kind": "runtime_quality.acquisition_candidate_experiment_phase_receipt",
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:" + "c" * 64,
+        },
+        "terminal_ref": {
+            "artifact_id": "sha256:" + "d" * 64,
+            "kind": "runtime_quality.acquisition_route_loop_receipt",
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:" + "e" * 64,
+        },
+    }
+    calls = []
+    expire_before_effect = False
+
+    def settle_candidate_experiment_terminal_custody(**kwargs):
+        request = kwargs["request"]
+        proof = kwargs["bound_permission"]
+        assert request.model_dump(mode="json") == body
+        assert kwargs["principal"].authenticated
+        assert proof.bound_resource.resource_kind == (
+            "runtime.evidence.acquisition.candidate_experiment.terminal_custody.request_bound"
+        )
+        assert (
+            require_candidate_experiment_terminal_custody_bound_permission(proof, request)
+            == proof.bound_resource.resource_digest
+        )
+        with pytest.raises(
+            AcquisitionAdmissionBundleBlocked, match="acquisition_resource_binding_invalid"
+        ):
+            require_candidate_experiment_terminal_custody_bound_permission(
+                proof, request.model_copy(update={"failed_attempt": 6})
+            )
+        if expire_before_effect:
+            with monkeypatch.context() as clock:
+                clock.setattr(acquisitions.time, "time", lambda: kwargs["step_up"].expires_at)
+                kwargs["authorize_effect"]()
+            pytest.fail("Expired Step-Up was accepted for terminal custody")
+        assert kwargs["authorize_effect"]() > 0
+        calls.append(kwargs)
+        return {
+            "run_id": run_id,
+            "route_id": route_id,
+            "job_id": body["job_id"],
+            "terminal_ref": body["terminal_ref"],
+            "frontier_revision": 4,
+        }
+
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    bearer = _fixture_bearer("candidate-experiment-terminal-custody")
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-candidate-experiment-terminal-custody",
+            roles=frozenset({PolicyOSRole.ANALYST}),
+        ),
+    )
+    client.app.dependency_overrides[get_acquisition_action_service] = lambda: SimpleNamespace(
+        settle_candidate_experiment_terminal_custody=settle_candidate_experiment_terminal_custody
+    )
+    headers = {
+        "Authorization": f"Bearer {bearer}",
+        "X-Tenant-ID": runtime_api_env["tenant_a"],
+    }
+    try:
+        missing = client.post(path, headers=headers, json=body)
+        assert missing.status_code == 403, missing.text
+        assert missing.json()["code"] == "step_up_required"
+        assert not calls
+        step_up = _install_bound_test_step_up(client)
+        bound_headers = {**headers, "X-PolicyOS-Step-Up": step_up}
+        settled = client.post(path, headers=bound_headers, json=body)
+        assert settled.status_code == 200, settled.text
+        assert settled.json()["frontier_revision"] == 4
+        assert len(calls) == 1
+        replay = client.post(path, headers=bound_headers, json=body)
+        assert replay.status_code == 403, replay.text
+        assert replay.json()["code"] == "step_up_replayed"
+        fresh_step_up = _install_bound_test_step_up(client)
+        foreign_path = client.post(
+            path.replace(run_id, "different-run"),
+            headers={**headers, "X-PolicyOS-Step-Up": fresh_step_up},
+            json=body,
+        )
+        assert foreign_path.status_code == 403, foreign_path.text
+        assert foreign_path.json()["code"] == "candidate_experiment_terminal_custody_scope_refused"
+        assert len(calls) == 1
+        expire_before_effect = True
+        fresh_step_up = _install_bound_test_step_up(client)
+        expired = client.post(
+            path, headers={**headers, "X-PolicyOS-Step-Up": fresh_step_up}, json=body
+        )
+        assert expired.status_code == 403, expired.text
+        assert expired.json()["code"] == "step_up_expired"
+        assert len(calls) == 1
+    finally:
+        client.close()
 
 
 def test_candidate_experiment_route_projects_candidate_and_fails_closed(

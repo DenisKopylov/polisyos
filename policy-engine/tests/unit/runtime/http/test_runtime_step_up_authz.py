@@ -50,6 +50,10 @@ _HIGH_STAKES_OPERATIONS = {
     ): "acquisition_approval",
     (
         "POST",
+        "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/terminal-custody",
+    ): "acquisition_approval",
+    (
+        "POST",
         "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/reuse/decision-request",
     ): "acquisition_approval",
     (

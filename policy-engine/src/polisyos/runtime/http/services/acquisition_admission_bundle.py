@@ -65,8 +65,10 @@ from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
 )
 
 from .acquisition_action_service import (
+    CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_RESOURCE_KIND,
     AcquisitionRouteMutationRequest,
     CandidateExperimentRouteMutationRequest,
+    CandidateExperimentTerminalCustodyRequest,
 )
 from .model_input_successor_action import ModelInputSuccessorActionRequest
 
@@ -85,7 +87,9 @@ type _ActionRequest = (
     | CandidateExperimentReuseActionRequest
     | ModelInputSuccessorActionRequest
 )
-_REQUEST_BINDING_BY_KIND: dict[str, tuple[type[_ActionRequest], str, RuntimePermission]] = {
+type _AcquisitionBindingRequest = _ActionRequest | CandidateExperimentTerminalCustodyRequest
+type _AcquisitionRequestBinding = tuple[type[_AcquisitionBindingRequest], str, RuntimePermission]
+_REQUEST_BINDING_BY_KIND: dict[str, _AcquisitionRequestBinding] = {
     ACQUISITION_ACTION_KIND: (
         AcquisitionRouteMutationRequest,
         "runtime.evidence.acquisition",
@@ -473,13 +477,27 @@ def _recompute_resource_digest(
     request: _ActionRequest | None,
 ) -> str:
     """Recompute only the request schema canonically bound to this action kind."""
-
-    resource = bound_permission.bound_resource
-    requirement = bound_permission.verification.requirement
-    binding = requirement.resource_binding
     selected = _REQUEST_BINDING_BY_KIND.get(action_kind)
     if selected is None:
         raise AcquisitionAdmissionBundleBlocked("acquisition_action_tuple_invalid")
+    return _recompute_bound_acquisition_request(
+        bound_permission,
+        request=request,
+        selected=selected,
+        allow_legacy_acquisition=action_kind == ACQUISITION_ACTION_KIND,
+    )
+
+
+def _recompute_bound_acquisition_request(
+    bound_permission: BoundActionPermissionVerification,
+    *,
+    request: _AcquisitionBindingRequest | None,
+    selected: _AcquisitionRequestBinding,
+    allow_legacy_acquisition: bool = False,
+) -> str:
+    resource = bound_permission.bound_resource
+    requirement = bound_permission.verification.requirement
+    binding = requirement.resource_binding
     request_model, resource_kind, permission = selected
     request_fields = tuple(request_model.model_fields)
     required_request_fields = tuple(
@@ -489,12 +507,12 @@ def _recompute_resource_digest(
     )
     selector_names = tuple(name for name, _value in resource.canonical_selectors)
     if request is None:
-        if action_kind != ACQUISITION_ACTION_KIND:
+        if not allow_legacy_acquisition:
             raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
     elif type(request) is not request_model:
         raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
     expected_selectors = None if request is None else _request_selectors(request)
-    omitted = ("custody_recovery",) if action_kind == ACQUISITION_ACTION_KIND else ()
+    omitted = ("custody_recovery",) if allow_legacy_acquisition else ()
     legacy_fields = tuple(name for name in request_fields if name not in omitted)
     legacy_binding = (
         bool(omitted)
@@ -531,7 +549,7 @@ def _recompute_resource_digest(
         or resource.authority is not BindingAuthority.REQUEST_BOUND
         or resource.tenant_id is not None
         or resource.resolved_context is not None
-        or (action_kind != ACQUISITION_ACTION_KIND and resource.query_sha256 != _EMPTY_QUERY_SHA256)
+        or (not allow_legacy_acquisition and resource.query_sha256 != _EMPTY_QUERY_SHA256)
     ):
         raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
     digest = _digest_payload(
@@ -583,6 +601,22 @@ def require_model_input_use_bound_permission(
         bound_permission,
         action_kind=MODEL_INPUT_USE_ACTION_KIND,
         request=request,
+    )
+
+
+def require_candidate_experiment_terminal_custody_bound_permission(
+    bound_permission: BoundActionPermissionVerification,
+    request: CandidateExperimentTerminalCustodyRequest,
+) -> str:
+    """Bind terminal custody to its own request without a new PA2 action."""
+    return _recompute_bound_acquisition_request(
+        bound_permission,
+        request=request,
+        selected=(
+            CandidateExperimentTerminalCustodyRequest,
+            CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_RESOURCE_KIND,
+            RuntimePermission.EVIDENCE_ACQUIRE,
+        ),
     )
 
 
@@ -697,7 +731,7 @@ def _request_resource_digest(
     )
 
 
-def _request_selectors(request: _ActionRequest) -> tuple[tuple[str, str], ...]:
+def _request_selectors(request: _AcquisitionBindingRequest) -> tuple[tuple[str, str], ...]:
     body = request.model_dump(mode="json")
     return _selectors_from_body(
         body,

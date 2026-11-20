@@ -14,7 +14,7 @@ from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
 from contextvars import ContextVar
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, ContextManager, Literal, cast, get_args
@@ -83,6 +83,7 @@ from polisyos.runtime.quality.evidence_spine_handoff import (
 
 
 _NATIVE_CUSTODY_RECOVERY_EVENT = "native_acquisition_custody_recovery_requested"
+_CANDIDATE_TERMINAL_CUSTODY_EVENT = "candidate_experiment_terminal_custody_settled"
 
 _COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC = "control.decision_validity.hte_source_update"
 _CANDIDATE_EXPERIMENT_EXECUTE_ACTION_KIND = (
@@ -9113,6 +9114,300 @@ class ControlPlaneStore:
             )
             seen.add(failed_attempt)
         return tuple(records)
+
+    def settle_candidate_experiment_terminal_custody(
+        self,
+        *,
+        expected_job: ControlJobRecord,
+        expected_head: AcquisitionActionHeadRecord,
+        terminal_ref: ArtifactRef,
+        terminal_event_id: str,
+        frontier_cas: AcquisitionEvaluationFrontierCAS,
+        actor_subject: str,
+        resource_digest: str,
+        authority_expires_at: int,
+        step_up_sha256: str,
+    ) -> AcquisitionActionHeadRecord:
+        """Select a verified Scientific orphan and complete the same failed job.
+
+        The trusted request owner supplies the verified terminal, its frontier
+        replacement and the exact consumed Step-Up proof. SQL rechecks the
+        failed attempt, current predecessor and deadline. The private lease
+        and the custody, terminal and completion writes commit together.
+        """
+        if self._job_execution_fence.get() is not None:
+            raise ControlJobExecutionAdmissionError("candidate_terminal_custody_request_required")
+        _validate_acquisition_evaluation_frontier_cas(frontier_cas, require_replacement=True)
+        replacement = frontier_cas.replacement
+        if (
+            type(expected_job) is not ControlJobRecord
+            or type(expected_head) is not AcquisitionActionHeadRecord
+            or type(terminal_ref) is not ArtifactRef
+            or terminal_ref.kind != "runtime_quality.acquisition_route_loop_receipt"
+            or terminal_ref.media_type != "application/json"
+            or not _is_sha256_ref(terminal_ref.manifest_profile_sha256)
+            or expected_head.receipt_phase != "candidate_input_reentry_pending"
+            or expected_head.recovery_state != "reentry_recovery_required"
+            or not _is_sha256_ref(expected_head.receipt_manifest_profile_sha256)
+            or expected_job.kind != "acquisition"
+            or expected_job.state != "failed"
+            or expected_job.attempt < 1
+            or expected_job.payload_ref is None
+            or expected_job.job_id != expected_head.job_id
+            or expected_job.run_id != expected_head.run_id
+            or type(actor_subject) is not str
+            or not actor_subject.strip()
+            or not _is_sha256_ref(resource_digest)
+            or not _is_sha256_ref(step_up_sha256)
+            or type(authority_expires_at) is not int
+            or authority_expires_at <= 0
+            or frontier_cas.expected_revision < 1
+            or replacement is None
+        ):
+            raise ValueError("candidate_terminal_custody_subject_invalid")
+
+        def require_current_authority() -> None:
+            _require_candidate_experiment_step_up_fresh(authority_expires_at)
+
+        require_current_authority()
+        job_id = expected_job.job_id
+        terminal_id = str(terminal_ref.artifact_id)
+        receipt_id = f"{job_id}.candidate-experiment.terminal"
+        event_suffix = hashlib.sha256(receipt_id.encode()).hexdigest()[:16]
+        if terminal_event_id != (
+            f"evt_acquisition_{expected_head.action_generation}_experiment_terminal_{event_suffix}"
+        ):
+            raise ValueError("candidate_terminal_custody_event_mismatch")
+        with self._job_transaction(commit_admission=require_current_authority):
+            self._lock_job_state(job_id)
+            job = self.get_job(job_id)
+            if (
+                job is None
+                or job != expected_job
+                or job.lease_owner is not None
+                or job.lease_expires_at is not None
+                or job.finished_at is None
+            ):
+                raise ControlJobLeaseLostError("candidate_terminal_custody_failed_attempt_changed")
+            scope, _ = self._reconcile_control_job_creation_envelope(job)
+            if (
+                not scope.actor_authenticated
+                or scope.status != "established"
+                or scope.actor_subject != actor_subject
+                or job.submitted_by != actor_subject
+                or (scope.tenant_id, scope.cell_id)
+                != (expected_head.tenant_id, expected_head.cell_id)
+            ):
+                raise ControlJobExecutionAdmissionError("candidate_terminal_custody_actor_refused")
+            step_up_digest = step_up_sha256.removeprefix("sha256:")
+            consumed = self._fetchone(
+                "SELECT consumed_at, expires_at FROM runtime_step_up_replays WHERE assertion_digest = ?",
+                (step_up_digest,),
+            )
+            if (
+                consumed is None
+                or not 0 < int(consumed["consumed_at"]) <= int(_utc_now().timestamp())
+                or authority_expires_at > int(consumed["expires_at"])
+            ):
+                raise ControlJobExecutionAdmissionError(
+                    "candidate_terminal_custody_step_up_unbound"
+                )
+
+            # Preserve stock lock order: job, candidate frontier, then route
+            # source. The check-only frontier CAS takes the shared SQL lock.
+            previous = self._advance_acquisition_evaluation_frontier_in_transaction(
+                replace(frontier_cas, replacement=None)
+            )
+            if previous is None or (
+                previous.selected_evaluation_witness_ref
+                == replacement.selected_evaluation_witness_ref
+            ):
+                raise ValueError("candidate_terminal_custody_new_evaluation_missing")
+            self._lock_acquisition_route_source(expected_head.source_job_id)
+            heads = self.list_acquisition_action_heads(
+                tenant_id=expected_head.tenant_id,
+                cell_id=expected_head.cell_id,
+                run_id=expected_head.run_id,
+                source_job_id=expected_head.source_job_id,
+                route_id=expected_head.route_id,
+            )
+            if not heads or heads[-1] != expected_head:
+                raise ValueError("candidate_terminal_custody_head_changed")
+            events = self.list_diagnostic_events(
+                event_id=terminal_event_id, run_id=expected_head.run_id, job_id=job_id, limit=2
+            )
+            if len(events) != 1:
+                raise ValueError("candidate_terminal_custody_event_missing")
+            event = events[0].event
+            if (
+                event.event_id != terminal_event_id
+                or event.event_source != "polisyos.runtime.quality.acquisition_route_loop"
+                or event.event_type
+                != "polisyos.runtime.acquisition.candidate_experiment_terminal.v1"
+                or event.event_subject != f"run/{job.run_id}/job/{job_id}/acquisition/terminal"
+                or (event.job_id, event.run_id) != (job_id, job.run_id)
+                or event.phase != "acquisition_route_loop"
+                or event.state_before != "candidate_input_reentry_pending"
+                or event.state_after != "terminal"
+                or (event.tenant_id, event.cell_id) != (scope.tenant_id, scope.cell_id)
+                or events[0].payload_ref != terminal_id
+                or event.payload_ref != terminal_id
+                or event.artifact_refs != (terminal_id,)
+                or not {
+                    expected_head.receipt_ref,
+                    replacement.basis_ref,
+                    replacement.decision_ref,
+                    replacement.selected_evaluation_witness_ref,
+                }.issubset(event.input_refs)
+            ):
+                raise ValueError("candidate_terminal_custody_event_mismatch")
+
+            failure = self.get_job_terminal_source_event_record(job_id)
+            if (
+                failure.event_type != "job_failed"
+                or failure.payload.get("attempt") != job.attempt
+                or failure.payload.get("error_message") != job.error_message
+            ):
+                raise ValueError("candidate_terminal_custody_failure_not_established")
+            failure_outbox = self._get_outbox_event_by_key(
+                topic=_job_event_topic("job_failed"),
+                event_key=f"{job_id}:job_failed:attempt:{job.attempt}",
+            ) or self._get_outbox_event_by_key(
+                topic=_job_event_topic("job_failed"), event_key=f"{job_id}:job_failed"
+            )
+            # The independent acknowledgement path can write this row without
+            # taking the job lock. Bind its custody snapshot under a row lock.
+            lock_suffix = " FOR UPDATE" if self.backend == "postgres" else ""
+            dead_letter = self._fetchone(
+                "SELECT * FROM control_dead_letter_jobs WHERE job_id = ?" + lock_suffix,
+                (job_id,),
+            )
+            if (
+                failure_outbox is None
+                or failure_outbox.job_id != job_id
+                or failure_outbox.run_id != job.run_id
+                or failure_outbox.payload.get("attempt") != job.attempt
+                or failure_outbox.payload.get("error_message") != job.error_message
+                or failure_outbox.payload.get("state") != "failed"
+                or dead_letter is None
+                or dead_letter["attempt"] != job.attempt
+                or dead_letter["job_kind"] != job.kind
+                or dead_letter["run_id"] != job.run_id
+                or dead_letter["error_message"] != job.error_message
+            ):
+                raise ValueError("candidate_terminal_custody_failure_history_missing")
+            if not _json_values_equal_strict(job.progress, failure_outbox.payload.get("progress")):
+                raise ValueError("candidate_terminal_custody_failed_progress_changed")
+
+            require_current_authority()
+            attempt = job.attempt + 1
+            prior_dead_letter = self._row_to_dead_letter_record(dead_letter)
+            custody = {
+                "schema_version": "candidate_experiment_terminal_custody.v1",
+                "authority_purpose": "historical_terminal_custody_only",
+                "job_id": job_id,
+                "tenant_id": scope.tenant_id,
+                "cell_id": scope.cell_id,
+                "actor_subject": actor_subject,
+                "failed_attempt": job.attempt,
+                "settlement_attempt": attempt,
+                "created_payload_ref": job.payload_ref,
+                "failed_event_id": failure.event_id,
+                "failed_event_payload_sha256": failure.payload_sha256,
+                "failed_outbox_event_id": failure_outbox.event_id,
+                "failed_progress": job.progress,
+                "dead_letter": {
+                    "job_id": prior_dead_letter.job_id,
+                    "job_kind": prior_dead_letter.kind,
+                    "run_id": prior_dead_letter.run_id,
+                    "pipeline_id": prior_dead_letter.pipeline_id,
+                    "attempt": prior_dead_letter.attempt,
+                    "error_message": prior_dead_letter.error_message,
+                    "failed_at": _iso(prior_dead_letter.failed_at),
+                    "acknowledged_at": (
+                        _iso(prior_dead_letter.acknowledged_at)
+                        if prior_dead_letter.acknowledged_at is not None
+                        else None
+                    ),
+                    "acknowledged_by": prior_dead_letter.acknowledged_by,
+                },
+                "pending_receipt_ref": expected_head.receipt_ref,
+                "pending_manifest_profile_sha256": expected_head.receipt_manifest_profile_sha256,
+                "terminal_ref": terminal_ref.model_dump(mode="json"),
+                "terminal_event_id": terminal_event_id,
+                "frontier_before_ref": previous.frontier_ref,
+                "resource_digest": resource_digest,
+                "step_up_sha256": step_up_sha256,
+                "authority_expires_at": authority_expires_at,
+            }
+            # The existing outbox uniqueness also prevents an already consumed
+            # assertion from authorizing two custody effects in this store.
+            self.enqueue_outbox_event(
+                topic=_job_event_topic(_CANDIDATE_TERMINAL_CUSTODY_EVENT),
+                event_key=step_up_sha256,
+                job_id=job_id,
+                run_id=job.run_id,
+                payload=custody,
+                require_new=True,
+            )
+            self.append_event(
+                job_id=job_id, event_type=_CANDIDATE_TERMINAL_CUSTODY_EVENT, payload=custody
+            )
+            if prior_dead_letter.acknowledged_at is None:
+                self.acknowledge_dead_letter_job(job_id=job_id, acknowledged_by=actor_subject)
+            changed = self._execute(
+                "UPDATE control_jobs SET state = 'pending', finished_at = NULL, error_message = NULL "
+                "WHERE job_id = ? AND state = 'failed' AND attempt = ? AND payload_ref = ?",
+                (job_id, job.attempt, job.payload_ref),
+            )
+            if changed != 1:
+                raise ControlJobLeaseLostError("candidate_terminal_custody_failed_attempt_changed")
+            # The complete failed snapshot is retained above. The private lease
+            # starts with fresh progress so completion derives its own owner and
+            # cannot inherit any attempt-scoped projection from the failure.
+            self._upsert_progress_unchecked(
+                job_id=job_id,
+                progress={
+                    "state": "pending",
+                    "phase": "candidate_experiment_terminal_custody",
+                    "authority_purpose": "historical_terminal_custody_only",
+                    "failed_attempt": job.attempt,
+                },
+            )
+            worker_id = f"terminal-custody-{uuid.uuid4().hex}"
+            self.mark_running(job_id=job_id, worker_id=worker_id)
+            with self.job_execution_fence(job_id=job_id, worker_id=worker_id, attempt=attempt):
+                head = self.advance_acquisition_action_head(
+                    tenant_id=expected_head.tenant_id,
+                    cell_id=expected_head.cell_id,
+                    run_id=expected_head.run_id,
+                    source_job_id=expected_head.source_job_id,
+                    route_id=expected_head.route_id,
+                    action_generation=expected_head.action_generation,
+                    expected_head_generation=expected_head.head_generation,
+                    receipt_ref=terminal_id,
+                    receipt_sha256=terminal_id,
+                    durable_event_id=terminal_event_id,
+                    coarse_phase="terminal",
+                    receipt_phase="terminal",
+                    recovery_state="complete",
+                    job_id=job_id,
+                    predecessor_receipt_ref=expected_head.receipt_ref,
+                    frontier_cas=frontier_cas,
+                    receipt_manifest_profile_sha256=terminal_ref.manifest_profile_sha256,
+                )
+                self.complete_job(
+                    job_id=job_id,
+                    run_id=job.run_id,
+                    progress={
+                        "state": "completed",
+                        "phase": "candidate_experiment",
+                        "receipt_phase": "terminal",
+                        "terminal_outcome": "candidate_reentry_completed",
+                        "terminal_receipt_ref": terminal_id,
+                    },
+                )
+            return head
 
     def request_native_acquisition_custody_recovery(
         self,

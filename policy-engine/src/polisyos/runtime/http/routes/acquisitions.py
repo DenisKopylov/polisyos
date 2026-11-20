@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import time
 from typing import Annotated, Any, cast
 
-from polisyos.core.security import AccessScope
+from polisyos.core.artifacts import ArtifactID, ArtifactRef
+from polisyos.core.security import AccessScope, UserIdentityClaims
 from polisyos.runtime.http.authorization import (
     BoundActionPermissionVerification,
     ResourceBindingSource,
@@ -24,6 +26,7 @@ from polisyos.runtime.http.permissions import (
     RuntimePermission,
 )
 from polisyos.runtime.http.services.acquisition_action_service import (
+    CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_RESOURCE_KIND,
     AcquisitionActionService,
     AcquisitionActionServiceError,
     AcquisitionDecisionRequestResponse,
@@ -35,6 +38,8 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     CandidateExperimentRouteExecutionRequest,
     CandidateExperimentRouteMutationRequest,
     CandidateExperimentRouteProjection,
+    CandidateExperimentTerminalCustodyRequest,
+    CandidateExperimentTerminalCustodyResponse,
     NativeDerivationLeafRouteProjection,
     NativeModelInputTargetProjection,
 )
@@ -49,6 +54,7 @@ from polisyos.runtime.http.step_up import (
     StepUpAssertionVerification,
     StepUpClass,
     require_step_up,
+    step_up_verification_matches_request,
 )
 from polisyos.runtime.quality.candidate_experiment_reuse import (
     CandidateExperimentReuseActionRequest,
@@ -124,6 +130,18 @@ _CANDIDATE_EXPERIMENT_EXECUTION_AUTHZ = require_action_permission(
             for name, field in CandidateExperimentRouteExecutionRequest.model_fields.items()
             if field.is_required()
         ),
+    ),
+)
+_CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_FIELDS = tuple(
+    CandidateExperimentTerminalCustodyRequest.model_fields
+)
+_CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_AUTHZ = require_action_permission(
+    RuntimePermission.EVIDENCE_ACQUIRE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.REQUEST_COMPOSITE,
+        resource_kind=CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_RESOURCE_KIND,
+        selector_fields=_CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_FIELDS,
+        required_selector_fields=_CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_FIELDS,
     ),
 )
 _CANDIDATE_EXPERIMENT_REUSE_AUTHZ = require_action_permission(
@@ -250,6 +268,7 @@ def _raise_service_error(exc: AcquisitionActionServiceError) -> None:
         ) from exc
     if code in {
         "candidate_experiment_n5_result_scope_refused",
+        "candidate_experiment_terminal_custody_scope_refused",
         "candidate_experiment_reuse_source_scope_refused",
         "model_input_use_source_scope_refused",
     }:
@@ -460,6 +479,100 @@ def execute_run_candidate_acquisition_experiment(
             request_id=ensure_request_id(request),
             principal=principal,
             step_up_expires_at=step_up.expires_at,
+        )
+    except AcquisitionActionServiceError as exc:
+        _raise_service_error(exc)
+
+
+@router.post(
+    "/{run_id}/candidate-acquisition-experiment/{route_id}/terminal-custody",
+    response_model=CandidateExperimentTerminalCustodyResponse,
+    operation_id="settle_run_candidate_acquisition_experiment_terminal",
+    responses={
+        200: {
+            "content": {
+                "application/json": {
+                    "example": CandidateExperimentTerminalCustodyResponse(
+                        run_id="run-example",
+                        route_id="sha256:" + "a" * 64,
+                        job_id="candidate-experiment-job-example",
+                        terminal_ref=ArtifactRef(
+                            artifact_id=ArtifactID("sha256:" + "b" * 64),
+                            kind="runtime_quality.acquisition_route_loop_receipt",
+                            media_type="application/json",
+                            manifest_profile_sha256="sha256:" + "c" * 64,
+                        ),
+                        frontier_revision=4,
+                    ).model_dump(mode="json")
+                }
+            }
+        }
+    },
+)
+def settle_run_candidate_acquisition_experiment_terminal(
+    run_id: str,
+    route_id: str,
+    body: CandidateExperimentTerminalCustodyRequest,
+    request: Request,
+    service: _Service,
+    bound_permission: Annotated[
+        BoundActionPermissionVerification,
+        Depends(_CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_AUTHZ),
+    ],
+    step_up: Annotated[StepUpAssertionVerification, Depends(_MUTATION_STEP_UP)],
+) -> CandidateExperimentTerminalCustodyResponse:
+    """Select an existing numerical candidate under a fresh same-actor approval."""
+    tenant_id, cell_id, principal = _scope(request)
+    set_authz_resource(
+        request, tenant_id=tenant_id, kind=CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_RESOURCE_KIND
+    )
+    if (run_id, route_id) != (body.run_id, body.route_id):
+        raise forbidden(
+            "The approval is bound to a different run or route",
+            code="candidate_experiment_terminal_custody_scope_refused",
+        )
+
+    def authorize_effect() -> int:
+        scope = getattr(request.state, "authz_effective_scope", None)
+        claims = getattr(request.state, "user_claims", None)
+        current_permission = getattr(request.state, "action_permission_verification", None)
+        if (
+            type(bound_permission) is not BoundActionPermissionVerification
+            or type(step_up) is not StepUpAssertionVerification
+            or not isinstance(scope, AccessScope)
+            or scope.principal_type != "user"
+            or scope.delegation_jti
+            or (scope.tenant_id, scope.cell_id, scope.user_sub)
+            != (tenant_id, cell_id, principal.subject)
+            or scope.roles != principal.roles
+            or not isinstance(claims, UserIdentityClaims)
+            or (claims.sub, claims.tenant_id, claims.jti)
+            != (principal.subject, tenant_id, bound_permission.verification.jwt_id)
+            or current_permission is not bound_permission
+            or getattr(request.state, "step_up_verification", None) is not step_up
+        ):
+            raise forbidden(
+                "Terminal custody requires the original user's live bound approval",
+                code="candidate_experiment_terminal_custody_scope_refused",
+            )
+        expires_at = min(claims.exp, step_up.expires_at)
+        if expires_at <= int(time.time()):
+            raise forbidden("The custody approval has expired", code="step_up_expired")
+        if not step_up_verification_matches_request(request, action_verification=bound_permission):
+            raise forbidden(
+                "The custody approval no longer matches this request",
+                code="candidate_experiment_terminal_custody_scope_refused",
+            )
+        return expires_at
+
+    authorize_effect()
+    try:
+        return service.settle_candidate_experiment_terminal_custody(
+            request=body,
+            principal=principal,
+            bound_permission=bound_permission,
+            step_up=step_up,
+            authorize_effect=authorize_effect,
         )
     except AcquisitionActionServiceError as exc:
         _raise_service_error(exc)

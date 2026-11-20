@@ -329,6 +329,12 @@ export type CandidateExperimentRouteReplayPinsInput =
 export type CandidateExperimentRouteReplayPinsOutput =
   RuntimeApiComponents["schemas"]["CandidateExperimentRouteReplayPins-Output"];
 
+export type CandidateExperimentTerminalCustodyRequest =
+  RuntimeApiComponents["schemas"]["CandidateExperimentTerminalCustodyRequest"];
+
+export type CandidateExperimentTerminalCustodyResponse =
+  RuntimeApiComponents["schemas"]["CandidateExperimentTerminalCustodyResponse"];
+
 export type CandidateLever = RuntimeApiComponents["schemas"]["CandidateLever"];
 
 export type CandidateLeverSpace =

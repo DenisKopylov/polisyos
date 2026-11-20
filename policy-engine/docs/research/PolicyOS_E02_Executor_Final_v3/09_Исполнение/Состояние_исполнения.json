@@ -9101,6 +9101,12 @@
             "r17_quiescent_boundary": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r14-20261119/original-path-recover-r17/post-exit-boundary.json",
             "r17_historical_readback": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r14-20261119/historical-precommit-witness-r17/independent-post-run-readback.json",
             "r17_historical_readback_seconds": 67.680,
+            "r17_terminal_custody_next": {
+              "authority": "Direct authenticated original actor, exact current EVIDENCE_ACQUIRE request and consumed Step-Up. The same live request reaches the SQL effect before the JWT and Step-Up deadline.",
+              "atomic_effect": "Reopen the already emitted terminal and its evaluated basis before taking SQL locks. Then take the exact job lease, preserve the failed-attempt history, and select its terminal and candidate frontier in the transaction that completes the job.",
+              "comparison": "Historical B comparison remains not_established. Candidate selection requires the independently recomputed positive C basis and a distinct selected N5 execution.",
+              "acceptance_pending": "Authenticated settlement on the exact R17 copy, separate fresh API numerical read, and original R16 Catalog plus 4→6 physical-unit ledger reconciliation."
+            },
             "r17_stock_gap": "bridge_missing for failed attempt admission and historical orphan settlement. Fresh selected API and revision 4 remain verification_missing. Retained equivalence remains restricted to recomputed comparison. A distinct verified fresh C outcome requires exact consumed input, producer witness, permission, ledger and frontier CAS.",
             "evaluated_basis_ref": "sha256:cbfdbf7f5328090599ff6d5d228c5f0ecfdf59c90194a345d433993654f9c577",
             "evaluated_basis_profile": "sha256:57570320d398198ef05160e68f127ca7ca163e8e9762d2ee4ea3e262fdaa2d3f",

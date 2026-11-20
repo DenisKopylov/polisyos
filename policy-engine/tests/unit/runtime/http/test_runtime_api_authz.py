@@ -251,6 +251,10 @@ _CANDIDATE_EXPERIMENT_REUSE_MUTATIONS = (
         "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/reuse/execute",
     ),
 )
+_CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY = (
+    "POST",
+    "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/terminal-custody",
+)
 _MODEL_INPUT_USE_MUTATIONS = (
     ("POST", "/api/v1/runs/{run_id}/model-input-use/decision-request"),
     ("POST", "/api/v1/runs/{run_id}/model-input-use/execute"),
@@ -302,6 +306,7 @@ _EXPECTED_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"),
     *_CANDIDATE_EXPERIMENT_MUTATIONS,
     *_CANDIDATE_EXPERIMENT_REUSE_MUTATIONS,
+    _CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY,
     ("POST", "/api/v1/runs/{run_id}/human-decisions"),
     *_MODEL_INPUT_USE_MUTATIONS,
     ("POST", "/api/v1/runs/{run_id}/predictive-calibration"),
@@ -387,6 +392,7 @@ _EXPECTED_MUTATING_PERMISSIONS = {
     ): RuntimePermission.EVIDENCE_ACQUIRE,
     **dict.fromkeys(_CANDIDATE_EXPERIMENT_MUTATIONS, RuntimePermission.EVIDENCE_ACQUIRE),
     **dict.fromkeys(_CANDIDATE_EXPERIMENT_REUSE_MUTATIONS, RuntimePermission.RUNS_LAUNCH),
+    _CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY: RuntimePermission.EVIDENCE_ACQUIRE,
     (
         "POST",
         "/api/v1/runs/{run_id}/human-decisions",
@@ -459,6 +465,7 @@ _MUTATING_OPERATION_CASE_IDS = {
     _CANDIDATE_EXPERIMENT_MUTATIONS[1]: "execute-run-candidate-experiment",
     _CANDIDATE_EXPERIMENT_REUSE_MUTATIONS[0]: "request-run-candidate-experiment-reuse-decision",
     _CANDIDATE_EXPERIMENT_REUSE_MUTATIONS[1]: "execute-run-candidate-experiment-reuse",
+    _CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY: "settle-run-candidate-experiment-terminal",
     ("POST", "/api/v1/runs/{run_id}/human-decisions"): ("create-run-human-decision"),
     _MODEL_INPUT_USE_MUTATIONS[0]: "request-run-model-input-use-decision",
     _MODEL_INPUT_USE_MUTATIONS[1]: "execute-run-model-input-use",
@@ -480,6 +487,7 @@ _HIGH_STAKES_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"),
     *_CANDIDATE_EXPERIMENT_MUTATIONS,
     *_CANDIDATE_EXPERIMENT_REUSE_MUTATIONS,
+    _CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY,
     ("POST", "/api/v1/runs/{run_id}/human-decisions"),
     *_MODEL_INPUT_USE_MUTATIONS,
     ("POST", "/api/v1/runs/{run_id}/production-approval"),
@@ -1202,10 +1210,15 @@ def _authorized_mutation_request(
         monkeypatch.setattr(service, "execute_candidate_experiment_reuse", lambda **_: response)
         return default_path, {"request": reuse_request, "decision_ref": authority_ref}
 
-    if operation in _CANDIDATE_EXPERIMENT_MUTATIONS or operation in _MODEL_INPUT_USE_MUTATIONS:
+    if (
+        operation in _CANDIDATE_EXPERIMENT_MUTATIONS
+        or operation in _MODEL_INPUT_USE_MUTATIONS
+        or operation == _CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY
+    ):
         from polisyos.runtime.http.services.acquisition_action_service import (
             AcquisitionDecisionRequestResponse,
             AcquisitionExecutionResponse,
+            CandidateExperimentTerminalCustodyResponse,
         )
         from polisyos.runtime.http.services.model_input_successor_action import (
             ModelInputSuccessorDecisionResponse,
@@ -1228,6 +1241,29 @@ def _authorized_mutation_request(
         job_id = "job-ds20-candidate-input-use"
         service = client.app.state.runtime_container.acquisition_action_service
         assert service is not None
+        if operation == _CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY:
+            custody_subject = {
+                "run_id": run_id,
+                "route_id": route_id,
+                "job_id": "job-ds20-candidate-terminal-custody",
+                "terminal_ref": selected_ref("c", "runtime_quality.acquisition_route_loop_receipt"),
+            }
+            body = {
+                **custody_subject,
+                "failed_attempt": 5,
+                "pending_head_ref": selected_ref(
+                    "b", "runtime_quality.acquisition_candidate_experiment_phase_receipt"
+                ),
+            }
+            custody_response = CandidateExperimentTerminalCustodyResponse.model_validate(
+                {**custody_subject, "frontier_revision": 4}
+            )
+            monkeypatch.setattr(
+                service,
+                "settle_candidate_experiment_terminal_custody",
+                lambda **_: custody_response,
+            )
+            return default_path, body
         compiled_ref = selected_ref("b", "runtime.compiled_recursive_generation_cycle")
         response_fields = {
             "run_id": run_id,
@@ -1967,6 +2003,19 @@ def test_each_mutating_operation_projects_action_permission_extension(
         ) == _expected_mutating_step_up_class(operation)
         if operation in _MODEL_INPUT_USE_MUTATIONS:
             assert resource_binding["resource_kind"] == "runtime.evidence.model_input.use"
+        if operation == _CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY:
+            assert resource_binding["source"] == "request_composite"
+            assert resource_binding["resource_kind"] == (
+                "runtime.evidence.acquisition.candidate_experiment.terminal_custody"
+            )
+            assert set(resource_binding["required_selector_fields"]) == {
+                "run_id",
+                "route_id",
+                "job_id",
+                "failed_attempt",
+                "pending_head_ref",
+                "terminal_ref",
+            }
         if operation in _CANDIDATE_EXPERIMENT_REUSE_MUTATIONS:
             assert resource_binding["source"] == "request_composite"
             assert resource_binding["resource_kind"] == (

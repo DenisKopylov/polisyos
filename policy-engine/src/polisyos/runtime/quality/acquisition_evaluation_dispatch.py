@@ -75,11 +75,13 @@ if TYPE_CHECKING:
     from polisyos.pdc import OperationInvocationRecord
     from polisyos.runtime.http.services.control.run_lifecycle import (
         AcquisitionRouteLoopAuthoritySink,
+        ControlPlaneService,
         VerifiedAcquisitionActionOutcome,
     )
     from polisyos.runtime.http.services.control_plane_store import (
         AcquisitionEvaluationFrontierCAS,
         AcquisitionEvaluationFrontierRecord,
+        AcquisitionEvaluationFrontierValue,
         ControlJobExecutionAdmission,
     )
     from polisyos.runtime.quality.acquisition_evidence_transition import (
@@ -4364,6 +4366,151 @@ def require_candidate_experiment_reentry_fence(
     _revalidate_candidate_experiment_reentry_owner(scope.owner)
 
 
+def _candidate_experiment_new_execution_frontier_value(
+    history: CandidateExperimentTerminalHistory,
+    terminal: AcquisitionCandidateExperimentTerminalReceipt,
+) -> AcquisitionEvaluationFrontierValue:
+    """Derive a frontier value from the verified evaluated execution."""
+    from polisyos.runtime.http.services.control_plane_store import (
+        AcquisitionEvaluationFrontierValue,
+    )
+
+    basis = history.selected_basis
+    evaluation = history.evaluation
+    selected = terminal.selected_evaluation
+    if (
+        basis is None
+        or evaluation is None
+        or selected is None
+        or terminal.selected_basis_ref is None
+        or terminal.selected_evaluation_witness_ref is None
+        or terminal.evaluation_decision_ref is None
+        or basis.basis_role != "evaluated"
+        or basis.predicate_provenance != "recomputed"
+        or basis.evaluation is None
+        or not _candidate_model_values_same(basis.evaluation, evaluation.selected)
+        or not _candidate_model_values_same(selected, history.terminal.selected_evaluation)
+        or not _candidate_ref_same(
+            evaluation.selected.n5_execution_ref, terminal.selected_evaluation_witness_ref
+        )
+        or not _candidate_ref_same(selected.basis_ref, terminal.selected_basis_ref)
+        or history.frontier_after is not None
+    ):
+        raise ValueError("candidate_experiment_terminal_basis_not_recomputed")
+    return AcquisitionEvaluationFrontierValue(
+        selected_evaluation_witness_ref=str(terminal.selected_evaluation_witness_ref.artifact_id),
+        selected_evaluation_content_hash=evaluation.execution.content_hash,
+        basis_ref=str(terminal.selected_basis_ref.artifact_id),
+        basis_content_hash=basis.content_hash,
+        decision_ref=str(terminal.evaluation_decision_ref.artifact_id),
+    )
+
+
+def prepare_candidate_experiment_terminal_custody(
+    *,
+    control_service: ControlPlaneService,
+    head: AcquisitionActionHeadRecord,
+    terminal_ref: ArtifactRef,
+) -> tuple[AcquisitionEvaluationFrontierCAS, str]:
+    """Reopen a completed execution's orphan terminal and derive its exact CAS.
+
+    The comparison with the prior evaluation can remain unknown. The new
+    evaluation itself must be recomputed from its selected producer evidence.
+    The caller must separately establish current custody and apply the CAS
+    under the real job, head, and frontier fence.
+    """
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.http.services.control_plane_store import (
+        AcquisitionEvaluationFrontierCAS,
+        AcquisitionEvaluationFrontierKey,
+    )
+    from polisyos.runtime.quality.acquisition_evaluation_history import (
+        verify_candidate_experiment_terminal_history,
+    )
+
+    if (
+        type(control_service) is not ControlPlaneService
+        or type(head) is not AcquisitionActionHeadRecord
+        or head.receipt_phase != "candidate_input_reentry_pending"
+        or head.receipt_manifest_profile_sha256 is None
+        or type(terminal_ref) is not artifacts.ArtifactRef
+        or terminal_ref.kind != "runtime_quality.acquisition_route_loop_receipt"
+        or terminal_ref.media_type != "application/json"
+        or terminal_ref.manifest_profile_sha256 is None
+        or str(terminal_ref.artifact_id) == head.receipt_ref
+    ):
+        raise ValueError("candidate_experiment_custody_predecessor_or_profile_invalid")
+    history = verify_candidate_experiment_terminal_history(
+        control_service=control_service, head=head, terminal_ref=terminal_ref
+    )
+    terminal = history.terminal
+    if (
+        history.head != head
+        or not _candidate_ref_same(history.terminal_ref, terminal_ref)
+        or type(terminal) is not AcquisitionCandidateExperimentTerminalReceipt
+        or terminal.predecessor_receipt_ref != head.receipt_ref
+        or terminal.job_id != head.job_id
+        or terminal.terminal_outcome != "candidate_reentry_completed"
+        or terminal.selected_evaluation is None
+        or terminal.selected_evaluation.evaluation_job_id != head.job_id
+        or history.reentry is None
+        or history.continuation is not None
+    ):
+        raise ValueError("candidate_experiment_custody_new_execution_required")
+    decision = history.decision
+    if decision is None or (decision.comparison_result, decision.predicate_provenance) not in {
+        ("different", "recomputed"),
+        ("not_established", "not_established"),
+    }:
+        raise ValueError("candidate_experiment_custody_comparison_invalid")
+    replacement = _candidate_experiment_new_execution_frontier_value(history, terminal)
+    frontier = history.frontier_before
+    key = AcquisitionEvaluationFrontierKey(
+        tenant_id=head.tenant_id,
+        cell_id=head.cell_id,
+        source_job_id=head.source_job_id,
+        design_problem_ref=terminal.policy_scope.design_problem_ref,
+        candidate_id=terminal.policy_scope.candidate_id,
+    )
+    if (
+        frontier is None
+        or frontier.key != key
+        or frontier.revision < 1
+        or (frontier.revision, frontier.frontier_ref)
+        != (decision.expected_frontier_revision, decision.expected_frontier_ref)
+        or decision.prior_basis_ref is None
+        or decision.prior_evaluation is None
+        or frontier.basis_ref != str(decision.prior_basis_ref.artifact_id)
+        or frontier.selected_evaluation_witness_ref
+        != str(decision.prior_evaluation.n5_execution_ref.artifact_id)
+        or frontier.selected_evaluation_witness_ref == replacement.selected_evaluation_witness_ref
+    ):
+        raise ValueError("candidate_experiment_custody_frontier_changed")
+    # Reconcile the exact selected terminal view against the durable event owner
+    # at this boundary, rather than adopting a diagnostic ID from the caller.
+    phase = control_service.acquisition_route_sink._read_verified_action_phase(
+        str(terminal_ref.artifact_id), selected_ref=terminal_ref
+    )
+    if (
+        not history.phase_chain
+        or phase != history.phase_chain[-1]
+        or phase.receipt != terminal
+        or phase.event.state_before != head.receipt_phase
+    ):
+        raise ValueError("candidate_experiment_custody_durable_event_changed")
+    if control_service._control_store.read_acquisition_evaluation_frontier(key) != frontier:
+        raise ValueError("candidate_experiment_custody_frontier_changed")
+    return (
+        AcquisitionEvaluationFrontierCAS(
+            key=key,
+            expected_revision=frontier.revision,
+            expected_frontier_ref=frontier.frontier_ref,
+            replacement=replacement,
+        ),
+        phase.durable_event_id,
+    )
+
+
 def candidate_experiment_terminal_frontier_cas(
     terminal: AcquisitionCandidateExperimentTerminalReceipt,
     *,
@@ -4590,41 +4737,11 @@ def candidate_experiment_terminal_frontier_cas(
             expected_frontier_ref=expected_frontier_ref,
             replacement=None,
         )
-    if (
-        history.evaluation is None
-        or history.selected_basis.basis_role != "evaluated"
-        or history.selected_basis.predicate_provenance != "recomputed"
-        or history.selected_basis.evaluation is None
-        or not _candidate_model_values_same(
-            history.selected_basis.evaluation, history.evaluation.selected
-        )
-        or not _candidate_model_values_same(
-            terminal.selected_evaluation, history.terminal.selected_evaluation
-        )
-        or not _candidate_ref_same(
-            history.evaluation.selected.n5_execution_ref,
-            terminal.selected_evaluation_witness_ref,
-        )
-        or not _candidate_ref_same(
-            terminal.selected_evaluation.basis_ref, terminal.selected_basis_ref
-        )
-        or history.frontier_after is not None
-    ):
-        raise ValueError("candidate_experiment_terminal_basis_not_recomputed")
-    witness_hash = history.evaluation.execution.content_hash
     return AcquisitionEvaluationFrontierCAS(
         key=key,
         expected_revision=expected_revision,
         expected_frontier_ref=expected_frontier_ref,
-        replacement=AcquisitionEvaluationFrontierValue(
-            selected_evaluation_witness_ref=str(
-                terminal.selected_evaluation_witness_ref.artifact_id
-            ),
-            selected_evaluation_content_hash=witness_hash,
-            basis_ref=str(terminal.selected_basis_ref.artifact_id),
-            basis_content_hash=history.selected_basis.content_hash,
-            decision_ref=str(terminal.evaluation_decision_ref.artifact_id),
-        ),
+        replacement=_candidate_experiment_new_execution_frontier_value(history, terminal),
     )
 
 

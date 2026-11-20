@@ -1,6 +1,7 @@
 package polisyos.authz.action_permission_test
 
 import data.polisyos.authz.action_permission
+import data.polisyos.authz.decision
 import rego.v1
 
 runtime_action_input(permission, resource_class, authority, resource_tenant, grants) := runtime_action_input_with_method(
@@ -74,6 +75,59 @@ test_allows_exact_permission_resource_authority_contract if {
 		"tenant_collection",
 		"tenant-a",
 		["runs.launch"],
+	)
+}
+
+candidate_terminal_custody_path := "/api/v1/runs/run-c/candidate-acquisition-experiment/route-c/terminal-custody"
+
+candidate_terminal_custody_input(path, resource_class, method) := object.union(
+	runtime_action_input_with_method(
+		"evidence.acquire",
+		resource_class,
+		"request_bound",
+		"",
+		["evidence.acquire"],
+		method,
+	),
+	{
+		"peer": {"spiffe_id": ""},
+		"request": {"method": method, "path": path},
+	},
+)
+
+test_allows_exact_candidate_terminal_custody_contract if {
+	decision.allow with input as candidate_terminal_custody_input(
+		candidate_terminal_custody_path,
+		"runtime.evidence.acquisition.candidate_experiment.terminal_custody",
+		"POST",
+	)
+}
+
+test_candidate_terminal_custody_path_rejects_ordinary_acquisition_resource if {
+	not action_permission.allow with input as candidate_terminal_custody_input(
+		candidate_terminal_custody_path,
+		"runtime.evidence.acquisition",
+		"POST",
+	)
+}
+
+test_candidate_terminal_custody_resource_rejects_other_paths_and_methods if {
+	custody_class := "runtime.evidence.acquisition.candidate_experiment.terminal_custody"
+	every path in [
+		"/api/v1/runs/run-c/fake-relay",
+		sprintf("%s/extra", [candidate_terminal_custody_path]),
+		sprintf("/prefix%s", [candidate_terminal_custody_path]),
+	] {
+		not action_permission.allow with input as candidate_terminal_custody_input(
+			path,
+			custody_class,
+			"POST",
+		)
+	}
+	not action_permission.allow with input as candidate_terminal_custody_input(
+		candidate_terminal_custody_path,
+		custody_class,
+		"GET",
 	)
 }
 

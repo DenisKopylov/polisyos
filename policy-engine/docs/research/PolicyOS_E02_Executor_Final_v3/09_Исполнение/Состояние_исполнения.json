@@ -9079,9 +9079,9 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE. Scientific C passed exact R17 authenticated settlement and fresh numerical read at frontier 4 on the isolated custody source. Native R32 passed recovered-world handoff and entered coordinator progress. Native numerical execution, its cold replay and shared-source consumer verification remain open.",
-        "main_commit": "c0cc0ecee0e865d8030d16b9c7fb669b4f2bf5b5",
-        "main_tree": "4e62a9b0babe8cb68a5cdd9e2bb0ed07d9aa89ba",
+        "status": "ACTIVE. Scientific C passed exact R17 authenticated settlement and fresh numerical read at frontier 4 on the isolated custody source. Native R32 passed recovered-world handoff, then stopped before effects after two measured full currentness checks. Exact retained-source timing for the reviewed Native candidate, numerical execution, cold replay and shared-source consumer verification remain open.",
+        "main_commit": "00eae93592f0f52631ed8c8d40eb757c1f54e686",
+        "main_tree": "089abd21ebfe6454d158306119a8a22460c5edb6",
         "continued_20261120": {
           "scientific_c": {
             "producer_commit": "53079a9cb041c27688ba76cb1fdab163d4a26b26",
@@ -9149,6 +9149,22 @@
             "r31_max_renewal_gap_seconds": 6.448,
             "r31_recovered_ref_postimage": "Primary:policy-engine/_cache/e02/native-r31-postimage-PCAGnt/recovered-checkpoint-identity.json",
             "r31_exact_postimage_seconds": 22.345,
+            "r32_pre_effect_stop": {
+              "loaded_commit": "c0cc0ecee0e865d8030d16b9c7fb669b4f2bf5b5",
+              "handoff_return_kyiv": "2026-11-20T21:28:42+02:00",
+              "first_currentness_seconds": 1786.604,
+              "second_currentness_seconds": 1760.076,
+              "command_stop_kyiv": "2026-11-20T22:29:47+02:00",
+              "terminal_cut": "Deliberate SIGINT before effects. Supervisor observes group quiescence. Same running attempt 3 retains generation 3 pending head 4, zero selected members and zero terminal. Stock lease ages without mutation.",
+              "budget_revision": 16,
+              "new_provider_calls": 0,
+              "new_physical_invocations": 0,
+              "new_n5_calls": 0,
+              "receipt": "Primary:policy-engine/_cache/e02/native-r32-from-r30-Q3FuQK/quiescent-r32-cut.json",
+              "candidate_commit": "d1b8d3c5a04c7e61fb34351ef0dfca260bb0baaf",
+              "candidate_tree": "ab7ae2a7d0791fe5fc431d6d6160284d56aeccb4",
+              "candidate_scope": "Component verification of grouped independent currentness checks and selected member rereads. Actual retained-source timing and numerical effect remain verification_missing."
+            },
             "r31_identity_repair_commit": "e8faa2cb2c2c7a5cf5221e379549a41ee8d7c014",
             "r31_reference_predicate": "Exact original data reproduce strict Python-class equality refusal. Whole recovered input scope and adjacent consumers now use ordered full selected identity. Eight substitution controls refuse. No new numerical work or fresh terminal API."
           },
@@ -9724,7 +9740,7 @@
           "repair": "Main 0e003218d, independent review and 58 affected checks pass",
           "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. R18 on cc646d605 returns HTTP 409 at decision request and completes with no new job. Its exact selected typed manifest waited 2.048 s at a 1.5 s guard. Main bfefb6188 extends the existing single retry to raw and typed profile reads. Focused checks and the path-aware docs/API gate pass. R19 loses acknowledgement of a completed payload CAS write (1.903 s). It leaves exact CAS links, without durable event or acquisition job. Main 24d5538e4 adds read-only recovery with 73 tests and docs/API gate PASS. R20 records zero CAS wait timeouts, then HTTP 503 at decision-request after its event lands 49 s beyond the Step-Up deadline. No new acquisition job or N5. R21 resolves the Native route in 264.615 s of 265.480 s total, with no observed CAS wait timeout. The exact mutation selects one node/supplier group and replays all competing profiles within it."
         },
-        "next": "Monitor Native R32 on the frozen pre-R31 expired R30 cut and reconciled recovered-world predicate. Require one physical calculation, zero provider work and an exact cold numerical replay. Then verify affected consumers on the shared source and prepare the separate G handoff. Preserve the qualified Scientific C R17 and its audit evidence.",
+        "next": "Measure one full Native currentness check on the reviewed candidate against the exact retained paid input before producer admission. Use the observed boundary to qualify one later physical calculation, zero provider work and an exact cold numerical replay. Then verify affected consumers on the shared source and prepare the separate G handoff. Preserve the qualified Scientific C R17 and its audit evidence.",
         "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",

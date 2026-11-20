@@ -9,7 +9,10 @@ import pytest
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts, canon
 from polisyos.runtime.quality import acquisition_world_growth as growth
-from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRoutePhaseReceipt
+from polisyos.runtime.quality.acquisition_route_loop import (
+    AcquisitionRoutePhaseReceipt,
+    VerifiedAcquisitionRouteClosure,
+)
 
 
 def _epoch(*, count=3, active="active", passport="passport"):
@@ -138,8 +141,18 @@ def test_action_phase_refuses_extra_manifest_input_before_payload_reads(
     bridge = growth.AcquisitionWorldGrowthBridge.__new__(growth.AcquisitionWorldGrowthBridge)
     bridge.artifact_store = store
 
+    closure = VerifiedAcquisitionRouteClosure.model_construct(
+        tenant_id=phase.tenant_id,
+        cell_id=phase.cell_id,
+        run_id=phase.run_id,
+        source_job_id=phase.source_job_id,
+        route_id=phase.route_id,
+        compiled_ref=phase.compiled_ref,
+        cost_basis_hash=phase.cost_basis_hash,
+    )
+    selected = growth.AcquisitionWorldGrowthRoute.model_construct(route_id=phase.route_id)
     with pytest.raises(CanonicalProfileRefusalError) as refused:
-        bridge._validate_action_phase(None, None, str(selected_ref.artifact_id))
+        bridge._validate_action_phase(closure, selected, str(selected_ref.artifact_id))
 
     assert refused.value.code == "canon_profile_typed_artifact_profile_mismatch"  # noqa: S101
     assert reads == []  # noqa: S101

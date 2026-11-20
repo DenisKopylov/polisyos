@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 
@@ -182,6 +183,62 @@ def test_native_n7_roles_reach_registered_batch_and_incomplete_inputs_stay_pendi
         (foundry_input,) = bindings.selected_method_inputs
         assert foundry_input.canonical_value == Decimal("-6000000000")
         assert "warning:n7_derivation_bundle_structure_only" in bindings.notes
+        pending_phase_ref = _marker(
+            case.store,
+            "pending-world-commit",
+            kind="runtime_quality.acquisition_route_phase_receipt",
+        )
+        current_inputs = {
+            "collection_refs": (complete_ref,),
+            "configured_port_source_ref": supplier,
+            "registered_profile_refs": (request.profile_ref,),
+            "base_data_snapshot_ref": case.data_snapshot_ref,
+            "pending_action_phase_ref": pending_phase_ref,
+        }
+        checkpoint = owner.NativeDerivationWorldCheckpoint(
+            **current_inputs,
+            data_snapshot_ref=batch.data_snapshot_ref,
+            resolved_binding_manifest_ref=batch.resolved_binding_manifest_ref,
+            correspondence_refs=(selection.correspondence_ref,),
+            input_bindings_ref=batch.input_bindings_ref,
+            world_model_ref=_marker(case.store, "candidate-world"),
+            action_phase_ref=str(pending_phase_ref.artifact_id),
+            tenant_id="native-tests",
+            cell_id="runtime",
+            run_id="native-n7",
+            source_job_id="source",
+            action_job_id="action",
+            route_id=str(supplier.artifact_id),
+            transaction_time=datetime(2026, 11, 20, tzinfo=UTC),
+        )
+        checkpoint_ref = case.store.put_json(
+            checkpoint.model_dump(mode="json"),
+            artifacts.PutOptions(
+                kind="runtime_quality.acquisition_candidate_world_checkpoint",
+                media_type="application/json",
+            ),
+            return_selected_profile=True,
+        )
+        recovered = owner.NativeDerivationWorldCheckpoint.model_validate(
+            artifacts.load_core_json_artifact(case.store, checkpoint_ref)
+        )
+        assert type(recovered.registered_profile_refs[0]) is artifacts.ArtifactRef
+        assert recovered._matches_input_selection(**current_inputs)
+
+        wrong_profile = request.profile_ref.model_copy(
+            update={"manifest_profile_sha256": supplier.manifest_profile_sha256}
+        )
+        assert not recovered._matches_input_selection(
+            **(current_inputs | {"registered_profile_refs": (wrong_profile,)})
+        )
+        unselected_profile = request.profile_ref.model_copy(
+            update={"manifest_profile_sha256": None}
+        )
+        with pytest.raises(ValueError, match="native_derivation_source_ref_unselected"):
+            recovered._matches_input_selection(
+                **(current_inputs | {"registered_profile_refs": (unselected_profile,)})
+            )
+
         if registered_bundle:
             # Preserve the profile content ID, graph, roles, and wire schema
             # while substituting an unselected manifest profile. Make the
@@ -253,6 +310,14 @@ def test_native_n7_roles_reach_registered_batch_and_incomplete_inputs_stay_pendi
             }
         )
         partial_ref = owner.persist_native_derivation_input_collection(case.store, partial)
+        ordered = (complete_ref, partial_ref)
+        plural_checkpoint = recovered.model_copy(update={"collection_refs": ordered})
+        assert plural_checkpoint._matches_input_selection(
+            **(current_inputs | {"collection_refs": ordered})
+        )
+        assert not plural_checkpoint._matches_input_selection(
+            **(current_inputs | {"collection_refs": ordered[::-1]})
+        )
         before_partial = case.store.manifest_inventory_snapshot(kind="foundry.input_bindings")
         assert before_partial.verdict == "pass"
         with pytest.raises(ValueError, match="native_derivation_inputs_incomplete"):

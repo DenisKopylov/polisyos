@@ -1918,6 +1918,29 @@ class NativeDerivationWorldCheckpoint(_Strict):
             raise ValueError("native_derivation_world_checkpoint_duplicate_collection")
         return self
 
+    def _matches_input_selection(
+        self,
+        *,
+        collection_refs: tuple[artifacts.ArtifactRef, ...],
+        configured_port_source_ref: artifacts.ArtifactRef,
+        registered_profile_refs: tuple[artifacts.ArtifactRef, ...],
+        base_data_snapshot_ref: artifacts.ArtifactRef,
+        pending_action_phase_ref: artifacts.ArtifactRef,
+    ) -> bool:
+        """Compare each ordered group by its complete selected artifact identity."""
+        groups = (
+            (self.collection_refs, collection_refs),
+            ((self.configured_port_source_ref,), (configured_port_source_ref,)),
+            (self.registered_profile_refs, registered_profile_refs),
+            ((self.base_data_snapshot_ref,), (base_data_snapshot_ref,)),
+            ((self.pending_action_phase_ref,), (pending_action_phase_ref,)),
+        )
+        return all(
+            tuple(map(_native_derivation_ref_key, retained))
+            == tuple(map(_native_derivation_ref_key, current))
+            for retained, current in groups
+        )
+
     def lineage_inputs(self) -> tuple[artifacts.InputRef, ...]:
         """Return the exact selected producer/consumer denominator."""
         rows = [
@@ -7218,7 +7241,8 @@ class AcquisitionWorldGrowthBridge:
             or value.cycle_index != receipt.new_cycle.cycle_index
             or tuple(map(_native_derivation_ref_key, selected.checkpoint.collection_refs))
             != (_native_derivation_ref_key(collection_ref),)
-            or selected.checkpoint.configured_port_source_ref != scope.configured_port_source_ref
+            or _native_derivation_ref_key(selected.checkpoint.configured_port_source_ref)
+            != _native_derivation_ref_key(scope.configured_port_source_ref)
             or phase.job_id != current.job_id
             or phase.action_generation != snapshot.head.action_generation
             or phase.owner_declared_profile_ref != closure.owner_declared_profile_ref
@@ -8389,7 +8413,8 @@ class AcquisitionWorldGrowthBridge:
         pending_ref, _phase = self._native_derivation_pending_phase(closure)
         if (
             selected.checkpoint.action_job_id != current.job_id
-            or selected.pending_action_phase_ref != pending_ref
+            or _native_derivation_ref_key(selected.pending_action_phase_ref)
+            != _native_derivation_ref_key(pending_ref)
             or (
                 selected.checkpoint.tenant_id,
                 selected.checkpoint.cell_id,
@@ -8644,19 +8669,19 @@ class AcquisitionWorldGrowthBridge:
                     expected_job_id=closure.source_job_id,
                 )
                 if (
-                    checkpoint.collection_refs != collection_refs
-                    or checkpoint.configured_port_source_ref
-                    != configuration.configured_port_source_ref
-                    or checkpoint.registered_profile_refs
-                    != tuple(request.profile_ref for request in requests)
-                    or checkpoint.base_data_snapshot_ref != base_views.data_snapshot_ref
+                    not checkpoint._matches_input_selection(
+                        collection_refs=collection_refs,
+                        configured_port_source_ref=configuration.configured_port_source_ref,
+                        registered_profile_refs=tuple(request.profile_ref for request in requests),
+                        base_data_snapshot_ref=base_views.data_snapshot_ref,
+                        pending_action_phase_ref=pending_phase_ref,
+                    )
                     or checkpoint.action_job_id != current_job.job_id
                     or checkpoint.route_id != closure.route_id
                     or checkpoint.source_job_id != closure.source_job_id
                     or (checkpoint.tenant_id, checkpoint.cell_id, checkpoint.run_id)
                     != (closure.tenant_id, closure.cell_id, closure.run_id)
                     or checkpoint.action_phase_ref != growth.action_phase_ref
-                    or checkpoint.pending_action_phase_ref != pending_phase_ref
                     or manifest.artifact_schema is None
                     or manifest.artifact_schema.version != "1.2"
                 ):

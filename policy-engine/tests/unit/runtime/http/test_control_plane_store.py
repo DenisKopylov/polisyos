@@ -1223,6 +1223,156 @@ def test_control_plane_store_tracks_worker_leases_and_outbox(tmp_path) -> None:
     assert all_workers[0].state == "stopped"
 
 
+@pytest.mark.parametrize("advance_seconds", [1, 3])
+def test_renew_job_lease_uses_the_time_after_sqlite_writer_admission(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, advance_seconds: int
+) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+    now = datetime.now(UTC).replace(microsecond=0)
+    monkeypatch.setattr(control_plane_store_module, "_utc_now", lambda: now)
+    leased = store.lease_next_job(worker_id="writer-wait-owner", lease_seconds=2)
+    assert leased is not None and leased.job_id == job.job_id
+    assert leased.lease_expires_at == now + timedelta(seconds=2)
+
+    entered_writer = threading.Event()
+    connect = store._sqlite_connection
+
+    @contextmanager
+    def traced_connection():
+        with connect() as conn:
+            conn.set_trace_callback(
+                lambda sql: entered_writer.set() if sql == "BEGIN IMMEDIATE" else None
+            )
+            yield conn
+
+    monkeypatch.setattr(store, "_sqlite_connection", traced_connection)
+    with sqlite3.connect(tmp_path / "control-plane.sqlite3") as blocking_writer:
+        blocking_writer.execute("BEGIN IMMEDIATE")
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(
+                store.renew_job_lease,
+                job_id=job.job_id,
+                worker_id="writer-wait-owner",
+                expected_attempt=leased.attempt,
+                lease_seconds=10,
+            )
+            try:
+                assert entered_writer.wait(timeout=3)
+                assert not future.done()
+                now += timedelta(seconds=advance_seconds)
+            finally:
+                blocking_writer.rollback()
+            assert future.result(timeout=5) is (advance_seconds == 1)
+
+    current = store.get_job(job.job_id)
+    assert current is not None
+    assert current.lease_expires_at == (
+        now + timedelta(seconds=10) if advance_seconds == 1 else leased.lease_expires_at
+    )
+
+
+def test_existing_sqlite_lease_renewer_preserves_deadline_and_rolls_back_after_owner_exit(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+    now = datetime.now(UTC).replace(microsecond=0)
+    monkeypatch.setattr(control_plane_store_module, "_utc_now", lambda: now)
+    leased = store.lease_next_job(worker_id="lease-renewal-owner", lease_seconds=20)
+    assert leased is not None and leased.job_id == job.job_id
+    path = store.sqlite_lease_renewal_path()
+    assert path == tmp_path / "control-plane.sqlite3"
+    identity = {"job_id": job.job_id, "worker_id": "lease-renewal-owner", "expected_attempt": 1}
+
+    def unexpected_schema_setup(self: ControlPlaneStore) -> None:
+        pytest.fail("existing-file lease renewal must not initialize SQLite schema")
+
+    monkeypatch.setattr(ControlPlaneStore, "_ensure_sqlite_schema", unexpected_schema_setup)
+    renewer = ControlPlaneStore.open_existing_sqlite_for_lease_renewal(path)
+    signals = iter([True, False])
+    assert not renewer.renew_job_lease(**identity, still_active=lambda: next(signals))
+    assert store.get_job(job.job_id) == leased
+
+    deadline = now + timedelta(seconds=30)
+    execute = renewer._execute
+
+    def advance_after_update(sql: str, params: tuple[object, ...]) -> int:
+        nonlocal now
+        affected = execute(sql, params)
+        assert affected == 1
+        now = deadline
+        return affected
+
+    with monkeypatch.context() as isolated:
+        isolated.setattr(renewer, "_execute", advance_after_update)
+        assert not renewer.renew_job_lease(**identity, renewal_deadline=deadline)
+    assert store.get_job(job.job_id) == leased
+    now = deadline - timedelta(seconds=30)
+    assert renewer.renew_job_lease(**identity, still_active=lambda: True, renewal_deadline=deadline)
+    saved = store.get_job(job.job_id)
+    assert saved is not None and saved.lease_expires_at == deadline
+    now = deadline
+    assert not renewer.renew_job_lease(
+        **identity, still_active=lambda: True, renewal_deadline=deadline
+    )
+    assert store.get_job(job.job_id) == saved
+
+    missing = tmp_path / "missing.sqlite3"
+    with pytest.raises(FileNotFoundError):
+        ControlPlaneStore.open_existing_sqlite_for_lease_renewal(missing)
+    assert not missing.exists()
+    parked = tmp_path / "parked.sqlite3"
+    path.rename(parked)
+    try:
+        with pytest.raises(sqlite3.OperationalError):
+            renewer.renew_job_lease(**identity)
+        assert not path.exists()
+    finally:
+        parked.rename(path)
+
+
+def test_live_sql_lease_cannot_publish_after_its_independent_renewer_stops(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = _make_store(tmp_path)
+    job = _create_execution_admission_job(store, execution_scope=_job_execution_scope())
+    owner = "independently-renewed-worker"
+    leased = store.lease_next_job(worker_id=owner)
+    assert leased is not None and leased.job_id == job.job_id
+    active = True
+    pending_commit = False
+    read = store.get_job
+
+    def lose_owner_during_commit_read(job_id: str) -> ControlJobRecord | None:
+        nonlocal active
+        record = read(job_id)
+        if pending_commit:
+            active = False
+        return record
+
+    def publish_then_lose_owner() -> None:
+        nonlocal pending_commit
+        with store._job_transaction():
+            store.upsert_progress(job_id=job.job_id, progress={"phase": "uncommitted"})
+            pending_commit = True
+
+    monkeypatch.setattr(store, "get_job", lose_owner_during_commit_read)
+    with store.job_execution_fence(
+        job_id=job.job_id, worker_id=owner, attempt=leased.attempt, still_active=lambda: active
+    ):
+        assert store.current_execution_job_record().job_id == job.job_id
+        with pytest.raises(ControlJobLeaseLostError, match="no longer active"):
+            publish_then_lose_owner()
+        with pytest.raises(ControlJobLeaseLostError, match="no longer active"):
+            store.current_execution_job_record()
+        with pytest.raises(ControlJobLeaseLostError, match="no longer active"):
+            store.complete_job(job_id=job.job_id)
+    assert store.get_job(job.job_id) == leased
+
+
 def test_control_worker_renews_job_lease_while_handler_runs(tmp_path) -> None:
     store = _make_store(tmp_path)
     store.create_job(

@@ -27,6 +27,7 @@ from polisyos.runtime.quality.diagnostic_events import (
     DiagnosticEvent,
 )
 
+from ._control_lease_pulse import _SQLiteLeasePulse, _SQLiteLeasePulseConfig
 from .control_plane_store import ControlJobLeaseLostError, ControlJobRecord, ControlPlaneStore
 
 logger = get_logger(__name__)
@@ -112,6 +113,12 @@ class ControlWorker:
         self._thread: threading.Thread | None = None
         self._stop = threading.Event()
         self._wake = threading.Event()
+        self._sqlite_lease_pulse_config = _SQLiteLeasePulseConfig.from_store(
+            store, lease_seconds=self._lease_seconds
+        )
+        self._active_sqlite_lease_pulse: _SQLiteLeasePulse | None = None
+        self._sqlite_lease_pulse_lock = threading.Lock()
+        self._dispatch_lock = threading.Lock()
 
     @property
     def worker_id(self) -> str:
@@ -122,7 +129,10 @@ class ControlWorker:
         """Start the daemon worker thread if it is not already running."""
         if self._thread is not None and self._thread.is_alive():
             return
-        self._stop.clear()
+        with self._sqlite_lease_pulse_lock:
+            if self._active_sqlite_lease_pulse is not None:
+                raise RuntimeError("previous independent SQLite lease pulse still present")
+            self._stop.clear()
         self._heartbeat(state="idle")
         self._thread = threading.Thread(
             target=self._run_loop,
@@ -135,6 +145,9 @@ class ControlWorker:
         """Stop the worker loop, join the thread, and release the lease row."""
         self._stop.set()
         self._wake.set()
+        with self._sqlite_lease_pulse_lock:
+            if self._active_sqlite_lease_pulse is not None:
+                self._active_sqlite_lease_pulse.cancel()
         if self._thread is not None:
             self._thread.join(timeout=timeout)
         try:
@@ -148,6 +161,23 @@ class ControlWorker:
 
     def dispatch_once(self) -> bool:
         """Lease and process one job, returning `True` when work was executed."""
+        if self._sqlite_lease_pulse_config is None:
+            return self._dispatch_once()
+        if not self._dispatch_lock.acquire(blocking=False):
+            return False
+        try:
+            if self._stop.is_set():
+                return False
+            if (
+                self._store.sqlite_lease_renewal_path() != self._sqlite_lease_pulse_config.path
+                or not self._sqlite_lease_pulse_config.matches_database()
+            ):
+                raise ControlJobLeaseLostError("independent SQLite pulse database changed")
+            return self._dispatch_once()
+        finally:
+            self._dispatch_lock.release()
+
+    def _dispatch_once(self) -> bool:
         self._heartbeat(state="idle")
         job = self._store.lease_next_job(
             worker_id=self._worker_id,
@@ -195,9 +225,12 @@ class ControlWorker:
         stop_heartbeat = threading.Event()
         lost = threading.Event()
         execution_fence = getattr(self._store, "job_execution_fence", None)
+        peer: _SQLiteLeasePulse | None = None
 
         def require_current_owner() -> None:
             try:
+                if peer is not None and not peer.is_active():
+                    raise ControlJobLeaseLostError("independent SQLite lease pulse stopped")
                 current = self._store.current_execution_job_record()
                 if (
                     current.job_id,
@@ -229,12 +262,15 @@ class ControlWorker:
         def _lease_pulse() -> None:
             while not stop_heartbeat.wait(self._heartbeat_interval_s):
                 try:
-                    renewed = self._store.renew_job_lease(
-                        job_id=job.job_id,
-                        worker_id=self._worker_id,
-                        lease_seconds=self._lease_seconds,
-                        expected_attempt=job.attempt,
-                    )
+                    if peer is not None:
+                        renewed = peer.is_active()
+                    else:
+                        renewed = self._store.renew_job_lease(
+                            job_id=job.job_id,
+                            worker_id=self._worker_id,
+                            lease_seconds=self._lease_seconds,
+                            expected_attempt=job.attempt,
+                        )
                     if renewed is False:
                         interrupt.lost.set()
                         logger.warning(
@@ -290,18 +326,36 @@ class ControlWorker:
             name=f"{self._worker_id}-heartbeat",
             daemon=True,
         )
-        heartbeat_thread.start()
         try:
+            if self._sqlite_lease_pulse_config is not None:
+                with self._sqlite_lease_pulse_lock:
+                    if self._stop.is_set() or job.lease_expires_at is None:
+                        raise ControlJobLeaseLostError("independent SQLite pulse is not admitted")
+                    peer = _SQLiteLeasePulse(
+                        config=self._sqlite_lease_pulse_config,
+                        job_id=job.job_id,
+                        worker_id=self._worker_id,
+                        attempt=job.attempt,
+                        lease_seconds=self._lease_seconds,
+                        heartbeat_interval_s=self._heartbeat_interval_s,
+                        claimed_expires_at=job.lease_expires_at,
+                    )
+                    self._active_sqlite_lease_pulse = peer
+                peer.require_ready()
+            heartbeat_thread.start()
             if callable(execution_fence):
                 with (
                     execution_fence(
                         job_id=job.job_id,
                         worker_id=self._worker_id,
                         attempt=job.attempt,
+                        **({"still_active": peer.is_active} if peer is not None else {}),
                     ),
                     clear_tenant_context(),
                     job_execution_interrupt_scope(interrupt),
                 ):
+                    if peer is not None:
+                        require_current_owner()
                     self._handler(job)
             else:
                 with clear_tenant_context(), job_execution_interrupt_scope(interrupt):
@@ -329,6 +383,15 @@ class ControlWorker:
                 job.attempt,
             )
         finally:
+            if peer is not None:
+                stop_heartbeat.set()
+                try:
+                    peer.close()
+                except BaseException:
+                    self._stop.set()
+                    raise
+                with self._sqlite_lease_pulse_lock:
+                    self._active_sqlite_lease_pulse = None
             self._emit_worker_diagnostic_event(
                 job=job,
                 phase="worker_dispatch",
@@ -338,10 +401,8 @@ class ControlWorker:
             with suppress(RuntimeError):
                 heartbeat_thread.join(timeout=max(self._heartbeat_interval_s * 2.0, 0.2))
             try:
-                self._heartbeat(
-                    state="idle",
-                    metadata={"last_job_id": job.job_id},
-                )
+                if self._sqlite_lease_pulse_config is None or not self._stop.is_set():
+                    self._heartbeat(state="idle", metadata={"last_job_id": job.job_id})
             except (RuntimeDependencyTimeoutError, RuntimeDependencyUnavailableError):
                 if not self._stop.is_set():
                     raise

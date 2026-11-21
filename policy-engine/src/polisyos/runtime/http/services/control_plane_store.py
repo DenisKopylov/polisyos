@@ -2451,15 +2451,20 @@ class ControlPlaneStore:
         backend: str,
         sqlite_path: str | Path,
         postgres_dsn: str | None = None,
+        _bootstrap_schema: bool = True,
     ) -> None:
         self.backend = backend.strip().lower()
         self._sqlite_path = Path(sqlite_path)
+        self._sqlite_existing_only = not _bootstrap_schema
         self._postgres_dsn = postgres_dsn
         self._lock = threading.RLock()
         self._human_decision_transaction = threading.local()
         self._creation_plan_owner = object()
         self._job_execution_fence: ContextVar[tuple[str, str, int] | None] = ContextVar(
             "control_job_execution_fence", default=None
+        )
+        self._job_execution_lifetime: ContextVar[Callable[[], bool] | None] = ContextVar(
+            "control_job_execution_lifetime", default=None
         )
         # Controlled documentation fixtures may provide stable event IDs. The
         # production path keeps UUIDv4 IDs unless this private seam is set.
@@ -2469,8 +2474,13 @@ class ControlPlaneStore:
             0.05,
         )
         if self.backend == "sqlite":
-            self._sqlite_path.parent.mkdir(parents=True, exist_ok=True)
-            self._ensure_sqlite_schema()
+            if _bootstrap_schema:
+                self._sqlite_path.parent.mkdir(parents=True, exist_ok=True)
+                self._ensure_sqlite_schema()
+            else:
+                self._sqlite_path = self._sqlite_path.resolve(strict=True)
+                if not self._sqlite_path.is_file():
+                    raise ValueError("control lease renewal requires an existing SQLite file")
         elif self.backend == "postgres":
             if not self._postgres_dsn:
                 raise RuntimeError("PostgreSQL control-plane store requires a DSN")
@@ -2478,12 +2488,22 @@ class ControlPlaneStore:
         else:
             raise RuntimeError(f"Unsupported control-plane store backend: {backend!r}")
 
+    def sqlite_lease_renewal_path(self) -> Path | None:
+        """Return the existing local database path for a sibling lease renewer."""
+        return self._sqlite_path.resolve(strict=True) if self.backend == "sqlite" else None
+
+    @classmethod
+    def open_existing_sqlite_for_lease_renewal(cls, sqlite_path: Path) -> ControlPlaneStore:
+        """Attach to an existing database without schema setup or file creation."""
+        return cls(backend="sqlite", sqlite_path=sqlite_path, _bootstrap_schema=False)
+
     def job_execution_fence(
         self,
         *,
         job_id: str,
         worker_id: str,
         attempt: int,
+        still_active: Callable[[], bool] | None = None,
     ) -> ContextManager[None]:
         """Bind one handler context to a live ``(job, owner, attempt)`` lease.
 
@@ -2492,24 +2512,31 @@ class ControlPlaneStore:
         caller uses ``GuardedDependencyProxy``, that lookup therefore runs
         inside the dependency guard. Entering the returned context manager
         only binds the already-checked identity to this handler context; each
-        fenced SQL mutation still rechecks the persisted lease.
+        fenced SQL mutation still rechecks the persisted lease and any
+        delegated renewal lifetime.
         """
         if not job_id.strip() or not worker_id.strip() or type(attempt) is not int:
             raise ValueError("control job execution fence identity is invalid")
         if self._job_execution_fence.get() is not None:
             raise RuntimeError("nested control job execution fences are forbidden")
+        if still_active is not None and not still_active():
+            raise ControlJobLeaseLostError("control job execution owner is no longer active")
         self._require_current_job_execution_record(
             job_id=job_id,
             worker_id=worker_id,
             attempt=attempt,
         )
+        if still_active is not None and not still_active():
+            raise ControlJobLeaseLostError("control job execution owner is no longer active")
 
         @contextmanager
         def _bind_execution_identity() -> Iterator[None]:
             token = self._job_execution_fence.set((job_id, worker_id, attempt))
+            lifetime = self._job_execution_lifetime.set(still_active)
             try:
                 yield
             finally:
+                self._job_execution_lifetime.reset(lifetime)
                 self._job_execution_fence.reset(token)
 
         return _bind_execution_identity()
@@ -2777,7 +2804,13 @@ class ControlPlaneStore:
             or record.lease_expires_at <= now
         ):
             raise ControlJobLeaseLostError(f"control job lease is not current for {job_id}")
+        self._require_active_job_execution_lifetime()
         return record
+
+    def _require_active_job_execution_lifetime(self) -> None:
+        still_active = self._job_execution_lifetime.get()
+        if still_active is not None and not still_active():
+            raise ControlJobLeaseLostError("control job execution owner is no longer active")
 
     def _resolve_job_execution_fence(
         self,
@@ -9822,10 +9855,14 @@ class ControlPlaneStore:
         worker_id: str,
         lease_seconds: int = 60,
         expected_attempt: int | None = None,
+        still_active: Callable[[], bool] | None = None,
+        renewal_deadline: datetime | None = None,
     ) -> bool:
-        """Extend a running job lease when the heartbeat still matches `worker_id`."""
-        now = _utc_now()
-        lease_expires_at = now + timedelta(seconds=max(lease_seconds, 1))
+        """Extend the exact live lease after acquiring write admission.
+
+        An independent renewer may additionally fence the update on the owning
+        process lifetime and cap the committed expiry at its dispatch deadline.
+        """
         attempt_clause = ""
         attempt_params: tuple[Any, ...] = ()
         if expected_attempt is not None:
@@ -9833,16 +9870,50 @@ class ControlPlaneStore:
                 raise ValueError("control job attempt must be a positive integer")
             attempt_clause = " AND attempt = ?"
             attempt_params = (expected_attempt,)
+        if renewal_deadline is not None:
+            if renewal_deadline.utcoffset() is None:
+                raise ValueError("control lease renewal deadline must be timezone-aware")
+            renewal_deadline = renewal_deadline.replace(microsecond=0)
+
+        def require_active() -> None:
+            if still_active is not None and not still_active():
+                raise ControlJobLeaseLostError("control lease renewal owner is no longer active")
+            if renewal_deadline is not None and _utc_now() >= renewal_deadline:
+                raise ControlJobLeaseLostError("control lease renewal deadline has passed")
+
+        where = (
+            "job_id = ? AND state = 'running' AND lease_owner = ? "
+            f"AND lease_expires_at IS NOT NULL{attempt_clause}"
+        )
+        identity = (job_id, worker_id, *attempt_params)
         try:
-            affected_rows = self._execute(
-                f"""
-                UPDATE control_jobs
-                SET lease_expires_at = ?
-                WHERE job_id = ? AND state = 'running' AND lease_owner = ?
-                  AND lease_expires_at IS NOT NULL AND lease_expires_at > ?{attempt_clause}
-                """,
-                (_iso(lease_expires_at), job_id, worker_id, _iso(now), *attempt_params),
-            )
+            with self._job_transaction(
+                commit_admission=(
+                    require_active
+                    if still_active is not None or renewal_deadline is not None
+                    else None
+                ),
+            ):
+                if (
+                    self.backend == "postgres"
+                    and self._fetchone(
+                        f"SELECT job_id FROM control_jobs WHERE {where} FOR UPDATE", identity
+                    )
+                    is None
+                ):
+                    return False
+                require_active()
+                now = _utc_now()
+                lease_expires_at = now + timedelta(seconds=max(lease_seconds, 1))
+                if renewal_deadline is not None:
+                    if renewal_deadline <= now:
+                        return False
+                    lease_expires_at = min(lease_expires_at, renewal_deadline)
+                affected_rows = self._execute(
+                    f"UPDATE control_jobs SET lease_expires_at = ? "
+                    f"WHERE {where} AND lease_expires_at > ?",
+                    (_iso(lease_expires_at), *identity, _iso(now)),
+                )
         except ControlJobLeaseLostError:
             return False
         return affected_rows == 1
@@ -12446,6 +12517,7 @@ class ControlPlaneStore:
             raise ControlJobLeaseLostError("control job transaction owner changed")
         if expires_at is None or expires_at <= _utc_now():
             raise ControlJobLeaseLostError("control job lease expired during publication")
+        self._require_active_job_execution_lifetime()
 
     @contextmanager
     def _bound_transaction_admission(
@@ -12646,9 +12718,15 @@ class ControlPlaneStore:
 
     @contextmanager
     def _sqlite_connection(self) -> Iterator[sqlite3.Connection]:
+        database = (
+            f"{self._sqlite_path.as_uri()}?mode=rw"
+            if self._sqlite_existing_only
+            else str(self._sqlite_path)
+        )
         conn = sqlite3.connect(
-            str(self._sqlite_path),
+            database,
             timeout=self._sqlite_timeout_seconds,
+            uri=self._sqlite_existing_only,
         )
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA foreign_keys=ON")

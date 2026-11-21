@@ -8,10 +8,12 @@ import threading
 import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
 
+import polisyos.runtime.http.services.control_plane_store as control_plane_store_module
 from polisyos.runtime.http.services.control_plane_store import (
     ControlJobLeaseLostError,
     ControlPlaneStore,
@@ -292,3 +294,48 @@ def test_pg_completion_and_cancellation_use_one_row_first_order(tmp_path: Path, 
         assert contender.get_cancelled_job_verified_record(job.job_id).state == "cancelled"
     else:
         assert final.progress["marker"] == "completed"
+
+
+@pytest.mark.parametrize("advance_seconds", [1, 3])
+def test_pg_renewal_uses_time_after_contended_row_lock(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, advance_seconds: int
+) -> None:
+    owner, contender = _stores(tmp_path)
+    job = _job(owner)
+    now = datetime.now(UTC).replace(microsecond=0)
+    monkeypatch.setattr(control_plane_store_module, "_utc_now", lambda: now)
+    worker_id = f"pg-renew-{job.job_id}"
+    leased = owner.lease_next_job(worker_id=worker_id, lease_seconds=2)
+    assert leased is not None and leased.job_id == job.job_id
+    assert leased.lease_expires_at == now + timedelta(seconds=2)
+
+    started = threading.Event()
+    pids: list[int] = []
+    _capture_contender_pid(contender, started, pids)
+    psycopg = importlib.import_module("psycopg")
+    with psycopg.connect(_DSN) as blocker, blocker.cursor() as cursor:
+        cursor.execute(
+            "SELECT job_id FROM control_jobs WHERE job_id = %s FOR UPDATE", (job.job_id,)
+        )
+        assert cursor.fetchone() == (job.job_id,)
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            pending = executor.submit(
+                contender.renew_job_lease,
+                job_id=job.job_id,
+                worker_id=worker_id,
+                expected_attempt=leased.attempt,
+                lease_seconds=10,
+            )
+            try:
+                assert started.wait(5)
+                _await_postgres_lock_wait(pids[0])
+                now += timedelta(seconds=advance_seconds)
+            finally:
+                blocker.rollback()
+            assert pending.result(timeout=5) is (advance_seconds == 1)
+
+    current = owner.get_job(job.job_id)
+    assert current is not None
+    assert current.lease_expires_at == (
+        now + timedelta(seconds=10) if advance_seconds == 1 else leased.lease_expires_at
+    )

@@ -9079,9 +9079,40 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE. Scientific C remains verified on shared source. R35 loses attempt 4 during host sleep before effects. R36 attempt 5 crosses source, collection and Catalog checks, then loses the established lease before the first producer after a late successful SQL renewal was reported as a wait timeout. Worker repair passes focused verification. Unmarked qualification, numerical result and cold API remain pending.",
-        "main_commit": "67d7ed9b5c89383327402617634eb27398ea17f9",
-        "main_tree": "198916a7de26b21321155abdf43be5de482be0fb",
+        "status": "ACTIVE. Scientific C is verified on shared source. R37 uses the reviewed worker and stops on authoritative expiry before a producer call after a 116-second pre-submission heartbeat gap. Short selected-route read passes without reproducing the gap. Native numerical effect and fresh API remain open.",
+        "main_commit": "1af3d9cd783457a117cbdb96de09578f29796b07",
+        "main_tree": "8b5f251cbfd2eb2be6d487a436dbceee1763f820",
+        "native_r37": {
+          "status": "COMMAND_FAIL exit 1, observed quiescence, ControlJobLeaseLostError before N4, prepare and N5. A nominal next renewal begins after expiry and affects zero rows. No observed late-response ambiguity or host sleep at the deciding interval.",
+          "loaded_commit": "1af3d9cd783457a117cbdb96de09578f29796b07",
+          "loaded_tree": "8b5f251cbfd2eb2be6d487a436dbceee1763f820",
+          "loaded_worker_sha256": "5d0931f326d2f50b992330ec2d06533e88ad4782d8446f8ad8f4287900c477b6",
+          "attempt": 5,
+          "action_generation": 3,
+          "pending_head_generation": 4,
+          "successful_sql_renewals": 1402,
+          "gap_to_next_renewal_monotonic_seconds": 116.154342125,
+          "elapsed_seconds": 8916.689,
+          "disk_free_bytes_min_observed": 8775340032,
+          "reason_for_gap": "not_established",
+          "exact_started_marker_preserved": true,
+          "physical_ledger_revision": 16,
+          "new_provider_calls": 0,
+          "new_reservations": 0,
+          "new_n5_calls": 0,
+          "quiescent_receipt": "Primary:policy-engine/_cache/e02/native-r37-from-unmarked-r35-eSHyVF/quiescent-r37-cut.json",
+          "quiescent_receipt_sha256": "b59fcf6d34cbe1d772e61837e7e93099e72b2206ba05bdc7ff04a36323c626f8",
+          "pre_effect_diagnostic": {
+            "status": "PASS for exact stock scratch lease and selected route read, no observed effect. No target process sample after AccessDenied and no reproduced long gap in the captured timing suffix.",
+            "elapsed_seconds": 393.522,
+            "ring_entries_retained": 4096,
+            "ring_entries_discarded": 3155,
+            "receipt": "Primary:policy-engine/_cache/e02/native-r37-pre-effect-timing-4XIGdC/budget/result.json",
+            "timing_receipt": "Primary:policy-engine/_cache/e02/native-r37-pre-effect-timing-4XIGdC/in-process.json",
+            "timing_receipt_sha256": "2766ebc5f86cb95f74400f76fe246534c4d780ed1ec65c3f3c0a5db1b4deaf12"
+          },
+          "numerical_and_fresh_reader": "verification_missing"
+        },
         "native_r35": {
           "stock_r34_reclaim_receipt": "Primary:policy-engine/_cache/e02/native-r34-lease-eligibility.E2xyql/budget/command.log",
           "stock_r34_reclaim_seconds": 17.242,
@@ -9857,7 +9888,7 @@
           "repair": "Main 0e003218d, independent review and 58 affected checks pass",
           "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. R18 on cc646d605 returns HTTP 409 at decision request and completes with no new job. Its exact selected typed manifest waited 2.048 s at a 1.5 s guard. Main bfefb6188 extends the existing single retry to raw and typed profile reads. Focused checks and the path-aware docs/API gate pass. R19 loses acknowledgement of a completed payload CAS write (1.903 s). It leaves exact CAS links, without durable event or acquisition job. Main 24d5538e4 adds read-only recovery with 73 tests and docs/API gate PASS. R20 records zero CAS wait timeouts, then HTTP 503 at decision-request after its event lands 49 s beyond the Step-Up deadline. No new acquisition job or N5. R21 resolves the Native route in 264.615 s of 265.480 s total, with no observed CAS wait timeout. The exact mutation selects one node/supplier group and replays all competing profiles within it."
         },
-        "next": "Qualify the reviewed worker repair with the exact unmarked R35 input, the original provider and physical journals, and adequate resources on the published source. Require one new N5 and exact fresh API replay with zero further N5. Preserve the marked R36 cut. G acceptance remains separate.",
+        "next": "Preserve the marked R36/R37 and the original ledger. Localize the pre-lease-expiry pulse delay with a bounded pre-effect probe and complete heartbeat timing before another long Native calculation. Require one new N5 from retained B and a fresh exact API read with zero extra N5. G acceptance remains separate.",
         "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",

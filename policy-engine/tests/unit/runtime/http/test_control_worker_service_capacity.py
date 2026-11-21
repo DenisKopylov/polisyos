@@ -384,3 +384,173 @@ def test_control_lease_witness_fails_when_routed_to_saturated_compute(
     assert observed["queued_body_unstarted"] is True
     with pytest.raises(AssertionError):
         _assert_persisted_renewal_under_held_compute(observed)
+
+
+@pytest.mark.parametrize(
+    "after_late_renewal", ["current", "taken_over", "unavailable", "malformed_progress"]
+)
+def test_control_worker_reconciles_a_late_committed_renewal(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    after_late_renewal: str,
+) -> None:
+    from concurrent.futures import Future, ThreadPoolExecutor
+
+    from polisyos.common.job_execution_interrupt import (
+        JobExecutionInterrupted,
+        raise_if_job_execution_interrupted,
+    )
+    from polisyos.runtime.http import resilience
+    from polisyos.runtime.http.services import control_plane_store as store_module
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.http.services.control_worker import ControlWorker
+
+    clock = [datetime(2026, 11, 21, tzinfo=UTC)]
+    monkeypatch.setattr(store_module, "_utc_now", lambda: clock[0])
+    raw = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    raw.create_job(
+        job_id="late-renewal",
+        kind="workflow_run",
+        run_id="late-renewal-run",
+        pipeline_id=None,
+        requested_execution_profile=None,
+        effective_execution_profile="dev",
+        policy_flags={},
+        capability_manifest_ref=None,
+        payload_ref=None,
+        submitted_by="lease-witness",
+    )
+    leased = raw.lease_next_job(worker_id="worker-old", lease_seconds=60)
+    assert leased is not None
+    release = threading.Event()
+    waiter_observed_late_result = threading.Event()
+    release_owner_read = threading.Event()
+    next_pulse = threading.Event()
+    observed_attempts: list[int] = []
+    confirmation_attempts: list[tuple[str, str, int]] = []
+    handler_result: list[str] = []
+
+    class LateDeliveryExecutor(ThreadPoolExecutor):
+        delay_next = False
+
+        def submit(self, fn: Any, /, *args: Any, **kwargs: Any) -> Future[Any]:
+            future = super().submit(fn, *args, **kwargs)
+            if self.delay_next:
+                self.delay_next = False
+                ordinary_result = future.result
+
+                def deliver_late(timeout: float | None = None) -> Any:
+                    with pytest.raises(TimeoutError):
+                        ordinary_result(timeout=timeout)
+                    clock[0] += timedelta(seconds=5)
+                    release.set()
+                    assert ordinary_result(timeout=5) is True
+                    persisted = raw.get_job(leased.job_id)
+                    assert persisted is not None
+                    assert persisted.lease_expires_at == clock[0] + timedelta(seconds=60)
+                    if after_late_renewal == "taken_over":
+                        clock[0] += timedelta(seconds=61)
+                        replacement = raw.lease_next_job(worker_id="worker-new", lease_seconds=60)
+                        assert replacement is not None and replacement.attempt == 2
+                    elif after_late_renewal == "malformed_progress":
+                        with sqlite3.connect(tmp_path / "control.sqlite3") as db:
+                            db.execute(
+                                "INSERT INTO control_job_progress (job_id, progress_json, updated_at) "
+                                "VALUES (?, ?, ?) ON CONFLICT(job_id) DO UPDATE "
+                                "SET progress_json=excluded.progress_json",
+                                (leased.job_id, "{", clock[0].isoformat()),
+                            )
+                    waiter_observed_late_result.set()
+                    return True
+
+                future.result = deliver_late  # type: ignore[method-assign]
+            return future
+
+    class LateRenewStore(ControlPlaneStore):
+        def renew_job_lease(self, **kwargs: Any) -> bool:
+            observed_attempts.append(kwargs["expected_attempt"])
+            if len(observed_attempts) == 1:
+                assert release.wait(timeout=5)
+            else:
+                clock[0] += timedelta(seconds=5)
+            return super().renew_job_lease(**kwargs)
+
+        def job_execution_fence(self, **kwargs: Any):
+            if waiter_observed_late_result.is_set():
+                confirmation_attempts.append(
+                    (kwargs["job_id"], kwargs["worker_id"], kwargs["attempt"])
+                )
+                if after_late_renewal == "unavailable":
+                    assert release_owner_read.wait(timeout=5)
+            return super().job_execution_fence(**kwargs)
+
+    class LateRenewGuard(resilience.BlockingDependencyGuard):
+        def run(self, func: Any, *args: Any, **kwargs: Any) -> Any:
+            if func.__name__ == "renew_job_lease" and not observed_attempts:
+                executor.delay_next = True
+            result = super().run(func, *args, **kwargs)
+            if func.__name__ == "renew_job_lease" and len(observed_attempts) == 2:
+                next_pulse.set()
+            return result
+
+    profile = resilience.build_runtime_control_store_guard()
+    executor = LateDeliveryExecutor(max_workers=2)
+    guard = LateRenewGuard(
+        dependency_name="control_plane_store",
+        timeout_seconds=0.15,
+        breaker=profile._breaker,
+        executor=executor,
+    )
+    store = LateRenewStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+
+    def handler(job: Any) -> None:
+        assert waiter_observed_late_result.wait(timeout=5)
+        for _ in range(30):
+            try:
+                raise_if_job_execution_interrupted()
+            except JobExecutionInterrupted:
+                handler_result.append("interrupted")
+                raise
+            if next_pulse.wait(timeout=0.05):
+                assert after_late_renewal == "current"
+                raise_if_job_execution_interrupted(check_current_owner=True)
+                handler_result.append("protected")
+                return
+        pytest.fail(f"Handler neither interrupted nor renewed again: {job.job_id}")
+
+    worker = ControlWorker(
+        store=resilience.GuardedDependencyProxy(target=store, guard=guard),
+        handler=handler,
+        worker_id="worker-old",
+    )
+    worker._heartbeat_interval_s = 0.05
+    try:
+        worker._run_with_lease_heartbeat(leased)
+    finally:
+        release.set()
+        release_owner_read.set()
+        guard.close()
+        profile.close()
+        executor.shutdown(wait=True, cancel_futures=True)
+        store.close()
+        raw.close()
+
+    with sqlite3.connect(tmp_path / "control.sqlite3") as db:
+        state, owner, attempt, expiry = db.execute(
+            "SELECT state, lease_owner, attempt, lease_expires_at FROM control_jobs WHERE job_id=?",
+            (leased.job_id,),
+        ).fetchone()
+    assert state == "running"
+    if after_late_renewal == "current":
+        assert handler_result == ["protected"]
+        assert observed_attempts[:2] == [1, 1]
+        assert owner == "worker-old" and attempt == 1
+        assert datetime.fromisoformat(expiry) >= leased.lease_expires_at + timedelta(seconds=10)
+    else:
+        assert handler_result == ["interrupted"]
+        assert observed_attempts == [1]
+        if after_late_renewal == "taken_over":
+            assert owner == "worker-new" and attempt == 2
+        else:
+            assert owner == "worker-old" and attempt == 1
+    assert confirmation_attempts == [(leased.job_id, "worker-old", 1)]

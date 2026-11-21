@@ -194,6 +194,7 @@ class ControlWorker:
     def _run_with_lease_heartbeat(self, job: ControlJobRecord) -> None:
         stop_heartbeat = threading.Event()
         lost = threading.Event()
+        execution_fence = getattr(self._store, "job_execution_fence", None)
 
         def require_current_owner() -> None:
             try:
@@ -248,17 +249,30 @@ class ControlWorker:
                         active_job_id=job.job_id,
                         metadata={"job_kind": job.kind},
                     )
-                except (RuntimeDependencyTimeoutError, RuntimeDependencyUnavailableError) as exc:
-                    interrupt.lost.set()
-                    if self._stop.is_set():
+                except (RuntimeDependencyTimeoutError, RuntimeDependencyUnavailableError):
+                    if self._stop.is_set() or stop_heartbeat.is_set():
+                        interrupt.lost.set()
                         return
-                    logger.warning(
-                        "Control worker heartbeat stopped for job %s because the store "
-                        "became unavailable: %s",
-                        job.job_id,
-                        exc,
-                    )
-                    return
+                    try:
+                        if not callable(execution_fence):
+                            raise ControlJobLeaseLostError("worker_execution_fence_unavailable")
+                        # A guarded wait can time out after SQL commits. This
+                        # factory checks the persisted lease before returning
+                        # its scope. The heartbeat only needs that check.
+                        execution_fence(
+                            job_id=job.job_id,
+                            worker_id=self._worker_id,
+                            attempt=job.attempt,
+                        )
+                    except Exception as error:
+                        interrupt.lost.set()
+                        logger.warning(
+                            "Control worker heartbeat stopped for job %s because "
+                            "the current lease could not be confirmed: %s",
+                            job.job_id,
+                            error,
+                        )
+                        return
                 except Exception as exc:  # pragma: no cover - defensive loop guard
                     logger.exception(
                         "Control worker heartbeat failed for job %s: %s",
@@ -278,7 +292,6 @@ class ControlWorker:
         )
         heartbeat_thread.start()
         try:
-            execution_fence = getattr(self._store, "job_execution_fence", None)
             if callable(execution_fence):
                 with (
                     execution_fence(

@@ -9079,9 +9079,44 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE. Scientific C passes on the shared source. Native R33 source admission is reproduced and repaired on the exact retained input. Native R34 is interrupted at the disk floor inside progress before controller admission, preparation or effects. Its pending head and original ledger are preserved. Native numerical execution and fresh API remain open.",
-        "main_commit": "e90554cd27769c02317273ab0325efb5e9dc77d8",
-        "main_tree": "10856997ecf3ece53eb9008647bd1510aac7cd80",
+        "status": "ACTIVE. Scientific C remains verified on shared source. R35 loses attempt 4 during host sleep before effects. R36 attempt 5 crosses source, collection and Catalog checks, then loses the established lease before the first producer after a late successful SQL renewal was reported as a wait timeout. Worker repair passes focused verification. Unmarked qualification, numerical result and cold API remain pending.",
+        "main_commit": "67d7ed9b5c89383327402617634eb27398ea17f9",
+        "main_tree": "198916a7de26b21321155abdf43be5de482be0fb",
+        "native_r35": {
+          "stock_r34_reclaim_receipt": "Primary:policy-engine/_cache/e02/native-r34-lease-eligibility.E2xyql/budget/command.log",
+          "stock_r34_reclaim_seconds": 17.242,
+          "attempt": 4,
+          "status": "COMMAND_FAIL from stock expired lease after Clamshell Sleep on battery. No marker or producer effect. Same pending head and original ledger revision 16.",
+          "successful_sql_renewals": 188,
+          "elapsed_seconds": 1333.782,
+          "new_provider_calls": 0,
+          "new_n5_calls": 0,
+          "new_reservations": 0,
+          "quiescent_receipt": "Primary:policy-engine/_cache/e02/native-r35-from-operated-r34-1ayuk4/quiescent-r35-cut.json",
+          "quiescent_receipt_sha256": "4c4752e2211048292e9b55a756ee38b763a8584d3777c2fd440498fa25a9ee0b"
+        },
+        "native_r36": {
+          "attempt": 5,
+          "status": "COMMAND_FAIL. SQL renewal succeeded before the same guard waiter reported timeout and stopped the heartbeat. The expired lease later fails before first producer work, after exact source, collection and Catalog admission.",
+          "loaded_commit": "67d7ed9b5c89383327402617634eb27398ea17f9",
+          "loaded_tree": "198916a7de26b21321155abdf43be5de482be0fb",
+          "elapsed_seconds": 8891.557,
+          "peak_sampled_process_tree_rss_bytes": 7878361088,
+          "disk_free_bytes_min_observed": 4494266368,
+          "successful_sql_renewals": 1384,
+          "exact_started_marker_preserved": true,
+          "selected_prepared_member": false,
+          "new_provider_calls": 0,
+          "new_n5_calls": 0,
+          "new_reservations": 0,
+          "physical_ledger_revision": 16,
+          "marked_recovery": "bridge_missing without a verified prepared member. Separate qualification preserves this marked cut and uses unmarked R35, subject to source and capacity.",
+          "quiescent_receipt": "Primary:policy-engine/_cache/e02/native-r36-from-operated-r35-3TngJS/quiescent-r36-cut.json",
+          "quiescent_receipt_sha256": "a187d6e685cc59677235f354ed04e6b9e3f995969c76bb0d846a0fb0ee9313bd",
+          "lease_fix": "One guarded exact stock lease reread on timeout/unavailability rescues valid durable ownership and fails closed on any unconfirmed result without changing the TTL or guard.",
+          "lease_fix_tests_passed": 36,
+          "lease_fix_test_receipt": "Native transition checkout:policy-engine/_cache/e02/control-worker-lease-reconciliation-8fJiDE/final-green-r2/result.json"
+        },
         "native_r34": {
           "status": "RESOURCE_ABORT at disk_floor_during_run on corrected published source. Actual exit -2 and process group quiescent. Retained world handoff and two currentness checks returned. The third unwound inside progress, before controller admission and prepare.",
           "source_commit": "e90554cd27769c02317273ab0325efb5e9dc77d8",
@@ -9822,7 +9857,7 @@
           "repair": "Main 0e003218d, independent review and 58 affected checks pass",
           "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. R18 on cc646d605 returns HTTP 409 at decision request and completes with no new job. Its exact selected typed manifest waited 2.048 s at a 1.5 s guard. Main bfefb6188 extends the existing single retry to raw and typed profile reads. Focused checks and the path-aware docs/API gate pass. R19 loses acknowledgement of a completed payload CAS write (1.903 s). It leaves exact CAS links, without durable event or acquisition job. Main 24d5538e4 adds read-only recovery with 73 tests and docs/API gate PASS. R20 records zero CAS wait timeouts, then HTTP 503 at decision-request after its event lands 49 s beyond the Step-Up deadline. No new acquisition job or N5. R21 resolves the Native route in 264.615 s of 265.480 s total, with no observed CAS wait timeout. The exact mutation selects one node/supplier group and replays all competing profiles within it."
         },
-        "next": "Establish adequate free disk against the measured R34 prefix, then verify stock action and budget eligibility from the exact expired R34 cut before the next Native run. Require one new calculation with zero provider calls and an exact fresh API read with zero extra N5. Keep qualified C and the separate G handoff.",
+        "next": "Qualify the reviewed worker repair with the exact unmarked R35 input, the original provider and physical journals, and adequate resources on the published source. Require one new N5 and exact fresh API replay with zero further N5. Preserve the marked R36 cut. G acceptance remains separate.",
         "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",

@@ -9079,9 +9079,42 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE. Scientific C passed exact R17 authenticated settlement and fresh numerical read at frontier 4 on the isolated custody source. Native R32 passed recovered-world handoff, then stopped before effects after two measured full currentness checks. One exact retained-source currentness check passes on the reviewed Native candidate. Numerical execution, cold replay and shared-source consumer verification remain open.",
-        "main_commit": "1c48de3be26f9ae95cfd1ed8c8053669c2c85cc8",
-        "main_tree": "34b23265834e877cea76e0e2fb2aec6b9a32c891",
+        "status": "ACTIVE. Scientific C passed exact R17 authenticated settlement and a fresh numerical read at frontier 4 on published main. Native R33 fails on the source-cycle predicate after handoff and progress, with the same pending head and original ledger. The exact started fence is retained. Native numerical execution, cold replay and composed-source consumer verification remain open.",
+        "main_commit": "b82ff4c46bfe41039499c086f2c80a951c908515",
+        "main_tree": "6fb374e131f1b6714de882dbfdd591b8d6ef19bb",
+        "scientific_c_shared_numerical_read": {
+          "source_commit": "b82ff4c46bfe41039499c086f2c80a951c908515",
+          "source_tree": "6fb374e131f1b6714de882dbfdd591b8d6ef19bb",
+          "status": "PASS. Fresh authenticated Runs GET returned HTTP 200 with frontier 4, the exact selected historical terminal and N5 body, and both numerical trajectories. This verifies historical candidate custody. Current image equality remains not_established.",
+          "archived_custody_commit": "cd8bd574e068a660566d568c769a1b4ebfb98780",
+          "outcome": "0.21199999344348908",
+          "effect": "0.0020000000000000018",
+          "new_provider_calls": 0,
+          "new_n5_calls": 0,
+          "preserved_cas_files": 1714,
+          "elapsed_seconds": 136.636,
+          "receipt": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r14-20261119/terminal-custody-r17-cow-r2-20261120/fresh-numeric-shared-api-receipt.json",
+          "receipt_sha256": "875a606a523554e0ff2e1580cc620580d19a987b14d4c993f209e8485a12ed13"
+        },
+        "native_r33": {
+          "source_commit": "b82ff4c46bfe41039499c086f2c80a951c908515",
+          "source_tree": "6fb374e131f1b6714de882dbfdd591b8d6ef19bb",
+          "status": "COMMAND_FAIL after world handoff and batched progress. The stock worker reports acquisition_reentry_source_not_acquisition_terminal, nested under reentry_recovery_required. Failed attempt 3 and selected generation 3 pending head 4 are preserved. One exact reentry.started fence remains. No selected Native checkpoint or result event.",
+          "exit_code": 1,
+          "elapsed_seconds": 8042.775,
+          "peak_sampled_process_tree_rss_bytes": 8420179968,
+          "disk_free_bytes_min_observed": 3423330304,
+          "process_group_quiescence_observed": true,
+          "successful_sql_renewals": 1336,
+          "lease_margin_at_failure_seconds": 56,
+          "original_physical_ledger_revision": 16,
+          "new_physical_reservations": 0,
+          "new_provider_calls": 0,
+          "new_n5_calls": 0,
+          "next_signal": "Determine and exercise the canonical source-cycle admission. Establish stock rights for the recorded fence separately from eligibility of a clean isolated pre-start baseline. New numerical result and cold reader: verification_missing.",
+          "quiescent_receipt": "Primary:policy-engine/_cache/e02/native-r33-integration-W8mAxJ/quiescent-r33-cut.json",
+          "quiescent_receipt_sha256": "91009403fe1d02808276e25fd6b9458f538e28f8a533b692d4d694525ad891f6"
+        },
         "continued_20261120": {
           "scientific_c": {
             "producer_commit": "53079a9cb041c27688ba76cb1fdab163d4a26b26",
@@ -9744,7 +9777,7 @@
           "repair": "Main 0e003218d, independent review and 58 affected checks pass",
           "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. R18 on cc646d605 returns HTTP 409 at decision request and completes with no new job. Its exact selected typed manifest waited 2.048 s at a 1.5 s guard. Main bfefb6188 extends the existing single retry to raw and typed profile reads. Focused checks and the path-aware docs/API gate pass. R19 loses acknowledgement of a completed payload CAS write (1.903 s). It leaves exact CAS links, without durable event or acquisition job. Main 24d5538e4 adds read-only recovery with 73 tests and docs/API gate PASS. R20 records zero CAS wait timeouts, then HTTP 503 at decision-request after its event lands 49 s beyond the Step-Up deadline. No new acquisition job or N5. R21 resolves the Native route in 264.615 s of 265.480 s total, with no observed CAS wait timeout. The exact mutation selects one node/supplier group and replays all competing profiles within it."
         },
-        "next": "Run the exact retained paid Native input through one supervised physical calculation on the integrated source. Require zero provider work and an exact cold numerical replay. Then verify affected consumers on the shared source and prepare the separate G handoff. Preserve the qualified Scientific C R17 and its audit evidence.",
+        "next": "Reproduce and repair Native R33 source-cycle admission. Establish separate custody for the retained marker and qualify an eligible launch on the integrated source. Require one new physical calculation, zero provider calls and exact cold numerical replay. Verify affected consumers and preserve the separate G handoff and qualified Scientific C history.",
         "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",

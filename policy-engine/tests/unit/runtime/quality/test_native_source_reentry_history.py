@@ -338,14 +338,23 @@ def _progress_under_selected_owner(
 def test_native_generic_selection_reuse_requires_the_exact_live_route_and_bridge(
     selected_case: _Case,
     monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
 ) -> None:
-    from polisyos.runtime.quality import native_generic_context
+    import json
+    from concurrent.futures import ThreadPoolExecutor
+
+    from polisyos.core import contracts
+    from polisyos.runtime.quality import acquisition_world_growth, native_generic_context
+    from polisyos.runtime.quality.acquisition_planner import NativeDerivationLeafCostProfileScope
     from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionRouteClosureError,
         AcquisitionRouteLoop,
         VerifiedAcquisitionRouteClosure,
     )
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionWorldGrowthBridge,
+        AcquisitionWorldGrowthConfig,
+        NativeDerivationRouteConfiguration,
         NativeDerivationWorldCheckpoint,
     )
     from polisyos.runtime.quality.cycle_substrate import (
@@ -359,6 +368,7 @@ def test_native_generic_selection_reuse_requires_the_exact_live_route_and_bridge
     from tests.unit.runtime.quality.test_generic_simulation_admission_program_graph import (
         _linkage_problem,
     )
+    from tests.unit.runtime.quality.test_native_paid_input_admission import _selection
 
     case = selected_case
     subject = case.prepared.subject
@@ -366,6 +376,7 @@ def test_native_generic_selection_reuse_requires_the_exact_live_route_and_bridge
     bridge = object.__new__(AcquisitionWorldGrowthBridge)
     bridge.artifact_store = case.cas
     bridge.control_store = case.control
+    bridge.event_log = case.events
     bridge.action_head_sink = SimpleNamespace(
         current_action_outcome=lambda **scope: SimpleNamespace(
             head=case.control.list_acquisition_action_heads(**scope)[-1]
@@ -380,8 +391,31 @@ def test_native_generic_selection_reuse_requires_the_exact_live_route_and_bridge
     )
     owner._native_world_action_owner = bridge._source_control_service
     problem = _linkage_problem()
-    # Substitutes stop at the complete upstream route and World selection
-    # owners. Lease admission and the exact binding between them remain real.
+    port_source = _parent(case.cas, "runtime.quality.n7_configured_candidate_port_source", "port")
+    paid = _selection()
+    cost = paid.owner_declared_profile_ref
+    purchase_pointer = tmp_path / "purchase.attempt.json"
+    purchase_pointer.write_text(
+        json.dumps(
+            {
+                "receipt_ref": str(paid.attempt_ref.artifact_id),
+                "selected_ref": paid.attempt_ref.model_dump(mode="json"),
+            }
+        )
+    )
+    held_purchase = purchase_pointer.with_suffix(".held")
+    configuration = NativeDerivationRouteConfiguration(
+        tenant_id=subject.tenant_id,
+        cell_id=subject.cell_id,
+        run_id=subject.run_id,
+        source_job_id=subject.source_job_id,
+        configured_port_source_ref=port_source,
+        owner_declared_cost_profile_refs=(cost,),
+    )
+    bridge.config = AcquisitionWorldGrowthConfig(native_derivation_routes=(configuration,))
+    bridge._source_control_service._native_derivation_route_configuration = bridge.config
+    # Completed-source and expensive world replay are the test's upstream
+    # boundaries. Route selection, typed CAS lookup and SQL fences are real.
     closure = VerifiedAcquisitionRouteClosure.model_construct(
         tenant_id=subject.tenant_id,
         cell_id=subject.cell_id,
@@ -389,12 +423,18 @@ def test_native_generic_selection_reuse_requires_the_exact_live_route_and_bridge
         source_job_id=subject.source_job_id,
         route_id=subject.route_id,
         source_payload_ref="sha256:" + "a" * 64,
+        native_derivation_leaf_scope=NativeDerivationLeafCostProfileScope.model_construct(
+            configured_port_source_ref=port_source,
+        ),
+        owner_declared_profile_ref=cost,
+        prior_paid_input_admission=paid,
         generation_run=SimpleNamespace(
             run_id=subject.source_run_id, design_problem_ref=subject.stable_design_problem_ref
         ),
         source_cycle=SimpleNamespace(cycle_index=subject.cycle_index - 1),
     )
-    checkpoint = SimpleNamespace(
+    profile_ref = subject.original_profile_ref
+    checkpoint = NativeDerivationWorldCheckpoint(
         tenant_id=subject.tenant_id,
         cell_id=subject.cell_id,
         run_id=subject.run_id,
@@ -402,14 +442,43 @@ def test_native_generic_selection_reuse_requires_the_exact_live_route_and_bridge
         route_id=subject.route_id,
         source_job_id=subject.source_job_id,
         collection_refs=(subject.native_input_collection_ref,),
+        configured_port_source_ref=port_source,
+        registered_profile_refs=(profile_ref,),
+        base_data_snapshot_ref=profile_ref,
+        data_snapshot_ref=profile_ref,
+        resolved_binding_manifest_ref=profile_ref,
+        correspondence_refs=(profile_ref,),
+        input_bindings_ref=profile_ref,
+        world_model_ref=profile_ref,
+        action_phase_ref=str(subject.pending_action_ref.artifact_id),
+        pending_action_phase_ref=subject.pending_action_ref,
+        transaction_time=datetime.now(UTC),
     )
+    payload = checkpoint.model_dump(mode="json")
+    selected_options = artifacts.ArtifactWriteOptions(
+        kind="runtime_quality.acquisition_candidate_world_checkpoint",
+        media_type="application/json",
+        schema=artifacts.SchemaInfo(
+            name="polisyos.runtime.NativeDerivationWorldCheckpoint", version="1.2"
+        ),
+    )
+    checkpoint_ref = case.cas.put_json(payload, selected_options, return_selected_profile=True)
+    alternate_ref = case.cas.put_json(
+        payload,
+        artifacts.ArtifactWriteOptions(kind=checkpoint_ref.kind, media_type="application/json"),
+        return_selected_profile=True,
+    )
+    assert (
+        alternate_ref.artifact_id == checkpoint_ref.artifact_id and alternate_ref != checkpoint_ref
+    )
+    growth = _parent(case.cas, acquisition_world_growth._GROWTH_KIND, "selected growth")
     context = object()
     handoff = GenericCycleNativeWorldContextHandoffV1.model_construct(
         context=context,
         context_job_ref=subject.context_job_ref,
         profile=SimpleNamespace(profile_selection_ref=subject.original_profile_selection_ref),
         profile_ref=subject.original_profile_ref,
-        native_world_checkpoint_ref=subject.native_world_checkpoint_ref,
+        native_world_checkpoint_ref=checkpoint_ref,
         original_generic_input_ref=subject.original_generic_input_ref,
         current_profile_selection_ref=cycle_job_profile_selection_ref(problem),
         source_job_id=subject.source_job_id,
@@ -420,44 +489,122 @@ def test_native_generic_selection_reuse_requires_the_exact_live_route_and_bridge
     )
     selected = SimpleNamespace(
         checkpoint=checkpoint,
-        checkpoint_ref=subject.native_world_checkpoint_ref,
+        checkpoint_ref=checkpoint_ref,
         pending_action_phase_ref=subject.pending_action_ref,
+        pending_action_phase=SimpleNamespace(owner_receipt_refs=(growth,)),
         original_generic_input_ref=subject.original_generic_input_ref,
+        original_generic_input=SimpleNamespace(
+            profile_ref=profile_ref,
+            profile=handoff.profile,
+            job_id=subject.source_job_id,
+            run_id=subject.run_id,
+            tenant_id=subject.tenant_id,
+            cell_id=subject.cell_id,
+        ),
         original_profile=handoff.profile,
-        original_profile_ref=subject.original_profile_ref,
+        original_profile_ref=profile_ref,
+        problem=problem,
     )
-    seen = []
+    calls = []
+    replays = []
+    change_on_resolution = None
+    successor = None
+    quoted_only = closure.model_copy(update={"prior_paid_input_admission": None})
+    quote_reads = 0
+    purchase_reads = []
 
-    def resolve_route(self, *, run_id, route_id, action_job_id):
-        assert (run_id, route_id, action_job_id) == (
+    def route_candidates(
+        self, *, run_id, requested_route_id, action_job_id, before_action_generation
+    ):
+        assert (run_id, requested_route_id, action_job_id, before_action_generation) == (
             subject.run_id,
             subject.route_id,
             subject.action_job_id,
+            None,
         )
-        return closure
+        nonlocal quote_reads, successor
+        calls.append(action_job_id)
+        if change_on_resolution == "expired-quote":
+            quote_reads += 1
+            if quote_reads == 1:
+                return (quoted_only,)
+            raise AcquisitionRouteClosureError("native_leaf_route_not_current")
+        if change_on_resolution == "purchase-proof":
+            purchase_pointer.rename(held_purchase)
+        if change_on_resolution == "configuration":
+            bridge._source_control_service._native_derivation_route_configuration = (
+                AcquisitionWorldGrowthConfig()
+            )
+        elif change_on_resolution == "lease":
+            with sqlite3.connect(case.control._sqlite_path) as connection:
+                connection.execute(
+                    "UPDATE control_jobs SET lease_expires_at = ? WHERE job_id = ?",
+                    ("2000-01-01T00:00:00Z", subject.action_job_id),
+                )
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                successor = executor.submit(
+                    case.control.lease_next_job, worker_id="native-successor"
+                ).result(timeout=3)
+        return (closure,)
 
-    def resolve_selection(self, actual_closure, actual_ref):
-        assert self is bridge
-        seen.append((actual_closure, actual_ref))
+    def replay_paid_upstream(self, actual_closure):
+        # Real selected-pointer reopening at the prior-paid owner seam. The
+        # paid chain itself is qualified by the served acquisition owner tests.
+        assert self is bridge and actual_closure is closure
+        purchase_reads.append(self._attempt_pointer_ref(purchase_pointer, require_selected=True))
+        assert purchase_reads[-1] == paid.attempt_ref
+        return ((paid, object()),)
+
+    def replay_world(store, *, event_log, control_store, checkpoint_ref):
+        assert (store, event_log, control_store, checkpoint_ref) == (
+            case.cas,
+            case.events,
+            case.control,
+            selected.checkpoint_ref,
+        )
+        replays.append(checkpoint_ref)
         return selected
 
     monkeypatch.setattr(native_generic_context, "_current_bridge", lambda actual: bridge)
-    monkeypatch.setattr(NativeDerivationWorldCheckpoint, "model_validate", lambda _wire: checkpoint)
     monkeypatch.setattr(
         VerifiedAcquisitionRouteClosure, "design_problem_basis", property(lambda _: problem)
     )
-    monkeypatch.setattr(AcquisitionRouteLoop, "resolve_current_route", resolve_route)
+    monkeypatch.setattr(
+        AcquisitionRouteLoop, "resolve_native_derivation_leaf_routes", route_candidates
+    )
     monkeypatch.setattr(native_generic_context, "_context", lambda *_: context)
     monkeypatch.setattr(
-        CycleSubstrateContextArtifactOwner,
-        "resolve_for_current_job",
-        lambda *_args, **_kwargs: handoff,
+        CycleSubstrateContextArtifactOwner, "resolve_for_current_job", lambda *_a, **_k: handoff
     )
     monkeypatch.setattr(
-        AcquisitionWorldGrowthBridge, "resolve_native_derived_world_selection", resolve_selection
+        AcquisitionWorldGrowthBridge, "_prior_paid_native_input_admissions", replay_paid_upstream
+    )
+    monkeypatch.setattr(
+        acquisition_world_growth, "replay_native_derived_world_selection", replay_world
+    )
+    monkeypatch.setattr(
+        AcquisitionWorldGrowthBridge,
+        "_native_derivation_pending_phase",
+        lambda *_: (subject.pending_action_ref, selected.pending_action_phase),
+    )
+    monkeypatch.setattr(
+        GenericCycleSimulationAdmissionOwner, "resolve_profile", lambda *_a, **_k: handoff.profile
+    )
+    monkeypatch.setattr(
+        AcquisitionWorldGrowthBridge,
+        "_collect_current_native_derivation_inputs",
+        lambda *_: subject.native_input_collection_ref,
+    )
+    monkeypatch.setattr(
+        AcquisitionWorldGrowthBridge, "_native_derivation_complete_requests", lambda *_: ()
+    )
+    monkeypatch.setattr(
+        contracts,
+        "load_resolved_input_binding_manifest",
+        lambda *_: SimpleNamespace(derivations=()),
     )
 
-    inputs = {"checkpoint_ref": subject.native_world_checkpoint_ref, "problem": problem}
+    inputs = {"checkpoint_ref": checkpoint_ref, "problem": problem}
     with case.fence():
         history.NativeSourceReentryCoordinator(
             bridge=bridge,
@@ -465,7 +612,8 @@ def test_native_generic_selection_reuse_requires_the_exact_live_route_and_bridge
             handoff=handoff,
             collection_ref=subject.native_input_collection_ref,
         )
-        assert seen == [(closure, subject.native_world_checkpoint_ref)]
+        assert calls == [subject.action_job_id]
+        assert replays == [checkpoint_ref]
         with pytest.raises(ValueError, match="generic_native_world_bridge_owner_mismatch"):
             native_generic_context._current_selection(
                 owner,
@@ -473,6 +621,7 @@ def test_native_generic_selection_reuse_requires_the_exact_live_route_and_bridge
                 expected_bridge=object.__new__(AcquisitionWorldGrowthBridge),
                 expected_closure=closure,
             )
+        assert len(calls) == 1
         changed = closure.model_copy(update={"source_payload_ref": "sha256:" + "b" * 64})
         with pytest.raises(ValueError, match="generic_native_world_current_route_changed"):
             native_generic_context._current_selection(
@@ -481,7 +630,77 @@ def test_native_generic_selection_reuse_requires_the_exact_live_route_and_bridge
                 expected_bridge=bridge,
                 expected_closure=changed,
             )
-    assert seen == [(closure, subject.native_world_checkpoint_ref)]
+        assert len(calls) == 2
+        assert replays == [checkpoint_ref]
+        wrong_problem = problem.model_copy(
+            update={"problem_statement": "A different policy problem."}
+        )
+        with pytest.raises(ValueError, match="generic_native_world_current_problem_mismatch"):
+            native_generic_context._current_selection(
+                owner,
+                checkpoint_ref=checkpoint_ref,
+                problem=wrong_problem,
+                expected_closure=closure,
+            )
+        assert len(calls) == 3
+        assert replays == [checkpoint_ref]
+
+        manifest = case.cas._manifest_path_for_ref(
+            checkpoint_ref.artifact_id, checkpoint_ref.manifest_profile_sha256
+        )
+        held = manifest.with_name(manifest.name + ".held")
+        manifest.rename(held)
+        try:
+            assert case.cas.verify(alternate_ref).ok
+            with pytest.raises(FileNotFoundError):
+                native_generic_context._current_selection(owner, **inputs, expected_closure=closure)
+            assert len(calls) == 3
+        finally:
+            held.rename(manifest)
+        assert (
+            native_generic_context._current_selection(owner, **inputs, expected_closure=closure)
+            is selected
+        )
+        assert len(calls) == 4
+        assert replays == [checkpoint_ref, checkpoint_ref]
+
+        change_on_resolution = "configuration"
+        with pytest.raises(
+            ValueError, match=r"^native_derivation_deployment_configuration_changed$"
+        ):
+            native_generic_context._current_selection(owner, **inputs, expected_closure=closure)
+        assert len(calls) == 5
+        assert replays == [checkpoint_ref, checkpoint_ref]
+        bridge._source_control_service._native_derivation_route_configuration = bridge.config
+
+        change_on_resolution = "purchase-proof"
+        try:
+            with pytest.raises(FileNotFoundError) as missing:
+                native_generic_context._current_selection(owner, **inputs, expected_closure=closure)
+            assert missing.value.filename == str(purchase_pointer)
+        finally:
+            held_purchase.rename(purchase_pointer)
+        assert len(calls) == 6
+        assert replays == [checkpoint_ref, checkpoint_ref]
+        assert purchase_reads == [paid.attempt_ref, paid.attempt_ref]
+
+        change_on_resolution = "expired-quote"
+        with pytest.raises(AcquisitionRouteClosureError, match="native_leaf_route_not_current"):
+            native_generic_context._current_selection(owner, **inputs, expected_closure=quoted_only)
+        assert quote_reads == 2
+        assert replays == [checkpoint_ref, checkpoint_ref]
+
+        change_on_resolution = "lease"
+        with pytest.raises(ControlJobLeaseLostError, match="lease is not current"):
+            native_generic_context._current_selection(owner, **inputs, expected_closure=closure)
+        assert len(calls) == 9
+        assert replays == [checkpoint_ref, checkpoint_ref]
+    assert successor is not None
+    assert (successor.job_id, successor.lease_owner, successor.attempt) == (
+        subject.action_job_id,
+        "native-successor",
+        case.attempt + 1,
+    )
 
 
 def test_native_progress_bounds_full_currentness_to_two_cuts(

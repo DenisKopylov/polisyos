@@ -196,46 +196,14 @@ def _current_selection(
     expected_bridge: AcquisitionWorldGrowthBridge | None = None,
     expected_closure: VerifiedAcquisitionRouteClosure | None = None,
 ) -> NativeDerivedWorldSelection:
-    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
-    from polisyos.runtime.quality.acquisition_world_growth import NativeDerivationWorldCheckpoint
-
     bridge = _current_bridge(owner)
     if expected_bridge is not None and bridge is not expected_bridge:
         raise _error("generic_native_world_bridge_owner_mismatch")
-    service = bridge._source_control_service
-    # Untrusted bytes locate the exact requested occurrence only. The current
-    # route and the bridge independently replay every selected fact below.
-    checkpoint = NativeDerivationWorldCheckpoint.model_validate(
-        artifacts.load_core_json_artifact(owner.store, checkpoint_ref)
+    return bridge.resolve_native_derived_world_selection(
+        checkpoint_ref,
+        problem=problem,
+        expected_closure=expected_closure,
     )
-    current = service._control_store.current_execution_job_record()
-    admission = service._control_store.current_execution_job_admission()
-    if (
-        not admission.matches_job_record(current)
-        or current.kind != "acquisition"
-        or current.state != "running"
-        or admission.scope.status != "established"
-        or (current.job_id, current.run_id, admission.scope.tenant_id, admission.scope.cell_id)
-        != (checkpoint.action_job_id, checkpoint.run_id, checkpoint.tenant_id, checkpoint.cell_id)
-    ):
-        raise _error("generic_native_world_current_action_not_admitted")
-    reader = AcquisitionRouteLoop(
-        control_store=service._control_store,
-        artifact_store=owner.store,
-        event_log=service._diagnostic_event_log,
-        core_source_resolver=service.resolve_completed_control_job_core_run_source,
-        tenant_id=checkpoint.tenant_id,
-        cell_id=checkpoint.cell_id,
-        action_outcome_reader=service.acquisition_route_sink,
-    )
-    closure = reader.resolve_current_route(
-        run_id=checkpoint.run_id, route_id=checkpoint.route_id, action_job_id=current.job_id
-    )
-    if expected_closure is not None and closure != expected_closure:
-        raise _error("generic_native_world_current_route_changed")
-    if closure.design_problem_basis.model_dump(mode="python") != problem.model_dump(mode="python"):
-        raise _error("generic_native_world_current_problem_mismatch")
-    return bridge.resolve_native_derived_world_selection(closure, checkpoint_ref)
 
 
 def _context(

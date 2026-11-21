@@ -7917,7 +7917,9 @@ class AcquisitionWorldGrowthBridge:
             or self.control_store.current_native_acquisition_custody_recovery() is not None
         ):
             raise AcquisitionRouteClosureError("native_reentry_budget_action_not_current")
-        current = self._native_derivation_route_reader(closure).resolve_current_route(
+        current = self._native_derivation_route_reader(
+            tenant_id=closure.tenant_id, cell_id=closure.cell_id
+        ).resolve_current_route(
             run_id=closure.run_id, route_id=closure.route_id, action_job_id=job.job_id
         )
         if current != closure:
@@ -8181,7 +8183,7 @@ class AcquisitionWorldGrowthBridge:
         self.native_derivation_reentry_preflight(closure=closure)
 
     def _native_derivation_route_reader(
-        self, closure: VerifiedAcquisitionRouteClosure
+        self, *, tenant_id: str, cell_id: str
     ) -> AcquisitionRouteLoop:
         service = self._source_control_service
         if service is None or self.action_head_sink is None or self.control_store is None:
@@ -8191,8 +8193,8 @@ class AcquisitionWorldGrowthBridge:
             artifact_store=self.artifact_store,
             event_log=self.event_log,
             core_source_resolver=service.resolve_completed_control_job_core_run_source,
-            tenant_id=closure.tenant_id,
-            cell_id=closure.cell_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
             action_outcome_reader=self.action_head_sink,
         )
 
@@ -8213,7 +8215,9 @@ class AcquisitionWorldGrowthBridge:
         if scope is None:
             raise ValueError("native_derivation_leaf_scope_missing")
         self._native_derivation_configuration(closure)
-        reader = self._native_derivation_route_reader(closure)
+        reader = self._native_derivation_route_reader(
+            tenant_id=closure.tenant_id, cell_id=closure.cell_id
+        )
         heads = self.control_store.list_acquisition_action_heads_for_source(
             tenant_id=closure.tenant_id,
             cell_id=closure.cell_id,
@@ -8379,23 +8383,74 @@ class AcquisitionWorldGrowthBridge:
 
     def resolve_native_derived_world_selection(
         self,
-        closure: VerifiedAcquisitionRouteClosure,
         checkpoint_ref: artifacts.ArtifactRef,
+        *,
+        problem: DesignProblem,
+        expected_closure: VerifiedAcquisitionRouteClosure | None = None,
     ) -> NativeDerivedWorldSelection:
         """Reopen the recorded world under this actual current action owner."""
         from polisyos.core.contracts import load_resolved_input_binding_manifest
+        from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextOwnerError
         from polisyos.runtime.quality.generic_simulation_admission import (
             GenericCycleSimulationAdmissionOwner,
         )
 
-        configuration = self._native_derivation_configuration(closure)
         service = self._source_control_service
-        if configuration is None or service is None or self.control_store is None:
+        if service is None or self.control_store is None:
             raise ValueError("native_derived_world_current_owner_missing")
+        # The checkpoint locates the requested occurrence. The current lease
+        # and the stock resolver select its route; caller data only constrains it.
+        checkpoint = NativeDerivationWorldCheckpoint.model_validate(
+            artifacts.load_core_json_artifact(self.artifact_store, checkpoint_ref)
+        )
+        opening_job = self.control_store.current_execution_job_record()
+        opening_admission = self.control_store.current_execution_job_admission()
+        if (
+            not opening_admission.matches_job_record(opening_job)
+            or opening_job.kind != "acquisition"
+            or opening_job.state != "running"
+            or opening_admission.scope.status != "established"
+            or (
+                opening_job.job_id,
+                opening_job.run_id,
+                opening_admission.scope.tenant_id,
+                opening_admission.scope.cell_id,
+            )
+            != (
+                checkpoint.action_job_id,
+                checkpoint.run_id,
+                checkpoint.tenant_id,
+                checkpoint.cell_id,
+            )
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "generic_native_world_current_action_not_admitted"
+            )
+
+        route_reader = self._native_derivation_route_reader(
+            tenant_id=opening_admission.scope.tenant_id,
+            cell_id=opening_admission.scope.cell_id,
+        )
+        closure = route_reader.resolve_current_route(
+            run_id=opening_job.run_id,
+            route_id=checkpoint.route_id,
+            action_job_id=opening_job.job_id,
+        )
+        if expected_closure is not None and closure != expected_closure:
+            raise CycleSubstrateContextOwnerError("generic_native_world_current_route_changed")
+        if closure.design_problem_basis.model_dump(mode="python") != problem.model_dump(
+            mode="python"
+        ):
+            raise CycleSubstrateContextOwnerError("generic_native_world_current_problem_mismatch")
+        configuration = self._native_derivation_configuration(closure)
+        if configuration is None:
+            raise ValueError("native_derived_world_current_owner_missing")
+
         current = self.control_store.current_execution_job_record()
         admission = self.control_store.current_execution_job_admission()
         if (
             not admission.matches_job_record(current)
+            or not admission.same_execution_identity(opening_admission)
             or current.kind != "acquisition"
             or current.state != "running"
             or (admission.scope.tenant_id, admission.scope.cell_id)
@@ -8403,11 +8458,18 @@ class AcquisitionWorldGrowthBridge:
             or admission.scope.status != "established"
         ):
             raise ValueError("native_derived_world_current_job_not_admitted")
-        current_closure = self._native_derivation_route_reader(closure).resolve_current_route(
-            run_id=closure.run_id, route_id=closure.route_id, action_job_id=current.job_id
-        )
-        if current_closure != closure:
-            raise ValueError("native_derived_world_current_route_changed")
+
+        if closure.prior_paid_input_admission is None:
+            # The live quote (or original purchase fallback) may have changed
+            # while the opening route was read. Retain its late canonical check.
+            current_closure = route_reader.resolve_current_route(
+                run_id=closure.run_id, route_id=closure.route_id, action_job_id=current.job_id
+            )
+            if current_closure != closure:
+                raise ValueError("native_derived_world_current_route_changed")
+        else:
+            self.require_prior_paid_native_input_admission(closure)
+
         selected = replay_native_derived_world_selection(
             self.artifact_store,
             event_log=self.event_log,

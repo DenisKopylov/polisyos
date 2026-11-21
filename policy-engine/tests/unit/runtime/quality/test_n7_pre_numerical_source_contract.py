@@ -504,6 +504,185 @@ def test_pre_numerical_cycle_report_uses_only_its_narrow_wire_epoch() -> None:
     )
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("selection", "expected_reason"),
+    [
+        ("exact", "acquisition_reentry_overlay_receipt_invalid"),
+        ("other_profile", "native_derivation_reentry_model_input_source_mismatch"),
+        ("other_port", "native_derivation_reentry_model_input_source_mismatch"),
+        ("absent", "native_derivation_reentry_model_input_source_mismatch"),
+        ("legacy", "acquisition_reentry_source_not_acquisition_terminal"),
+        ("non_native", "acquisition_reentry_source_not_acquisition_terminal"),
+    ],
+)
+async def test_active_native_reentry_requires_exact_pre_numerical_source(
+    tmp_path, monkeypatch, selection: str, expected_reason: str
+) -> None:
+    """Run the stock controller and lease with the surrounding owners isolated."""
+    from contextlib import closing
+    from datetime import UTC, datetime
+    from types import SimpleNamespace
+
+    from polisyos.core import artifacts
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.quality import acquisition_world_growth as world_growth
+    from polisyos.runtime.quality import generation_cycle as generation
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionRouteLoop,
+        VerifiedAcquisitionRouteClosure,
+    )
+    from polisyos.scientist import BudgetState
+    from tests.unit.runtime.http.test_control_plane_store_evaluation_frontier import (
+        _create_action_job,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle_model_input_wire import _routed_payload
+    from tests.unit.runtime.quality.test_native_derivation_leaf_cost_profile import _profile_scope
+
+    cas = artifacts.FileSystemCAS(tmp_path / "cas")
+    scope, _quote = _profile_scope(cas)
+    pre_numerical = selection != "legacy"
+    lineage = owner._N7CandidateReportLineage(
+        schema_version=_V2_LINEAGE if pre_numerical else _V1_LINEAGE,
+        port_source_ref=scope.configured_port_source_ref,
+        bindings=(),
+        **(
+            {
+                "model_input_compilation_ref": _selected_ref(
+                    "data_requirement.model_input_compilation", "2", "b"
+                )
+            }
+            if pre_numerical
+            else {}
+        ),
+    )
+    report = owner.AcquisitionPlannerReport(
+        schema_version=owner._N7_CONFIGURED_REPORT_SCHEMA,
+        run_id="n7-pre-numerical-component",
+        generated_at=datetime.now(UTC),
+        status="pass",
+        candidate_lineage=lineage,
+    )
+    report_refs = tuple(
+        cas.put_json(
+            report.model_dump(mode="json"),
+            artifacts.ArtifactWriteOptions(
+                kind=owner.ACQUISITION_PLANNER_KIND,
+                media_type="application/json",
+                schema=artifacts.SchemaInfo(name="test.selected_planner_report", version=version),
+            ),
+            return_selected_profile=True,
+        )
+        for version in ("1.0", "2.0")
+    )
+    report_ref, other_view = report_refs
+    assert report_ref.artifact_id == other_view.artifact_id
+    assert report_ref.manifest_profile_sha256 != other_view.manifest_profile_sha256
+    assert cas.get_bytes(report_ref) == cas.get_bytes(other_view)
+
+    payload = _routed_payload()
+    cycle_payload = payload["cycles"][0]
+    problem = generation.DesignProblem.model_validate(
+        cycle_payload["revision_request"]["revised_problem"]
+    )
+    basis_ref = generation._problem_ref(problem)
+    payload["design_problem_ref"] = basis_ref
+    payload["cycles"] = [cycle_payload]
+    cycle_payload.update(design_problem_ref=basis_ref, design_problem_basis_ref=basis_ref)
+    summary = generation.CandidateSummary.model_validate(payload["candidate_summaries"][0])
+    payload["candidate_summaries"] = [summary]
+    payload["fronts"] = generation._derive_fronts((summary,))
+    if selection != "absent":
+        payload["schema_version"] = (
+            generation._GENERATION_CYCLE_MODEL_INPUT_ACQUISITION_SCHEMA_VERSION
+        )
+        cycle_payload["model_input_acquisition_report_ref"] = report_ref
+    original = generation.GenerationCycleRun.model_validate(payload)
+    (cycle,) = original.cycles
+    assert cycle.terminal_kind == "search_ceiling_repair_required"
+    assert cycle.acquisition_routing_report is None
+    assert cycle.simulation.status == "simulation_blocked"
+    collection_ref = _selected_ref("runtime_quality.native_derivation_input_collection", "3", "c")
+    context = SimpleNamespace(world_model_record=object())
+    requirement = _pre_numerical_source().source_gap
+    selected_scope = scope.model_copy(
+        update={
+            "planner_report_ref": other_view if selection == "other_profile" else report_ref,
+            "configured_port_source_ref": (
+                _selected_ref("runtime.quality.n7_configured_candidate_port_source", "9", "a")
+                if selection == "other_port"
+                else scope.configured_port_source_ref
+            ),
+        },
+    )
+    route = VerifiedAcquisitionRouteClosure.model_construct(
+        run_id=scope.run_id,
+        route_id="sha256:" + "c" * 64,
+        design_problem_ref=basis_ref,
+        design_problem=problem,
+        generation_run=original,
+        source_cycle=cycle,
+        route_source_cycle_index=cycle.cycle_index,
+        planner_report=report,
+        native_derivation_leaf_scope=selected_scope,
+        cost_basis_record=object(),
+    )
+    checks: list[ArtifactRef] = []
+
+    def verify_collection(store, *, closure, collection_ref, world_model):
+        assert store is cas and closure is route and world_model is context.world_model_record
+        checks.append(collection_ref)
+        return requirement
+
+    monkeypatch.setattr(
+        world_growth, "verify_native_derivation_reentry_collection", verify_collection
+    )
+    with closing(
+        ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    ) as store:
+        action, worker, attempt = _create_action_job(store, job_id="native-reentry")
+        service = object.__new__(ControlPlaneService)
+        service._artifact_store = cas
+        service._control_store = store
+        service._acquisition_route_sink = None
+        service._diagnostic_event_log = None
+        controller = object.__new__(generation.GenerationCycleController)
+        controller._artifact_store = cas
+        controller._cycle_substrate_context = context
+
+        def resolved_route(reader, *, run_id, route_id, action_job_id):
+            assert reader._control_store is store
+            assert (run_id, route_id, action_job_id) == (
+                scope.run_id,
+                route.route_id,
+                action.job_id,
+            )
+            return route
+
+        monkeypatch.setattr(AcquisitionRouteLoop, "resolve_current_route", resolved_route)
+        native = selection != "non_native"
+        with (
+            store.job_execution_fence(job_id=action.job_id, worker_id=worker, attempt=attempt),
+            pytest.raises(generation.GenerationCycleError) as refusal,
+        ):
+            await controller.reenter_after_active_acquisition_overlay(
+                original_run=original,
+                source_cycle=cycle,
+                problem=problem,
+                source_control_service=service if native else None,
+                action_route_id=route.route_id if native else None,
+                native_input_collection_ref=collection_ref if native else None,
+                overlay_receipt=None,
+                observation_projection=None,
+                overlay_path=tmp_path / "no-overlay",
+                baseline_path=tmp_path / "no-baseline",
+                budget_state=BudgetState(),
+            )
+        assert refusal.value.code == expected_reason
+    assert checks == ([collection_ref] if selection == "exact" else [])
+
+
 @pytest.mark.parametrize("supplied", [None, "selected"])
 def test_old_cycle_wire_rejects_even_null_new_acquisition_field(supplied: str | None) -> None:
     from polisyos.runtime.quality import generation_cycle as generation

@@ -12603,6 +12603,7 @@ class GenerationCycleController:
         source_matches = tuple(
             row for row in original_run.cycles if row.cycle_index == source_cycle.cycle_index
         )
+        native_lineage = None
         if source_control_service is not None:
             # The complete runtime source owner chain is fixed here. In
             # particular, callers cannot provide an alternate action-history
@@ -12661,6 +12662,8 @@ class GenerationCycleController:
             # Historical cost/source intent and the current missing-CGF gap are
             # separate. This owner does not declare the current gap satisfied.
             acquisition_source_cycle = owned_route.route_source_cycle
+            if native_derivation:
+                native_lineage = owned_route.planner_report.candidate_lineage
         else:
             if source_cycle.cycle_index == 0:
                 expected_source_basis_ref = original_run.design_problem_ref
@@ -12686,7 +12689,27 @@ class GenerationCycleController:
             or _cycle_basis_ref(source_cycle) != problem_ref
         ):
             raise GenerationCycleError("acquisition_reentry_case_binding_mismatch")
-        if source_cycle.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
+        pre_numerical_native = False
+        if (
+            native_lineage is not None
+            and native_lineage.schema_version == "policyos.runtime.n7_candidate_report_lineage.v2"
+        ):
+            # The route owner replays the blocked Generic N5 and its selected
+            # model-input report. Search terminal disposition is independent.
+            scope = owned_route.native_derivation_leaf_scope
+            report_ref = source_cycle.model_input_acquisition_report_ref
+            if (
+                acquisition_source_cycle != source_cycle
+                or scope is None
+                or report_ref is None
+                or artifact_ref_identity_key(report_ref)
+                != artifact_ref_identity_key(scope.planner_report_ref)
+                or artifact_ref_identity_key(native_lineage.port_source_ref)
+                != artifact_ref_identity_key(scope.configured_port_source_ref)
+            ):
+                raise GenerationCycleError("native_derivation_reentry_model_input_source_mismatch")
+            pre_numerical_native = True
+        elif source_cycle.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
             raise GenerationCycleError("acquisition_reentry_source_not_acquisition_terminal")
         if native_derivation:
             from polisyos.runtime.quality.acquisition_world_growth import (
@@ -12715,7 +12738,9 @@ class GenerationCycleController:
                 acquisition_source_cycle.value_port,
             )
             selected_cost = acquisition_source_cycle.acquisition_cost_basis_record
-        if requirement is None or acquisition_source_cycle.acquisition_routing_report is None:
+        if requirement is None or (
+            not pre_numerical_native and acquisition_source_cycle.acquisition_routing_report is None
+        ):
             raise GenerationCycleError("acquisition_reentry_requirement_missing")
         owner_receipt_type = data_forge_read_api.catalog.OverlayAdmissionReceipt
         if not isinstance(overlay_receipt, owner_receipt_type):

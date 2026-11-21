@@ -9094,7 +9094,12 @@
           "preserved_cas_files": 1714,
           "elapsed_seconds": 136.636,
           "receipt": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r14-20261119/terminal-custody-r17-cow-r2-20261120/fresh-numeric-shared-api-receipt.json",
-          "receipt_sha256": "875a606a523554e0ff2e1580cc620580d19a987b14d4c993f209e8485a12ed13"
+          "receipt_sha256": "875a606a523554e0ff2e1580cc620580d19a987b14d4c993f209e8485a12ed13",
+          "affected_composed_source_commit": "29956e1b1dba95c1fbb7cda184537003be6d817d",
+          "affected_tests_passed": 90,
+          "generated_runtime_api_contract": "PASS. OpenAPI and three client files match tracked bytes.",
+          "affected_consumers_receipt": "Primary:policy-engine/_cache/e02/lane01-c-shared-affected-consumers-20261121/verification.json",
+          "affected_consumers_receipt_sha256": "e9baf4dd5659f010a27d6ebed23445c8802e689d820314082d168fd95e7"
         },
         "native_r33": {
           "source_commit": "b82ff4c46bfe41039499c086f2c80a951c908515",
@@ -9111,9 +9116,19 @@
           "new_physical_reservations": 0,
           "new_provider_calls": 0,
           "new_n5_calls": 0,
-          "next_signal": "Determine and exercise the canonical source-cycle admission. Establish stock rights for the recorded fence separately from eligibility of a clean isolated pre-start baseline. New numerical result and cold reader: verification_missing.",
+          "next_signal": "Qualify the fixed admission on exact inputs. R34 is a separate ordinary expired-lease run from the sealed R30 pre-start cut using the same original paid B and active ledger. Preserve R33. New numerical result and cold reader: verification_missing.",
           "quiescent_receipt": "Primary:policy-engine/_cache/e02/native-r33-integration-W8mAxJ/quiescent-r33-cut.json",
-          "quiescent_receipt_sha256": "91009403fe1d02808276e25fd6b9458f538e28f8a533b692d4d694525ad891f6"
+          "quiescent_receipt_sha256": "91009403fe1d02808276e25fd6b9458f538e28f8a533b692d4d694525ad891f6",
+          "short_stock_red": "The actual completed source, v2 report and B route reopen on the original CAS. An ordinary lease on the isolated SQLite backup exposes search_ceiling_repair_required at cycle 0; the controller refuses before entry because it expects an acquisition terminal. Both prior B quarantines preserved this selected source.",
+          "short_stock_red_receipt": "Native transition checkout:policy-engine/_cache/e02/native-r33-source-cycle/stock-red.h1uvqj/budget/command.log",
+          "source_repair": "Current Native v2 route accepts only the same selected source cycle, selected model-input report profile and configured port source; unchanged ordinary terminal predicate and later live owner checks.",
+          "short_stock_postimage_receipt": "Native transition checkout:policy-engine/_cache/e02/native-r33-source-cycle/stock-postimage.a1b70k/budget/command.log",
+          "affected_tests_passed": 38,
+          "affected_source_test_receipt": "Native transition checkout:policy-engine/_cache/e02/native-r33-source-cycle/focused.BxbFxz/budget/command.log",
+          "legacy_negative_base_receipt": "Primary:policy-engine/_cache/e02/lane01-r33-legacy-negative-baseline-cGCW9e/budget/command.log",
+          "legacy_positive_base_receipt": "Primary:policy-engine/_cache/e02/lane01-r33-legacy-positive-baseline-qbTX3D/budget/command.log",
+          "legacy_fixture_proof_receipt": "Native transition checkout:policy-engine/_cache/e02/native-r33-source-cycle/legacy-fixtures.6vNK2w/budget/command.log",
+          "exact_r33_restart": "Stock failed-attempt custody is terminal-only. The retained marker has no selected terminal. Whole-ledger opening-revision equality covers metered producer begins and physical reservations but cannot establish absence of unmetered preflight."
         },
         "continued_20261120": {
           "scientific_c": {

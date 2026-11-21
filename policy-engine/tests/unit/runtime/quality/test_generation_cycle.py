@@ -12369,11 +12369,13 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
         stable_design_problem_ref: str,
         candidate_scenario_origin_source_ref: object | None,
         candidate_scenario_proposal_reissue: object | None,
+        native_reentry_coordinator: object | None,
     ) -> tuple[object, tuple[CandidateSummary, ...]]:
         assert received_problem is problem
         assert stable_design_problem_ref == source_run.design_problem_ref
         assert candidate_scenario_origin_source_ref is None
         assert candidate_scenario_proposal_reissue is None
+        assert native_reentry_coordinator is None
         assert cycle_index == source_cycle.cycle_index + 1
         assert previous_cycle is source_cycle
         assert isinstance(
@@ -12402,6 +12404,10 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
     monkeypatch.setattr(controller, "_reenter_cycle_after_n7_acquisition", forbidden)
     monkeypatch.setattr(controller, "_run_n7_acquisition_if_requested", forbidden)
     monkeypatch.setattr(generation_cycle_module, "run_acquisition_closed_loop", forbidden)
+    selected_catalog_files = (scenario.authority.baseline_path, scenario.overlay.overlay_path)
+    catalog_before = tuple(
+        hashlib.sha256(path.read_bytes()).digest() for path in selected_catalog_files
+    )
 
     receipt = await controller.reenter_after_active_acquisition_overlay(
         original_run=source_run,
@@ -12425,6 +12431,9 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
     assert receipt.overlay_path == scenario.overlay.overlay_path.as_posix()
     assert receipt.new_cycle.cycle_index == source_cycle.cycle_index + 1
     assert source_run.cycles == (source_cycle,)
+    assert tuple(hashlib.sha256(path.read_bytes()).digest() for path in selected_catalog_files) == (
+        catalog_before
+    )
 
     from tests.unit.runtime.quality.test_value_gate import (
         _candidate as _value_gate_candidate,
@@ -12478,6 +12487,7 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
 async def test_active_overlay_reentry_rejects_binding_and_trace_mutations(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    n7_complete_catalog_source: tuple[Path, Any],
 ) -> None:
     import duckdb
 
@@ -12487,12 +12497,19 @@ async def test_active_overlay_reentry_rejects_binding_and_trace_mutations(
     )
 
     problem = _problem("ds15_overlay_reentry_mutations")
+    source_root, catalog_source = n7_complete_catalog_source
+    source_store = FileSystemCAS(tmp_path / ".tmp/active-overlay-n7-cas")
     controller = GenerationCycleController(
         generation_port=_CgfGenerationPort(target_world_slots=("cells.distress_score",)),
         value_port=_OverlayDataGapValuePort(),
+        authority_scope="contract_testing",
+        repo_root=source_root,
+        catalog_serving_source=catalog_source,
+        artifact_store=source_store,
     )
     source_run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
     source_cycle = source_run.cycles[0]
+    assert source_cycle.acquisition_routing_report_ref is not None
     scenario = _real_epoch_scenario(tmp_path / "epoch-a")
     _production, activated = _activate_real_epoch_scenario(scenario)
     observation_projection = scenario.overlay.read_activated_semantic_epoch_observations(
@@ -12529,7 +12546,13 @@ async def test_active_overlay_reentry_rejects_binding_and_trace_mutations(
     mismatched_run = await GenerationCycleController(
         generation_port=_CgfGenerationPort(target_world_slots=("administrative_tax_receipts",)),
         value_port=_CostedDataGapValuePort(),
+        authority_scope="contract_testing",
+        repo_root=source_root,
+        catalog_serving_source=catalog_source,
+        artifact_store=source_store,
     ).run(problem, budget_state=_budget(), max_cycles=1)
+    (mismatched_cycle,) = mismatched_run.cycles
+    assert mismatched_cycle.acquisition_routing_report_ref is not None
     with pytest.raises(
         GenerationCycleError,
         match="acquisition_reentry_requirement_overlay_mismatch",
@@ -12538,7 +12561,7 @@ async def test_active_overlay_reentry_rejects_binding_and_trace_mutations(
             **{
                 **arguments,
                 "original_run": mismatched_run,
-                "source_cycle": mismatched_run.cycles[0],
+                "source_cycle": mismatched_cycle,
             }
         )
 

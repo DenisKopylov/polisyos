@@ -1337,20 +1337,23 @@ def _read_native_admission_owner(
     return value
 
 
-def resolve_native_admission_deferral_outcome(
+@dataclass(frozen=True, slots=True)
+class _VerifiedNativeAdmissionDeferral:
+    deferral_ref: artifacts.ArtifactRef
+    deferral: AcquisitionWorldGrowthDeferral
+    attempt_ref: artifacts.ArtifactRef
+    attempt: AcquisitionWorldGrowthAttempt
+
+
+def _resolve_native_admission_deferral(
     artifact_store: artifacts.ArtifactStore,
     event_log: RuntimeDiagnosticEventLog,
     *,
     owner_receipt_refs: tuple[str, ...],
     executing: AcquisitionRoutePhaseReceipt,
     executing_ref: str,
-) -> artifacts.ArtifactRef | None:
-    """Replay one genuine epoch-negative outcome without a membership claim.
-
-    Historical selection reopens the actual producer's deferral, paid attempt,
-    prepared epoch, boundary and passport. It does not repeat transport or
-    establish current action permission.
-    """
+) -> _VerifiedNativeAdmissionDeferral | None:
+    """Replay every candidate and keep the exact proof for the unique outcome."""
     if type(executing) is not AcquisitionRoutePhaseReceipt or (
         executing.receipt_phase != "executing"
         or executing.owner_declared_profile_ref is None
@@ -1358,7 +1361,8 @@ def resolve_native_admission_deferral_outcome(
         or re.fullmatch(_SHA, executing_ref) is None
     ):
         raise ValueError("acquisition_negative_executing_scope_invalid")
-    outcomes: dict[tuple[str, str, str, str | None], artifacts.ArtifactRef] = {}
+    outcome: _VerifiedNativeAdmissionDeferral | None = None
+    ambiguous = False
     for receipt_id in dict.fromkeys(owner_receipt_refs):
         for ref in _native_admission_owner_profiles(artifact_store, receipt_id, _DEFERRAL_KIND):
             deferral = AcquisitionWorldGrowthDeferral.model_validate(
@@ -1401,10 +1405,41 @@ def resolve_native_admission_deferral_outcome(
                 deferral.negative_receipt,
                 expected_provider=executing.native_leaf_provider_selection,
             )
-            outcomes[artifacts.artifact_ref_identity_key(ref)] = ref
-    if len(outcomes) > 1:
+            if outcome is None or artifacts.artifact_ref_identity_key(
+                outcome.deferral_ref
+            ) == artifacts.artifact_ref_identity_key(ref):
+                outcome = _VerifiedNativeAdmissionDeferral(
+                    deferral_ref=ref, deferral=deferral, attempt_ref=attempts[0], attempt=attempt
+                )
+            else:
+                ambiguous = True
+    if ambiguous:
         raise ValueError("acquisition_negative_owner_outcome_ambiguous")
-    return next(iter(outcomes.values()), None)
+    return outcome
+
+
+def resolve_native_admission_deferral_outcome(
+    artifact_store: artifacts.ArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    *,
+    owner_receipt_refs: tuple[str, ...],
+    executing: AcquisitionRoutePhaseReceipt,
+    executing_ref: str,
+) -> artifacts.ArtifactRef | None:
+    """Replay one genuine epoch-negative outcome without a membership claim.
+
+    Historical selection reopens the actual producer's deferral, paid attempt,
+    prepared epoch, boundary and passport. It does not repeat transport or
+    establish current action permission.
+    """
+    proof = _resolve_native_admission_deferral(
+        artifact_store,
+        event_log,
+        owner_receipt_refs=owner_receipt_refs,
+        executing=executing,
+        executing_ref=executing_ref,
+    )
+    return None if proof is None else proof.deferral_ref
 
 
 def verify_native_paid_input_admission_selection(
@@ -1516,46 +1551,26 @@ def verify_native_paid_input_admission_selection(
     )
     if selected_phase.receipt != phase:
         raise ValueError("native_paid_input_admission_executing_profile_mismatch")
-    selected_deferral = resolve_native_admission_deferral_outcome(
+    proof = _resolve_native_admission_deferral(
         artifact_store,
         event_log,
         owner_receipt_refs=terminal.owner_receipt_refs,
         executing=phase,
         executing_ref=original.executing_phase_ref,
     )
-    if selected_deferral != selection.deferral_ref:
+    if proof is None or proof.deferral_ref != selection.deferral_ref:
         raise ValueError("native_paid_input_admission_deferral_mismatch")
-    deferral = AcquisitionWorldGrowthDeferral.model_validate(
-        _read_native_admission_owner(
-            artifact_store,
-            event_log,
-            selection.deferral_ref,
-            _DEFERRAL_KIND,
-            executing=phase,
-            phase="admission_deferred",
-        )
-    )
-    attempt = AcquisitionWorldGrowthAttempt.model_validate(
-        _read_native_admission_owner(
-            artifact_store,
-            event_log,
-            selection.attempt_ref,
-            _ATTEMPT_KIND,
-            executing=phase,
-            phase="admission_pending",
-        )
-    )
+    deferral, attempt = proof.deferral, proof.attempt
     if (
-        deferral.attempt_ref != str(selection.attempt_ref.artifact_id)
+        artifacts.artifact_ref_identity_key(proof.attempt_ref)
+        != artifacts.artifact_ref_identity_key(selection.attempt_ref)
+        or deferral.attempt_ref != str(selection.attempt_ref.artifact_id)
         or attempt.action_phase_ref != str(selection.executing_phase_ref.artifact_id)
         or deferral.negative_receipt.receipt_ref != selection.negative_receipt_ref
         or deferral.negative_receipt.prepared_epoch_ref != selection.prepared_epoch_ref
         or attempt.selection.key != (scope.tenant_id, scope.cell_id, scope.run_id, route_id)
     ):
         raise ValueError("native_paid_input_admission_paid_evidence_mismatch")
-    verify_acquisition_admission_negative(
-        artifact_store, attempt, deferral.negative_receipt, expected_provider=provider
-    )
     if (
         control_store.list_acquisition_action_heads_for_source(
             tenant_id=scope.tenant_id,
@@ -5695,27 +5710,16 @@ class AcquisitionWorldGrowthBridge:
                 continue
             if outcome.executing_phase_ref is None:
                 raise ValueError("native_paid_input_admission_executing_phase_missing")
-            deferral_ref = resolve_native_admission_deferral_outcome(
+            proof = _resolve_native_admission_deferral(
                 self.artifact_store,
                 self.event_log,
                 owner_receipt_refs=terminal.owner_receipt_refs,
                 executing=phase,
                 executing_ref=outcome.executing_phase_ref,
             )
-            if deferral_ref is None:
+            if proof is None:
                 raise ValueError("native_paid_input_admission_negative_owner_missing")
-            deferral = AcquisitionWorldGrowthDeferral.model_validate(
-                self._read(deferral_ref, _DEFERRAL_KIND)
-            )
-            attempts = _native_admission_owner_profiles(
-                self.artifact_store, deferral.attempt_ref, _ATTEMPT_KIND
-            )
-            if len(attempts) != 1:
-                raise ValueError("native_paid_input_admission_attempt_not_unique")
-            attempt = AcquisitionWorldGrowthAttempt.model_validate(
-                self._read(attempts[0], _ATTEMPT_KIND)
-            )
-            if attempt.action_phase_ref != outcome.executing_phase_ref:
+            if proof.attempt.action_phase_ref != outcome.executing_phase_ref:
                 # Deferral@1.1 may bind a later admission's phase while keeping
                 # the original purchase. That later phase is not a new debit.
                 continue
@@ -5734,12 +5738,12 @@ class AcquisitionWorldGrowthBridge:
             )
             selected = NativePaidInputAdmissionSelection(
                 original_action_job_id=phase.job_id,
-                attempt_ref=attempts[0],
+                attempt_ref=proof.attempt_ref,
                 executing_phase_ref=phases[0],
                 terminal_ref=terminal_ref,
-                deferral_ref=deferral_ref,
-                negative_receipt_ref=deferral.negative_receipt.receipt_ref,
-                prepared_epoch_ref=deferral.negative_receipt.prepared_epoch_ref,
+                deferral_ref=proof.deferral_ref,
+                negative_receipt_ref=proof.deferral.negative_receipt.receipt_ref,
+                prepared_epoch_ref=proof.deferral.negative_receipt.prepared_epoch_ref,
                 owner_declared_profile_ref=phase.owner_declared_profile_ref,
             )
             verified_attempt = self._verify_prior_paid_native_input_admission(

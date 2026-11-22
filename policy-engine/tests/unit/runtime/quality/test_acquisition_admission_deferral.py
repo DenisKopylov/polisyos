@@ -7,7 +7,7 @@ current grant admission remain the served owner's separate responsibility.
 from __future__ import annotations
 
 import hashlib
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
@@ -15,20 +15,31 @@ from types import SimpleNamespace
 import pytest
 
 from polisyos.core import artifacts, canon
+from polisyos.core.contracts import SelectedArtifactRef
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.data_forge.read_api import catalog
 from polisyos.runtime.http.services.control.run_lifecycle import AcquisitionRouteLoopAuthoritySink
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.quality import acquisition_executor
 from polisyos.runtime.quality import acquisition_world_growth as growth
+from polisyos.runtime.quality.acquisition_planner import (
+    persist_native_derivation_leaf_cost_profile,
+    produce_acquisition_cost_basis_record,
+)
 from polisyos.runtime.quality.acquisition_route_loop import (
+    AcquisitionRouteLoopReceipt,
     AcquisitionRoutePhaseReceipt,
     NativeDerivationLeafProviderSelection,
+    NativePaidInputAdmissionSelection,
 )
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 from polisyos.runtime.quality.semantic_epoch import PersistedSemanticEpochProductionReceipt
 from tests._helpers.acquisition_epoch_production import production_admission_inputs
 from tests._helpers.acquisition_production import _entry, _run
+from tests.unit.runtime.quality.test_native_derivation_leaf_cost_profile import (
+    _profile,
+    _profile_scope,
+)
 
 _TENANT = "00000000-0000-0000-0000-00000000000a"
 _CELL = "018f47a0-0000-7000-8000-000000000001"
@@ -43,7 +54,9 @@ def _component_scope_ref(store, *, kind: str, label: str):
     )
 
 
-def _negative_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+def _negative_case(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *, with_action_history: bool = False
+):
     # This existing fixture uses the actual acquisition executor and persisted
     # Fabric observer/sink evidence. Direct connector fetch is forbidden.
     authority, evidence, transport, _journal = _run(tmp_path / "live", monkeypatch)
@@ -73,11 +86,42 @@ def _negative_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     supplier = catalog.persist_acquisition_supplier_declaration(
         store, authority, entry_id=_entry().entry_id
     )
-    configured_cost = _component_scope_ref(
-        store,
-        kind="runtime.quality.native_derivation_leaf_cost_profile",
-        label="not_a_price_or_grant_assertion",
-    )
+    supplier = artifacts.ArtifactRef.model_validate(supplier.model_dump(mode="python"))
+    now = datetime.now(UTC)
+    cost_scope = None
+    cost_hash = "sha256:" + "3" * 64
+    if with_action_history:
+        scope, quote = _profile_scope(store)
+        cost_scope = scope.model_copy(
+            update={
+                "tenant_id": _TENANT,
+                "cell_id": _CELL,
+                "run_id": "run-negative-component",
+                "source_job_id": "source-negative-component",
+                "source_node_id": "component-source",
+                "selected_supplier_ref": supplier,
+                "missing_distribution": "government.balance",
+            }
+        )
+        configured_cost = persist_native_derivation_leaf_cost_profile(
+            store, _profile(cost_scope, quote, now=now)
+        )
+        cost = produce_acquisition_cost_basis_record(
+            missing_distribution=cost_scope.missing_distribution,
+            strategy=cost_scope.strategy,
+            owner_declared_profile_ref=configured_cost,
+            store=store,
+            expected_scope=cost_scope,
+            now=now,
+        )
+        assert cost is not None
+        cost_hash = cost.record_content_hash
+    else:
+        configured_cost = _component_scope_ref(
+            store,
+            kind="runtime.quality.native_derivation_leaf_cost_profile",
+            label="not_a_price_or_grant_assertion",
+        )
     compiled = _component_scope_ref(store, kind="tests.acquisition.scope", label="source")
     phase = AcquisitionRoutePhaseReceipt(
         schema_version="AcquisitionRoutePhaseReceipt@1.3",
@@ -91,7 +135,7 @@ def _negative_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
         job_id="action-negative-component",
         compiled_ref=str(compiled.artifact_id),
         planner_report_hash="sha256:" + "2" * 64,
-        cost_basis_hash="sha256:" + "3" * 64,
+        cost_basis_hash=cost_hash,
         decision_ref="sha256:" + "4" * 64,
         coarse_phase="executing",
         receipt_phase="executing",
@@ -104,14 +148,39 @@ def _negative_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
             authority_entry_id=_entry().entry_id,
             connector_id=evidence.authorization.connector_id,
         ),
-        generated_at=datetime.now(UTC),
+        generated_at=now,
     )
-    phase_ref = (
-        "sha256:"
-        + hashlib.sha256(
-            canon.to_canonical_bytes(phase.model_dump(mode="json"), _CANON)
-        ).hexdigest()
-    )
+    control = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "history.sqlite3")
+    events = RuntimeDiagnosticEventLog(store=control, artifact_store=store)
+    if with_action_history:
+        sink = AcquisitionRouteLoopAuthoritySink(
+            artifact_store=store, event_log=events, control_store=control
+        )
+        requested = sink.persist_phase(
+            phase.model_copy(
+                update={
+                    "receipt_id": "component.requested",
+                    "coarse_phase": "requested",
+                    "receipt_phase": "requested",
+                    "predecessor_receipt_ref": None,
+                }
+            )
+        )
+        phase = phase.model_copy(
+            update={
+                "predecessor_receipt_ref": requested.receipt_ref,
+                "generated_at": now + timedelta(microseconds=1),
+            }
+        )
+        executing_head = sink.persist_phase(phase)
+        phase_ref = executing_head.receipt_ref
+    else:
+        phase_ref = (
+            "sha256:"
+            + hashlib.sha256(
+                canon.to_canonical_bytes(phase.model_dump(mode="json"), _CANON)
+            ).hexdigest()
+        )
     route = growth.AcquisitionWorldGrowthRoute(
         tenant_id=_TENANT,
         cell_id=_CELL,
@@ -132,8 +201,6 @@ def _negative_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
             )
         },
     )
-    control = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "history.sqlite3")
-    events = RuntimeDiagnosticEventLog(store=control, artifact_store=store)
     bridge = growth.AcquisitionWorldGrowthBridge(
         config=growth.AcquisitionWorldGrowthConfig(routes=(route,)),
         repo_root=authority.repo_root,
@@ -202,6 +269,55 @@ def _negative_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     bridge._write_pointer(
         pointer.with_suffix(".deferred.json"), str(ref.artifact_id), selected_ref=ref
     )
+    paid_selection = None
+    if with_action_history:
+        terminal = sink.persist_terminal(
+            AcquisitionRouteLoopReceipt.model_validate(
+                {
+                    **phase.model_dump(
+                        include={
+                            "tenant_id",
+                            "cell_id",
+                            "run_id",
+                            "source_job_id",
+                            "route_id",
+                            "action_generation",
+                            "job_id",
+                            "compiled_ref",
+                            "planner_report_hash",
+                            "cost_basis_hash",
+                            "decision_ref",
+                            "owner_declared_profile_ref",
+                            "native_leaf_provider_selection",
+                        }
+                    ),
+                    "schema_version": "AcquisitionRouteLoopReceipt@1.2",
+                    "receipt_id": "component.quarantined",
+                    "terminal_outcome": "quarantined_no_growth",
+                    "predecessor_receipt_ref": executing_head.receipt_ref,
+                    "owner_receipt_refs": (str(ref.artifact_id),),
+                    "generated_at": now + timedelta(microseconds=2),
+                }
+            )
+        )
+        paid_selection = NativePaidInputAdmissionSelection(
+            original_action_job_id=phase.job_id,
+            executing_phase_ref=artifacts.artifact_ref_for_manifest(
+                store.get_manifest_by_profile(
+                    executing_head.receipt_ref, executing_head.receipt_manifest_profile_sha256
+                )
+            ),
+            terminal_ref=artifacts.artifact_ref_for_manifest(
+                store.get_manifest_by_profile(
+                    terminal.receipt_ref, terminal.receipt_manifest_profile_sha256
+                )
+            ),
+            attempt_ref=attempt_ref,
+            deferral_ref=ref,
+            negative_receipt_ref=negative.receipt_ref,
+            prepared_epoch_ref=negative.prepared_epoch_ref,
+            owner_declared_profile_ref=configured_cost,
+        )
     return SimpleNamespace(
         store=store,
         control=control,
@@ -217,7 +333,85 @@ def _negative_case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
         negative=negative,
         transport=transport,
         call_count=call_count,
+        cost_scope=cost_scope,
+        paid_selection=paid_selection,
     )
+
+
+def test_paid_history_uses_one_exact_deferral_replay_and_reopens_each_call(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The stock paid verifier consumes the verified bodies and exact selected refs."""
+    with tenant_scope(None, tenant_id=_TENANT, cell_id=_CELL):
+        case = _negative_case(tmp_path, monkeypatch, with_action_history=True)
+        reads = []
+        verify_negative = growth.verify_acquisition_admission_negative
+
+        def observe_negative(store, attempt, negative, *, expected_provider=None):
+            verified = verify_negative(
+                store, attempt, negative, expected_provider=expected_provider
+            )
+            reads.append((attempt, verified))
+            return verified
+
+        monkeypatch.setattr(growth, "verify_acquisition_admission_negative", observe_negative)
+
+        def verify(selection):
+            return growth.verify_native_paid_input_admission_selection(
+                case.store,
+                case.events,
+                control_store=case.control,
+                selection=selection,
+                scope=case.cost_scope,
+                provider=case.phase.native_leaf_provider_selection,
+                route_id=case.phase.route_id,
+                compiled_ref=case.phase.compiled_ref,
+                planner_report_hash=case.phase.planner_report_hash,
+                cost_basis_hash=case.phase.cost_basis_hash,
+            )
+
+        assert verify(case.paid_selection) == case.attempt
+        assert reads == [(case.attempt, case.negative)]
+        exact_view = SelectedArtifactRef.model_validate(case.attempt_ref.model_dump(mode="python"))
+        selection_with_exact_view = NativePaidInputAdmissionSelection.model_validate(
+            {**case.paid_selection.model_dump(mode="python"), "attempt_ref": exact_view}
+        )
+        assert selection_with_exact_view.attempt_ref is exact_view
+        assert verify(selection_with_exact_view) == case.attempt
+        foreign_view = case.attempt_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "f" * 64}
+        )
+        with pytest.raises(ValueError, match="native_paid_input_admission_paid_evidence_mismatch"):
+            verify(case.paid_selection.model_copy(update={"attempt_ref": foreign_view}))
+
+        prepared = case.negative.prepared_epoch_ref
+        assert prepared is not None
+        blob, _ = case.store._paths(prepared.artifact_id)
+        held = blob.with_suffix(".held")
+        blob.rename(held)
+        try:
+            with pytest.raises(
+                FileNotFoundError, match=rf"^Artifact not found: {prepared.artifact_id.hex}$"
+            ):
+                verify(case.paid_selection)
+        finally:
+            held.rename(blob)
+        assert verify(case.paid_selection) == case.attempt
+
+        competitor = case.store.put_bytes(
+            case.store.get_bytes(case.attempt_ref),
+            artifacts.ArtifactWriteOptions(
+                kind=case.attempt_ref.kind,
+                media_type=case.attempt_ref.media_type,
+                canon=artifacts.CanonInfo.from_spec(_CANON),
+            ),
+            return_selected_profile=True,
+        )
+        assert competitor.artifact_id == case.attempt_ref.artifact_id
+        assert competitor.manifest_profile_sha256 != case.attempt_ref.manifest_profile_sha256
+        with pytest.raises(ValueError, match="acquisition_negative_paid_attempt_not_unique"):
+            verify(case.paid_selection)
+        assert len(case.transport.calls) == case.call_count
 
 
 def test_real_epoch_negative_replays_selected_owner_and_refuses_scope_grafts(

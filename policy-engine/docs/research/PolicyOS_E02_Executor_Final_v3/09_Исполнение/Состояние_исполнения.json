@@ -9079,7 +9079,7 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE. Scientific C revision 4 exact historical numerical result is verified in a fresh API on published runtime. Native R39 stopped on disk before N5 and its expired marked cut has no prepared result. R40–R43 qualify the retained route and reproduce retained charged memory over two no-effect currentness rounds. Native calculation and cold read remain verification_missing. Gate B remains open.",
+        "status": "ACTIVE. Scientific C revision 4 exact historical numerical result is verified in a fresh API on published runtime. Native R39 stopped on disk before N5. R40–R43 qualify the retained route and reproduce increasing charged memory across one coordinator's two reads. R44 proves the measured post-dispatch full collection leaves the charged footprint unchanged and records repeated ownership snapshot loads. Native calculation and cold read remain verification_missing. Gate B remains open.",
         "main_commit": "87b3154db6f7f421eea7bb9c1e17bf91e61e6434",
         "main_tree": "c328831d3f355218afec94ef96819322e38b4bfa",
         "native_r39": {
@@ -9150,6 +9150,39 @@
           "supervisor_receipt_sha256": "8ac8a7a05347622f032bc180931f51d8a3ee5975991fccc18392a4046b892061"
         },
         "native_route_resource_checks": {
+          "R44": {
+            "status": "PASS. One no-effect currentness round and one post-dispatch full collection.",
+            "reason": null,
+            "elapsed_seconds": 1198.477,
+            "current_seconds": 648.148260166,
+            "peak_sampled_rss_bytes": 5522407424,
+            "stock_and_observer_quiescent": true,
+            "readout": "Primary:policy-engine/_cache/e02/native-r44-json-ack-retry-PeSuRVvA/",
+            "supervisor_sha256": "4e74a462961ff14e4f8af61d701fc3d71cbda51eed3224bddff545acb1e219dd",
+            "observer_sha256": "e859498de3cd7acc9fb54a9c25b55404de1c1b7297239a063aac230b4fbeff16",
+            "effect_reconciliation_sha256": "ce67cdae72fd9fd225f9635a8ea58dfdbe397bbd982bce5066536c870e56d5fe",
+            "runtime_commit": "39446851052dc190ec0820a34d589f10c0ff1c55",
+            "runtime_tree": "3c1a9450b81f768514c8fed1325e6fe0cb4cb984",
+            "gc_after_dispatch_and_heartbeat": true,
+            "gc_elapsed_seconds": 4.485645542,
+            "gc_objects_collected": 442202,
+            "python_allocated_blocks_before_and_after": [
+              41499489,
+              40818859
+            ],
+            "charged_before_and_after_bytes": [
+              4838904776,
+              4838904776
+            ],
+            "owner_snapshot_loads_inside_b_and_a_route": [
+              53902,
+              67261
+            ],
+            "interpretation": "The measured post-dispatch full collection does not lower charged footprint on this boundary. The route counts establish call churn. Attribution to specific surviving objects or allocator behavior remains not_established.",
+            "first_harness_stopped": "A live Python GC tuple compared unequal to the identical JSON array in the strict measurement acknowledgment before _current. The byte-exact published runtime is unchanged. Retry normalizes only the diagnostic list.",
+            "first_harness_receipt": "Primary:policy-engine/_cache/e02/native-r44-post-lease-gc-c3qeGfW4/failed-ack-effect-reconciliation.json",
+            "first_harness_receipt_sha256": "22e37b260c12d5613c05696492ec5e9da4d6074bd821ce04304e28aa9b7e7ece"
+          },
           "R40": {
             "status": "PASS",
             "reason": null,
@@ -10170,7 +10203,7 @@
           "repair": "Main 0e003218d, independent review and 58 affected checks pass",
           "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. R18 on cc646d605 returns HTTP 409 at decision request and completes with no new job. Its exact selected typed manifest waited 2.048 s at a 1.5 s guard. Main bfefb6188 extends the existing single retry to raw and typed profile reads. Focused checks and the path-aware docs/API gate pass. R19 loses acknowledgement of a completed payload CAS write (1.903 s). It leaves exact CAS links, without durable event or acquisition job. Main 24d5538e4 adds read-only recovery with 73 tests and docs/API gate PASS. R20 records zero CAS wait timeouts, then HTTP 503 at decision-request after its event lands 49 s beyond the Step-Up deadline. No new acquisition job or N5. R21 resolves the Native route in 264.615 s of 265.480 s total, with no observed CAS wait timeout. The exact mutation selects one node/supplier group and replays all competing profiles within it."
         },
-        "next": "Localize the charged-memory retention in the actual no-effect Native currentness seam before a new expensive numerical qualification. Preserve the exact original paid B, unmarked R35 admission and marked R39 cut. Qualify remaining Gate B discriminators and a ≥300k operational workload under an admitted envelope and preregistered budgets. DA-06, DA-07, DA-08, comparative X03 and G keep their existing gates.",
+        "next": "Identify and reduce retained allocations at the stock route/ownership-read boundary while preserving exact content verification. Requalify the measured memory envelope before a new paid-B numerical execution from the exact unmarked R35. Preserve the marked R39 cut, original purchase and journals. Qualify remaining Gate B discriminators and ≥300k operation under an adequate local profile with preregistered budgets. DA-06, DA-07, DA-08, comparative X03 and G keep their existing gates.",
         "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",

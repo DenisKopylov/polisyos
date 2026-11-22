@@ -25,7 +25,9 @@ from polisyos.core.artifacts import (
 from polisyos.core.contracts import epoch
 from polisyos.runtime.quality.acquisition_evaluation import (
     AcquisitionEvaluationBasis,
+    AcquisitionEvaluationBasisV2,
     AcquisitionEvaluationDecision,
+    AcquisitionEvaluationDecisionV2,
     ResolvedAcquisitionEvaluation,
     basis_exact_values_equal,
     read_acquisition_basis_or_decision_artifact,
@@ -45,6 +47,7 @@ from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
 if TYPE_CHECKING:
     from polisyos.core.artifacts import CoreJSONArtifactStore
     from polisyos.core.contracts import RunCandidateSimulationCheapConsequences
+    from polisyos.core.contracts.runtime import RunCandidateSimulationFirstAcquiredEvaluation
     from polisyos.runtime.http.resilience import GuardedDependencyProxy
     from polisyos.runtime.http.services.control.run_lifecycle import (
         AcquisitionRouteLoopAuthoritySink,
@@ -69,6 +72,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.acquisition_route_loop import VerifiedCandidateExperimentOrigin
     from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthReceipt
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+    from polisyos.runtime.quality.generation_cycle import AcquisitionOverlayReentryReceipt
 
 
 class AcquisitionRetentionHistoryVerification(BaseModel):
@@ -2820,6 +2824,170 @@ def verify_retained_route_accumulator(
         evaluation=actual,
         growth=growth,
         continuation=continuation,
+    )
+
+
+def verify_first_acquired_evaluation_history(
+    *,
+    control_service: ControlPlaneService,
+    head: AcquisitionActionHeadRecord,
+    verified: AcquisitionRetentionHistoryVerification,
+    reentry: AcquisitionOverlayReentryReceipt,
+) -> RunCandidateSimulationFirstAcquiredEvaluation | None:
+    """Resolve the first acquired evaluation with its original comparison limitation.
+
+    The route history owner has already verified the selected terminal and
+    continuation. This replays both acquired bases and the first frontier
+    transaction so the API can display the actual numerical occurrence safely.
+    """
+    from polisyos.core.contracts.runtime import RunCandidateSimulationFirstAcquiredEvaluation
+    from polisyos.runtime.http.services.control_plane_store import AcquisitionEvaluationFrontierKey
+    from polisyos.runtime.quality.acquisition_evaluation import replay_acquisition_basis_for_history
+    from polisyos.runtime.quality.generation_cycle import _cycle_basis_ref
+
+    terminal = verified.terminal
+    if terminal is None or head.evaluation_frontier_before_ref is not None:
+        return None
+
+    store = control_service._artifact_store
+    events = control_service._diagnostic_event_log
+    control = control_service._control_store
+    decision = read_acquisition_basis_or_decision_artifact(
+        store=store, event_log=events, ref=terminal.evaluation_decision_ref, kind="decision"
+    )
+    if (
+        type(decision) is not AcquisitionEvaluationDecisionV2
+        or decision.comparison_result != "not_established"
+        or decision.predicate_provenance != "not_established"
+        or decision.reason_codes != ("acquisition_prior_frontier_basis_not_established",)
+        or decision.expected_frontier_revision != 0
+        or decision.expected_frontier_ref is not None
+        or decision.prior_basis_ref is not None
+        or decision.prior_evaluation is not None
+    ):
+        return None
+
+    previous_run = verified.source_generation_run
+    previous_cycle = verified.source_cycle
+    selected_run = reentry.continued_generation_run
+    selected_cycle = reentry.new_cycle
+    design_problem_ref = reentry.design_problem_ref
+    identity = (head.tenant_id, head.cell_id, head.run_id, head.source_job_id)
+    if (
+        previous_run is None
+        or previous_cycle is None
+        or selected_run is None
+        or selected_run.cycles[:-1] != previous_run.cycles
+        or terminal.selected_evaluation is None
+        or terminal.selected_basis_ref is None
+        or head.evaluation_frontier_ref is None
+        or (decision.tenant_id, decision.cell_id, decision.run_id, decision.source_job_id)
+        != identity
+        or (decision.action_job_id, decision.action_generation, decision.route_id)
+        != (head.job_id, head.action_generation, head.route_id)
+        or decision.compiled_ref != terminal.compiled_ref
+        or decision.design_problem_ref != design_problem_ref
+        or decision.design_problem_basis_ref != _cycle_basis_ref(previous_cycle)
+        or decision.design_problem_basis_ref != _cycle_basis_ref(selected_cycle)
+    ):
+        raise ValueError("candidate_first_acquired_evaluation_scope_mismatch")
+
+    scope = {
+        "artifact_store": store,
+        "control_store": control,
+        "tenant_id": head.tenant_id,
+        "cell_id": head.cell_id,
+        "run_id": head.run_id,
+        "design_problem_ref": design_problem_ref,
+    }
+    previous = resolve_selected_acquisition_evaluation_parts(
+        **scope, generation_run=previous_run, source_cycle=previous_cycle
+    )
+    selected = resolve_selected_acquisition_evaluation_parts(
+        **scope, generation_run=selected_run, source_cycle=selected_cycle
+    )
+    evaluation = selected.selected
+    if (
+        previous.selected.candidate_id != decision.candidate_id
+        or evaluation.candidate_id != decision.candidate_id
+        or evaluation.evaluation_job_id != head.job_id
+        or _same_ref(previous.selected.n5_execution_ref, evaluation.n5_execution_ref)
+        or not _same_ref(terminal.selected_evaluation_witness_ref, evaluation.n5_execution_ref)
+        or terminal.selected_evaluation
+        != evaluation.model_copy(update={"basis_ref": terminal.selected_basis_ref})
+    ):
+        raise ValueError("candidate_first_acquired_selected_evaluation_mismatch")
+
+    prospective = read_acquisition_basis_or_decision_artifact(
+        store=store, event_log=events, ref=decision.current_basis_ref, kind="basis"
+    )
+    selected_basis = read_acquisition_basis_or_decision_artifact(
+        store=store, event_log=events, ref=terminal.selected_basis_ref, kind="basis"
+    )
+    if (
+        type(prospective) is not AcquisitionEvaluationBasisV2
+        or type(selected_basis) is not AcquisitionEvaluationBasisV2
+    ):
+        raise ValueError("candidate_first_acquired_evaluation_basis_mismatch")
+    for basis in (prospective, selected_basis):
+        if (
+            (basis.tenant_id, basis.cell_id, basis.run_id, basis.source_job_id) != identity
+            or basis.design_problem_ref != decision.design_problem_basis_ref
+            or basis.candidate_id != evaluation.candidate_id
+            or basis.predicate_provenance != "recomputed"
+            or basis.reason_codes
+            or not _same_ref(basis.growth_receipt_ref, decision.growth_receipt_ref)
+            or not _same_ref(basis.admitted_source_ref, decision.admitted_source_ref)
+        ):
+            raise ValueError("candidate_first_acquired_evaluation_basis_mismatch")
+    if prospective.evaluation is not None or selected_basis.evaluation != evaluation:
+        raise ValueError("candidate_first_acquired_evaluation_basis_role_mismatch")
+
+    snapshot = control_service.acquisition_route_sink.verify_action_head(head)
+    if snapshot.latest_receipt != terminal:
+        raise ValueError("candidate_first_acquired_evaluation_terminal_changed")
+    _verified_growth(
+        artifact_store=store,
+        event_log=events,
+        snapshot=snapshot,
+        terminal=terminal,
+        decision=decision,
+        current_basis=prospective,
+        design_problem_ref=design_problem_ref,
+    )
+    frontier = control.get_acquisition_evaluation_frontier_by_ref(head.evaluation_frontier_ref)
+    if (
+        frontier is None
+        or frontier.revision != 1
+        or frontier.key
+        != AcquisitionEvaluationFrontierKey(
+            tenant_id=head.tenant_id,
+            cell_id=head.cell_id,
+            source_job_id=head.source_job_id,
+            design_problem_ref=design_problem_ref,
+            candidate_id=evaluation.candidate_id,
+        )
+        or frontier.decision_ref != str(terminal.evaluation_decision_ref.artifact_id)
+        or frontier.basis_ref != str(terminal.selected_basis_ref.artifact_id)
+        or frontier.basis_content_hash != selected_basis.content_hash
+        or frontier.selected_evaluation_witness_ref != str(evaluation.n5_execution_ref.artifact_id)
+        or frontier.selected_evaluation_content_hash != selected.execution.content_hash
+    ):
+        raise ValueError("candidate_first_acquired_evaluation_frontier_mismatch")
+    for basis, evaluation_owner in ((prospective, previous), (selected_basis, selected)):
+        replay_acquisition_basis_for_history(
+            artifact_store=store,
+            event_log=events,
+            control_store=control,
+            basis=basis,
+            prior_evaluation=evaluation_owner,
+        )
+    return RunCandidateSimulationFirstAcquiredEvaluation(
+        evaluation_decision_ref=terminal.evaluation_decision_ref,
+        selected_basis_ref=terminal.selected_basis_ref,
+        admitted_source_ref=decision.admitted_source_ref,
+        selected_input_ref=evaluation.n5_input_ref,
+        selected_result_ref=evaluation.n5_result_ref,
     )
 
 

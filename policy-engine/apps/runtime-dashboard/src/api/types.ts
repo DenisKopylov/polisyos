@@ -19236,6 +19236,9 @@ export interface components {
        * @constant
        */
       currentness_status: "not_established";
+      first_acquired_evaluation?:
+        | components["schemas"]["RunCandidateSimulationFirstAcquiredEvaluation"]
+        | null;
       model_revision?:
         | components["schemas"]["RunCandidateSimulationModelRevision"]
         | null;
@@ -19935,6 +19938,47 @@ export interface components {
             | "value_blocked"
           )
         | null;
+    };
+    /**
+     * RunCandidateSimulationFirstAcquiredEvaluation
+     * @description The first acquired-source evaluation and its unresolved comparison.
+     */
+    RunCandidateSimulationFirstAcquiredEvaluation: {
+      admitted_source_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Authority Purpose
+       * @default candidate_observation_only
+       * @constant
+       */
+      authority_purpose: "candidate_observation_only";
+      /**
+       * Comparison Reason Code
+       * @default acquisition_prior_frontier_basis_not_established
+       * @constant
+       */
+      comparison_reason_code: "acquisition_prior_frontier_basis_not_established";
+      /**
+       * Comparison Status
+       * @default not_established
+       * @constant
+       */
+      comparison_status: "not_established";
+      evaluation_decision_ref: components["schemas"]["ArtifactRef-Output"];
+      /**
+       * Publication Authority
+       * @default false
+       * @constant
+       */
+      publication_authority: false;
+      /**
+       * Selected Basis Provenance
+       * @default recomputed
+       * @constant
+       */
+      selected_basis_provenance: "recomputed";
+      selected_basis_ref: components["schemas"]["ArtifactRef-Output"];
+      selected_input_ref: components["schemas"]["ArtifactRef-Output"];
+      selected_result_ref: components["schemas"]["ArtifactRef-Output"];
     };
     /**
      * RunCandidateSimulationModelRevision

@@ -17,6 +17,8 @@ import {
   predictiveCalibrationResponseSchema,
   quantityValueSchema,
   runAgentsSchema,
+  runCandidateSimulationAcquisitionContinuationProjectionSchema,
+  runCandidateSimulationAcquisitionHistoryEntrySchema,
   runDetailsSchema,
   runEvidenceContextSchema,
   runModelInputUseActionsSchema,
@@ -1625,6 +1627,340 @@ describe("runtime API validators", () => {
         },
       }),
     ).toThrow(/unknown generated data-view request profile status/);
+  });
+
+  it("accepts optional first acquired evaluation with candidate-only bindings", () => {
+    const profile = `sha256:${"f".repeat(64)}`;
+    const ref = (kind: string, digit: string) => ({
+      artifact_id: `sha256:${digit.repeat(64)}`,
+      kind,
+      media_type: "application/json",
+      manifest_profile_sha256: profile,
+    });
+    const selectedInput = ref(
+      "runtime.quality.candidate_simulation_n5_input",
+      "1",
+    );
+    const firstAcquiredEvaluation = {
+      evaluation_decision_ref: ref(
+        "runtime_quality.acquisition_evaluation_decision",
+        "2",
+      ),
+      selected_basis_ref: ref(
+        "runtime_quality.acquisition_evaluation_basis",
+        "3",
+      ),
+      admitted_source_ref: ref(
+        "runtime.quality.n4_candidate_scenario_source",
+        "4",
+      ),
+      selected_input_ref: selectedInput,
+      selected_result_ref: ref("polisyos.runtime.joint_simulation_result", "5"),
+      comparison_status: "not_established",
+      comparison_reason_code:
+        "acquisition_prior_frontier_basis_not_established",
+      selected_basis_provenance: "recomputed",
+      authority_purpose: "candidate_observation_only",
+      publication_authority: false,
+    } as const;
+    const projection = {
+      source_generation_run_content_hash: `sha256:${"6".repeat(64)}`,
+      continued_generation_run_content_hash: `sha256:${"7".repeat(64)}`,
+      source_cycle_index: 1,
+      continued_cycle_index: 2,
+      previous_n4_source_ref: ref(
+        "runtime.quality.n4_candidate_scenario_source",
+        "8",
+      ),
+      previous_n5_input_ref: ref(
+        "runtime.quality.candidate_simulation_n5_input",
+        "9",
+      ),
+      selected_n4_source_ref: ref(
+        "runtime.quality.n4_candidate_scenario_source",
+        "a",
+      ),
+      selected_n5_input_ref: selectedInput,
+      previous_profile_selection_ref: `sha256:${"b".repeat(64)}`,
+      previous_profile_content_hash: `sha256:${"c".repeat(64)}`,
+      selected_profile_selection_ref: `sha256:${"b".repeat(64)}`,
+      selected_profile_content_hash: `sha256:${"d".repeat(64)}`,
+      selected_target_world_slot: "government.balance",
+      previous_selected_target_baseline_hash:
+        "sha256:c61ea43f0c069f9437bef0fec6a585ca5cf7bcddcb070bb39e247c216f38c04f",
+      selected_target_baseline_hash:
+        "sha256:c61ea43f0c069f9437bef0fec6a585ca5cf7bcddcb070bb39e247c216f38c04f",
+      first_acquired_evaluation: firstAcquiredEvaluation,
+      selected_simulation_status: "joint_simulated",
+      selected_simulation_authority_blockers: [],
+      source_currentness_status: "not_established",
+      source_currentness_reason: "n6_census_issuer_not_appointed",
+      continuation_currentness_status: "not_established",
+      continuation_currentness_reason: "n6_census_issuer_not_appointed",
+      n9_status: "not_promoted",
+      n9_reason: "generation_cycle_n6_census_not_established",
+      n9_certified_candidate_ids: [],
+      current_candidate_occurrences: [
+        {
+          candidate_id: "candidate-first-acquired",
+          cycle_index: 2,
+          content_hash: `sha256:${"d".repeat(64)}`,
+          source_content_hash: null,
+          front: "research",
+          certified_by_n9: false,
+        },
+      ],
+      current_fronts: {
+        decision_candidate_ids: [],
+        research_candidate_ids: ["candidate-first-acquired"],
+        quarantine_candidate_ids: [],
+        portfolio_candidate_ids: [],
+      },
+      currentness_status: "not_established",
+      authority_purpose: "candidate_observation_only",
+      publication_authority: false,
+    };
+
+    expect(
+      runCandidateSimulationAcquisitionContinuationProjectionSchema.parse(
+        projection,
+      ).first_acquired_evaluation,
+    ).toEqual(firstAcquiredEvaluation);
+
+    const legacyProjection = structuredClone(projection);
+    delete (legacyProjection as { first_acquired_evaluation?: unknown })
+      .first_acquired_evaluation;
+    Reflect.set(
+      legacyProjection,
+      "selected_target_baseline_hash",
+      `sha256:${"f".repeat(64)}`,
+    );
+    expect(
+      runCandidateSimulationAcquisitionContinuationProjectionSchema.parse(
+        legacyProjection,
+      ).first_acquired_evaluation,
+    ).toBeUndefined();
+    expect(
+      runCandidateSimulationAcquisitionContinuationProjectionSchema.parse({
+        ...legacyProjection,
+        first_acquired_evaluation: null,
+      }).first_acquired_evaluation,
+    ).toBeNull();
+    const unequalFirstAcquiredBaseline = structuredClone(projection);
+    Reflect.set(
+      unequalFirstAcquiredBaseline,
+      "selected_target_baseline_hash",
+      `sha256:${"f".repeat(64)}`,
+    );
+    expect(
+      runCandidateSimulationAcquisitionContinuationProjectionSchema.safeParse(
+        unequalFirstAcquiredBaseline,
+      ).success,
+    ).toBe(false);
+
+    const mismatchedInput = structuredClone(projection);
+    Reflect.set(
+      mutableRecord(mismatchedInput.first_acquired_evaluation),
+      "selected_input_ref",
+      {
+        ...mutableRecord(
+          mutableRecord(mismatchedInput.first_acquired_evaluation)
+            .selected_input_ref,
+        ),
+        artifact_id: `sha256:${"0".repeat(64)}`,
+      },
+    );
+    expect(
+      runCandidateSimulationAcquisitionContinuationProjectionSchema.safeParse(
+        mismatchedInput,
+      ).success,
+    ).toBe(false);
+    const authorityPromotion = structuredClone(projection);
+    Reflect.set(
+      mutableRecord(authorityPromotion.first_acquired_evaluation),
+      "publication_authority",
+      true,
+    );
+    expect(
+      runCandidateSimulationAcquisitionContinuationProjectionSchema.safeParse(
+        authorityPromotion,
+      ).success,
+    ).toBe(false);
+
+    const selectedObservation = firstMutableRecord(
+      parentJointCandidateSimulationProjection("run-first-acquired")
+        .n5_observations,
+      "n5_observations",
+    );
+    const atomIds = selectedObservation.atom_ids as string[];
+    const selectedOutcomes = selectedObservation.selected_outcomes as string[];
+    selectedObservation.candidate_id = "candidate-first-acquired";
+    selectedObservation.cycle_index = 2;
+    selectedObservation.status = "joint_simulated";
+    selectedObservation.simulation_result_ref =
+      firstAcquiredEvaluation.selected_result_ref;
+    selectedObservation.n4_source_ref = projection.selected_n4_source_ref;
+    selectedObservation.context_job_ref = ref(
+      "runtime.quality.cycle_substrate_context_job",
+      "0",
+    );
+    selectedObservation.n5_input_ref = projection.selected_n5_input_ref;
+    selectedObservation.n5_execution_ref = ref(
+      "runtime.quality.candidate_simulation_execution",
+      "1",
+    );
+    selectedObservation.profile_config_ref =
+      "runtime-config:candidate-simulation/fixture";
+    selectedObservation.profile_selection_ref =
+      projection.selected_profile_selection_ref;
+    selectedObservation.lineage_status = "resolved";
+    selectedObservation.lineage_limitation_code = null;
+    selectedObservation.result_body_status = "resolved";
+    selectedObservation.result_body_limitation_code = null;
+    selectedObservation.result_body = {
+      schema_version:
+        "policyos.runtime.run_candidate_simulation_n5_result_body.v1",
+      artifact_ref: firstAcquiredEvaluation.selected_result_ref,
+      artifact_schema_name: "policyos.runtime.n5.joint_simulation_result",
+      artifact_schema_version: "4.0.0",
+      result_schema_version: "policyos.runtime.joint_simulation_horizon.v4",
+      selected_manifest_profile_sha256: profile,
+      world_model_record_ref: `sha256:${"1".repeat(64)}`,
+      world_model_record_content_hash:
+        selectedObservation.world_model_record_content_hash,
+      atom_ids: atomIds,
+      selected_outcomes: selectedOutcomes,
+      horizon: {
+        start: 0,
+        end: 0,
+        step: 1,
+        valid_time_role: "valid_time",
+        transaction_time_role: "transaction_time",
+        scenario_branch_policy: "hold_world_record_constant",
+      },
+      trajectories: [
+        {
+          run_level: "joint",
+          atom_ids: atomIds,
+          points: [
+            {
+              step: 0,
+              outcomes: { "outcome-a": 0.75 },
+              effects: { "outcome-a": 0.25 },
+            },
+          ],
+        },
+      ],
+      uncertainty_kind: "K_sim",
+      authority_purpose: "candidate_scenario_n5_only",
+      candidate_status: "candidate_unverified",
+      currentness_status: "not_established",
+      publication_authority: false,
+      outcome_units: {},
+      unit_provenance: "not_established",
+      model_declaration_ref: null,
+    };
+    selectedObservation.n8_status = "value_pending_n8";
+    selectedObservation.n8_authority_blockers = [
+      "parent_joint_selected_child_program_not_established",
+    ];
+    selectedObservation.n8_joint_scope_status = "not_established";
+    selectedObservation.n8_joint_scope_limitation_code =
+      "parent_joint_selected_child_program_not_established";
+    selectedObservation.n8_joint_value_limitation_code = null;
+    selectedObservation.n8_joint_request_content_hash = null;
+    selectedObservation.n8_joint_world_model_record_ref = null;
+    selectedObservation.n8_joint_outcome_units = {};
+    selectedObservation.n8_joint_parent_atom_ids = [];
+    selectedObservation.n8_joint_parent_atom_content_hashes = [];
+    selectedObservation.n8_parent_child_refs = [];
+    selectedObservation.n8_parent_child_source_bindings = [];
+    selectedObservation.n8_candidate_joint_selection_status = "not_established";
+    selectedObservation.n8_candidate_joint_selection_content_hash = null;
+    selectedObservation.n8_candidate_parent_atom_ids = [];
+    selectedObservation.n8_candidate_parent_atom_content_hashes = [];
+    selectedObservation.n8_candidate_parent_intervention_ids = [];
+    selectedObservation.n8_candidate_parent_child_refs = [];
+    selectedObservation.n8_candidate_joint_selection_limitation_code =
+      "parent_joint_candidate_source_selection_not_established";
+    selectedObservation.n8_candidate_member_basis = "not_established";
+    selectedObservation.n8_source_candidate_relationship = "not_established";
+    selectedObservation.n8_policy_composition_status = "not_established";
+    selectedObservation.n8_policy_composition_limitation_code =
+      "parent_joint_candidate_source_selection_not_established";
+    selectedObservation.n8_child_to_parent_refinement_status =
+      "not_established";
+    selectedObservation.n8_child_to_parent_refinement_limitation_code =
+      "parent_joint_candidate_source_selection_not_established";
+    const historyEntry = {
+      route_receipt_ref: ref(
+        "runtime_quality.acquisition_route_loop_receipt",
+        "2",
+      ),
+      reentry_receipt_ref: ref(
+        "runtime_quality.acquisition_overlay_reentry_receipt",
+        "3",
+      ),
+      route_id: `sha256:${"4".repeat(64)}`,
+      action_generation: 1,
+      terminal_outcome: "reentry_completed",
+      old_candidate_id: "candidate-first-acquired",
+      new_candidate_id: "candidate-first-acquired",
+      new_candidate_source_ref: projection.selected_n4_source_ref,
+      origin_source_ref: ref(
+        "runtime.quality.n4_candidate_scenario_source",
+        "5",
+      ),
+      expected_origin_source_ref: ref(
+        "runtime.quality.n4_candidate_scenario_source",
+        "5",
+      ),
+      schema_version:
+        "policyos.runtime.run_candidate_simulation_acquisition_history.v2",
+      reentry_receipt_schema_version:
+        "policyos.runtime.acquisition_overlay_reentry.v3",
+      continuation_join_status: "v3_occurrence_joined",
+      origin_source_binding_status: "verified_same_candidate_root",
+      continuation: projection,
+      selected_n5_observation: selectedObservation,
+      evaluation_provenance: "new_execution",
+      currentness_status: "not_established",
+      authority_purpose: "candidate_observation_only",
+      publication_authority: false,
+    };
+    expect(
+      runCandidateSimulationAcquisitionHistoryEntrySchema.parse(historyEntry)
+        .continuation?.first_acquired_evaluation,
+    ).toEqual(firstAcquiredEvaluation);
+
+    const wrongResultBinding = structuredClone(historyEntry);
+    Reflect.set(
+      mutableRecord(
+        mutableRecord(wrongResultBinding.continuation)
+          .first_acquired_evaluation,
+      ),
+      "selected_result_ref",
+      {
+        ...mutableRecord(
+          mutableRecord(
+            mutableRecord(wrongResultBinding.continuation)
+              .first_acquired_evaluation,
+          ).selected_result_ref,
+        ),
+        artifact_id: `sha256:${"0".repeat(64)}`,
+      },
+    );
+    const wrongResultParse =
+      runCandidateSimulationAcquisitionHistoryEntrySchema.safeParse(
+        wrongResultBinding,
+      );
+    expect(wrongResultParse.success).toBe(false);
+    const wrongResultIssueMessages = wrongResultParse.success
+      ? []
+      : wrongResultParse.error.issues.map((issue) => issue.message);
+    expect(wrongResultIssueMessages).toContain(
+      "candidate_first_acquired_evaluation_result_binding_invalid",
+    );
   });
 
   it("parses retained history separately from a new evaluation and refuses malformed v3", () => {

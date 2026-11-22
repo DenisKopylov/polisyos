@@ -15,6 +15,8 @@ import type {
   DecisionGrade,
   InvalidGovernedProjectionPacket,
   ProjectionSourceValidation,
+  RunCandidateSimulationAcquisitionContinuationProjection,
+  RunCandidateSimulationFirstAcquiredEvaluation,
   RunBoundDesignRecordBinding,
   RunModelInputInitialObservation,
   RunPaperDesignRecordBinding,
@@ -163,6 +165,35 @@ type NativeCustodyRecoveryWitnesses = [
     Equal<
       "settled_draft" extends keyof PublicCustodyRecovery ? true : false,
       false
+    >
+  >,
+];
+
+type FirstAcquiredEvaluationWireWitnesses = [
+  Assert<
+    Equal<
+      RunCandidateSimulationAcquisitionContinuationProjection,
+      RawRuntimeApiComponents["schemas"]["RunCandidateSimulationAcquisitionContinuationProjection"]
+    >
+  >,
+  Assert<
+    Equal<
+      RunCandidateSimulationFirstAcquiredEvaluation,
+      RawRuntimeApiComponents["schemas"]["RunCandidateSimulationFirstAcquiredEvaluation"]
+    >
+  >,
+  Assert<
+    Equal<
+      RunCandidateSimulationAcquisitionContinuationProjection["first_acquired_evaluation"],
+      RunCandidateSimulationFirstAcquiredEvaluation | null | undefined
+    >
+  >,
+  Assert<
+    Equal<
+      NonNullable<
+        RunCandidateSimulationFirstAcquiredEvaluation["comparison_status"]
+      >,
+      "not_established"
     >
   >,
 ];

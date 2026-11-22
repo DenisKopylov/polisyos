@@ -3325,6 +3325,43 @@ class RunCandidateSimulationAcquiredOutcomeRevision(_RunCandidateSimulationRevis
         return self
 
 
+class RunCandidateSimulationFirstAcquiredEvaluation(BaseModel):
+    """The first acquired-source evaluation and its unresolved comparison."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    evaluation_decision_ref: ArtifactRef
+    selected_basis_ref: ArtifactRef
+    admitted_source_ref: ArtifactRef
+    selected_input_ref: ArtifactRef
+    selected_result_ref: ArtifactRef
+    comparison_status: Literal["not_established"] = "not_established"
+    comparison_reason_code: Literal["acquisition_prior_frontier_basis_not_established"] = (
+        "acquisition_prior_frontier_basis_not_established"
+    )
+    selected_basis_provenance: Literal["recomputed"] = "recomputed"
+    authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _bind_selected_refs(self) -> RunCandidateSimulationFirstAcquiredEvaluation:
+        for ref, kind in (
+            (self.evaluation_decision_ref, "runtime_quality.acquisition_evaluation_decision"),
+            (self.selected_basis_ref, "runtime_quality.acquisition_evaluation_basis"),
+            (self.selected_input_ref, "runtime.quality.candidate_simulation_n5_input"),
+            (self.selected_result_ref, "polisyos.runtime.joint_simulation_result"),
+        ):
+            if (
+                ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("candidate_first_acquired_evaluation_ref_invalid")
+        if self.admitted_source_ref.manifest_profile_sha256 is None:
+            raise ValueError("candidate_first_acquired_source_profile_missing")
+        return self
+
+
 class RunCandidateSimulationAcquisitionContinuationProjection(BaseModel):
     """Typed candidate-only projection of the exact N9 continuation."""
 
@@ -3355,6 +3392,9 @@ class RunCandidateSimulationAcquisitionContinuationProjection(BaseModel):
     )
     model_revision: RunCandidateSimulationModelRevision | None = None
     acquired_outcome_revision: RunCandidateSimulationAcquiredOutcomeRevision | None = None
+    first_acquired_evaluation: RunCandidateSimulationFirstAcquiredEvaluation | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     selected_simulation_status: (
         Literal["joint_simulated", "simulation_pending_n5", "simulation_blocked"] | None
     ) = None
@@ -3381,6 +3421,7 @@ class RunCandidateSimulationAcquisitionContinuationProjection(BaseModel):
             for revision in (self.model_revision, self.acquired_outcome_revision)
             if revision is not None
         )
+        first_acquired = self.first_acquired_evaluation
         current_ids = {row.candidate_id for row in self.current_candidate_occurrences}
         front_ids = (
             *self.current_fronts.decision_candidate_ids,
@@ -3420,8 +3461,22 @@ class RunCandidateSimulationAcquisitionContinuationProjection(BaseModel):
                 and self.previous_selected_target_baseline_hash
                 == self.selected_target_baseline_hash
                 and not basis_revisions
+                and first_acquired is None
             )
             or len(basis_revisions) > 1
+            or (
+                first_acquired is not None
+                and (
+                    bool(basis_revisions)
+                    or self.previous_n5_input_ref is None
+                    or self.previous_selected_target_baseline_hash is None
+                    or self.previous_selected_target_baseline_hash
+                    != self.selected_target_baseline_hash
+                    or self.selected_simulation_status != "joint_simulated"
+                    or artifact_ref_identity_key(first_acquired.selected_input_ref)
+                    != artifact_ref_identity_key(self.selected_n5_input_ref)
+                )
+            )
             or (
                 basis_revisions
                 and (
@@ -3733,6 +3788,7 @@ class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
                     == continuation.selected_target_baseline_hash
                     and continuation.model_revision is None
                     and continuation.acquired_outcome_revision is None
+                    and continuation.first_acquired_evaluation is None
                 )
                 or artifact_ref_identity_key(continuation.previous_n4_source_ref)
                 == artifact_ref_identity_key(continuation.selected_n4_source_ref)
@@ -3762,6 +3818,15 @@ class RunCandidateSimulationAcquisitionHistoryEntry(BaseModel):
             raise ValueError("candidate_acquisition_selected_n5_observation_binding_invalid")
         if observation is None and self.evaluation_provenance is not None:
             raise ValueError("candidate_acquisition_evaluation_provenance_without_observation")
+        first_acquired = continuation.first_acquired_evaluation if continuation else None
+        if first_acquired is not None and (
+            not same_candidate
+            or observation is None
+            or observation.simulation_result_ref is None
+            or artifact_ref_identity_key(observation.simulation_result_ref)
+            != artifact_ref_identity_key(first_acquired.selected_result_ref)
+        ):
+            raise ValueError("candidate_first_acquired_evaluation_result_binding_invalid")
         revision = (
             continuation.model_revision or continuation.acquired_outcome_revision
             if continuation is not None

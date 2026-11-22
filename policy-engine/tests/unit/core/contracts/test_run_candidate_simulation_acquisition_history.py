@@ -16,6 +16,7 @@ from polisyos.core.contracts.runtime import (
     RunCandidateSimulationAcquisitionContinuationProjection,
     RunCandidateSimulationAcquisitionHistoryEntry,
     RunCandidateSimulationCurrentOccurrence,
+    RunCandidateSimulationFirstAcquiredEvaluation,
     RunCandidateSimulationModelRevision,
     RunCandidateSimulationProjection,
     RunCandidateSourceCurrentProjection,
@@ -99,6 +100,7 @@ def test_equal_scalar_display_requires_exact_bound_model_revision() -> None:
     assert projection.current_candidate_occurrences[0].front == "quarantine"
     assert projection.currentness_status == "not_established"
     assert projection.publication_authority is False
+    assert "first_acquired_evaluation" not in projection.model_dump(mode="json")
     for changed in (
         {"model_revision": None},
         {"previous_n5_input_ref": payload["selected_n5_input_ref"]},
@@ -116,6 +118,51 @@ def test_equal_scalar_display_requires_exact_bound_model_revision() -> None:
     ):
         with pytest.raises(ValidationError):
             RunCandidateSimulationModelRevision.model_validate({**revision, **changed})
+
+
+def test_first_acquired_evaluation_preserves_the_unresolved_comparison() -> None:
+    payload = _model_revision_continuation()
+    revision = payload["model_revision"]
+    assert isinstance(revision, RunCandidateSimulationModelRevision)
+    profile = revision.selected_basis_ref.manifest_profile_sha256
+    evaluation = RunCandidateSimulationFirstAcquiredEvaluation(
+        evaluation_decision_ref=revision.evaluation_decision_ref,
+        selected_basis_ref=revision.selected_basis_ref,
+        admitted_source_ref=_ref("connector_cache.payload", "1", manifest_profile_sha256=profile),
+        selected_input_ref=revision.selected_input_ref,
+        selected_result_ref=_ref(
+            "polisyos.runtime.joint_simulation_result", "2", manifest_profile_sha256=profile
+        ),
+    )
+    first = {
+        **payload,
+        "model_revision": None,
+        "first_acquired_evaluation": evaluation,
+        "selected_simulation_status": "joint_simulated",
+    }
+    projection = RunCandidateSimulationAcquisitionContinuationProjection.model_validate(first)
+    assert projection.first_acquired_evaluation == evaluation
+    assert evaluation.comparison_status == "not_established"
+    assert evaluation.selected_basis_provenance == "recomputed"
+    assert evaluation.publication_authority is False
+    for changed_report in (
+        {"comparison_status": "different"},
+        {"publication_authority": True},
+    ):
+        with pytest.raises(ValidationError):
+            RunCandidateSimulationFirstAcquiredEvaluation.model_validate(
+                {**evaluation.model_dump(mode="json"), **changed_report}
+            )
+    for changed in (
+        {"first_acquired_evaluation": None},
+        {"model_revision": revision},
+        {"selected_n5_input_ref": revision.previous_input_ref},
+        {"selected_simulation_status": "simulation_pending_n5"},
+    ):
+        with pytest.raises(ValidationError, match="continuation_projection_invalid"):
+            RunCandidateSimulationAcquisitionContinuationProjection.model_validate(
+                {**first, **changed}
+            )
 
 
 def test_reentry_history_retains_typed_observed_lineage_as_candidate_only() -> None:

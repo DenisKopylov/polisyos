@@ -39452,6 +39452,16 @@
             "title": "Currentness Status",
             "type": "string"
           },
+          "first_acquired_evaluation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RunCandidateSimulationFirstAcquiredEvaluation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "model_revision": {
             "anyOf": [
               {
@@ -41067,6 +41077,66 @@
           "certified_by_n9"
         ],
         "title": "RunCandidateSimulationCurrentOccurrence",
+        "type": "object"
+      },
+      "RunCandidateSimulationFirstAcquiredEvaluation": {
+        "additionalProperties": false,
+        "description": "The first acquired-source evaluation and its unresolved comparison.",
+        "properties": {
+          "admitted_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "comparison_reason_code": {
+            "const": "acquisition_prior_frontier_basis_not_established",
+            "default": "acquisition_prior_frontier_basis_not_established",
+            "title": "Comparison Reason Code",
+            "type": "string"
+          },
+          "comparison_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Comparison Status",
+            "type": "string"
+          },
+          "evaluation_decision_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "selected_basis_provenance": {
+            "const": "recomputed",
+            "default": "recomputed",
+            "title": "Selected Basis Provenance",
+            "type": "string"
+          },
+          "selected_basis_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_input_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "selected_result_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "evaluation_decision_ref",
+          "selected_basis_ref",
+          "admitted_source_ref",
+          "selected_input_ref",
+          "selected_result_ref"
+        ],
+        "title": "RunCandidateSimulationFirstAcquiredEvaluation",
         "type": "object"
       },
       "RunCandidateSimulationModelRevision": {

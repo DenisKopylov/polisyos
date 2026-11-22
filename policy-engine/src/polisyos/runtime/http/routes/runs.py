@@ -1698,13 +1698,42 @@ def _candidate_acquisition_history_projection(
                     )
                     if selected_origin.kind == "runtime.quality.n4_candidate_scenario_source":
                         observed_origin_source_ref = selected_origin
-                    elif (
-                        compiled.generic_cycle_simulation_handoff is None
-                        or selected_origin.kind != "runtime.generation_source_handoff"
-                    ):
+                    elif selected_origin.kind != "runtime.generation_source_handoff":
                         raise ValueError("acquisition_history_origin_source_kind_unsupported")
-                    # A Generic N4 source stays in the parent projection. The
-                    # candidate-only origin field cannot represent its kind.
+                    elif compiled.generic_cycle_simulation_handoff is None:
+                        # The compiled handoff can wrap the ordinary root's
+                        # selected V5 candidate. The root leaf owns the ref.
+                        root = next(
+                            node
+                            for node in recursive_run.nodes
+                            if isinstance(node, RecursiveCycleNode)
+                            and node.node_ref == recursive_run.root_node_ref
+                            and node.design_problem_ref == compiled.design_problem_ref
+                        )
+                        root_cycle = root.cycle_run.cycles[-1] if root.cycle_run else None
+                        if root_cycle is not None:
+                            origin_ref = root_cycle.simulation.candidate_simulation_n4_source_ref
+                            input_ref = root_cycle.simulation.candidate_simulation_n5_input_ref
+                            if (origin_ref is None) != (input_ref is None):
+                                raise ValueError("acquisition_history_root_origin_incomplete")
+                            if origin_ref is not None and input_ref is not None:
+                                root_input, root_source = _resolve_n5_v5_source(
+                                    input_ref,
+                                    expected_run_id=source_run_id,
+                                    expected_job_id=source_job_id,
+                                    expected_tenant_id=tenant_id,
+                                    expected_cell_id=cell_id,
+                                )
+                                if (
+                                    artifact_ref_identity_key(root_input.n4_source_ref)
+                                    != artifact_ref_identity_key(origin_ref)
+                                    or root_source.candidate.candidate_id
+                                    != root_cycle.selected_candidate_ref
+                                    or root_source.candidate.atom.content_hash
+                                    != root_cycle.selected_candidate_content_hash
+                                ):
+                                    raise ValueError("acquisition_history_root_origin_mismatch")
+                                observed_origin_source_ref = origin_ref
                 history_entries.append(
                     RunCandidateSimulationAcquisitionHistoryEntry(
                         route_receipt_ref=route_receipt_ref,
@@ -1877,6 +1906,7 @@ def _candidate_acquisition_history_projection(
             expected_origin_source_ref = None
             model_revision_projection = None
             acquired_outcome_revision_projection = None
+            first_acquired_evaluation = None
             if same_candidate:
                 if old_source is None or old_source_ref is None:
                     raise ValueError("acquisition_reentry_same_candidate_source_missing")
@@ -1922,6 +1952,21 @@ def _candidate_acquisition_history_projection(
                         "acquisition_reentry_same_candidate_profile_selection_mismatch"
                     )
                 if (
+                    verified_source is not None
+                    and selected_target_hashes is not None
+                    and selected_target_hashes[0] == selected_target_hashes[1]
+                ):
+                    from polisyos.runtime.quality.acquisition_evaluation_history import (
+                        verify_first_acquired_evaluation_history,
+                    )
+
+                    first_acquired_evaluation = verify_first_acquired_evaluation_history(
+                        control_service=control_service,
+                        head=_head,
+                        verified=verified_source,
+                        reentry=reentry_receipt,
+                    )
+                if first_acquired_evaluation is None and (
                     selected_target_hashes is None
                     or selected_target_hashes[0] == selected_target_hashes[1]
                 ):
@@ -2031,6 +2076,7 @@ def _candidate_acquisition_history_projection(
                         target_hashes[0] == target_hashes[1]
                         and model_revision_projection is None
                         and acquired_outcome_revision_projection is None
+                        and first_acquired_evaluation is None
                     )
                 ):
                     raise ValueError("acquisition_reentry_selected_target_input_not_changed")
@@ -2069,6 +2115,7 @@ def _candidate_acquisition_history_projection(
                     ),
                     model_revision=model_revision_projection,
                     acquired_outcome_revision=acquired_outcome_revision_projection,
+                    first_acquired_evaluation=first_acquired_evaluation,
                     selected_simulation_status=new_simulation.status,
                     selected_simulation_authority_blockers=new_simulation.authority_blockers,
                     source_currentness_status=(

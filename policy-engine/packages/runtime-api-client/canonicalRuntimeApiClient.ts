@@ -1634,6 +1634,9 @@ export type RunCandidateSimulationContinuationFronts =
 export type RunCandidateSimulationCurrentOccurrence =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationCurrentOccurrence"];
 
+export type RunCandidateSimulationFirstAcquiredEvaluation =
+  RuntimeApiComponents["schemas"]["RunCandidateSimulationFirstAcquiredEvaluation"];
+
 export type RunCandidateSimulationModelRevision =
   RuntimeApiComponents["schemas"]["RunCandidateSimulationModelRevision"];
 

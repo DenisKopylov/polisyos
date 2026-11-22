@@ -359,21 +359,67 @@ def test_native_settled_draft_is_request_only_and_public_custody_is_locator_only
     ]
     assert "settled_draft" not in projection["properties"]
     assert set(projection["properties"]) == {"failed_attempt", "head_ref"}
-    assert schemas["AcquisitionRouteMutationRequest"]["properties"]["custody_recovery"][
-        "anyOf"
-    ][0]["$ref"] == "#/components/schemas/AcquisitionCustodyRecoveryRequest"
-    assert schemas["AcquisitionRouteProjection"]["properties"]["custody_recovery"][
-        "anyOf"
-    ][0]["$ref"] == "#/components/schemas/AcquisitionCustodyRecoveryProjection"
+    assert (
+        schemas["AcquisitionRouteMutationRequest"]["properties"]["custody_recovery"]["anyOf"][0][
+            "$ref"
+        ]
+        == "#/components/schemas/AcquisitionCustodyRecoveryRequest"
+    )
+    assert (
+        schemas["AcquisitionRouteProjection"]["properties"]["custody_recovery"]["anyOf"][0]["$ref"]
+        == "#/components/schemas/AcquisitionCustodyRecoveryProjection"
+    )
     assert draft["additionalProperties"] is False
     assert set(draft["required"]) == {"producer_event_id", "ledger_revision", "response_text"}
-    assert draft["properties"]["producer_event_id"]["pattern"] == (
-        r"^llm-provider:[a-f0-9]{32}$"
-    )
+    assert draft["properties"]["producer_event_id"]["pattern"] == (r"^llm-provider:[a-f0-9]{32}$")
     assert draft["properties"]["ledger_revision"]["type"] == "integer"
     assert draft["properties"]["ledger_revision"]["minimum"] == 1.0
     assert draft["properties"]["response_text"]["minLength"] == 1
     assert draft["properties"]["response_text"]["maxLength"] == 131072
+
+
+def test_first_acquired_evaluation_is_optional_candidate_only_history_evidence() -> None:
+    spec = json.loads(
+        (REPO_ROOT / "schemas" / "runtime_api_v1.openapi.json").read_text(encoding="utf-8")
+    )
+    schemas = spec["components"]["schemas"]
+    continuation = schemas["RunCandidateSimulationAcquisitionContinuationProjection"]
+    history = schemas["RunCandidateSimulationAcquisitionHistoryEntry"]
+    evaluation = schemas["RunCandidateSimulationFirstAcquiredEvaluation"]
+
+    assert "first_acquired_evaluation" not in continuation["required"]
+    assert continuation["properties"]["first_acquired_evaluation"]["anyOf"] == [
+        {"$ref": "#/components/schemas/RunCandidateSimulationFirstAcquiredEvaluation"},
+        {"type": "null"},
+    ]
+    assert history["properties"]["continuation"]["anyOf"][0]["$ref"] == (
+        "#/components/schemas/RunCandidateSimulationAcquisitionContinuationProjection"
+    )
+    assert "continuation" not in history["required"]
+    assert evaluation["additionalProperties"] is False
+    assert set(evaluation["required"]) == {
+        "evaluation_decision_ref",
+        "selected_basis_ref",
+        "admitted_source_ref",
+        "selected_input_ref",
+        "selected_result_ref",
+    }
+    for field, component in {
+        "evaluation_decision_ref": "ArtifactRef-Output",
+        "selected_basis_ref": "ArtifactRef-Output",
+        "admitted_source_ref": "ArtifactRef-Output",
+        "selected_input_ref": "ArtifactRef-Output",
+        "selected_result_ref": "ArtifactRef-Output",
+    }.items():
+        assert evaluation["properties"][field]["$ref"] == (f"#/components/schemas/{component}")
+    for field, value in {
+        "comparison_status": "not_established",
+        "comparison_reason_code": "acquisition_prior_frontier_basis_not_established",
+        "selected_basis_provenance": "recomputed",
+        "authority_purpose": "candidate_observation_only",
+        "publication_authority": False,
+    }.items():
+        assert evaluation["properties"][field]["const"] == value
 
 
 def test_committed_openapi_has_governed_export_contracts() -> None:

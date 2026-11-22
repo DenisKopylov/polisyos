@@ -1975,7 +1975,64 @@ const runCandidateSimulationAcquiredOutcomeRevisionSchema = z
     }
   });
 
-const runCandidateSimulationAcquisitionContinuationProjectionSchema = z
+const runCandidateSimulationFirstAcquiredEvaluationSchema = z
+  .object({
+    evaluation_decision_ref: coreArtifactRefSchema,
+    selected_basis_ref: coreArtifactRefSchema,
+    admitted_source_ref: coreArtifactRefSchema,
+    selected_input_ref: coreArtifactRefSchema,
+    selected_result_ref: coreArtifactRefSchema,
+    comparison_status: z.literal("not_established"),
+    comparison_reason_code: z.literal(
+      "acquisition_prior_frontier_basis_not_established",
+    ),
+    selected_basis_provenance: z.literal("recomputed"),
+    authority_purpose: z.literal("candidate_observation_only"),
+    publication_authority: z.literal(false),
+  })
+  .strict()
+  .superRefine((evaluation, context) => {
+    const expectedRefs: Array<[z.infer<typeof coreArtifactRefSchema>, string]> =
+      [
+        [
+          evaluation.evaluation_decision_ref,
+          "runtime_quality.acquisition_evaluation_decision",
+        ],
+        [
+          evaluation.selected_basis_ref,
+          "runtime_quality.acquisition_evaluation_basis",
+        ],
+        [
+          evaluation.selected_input_ref,
+          "runtime.quality.candidate_simulation_n5_input",
+        ],
+        [
+          evaluation.selected_result_ref,
+          "polisyos.runtime.joint_simulation_result",
+        ],
+      ];
+    if (
+      expectedRefs.some(
+        ([ref, kind]) =>
+          ref.kind !== kind ||
+          ref.media_type !== "application/json" ||
+          ref.manifest_profile_sha256 == null,
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "candidate_first_acquired_evaluation_ref_invalid",
+      });
+    }
+    if (evaluation.admitted_source_ref.manifest_profile_sha256 == null) {
+      context.addIssue({
+        code: "custom",
+        message: "candidate_first_acquired_source_profile_missing",
+      });
+    }
+  });
+
+export const runCandidateSimulationAcquisitionContinuationProjectionSchema = z
   .object({
     source_generation_run_content_hash: z
       .string()
@@ -2013,6 +2070,8 @@ const runCandidateSimulationAcquisitionContinuationProjectionSchema = z
       .optional(),
     acquired_outcome_revision:
       runCandidateSimulationAcquiredOutcomeRevisionSchema.nullable().optional(),
+    first_acquired_evaluation:
+      runCandidateSimulationFirstAcquiredEvaluationSchema.nullable().optional(),
     selected_simulation_status: z
       .enum(["joint_simulated", "simulation_pending_n5", "simulation_blocked"])
       .nullable()
@@ -2047,6 +2106,7 @@ const runCandidateSimulationAcquisitionContinuationProjectionSchema = z
       projection.model_revision,
       projection.acquired_outcome_revision,
     ].filter((value) => value != null);
+    const firstAcquired = projection.first_acquired_evaluation;
     const occurrences = new Set(
       projection.current_candidate_occurrences.map((row) => row.candidate_id),
     );
@@ -2083,7 +2143,8 @@ const runCandidateSimulationAcquisitionContinuationProjectionSchema = z
         projection.selected_target_baseline_hash !== null &&
         projection.previous_selected_target_baseline_hash ===
           projection.selected_target_baseline_hash &&
-        revisions.length === 0) ||
+        revisions.length === 0 &&
+        firstAcquired == null) ||
       revisions.length > 1 ||
       revisions.some(
         (revision) =>
@@ -2100,6 +2161,17 @@ const runCandidateSimulationAcquisitionContinuationProjectionSchema = z
           projection.previous_selected_target_baseline_hash !==
             projection.selected_target_baseline_hash,
       ) ||
+      (firstAcquired != null &&
+        (revisions.length > 0 ||
+          projection.previous_n5_input_ref == null ||
+          projection.previous_selected_target_baseline_hash == null ||
+          projection.previous_selected_target_baseline_hash !==
+            projection.selected_target_baseline_hash ||
+          projection.selected_simulation_status !== "joint_simulated" ||
+          !sameCoreArtifactRefView(
+            firstAcquired.selected_input_ref,
+            projection.selected_n5_input_ref,
+          ))) ||
       projection.current_candidate_occurrences.some(
         (row) =>
           row.certified_by_n9 !==
@@ -2946,7 +3018,8 @@ export const runCandidateSimulationAcquisitionHistoryEntrySchema = z
         (projection.previous_selected_target_baseline_hash ===
           projection.selected_target_baseline_hash &&
           projection.model_revision == null &&
-          projection.acquired_outcome_revision == null) ||
+          projection.acquired_outcome_revision == null &&
+          projection.first_acquired_evaluation == null) ||
         sameCoreArtifactRefView(
           projection.previous_n4_source_ref,
           projection.selected_n4_source_ref,
@@ -2997,6 +3070,22 @@ export const runCandidateSimulationAcquisitionHistoryEntrySchema = z
         code: "custom",
         message:
           "candidate_acquisition_evaluation_provenance_without_observation",
+      });
+    }
+    const firstAcquired = projection?.first_acquired_evaluation;
+    if (
+      firstAcquired != null &&
+      (!sameCandidate ||
+        observation == null ||
+        observation.simulation_result_ref == null ||
+        !sameCoreArtifactRefView(
+          observation.simulation_result_ref,
+          firstAcquired.selected_result_ref,
+        ))
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "candidate_first_acquired_evaluation_result_binding_invalid",
       });
     }
     const revision =

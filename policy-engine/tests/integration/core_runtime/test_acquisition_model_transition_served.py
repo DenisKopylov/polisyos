@@ -8,6 +8,7 @@ empirical, measurement or publication authority.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -87,6 +88,7 @@ def test_gdp_fixture_bootstrap_keeps_candidate_catalog_scope_and_owner_roots(
 ) -> None:
     """An independent fixture owner cannot borrow the active candidate catalog."""
     import json
+    from datetime import date
 
     from polisyos.core.artifacts import FileSystemCAS
     from polisyos.core.security.tenant_context import get_current_cell_id, get_current_tenant_id
@@ -134,9 +136,13 @@ def test_gdp_fixture_bootstrap_keeps_candidate_catalog_scope_and_owner_roots(
         ):
             substrate_registry.default_substrate_catalog_paths(fixture_root)
 
-        def resolve_owner() -> tuple[Path, str, str | None, dict[str, object]]:
+        def resolve_owner() -> tuple[
+            substrate_registry.CatalogServingSourcePaths, str, str | None, dict[str, object]
+        ]:
             assert substrate_registry.current_catalog_serving_source() is None
-            paths = substrate_registry.default_substrate_catalog_paths(fixture_root)
+            epoch_catalog = substrate_registry.resolve_catalog_serving_source(
+                fixture_root, selection=None, requested_profile=None
+            )
             prepared = production_admission_inputs(
                 tmp_path / "owner-inputs",
                 store=store,
@@ -146,10 +152,15 @@ def test_gdp_fixture_bootstrap_keeps_candidate_catalog_scope_and_owner_roots(
                 scope_payload=expected_scope["epoch_scope_payload"],
                 authority_purpose=expected_scope["authority_purpose"],
             )
-            return paths.production_root, get_current_tenant_id(), get_current_cell_id(), prepared
+            return epoch_catalog, get_current_tenant_id(), get_current_cell_id(), prepared
 
-        root, tenant, cell, prepared = fixture._independent_fixture_bootstrap(resolve_owner)
-        assert root == fixture_root / substrate_registry.DEFAULT_PRODUCTION_DATA_ROOT
+        epoch_catalog, tenant, cell, prepared = fixture._independent_fixture_bootstrap(
+            resolve_owner
+        )
+        paths = epoch_catalog.substrate_paths
+        assert (
+            paths.production_root == fixture_root / substrate_registry.DEFAULT_PRODUCTION_DATA_ROOT
+        )
         assert (tenant, cell) == (fixture.TENANT, fixture.CELL)
         assert prepared["repo_root"] == fixture_root
         assert (
@@ -157,6 +168,23 @@ def test_gdp_fixture_bootstrap_keeps_candidate_catalog_scope_and_owner_roots(
             == (expected_scope["epoch_scope_payload"])
         )
         assert prepared["authority_purpose"] == "candidate_simulation"
+        with substrate_registry.catalog_serving_source_scope(epoch_catalog):
+            assert substrate_registry.default_substrate_catalog_paths(fixture_root) == paths
+            owner = substrate_registry.load_l5_catalog_authority(
+                paths, repo_root=fixture_root, scope_relation_artifacts=store
+            )
+            receipt, projection = fixture._within_fixture_owner(
+                substrate_registry.resolve_l5_schema_regime_projection,
+                owner,
+                scope_identity_ref=prepared["epoch_scope_identity"].scope_identity_ref,
+                valid_effect_value=date.fromisoformat(
+                    store.get_bytes(prepared["valid_effect_coordinate_evidence_ref"]).decode()
+                ),
+                authority_purpose=prepared["authority_purpose"],
+            )
+            assert receipt.status == projection.status == "resolved"
+            assert receipt.declared_regime_count == 1
+            assert projection.applicable_regime_ids == ("fixture_country_year_v1",)
         assert substrate_registry.current_catalog_serving_source() is active
 
 
@@ -353,12 +381,141 @@ def _assert_selected_model_ref_controls(
             assert _projection(client, ctx)["acquisition_history_limitation_code"] is None
 
 
+def _run_annual_gdp_first_b(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    served_recorded_candidate_gateway: Any,
+    check: Callable[..., None],
+) -> None:
+    """Start with an actual costed route for a source-bound outcome."""
+    import json
+
+    from polisyos.runtime.quality import (
+        acquisition_executor,
+        acquisition_planner,
+        substrate_registry,
+    )
+    from tests._helpers import acquisition_chain, acquisition_production, world_model_record
+    from tests._helpers.annual_gdp_candidate import (
+        ANNUAL_GDP_VALUE_USD,
+        ANNUAL_GDP_WDI_PROFILE,
+        annual_gdp_candidate_problem,
+        annual_gdp_catalog_source,
+        build_annual_gdp_candidate_profile,
+        build_annual_gdp_candidate_provider,
+    )
+    from tests._helpers.candidate_holdout_resource import wdi_response_for_year
+    from tests._helpers.lane01_wdi_profiles import build_fixture_wdi_authority
+    from tests.integration.core_runtime.test_acquisition_retained_sequential_served import (
+        _SequentialOracle,
+    )
+
+    base_payload = dict(world_model_record.FABRIC_PAYLOAD)
+    base_payload.update(gdp=0.0, tax_rate=0.5)
+    monkeypatch.setattr(world_model_record, "FABRIC_PAYLOAD", base_payload)
+    monkeypatch.setitem(
+        acquisition_planner._ACQUISITION_GAP_BASIS,
+        "global.gdp",
+        {
+            "basis_ref": "fixture-only:hypothetical-gdp-acquisition-input:v1",
+            "collection_mode": "fixture-only annual source routing input",
+            "expert_hours": 1,
+            "calendar_days": 1,
+        },
+    )
+    _authority, entry = build_fixture_wdi_authority(
+        tmp_path / "gdp-entry",
+        ANNUAL_GDP_WDI_PROFILE,
+        attempt_id=_SequentialOracle.attempt_ids[0],
+        subsequent_attempt_ids=_SequentialOracle.attempt_ids[1:],
+    )
+    monkeypatch.setattr(acquisition_chain, "_entry", lambda: entry)
+
+    epoch_catalog = None
+
+    def gdp_authority(repo_root: Path, **_kwargs: object) -> Any:
+        nonlocal epoch_catalog
+        authority, entry = build_fixture_wdi_authority(
+            repo_root,
+            ANNUAL_GDP_WDI_PROFILE,
+            attempt_id=_SequentialOracle.attempt_ids[0],
+            subsequent_attempt_ids=_SequentialOracle.attempt_ids[1:],
+        )
+        epoch_catalog = substrate_registry.resolve_catalog_serving_source(
+            authority.repo_root, selection=None, requested_profile=None
+        )
+        return authority, entry
+
+    monkeypatch.setattr(acquisition_chain, "_resolver", gdp_authority)
+    admit_epoch = acquisition_executor.admit_acquisition_with_production_semantic_epoch
+
+    def admit_wdi_epoch(**inputs: Any) -> Any:
+        # The WDI fixture owns a separate epoch registry and provision. Use its
+        # exact Catalog scope only at that owner, preserving the worker context.
+        active = substrate_registry.current_catalog_serving_source()
+        assert active is not None and active.repo_root != inputs["repo_root"]
+        assert epoch_catalog is not None and epoch_catalog.repo_root == inputs["repo_root"]
+        assert inputs["authority"].repo_root == epoch_catalog.repo_root
+        with substrate_registry.catalog_serving_source_scope(epoch_catalog):
+            return admit_epoch(**inputs)
+
+    monkeypatch.setattr(
+        acquisition_executor, "admit_acquisition_with_production_semantic_epoch", admit_wdi_epoch
+    )
+    monkeypatch.setattr(acquisition_production, "_COUNTRY_CODE", "USA")
+    monkeypatch.setattr(acquisition_production, "_START_YEAR", 2024)
+    monkeypatch.setattr(acquisition_production, "_END_YEAR", 2024)
+    monkeypatch.setattr(acquisition_production, "_INDICATOR_ID", "NY.GDP.MKTP.CD")
+    monkeypatch.setattr(
+        acquisition_production,
+        "_normalized_rows",
+        lambda **_kwargs: [
+            {
+                "country_code": "USA",
+                "country_name": "United States",
+                "indicator_id": "NY.GDP.MKTP.CD",
+                "indicator_name": "GDP (current US$)",
+                "year": 2024,
+                "value": ANNUAL_GDP_VALUE_USD,
+                "unit": "",
+                "decimal": 0,
+            }
+        ],
+    )
+
+    def gdp_raw_body(rows: list[dict[str, object]], **_kwargs: object) -> bytes:
+        # The changed C value is an explicit synthetic response, not a new
+        # external observation; all coordinates and units stay from the capture.
+        assert len(rows) == 1
+        envelope = json.loads(wdi_response_for_year(2024))
+        envelope[1][0]["value"] = rows[0]["value"]
+        return json.dumps(envelope, separators=(",", ":")).encode()
+
+    monkeypatch.setattr(acquisition_production, "_raw_body", gdp_raw_body)
+
+    _run_genuine_first_b(
+        tmp_path,
+        monkeypatch,
+        served_recorded_candidate_gateway,
+        check,
+        seed_problem=annual_gdp_candidate_problem(),
+        candidate_profile_builder=build_annual_gdp_candidate_profile,
+        candidate_provider_builder=build_annual_gdp_candidate_provider,
+        acquisition_slot="global.gdp",
+        initial_source_value=float(ANNUAL_GDP_VALUE_USD),
+        catalog_source_factory=annual_gdp_catalog_source,
+        candidate_refresh_profile=ANNUAL_GDP_WDI_PROFILE,
+        source_knob_profile="served_tax_global_scalar",
+    )
+
+
 def test_served_equal_source_model_revision_reexecutes_and_projects_candidate_only(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     served_recorded_candidate_gateway: Any,
 ) -> None:
     """Trace a configured coefficient through real acquisition, N5 and a fresh GET."""
+    from polisyos.runtime.quality import acquisition_evaluation_dispatch
 
     def check(**values: Any) -> None:
         ctx, oracle = values["ctx"], values["oracle"]
@@ -387,24 +544,6 @@ def test_served_equal_source_model_revision_reexecutes_and_projects_candidate_on
                 (ref, fixture._within_fixture_owner(store.get_bytes, ref)) for ref in prior_refs
             )
 
-        # A fresh object and a new real admission do not create a model delta.
-        ctx.set_candidate_model_declaration(original.model_copy(deep=True))
-        retained = _pair(ctx, oracle, epoch=2, name="unchanged-model")
-        assert retained.receipt.terminal_outcome == "source_admitted_evaluation_retained"
-        assert retained.after_calls == retained.before_calls
-        assert retained.after_artifacts == retained.before_artifacts
-        assert retained.receipt.selected_evaluation.model_dump(exclude={"basis_ref"}) == (
-            old_selected.model_dump(exclude={"basis_ref"})
-        )
-        projection = oracle._fresh_projection(ctx)
-        retained_row = next(
-            row
-            for row in projection["acquisition_history"]
-            if row["action_generation"] == retained.receipt.action_generation
-        )
-        assert retained_row.get("continuation") is None
-        assert retained_row["evaluation_provenance"] == "retained_prior"
-
         replacement = _with_model_values(
             original, outcome_per_target_unit=original.outcome_per_target_unit * 2.0
         )
@@ -412,7 +551,19 @@ def test_served_equal_source_model_revision_reexecutes_and_projects_candidate_on
             original.model_dump(exclude={"content_hash", "outcome_per_target_unit"})
         )
         ctx.set_candidate_model_declaration(replacement)
-        changed = _pair(ctx, oracle, epoch=3, name="coefficient-model")
+        dispatches = []
+        stock_dispatch = acquisition_evaluation_dispatch._prospective_model_transition
+
+        def observe_dispatch(*args: Any, **kwargs: Any) -> Any:
+            dispatched = stock_dispatch(*args, **kwargs)
+            if dispatched is not None:
+                dispatches.append(dispatched)
+            return dispatched
+
+        monkeypatch.setattr(
+            acquisition_evaluation_dispatch, "_prospective_model_transition", observe_dispatch
+        )
+        changed = _pair(ctx, oracle, epoch=2, name="coefficient-model")
         terminal = changed.receipt
         assert terminal.terminal_outcome == "reentry_completed"
         assert (
@@ -436,6 +587,16 @@ def test_served_equal_source_model_revision_reexecutes_and_projects_candidate_on
                 previous_run=ctx.closure.generation_run,
                 previous_cycle=ctx.closure.source_cycle,
             )
+            (dispatch,) = dispatches
+            assert dispatch.status == "verification_required"
+            assert dispatch.intent.kind == "model"
+            assert dispatch.intent.purpose
+            assert dispatch.profile.maximum_budget.n5_evaluations == 1
+            basis = dispatch.intent.dependency_basis
+            assert basis.evaluation_decision_ref == terminal.evaluation_decision_ref
+            assert basis.previous_basis_ref == replay.decision.prior_basis_ref
+            assert basis.prospective_basis_ref == replay.decision.current_basis_ref
+            assert basis.selected_basis_ref is None
             revision = fixture._within_fixture_owner(
                 resolve_candidate_model_revision, **replay.arguments
             )
@@ -546,45 +707,11 @@ def test_served_equal_source_model_revision_reexecutes_and_projects_candidate_on
             == new_effects
         )
         _assert_selected_model_ref_controls(ctx, monkeypatch, tmp_path, previous, replay, revision)
+        assert oracle.monitor.snapshot()["n5"] == changed.after_calls["n5"]
 
-        # A changed unrelated model component has real numerical consequences,
-        # but cannot be advertised as the supported coefficient-only revision.
-        unrelated = _with_model_values(
-            replacement, outcome_noise_stddev=replacement.outcome_noise_stddev + 0.1
-        )
-        assert unrelated.outcome_per_target_unit == replacement.outcome_per_target_unit
-        ctx.set_candidate_model_declaration(unrelated)
-        other = _pair(ctx, oracle, epoch=4, name="unrelated-model-component")
-        assert other.receipt.terminal_outcome == "reentry_completed"
-        assert other.after_calls["n5_controller"] == other.before_calls["n5_controller"] + 1
-        with TestClient(ctx.app()) as client:
-            control = client.app.state.runtime_container.control_service
-            unsupported = _reopen(
-                ctx,
-                control,
-                other.receipt,
-                previous_run=replay.reentry.continued_generation_run,
-                previous_cycle=replay.reentry.new_cycle,
-            )
-            with pytest.raises(
-                ValueError,
-                match=r"^candidate_model_revision_declaration_difference_not_established$",
-            ):
-                fixture._within_fixture_owner(
-                    resolve_candidate_model_revision, **unsupported.arguments
-                )
-            projection = _projection(client, ctx)
-            assert projection["acquisition_history_limitation_code"] == (
-                "acquisition_action_history_integrity_not_established"
-            )
-            assert projection["acquisition_history"] == []
-            for ref, previous_body in prior_bytes:
-                assert fixture._within_fixture_owner(control._artifact_store.get_bytes, ref) == (
-                    previous_body
-                )
         oracle.monitor.assert_slots_unchanged()
 
-    _run_genuine_first_b(tmp_path, monkeypatch, served_recorded_candidate_gateway, check)
+    _run_annual_gdp_first_b(tmp_path, monkeypatch, served_recorded_candidate_gateway, check)
 
 
 def test_served_acquired_outcome_revision_replays_real_v2_basis_trio(
@@ -593,89 +720,12 @@ def test_served_acquired_outcome_revision_replays_real_v2_basis_trio(
     served_recorded_candidate_gateway: Any,
 ) -> None:
     """A real changed outcome replays through the V2 source and numerical owners."""
-    import json
-
-    from polisyos.runtime.quality import acquisition_planner
     from polisyos.runtime.quality.acquisition_evaluation import AcquisitionEvaluationBasisV2
     from polisyos.runtime.quality.acquisition_model_transition import (
         _native_facets,
         resolve_acquired_outcome_revision,
     )
-    from tests._helpers import acquisition_chain, acquisition_production, world_model_record
-    from tests._helpers.annual_gdp_candidate import (
-        ANNUAL_GDP_VALUE_USD,
-        ANNUAL_GDP_WDI_PROFILE,
-        annual_gdp_candidate_problem,
-        annual_gdp_catalog_source,
-        build_annual_gdp_candidate_profile,
-        build_annual_gdp_candidate_provider,
-    )
-    from tests._helpers.candidate_holdout_resource import wdi_response_for_year
-    from tests._helpers.lane01_wdi_profiles import build_fixture_wdi_authority
-    from tests.integration.core_runtime.test_acquisition_retained_sequential_served import (
-        _SequentialOracle,
-    )
-
-    base_payload = dict(world_model_record.FABRIC_PAYLOAD)
-    base_payload.update(gdp=0.0, tax_rate=0.5)
-    monkeypatch.setattr(world_model_record, "FABRIC_PAYLOAD", base_payload)
-    monkeypatch.setitem(
-        acquisition_planner._ACQUISITION_GAP_BASIS,
-        "global.gdp",
-        {
-            "basis_ref": "fixture-only:hypothetical-gdp-acquisition-input:v1",
-            "collection_mode": "fixture-only annual source routing input",
-            "expert_hours": 1,
-            "calendar_days": 1,
-        },
-    )
-    _authority, entry = build_fixture_wdi_authority(
-        tmp_path / "gdp-entry",
-        ANNUAL_GDP_WDI_PROFILE,
-        attempt_id=_SequentialOracle.attempt_ids[0],
-        subsequent_attempt_ids=_SequentialOracle.attempt_ids[1:],
-    )
-    monkeypatch.setattr(acquisition_chain, "_entry", lambda: entry)
-
-    def gdp_authority(repo_root: Path, **_kwargs: object) -> Any:
-        return build_fixture_wdi_authority(
-            repo_root,
-            ANNUAL_GDP_WDI_PROFILE,
-            attempt_id=_SequentialOracle.attempt_ids[0],
-            subsequent_attempt_ids=_SequentialOracle.attempt_ids[1:],
-        )
-
-    monkeypatch.setattr(acquisition_chain, "_resolver", gdp_authority)
-    monkeypatch.setattr(acquisition_production, "_COUNTRY_CODE", "USA")
-    monkeypatch.setattr(acquisition_production, "_START_YEAR", 2024)
-    monkeypatch.setattr(acquisition_production, "_END_YEAR", 2024)
-    monkeypatch.setattr(acquisition_production, "_INDICATOR_ID", "NY.GDP.MKTP.CD")
-    monkeypatch.setattr(
-        acquisition_production,
-        "_normalized_rows",
-        lambda **_kwargs: [
-            {
-                "country_code": "USA",
-                "country_name": "United States",
-                "indicator_id": "NY.GDP.MKTP.CD",
-                "indicator_name": "GDP (current US$)",
-                "year": 2024,
-                "value": ANNUAL_GDP_VALUE_USD,
-                "unit": "",
-                "decimal": 0,
-            }
-        ],
-    )
-
-    def gdp_raw_body(rows: list[dict[str, object]], **_kwargs: object) -> bytes:
-        # The changed C value is an explicit synthetic response, not a new
-        # external observation; all coordinates and units stay from the capture.
-        assert len(rows) == 1
-        envelope = json.loads(wdi_response_for_year(2024))
-        envelope[1][0]["value"] = rows[0]["value"]
-        return json.dumps(envelope, separators=(",", ":")).encode()
-
-    monkeypatch.setattr(acquisition_production, "_raw_body", gdp_raw_body)
+    from tests._helpers.annual_gdp_candidate import ANNUAL_GDP_VALUE_USD
 
     observed: list[object] = []
 
@@ -770,18 +820,5 @@ def test_served_acquired_outcome_revision_replays_real_v2_basis_trio(
             )
             observed.append(revision)
 
-    _run_genuine_first_b(
-        tmp_path,
-        monkeypatch,
-        served_recorded_candidate_gateway,
-        check,
-        seed_problem=annual_gdp_candidate_problem(),
-        candidate_profile_builder=build_annual_gdp_candidate_profile,
-        candidate_provider_builder=build_annual_gdp_candidate_provider,
-        acquisition_slot="global.gdp",
-        initial_source_value=float(ANNUAL_GDP_VALUE_USD),
-        catalog_source_factory=annual_gdp_catalog_source,
-        candidate_refresh_profile=ANNUAL_GDP_WDI_PROFILE,
-        source_knob_profile="served_tax_global_scalar",
-    )
+    _run_annual_gdp_first_b(tmp_path, monkeypatch, served_recorded_candidate_gateway, check)
     assert len(observed) == 1

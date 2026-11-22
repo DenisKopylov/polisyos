@@ -18,6 +18,7 @@ from polisyos.core import artifacts, canon
 from polisyos.core.contracts import SelectedArtifactRef
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.data_forge.read_api import catalog
+from polisyos.runtime.http.services.acquisition_action_service import AcquisitionActionService
 from polisyos.runtime.http.services.control.run_lifecycle import AcquisitionRouteLoopAuthoritySink
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.quality import acquisition_executor
@@ -32,6 +33,7 @@ from polisyos.runtime.quality.acquisition_route_loop import (
     NativeDerivationLeafProviderSelection,
     NativePaidInputAdmissionSelection,
 )
+from polisyos.runtime.quality.agent_action_authority import agent_action_content_hash
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 from polisyos.runtime.quality.semantic_epoch import PersistedSemanticEpochProductionReceipt
 from tests._helpers.acquisition_epoch_production import production_admission_inputs
@@ -55,18 +57,27 @@ def _component_scope_ref(store, *, kind: str, label: str):
 
 
 def _negative_case(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *, with_action_history: bool = False
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    with_action_history: bool = False,
+    native: bool = True,
 ):
     # This existing fixture uses the actual acquisition executor and persisted
     # Fabric observer/sink evidence. Direct connector fetch is forbidden.
     authority, evidence, transport, _journal = _run(tmp_path / "live", monkeypatch)
     store = artifacts.FileSystemCAS(tmp_path / "live/cas")
+    runtime_root = tmp_path / "world-growth"
+    epoch_root = tmp_path / "epoch"
+    if not native:
+        owner_scope = hashlib.sha256(canon.to_canonical_bytes([_TENANT, _CELL])).hexdigest()
+        epoch_root = runtime_root / "runtime/acquisition/world-growth" / owner_scope
     args = production_admission_inputs(
         tmp_path / "epoch",
         store=store,
         authority=authority,
-        overlay_path=tmp_path / "epoch/overlay.duckdb",
-        epoch_history_root=tmp_path / "epoch/history",
+        overlay_path=epoch_root / "overlay.duckdb",
+        epoch_history_root=epoch_root / "epochs",
         authority_purpose="candidate_simulation",
         scope_payload={
             "domain": "public-finance",
@@ -89,8 +100,9 @@ def _negative_case(
     supplier = artifacts.ArtifactRef.model_validate(supplier.model_dump(mode="python"))
     now = datetime.now(UTC)
     cost_scope = None
+    configured_cost = None
     cost_hash = "sha256:" + "3" * 64
-    if with_action_history:
+    if native and with_action_history:
         scope, quote = _profile_scope(store)
         cost_scope = scope.model_copy(
             update={
@@ -116,15 +128,18 @@ def _negative_case(
         )
         assert cost is not None
         cost_hash = cost.record_content_hash
-    else:
+    elif native:
         configured_cost = _component_scope_ref(
             store,
             kind="runtime.quality.native_derivation_leaf_cost_profile",
             label="not_a_price_or_grant_assertion",
         )
     compiled = _component_scope_ref(store, kind="tests.acquisition.scope", label="source")
+    planner_report = {"purpose": "component_scope_only"}
     phase = AcquisitionRoutePhaseReceipt(
-        schema_version="AcquisitionRoutePhaseReceipt@1.3",
+        schema_version=(
+            "AcquisitionRoutePhaseReceipt@1.3" if native else "AcquisitionRoutePhaseReceipt@1.0"
+        ),
         receipt_id="component.executing",
         tenant_id=_TENANT,
         cell_id=_CELL,
@@ -134,7 +149,9 @@ def _negative_case(
         action_generation=1,
         job_id="action-negative-component",
         compiled_ref=str(compiled.artifact_id),
-        planner_report_hash="sha256:" + "2" * 64,
+        planner_report_hash=(
+            "sha256:" + "2" * 64 if native else agent_action_content_hash(planner_report)
+        ),
         cost_basis_hash=cost_hash,
         decision_ref="sha256:" + "4" * 64,
         coarse_phase="executing",
@@ -142,16 +159,21 @@ def _negative_case(
         recovery_state="none",
         predecessor_receipt_ref="sha256:" + "5" * 64,
         owner_declared_profile_ref=configured_cost,
-        native_leaf_provider_selection=NativeDerivationLeafProviderSelection(
-            source_node_id="component-source",
-            supplier_ref=supplier,
-            authority_entry_id=_entry().entry_id,
-            connector_id=evidence.authorization.connector_id,
+        native_leaf_provider_selection=(
+            NativeDerivationLeafProviderSelection(
+                source_node_id="component-source",
+                supplier_ref=supplier,
+                authority_entry_id=_entry().entry_id,
+                connector_id=evidence.authorization.connector_id,
+            )
+            if native
+            else None
         ),
         generated_at=now,
     )
     control = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "history.sqlite3")
     events = RuntimeDiagnosticEventLog(store=control, artifact_store=store)
+    sink = None
     if with_action_history:
         sink = AcquisitionRouteLoopAuthoritySink(
             artifact_store=store, event_log=events, control_store=control
@@ -204,11 +226,12 @@ def _negative_case(
     bridge = growth.AcquisitionWorldGrowthBridge(
         config=growth.AcquisitionWorldGrowthConfig(routes=(route,)),
         repo_root=authority.repo_root,
-        runtime_root=tmp_path / "world-growth",
+        runtime_root=runtime_root,
         authority=authority,
         artifact_store=store,
         event_log=events,
         epoch_deployment=None,
+        action_head_sink=sink,
     )
     scope = SimpleNamespace(
         tenant_id=_TENANT,
@@ -219,7 +242,9 @@ def _negative_case(
         compiled_ref=phase.compiled_ref,
         cost_basis_hash=phase.cost_basis_hash,
         design_problem_ref=route.design_problem_ref,
-        native_derivation_leaf_scope=object(),
+        planner_report=planner_report,
+        owner_declared_profile_ref=configured_cost,
+        native_derivation_leaf_scope=object() if native else None,
     )
     attempt = growth.AcquisitionWorldGrowthAttempt(
         selection=route,
@@ -270,7 +295,8 @@ def _negative_case(
         pointer.with_suffix(".deferred.json"), str(ref.artifact_id), selected_ref=ref
     )
     paid_selection = None
-    if with_action_history:
+    if native and with_action_history:
+        assert sink is not None
         terminal = sink.persist_terminal(
             AcquisitionRouteLoopReceipt.model_validate(
                 {
@@ -335,7 +361,70 @@ def _negative_case(
         call_count=call_count,
         cost_scope=cost_scope,
         paid_selection=paid_selection,
+        sink=sink,
+        overlay_path=args["overlay_path"],
     )
+
+
+def test_ordinary_epoch_deferral_is_selected_and_reopened_without_growth(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Consume the real negative through a fresh sink and refuse a missing proof."""
+    with tenant_scope(None, tenant_id=_TENANT, cell_id=_CELL):
+        case = _negative_case(tmp_path, monkeypatch, with_action_history=True, native=False)
+        owner_refs = case.bridge.deferred_admission_owner_refs(
+            case.scope, negative=case.negative, action_phase_ref=case.phase_ref
+        )
+        assert str(case.ref.artifact_id) in owner_refs
+        selected = case.sink.persist_action_outcome_selection(case.phase_ref, owner_refs)
+        assert selected.receipt_phase == "outcome_selected"
+        terminal = case.sink.persist_terminal(
+            AcquisitionActionService._terminal_receipt(
+                closure=case.scope,
+                job_id=case.phase.job_id,
+                decision_ref=case.phase.decision_ref,
+                predecessor_receipt_ref=selected.receipt_ref,
+                owner_receipt_refs=owner_refs,
+            )
+        )
+        store = artifacts.FileSystemCAS(case.store.root)
+        control = ControlPlaneStore.open_existing_sqlite_for_lease_renewal(
+            tmp_path / "history.sqlite3"
+        )
+        events = RuntimeDiagnosticEventLog(store=control, artifact_store=store)
+        reader = AcquisitionRouteLoopAuthoritySink(
+            artifact_store=store, event_log=events, control_store=control
+        )
+        bridge = growth.AcquisitionWorldGrowthBridge(
+            config=case.bridge.config,
+            repo_root=case.bridge.repo_root,
+            runtime_root=case.bridge.runtime_root,
+            authority=case.bridge.authority,
+            artifact_store=store,
+            event_log=events,
+            epoch_deployment=None,
+            action_head_sink=reader,
+        )
+        assert bridge._paths(case.attempt.selection, create=False)[0] == case.overlay_path
+        assert reader.verify_action_head(terminal).latest_receipt.terminal_outcome == (
+            "quarantined_no_growth"
+        )
+        assert bridge.project_growth_outcome(case.scope) == ("not_established", None)
+
+        prepared = case.negative.prepared_epoch_ref
+        blob, _ = case.store._paths(prepared.artifact_id)
+        held = blob.with_suffix(".held")
+        blob.rename(held)
+        try:
+            with pytest.raises(FileNotFoundError):
+                reader.verify_action_head(terminal)
+            with pytest.raises(FileNotFoundError):
+                bridge.project_growth_outcome(case.scope)
+        finally:
+            held.rename(blob)
+        assert reader.verify_action_head(terminal).latest_receipt.owner_receipt_refs == owner_refs
+        assert bridge.project_growth_outcome(case.scope) == ("not_established", None)
+        assert len(case.transport.calls) == case.call_count == 1
 
 
 def test_paid_history_uses_one_exact_deferral_replay_and_reopens_each_call(

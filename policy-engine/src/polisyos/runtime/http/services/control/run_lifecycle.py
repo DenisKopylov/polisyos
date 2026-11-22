@@ -3829,8 +3829,10 @@ class AcquisitionRouteLoopAuthoritySink:
     ) -> str:
         """Resolve exactly one current action outcome CAS from the full owner receipt set."""
         from polisyos.runtime.quality.acquisition_world_growth import (
+            AcquisitionWorldGrowthDeferral,
             AcquisitionWorldGrowthNoGrowthReceipt,
             AcquisitionWorldGrowthReceipt,
+            resolve_acquisition_admission_deferral_outcome,
             resolve_native_admission_deferral_outcome,
         )
 
@@ -3855,6 +3857,7 @@ class AcquisitionRouteLoopAuthoritySink:
             raise ValueError("acquisition_candidate_owner_profile_invalid")
         matches: list[str] = []
         negative_outcome = None
+        ordinary_deferrals: list[str] = []
         if executing.owner_declared_profile_ref is not None:
             negative_outcome = resolve_native_admission_deferral_outcome(
                 self._artifact_store,
@@ -3886,6 +3889,12 @@ class AcquisitionRouteLoopAuthoritySink:
             inspected = read_core_manifest_profile(
                 self._artifact_store, selector, allow_profile_absent=True
             )[0]
+            if (
+                executing.owner_declared_profile_ref is None
+                and inspected.kind == AcquisitionWorldGrowthDeferral.ARTIFACT_KIND
+            ):
+                ordinary_deferrals.append(ref)
+                continue
             if inspected.kind not in kinds and inspected.kind != candidate_kind:
                 continue
             manifest = read_core_manifest_profile(self._artifact_store, selector)[0]
@@ -3951,6 +3960,16 @@ class AcquisitionRouteLoopAuthoritySink:
             if report.durable_event_id is None:
                 raise ValueError("acquisition_action_owner_receipt_event_missing")
             matches.append(ref)
+        if ordinary_deferrals:
+            deferred = resolve_acquisition_admission_deferral_outcome(
+                self._artifact_store,
+                self._event_log,
+                owner_receipt_refs=tuple(ordinary_deferrals),
+                executing=executing,
+                executing_ref=executing_ref,
+            )
+            if deferred is not None:
+                matches.append(str(deferred.artifact_id))
         if len(matches) != 1:
             raise ValueError("acquisition_action_owner_outcome_missing_or_ambiguous")
         return matches[0]

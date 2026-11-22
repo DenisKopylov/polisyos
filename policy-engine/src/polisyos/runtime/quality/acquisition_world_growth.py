@@ -1132,6 +1132,8 @@ class AcquisitionWorldGrowthReceipt(_Strict):
 class AcquisitionWorldGrowthDeferral(_Strict):
     """Known native negative over the exact durable live attempt, not retry authority."""
 
+    ARTIFACT_KIND: ClassVar[str] = _DEFERRAL_KIND
+
     schema_version: Literal[
         "AcquisitionWorldGrowthDeferral@1.0", "AcquisitionWorldGrowthDeferral@1.1"
     ] = "AcquisitionWorldGrowthDeferral@1.0"
@@ -1357,14 +1359,16 @@ def _resolve_native_admission_deferral(
     owner_receipt_refs: tuple[str, ...],
     executing: AcquisitionRoutePhaseReceipt,
     executing_ref: str,
+    require_native: bool = True,
 ) -> _VerifiedNativeAdmissionDeferral | None:
     """Replay every candidate and keep the exact proof for the unique outcome."""
     if type(executing) is not AcquisitionRoutePhaseReceipt or (
-        executing.receipt_phase != "executing"
-        or executing.owner_declared_profile_ref is None
-        or executing.native_leaf_provider_selection is None
-        or re.fullmatch(_SHA, executing_ref) is None
+        executing.receipt_phase != "executing" or re.fullmatch(_SHA, executing_ref) is None
     ):
+        raise ValueError("acquisition_negative_executing_scope_invalid")
+    native = executing.owner_declared_profile_ref is not None
+    provider = executing.native_leaf_provider_selection
+    if ((provider is not None) != native) or (require_native and not native):
         raise ValueError("acquisition_negative_executing_scope_invalid")
     outcome: _VerifiedNativeAdmissionDeferral | None = None
     ambiguous = False
@@ -1395,9 +1399,12 @@ def _resolve_native_admission_deferral(
                     phase="admission_pending",
                 )
             )
-            if (
-                deferral.action_phase_ref or attempt.action_phase_ref
-            ) != executing_ref or attempt.selection.key != (
+            phase_matches = (
+                (deferral.action_phase_ref or attempt.action_phase_ref) == executing_ref
+                if native
+                else deferral.action_phase_ref == attempt.action_phase_ref == executing_ref
+            )
+            if not phase_matches or attempt.selection.key != (
                 executing.tenant_id,
                 executing.cell_id,
                 executing.run_id,
@@ -1408,7 +1415,7 @@ def _resolve_native_admission_deferral(
                 artifact_store,
                 attempt,
                 deferral.negative_receipt,
-                expected_provider=executing.native_leaf_provider_selection,
+                expected_provider=provider,
             )
             if outcome is None or artifacts.artifact_ref_identity_key(
                 outcome.deferral_ref
@@ -1443,6 +1450,26 @@ def resolve_native_admission_deferral_outcome(
         owner_receipt_refs=owner_receipt_refs,
         executing=executing,
         executing_ref=executing_ref,
+    )
+    return None if proof is None else proof.deferral_ref
+
+
+def resolve_acquisition_admission_deferral_outcome(
+    artifact_store: artifacts.ArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    *,
+    owner_receipt_refs: tuple[str, ...],
+    executing: AcquisitionRoutePhaseReceipt,
+    executing_ref: str,
+) -> artifacts.ArtifactRef | None:
+    """Reopen an ordinary or Native deferral for its exact executing action."""
+    proof = _resolve_native_admission_deferral(
+        artifact_store,
+        event_log,
+        owner_receipt_refs=owner_receipt_refs,
+        executing=executing,
+        executing_ref=executing_ref,
+        require_native=False,
     )
     return None if proof is None else proof.deferral_ref
 
@@ -6787,8 +6814,14 @@ class AcquisitionWorldGrowthBridge:
                 raise ValueError("acquisition_action_selection_binding_mismatch")
             outcome_ref = selection.owner_receipt_refs[0]
             outcome_selector: str | artifacts.ArtifactRef = outcome_ref
-            if native:
-                deferred = resolve_native_admission_deferral_outcome(
+            outcome_kind = None if native else self.artifact_store.get_manifest(outcome_ref).kind
+            if native or outcome_kind == _DEFERRAL_KIND:
+                resolve_deferral = (
+                    resolve_native_admission_deferral_outcome
+                    if native
+                    else resolve_acquisition_admission_deferral_outcome
+                )
+                deferred = resolve_deferral(
                     self.artifact_store,
                     self.event_log,
                     owner_receipt_refs=(outcome_ref,),
@@ -6813,6 +6846,7 @@ class AcquisitionWorldGrowthBridge:
                     if self._current_action_outcome_snapshot(closure, selected) != snapshot:
                         return "not_established", None
                     return "not_established", None
+            if native:
                 profiles = _native_admission_owner_profiles(
                     self.artifact_store,
                     outcome_ref,
@@ -6822,8 +6856,6 @@ class AcquisitionWorldGrowthBridge:
                     raise ValueError("acquisition_action_selection_outcome_profile_not_unique")
                 outcome_selector = profiles[0]
                 outcome_kind = outcome_selector.kind
-            else:
-                outcome_kind = self.artifact_store.get_manifest(outcome_ref).kind
             required_kind = self._required_outcome_kind(snapshot.latest_receipt)
             if (
                 native

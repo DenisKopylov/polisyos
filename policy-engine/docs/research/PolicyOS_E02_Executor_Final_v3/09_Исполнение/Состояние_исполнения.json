@@ -19638,6 +19638,53 @@
           "sha256": "52c2758df2d27f8e7a1a43227de285ec1eaee7c2b9fc7dea3d119dbebc677434",
           "supervisor_sha256": "4ee7d632021bf87fcd82e4c53c6ee1c1bca54cd9771a76aa13fa68ef7e61ead9",
           "verified_boundary": "Actual initial A with stable source image. The v2 planner report passes with two records and the stock costed global.gdp route resolves. Explicit stop before acquiring input. This is a witnessed preflight, with no served successor or replica result."
+        },
+        "cyc03_gdp_first_b_admission_stop": {
+          "output": "Primary:policy-engine/_cache/e02/lane01-cyc03-03-gdp-first-b-6m7BHf/budget/command.log",
+          "sha256": "5a9c8fd03a2ec2d1d5413167bcd4a9b88db341b40b0270e8bfb3c54129c59efb",
+          "supervisor_sha256": "4c09a69d4403fe48e879832cbb6dfd3ffe9bf6732c9872b90c0e23bc026c1856",
+          "controlled_supplier_journal_sha256": "9546541ae88e536dcef5001c5037826acd91d94ffb94ad6805ae4f2c24f50814",
+          "verified_boundary": "Actual A and stock GDP route. One controlled transport succeeds and settles a measurement pending its passport. First B fails semantic epoch admission with resolver_unavailable: SubstrateRegistryError. Requested/executing heads and pending world attempt remain; no activated overlay, re-entry marker, frontier or successor N5."
+        },
+        "cyc01_profile_refusal_affected_composition": {
+          "output": "Primary:policy-engine/_cache/e02/lane01-cyc01-profile-refusal-post-native-freeze-r1/junit.xml",
+          "sha256": "69635942c16edc9f6ec34c9485cba7984a1b85cafacdcefecc5356d8d9c9510b",
+          "supervisor_sha256": "74d2372da690df174267d5c6fee5eb4f1f82d01b8d175c4591f20984c00a0727",
+          "observed": {
+            "PASS": 2,
+            "FAIL": 0
+          },
+          "verified_boundary": "Actual absent/unrefreshable profiles preserve candidate N4 and n5/n8/n9/s8 not_run. Unrefreshable case spies on the actual JointSimulationPort and observes no entry. Executed on the frozen shared Native source, before its publication."
+        },
+        "native_r55_settled_draft_source_qualification": {
+          "source_commit": "3514dab4d37d365aa30468bfd46b12380f800bf0",
+          "source_tree": "16133ad8ffd50446dbf9e0382a507a691215af4b",
+          "output": "Primary:policy-engine/_cache/e02/native-r55-owner-check.1zdw9k/",
+          "junit_hashes": {
+            "initial": "93332f2f16ef9d001b942758f044698caae13322a9c98b25ec8922aa571cedb0",
+            "legacy_delta": "80c00a1884ea5be1c3692d56a870a5e2d244c2b1e24b89b1f09ab20e8347b536",
+            "final_opa_delta": "220677e7159e4544440aa9f7e28e159cf98a135c47a4d544f9de7e4168c7efbe"
+          },
+          "verified_boundary": "87 of 89 initial tests pass; separate corrected legacy wire and final actual middleware/OPA and actor-approval selectors pass on identical final production bytes. The earlier failed test expectations remain in the record. Exact retained R54 draft was consumed through RecordingLLMClient using the paid request digest. No transport or effect and original ledger rev18 SHA preserved. Independent owner review GO. SDK runtime/generator 39 PASS; package-root typecheck and generated contract pass. Dashboard typecheck passes in the ordinary push hook.",
+          "limitation": "Source, admission and producer proof only. No R55 grant, Native worker, N5 or cold API result is established."
+        },
+        "cyc03_gdp_r2_owned_deferral": {
+          "output": "Primary:policy-engine/_cache/e02/lane01-cyc03-03-gdp-coefficient-r2-kEgcGl/budget/command.log",
+          "sha256": "bed5f4aae4db8bfa9cfd0ad0c94e7a0bb460d72d8f66c9895177aa8961d8db4c",
+          "supervisor_sha256": "6da71bbd6eac846a353d5ff3ef9cf2bc4c1edeb661cbaef74def1bbd488de2ef",
+          "scope_control_sha256": "aaf8b677109444ebdeb7d8625f520d3898cbfc26d2df68156958eccd1049d094",
+          "exact_replayed_output": "Primary:policy-engine/_cache/e02/lane01-cyc03-03-gdp-coefficient-r2-kEgcGl/reopen_first_deferral.json",
+          "exact_replayed_sha256": "312446619bb1f8016f6d8b59830f677ab6d3915600ae7ea3494b358e80ff1c23",
+          "verified_boundary": "Corrected Catalog selection reaches the real initial policy_admission_missing deferral. One controlled transport succeeds. The production verifier reopens both selected owner views; withholding prepared bytes refuses. Current ordinary sink refuses before terminal as acquisition_action_owner_outcome_missing_or_ambiguous. Pending membership, zero active epoch and no re-entry/frontier/N5."
+        },
+        "cyc03_ordinary_owned_deferral_qualification": {
+          "output": "Primary:policy-engine/_cache/e02/lane01-cyc03-03-ordinary-deferral-r2-EO9jRN/junit.xml",
+          "sha256": "ff1f8393a109a43504cdbf3cfc75e0caa9b36082bf659c73254412b6a299cf0b",
+          "supervisor_sha256": "d373ed3ff635a88ea1dd7cee83211484dcc91fc1b20137077a3feead66f0b894",
+          "sibling_junit_sha256": "6e6f08db9e2f7d5ff5840c84840fd431e6335bad9c967d4a50507b9d5c2ed73e",
+          "retained_exact_output": "Primary:policy-engine/_cache/e02/lane01-cyc03-03-gdp-coefficient-r2-kEgcGl/reopen_first_deferral_current.json",
+          "retained_exact_sha256": "0ed00e69b64aa97c510ce7ebb141ba1466d65cc2bede59d520af4097ce1e1aed",
+          "verified_boundary": "One actual ordinary selected terminal/fresh negative deferral and prepared-byte removal/restoration pass. Eleven affected Native and strict siblings pass in original wave; the first new test used an incomplete fresh fixture and was repaired without production change. Original R2 selector now reopens exact deferral and its two owner views. Original failed job, 1007 CAS files, journal and ledger remain exact. Zero re-entry or N5 in these checks."
         }
       },
       "independent_component_reviews": {
@@ -35821,11 +35868,11 @@
           "binding_ids": [],
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
+            "cyc01_profile_refusal_affected_composition",
             "cyc01_profile_refusal_retained"
           ],
-          "basis": "In pinned historical served profiles the actual N4 proposal persists with a distinct absent or unrefreshable profile reason. N5, N8 and N9 stay not run and candidate limitations remain in the projection.",
-          "remaining_kinds": [],
-          "remaining": "The runtime source pins differ from current main. Recheck only these two nonnumerical refusals after the affected owner composition."
+          "basis": "Both targeted actual served cases pass on the shared Native composition. The N4 proposal persists with distinct absent or unrefreshable profile reasons, N5/N8/N9 remain not run, and the unrefreshable case observes zero JointSimulationPort entries.",
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-CYC-01-06",
@@ -36159,9 +36206,12 @@
           "status": "PARTIAL",
           "evidence_refs": [
             "cyc03_transition_control_20261122",
-            "cyc03_gdp_costed_seed_preflight"
+            "cyc03_gdp_costed_seed_preflight",
+            "cyc03_gdp_first_b_admission_stop",
+            "cyc03_gdp_r2_owned_deferral",
+            "cyc03_ordinary_owned_deferral_qualification"
           ],
-          "basis": "Eighteen focused checks pass for the transition classifier, declared equal-value identity and technical replay. The original fiscal selector has zero costed routes. A frozen GDP preflight runs actual initial A and reaches the stock costed route with a passing typed planner report, then stops before acquisition.",
+          "basis": "Eighteen focused checks pass for the classifier, declared equal-value identity and technical replay. The scoped GDP route reaches actual initial A and controlled source measurement. The repaired ordinary consumer verifies and persists the real policy deferral, exposes it to a fresh sink and refuses if its prepared evidence is removed.",
           "remaining_kinds": [
             "semantic_test_missing",
             "verification_missing"

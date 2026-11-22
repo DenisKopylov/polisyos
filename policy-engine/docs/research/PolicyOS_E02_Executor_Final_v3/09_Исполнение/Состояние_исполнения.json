@@ -19617,6 +19617,27 @@
           "sha256_stale_profile": "859e66b16effc0a38cec3456dc7364bf207bcddb9972de02b023510edc3f803c",
           "verified_boundary": "Absent profile passes standalone in R4 with 47 named inputs unchanged. Unrefreshable profile passes as an individual test in R2, whose other selector failed. Each preserves the actual scoped N4 and records N5, N8, N9 and S8 not run. Stale profile records zero N5 calls.",
           "scope": "Historical pinned owner path. The shared runtime has since changed. Requalify only the two N5-free refusal selectors on the affected composition."
+        },
+        "sim01_composed_controls_retained": {
+          "output": "Primary:policy-engine/_cache/e02/lane01-sim01-composed-r1/junit.xml",
+          "sha256": "a32efa20cbb838945bb57e35f667c126a0bf5aa0349bf85f0178bec6d87b2e5f",
+          "verified_boundary": "37 PASS. Actual engine horizon and composition controls, same-triple changed plan and seed, rehashed foreign physical ref and distinct selected CAS reader."
+        },
+        "sim01_ordinary_ordered_singleton_retained": {
+          "output": "Primary:policy-engine/_cache/e02/lane01-sim01-upstream-ordered-singleton-r1/junit.xml",
+          "sha256": "4205694118d9bd82011470fb494d002414d3010f7152ab03671fc8d38b9f04e1",
+          "verified_boundary": "Two PASS through ordinary Generic producer, ordered alternatives and a genuine declared singleton."
+        },
+        "selection_served_r12_retained": {
+          "output": "Primary:policy-engine/_cache/e02/lane01-candidate-value-served-r12-20261116/run/junit.xml",
+          "sha256": "19554ed2b46f507e78707f2ff4d2de0842dc5531468d04a0be735fc754097a96",
+          "verified_boundary": "One actual 200-row controlled AIPW producer run with two physical seeds, selected receipt/result, fresh reader and removal. Synthetic candidate-only and production eligibility false."
+        },
+        "cyc03_gdp_costed_seed_preflight": {
+          "output": "Primary:policy-engine/_cache/e02/lane01-cyc03-03-gdp-frozen-seed-f1wBcT/budget/command.log",
+          "sha256": "52c2758df2d27f8e7a1a43227de285ec1eaee7c2b9fc7dea3d119dbebc677434",
+          "supervisor_sha256": "4ee7d632021bf87fcd82e4c53c6ee1c1bca54cd9771a76aa13fa68ef7e61ead9",
+          "verified_boundary": "Actual initial A with stable source image. The v2 planner report passes with two records and the stock costed global.gdp route resolves. Explicit stop before acquiring input. This is a witnessed preflight, with no served successor or replica result."
         }
       },
       "independent_component_reviews": {
@@ -36137,13 +36158,15 @@
           ],
           "status": "PARTIAL",
           "evidence_refs": [
-            "cyc03_transition_control_20261122"
+            "cyc03_transition_control_20261122",
+            "cyc03_gdp_costed_seed_preflight"
           ],
-          "basis": "Eighteen focused checks pass for the transition classifier, declared equal-value identity and technical replay. The served coefficient selector stops at costed_route_not_unique before B, with zero action heads or injected resolution rows.",
+          "basis": "Eighteen focused checks pass for the transition classifier, declared equal-value identity and technical replay. The original fiscal selector has zero costed routes. A frozen GDP preflight runs actual initial A and reaches the stock costed route with a passing typed planner report, then stops before acquisition.",
           "remaining_kinds": [
-            "semantic_test_missing"
+            "semantic_test_missing",
+            "verification_missing"
           ],
-          "remaining": "Qualify actual model-change output and a verified distinct equal-valued measurement against technical replay through the served owner and fresh reader. Keep absent owners explicitly unsupported."
+          "remaining": "Qualify the actual model-change result from the served successor and fresh reader. The measurement row/time owner does not establish independence or distinct sample denominators, so the exact independently measured equal-value selector remains open."
         },
         {
           "requirement_id": "REQ-CYC-03-04",
@@ -36507,7 +36530,7 @@
             "cyc05_stop_dashboard_composed_r1",
             "frontier_current_r8"
           ],
-          "basis": "Backend output distinguishes normal, capacity and abstention paths and preserves the selected partial result. Dashboard controls verify presentation on injected rows.",
+          "basis": "A real capacity interruption persists the completed result and unattempted frontier for a fresh API reader. The Dashboard independently distinguishes normal, capacity and abstention presentation on injected rows.",
           "remaining_kinds": [
             "verification_missing"
           ],
@@ -36830,7 +36853,8 @@
           ],
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "sim01_real_fallback_current"
+            "sim01_real_fallback_current",
+            "sim01_composed_controls_retained"
           ],
           "basis": "The owner checks coupling, horizon, and atom composition. Retained all-invalid and legacy paths preserve the full disposition.",
           "remaining_kinds": []
@@ -36851,7 +36875,7 @@
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "sim01_real_fallback_current",
-            "numeric_native"
+            "sim01_composed_controls_retained"
           ],
           "basis": "Real seed, plan, and physical-request joins reject a mismatched or rehashed foreign result before current use.",
           "remaining_kinds": []
@@ -36871,7 +36895,8 @@
           ],
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "sim01_compatible_model_orders"
+            "sim01_compatible_model_orders",
+            "sim01_ordinary_ordered_singleton_retained"
           ],
           "basis": "Both orders of distinct server-configured models reach the actual producer and fresh GET with different effects. The controlled singleton remains available. Scope is configured upstream proposals.",
           "remaining_kinds": []
@@ -37323,12 +37348,12 @@
           ],
           "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "candidate_method_served_current",
+            "selection_served_r12_retained",
             "method_selection_receipt_composed_r14"
           ],
-          "basis": "Ordinary ingress consumes actual selected AIPW and persists an exact result. Fresh history withdraws the estimate when its receipt is removed and restores the same number with zero new N5.",
+          "basis": "Ordinary ingress runs actual selected AIPW and persists its exact result. A separate historical reader withdraws the estimate after receipt removal and restores the same number with zero new N5.",
           "remaining_kinds": [],
-          "remaining": "The old CAS and SQLite are no longer accessible for a new direct read; recorded test logs retain this historical scope. Requalify only a changed shared or installed consumer."
+          "remaining": "The R14 source R11 CAS and SQLite are no longer accessible for a new direct read; the current positive is retained in R12. Requalify changed shared or installed consumers only."
         }
       ]
     },

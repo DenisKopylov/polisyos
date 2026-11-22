@@ -12586,6 +12586,57 @@ async def test_active_overlay_reentry_rejects_binding_and_trace_mutations(
             **{**arguments, "overlay_path": tmp_path / "overlay-b.duckdb"}
         )
 
+    selected_source = ArtifactRef(
+        artifact_id="sha256:" + "e" * 64,
+        kind="runtime.quality.n4_candidate_scenario_source",
+        media_type="application/json",
+    )
+    reentry_controller = GenerationCycleController(
+        authority_scope="contract_testing", repo_root=source_root, artifact_store=source_store
+    )
+    monkeypatch.setattr(reentry_controller, "_run_cycle", forbidden_cycle)
+    monkeypatch.setattr(
+        reentry_controller,
+        "_candidate_simulation_handoff",
+        SimpleNamespace(run_id=source_run.run_id, tenant_id="test-tenant", cell_id="test-cell"),
+    )
+
+    def with_prior_context(context_ref: ArtifactRef | None) -> dict[str, Any]:
+        simulation = source_cycle.simulation.model_copy(
+            update={
+                "candidate_simulation_context_job_ref": context_ref,
+                "diagnostics": {
+                    "candidate_simulation_n4_source_selected_ref": selected_source.model_dump(
+                        mode="json"
+                    )
+                },
+            }
+        )
+        selected_cycle = source_cycle.model_copy(update={"simulation": simulation})
+        return {
+            **arguments,
+            "original_run": source_run.model_copy(update={"cycles": (selected_cycle,)}),
+            "source_cycle": selected_cycle,
+        }
+
+    prior_context = ArtifactRef(
+        artifact_id="sha256:" + "f" * 64,
+        kind="runtime.quality.cycle_substrate_context_job",
+        media_type="application/json",
+    )
+    # A fresh controller must read the exact selected N4 source from its owner
+    # store. Missing selected bytes and missing prior context fail separately.
+    with pytest.raises(FileNotFoundError, match=r"e{64}"):
+        await reentry_controller.reenter_after_active_acquisition_overlay(
+            **with_prior_context(prior_context)
+        )
+    with pytest.raises(
+        GenerationCycleError, match="acquisition_reentry_prior_evaluation_owner_missing"
+    ):
+        await reentry_controller.reenter_after_active_acquisition_overlay(
+            **with_prior_context(None)
+        )
+
     connection = duckdb.connect(str(scenario.overlay.overlay_path))
     try:
         connection.execute(

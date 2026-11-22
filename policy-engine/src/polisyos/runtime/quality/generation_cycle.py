@@ -12909,6 +12909,9 @@ class GenerationCycleController:
                 ) from exc
         elif source_diagnostics.get("candidate_simulation_n4_source_ref") is not None:
             raise GenerationCycleError("acquisition_reentry_n4_source_selected_ref_missing")
+        self._restore_source_run(original_run)
+        if original_run.source_custody_limitation is not None:
+            self._source_custody_limitation = original_run.source_custody_limitation
         proposal_reissue: object | None = None
         if origin_source_ref is not None and self._candidate_simulation_handoff is not None:
             from polisyos.runtime.quality.design_generation import N4CandidateScenarioProposalRun
@@ -12999,9 +13002,6 @@ class GenerationCycleController:
             **value_port_kwargs,
         )
         next_cycle_index = source_cycle.cycle_index + 1
-        self._restore_source_run(original_run)
-        if original_run.source_custody_limitation is not None:
-            self._source_custody_limitation = original_run.source_custody_limitation
         native_progress = (
             native_reentry_coordinator.progress()
             if native_reentry_coordinator is not None

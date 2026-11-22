@@ -9079,9 +9079,50 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE. Scientific C revision 4 exact historical numerical result is verified in a fresh API on published runtime. Native R39 stopped on disk before N5. R40–R43 qualify the retained route and reproduce increasing charged memory across one coordinator's two reads. R44 proves measured post-dispatch full collection leaves the charged footprint unchanged. R47 keeps the exact prior A outcome live and does not reproduce the larger complete-context increase. R48 qualifies the combined price-history read at 22313 ownership snapshots versus 35696 on R46. Native effect and fresh API await the bounded stock worker admitted from unmarked R35. Native calculation and cold read remain verification_missing. Gate B remains open.",
-        "main_commit": "87b3154db6f7f421eea7bb9c1e17bf91e61e6434",
-        "main_tree": "c328831d3f355218afec94ef96819322e38b4bfa",
+        "status": "ACTIVE. Scientific C revision 4 and fresh API verified. Native R48 reduces quoted-history owner reads. R49 paid-B attempt 5 stops at the charged-memory cap before the physical-start marker. R50 verifies streamed warm generation hashing with similar observed prefix charge. Native numerical completion and fresh API remain verification_missing. Gate B remains open.",
+        "main_commit": "6a60869db102e8a1bc9804d9ae92f058acab4403",
+        "main_tree": "1187686f6a343e2384f09a5a91baa2c88939b19e",
+        "native_r49": {
+          "initial_launch": {
+            "status": "pre_dispatch_no_durable_effects",
+            "source_commit": "c30ddcaade812ff740e878b5b3d211305221272b",
+            "source_tree": "1f1b991aed0e213aa7167622308320ae76fb7bd1",
+            "failure": "observer setup omitted lease_pulse_max_seconds",
+            "attempt": 4,
+            "marker_count": 0,
+            "provider_journals_unchanged": true,
+            "original_physical_ledger_revision": 16,
+            "original_ledger_unchanged": true,
+            "quiescent_stock_scan_count": 3,
+            "receipt": "Primary:policy-engine/_cache/e02/native-paid-b-resume-r35-1o2xbux6/pre-dispatch-reconciliation.json",
+            "receipt_sha256": "101de629f474bc12f59e7a092962945b73e2f4178d84a93d107ce916ff932802"
+          },
+          "retry": {
+            "status": "stock_claim_interrupted_pre_marker_no_durable_physical_effects",
+            "runtime_commit": "c30ddcaade812ff740e878b5b3d211305221272b",
+            "runtime_tree": "1f1b991aed0e213aa7167622308320ae76fb7bd1",
+            "job_attempt": 5,
+            "independently_observed_lease_expiry_advances": 390,
+            "target_charge_peak_bytes": 8592891488,
+            "target_charge_cap_bytes": 8589934592,
+            "min_free_disk_bytes": 5525512192,
+            "comparative_sql_denominator": 20,
+            "preserved_action_heads": 21,
+            "new_started_markers": 0,
+            "selected_native_numerical_or_terminal_events": 0,
+            "supplier_journals_unchanged": true,
+            "original_ledger_revision": 16,
+            "invocation_reservations": 0,
+            "compute_reservations": 0,
+            "protected_units_available": 1,
+            "kernel_final_count": "not_established",
+            "stock_budget_result": "absent_after_interruption",
+            "stock_and_observer_quiescence_observed": true,
+            "reconciliation": "Primary:policy-engine/_cache/e02/native-paid-b-resume-r35-r2-sv697967/post-resource-stop-reconciliation.json",
+            "reconciliation_sha256": "ddd1213311950639fdae5294fcfe795088e3a6fa2b01b1bcff0b84a807d6cbc8",
+            "fresh_api": "verification_missing"
+          }
+        },
         "native_r39": {
           "status": "RESOURCE_ABORT: disk_floor_during_run. Actual exit -2 via SIGINT. Stock and observer groups quiescent.",
           "runtime_commit": "bb144c4b62ed52b33a1d1196146231469fa8ad9a",
@@ -9150,6 +9191,42 @@
           "supervisor_receipt_sha256": "8ac8a7a05347622f032bc180931f51d8a3ee5975991fccc18392a4046b892061"
         },
         "native_route_resource_checks": {
+          "R50": {
+            "status": "verified_matched_quote_prefix",
+            "source_commit": "6a60869db102e8a1bc9804d9ae92f058acab4403",
+            "source_tree": "1187686f6a343e2384f09a5a91baa2c88939b19e",
+            "warm_generation_hashes": 22313,
+            "inferred_cold_whole_reads": 0,
+            "changed_catalog_resolver_calls": 0,
+            "r48_owner_charged_increase_bytes": 45383704,
+            "r50_owner_charged_increase_bytes": 45056048,
+            "r48_outer_charged_increase_bytes": 74924152,
+            "r50_outer_charged_increase_bytes": 74317968,
+            "r48_owner_seconds": 83.497632166,
+            "r50_owner_seconds": 85.383707542,
+            "elapsed_seconds": 321.224,
+            "qualifying_test_count": 132,
+            "test_receipt": "Primary:policy-engine/_cache/e02/lane01-native-core-generation-main-QXrfCNCA/budget/result.json",
+            "test_receipt_sha256": "cea0a2431e4f7556ddbbe270a9c19992e3bd919811a2c0954851fae217555b6d",
+            "preimage_distinguishing_test_receipt": "Primary:policy-engine/_cache/e02/lane01-native-core-generation-before-rg5gM6Lf/budget/result.json",
+            "preimage_test_receipt_sha256": "d39f88f4c7d9ba9acf215118d2794efedb5fad0eedd8e59d9a14d2a88f0d85ab",
+            "isolated_buffer_probe": {
+              "status": "scoped_buffer_measurement_owner_candidate_not_verified",
+              "generation_bytes": 490383,
+              "organization": "target warm generation raw bytes, distinct from app footprint",
+              "baseline_python_traced_peak_bytes": 490625,
+              "stream_python_traced_peak_bytes": 262937,
+              "baseline_median_ms": 0.22554122916666666,
+              "stream_median_ms": 0.2288285625,
+              "receipt": "Primary:policy-engine/_cache/e02/lane01-native-generation-buffer-u4nw9l6_/byte-hash-measurement.json",
+              "receipt_sha256": "e5de06ae9db08317f03dbe4580646630824ef3a14d54a676baccb855810110f0"
+            },
+            "observation": "Primary:policy-engine/_cache/e02/native-r50-streamed-owner-generation-diu4rczj/observation-supervisor.json",
+            "observation_sha256": "d30308bc8a079c822fef0d6a036b452a4e13254cffef575243c4413ea112c949",
+            "reconciliation": "Primary:policy-engine/_cache/e02/native-r50-streamed-owner-generation-diu4rczj/independent-effect-reconciliation.json",
+            "reconciliation_sha256": "7efb5a1c15786f39eab76097b286240fe17532281cfbf739114375466a9f3575",
+            "selected_full_worker_envelope": "not_established"
+          },
           "R48": {
             "readout": "Primary:policy-engine/_cache/e02/native-r48-cost-history-wt0pevkj/",
             "supervised_seconds": 319.264,
@@ -9490,6 +9567,51 @@
           }
         },
         "variable_binding_20261122": {
+          "p07_exact_entry_lookup": {
+            "preimage_command_receipt": "Primary:policy-engine/_cache/e02/lane01-p07-by-entry-before-uAMPTq/budget/result.json",
+            "preimage_receipt_sha256": "2dc326df5db7c1b92296fd7383585a8871bb789f1dae79f21a8764bcf631e542",
+            "postimage_transition_receipt": "Native transition checkout:policy-engine/_cache/e02/lane01-p07-by-entry-after-NZ1nrs/budget/result.json",
+            "postimage_transition_receipt_sha256": "23c43dee324d7967a87e3406c93d98969a87350f9249f1c66cc5409b3035aebd",
+            "exact_registry_entry_count": 256,
+            "previous_examined_entry_ids": 257,
+            "new_max_examined_entry_ids": 10,
+            "fully_verified_registry_reads": 3,
+            "scope": "Lookup within the current canonically verified sorted unique registry. Registry full re-open retained. No operational visibility or latency measurable at 300k here.",
+            "source_commit": "4018b46ffe7c248f0e9c5da5f67cf03e3a04e0c6",
+            "integrated_cases_passed": 8,
+            "integrated_receipt": "Primary:policy-engine/_cache/e02/lane01-p07-by-entry-main-GUyX08TT/budget/result.json",
+            "integrated_receipt_sha256": "97ba7e03beb9fc77794cc04bc8497b16f32149836153b7cc4e9e21956f7ea3ba",
+            "operational_300k_gate": "verification_missing"
+          },
+          "v12_same_release_served_history": {
+            "status": "verified_historical_served_same_release",
+            "frontier_revisions": [
+              2,
+              3
+            ],
+            "standard_units_after_each_reuse": [
+              4,
+              4
+            ],
+            "protected_units_used": 0,
+            "additional_provider_producer_and_n5_calls": 0,
+            "sql": "Secondary:policy-engine/_cache/e02/lane01-ncm-composed-sequence-r16-20261118/tmp/test_genuine_candidate_experim0/.polisyos/control_plane.sqlite3",
+            "sql_sha256": "62aab0c66e92298cfe26665ea4383b72c0a63a4b5a5fc5700d2997bd818e4aa9",
+            "pre_c_ledger": "Secondary:policy-engine/_cache/e02/lane01-c-retained-r13-20261119/cas/runs/.runtime/llm-cost-ledger.json",
+            "pre_c_ledger_sha256": "0259595b1ce33b8a3b105d295f0515c9e49749dba49d6e0b710a204e1e785b8f",
+            "verified_current_publisher_revocation": "verification_missing"
+          },
+          "v24_governed_acl_boundary": {
+            "status": "verification_missing",
+            "current_owner_candidate": "Strict Core manifest bytes via the existing exact get_manifest_bytes permission on newly captured closures",
+            "historical_boundary": "Historical active grant operation/ref equality. Stock typed manifest and integrity report do not establish the explicit raw Core profile.",
+            "discriminator": "Same normalized profile with one removed declaration or duplicate same-valued canon key must fail under unchanged exact legacy authority.",
+            "blocked_on": [
+              "authentic supported old closure evidence",
+              "historical compatible Core verification or governed migration",
+              "retained held-out application cut"
+            ]
+          },
           "gate_a": "Qualified for the declared stock and metadata-only profiles, semantic refusals, repeated B and changed C.",
           "gate_b": "Open. Preserve exact V02–V33 evidence scopes. Remaining exact discriminators, benchmark ≥300k under preregistered budgets, full controlled growth/update measurements and production readiness remain unresolved.",
           "v01_tax_ratio": "Transition PASS on the declared test-owned compiled tax-ratio port. Catalog converts 20% to 0.2, the real Foundry call sees float32 0.20000000298023224 and the fresh reader matches 0.7999999970197678 and the same argument digest. Fiscal numerator/denominator, altered multiplier and absent correspondence controls refuse. Fixed −3% gives the independently expected −6e9 USD derived flow.",
@@ -10473,7 +10595,7 @@
           "repair": "Main 0e003218d, independent review and 58 affected checks pass",
           "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. R18 on cc646d605 returns HTTP 409 at decision request and completes with no new job. Its exact selected typed manifest waited 2.048 s at a 1.5 s guard. Main bfefb6188 extends the existing single retry to raw and typed profile reads. Focused checks and the path-aware docs/API gate pass. R19 loses acknowledgement of a completed payload CAS write (1.903 s). It leaves exact CAS links, without durable event or acquisition job. Main 24d5538e4 adds read-only recovery with 73 tests and docs/API gate PASS. R20 records zero CAS wait timeouts, then HTTP 503 at decision-request after its event lands 49 s beyond the Step-Up deadline. No new acquisition job or N5. R21 resolves the Native route in 264.615 s of 265.480 s total, with no observed CAS wait timeout. The exact mutation selects one node/supplier group and replays all competing profiles within it."
         },
-        "next": "Identify and reduce retained allocations at the stock route/ownership-read boundary while preserving exact content verification. Requalify the measured memory envelope before a new paid-B numerical execution from the exact unmarked R35. Preserve the marked R39 cut, original purchase and journals. Qualify remaining Gate B discriminators and ≥300k operation under an adequate local profile with preregistered budgets. DA-06, DA-07, DA-08, comparative X03 and G keep their existing gates.",
+        "next": "Measure the repeated whole-currentness footprint under the exact stock owner before readmitting paid B. A deciding run needs the authorized unmarked cut, one completed standard invocation, and the exact selected result through a fresh application process. Preserve R49 and marked R39. Continue the remaining Gate B discriminators, including publisher-status custody, governed historical manifest evidence, and the 300k operational profile with admitted resources and budgets. DA-06, DA-07, DA-08, comparative X03 and G retain their separate gates.",
         "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",

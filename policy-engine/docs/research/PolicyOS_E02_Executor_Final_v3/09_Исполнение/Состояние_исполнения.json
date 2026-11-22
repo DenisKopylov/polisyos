@@ -9079,7 +9079,7 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE. Scientific C revision 4 exact historical numerical result is verified in a fresh API on published runtime. Native R39 stopped on disk before N5. R40–R43 qualify the retained route and reproduce increasing charged memory across one coordinator's two reads. R44 proves measured post-dispatch full collection leaves the charged footprint unchanged. R45 separates a smaller retained charge from one A history read and leaves attribution of the larger nested increase open. Native calculation and cold read remain verification_missing. Gate B remains open.",
+        "status": "ACTIVE. Scientific C revision 4 exact historical numerical result is verified in a fresh API on published runtime. Native R39 stopped on disk before N5. R40–R43 qualify the retained route and reproduce increasing charged memory across one coordinator's two reads. R44 proves measured post-dispatch full collection leaves the charged footprint unchanged. R45 and R46 observe lower retained increments for one A history and the stock A/B/A price-profile prefix. The larger full-context growth remains unresolved. Native calculation and cold read remain verification_missing. Gate B remains open.",
         "main_commit": "87b3154db6f7f421eea7bb9c1e17bf91e61e6434",
         "main_tree": "c328831d3f355218afec94ef96819322e38b4bfa",
         "native_r39": {
@@ -9150,6 +9150,64 @@
           "supervisor_receipt_sha256": "8ac8a7a05347622f032bc180931f51d8a3ee5975991fccc18392a4046b892061"
         },
         "native_route_resource_checks": {
+          "R46": {
+            "status": "PASS. Actual stock Native origin and A/B/A history price-profile prefix on unmarked R35. No lease, provider or physical effect.",
+            "readout": "Primary:policy-engine/_cache/e02/native-r46-a-b-a-profile-WCZK0JPN/",
+            "runtime_commit": "6ed5a8e1430113544e43d245ad2e65bfb38d8901",
+            "runtime_tree": "96b7b217f445a04d6389cf607fb16685739d074a",
+            "supervised_seconds": 364.151,
+            "history_seconds": [
+              58.376779292,
+              22.061342959,
+              58.220026167
+            ],
+            "stock_and_observer_quiescent": true,
+            "same_target_samples": 241,
+            "final_a_entry_charged_bytes": 3308343544,
+            "final_a_released_charged_bytes": 3382907176,
+            "final_a_retained_delta_bytes": 74563632,
+            "stock_read_counts": [
+              {
+                "blob_reads": 1997,
+                "manifest_reads": 5233,
+                "owner_snapshot_loads": 13383,
+                "returned_blob_bytes": 9652704
+              },
+              {
+                "blob_reads": 1284,
+                "manifest_reads": 3460,
+                "owner_snapshot_loads": 8930,
+                "returned_blob_bytes": 4406198
+              },
+              {
+                "blob_reads": 1997,
+                "manifest_reads": 5233,
+                "owner_snapshot_loads": 13383,
+                "returned_blob_bytes": 9652704
+              }
+            ],
+            "both_vmmap_samples": {
+              "owner_entry": {
+                "bytes": 6274,
+                "file": "phase-2.vmmap.txt",
+                "sha256": "e05228ba5baa17b100c5a439046ed8d0758d130c4cead6aa866c182f9e116c84"
+              },
+              "owner_return": {
+                "bytes": 6274,
+                "file": "phase-3.vmmap.txt",
+                "sha256": "c84179626ab169e7fd24e94c0bec5d08451d317f3071764b8c27e72dde9f7d8e"
+              }
+            },
+            "checksums_sha256": {
+              "supervisor": "8155a96a6853748c1b31fdd1351d88ab0074fd085760c31dc007be35e4443237",
+              "observer": "1ff4bcba39197db70b6841138690bf4dde5883b9d35140a99a73d1091097ab98",
+              "effects": "6ba10c096e897a3a8a023e2f25bedbc5267ac485cbfe26a7f7379674131115f6",
+              "prefix": "a50a30ca731fd4e858413bf9e444cc52e852528d296a0699865af5ec40263999",
+              "kernel": "6acbf6d292e5ef005beb7927568d714f6f158bc7f494e9842f1b9a75dbd8d418"
+            },
+            "reported_r44_inferred_comparison_delta_bytes": 468812088,
+            "interpretation": "The same retained A/B/A stock prefix alone does not reproduce the larger R44 charge on the measured boundary. The full warm collection context and live object lifetime remain open. Exact allocator cause and Native numerical completion are not established."
+          },
           "R45": {
             "status": "PASS. One isolated stock A history owner call returns two selected generations, without a live lease or any effects.",
             "readout": "Primary:policy-engine/_cache/e02/native-r45-single-a-owner-UnqSOQkG/",

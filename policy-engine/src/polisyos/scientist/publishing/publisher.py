@@ -245,7 +245,7 @@ def compile_decision_grade_export(
         payload = {
             **common,
             "tier": "public_summary",
-            "summary": _public_summary(decision, claim_export.model_dump(mode="json")),
+            "summary": _public_summary(claim_export.model_dump(mode="json")),
             "approved_claims": _visible_claims(claim_export.model_dump(mode="json")),
             "limits": _public_limits(
                 ledger_summary=ledger_summary,
@@ -689,30 +689,20 @@ def _research_dag_summary(
 
 
 def _public_summary(
-    decision_payload: Mapping[str, Any],
     claim_export_payload: Mapping[str, Any],
 ) -> str:
     metadata = claim_export_payload.get("metadata")
     if isinstance(metadata, Mapping) and metadata.get("claim_currentness") != "current":
         return "Public claim summary withheld while Claim Ledger currentness is not established."
     omitted = claim_export_payload.get("omitted_claim_ids")
-    if isinstance(omitted, list) and omitted:
-        for claim in claim_export_payload.get("claims", []) or []:
-            if isinstance(claim, Mapping) and claim.get("visible") is True:
-                text = claim.get("text")
-                if isinstance(text, str) and text.strip():
-                    return text.strip()
-        return "Public claim summary withheld because owner-qualified claims are limited."
-    for key in ("policy_summary", "policy_answer", "summary"):
-        value = decision_payload.get(key)
-        if isinstance(value, str) and value.strip():
-            return value.strip()
     for claim in claim_export_payload.get("claims", []) or []:
         if isinstance(claim, Mapping) and claim.get("visible") is True:
             text = claim.get("text")
             if isinstance(text, str) and text.strip():
                 return text.strip()
-    return "Decision-grade public summary compiled from approved claims."
+    if isinstance(omitted, list) and omitted:
+        return "Public claim summary withheld because owner-qualified claims are limited."
+    return "Public claim summary withheld because no owner-qualified public claims are available."
 
 
 def _visible_claims(claim_export_payload: Mapping[str, Any]) -> list[dict[str, Any]]:

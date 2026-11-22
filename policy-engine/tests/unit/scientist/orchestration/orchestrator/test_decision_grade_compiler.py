@@ -103,6 +103,7 @@ def _ledger() -> AppendOnlyClaimLedger:
 class _StableClaimOwner:
     ledger: AppendOnlyClaimLedger
     head: PersistedClaimLedgerHead
+    pending_projection: ClaimBridgePendingProjection
 
     def resolve_current(self, *, owner_key: ClaimLedgerOwnerKey) -> PersistedClaimLedgerHead:
         assert owner_key == self.head.statement.owner_key
@@ -118,15 +119,15 @@ class _StableClaimOwner:
         return _format_resolved_claim_ledger(
             self.ledger,
             audience=audience,
-            pending_projection=ClaimBridgePendingProjection(
-                completed_batch_denominator_established=True,
-            ),
+            pending_projection=self.pending_projection,
         )
 
 
 def _stable_owner(
     ledger: AppendOnlyClaimLedger,
     claims_ref: ArtifactRef,
+    *,
+    pending_projection: ClaimBridgePendingProjection | None = None,
 ) -> tuple[_StableClaimOwner, ClaimLedgerOwnerKey]:
     derivation = ClaimLedgerOwnerKeyDerivationInput(
         base_claims_ref=claims_ref,
@@ -160,7 +161,12 @@ def _stable_owner(
         head_content_hash=c4_semantic_digest("claim_ledger_head", statement),
         statement=statement,
     )
-    return _StableClaimOwner(ledger=ledger, head=head), owner_key
+    return _StableClaimOwner(
+        ledger=ledger,
+        head=head,
+        pending_projection=pending_projection
+        or ClaimBridgePendingProjection(completed_batch_denominator_established=True),
+    ), owner_key
 
 
 def _legacy_ledger_without_dag_ref() -> AppendOnlyClaimLedger:
@@ -297,6 +303,164 @@ def test_compiles_four_audience_tiers_from_same_claim_ledger_and_dag() -> None:
         claims_ref.artifact_id
     )
     assert machine.payload["frontend_trust_view"]["research_step_count"] == 3
+
+
+@pytest.mark.parametrize(
+    "owner_text",
+    [
+        "Owner-admitted government balance is 602.5.",
+        "Owner-admitted annual inflation rate is 0.04.",
+    ],
+    ids=["same-value", "unrelated-claim"],
+)
+def test_public_summary_uses_owner_claim_over_unbound_candidate_text(owner_text: str) -> None:
+    claims_ref = _ref("claims", kind="scientist.claim_ledger_v2")
+    dag_ref = _ref("dag", kind="scientist.research_dag")
+    owner_claim = _claim(
+        "claim_public",
+        publishability=ClaimPublishability.PUBLISHABLE,
+    ).model_copy(update={"text": owner_text})
+    ledger = AppendOnlyClaimLedger(
+        run_id="run_compiler",
+        current_claims=[owner_claim],
+    )
+    claim_owner, owner_key = _stable_owner(ledger, claims_ref)
+    candidate_summary = "Candidate-only N5 government.balance is 602.5."
+
+    exports = compile_decision_grade_exports(
+        run_id="run_compiler",
+        research_dag_ref=dag_ref,
+        claim_owner=claim_owner,
+        claim_owner_key=owner_key,
+        research_dag=_dag(),
+        decision_payload={
+            "policy_summary": candidate_summary,
+            "n5_result_ref": "sha256:5a6b5364ebe317afe2127b1a496d5117a7a54f4188b9352de2088860c01c5566",
+            "authority_purpose": "cycle_input_candidate_only",
+            "currentness_status": "not_established",
+            "publication_authority": False,
+            "uncertainty": {"limits": ["expert caller uncertainty remains available"]},
+        },
+    )
+
+    public = exports[OutputAudience.PUBLIC]
+    expert = exports[OutputAudience.EXPERT]
+    assert public.payload["summary"] == owner_claim.text
+    assert public.payload["summary"] != candidate_summary
+    assert public.payload["approved_claims"] == [
+        {
+            "claim_id": owner_claim.claim_id,
+            "text": owner_claim.text,
+            "claim_type": owner_claim.claim_type.value,
+            "support_status": owner_claim.support_status.value,
+            "readiness_level": owner_claim.readiness_level.value,
+            "source_attribution": owner_claim.source_attribution,
+        }
+    ]
+    assert public.claims_ref == claims_ref
+    assert public.payload["trust_provenance"]["claims_ref"]["artifact_id"] == str(
+        claims_ref.artifact_id
+    )
+    assert public.payload["limits"]["claim_currentness"] == "current"
+    assert public.payload["limits"]["claim_count"] == 1
+    assert public.payload["limits"]["publication_ready"] is True
+    assert expert.payload["uncertainty"] == {
+        "limits": ["expert caller uncertainty remains available"]
+    }
+    assert expert.payload["assumptions"] == {
+        "items": ["expert caller uncertainty remains available"],
+        "count": 1,
+    }
+
+
+def test_public_summary_withholds_free_text_when_claim_currentness_is_unestablished() -> None:
+    claims_ref = _ref("claims", kind="scientist.claim_ledger_v2")
+    dag_ref = _ref("dag", kind="scientist.research_dag")
+    ledger = AppendOnlyClaimLedger(
+        run_id="run_compiler",
+        current_claims=[_claim("claim_public", publishability=ClaimPublishability.PUBLISHABLE)],
+    )
+    claim_owner, owner_key = _stable_owner(
+        ledger,
+        claims_ref,
+        pending_projection=ClaimBridgePendingProjection(
+            completed_batch_denominator_established=False,
+            unresolved_mapping=True,
+        ),
+    )
+
+    export = compile_decision_grade_export(
+        run_id="run_compiler",
+        audience=OutputAudience.PUBLIC,
+        research_dag_ref=dag_ref,
+        claim_owner=claim_owner,
+        claim_owner_key=owner_key,
+        research_dag=_dag(),
+        decision_payload={"policy_summary": "Candidate-only N5 government.balance is 602.5."},
+    )
+
+    assert export.payload["summary"] == (
+        "Public claim summary withheld while Claim Ledger currentness is not established."
+    )
+    assert export.payload["limits"]["claim_currentness"] == "not_established"
+    assert export.payload["approved_claims"] == []
+
+
+def test_public_summary_withholds_caller_text_when_owner_has_only_a_draft() -> None:
+    claims_ref = _ref("claims", kind="scientist.claim_ledger_v2")
+    dag_ref = _ref("dag", kind="scientist.research_dag")
+    draft_claim = _claim(
+        "claim_draft",
+        publishability=ClaimPublishability.DRAFT,
+    )
+    ledger = AppendOnlyClaimLedger(
+        run_id="run_compiler",
+        current_claims=[draft_claim],
+    )
+    claim_owner, owner_key = _stable_owner(ledger, claims_ref)
+
+    export = compile_decision_grade_export(
+        run_id="run_compiler",
+        audience=OutputAudience.PUBLIC,
+        research_dag_ref=dag_ref,
+        claim_owner=claim_owner,
+        claim_owner_key=owner_key,
+        research_dag=_dag(),
+        decision_payload={"policy_summary": "Candidate-only N5 government.balance is 602.5."},
+    )
+
+    assert export.payload["summary"] == (
+        "Public claim summary withheld because owner-qualified claims are limited."
+    )
+    assert export.payload["approved_claims"] == []
+    assert export.payload["limits"]["claim_currentness"] == "current"
+    assert export.payload["limits"]["claim_count"] == 1
+    assert export.omissions
+
+
+def test_public_summary_withholds_caller_text_when_owner_has_no_claims() -> None:
+    claims_ref = _ref("claims", kind="scientist.claim_ledger_v2")
+    dag_ref = _ref("dag", kind="scientist.research_dag")
+    ledger = AppendOnlyClaimLedger(run_id="run_compiler", current_claims=[])
+    claim_owner, owner_key = _stable_owner(ledger, claims_ref)
+
+    export = compile_decision_grade_export(
+        run_id="run_compiler",
+        audience=OutputAudience.PUBLIC,
+        research_dag_ref=dag_ref,
+        claim_owner=claim_owner,
+        claim_owner_key=owner_key,
+        research_dag=_dag(),
+        decision_payload={"policy_summary": "Candidate-only N5 government.balance is 602.5."},
+    )
+
+    assert export.payload["summary"] == (
+        "Public claim summary withheld because no owner-qualified public claims are available."
+    )
+    assert export.payload["approved_claims"] == []
+    assert export.payload["limits"]["claim_currentness"] == "current"
+    assert export.payload["limits"]["claim_count"] == 0
+    assert export.omissions == []
 
 
 def test_decision_grade_export_persists_with_claim_and_dag_lineage(tmp_path) -> None:

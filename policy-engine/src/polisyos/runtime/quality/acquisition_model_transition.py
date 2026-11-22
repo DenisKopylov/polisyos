@@ -52,6 +52,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.candidate_simulation import CandidateSimulationScenarioProfile
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
     from polisyos.runtime.quality.generation_cycle import GenerationCycleRecord, GenerationCycleRun
+    from polisyos.runtime.quality.n5_candidate_content import CandidateN5ContentObservation
 
 
 @dataclass(frozen=True, slots=True)
@@ -95,6 +96,21 @@ class _CandidateModelSelection:
     declaration_ref: ArtifactRef
     ncm_ref: ArtifactRef
     job_id: str
+
+
+@dataclass(frozen=True, slots=True)
+class _CandidateModelV2Replay:
+    """Source-bound values from one completed, independently reopened N5."""
+
+    observation: CandidateN5ContentObservation
+    scenario_profile_ref: str
+    numerical_atom: dict[str, object]
+
+
+@dataclass(frozen=True, slots=True)
+class _CompletedCandidateN5Witness:
+    implementation: dict[str, object]
+    model_v2: _CandidateModelV2Replay | None = None
 
 
 def _read_selected_candidate_coefficient_pair(
@@ -164,7 +180,8 @@ def _read_completed_candidate_n5_witness(
     run_id: str,
     tenant_id: str,
     cell_id: str,
-) -> dict[str, object]:
+    retain_model_v2_replay: bool = False,
+) -> _CompletedCandidateN5Witness:
     """Require the actual numerical owner's completion before reading its witness."""
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
 
@@ -207,14 +224,16 @@ def _read_completed_candidate_n5_witness(
         raise ValueError("candidate_source_model_revision_completed_n5_mismatch")
     from polisyos.runtime.quality.n5_candidate_content import (
         CONTENT_OBSERVATION_KEY,
+        _read_candidate_n5_declared_implementation,
         read_candidate_n5_content_observation,
-        read_candidate_n5_declared_implementation,
     )
 
     if CONTENT_OBSERVATION_KEY in actual.result.diagnostics:
         from polisyos.runtime.quality.acquisition_evaluation import (
+            _candidate_v5_numerical_request_facets,
             rebuild_selected_candidate_n5_request,
         )
+        from polisyos.runtime.quality.candidate_simulation import candidate_simulation_profile_ref
         from polisyos.runtime.quality.joint_simulation_horizon import (
             PreparedJointSimulationConfiguration,
         )
@@ -233,18 +252,32 @@ def _read_completed_candidate_n5_witness(
             tenant_id=tenant_id,
             cell_id=cell_id,
         )
-        return read_candidate_n5_declared_implementation(
+        observation, implementation = _read_candidate_n5_declared_implementation(
             actual.result,
             input_ref=evaluation.selected.n5_input_ref,
             prepared_configuration=configuration,
             expected_request=request,
+        )
+        if not retain_model_v2_replay:
+            return _CompletedCandidateN5Witness(implementation)
+        profile = actual.input_record.profile
+        atom = _candidate_v5_numerical_request_facets(request=request, rule=profile.rule)[
+            "numerical_atom"
+        ]
+        if not isinstance(atom, dict):
+            raise ValueError("candidate_model_revision_numerical_atom_not_established")
+        return _CompletedCandidateN5Witness(
+            implementation,
+            model_v2=_CandidateModelV2Replay(
+                observation, candidate_simulation_profile_ref(profile), atom
+            ),
         )
     witness = read_n5_execution_implementation_witness(
         actual.result, input_ref=evaluation.selected.n5_input_ref
     )
     if witness.predicate_provenance != "recomputed" or witness.reason_codes:
         raise ValueError("candidate_source_model_revision_implementation_not_established")
-    return witness.implementation
+    return _CompletedCandidateN5Witness(witness.implementation)
 
 
 def _native_facets(
@@ -369,13 +402,96 @@ def _implementation_without_reconciled_ncm(
     return value
 
 
+def _reconciles_v2_scenario_profile_atom(
+    *,
+    old_atom: object,
+    new_atom: object,
+    previous: _CandidateModelV2Replay,
+    selected: _CandidateModelV2Replay,
+) -> bool:
+    """Bind both raw atoms, then compare the exact owner-generated annotation."""
+    from polisyos.runtime.quality.intervention_atom_binding import CausalDoExpression
+
+    selected_bytes = exact_n5_content_bytes(selected.numerical_atom)
+    if (
+        old_atom != json.loads(exact_n5_content_bytes(previous.numerical_atom))
+        or new_atom != json.loads(selected_bytes)
+        or previous.scenario_profile_ref == selected.scenario_profile_ref
+    ):
+        return False
+    expression = previous.numerical_atom.get("causal_do_expr")
+    if type(expression) is not CausalDoExpression:
+        return False
+    assumptions = expression.context.get("assumptions")
+    if type(assumptions) is not list or any(type(value) is not str for value in assumptions):
+        return False
+    prefix = "candidate_scenario_profile:"
+    positions = [index for index, value in enumerate(assumptions) if value.startswith(prefix)]
+    if len(positions) != 1 or assumptions[positions[0]] != prefix + previous.scenario_profile_ref:
+        return False
+    rebound = assumptions.copy()
+    rebound[positions[0]] = prefix + selected.scenario_profile_ref
+    rebound_expression = expression.model_copy(
+        update={"context": {**expression.context, "assumptions": rebound}}
+    )
+    return (
+        exact_n5_content_bytes({**previous.numerical_atom, "causal_do_expr": rebound_expression})
+        == selected_bytes
+    )
+
+
+def _reconciles_v2_model_implementation(
+    previous: _CompletedCandidateN5Witness, selected: _CompletedCandidateN5Witness
+) -> bool:
+    """Compare both recorded provider byte sets without establishing loaded-code equivalence."""
+    from polisyos.runtime.quality.n5_execution_profile import (
+        reconcile_recorded_n5_profile_current_bytes,
+    )
+
+    if previous.model_v2 is None or selected.model_v2 is None:
+        return False
+    old = previous.model_v2.observation
+    new = selected.model_v2.observation
+    old_image = old.witness.production_image
+    new_image = new.witness.production_image
+    if (
+        old.method_fqn != new.method_fqn
+        or old_image != new_image
+        or exact_n5_content_bytes(
+            {
+                key: value
+                for key, value in previous.implementation.items()
+                if key != "execution_profile"
+            }
+        )
+        != exact_n5_content_bytes(
+            {
+                key: value
+                for key, value in selected.implementation.items()
+                if key != "execution_profile"
+            }
+        )
+    ):
+        return False
+    return all(
+        reconcile_recorded_n5_profile_current_bytes(
+            recorded.execution_profile,
+            other.execution_profile,
+            recorded_source_image=recorded.witness.production_image,
+            current_source_image=other.witness.production_image,
+        ).status
+        == "recomputed"
+        for recorded, other in ((old, new), (new, old))
+    )
+
+
 def _require_model_revision_facets(
     previous: AcquisitionEvaluationBasis | CandidateAcquisitionEvaluationBasis,
     prospective: AcquisitionEvaluationBasis | CandidateAcquisitionEvaluationBasis,
     selected: AcquisitionEvaluationBasis | CandidateAcquisitionEvaluationBasis,
     *,
-    previous_implementation: dict[str, object],
-    selected_implementation: dict[str, object],
+    previous_witness: _CompletedCandidateN5Witness,
+    selected_witness: _CompletedCandidateN5Witness,
     previous_ncm: object,
     selected_ncm: object,
 ) -> None:
@@ -405,12 +521,31 @@ def _require_model_revision_facets(
         or not (model_fields | {implementation}).issubset(old)
     ):
         raise ValueError("candidate_model_revision_facet_denominator_changed")
-    if any(old[name] != new[name] for name in old.keys() - model_fields - {implementation}):
+    non_model_changes = {
+        name for name in old.keys() - model_fields - {implementation} if old[name] != new[name]
+    }
+    if non_model_changes and (
+        not v2
+        or non_model_changes != {"numerical_atom"}
+        or pending["numerical_atom"] != old["numerical_atom"]
+        or previous_witness.model_v2 is None
+        or selected_witness.model_v2 is None
+        or not _reconciles_v2_scenario_profile_atom(
+            old_atom=old["numerical_atom"],
+            new_atom=new["numerical_atom"],
+            previous=previous_witness.model_v2,
+            selected=selected_witness.model_v2,
+        )
+    ):
         raise ValueError("candidate_model_revision_non_model_basis_changed")
     if any(old[name] == new[name] for name in model_fields):
         raise ValueError("candidate_model_revision_model_difference_not_established")
-    if any(pending[name] != new[name] for name in pending.keys() - {implementation}):
+    if any(
+        pending[name] != new[name] for name in pending.keys() - {implementation} - non_model_changes
+    ):
         raise ValueError("candidate_model_revision_prospective_actual_mismatch")
+    previous_implementation = previous_witness.implementation
+    selected_implementation = selected_witness.implementation
     if (
         old[implementation] != json.loads(exact_n5_content_bytes(previous_implementation))
         or pending[implementation] != json.loads(exact_n5_content_bytes(previous_implementation))
@@ -420,8 +555,10 @@ def _require_model_revision_facets(
     if v2:
         # NCM is an independently owner-resolved numerical facet in V2; the
         # implementation mapping contains the image, profile and callable only.
-        previous_code = previous_implementation
-        selected_code = selected_implementation
+        if exact_n5_content_bytes(previous_implementation) == exact_n5_content_bytes(
+            selected_implementation
+        ) or _reconciles_v2_model_implementation(previous_witness, selected_witness):
+            return
     else:
         previous_code = _implementation_without_reconciled_ncm(
             previous_implementation, previous_ncm
@@ -429,8 +566,9 @@ def _require_model_revision_facets(
         selected_code = _implementation_without_reconciled_ncm(
             selected_implementation, selected_ncm
         )
-    if exact_n5_content_bytes(previous_code) != exact_n5_content_bytes(selected_code):
-        raise ValueError("candidate_model_revision_implementation_changed")
+        if exact_n5_content_bytes(previous_code) == exact_n5_content_bytes(selected_code):
+            return
+    raise ValueError("candidate_model_revision_implementation_changed")
 
 
 def _require_outcome_owner_values(
@@ -835,12 +973,17 @@ def _resolve_candidate_revision(
     ):
         raise ValueError("candidate_model_revision_declaration_difference_not_established")
 
+    retain_model_v2_replay = (
+        transition_kind == "candidate_model_revision"
+        and type(previous_basis) is AcquisitionEvaluationBasisV2
+    )
     previous_witness = _read_completed_candidate_n5_witness(
         artifact_store=artifact_store,
         evaluation=previous,
         run_id=run_id,
         tenant_id=tenant_id,
         cell_id=cell_id,
+        retain_model_v2_replay=retain_model_v2_replay,
     )
     selected_witness = _read_completed_candidate_n5_witness(
         artifact_store=artifact_store,
@@ -848,13 +991,8 @@ def _resolve_candidate_revision(
         run_id=run_id,
         tenant_id=tenant_id,
         cell_id=cell_id,
+        retain_model_v2_replay=retain_model_v2_replay,
     )
-    comparison = {
-        "previous_implementation": previous_witness,
-        "selected_implementation": selected_witness,
-        "previous_ncm": ncms[0],
-        "selected_ncm": ncms[1],
-    }
     refs = {
         "previous_input_ref": previous.selected.n5_input_ref,
         "selected_input_ref": selected.selected.n5_input_ref,
@@ -867,7 +1005,13 @@ def _resolve_candidate_revision(
     }
     if transition_kind == "candidate_model_revision":
         _require_model_revision_facets(
-            previous_basis, prospective_basis, selected_basis, **comparison
+            previous_basis,
+            prospective_basis,
+            selected_basis,
+            previous_witness=previous_witness,
+            selected_witness=selected_witness,
+            previous_ncm=ncms[0],
+            selected_ncm=ncms[1],
         )
         return CandidateModelRevision(**refs)
 
@@ -956,7 +1100,10 @@ def _resolve_candidate_revision(
         previous_basis,
         prospective_basis,
         selected_basis,
-        **comparison,
+        previous_implementation=previous_witness.implementation,
+        selected_implementation=selected_witness.implementation,
+        previous_ncm=ncms[0],
+        selected_ncm=ncms[1],
         previous_state=state_snapshot_value_projection(old_state_value),
         selected_state=state_snapshot_value_projection(new_state_value),
         state_path=state_path,
@@ -1396,6 +1543,7 @@ def resolve_candidate_source_model_revision(
         run_id=terminal.run_id,
         tenant_id=terminal.tenant_id,
         cell_id=terminal.cell_id,
+        retain_model_v2_replay=type(previous_basis) is CandidateAcquisitionEvaluationBasisV2,
     )
     new_witness = _read_completed_candidate_n5_witness(
         artifact_store=artifact_store,
@@ -1403,13 +1551,14 @@ def resolve_candidate_source_model_revision(
         run_id=terminal.run_id,
         tenant_id=terminal.tenant_id,
         cell_id=terminal.cell_id,
+        retain_model_v2_replay=type(previous_basis) is CandidateAcquisitionEvaluationBasisV2,
     )
     _require_model_revision_facets(
         previous_basis,
         prospective_basis,
         selected_basis,
-        previous_implementation=old_witness,
-        selected_implementation=new_witness,
+        previous_witness=old_witness,
+        selected_witness=new_witness,
         previous_ncm=ncms[0],
         selected_ncm=ncms[1],
     )

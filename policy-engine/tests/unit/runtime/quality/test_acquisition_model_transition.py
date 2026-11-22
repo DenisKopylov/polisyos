@@ -5,23 +5,38 @@ from __future__ import annotations
 import json
 import struct
 from copy import deepcopy
-from dataclasses import asdict
+from dataclasses import asdict, replace
+from typing import TYPE_CHECKING
 
 import pytest
 
 from polisyos.foundry.execute import StateSnapshotValueLeaf
+from polisyos.ir.analytics.interventions import ProofKernelInterventionType
 from polisyos.runtime.quality.acquisition_evaluation import (
     AcquisitionEvaluationBasis,
     AcquisitionEvaluationBasisV2,
 )
 from polisyos.runtime.quality.acquisition_model_transition import (
+    _CandidateModelV2Replay,
+    _CompletedCandidateN5Witness,
     _native_facets,
     _require_model_revision_facets,
     _require_outcome_revision_facets,
     _require_outcome_state_baselines,
     is_prospective_candidate_model_revision,
 )
-from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+from polisyos.runtime.quality.intervention_atom_binding import CausalDoExpression
+from polisyos.runtime.quality.n5_candidate_content import CandidateN5ContentObservation
+from polisyos.runtime.quality.n5_execution_basis import (
+    N5ExecutionContentWitnessV3,
+    exact_n5_content_bytes,
+)
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from polisyos.runtime.quality.n5_execution_basis import N5ProductionImage
+    from polisyos.runtime.quality.n5_execution_profile import N5NativeExecutionProfile
 
 
 def _basis(values: object) -> AcquisitionEvaluationBasis:
@@ -112,16 +127,20 @@ def test_model_revision_requires_both_model_facets_and_identical_other_values() 
     }
     prospective = {**selected, "actual_live_implementation": old_implementation}
 
-    def compare(new_values: object, **updates: object) -> None:
-        arguments = {
-            "previous_implementation": old_implementation,
-            "selected_implementation": new_implementation,
-            "previous_ncm": old_ncm,
-            "selected_ncm": new_ncm,
-            **updates,
-        }
+    def compare(
+        new_values: object,
+        *,
+        selected_implementation: dict[str, object] = new_implementation,
+        selected_ncm: object = new_ncm,
+    ) -> None:
         _require_model_revision_facets(
-            _basis(previous), _basis(prospective), _basis(new_values), **arguments
+            _basis(previous),
+            _basis(prospective),
+            _basis(new_values),
+            previous_witness=_CompletedCandidateN5Witness(old_implementation),
+            selected_witness=_CompletedCandidateN5Witness(selected_implementation),
+            previous_ncm=old_ncm,
+            selected_ncm=selected_ncm,
         )
 
     compare(selected)
@@ -153,6 +172,201 @@ def test_model_revision_requires_both_model_facets_and_identical_other_values() 
         )
     with pytest.raises(ValueError, match="candidate_model_revision_selected_engine_mismatch"):
         compare(selected, selected_ncm=old_ncm)
+
+
+def _v2_model_basis(
+    *, coefficient: int, atom: object, implementation: dict[str, object]
+) -> AcquisitionEvaluationBasisV2:
+    return AcquisitionEvaluationBasisV2.model_construct(
+        effective_native_values_hex=exact_n5_content_bytes(
+            {
+                "declared_model": {"outcome_per_target_unit": coefficient},
+                "selected_native_ncm": f"selected-ncm-{coefficient}".encode(),
+                "numerical_atom": atom,
+                "foundry_state": {"tax_rate": 0.5},
+                "n5_declared_implementation": implementation,
+            }
+        ).hex()
+    )
+
+
+def test_v2_model_rebind_requires_the_exact_owner_profile_annotation() -> None:
+    previous_profile = "runtime-config:candidate-simulation/profile@sha256:" + "a" * 64
+    selected_profile = "runtime-config:candidate-simulation/profile@sha256:" + "b" * 64
+    prefix = "candidate_scenario_profile:"
+    previous_stamp = prefix + previous_profile
+    selected_stamp = prefix + selected_profile
+    # This selector unit checks only facet comparison; the production bridge
+    # creates the replay from a complete, validated result and exact request.
+    observation = CandidateN5ContentObservation.model_construct()
+
+    def atom(assumptions: list[str], *, target: str = "tax_rate") -> dict[str, object]:
+        return {
+            "causal_do_expr": CausalDoExpression(
+                intervention_type=ProofKernelInterventionType.NODE,
+                expression_payload={"intervention_type": "node", "assignments": []},
+                write_variables=(target,),
+                selection_context_ref="sha256:" + "0" * 64,
+                context={
+                    "source_domain": "candidate",
+                    "assumptions": assumptions,
+                    "available_data_refs": ["same-data"],
+                },
+            ),
+            "outcome_variable": "gdp",
+        }
+
+    implementation: dict[str, object] = {
+        "content_image": "same",
+        "execution_profile": "same",
+        "callable_identity": "same",
+    }
+    previous_atom = atom(["grounding_not_established", previous_stamp])
+    selected_atom = atom(["grounding_not_established", selected_stamp])
+    old = _CandidateModelV2Replay(observation, previous_profile, previous_atom)
+    new = _CandidateModelV2Replay(observation, selected_profile, selected_atom)
+
+    def compare(
+        actual: dict[str, object],
+        *,
+        previous_replay: _CandidateModelV2Replay = old,
+        selected_replay: _CandidateModelV2Replay | None = new,
+        prospective_atom: dict[str, object] = previous_atom,
+    ) -> None:
+        _require_model_revision_facets(
+            _v2_model_basis(
+                coefficient=1, atom=previous_replay.numerical_atom, implementation=implementation
+            ),
+            _v2_model_basis(coefficient=2, atom=prospective_atom, implementation=implementation),
+            _v2_model_basis(coefficient=2, atom=actual, implementation=implementation),
+            previous_witness=_CompletedCandidateN5Witness(implementation, previous_replay),
+            selected_witness=_CompletedCandidateN5Witness(implementation, selected_replay),
+            previous_ncm=None,
+            selected_ncm=None,
+        )
+
+    compare(selected_atom)
+    for changed in (
+        atom(["grounding_not_established", prefix + "foreign"]),
+        atom(["different_grounding", selected_stamp]),
+        atom([selected_stamp, "grounding_not_established"]),
+        atom(["grounding_not_established", selected_stamp, selected_stamp]),
+        atom(["grounding_not_established", selected_stamp], target="another_slot"),
+        {**selected_atom, "outcome_variable": "income"},
+    ):
+        with pytest.raises(ValueError, match="candidate_model_revision_non_model_basis_changed"):
+            compare(changed, selected_replay=replace(new, numerical_atom=changed))
+    with pytest.raises(ValueError, match="candidate_model_revision_non_model_basis_changed"):
+        compare(selected_atom, selected_replay=replace(new, scenario_profile_ref=previous_profile))
+    with pytest.raises(ValueError, match="candidate_model_revision_non_model_basis_changed"):
+        compare(selected_atom, previous_replay=replace(old, scenario_profile_ref=selected_profile))
+    with pytest.raises(ValueError, match="candidate_model_revision_non_model_basis_changed"):
+        compare(selected_atom, selected_replay=replace(new, numerical_atom=previous_atom))
+    with pytest.raises(ValueError, match="candidate_model_revision_non_model_basis_changed"):
+        compare(selected_atom, prospective_atom=selected_atom)
+    with pytest.raises(ValueError, match="candidate_model_revision_non_model_basis_changed"):
+        compare(selected_atom, selected_replay=None)
+
+
+def test_v2_model_implementation_reconciles_both_recorded_provider_sets(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from tests.unit.runtime.quality.test_n5_execution_profile import (
+        _module,
+        _profile_for_module_set,
+        _source_image,
+    )
+
+    previous_file = tmp_path / "previous_provider.py"
+    selected_file = tmp_path / "selected_provider.py"
+    previous_file.write_bytes(b"previous = True\n")
+    selected_file.write_bytes(b"selected = True\n")
+    previous_profile = _profile_for_module_set(
+        monkeypatch, tmp_path, {"previous_provider": _module("previous_provider", previous_file)}
+    )
+    selected_profile = _profile_for_module_set(
+        monkeypatch, tmp_path, {"selected_provider": _module("selected_provider", selected_file)}
+    )
+    image = _source_image(tmp_path)
+    assert (
+        previous_profile.numerical_profile_content_hash
+        != selected_profile.numerical_profile_content_hash
+    )
+    atom = {"outcome_variable": "gdp"}
+
+    def witness(
+        profile: N5NativeExecutionProfile,
+        source_image: N5ProductionImage,
+        *,
+        callable_id: str = "same",
+    ) -> _CompletedCandidateN5Witness:
+        observation = CandidateN5ContentObservation.model_construct(
+            method_fqn="same.declared.method",
+            witness=N5ExecutionContentWitnessV3.model_construct(production_image=source_image),
+            execution_profile=profile,
+        )
+        return _CompletedCandidateN5Witness(
+            {
+                "content_image": source_image.model_dump(mode="json"),
+                "execution_profile": {
+                    "numerical_profile_content_hash": profile.numerical_profile_content_hash
+                },
+                "callable_identity": callable_id,
+            },
+            _CandidateModelV2Replay(observation, "unused-unchanged-atom", atom),
+        )
+
+    previous = witness(previous_profile, image)
+    selected = witness(selected_profile, image)
+
+    def compare(
+        other: _CompletedCandidateN5Witness,
+        *,
+        recorded_implementation: dict[str, object] | None = None,
+    ) -> None:
+        _require_model_revision_facets(
+            _v2_model_basis(coefficient=1, atom=atom, implementation=previous.implementation),
+            _v2_model_basis(coefficient=2, atom=atom, implementation=previous.implementation),
+            _v2_model_basis(
+                coefficient=2,
+                atom=atom,
+                implementation=(
+                    other.implementation
+                    if recorded_implementation is None
+                    else recorded_implementation
+                ),
+            ),
+            previous_witness=previous,
+            selected_witness=other,
+            previous_ncm=None,
+            selected_ncm=None,
+        )
+
+    compare(previous)  # Exact recorded identity fast path.
+    compare(selected)
+    with pytest.raises(
+        ValueError, match="candidate_model_revision_implementation_binding_mismatch"
+    ):
+        compare(selected, recorded_implementation=previous.implementation)
+    with pytest.raises(ValueError, match="candidate_model_revision_implementation_changed"):
+        compare(witness(selected_profile, image, callable_id="foreign-callable"))
+    (tmp_path / "uv.lock").write_text("version = 2\n", encoding="utf-8")
+    from polisyos.runtime.quality.n5_execution_basis import capture_n5_production_image
+
+    foreign_image = capture_n5_production_image(
+        root=tmp_path, admitted_profile={"authority_scope": "candidate_observation_only"}
+    )
+    with pytest.raises(ValueError, match="candidate_model_revision_implementation_changed"):
+        compare(witness(selected_profile, foreign_image))
+    with pytest.raises(ValueError, match="candidate_model_revision_implementation_changed"):
+        compare(replace(selected, model_v2=None))
+    selected_file.unlink()  # This file exists in the reverse recorded set only.
+    with pytest.raises(ValueError, match="candidate_model_revision_implementation_changed"):
+        compare(selected)
+    selected_file.write_bytes(b"selected = True\n")
+    previous_file.write_bytes(b"previous = False\n")
+    with pytest.raises(ValueError, match="candidate_model_revision_implementation_changed"):
+        compare(selected)
 
 
 def test_model_revision_rejects_invalid_or_duplicate_native_facets() -> None:

@@ -9080,8 +9080,8 @@
       "lane_id": "LANE-01",
       "current_execution": {
         "status": "ACTIVE. Scientific C revision 4 and fresh API verified. Native R53 qualifies full currentness with bounded physical charge. R54 stops at the coroutine deadline after a settled controlled N4 spend and before N5. The selected-route timeout is qualified at the bridge. Native continuation, numerical result, fresh API and Gate B remain open.",
-        "main_commit": "933a993eb25b6daddc753af426f94e50d4380fff",
-        "main_tree": "772e4c8b1411a142a68b2ce73537f373b9fbbfe1",
+        "main_commit": "4b6edb2116cb32c9bdfa25a29786997737913cb0",
+        "main_tree": "a27faa371b3f63d3e90321f5014931f971f9052d",
         "native_memory_r51_r53": {
           "status": "full_currentness_verified_on_exact_paid_fixture_without_effect",
           "runtime_commit": "8f8576eb0f5bcff10083a553b5d0851755b76bee",
@@ -9196,6 +9196,16 @@
           "adapter_discriminator_sha256": "53767aaec6342aa0a3049c6570c05dd6e3dad1fa08c410516e590e68c430c4fe",
           "readout": "Primary:policy-engine/_cache/e02/native-paid-b-after-recorder-oiseffvc/",
           "numerical_and_fresh_api": "verification_missing",
+          "current_continuation_readback": {
+            "ledger_revision": 18,
+            "ledger_resource_identity_matches_failed_run": true,
+            "already_settled_local_n4_estimated_usd": "0.12903",
+            "generation_3_remaining_estimated_usd": "0.37097",
+            "invocation_reservations": 0,
+            "compute_reservations": 0,
+            "draft_evidence": "Exact delivered content matches settled producer payload. Ledger event belongs to source job attempt 1 and does not establish current Native attempt-5 work permission.",
+            "remaining": "A current one-shot exact attempt/head admission plus verified replay of the settled draft under the original ledger remains bridge_missing. Existing custody is historical read-only."
+          },
           "timeout_repair": {
             "source_commit": "933a993eb25b6daddc753af426f94e50d4380fff",
             "source_tree": "772e4c8b1411a142a68b2ce73537f373b9fbbfe1",
@@ -9710,6 +9720,21 @@
               "scope": "The retained 100k warm p95 measures the private registry owner and exact bucket lookup. The verified warm path still reads 235112672 registry bytes per query and the production route additionally rechecks provision, baseline and authority dependencies. Streaming can reduce warm buffer allocation without reducing full-byte verification. The 300k profile still requires a real full-route measurement, predeclared budgets, an admitted envelope and typed old/new update and corruption controls."
             },
             "gate_b_scope": "Finite V01–V33, mandatory distinguishing mutations, independent holdout and the complete ≥300000 operational profile. No promotion to Gate B or G from the Native qualification."
+          },
+          "p07_warm_registry_streaming": {
+            "status": "warm_registry_buffer_verified_bounded_scope",
+            "source_commit": "4b6edb2116cb32c9bdfa25a29786997737913cb0",
+            "registry_rows_in_allocation_probe": 10049,
+            "traced_peak_temporary_allocations_before_bytes": 25842220,
+            "traced_peak_temporary_allocations_after_bytes": 2229410,
+            "supervised_cases_passed": 79,
+            "supervised_seconds": 64.739,
+            "readout": "Primary:policy-engine/_cache/e02/{lane01-p07-warm-stream-red-ybdQVpPx,lane01-p07-warm-stream-verified-iRe5FQcg,lane01-p07-warm-registry-allocation-a92DF7JQ}/budget/",
+            "red_receipt_sha256": "426d6fe684c02e933957b748728d379f4769bf498b8a11f560ddbecf123f027a",
+            "focused_receipt_sha256": "81d0ed90bacd3002bb8e9ec7872ce81846437b4f1f6a703c4b7daeed303ce558",
+            "allocation_report_sha256": "9e3f3c6160e3eb935887f319c9c10f700426f49c30f9aef330b64c4f31394f71",
+            "scope": "Complete same-file digest on a warm read, independently checked corruption and publication. The 10k warm allocation probe excludes full-route time, process RSS and deployment qualification. The frozen N13b source owner record already differed on the preimage.",
+            "operational_gate_b_300k": "verification_missing"
           },
           "p07_exact_entry_lookup": {
             "preimage_command_receipt": "Primary:policy-engine/_cache/e02/lane01-p07-by-entry-before-uAMPTq/budget/result.json",

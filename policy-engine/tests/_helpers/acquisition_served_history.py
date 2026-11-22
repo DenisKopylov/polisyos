@@ -3036,7 +3036,8 @@ def _produce_served_acquisition_history(
             # immutable compiled route while the selected N4 source advances.
             action_service = client.app.state.runtime_container.acquisition_action_service
             assert action_service is not None
-            fresh_closure = action_service._resolve(
+            fresh_closure = _within_fixture_owner(
+                action_service._resolve,
                 tenant_id=closure.tenant_id,
                 cell_id=closure.cell_id,
                 run_id=run_id,

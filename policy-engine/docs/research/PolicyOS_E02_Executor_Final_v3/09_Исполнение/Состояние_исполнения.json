@@ -9079,9 +9079,138 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE. Scientific C revision 4 and fresh API verified. Native R48 reduces quoted-history owner reads. R49 paid-B attempt 5 stops at the charged-memory cap before the physical-start marker. R50 verifies streamed warm generation hashing with similar observed prefix charge. Native numerical completion and fresh API remain verification_missing. Gate B remains open.",
-        "main_commit": "6a60869db102e8a1bc9804d9ae92f058acab4403",
-        "main_tree": "1187686f6a343e2384f09a5a91baa2c88939b19e",
+        "status": "ACTIVE. Scientific C revision 4 and fresh API verified. Native R53 qualifies full currentness with bounded physical charge. R54 stops at the coroutine deadline after a settled controlled N4 spend and before N5. The selected-route timeout is qualified at the bridge. Native continuation, numerical result, fresh API and Gate B remain open.",
+        "main_commit": "933a993eb25b6daddc753af426f94e50d4380fff",
+        "main_tree": "772e4c8b1411a142a68b2ce73537f373b9fbbfe1",
+        "native_memory_r51_r53": {
+          "status": "full_currentness_verified_on_exact_paid_fixture_without_effect",
+          "runtime_commit": "8f8576eb0f5bcff10083a553b5d0851755b76bee",
+          "runtime_tree": "dc9fd755183855b786223d2770abc84d6de413f1",
+          "native_r51": {
+            "status": "RESOURCE_ABORT_disk_floor_during_run",
+            "elapsed_seconds": 1106.123,
+            "minimum_free_disk_bytes": 3219591168,
+            "stock_and_observer_quiescent": true,
+            "charged_entry_bytes": 3271594352,
+            "charged_after_B_bytes": 3365671352,
+            "charged_after_A_bytes": 4944729080,
+            "retained_import_records_per_bounded_probe": 196,
+            "retained_field_tuples_per_bounded_probe": 196,
+            "supervisor_sha256": "6ac9f9d7ee23f67f754be814c3bf7f7aa370688346e30008bbc218b340b91eb6",
+            "observer_sha256": "b0891eea3446fb118228abc8e19c07f6438be226ab0ac792cee2a443cdca1018",
+            "effect_reconciliation_sha256": "3b96662d6b825fd357f9011a7020f9f422f72e379aad1d5ac959b591c0d3763c",
+            "readout": "Primary:policy-engine/_cache/e02/native-r51-current-allocation-_zvvfnhh/"
+          },
+          "deferral": {
+            "source_commit": "71a19f4d739955ec74397179eab3740f11dff605",
+            "preimage_historical_verifications": 2,
+            "postimage_historical_verifications": 1,
+            "affected_cases_passed": 95,
+            "integrated_receipt": "Primary:policy-engine/_cache/e02/lane01-native-deferral-main-bg5yrxyB/budget/result.json",
+            "integrated_receipt_sha256": "4b98e944d68a48842bd268d9c113dc5db2b3d300bda5fd2d670443b344789b4e"
+          },
+          "import_evidence": {
+            "ordered_occurrences": 30000,
+            "additional_anchors_before": 30000,
+            "additional_anchors_after": 0,
+            "retained_traced_bytes_before": 24727608,
+            "retained_traced_bytes_after": 246808,
+            "readout": "Primary:policy-engine/_cache/e02/lane01-native-import-retention-Otmi523Y/",
+            "combined_cohort": {
+              "passed": 94,
+              "skipped_child_only": 5,
+              "outer_output_assertion_failed": 1
+            },
+            "direct_locked_case": "Primary:policy-engine/_cache/e02/lane01-native-capture-host-direct-SysowQHQ/budget/result.json",
+            "direct_locked_case_sha256": "a56866eaa703420ecca2a783cc62678ff818ba27c4ff03a4bdce3829b84238b6"
+          },
+          "native_r53": {
+            "status": "PASS",
+            "elapsed_seconds": 1077.391,
+            "current_seconds": 558.492,
+            "stock_and_observer_quiescent": true,
+            "target_peak_physical_charge_bytes": 3121926296,
+            "sampled_peak_tree_rss_bytes": 4336599040,
+            "observed_minimum_free_disk_bytes": 5509361664,
+            "charged_entry_bytes": 3062255744,
+            "charged_after_B_bytes": 3068874880,
+            "charged_after_A_bytes": 3088568472,
+            "ordered_import_occurrences": 1855535,
+            "reused_import_evidence": 1848841,
+            "new_import_anchors": 6694,
+            "ledger_revision": 16,
+            "protected_available": 1,
+            "physical_reservations": 0,
+            "n5_calls": 0,
+            "supplier_calls": 0,
+            "started_markers": 0,
+            "selected_successors": 0,
+            "supervisor_sha256": "3749afbb0656236bae31f9bbd2e3d1eebb47c12a5069dfe437f3da055057d70b",
+            "observer_sha256": "c1a9de578ab1e8d0ae93eb3b71ac5e6cf34a01fa740cdac0f4c7219ffff5047b",
+            "effect_reconciliation_sha256": "f198ac465da5461c984bf44b961cf54751d48a68cdf396b468adbc22e7c9a616",
+            "readout": "Primary:policy-engine/_cache/e02/native-r53-recorder-currentness-wu3625id/"
+          }
+        },
+        "native_r54": {
+          "status": "COMMAND_FAIL_reentry_recovery_required_after_start_before_n5",
+          "source_commit": "8f8576eb0f5bcff10083a553b5d0851755b76bee",
+          "source_tree": "dc9fd755183855b786223d2770abc84d6de413f1",
+          "attempt": 5,
+          "action_generation": 3,
+          "head_revision": 4,
+          "elapsed_seconds": 10240.878,
+          "stock_and_observer_quiescent": true,
+          "stock_peak_sampled_rss_bytes": 4339286016,
+          "target_peak_physical_charge_bytes": 3427488112,
+          "stock_minimum_free_disk_bytes": 5087424512,
+          "independent_minimum_free_disk_bytes": 5066838016,
+          "reentry_started_at": "2026-11-22T13:06:31+02:00",
+          "controlled_n4_response_at": "2026-11-22T14:30:26+02:00",
+          "durable_nested_cause": [
+            "AcquisitionRouteRecoveryRequired",
+            "TimeoutError",
+            "TimeoutError",
+            "CancelledError"
+          ],
+          "timeout_scope": "The Native owner used the default 30 s fresh-loop coroutine adapter under the clean authority launcher. The short real adapter reproduces the failure after a synchronous prefix and a pending await. The exact cancelled await in R54 is not established.",
+          "original_ledger_revisions": [
+            16,
+            18
+          ],
+          "local_controlled_n4_estimated_usd": "0.12903",
+          "supplier_transport_calls": 0,
+          "n5_calls": 0,
+          "invocation_reservations": 0,
+          "compute_reservations": 0,
+          "protected_available": 1,
+          "previous_jobs_unchanged": 5,
+          "previous_heads_unchanged": 21,
+          "previous_diagnostic_events_unchanged": 161,
+          "started_markers": 1,
+          "native_checkpoint_events": 0,
+          "selected_terminal_events": 0,
+          "worker_receipt_sha256": "b52a8c038bead54017078ea1ded1f62f2c2e0703867f72aa77cd08af14d5ec21",
+          "supervisor_receipt_sha256": "10fe731920c3a78d18dd4a7b173cbe9e59e08e3a231aa056c416d6e039ed4406",
+          "kernel_receipt_sha256": "07fba158374ed488eb13af1d678c854af26f834386378c5c26959b835568e089",
+          "ledger_and_effect_reconciliation_sha256": "a866a286db6dbd08d37635c09897991c5a6a86a10a2798bc81582c30fc1eb825",
+          "adapter_discriminator_sha256": "53767aaec6342aa0a3049c6570c05dd6e3dad1fa08c410516e590e68c430c4fe",
+          "readout": "Primary:policy-engine/_cache/e02/native-paid-b-after-recorder-oiseffvc/",
+          "numerical_and_fresh_api": "verification_missing",
+          "timeout_repair": {
+            "source_commit": "933a993eb25b6daddc753af426f94e50d4380fff",
+            "source_tree": "772e4c8b1411a142a68b2ce73537f373b9fbbfe1",
+            "status": "bridge_qualified_with_real_adapter_controls",
+            "timeout_selection": "optional finite positive seconds on exact deployed Native route, preserving the legacy default and original effect authority",
+            "focused_passed_cases": 20,
+            "focused_supervised_seconds": 15.248,
+            "focused_receipt": "Primary:policy-engine/_cache/e02/native-r54-route-timeout-commit-HiVFNW7F/budget/result.json",
+            "focused_receipt_sha256": "b921077eaaac35f426ad7d03840c84340be913ac614361a1e3e36904831029d7",
+            "adjacent_scope_passed": 57,
+            "adjacent_preimage_reproduced_fixture_failure": "Existing route stub rejects tenant_id under exact preimage and postimage.",
+            "scope": "Active-overlay bridge controlled tests. Cooperative coroutine timeout retains outer resource bounds. No new admitted calculation or fresh API."
+          },
+          "continuation": "The existing read-only Native custody action grants no new effect. The marked path needs selected prepared evidence. The exact draft is matched to the committed N4 spend, but no prepared generation or approved Native draft-cache replay is present. A copied rev18 ledger cannot adopt the resource-bound original window. The old R35 stock package pins rev16. Qualify explicit continuation on the actual ledger and settled draft before physical admission."
+        },
         "native_r49": {
           "initial_launch": {
             "status": "pre_dispatch_no_durable_effects",
@@ -9567,6 +9696,21 @@
           }
         },
         "variable_binding_20261122": {
+          "gate_b_source_reconciliation": {
+            "v12": {
+              "state": "verification_missing",
+              "scope": "Same-release served history and equal five-facet preparation across distinct releases stand. A comparable, owner-recomputed distinct release and publisher-selected status and revocation still need live current-use refusal and an unchanged historical GET."
+            },
+            "v24": {
+              "state": "bridge_missing",
+              "scope": "The genuine held-out Runtime GET returns its exact numerical trajectories under cycle_input_candidate_only, with publication authority false. The existing approval admits execution of selected model input and does not admit the resulting claim for another purpose. The public record owner needs an already-eligible packet-bound Claim Ledger. The same-value admitted/candidate discriminator must use independently selected, purpose-bound result evidence on the configured API and export."
+            },
+            "p07": {
+              "state": "verification_missing",
+              "scope": "The retained 100k warm p95 measures the private registry owner and exact bucket lookup. The verified warm path still reads 235112672 registry bytes per query and the production route additionally rechecks provision, baseline and authority dependencies. Streaming can reduce warm buffer allocation without reducing full-byte verification. The 300k profile still requires a real full-route measurement, predeclared budgets, an admitted envelope and typed old/new update and corruption controls."
+            },
+            "gate_b_scope": "Finite V01–V33, mandatory distinguishing mutations, independent holdout and the complete ≥300000 operational profile. No promotion to Gate B or G from the Native qualification."
+          },
           "p07_exact_entry_lookup": {
             "preimage_command_receipt": "Primary:policy-engine/_cache/e02/lane01-p07-by-entry-before-uAMPTq/budget/result.json",
             "preimage_receipt_sha256": "2dc326df5db7c1b92296fd7383585a8871bb789f1dae79f21a8764bcf631e542",
@@ -10595,7 +10739,7 @@
           "repair": "Main 0e003218d, independent review and 58 affected checks pass",
           "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. R18 on cc646d605 returns HTTP 409 at decision request and completes with no new job. Its exact selected typed manifest waited 2.048 s at a 1.5 s guard. Main bfefb6188 extends the existing single retry to raw and typed profile reads. Focused checks and the path-aware docs/API gate pass. R19 loses acknowledgement of a completed payload CAS write (1.903 s). It leaves exact CAS links, without durable event or acquisition job. Main 24d5538e4 adds read-only recovery with 73 tests and docs/API gate PASS. R20 records zero CAS wait timeouts, then HTTP 503 at decision-request after its event lands 49 s beyond the Step-Up deadline. No new acquisition job or N5. R21 resolves the Native route in 264.615 s of 265.480 s total, with no observed CAS wait timeout. The exact mutation selects one node/supplier group and replays all competing profiles within it."
         },
-        "next": "Measure the repeated whole-currentness footprint under the exact stock owner before readmitting paid B. A deciding run needs the authorized unmarked cut, one completed standard invocation, and the exact selected result through a fresh application process. Preserve R49 and marked R39. Continue the remaining Gate B discriminators, including publisher-status custody, governed historical manifest evidence, and the 300k operational profile with admitted resources and budgets. DA-06, DA-07, DA-08, comparative X03 and G retain their separate gates.",
+        "next": "Qualify a one-shot current-work continuation for the exact failed Native attempt and selected head, with the actual rev18 original ledger and settled N4 draft. An explicit route timeout is available and needs a declared operational bound on a newly admitted run. Continue Gate B distinct-release publisher status, the purpose-bound V24 result-use bridge and the full 300k operational profile with admitted resources and budgets. DA-06, DA-07, DA-08, comparative X03 and G retain their separate gates.",
         "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",

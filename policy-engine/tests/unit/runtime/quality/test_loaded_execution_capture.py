@@ -676,6 +676,128 @@ assert bad.status == 'not_established'
     )
 
 
+def test_repeated_local_imports_keep_order_and_exact_observed_bindings(tmp_path: Path) -> None:
+    program = r"""
+import hashlib
+import importlib
+import pathlib
+import sys
+from types import ModuleType
+
+sys.path.insert(0, sys.argv[1])
+from tools.loaded_execution_capture import CaptureError, ExpectedSource, SourceExecutionCapture
+
+root = pathlib.Path(sys.argv[2])
+(root / 'local_capture').mkdir()
+files = {
+    'local_capture': ('local_capture/__init__.py', b''),
+    'local_capture.provider': ('local_capture/provider.py', b'a = object()\nb = object()\n'),
+    'local_capture.consumer': ('local_capture/consumer.py', b'''from importlib import import_module
+for _ in range(2):
+    from .provider import a as initializer_a
+class Container:
+    for _ in range(2):
+        from .provider import a as class_a
+def first():
+    from .provider import a
+    return a
+def second():
+    from .provider import b
+    return b
+def dynamic():
+    return import_module('local_capture.provider')
+def with_unresolved_export():
+    return __import__('local_capture.provider', fromlist=('missing',))
+'''),
+}
+for relative, source in files.values():
+    (root / relative).write_bytes(source)
+capture = SourceExecutionCapture(root, {
+    name: ExpectedSource(path, hashlib.sha256(source).hexdigest())
+    for name, (path, source) in files.items()
+})
+capture.install()
+sys.path.insert(0, str(root))
+provider_name = 'local_capture.provider'
+consumer = importlib.import_module('local_capture.consumer')
+provider = sys.modules[provider_name]
+original = provider.a
+
+class NoComparison:
+    def __eq__(self, other):
+        raise AssertionError('observed export equality invoked')
+    def __hash__(self):
+        raise AssertionError('observed export hash invoked')
+
+changed = NoComparison()
+assert consumer.first() is original
+assert consumer.second() is provider.b
+assert consumer.first() is original
+provider.a = changed
+assert consumer.first() is changed
+provider.a = original
+assert consumer.first() is original
+rebound = ModuleType(provider_name)
+rebound.a = original
+sys.modules[provider_name] = rebound
+assert consumer.first() is original
+sys.modules[provider_name] = provider
+assert consumer.first() is original
+assert consumer.dynamic() is consumer.dynamic() is provider
+assert consumer.with_unresolved_export() is consumer.with_unresolved_export() is provider
+
+events = [event for event in capture.import_events() if event.importer is consumer
+          and event.provider_name == provider_name]
+(init_first, init_second, class_first, class_second,
+ first, second, repeated, replaced, restored, foreign, restored_again,
+ dynamic, dynamic_repeat, unresolved, unresolved_repeat) = events
+assert init_first is not init_second
+assert init_first.caller_code is init_second.caller_code is capture.completed(consumer.__name__).code
+assert class_first is not class_second and class_first.caller_code is class_second.caller_code
+assert class_first.caller_code.co_name == 'Container'
+assert first.caller_code is consumer.first.__code__ and second.caller_code is consumer.second.__code__
+assert first is repeated is restored is restored_again
+assert replaced is not first and replaced.retained_exports['a'] is changed
+assert first.retained_exports['a'] is original and second.retained_exports['b'] is provider.b
+assert foreign is not first and foreign.provider is rebound and foreign.retained_exports['a'] is original
+assert dynamic is dynamic_repeat and dynamic.route == 'import_module'
+assert unresolved is not unresolved_repeat and unresolved.unresolved_exports == ('missing',)
+assert unresolved_repeat.unresolved_exports == ('missing',)
+assert len(capture._import_events) - len(capture._event_anchors) == 4
+
+observations = len(capture._import_events)
+anchor = capture._event_anchors[id(first)]
+if corruption == 'foreign_issued_key':
+    records = capture._local_import_records
+    records[anchor[3]] = records[capture._event_anchors[id(replaced)][3]]
+elif corruption == 'opaque_anchor_key':
+    capture._event_anchors[id(first)] = (*anchor[:3], changed)
+elif corruption == 'bad_field_vector':
+    capture._event_anchors[id(first)] = (anchor[0], (changed,), *anchor[2:])
+elif corruption == 'bad_export_vector':
+    capture._event_anchors[id(first)] = (*anchor[:2], (('a',),), anchor[3])
+assert consumer.first() is original
+assert capture.failed and len(capture._import_events) == observations
+try:
+    capture.relevant_graph(frozenset({consumer.__name__}))
+except CaptureError as error:
+    assert str(error) == 'capture_not_collecting'
+else:
+    raise AssertionError('failed capture returned a graph')
+capture.close()
+assert not capture._local_import_records and not capture._event_anchors and not capture._import_events
+"""
+    for corruption in (
+        "foreign_issued_key",
+        "opaque_anchor_key",
+        "bad_field_vector",
+        "bad_export_vector",
+    ):
+        case_root = tmp_path / corruption
+        case_root.mkdir()
+        _assert_case(case_root, f"corruption = {corruption!r}\n{program}")
+
+
 def test_completed_binding_rejects_same_name_replacement(tmp_path: Path) -> None:
     _assert_case(
         tmp_path,

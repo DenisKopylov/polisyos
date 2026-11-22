@@ -23,6 +23,7 @@ import os
 import sys
 from contextlib import suppress
 from dataclasses import dataclass
+from inspect import CO_OPTIMIZED
 from pathlib import Path
 from types import (
     CellType,
@@ -422,6 +423,21 @@ _IMPORT_EVENT_FIELDS = (
     "unresolved_exports",
     "route",
 )
+
+
+def _import_observation_key_matches(issued: object, observed: object) -> bool:
+    """Compare a retained key against the freshly built primitive key tree."""
+    if type(observed) is tuple:
+        return (
+            type(issued) is tuple
+            and len(issued) == len(observed)
+            and all(
+                _import_observation_key_matches(left, right)
+                for left, right in zip(issued, observed, strict=True)
+            )
+        )
+    return type(observed) in (str, int) and type(issued) is type(observed) and issued == observed
+
 
 _EXECUTION_FIELDS = (
     "module_name",
@@ -979,6 +995,9 @@ class SourceExecutionCapture:
         self._importer_failures: dict[str, list[str]] = {}
         self._code_trees: dict[int, tuple[CodeType, ...]] = {}
         self._import_events: list[ImportEvidence] = []
+        self._local_import_records: dict[
+            tuple[object, ...], tuple[tuple[object, ...], ImportEvidence]
+        ] = {}
         self._failed_imports: list[FailedImportEvidence] = []
         self._event_anchors: dict[int, tuple[object, ...]] = {}
         self._failed_event_anchors: dict[int, tuple[object, ...]] = {}
@@ -1362,6 +1381,7 @@ class SourceExecutionCapture:
             self._importer_failures,
             self._code_trees,
             self._import_events,
+            self._local_import_records,
             self._failed_imports,
             self._event_anchors,
             self._failed_event_anchors,
@@ -1644,7 +1664,7 @@ class SourceExecutionCapture:
             raise CaptureError("consumer_binding_changed")
 
     def import_events(self) -> tuple[ImportEvidence, ...]:
-        """Return collected import-site events without claiming their completeness."""
+        """Return ordered observations, including repeats, without claiming completeness."""
 
         self._require_same_process()
         if self._phase != "collecting":
@@ -1743,12 +1763,18 @@ class SourceExecutionCapture:
             pending_modules=tuple(sorted(reached.intersection(self._pending))),
         )
 
-    def _check_import_event_anchor(self, event: ImportEvidence) -> None:
+    def _check_import_event_anchor(
+        self, event: ImportEvidence, *, observation_key: tuple[object, ...] | None = None
+    ) -> None:
         anchor = self._event_anchors.get(id(event))
         if (
             type(event) is not ImportEvidence
-            or anchor is None
+            or type(anchor) is not tuple
+            or len(anchor) != 4
             or anchor[0] is not event
+            or (observation_key is not None and anchor[3] is not observation_key)
+            or type(anchor[1]) is not tuple
+            or len(anchor[1]) != len(_IMPORT_EVENT_FIELDS)
             or any(
                 object.__getattribute__(event, field) is not original
                 for field, original in zip(_IMPORT_EVENT_FIELDS, anchor[1], strict=True)
@@ -1758,12 +1784,16 @@ class SourceExecutionCapture:
             raise CaptureError("import_event_anchor_changed")
         original_exports = anchor[2]
         if (
-            type(event.retained_exports) is not MappingProxyType
+            type(original_exports) is not tuple
+            or type(event.retained_exports) is not MappingProxyType
             or len(event.retained_exports) != len(original_exports)
             or any(
-                not (observed := _passive_lookup(event.retained_exports, name))[0]
-                or observed[1] is not value
-                for name, value in original_exports
+                type(item) is not tuple
+                or len(item) != 2
+                or type(item[0]) is not str
+                or not (observed := _passive_lookup(event.retained_exports, item[0]))[0]
+                or observed[1] is not item[1]
+                for item in original_exports
             )
         ):
             self._fail("import_event_anchor_changed")
@@ -2427,24 +2457,76 @@ class SourceExecutionCapture:
                 unresolved_names.append(name)
             else:
                 selected_exports[name] = value
-        retained = MappingProxyType(selected_exports)
         unresolved = tuple(unresolved_names)
-        event = ImportEvidence(
-            selected[0],
-            selected[1],
-            caller_code,
-            caller_line,
-            provider_name,
-            provider,
-            returned,
-            exports,
-            retained,
-            unresolved,
-            route,
-        )
-        fields = tuple(object.__getattribute__(event, field) for field in _IMPORT_EVENT_FIELDS)
-        self._event_anchors[id(event)] = (event, fields, tuple(selected_exports.items()))
-        self._import_events.append(event)
+        importer_name, importer = selected
+        initializer = self._pending_codes.get(importer_name)
+        if initializer is None:
+            completed = self._completed.get(importer_name)
+            if completed is not None:
+                initializer = completed.code
+        key = None
+        if (
+            initializer is not None
+            and caller_code is not initializer
+            and caller_code.co_flags & CO_OPTIMIZED
+            and not unresolved
+        ):
+            # Use only passive scalar values and identities. Issued records
+            # keep every object in the key alive until capture closes.
+            key = (
+                importer_name,
+                id(importer),
+                id(caller_code),
+                caller_line,
+                provider_name,
+                id(provider),
+                id(returned),
+                exports,
+                tuple((name, id(value)) for name, value in selected_exports.items()),
+                route,
+            )
+        _imp.acquire_lock()
+        try:
+            # Synchronize publishing with capture close, which stops collection
+            # under this lock before dropping its held evidence.
+            if self._phase != "collecting":
+                return
+            prior = self._local_import_records.get(key, _MISSING) if key is not None else _MISSING
+            if prior is not _MISSING:
+                if type(prior) is not tuple or len(prior) != 2:
+                    self._fail("import_event_anchor_changed")
+                    return
+                issued_key, event = prior
+                if not _import_observation_key_matches(issued_key, key):
+                    self._fail("import_event_anchor_changed")
+                    return
+                # The import already succeeded. A damaged observation invalidates
+                # its capture without changing the result seen by the importer.
+                with suppress(CaptureError):
+                    self._check_import_event_anchor(event, observation_key=issued_key)
+                    self._import_events.append(event)
+                return
+
+            event = ImportEvidence(
+                importer_name,
+                importer,
+                caller_code,
+                caller_line,
+                provider_name,
+                provider,
+                returned,
+                exports,
+                MappingProxyType(selected_exports),
+                unresolved,
+                route,
+            )
+            fields = tuple(object.__getattribute__(event, field) for field in _IMPORT_EVENT_FIELDS)
+            self._event_anchors[id(event)] = (event, fields, tuple(selected_exports.items()), key)
+            if key is not None:
+                self._local_import_records[key] = (key, event)
+            self._import_events.append(event)
+        finally:
+            _imp.release_lock()
 
     def _selected_path(self, expected: ExpectedSource) -> Path:
         relative = Path(expected.relative_path)

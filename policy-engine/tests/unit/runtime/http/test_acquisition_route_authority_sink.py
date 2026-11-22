@@ -24,6 +24,8 @@ from polisyos.runtime.http.services.control.run_lifecycle import (
     _read_verified_acquisition_action_phase,
 )
 from polisyos.runtime.http.services.control_plane_store import (
+    AcquisitionEvaluationFrontierCAS,
+    AcquisitionEvaluationFrontierValue,
     ControlDiagnosticEventRecord,
     ControlPlaneStore,
 )
@@ -31,6 +33,7 @@ from polisyos.runtime.quality.acquisition_evaluation import AcquisitionSelectedE
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionCandidateRouteLoopReceipt,
     AcquisitionRouteLoopReceipt,
+    AcquisitionRouteLoopReceiptV2,
     AcquisitionRoutePhaseReceipt,
     AcquisitionRouteRecoveryRequired,
     persist_world_commit_and_reenter,
@@ -499,6 +502,139 @@ def _persist_generation(sink, *, generation, job_id, terminal_outcome=None):
         }
     )
     return sink.persist_terminal(terminal)
+
+
+@pytest.mark.parametrize("profiled", [False, True])
+def test_ordinary_v2_terminal_reopens_exact_phase_chain(
+    generation_owner, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, profiled: bool
+) -> None:
+    """Exercise a real terminal event, selected CAS view, and SQL frontier."""
+    from polisyos.runtime.quality import acquisition_evaluation_dispatch as dispatch
+    from tests.unit.runtime.http.test_control_plane_store_evaluation_frontier import (
+        _bootstrap,
+        _create_action_job,
+    )
+
+    sink, store, cas = generation_owner
+    _, frontier, _ = _bootstrap(store, tmp_path, source_job_id="job-source")
+    job, worker, attempt = _create_action_job(store, job_id="job-acquisition")
+
+    def ref(kind: str, digit: str) -> ArtifactRef:
+        return ArtifactRef(
+            artifact_id=ArtifactID("sha256:" + digit * 64),
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "f" * 64,
+        )
+
+    evaluation_decision = ref("runtime_quality.acquisition_evaluation_decision", "2")
+    basis = ref("runtime_quality.acquisition_evaluation_basis", "3")
+    witness = ref("runtime.quality.candidate_simulation_execution", "4")
+    # The component under test is the reader. The selected evaluation owner
+    # supplies the finite frontier values here, with the real SQL CAS applied.
+    frontier_cas = AcquisitionEvaluationFrontierCAS(
+        key=frontier.key,
+        expected_revision=frontier.revision,
+        expected_frontier_ref=frontier.frontier_ref,
+        replacement=AcquisitionEvaluationFrontierValue(
+            selected_evaluation_witness_ref=str(witness.artifact_id),
+            selected_evaluation_content_hash="sha256:" + "5" * 64,
+            basis_ref=str(basis.artifact_id),
+            basis_content_hash="sha256:" + "6" * 64,
+            decision_ref=str(evaluation_decision.artifact_id),
+        ),
+    )
+    advance_head = store.advance_acquisition_action_head
+
+    def publish_selected_head(**kwargs):
+        if kwargs["receipt_phase"] == "terminal" and profiled:
+            # Model the custody owner's explicit selector. The manifest and
+            # event were just written by the canonical terminal producer.
+            kwargs["receipt_manifest_profile_sha256"] = artifact_ref_for_manifest(
+                cas.get_manifest(kwargs["receipt_ref"])
+            ).manifest_profile_sha256
+        return advance_head(**kwargs)
+
+    monkeypatch.setattr(
+        dispatch, "acquisition_terminal_frontier_cas", lambda *_a, **_kw: frontier_cas
+    )
+    monkeypatch.setattr(store, "advance_acquisition_action_head", publish_selected_head)
+    with store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+        executing = _persist_generation(sink, generation=1, job_id=job.job_id)
+        pending = _receipt(
+            receipt_phase="world_committed_reentry_pending",
+            coarse_phase="world_committed",
+            recovery_state="reentry_recovery_required",
+            predecessor_receipt_ref=executing.receipt_ref,
+            owner_receipt_refs=(str(evaluation_decision.artifact_id),),
+        )
+        pending_head = sink.persist_phase(pending)
+        terminal = AcquisitionRouteLoopReceiptV2.model_validate(
+            {
+                **pending.model_dump(
+                    include=set(AcquisitionRouteLoopReceiptV2.model_fields) - {"schema_version"}
+                ),
+                "receipt_id": "ordinary-v2-terminal",
+                "receipt_phase": "terminal",
+                "coarse_phase": "terminal",
+                "recovery_state": "complete",
+                "predecessor_receipt_ref": pending_head.receipt_ref,
+                "terminal_outcome": "reentry_completed",
+                "reentry_receipt_ref": "sha256:" + "1" * 64,
+                "evaluation_decision_ref": evaluation_decision,
+                "selected_basis_ref": basis,
+                "selected_evaluation_witness_ref": witness,
+            }
+        )
+        head = sink.persist_terminal(terminal)
+        store.complete_job(job_id=job.job_id, run_id=job.run_id, progress={"state": "completed"})
+
+    assert pending_head.receipt_manifest_profile_sha256 is None
+    assert (head.receipt_manifest_profile_sha256 is not None) is profiled
+    assert head.evaluation_frontier_before_ref == frontier.frontier_ref
+    assert (
+        head.evaluation_frontier_ref
+        == store.read_acquisition_evaluation_frontier(frontier.key).frontier_ref
+    )
+    reopened_store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    reader = AcquisitionRouteLoopAuthoritySink(
+        artifact_store=cas,
+        event_log=RuntimeDiagnosticEventLog(store=reopened_store, artifact_store=cas),
+        control_store=reopened_store,
+    )
+    outcome = reader.current_action_outcome(**_generation_identity())
+    assert outcome.head == head
+    assert outcome.latest_receipt == terminal
+    assert outcome.candidate_terminal_history is None
+    assert outcome.candidate_experiment_terminal_history is None
+    assert [item.receipt.receipt_phase for item in outcome.phase_chain] == [
+        "requested",
+        "executing",
+        "world_committed_reentry_pending",
+        "terminal",
+    ]
+
+    if not profiled:
+        return
+    terminal_id = ArtifactID(head.receipt_ref)
+    default = cas.get_manifest(terminal_id)
+    exact = cas._manifest_path_for_ref(terminal_id, head.receipt_manifest_profile_sha256)
+    saved = exact.read_bytes()
+    exact.unlink()
+    try:
+        assert cas.get_manifest(terminal_id) == default
+        with pytest.raises(FileNotFoundError):
+            reader.verify_action_head(head)
+    finally:
+        exact.write_bytes(saved)
+    predecessor_event = pending_head.durable_event_id
+    store._execute("DELETE FROM control_diagnostic_events WHERE event_id = ?", (predecessor_event,))
+    with pytest.raises(ValueError, match="authority_orphan_cas"):
+        reader.verify_action_head(head)
+    assert (
+        reopened_store.get_acquisition_action_head(**_generation_identity(), action_generation=1)
+        == head
+    )
 
 
 class _QueryOnlyDiagnosticRows:

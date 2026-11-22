@@ -665,6 +665,12 @@ export class RuntimeApiClient {
     return this.request("POST", path, query, params?.body, undefined);
   }
 
+  async settleRunAcquisitionModelRevisionTerminal(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}/terminal-custody`;
+    const query = undefined;
+    return this.request("POST", path, query, params?.body, undefined);
+  }
+
   async getRunAgents(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/agents`;
     const query = this.buildQuery({

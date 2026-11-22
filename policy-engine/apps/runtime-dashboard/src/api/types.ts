@@ -1606,6 +1606,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/terminal-custody": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Settle Run Acquisition Model Revision Terminal
+     * @description Select an ordinary model-revision terminal under a fresh user approval.
+     */
+    post: operations["settle_run_acquisition_model_revision_terminal"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/runs/{run_id}/agents": {
     parameters: {
       query?: never;
@@ -5450,6 +5470,74 @@ export interface components {
       allowed_operator_kinds?: string[];
       /** Candidate Levers */
       candidate_levers?: components["schemas"]["CandidateLever"][];
+    };
+    /**
+     * CandidateModelRevisionTerminalCustodyRequest
+     * @description Select exact evidence already written for one failed ordinary model revision.
+     */
+    CandidateModelRevisionTerminalCustodyRequest: {
+      decision_ref: {
+        /** @constant */
+        kind: "runtime_quality.acquisition_evaluation_decision";
+        manifest_profile_sha256: string;
+        /** @constant */
+        media_type: "application/json";
+        artifact_id: unknown;
+      } & WithRequired<
+        components["schemas"]["ArtifactRef-Input"],
+        "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256"
+      >;
+      /** Expected Frontier Ref */
+      expected_frontier_ref: string;
+      /** Expected Frontier Revision */
+      expected_frontier_revision: number;
+      /** Failed Attempt */
+      failed_attempt: number;
+      /** Job Id */
+      job_id: string;
+      /** Pending Receipt Ref */
+      pending_receipt_ref: string;
+      reentry_ref: {
+        /** @constant */
+        kind: "runtime_quality.acquisition_overlay_reentry_receipt";
+        manifest_profile_sha256: string;
+        /** @constant */
+        media_type: "application/json";
+        artifact_id: unknown;
+      } & WithRequired<
+        components["schemas"]["ArtifactRef-Input"],
+        "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256"
+      >;
+      /** Route Id */
+      route_id: string;
+      /** Run Id */
+      run_id: string;
+      selected_basis_ref: {
+        /** @constant */
+        kind: "runtime_quality.acquisition_evaluation_basis";
+        manifest_profile_sha256: string;
+        /** @constant */
+        media_type: "application/json";
+        artifact_id: unknown;
+      } & WithRequired<
+        components["schemas"]["ArtifactRef-Input"],
+        "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256"
+      >;
+    };
+    /**
+     * CandidateModelRevisionTerminalCustodyResponse
+     * @description The ordinary model revision terminal selected by this request.
+     */
+    CandidateModelRevisionTerminalCustodyResponse: {
+      /** Frontier Revision */
+      frontier_revision: number;
+      /** Job Id */
+      job_id: string;
+      /** Route Id */
+      route_id: string;
+      /** Run Id */
+      run_id: string;
+      terminal_ref: components["schemas"]["ArtifactRef-Output"];
     };
     /**
      * CapabilityAuthorityPostureResult
@@ -34341,6 +34429,111 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["AcquisitionExecutionResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  settle_run_acquisition_model_revision_terminal: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+        route_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CandidateModelRevisionTerminalCustodyRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "frontier_revision": 4,
+           *       "job_id": "model-revision-job-example",
+           *       "route_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+           *       "run_id": "run-example",
+           *       "terminal_ref": {
+           *         "artifact_id": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+           *         "kind": "runtime_quality.acquisition_evaluation_basis",
+           *         "manifest_profile_sha256": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+           *         "media_type": "application/json"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["CandidateModelRevisionTerminalCustodyResponse"];
         };
       };
       /** @description Malformed request payload or parameters. */

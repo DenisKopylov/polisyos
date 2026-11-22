@@ -125,6 +125,9 @@ _IMPLEMENTATION_REF = "polisyos.runtime.acquisition_route_loop.owner_port.v1"
 CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_RESOURCE_KIND = (
     "runtime.evidence.acquisition.candidate_experiment.terminal_custody"
 )
+CANDIDATE_MODEL_REVISION_TERMINAL_CUSTODY_RESOURCE_KIND = (
+    "runtime.evidence.acquisition.model_revision_terminal_custody"
+)
 
 
 class AcquisitionActionServiceError(ValueError):
@@ -371,6 +374,66 @@ class CandidateExperimentTerminalCustodyResponse(BaseModel):
     job_id: str
     terminal_ref: artifacts.ArtifactRef
     frontier_revision: int = Field(ge=1)
+
+
+def _selected_custody_ref_schema(kind: str) -> dict[str, object]:
+    return {
+        "required": ["artifact_id", "kind", "media_type", "manifest_profile_sha256"],
+        "properties": {
+            "kind": {"const": kind},
+            "media_type": {"const": "application/json"},
+            "manifest_profile_sha256": {"type": "string", "pattern": _SHA256_PATTERN},
+        },
+    }
+
+
+class CandidateModelRevisionTerminalCustodyRequest(BaseModel):
+    """Select exact evidence already written for one failed ordinary model revision."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    run_id: str = Field(min_length=1)
+    route_id: str = Field(pattern=_SHA256_PATTERN)
+    job_id: str = Field(min_length=1)
+    failed_attempt: int = Field(ge=1, strict=True)
+    pending_receipt_ref: str = Field(pattern=_SHA256_PATTERN)
+    reentry_ref: artifacts.ArtifactRef = Field(
+        json_schema_extra=_selected_custody_ref_schema(
+            "runtime_quality.acquisition_overlay_reentry_receipt"
+        )
+    )
+    decision_ref: artifacts.ArtifactRef = Field(
+        json_schema_extra=_selected_custody_ref_schema(
+            "runtime_quality.acquisition_evaluation_decision"
+        )
+    )
+    selected_basis_ref: artifacts.ArtifactRef = Field(
+        json_schema_extra=_selected_custody_ref_schema(
+            "runtime_quality.acquisition_evaluation_basis"
+        )
+    )
+    expected_frontier_revision: int = Field(ge=1, strict=True)
+    expected_frontier_ref: str = Field(pattern=_SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _require_selected_profiles(self) -> CandidateModelRevisionTerminalCustodyRequest:
+        for ref, kind in (
+            (self.reentry_ref, "runtime_quality.acquisition_overlay_reentry_receipt"),
+            (self.decision_ref, "runtime_quality.acquisition_evaluation_decision"),
+            (self.selected_basis_ref, "runtime_quality.acquisition_evaluation_basis"),
+        ):
+            if (
+                type(ref) is not artifacts.ArtifactRef
+                or ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("candidate_model_revision_terminal_custody_profile_required")
+        return self
+
+
+class CandidateModelRevisionTerminalCustodyResponse(CandidateExperimentTerminalCustodyResponse):
+    """The ordinary model revision terminal selected by this request."""
 
 
 class CandidateExperimentReuseActionExecutionRequest(BaseModel):
@@ -4877,6 +4940,172 @@ class AcquisitionActionService:
             job_id=request.job_id,
             terminal_ref=request.terminal_ref,
             frontier_revision=frontier_cas.expected_revision + 1,
+        )
+
+    @_receipt_verification_scoped
+    def settle_candidate_model_revision_terminal_custody(
+        self,
+        *,
+        request: CandidateModelRevisionTerminalCustodyRequest,
+        principal: RuntimePrincipal,
+        bound_permission: BoundActionPermissionVerification,
+        step_up: StepUpAssertionVerification,
+        authorize_effect: Callable[[], int],
+    ) -> CandidateModelRevisionTerminalCustodyResponse:
+        """Select the verified checkpoint under one new same-actor approval."""
+        from polisyos.runtime.http.authorization import BoundActionPermissionVerification
+        from polisyos.runtime.http.services.acquisition_admission_bundle import (
+            require_candidate_model_revision_terminal_custody_bound_permission,
+        )
+        from polisyos.runtime.http.step_up import StepUpAssertionVerification, StepUpClass
+        from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+            prepare_ordinary_acquisition_terminal,
+        )
+        from polisyos.runtime.quality.acquisition_evaluation_history import (
+            verify_ordinary_acquisition_terminal_checkpoint,
+        )
+        from polisyos.runtime.quality.substrate_registry import run_catalog_source_call
+
+        refused = "candidate_model_revision_terminal_custody_scope_refused"
+        if (
+            principal.authenticated is not True
+            or not principal.cell_id
+            or type(bound_permission) is not BoundActionPermissionVerification
+            or type(step_up) is not StepUpAssertionVerification
+        ):
+            raise AcquisitionActionServiceError(refused)
+        try:
+            resource_digest = require_candidate_model_revision_terminal_custody_bound_permission(
+                bound_permission, request
+            )
+        except (TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(refused) from exc
+        proof = bound_permission.verification
+        if (
+            proof.subject != principal.subject
+            or proof.tenant_id != principal.tenant_id
+            or frozenset(proof.roles) != principal.roles
+            or step_up.context.subject != principal.subject
+            or step_up.context.tenant_id != principal.tenant_id
+            or step_up.context.resource_digest != resource_digest
+            or step_up.context.step_up_class is not StepUpClass.ACQUISITION_APPROVAL
+        ):
+            raise AcquisitionActionServiceError(refused)
+
+        control = self.control_service
+        store = control._control_store
+        job = store.get_job(request.job_id)
+        if (
+            job is None
+            or job.kind != "acquisition"
+            or job.run_id != request.run_id
+            or job.submitted_by != principal.subject
+            or job.payload_ref is None
+        ):
+            raise AcquisitionActionServiceError(refused)
+        try:
+            scope, _ = store._reconcile_control_job_creation_envelope(job)
+        except (RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(refused) from exc
+        if (
+            scope.status != "established"
+            or not scope.actor_authenticated
+            or (scope.actor_subject, scope.tenant_id, scope.cell_id)
+            != (principal.subject, principal.tenant_id, principal.cell_id)
+        ):
+            raise AcquisitionActionServiceError(refused)
+        if job.state != "failed" or job.attempt != request.failed_attempt:
+            raise AcquisitionActionServiceError(
+                "candidate_model_revision_terminal_custody_failed_attempt_changed"
+            )
+
+        try:
+            payload = ControlPlaneService._job_payload_without_telemetry(
+                control._load_payload_ref(
+                    job.payload_ref, kind="runtime.control_job_payload.acquisition"
+                )
+            )
+            original = AcquisitionRouteMutationRequest.model_validate(payload.get("request"))
+            if (
+                "action_kind" in payload
+                or original.custody_recovery is not None
+                or payload.get("tenant_id") != principal.tenant_id
+                or payload.get("cell_id") != principal.cell_id
+                or payload.get("run_id") != request.run_id
+                or payload.get("route_id") != request.route_id
+            ):
+                raise ValueError(refused)
+            heads = store.list_acquisition_action_heads(
+                tenant_id=principal.tenant_id,
+                cell_id=principal.cell_id,
+                run_id=request.run_id,
+                source_job_id=original.replay_pins.source_job_id,
+                route_id=request.route_id,
+            )
+            head = heads[-1] if heads else None
+            if (
+                head is None
+                or head.job_id != job.job_id
+                or head.receipt_ref != request.pending_receipt_ref
+                or head.receipt_phase != "world_committed_reentry_pending"
+            ):
+                raise ValueError("candidate_model_revision_terminal_custody_predecessor_changed")
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_model_revision_terminal_custody_predecessor_not_established"
+            ) from exc
+
+        try:
+            checkpoint = run_catalog_source_call(
+                control.catalog_serving_source,
+                verify_ordinary_acquisition_terminal_checkpoint,
+                control_service=control,
+                head=head,
+                failed_attempt=request.failed_attempt,
+                actor_subject=principal.subject,
+                reentry_ref=request.reentry_ref,
+                decision_ref=request.decision_ref,
+                selected_basis_ref=request.selected_basis_ref,
+                expected_frontier_revision=request.expected_frontier_revision,
+                expected_frontier_ref=request.expected_frontier_ref,
+            )
+            if checkpoint.job != job:
+                raise ValueError("candidate_model_revision_terminal_custody_job_changed")
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_model_revision_terminal_custody_history_not_established"
+            ) from exc
+
+        authority_expires_at = min(authorize_effect(), step_up.expires_at)
+        assertion_sha256 = hashlib.sha256(step_up.assertion_id.encode("utf-8")).hexdigest()
+        try:
+            prepared = prepare_ordinary_acquisition_terminal(
+                control_service=control, checkpoint=checkpoint
+            )
+            store.settle_candidate_model_revision_terminal_custody(
+                expected_job=job,
+                expected_head=head,
+                terminal=prepared.terminal,
+                terminal_ref=prepared.terminal_ref,
+                frontier_cas=prepared.frontier_cas,
+                prepared_event=prepared.prepared_event,
+                reentry_ref=prepared.reentry_ref,
+                selected_n5_execution_ref=checkpoint.evaluation.selected.n5_execution_ref,
+                actor_subject=principal.subject,
+                resource_digest=resource_digest,
+                authority_expires_at=authority_expires_at,
+                step_up_sha256=f"sha256:{assertion_sha256}",
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_model_revision_terminal_custody_commit_refused"
+            ) from exc
+        return CandidateModelRevisionTerminalCustodyResponse(
+            run_id=request.run_id,
+            route_id=request.route_id,
+            job_id=request.job_id,
+            terminal_ref=prepared.terminal_ref,
+            frontier_revision=prepared.frontier_cas.expected_revision + 1,
         )
 
     @_receipt_verification_scoped

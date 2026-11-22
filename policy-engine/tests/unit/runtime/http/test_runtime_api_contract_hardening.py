@@ -1556,6 +1556,54 @@ def test_openapi_exposes_strict_acquisition_route_boundary_without_growth_author
     _assert_ds15_acquisition_openapi_contract(export_runtime_openapi_schema())
 
 
+def test_model_revision_terminal_custody_openapi_is_exact_and_request_bound() -> None:
+    repo_root = Path(__file__).resolve().parents[4]
+    spec = json.loads(
+        (repo_root / "schemas" / "runtime_api_v1.openapi.json").read_text(encoding="utf-8")
+    )
+    operation = spec["paths"][
+        "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/terminal-custody"
+    ]["post"]
+    assert operation["operationId"] == "settle_run_acquisition_model_revision_terminal"
+    assert operation["x-polisyos-action-permission"] == "evidence.acquire"
+    assert operation["x-polisyos-step-up-class"] == "acquisition_approval"
+    binding = operation["x-polisyos-resource-binding"]
+    assert binding["source"] == "request_composite"
+    assert binding["resource_kind"] == (
+        "runtime.evidence.acquisition.model_revision_terminal_custody"
+    )
+    selected_fields = {
+        "run_id",
+        "route_id",
+        "job_id",
+        "failed_attempt",
+        "pending_receipt_ref",
+        "reentry_ref",
+        "decision_ref",
+        "selected_basis_ref",
+        "expected_frontier_revision",
+        "expected_frontier_ref",
+    }
+    assert set(binding["selector_fields"]) == selected_fields
+    assert set(binding["required_selector_fields"]) == selected_fields
+
+    body_ref = operation["requestBody"]["content"]["application/json"]["schema"]["$ref"]
+    body_name = body_ref.rsplit("/", maxsplit=1)[-1]
+    body = spec["components"]["schemas"][body_name]
+    assert body_name == "CandidateModelRevisionTerminalCustodyRequest"
+    assert body["additionalProperties"] is False
+    assert set(body["required"]) == selected_fields
+    assert set(body["properties"]) == selected_fields
+
+    response = operation["responses"]["200"]["content"]["application/json"]
+    assert response["schema"]["$ref"] == (
+        "#/components/schemas/CandidateModelRevisionTerminalCustodyResponse"
+    )
+    assert response["example"]["terminal_ref"]["kind"] == (
+        "runtime_quality.acquisition_route_loop_receipt"
+    )
+
+
 def test_openapi_p05_reuse_routes_and_v2_progress_are_explicitly_documented() -> None:
     from polisyos.runtime.http import openapi_contract
 
@@ -2310,6 +2358,10 @@ def test_generated_runtime_client_includes_all_acquisition_route_wrappers() -> N
         "executeRunAcquisitionRoute": (
             "POST",
             "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute",
+        ),
+        "settleRunAcquisitionModelRevisionTerminal": (
+            "POST",
+            "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/terminal-custody",
         ),
         "requestRunCandidateAcquisitionExperimentReuseDecision": (
             "POST",

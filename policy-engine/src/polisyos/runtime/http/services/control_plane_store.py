@@ -63,6 +63,7 @@ if TYPE_CHECKING:
     )
     from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorRef
     from polisyos.runtime.quality.native_settled_draft import NativeSettledDraftRecovery
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceiptV2
 
 from polisyos.runtime.http.services.control.response_shapes import (
     _operator_diagnostic_from_failure_payload,
@@ -86,6 +87,7 @@ from polisyos.runtime.quality.evidence_spine_handoff import (
 _NATIVE_CUSTODY_RECOVERY_EVENT = "native_acquisition_custody_recovery_requested"
 _NATIVE_DRAFT_RECOVERY_PURPOSE = "resume_native_from_settled_draft"
 _CANDIDATE_TERMINAL_CUSTODY_EVENT = "candidate_experiment_terminal_custody_settled"
+_ORDINARY_TERMINAL_CUSTODY_EVENT = "ordinary_acquisition_terminal_custody_settled"
 
 _COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC = "control.decision_validity.hte_source_update"
 _CANDIDATE_EXPERIMENT_EXECUTE_ACTION_KIND = (
@@ -9351,18 +9353,238 @@ class ControlPlaneStore:
         ):
             raise ValueError("candidate_terminal_custody_subject_invalid")
 
+        return self._settle_terminal_custody_transaction(
+            expected_job=expected_job,
+            expected_head=expected_head,
+            terminal_ref=terminal_ref,
+            terminal_event_id=terminal_event_id,
+            frontier_cas=frontier_cas,
+            actor_subject=actor_subject,
+            resource_digest=resource_digest,
+            authority_expires_at=authority_expires_at,
+            step_up_sha256=step_up_sha256,
+            mode="candidate_experiment",
+            prepared_event=None,
+            terminal=None,
+            reentry_ref=None,
+            selected_n5_execution_ref=None,
+        )
+
+    def settle_candidate_model_revision_terminal_custody(
+        self,
+        *,
+        expected_job: ControlJobRecord,
+        expected_head: AcquisitionActionHeadRecord,
+        terminal: AcquisitionRouteLoopReceiptV2,
+        terminal_ref: ArtifactRef,
+        frontier_cas: AcquisitionEvaluationFrontierCAS,
+        prepared_event: _PreparedDiagnosticEvent,
+        reentry_ref: ArtifactRef,
+        selected_n5_execution_ref: ArtifactRef,
+        actor_subject: str,
+        resource_digest: str,
+        authority_expires_at: int,
+        step_up_sha256: str,
+    ) -> AcquisitionActionHeadRecord:
+        """Select one verified ordinary V2 terminal in the failed-job transaction.
+
+        The route owner verifies the immutable terminal and its source evidence
+        before this request. SQL binds its selected event, frontier replacement,
+        failed attempt and current legacy head, then publishes all effects at
+        one transaction boundary.
+        """
+        from polisyos.core.canon import CanonSpec, to_canonical_bytes
+        from polisyos.runtime.http.services.control.run_lifecycle import (
+            _acquisition_route_receipt_inputs,
+        )
+        from polisyos.runtime.quality.acquisition_route_loop import (
+            AcquisitionRouteLoopReceiptV2,
+        )
+
+        if self._job_execution_fence.get() is not None:
+            raise ControlJobExecutionAdmissionError("ordinary_terminal_custody_request_required")
+        _validate_acquisition_evaluation_frontier_cas(frontier_cas, require_replacement=True)
+        replacement = frontier_cas.replacement
+        if (
+            type(expected_job) is not ControlJobRecord
+            or type(expected_head) is not AcquisitionActionHeadRecord
+            or type(terminal) is not AcquisitionRouteLoopReceiptV2
+            or type(terminal_ref) is not ArtifactRef
+            or terminal_ref.kind != "runtime_quality.acquisition_route_loop_receipt"
+            or terminal_ref.media_type != "application/json"
+            or not _is_sha256_ref(terminal_ref.manifest_profile_sha256)
+            or type(prepared_event) is not _PreparedDiagnosticEvent
+            or type(reentry_ref) is not ArtifactRef
+            or reentry_ref.kind != "runtime_quality.acquisition_overlay_reentry_receipt"
+            or reentry_ref.media_type != "application/json"
+            or not _is_sha256_ref(reentry_ref.manifest_profile_sha256)
+            or type(selected_n5_execution_ref) is not ArtifactRef
+            or selected_n5_execution_ref.kind != "runtime.quality.candidate_simulation_execution"
+            or selected_n5_execution_ref.media_type != "application/json"
+            or not _is_sha256_ref(selected_n5_execution_ref.manifest_profile_sha256)
+            or expected_head.receipt_phase != "world_committed_reentry_pending"
+            or expected_head.recovery_state != "reentry_recovery_required"
+            or expected_head.receipt_manifest_profile_sha256 is not None
+            or expected_job.kind != "acquisition"
+            or expected_job.state != "failed"
+            or expected_job.attempt < 1
+            or expected_job.payload_ref is None
+            or expected_job.job_id != expected_head.job_id
+            or expected_job.run_id != expected_head.run_id
+            or type(actor_subject) is not str
+            or not actor_subject.strip()
+            or not _is_sha256_ref(resource_digest)
+            or not _is_sha256_ref(step_up_sha256)
+            or type(authority_expires_at) is not int
+            or authority_expires_at <= 0
+            or frontier_cas.expected_revision < 1
+            or replacement is None
+        ):
+            raise ValueError("ordinary_terminal_custody_subject_invalid")
+
+        selected = terminal.selected_evaluation
+        terminal_digest = hashlib.sha256(
+            to_canonical_bytes(terminal.model_dump(mode="json"), CanonSpec(forbid_floats=False))
+        ).hexdigest()
+        terminal_id = str(terminal_ref.artifact_id)
+        expected_inputs = _acquisition_route_receipt_inputs(terminal)
+        event, payload = prepared_event.publication_values()
+        expected_event_id = (
+            f"evt_acquisition_{expected_head.action_generation}_loop_terminal_{terminal_digest}"
+        )
+        if (
+            terminal.terminal_outcome != "reentry_completed"
+            or (terminal.tenant_id, terminal.cell_id, terminal.run_id, terminal.source_job_id)
+            != (
+                expected_head.tenant_id,
+                expected_head.cell_id,
+                expected_head.run_id,
+                expected_head.source_job_id,
+            )
+            or (terminal.route_id, terminal.action_generation, terminal.job_id)
+            != (
+                expected_head.route_id,
+                expected_head.action_generation,
+                expected_head.job_id,
+            )
+            or terminal.predecessor_receipt_ref != expected_head.receipt_ref
+            or terminal.reentry_receipt_ref != str(reentry_ref.artifact_id)
+            or selected is None
+            or selected.evaluation_job_id != expected_job.job_id
+            or selected.n5_execution_ref != selected_n5_execution_ref
+            or selected.basis_ref != terminal.selected_basis_ref
+            or terminal.selected_evaluation_witness_ref != selected_n5_execution_ref
+            or (
+                frontier_cas.key.tenant_id,
+                frontier_cas.key.cell_id,
+                frontier_cas.key.source_job_id,
+            )
+            != (
+                expected_head.tenant_id,
+                expected_head.cell_id,
+                expected_head.source_job_id,
+            )
+            or replacement.selected_evaluation_witness_ref
+            != str(selected_n5_execution_ref.artifact_id)
+            or replacement.basis_ref != str(terminal.selected_basis_ref.artifact_id)
+            or replacement.decision_ref != str(terminal.evaluation_decision_ref.artifact_id)
+            or frontier_cas.key.design_problem_ref != selected.design_problem_ref
+            or frontier_cas.key.candidate_id != selected.candidate_id
+            or terminal_id != f"sha256:{terminal_digest}"
+            or event.event_id != expected_event_id
+            or event.event_time != terminal.generated_at
+            or event.event_source != "polisyos.runtime.quality.acquisition_route_loop"
+            or event.event_type != "polisyos.runtime.acquisition.route_loop.v2"
+            or event.event_subject
+            != f"run/{expected_job.run_id}/job/{expected_job.job_id}/acquisition/terminal"
+            or (event.tenant_id, event.cell_id, event.run_id, event.job_id)
+            != (
+                expected_head.tenant_id,
+                expected_head.cell_id,
+                expected_job.run_id,
+                expected_job.job_id,
+            )
+            or event.producer_component != "polisyos.runtime.acquisition_route_loop"
+            or event.producer_version != "2026.08.28+ds15-c02"
+            or event.execution_profile != "governed"
+            or event.phase != "acquisition_route_loop"
+            or event.trace_id != f"trace-{expected_job.job_id}"
+            or event.span_id != "span-terminal"
+            or event.parent_span_id is not None
+            or event.state_before != "world_committed_reentry_pending"
+            or event.state_after != "terminal"
+            or event.blocking_status != "non_blocking"
+            or event.redaction_policy_ref is not None
+            or event.duplicate_of is not None
+            or event.dedupe_key is not None
+            or event.payload_ref != terminal_id
+            or prepared_event.payload_ref != terminal_id
+            or prepared_event.payload_sha256 is not None
+            or prepared_event.inline_payload
+            or payload is not None
+            or event.artifact_refs != (terminal_id,)
+            or event.input_refs != expected_inputs
+        ):
+            raise ValueError("ordinary_terminal_custody_event_binding_invalid")
+
+        return self._settle_terminal_custody_transaction(
+            expected_job=expected_job,
+            expected_head=expected_head,
+            terminal_ref=terminal_ref,
+            terminal_event_id=event.event_id,
+            frontier_cas=frontier_cas,
+            actor_subject=actor_subject,
+            resource_digest=resource_digest,
+            authority_expires_at=authority_expires_at,
+            step_up_sha256=step_up_sha256,
+            mode="ordinary_model_revision",
+            prepared_event=prepared_event,
+            terminal=terminal,
+            reentry_ref=reentry_ref,
+            selected_n5_execution_ref=selected_n5_execution_ref,
+        )
+
+    def _settle_terminal_custody_transaction(
+        self,
+        *,
+        expected_job: ControlJobRecord,
+        expected_head: AcquisitionActionHeadRecord,
+        terminal_ref: ArtifactRef,
+        terminal_event_id: str,
+        frontier_cas: AcquisitionEvaluationFrontierCAS,
+        actor_subject: str,
+        resource_digest: str,
+        authority_expires_at: int,
+        step_up_sha256: str,
+        mode: Literal["candidate_experiment", "ordinary_model_revision"],
+        prepared_event: _PreparedDiagnosticEvent | None,
+        terminal: AcquisitionRouteLoopReceiptV2 | None,
+        reentry_ref: ArtifactRef | None,
+        selected_n5_execution_ref: ArtifactRef | None,
+    ) -> AcquisitionActionHeadRecord:
+        """Share the locked failed-attempt transition while preserving both event contracts."""
+        replacement = frontier_cas.replacement
+        if replacement is None:
+            raise ValueError("candidate_terminal_custody_subject_invalid")
+
         def require_current_authority() -> None:
             _require_candidate_experiment_step_up_fresh(authority_expires_at)
 
         require_current_authority()
         job_id = expected_job.job_id
         terminal_id = str(terminal_ref.artifact_id)
-        receipt_id = f"{job_id}.candidate-experiment.terminal"
-        event_suffix = hashlib.sha256(receipt_id.encode()).hexdigest()[:16]
-        if terminal_event_id != (
-            f"evt_acquisition_{expected_head.action_generation}_experiment_terminal_{event_suffix}"
+        if mode == "candidate_experiment":
+            receipt_id = f"{job_id}.candidate-experiment.terminal"
+            event_suffix = hashlib.sha256(receipt_id.encode()).hexdigest()[:16]
+            if terminal_event_id != (
+                f"evt_acquisition_{expected_head.action_generation}_experiment_terminal_{event_suffix}"
+            ):
+                raise ValueError("candidate_terminal_custody_event_mismatch")
+        elif terminal_event_id != (
+            f"evt_acquisition_{expected_head.action_generation}_loop_terminal_"
+            f"{terminal_id.removeprefix('sha256:')}"
         ):
-            raise ValueError("candidate_terminal_custody_event_mismatch")
+            raise ValueError("ordinary_terminal_custody_event_binding_invalid")
         with self._job_transaction(commit_admission=require_current_authority):
             self._lock_job_state(job_id)
             job = self.get_job(job_id)
@@ -9418,34 +9640,91 @@ class ControlPlaneStore:
             )
             if not heads or heads[-1] != expected_head:
                 raise ValueError("candidate_terminal_custody_head_changed")
-            events = self.list_diagnostic_events(
-                event_id=terminal_event_id, run_id=expected_head.run_id, job_id=job_id, limit=2
-            )
-            if len(events) != 1:
-                raise ValueError("candidate_terminal_custody_event_missing")
-            event = events[0].event
-            if (
-                event.event_id != terminal_event_id
-                or event.event_source != "polisyos.runtime.quality.acquisition_route_loop"
-                or event.event_type
-                != "polisyos.runtime.acquisition.candidate_experiment_terminal.v1"
-                or event.event_subject != f"run/{job.run_id}/job/{job_id}/acquisition/terminal"
-                or (event.job_id, event.run_id) != (job_id, job.run_id)
-                or event.phase != "acquisition_route_loop"
-                or event.state_before != "candidate_input_reentry_pending"
-                or event.state_after != "terminal"
-                or (event.tenant_id, event.cell_id) != (scope.tenant_id, scope.cell_id)
-                or events[0].payload_ref != terminal_id
-                or event.payload_ref != terminal_id
-                or event.artifact_refs != (terminal_id,)
-                or not {
-                    expected_head.receipt_ref,
-                    replacement.basis_ref,
-                    replacement.decision_ref,
-                    replacement.selected_evaluation_witness_ref,
-                }.issubset(event.input_refs)
-            ):
-                raise ValueError("candidate_terminal_custody_event_mismatch")
+            if mode == "candidate_experiment":
+                events = self.list_diagnostic_events(
+                    event_id=terminal_event_id,
+                    run_id=expected_head.run_id,
+                    job_id=job_id,
+                    limit=2,
+                )
+                if len(events) != 1:
+                    raise ValueError("candidate_terminal_custody_event_missing")
+                event = events[0].event
+                if (
+                    event.event_id != terminal_event_id
+                    or event.event_source != "polisyos.runtime.quality.acquisition_route_loop"
+                    or event.event_type
+                    != "polisyos.runtime.acquisition.candidate_experiment_terminal.v1"
+                    or event.event_subject != f"run/{job.run_id}/job/{job_id}/acquisition/terminal"
+                    or (event.job_id, event.run_id) != (job_id, job.run_id)
+                    or event.phase != "acquisition_route_loop"
+                    or event.state_before != "candidate_input_reentry_pending"
+                    or event.state_after != "terminal"
+                    or (event.tenant_id, event.cell_id) != (scope.tenant_id, scope.cell_id)
+                    or events[0].payload_ref != terminal_id
+                    or event.payload_ref != terminal_id
+                    or event.artifact_refs != (terminal_id,)
+                    or not {
+                        expected_head.receipt_ref,
+                        replacement.basis_ref,
+                        replacement.decision_ref,
+                        replacement.selected_evaluation_witness_ref,
+                    }.issubset(event.input_refs)
+                ):
+                    raise ValueError("candidate_terminal_custody_event_mismatch")
+            else:
+                if (
+                    prepared_event is None
+                    or terminal is None
+                    or reentry_ref is None
+                    or selected_n5_execution_ref is None
+                    or self.list_diagnostic_events(event_id=terminal_event_id, limit=1)
+                ):
+                    raise ValueError("ordinary_terminal_custody_event_identity_changed")
+                event, payload = prepared_event.publication_values()
+                from polisyos.runtime.http.services.control.run_lifecycle import (
+                    _acquisition_route_receipt_inputs,
+                )
+
+                if (
+                    payload is not None
+                    or prepared_event.payload_ref != terminal_id
+                    or prepared_event.payload_sha256 is not None
+                    or prepared_event.inline_payload
+                    or event.event_id != terminal_event_id
+                    or event.event_time != terminal.generated_at
+                    or event.event_source != "polisyos.runtime.quality.acquisition_route_loop"
+                    or event.event_type != "polisyos.runtime.acquisition.route_loop.v2"
+                    or event.schema_name != "polisyos.runtime.quality.diagnostic_event"
+                    or event.schema_version != "1.0"
+                    or event.event_subject != f"run/{job.run_id}/job/{job_id}/acquisition/terminal"
+                    or (
+                        event.tenant_id,
+                        event.cell_id,
+                        event.run_id,
+                        event.job_id,
+                    )
+                    != (scope.tenant_id, scope.cell_id, job.run_id, job_id)
+                    or event.producer_component != "polisyos.runtime.acquisition_route_loop"
+                    or event.producer_version != "2026.08.28+ds15-c02"
+                    or event.execution_profile != "governed"
+                    or event.trace_id != f"trace-{job_id}"
+                    or event.span_id != "span-terminal"
+                    or event.parent_span_id is not None
+                    or event.phase != "acquisition_route_loop"
+                    or event.state_before != expected_head.receipt_phase
+                    or event.state_after != "terminal"
+                    or event.blocking_status != "non_blocking"
+                    or event.redaction_policy_ref is not None
+                    or event.duplicate_of is not None
+                    or event.dedupe_key is not None
+                    or event.payload_ref != terminal_id
+                    or event.artifact_refs != (terminal_id,)
+                    or event.input_refs != _acquisition_route_receipt_inputs(terminal)
+                    or str(reentry_ref.artifact_id) not in event.input_refs
+                    or str(selected_n5_execution_ref.artifact_id) not in event.input_refs
+                ):
+                    raise ValueError("ordinary_terminal_custody_event_identity_changed")
 
             failure = self.get_job_terminal_source_event_record(job_id)
             if (
@@ -9485,10 +9764,27 @@ class ControlPlaneStore:
                 raise ValueError("candidate_terminal_custody_failed_progress_changed")
 
             require_current_authority()
+            if mode == "ordinary_model_revision":
+                record = self.append_diagnostic_event(event=event, payload_ref=terminal_id)
+                if record.event != event:
+                    raise DiagnosticEventContractError(
+                        "authority_event_collision",
+                        "A terminal retry must match the exact prepared event.",
+                        details={"event_id": event.event_id},
+                    )
             attempt = job.attempt + 1
             prior_dead_letter = self._row_to_dead_letter_record(dead_letter)
+            custody_event = (
+                _CANDIDATE_TERMINAL_CUSTODY_EVENT
+                if mode == "candidate_experiment"
+                else _ORDINARY_TERMINAL_CUSTODY_EVENT
+            )
             custody = {
-                "schema_version": "candidate_experiment_terminal_custody.v1",
+                "schema_version": (
+                    "candidate_experiment_terminal_custody.v1"
+                    if mode == "candidate_experiment"
+                    else "ordinary_acquisition_terminal_custody.v1"
+                ),
                 "authority_purpose": "historical_terminal_custody_only",
                 "job_id": job_id,
                 "tenant_id": scope.tenant_id,
@@ -9525,19 +9821,16 @@ class ControlPlaneStore:
                 "step_up_sha256": step_up_sha256,
                 "authority_expires_at": authority_expires_at,
             }
-            # The existing outbox uniqueness also prevents an already consumed
-            # assertion from authorizing two custody effects in this store.
+            # This operation-specific outbox key preserves its at-most-once audit record.
             self.enqueue_outbox_event(
-                topic=_job_event_topic(_CANDIDATE_TERMINAL_CUSTODY_EVENT),
+                topic=_job_event_topic(custody_event),
                 event_key=step_up_sha256,
                 job_id=job_id,
                 run_id=job.run_id,
                 payload=custody,
                 require_new=True,
             )
-            self.append_event(
-                job_id=job_id, event_type=_CANDIDATE_TERMINAL_CUSTODY_EVENT, payload=custody
-            )
+            self.append_event(job_id=job_id, event_type=custody_event, payload=custody)
             if prior_dead_letter.acknowledged_at is None:
                 self.acknowledge_dead_letter_job(job_id=job_id, acknowledged_by=actor_subject)
             changed = self._execute(
@@ -9554,7 +9847,11 @@ class ControlPlaneStore:
                 job_id=job_id,
                 progress={
                     "state": "pending",
-                    "phase": "candidate_experiment_terminal_custody",
+                    "phase": (
+                        "candidate_experiment_terminal_custody"
+                        if mode == "candidate_experiment"
+                        else "acquisition_model_revision_terminal_custody"
+                    ),
                     "authority_purpose": "historical_terminal_custody_only",
                     "failed_attempt": job.attempt,
                 },
@@ -9586,9 +9883,17 @@ class ControlPlaneStore:
                     run_id=job.run_id,
                     progress={
                         "state": "completed",
-                        "phase": "candidate_experiment",
+                        "phase": (
+                            "candidate_experiment"
+                            if mode == "candidate_experiment"
+                            else "acquisition_model_revision"
+                        ),
                         "receipt_phase": "terminal",
-                        "terminal_outcome": "candidate_reentry_completed",
+                        "terminal_outcome": (
+                            "candidate_reentry_completed"
+                            if mode == "candidate_experiment"
+                            else "reentry_completed"
+                        ),
                         "terminal_receipt_ref": terminal_id,
                     },
                 )

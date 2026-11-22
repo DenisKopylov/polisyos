@@ -84,6 +84,9 @@ if TYPE_CHECKING:
         AcquisitionEvaluationFrontierValue,
         ControlJobExecutionAdmission,
     )
+    from polisyos.runtime.quality.acquisition_evaluation_history import (
+        VerifiedOrdinaryAcquisitionTerminalCheckpoint,
+    )
     from polisyos.runtime.quality.acquisition_evidence_transition import (
         AcquisitionEvidenceTransitionDispatch,
     )
@@ -109,7 +112,10 @@ if TYPE_CHECKING:
         CandidateSimulationScenarioProfile,
         CandidateSimulationSyntheticModelDeclarationV1,
     )
-    from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+    from polisyos.runtime.quality.event_log import (
+        RuntimeDiagnosticEventLog,
+        _PreparedDiagnosticEvent,
+    )
     from polisyos.runtime.quality.joint_simulation_horizon import (
         PreparedJointSimulationConfiguration,
     )
@@ -7011,7 +7017,7 @@ def dispatch_candidate_experiment_evaluation(
 
 
 def _terminal_record(
-    selection: _CurrentSelection,
+    phase: AcquisitionRoutePhaseReceipt,
     *,
     predecessor_ref: str,
     owner_refs: tuple[str, ...],
@@ -7023,9 +7029,8 @@ def _terminal_record(
     reentry_ref: str | None = None,
     continuation_ref: ArtifactRef | None = None,
 ) -> AcquisitionRouteLoopReceiptV2:
-    phase = selection.phase
     return AcquisitionRouteLoopReceiptV2(
-        receipt_id=selection.action_job_id + ".terminal.v2",
+        receipt_id=phase.job_id + ".terminal.v2",
         tenant_id=phase.tenant_id,
         cell_id=phase.cell_id,
         run_id=phase.run_id,
@@ -7047,6 +7052,202 @@ def _terminal_record(
         selected_evaluation=selected_evaluation,
         current_continuation_ref=continuation_ref,
         generated_at=datetime.now(UTC),
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class PreparedOrdinaryAcquisitionTerminal:
+    """CAS-staged terminal and detached event for the separate atomic custody sink."""
+
+    terminal: AcquisitionRouteLoopReceiptV2
+    terminal_ref: ArtifactRef
+    prepared_event: _PreparedDiagnosticEvent
+    frontier_cas: AcquisitionEvaluationFrontierCAS
+    reentry_ref: ArtifactRef
+    work_event_ids: tuple[str, ...]
+
+
+def prepare_ordinary_acquisition_terminal(
+    *,
+    control_service: ControlPlaneService,
+    checkpoint: VerifiedOrdinaryAcquisitionTerminalCheckpoint,
+) -> PreparedOrdinaryAcquisitionTerminal:
+    """Stage the ordinary V2 receipt and an unpublished diagnostic in CAS.
+
+    The checkpoint owner has already verified the comparison and completed
+    work. A separate current custody transaction selects these staged values.
+    """
+    import hashlib
+
+    from polisyos.core.canon import CanonSpec, to_canonical_bytes
+    from polisyos.runtime.http.services.control.artifacts import write_authority_artifact
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        ControlPlaneService,
+        _acquisition_route_event_id,
+        _acquisition_route_receipt_inputs,
+        _native_acquisition_receipt_selected_inputs,
+    )
+    from polisyos.runtime.http.services.control_plane_store import (
+        AcquisitionEvaluationFrontierCAS,
+        AcquisitionEvaluationFrontierValue,
+    )
+    from polisyos.runtime.quality.acquisition_evaluation_history import (
+        VerifiedOrdinaryAcquisitionTerminalCheckpoint,
+    )
+    from polisyos.runtime.quality.authority import GovernanceMetadata
+    from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
+    from polisyos.runtime.quality.event_log import DiagnosticEventPayloadPolicy
+
+    if (
+        type(control_service) is not ControlPlaneService
+        or type(checkpoint) is not VerifiedOrdinaryAcquisitionTerminalCheckpoint
+    ):
+        raise TypeError("ordinary_acquisition_terminal_preparation_owner_untyped")
+    head = checkpoint.head
+    pending = checkpoint.pending
+    evaluation = checkpoint.evaluation
+    basis = checkpoint.selected_basis
+    decision = checkpoint.decision
+    frontier = checkpoint.frontier_before
+    if (
+        pending.receipt_phase != "world_committed_reentry_pending"
+        or head.receipt_phase != pending.receipt_phase
+        or pending.job_id != head.job_id
+        or evaluation.selected.evaluation_job_id != head.job_id
+        or basis.evaluation != evaluation.selected
+        or checkpoint.model_revision.selected_basis_ref != checkpoint.selected_basis_ref
+        or checkpoint.model_revision.selected_input_ref != evaluation.selected.n5_input_ref
+        or (frontier.revision, frontier.frontier_ref)
+        != (decision.expected_frontier_revision, decision.expected_frontier_ref)
+    ):
+        raise ValueError("ordinary_acquisition_terminal_preparation_checkpoint_mismatch")
+    terminal = _terminal_record(
+        pending,
+        predecessor_ref=head.receipt_ref,
+        owner_refs=pending.owner_receipt_refs,
+        decision_ref=checkpoint.decision_ref,
+        outcome="reentry_completed",
+        selected_basis_ref=checkpoint.selected_basis_ref,
+        selected_evaluation=evaluation.selected.model_copy(
+            update={"basis_ref": checkpoint.selected_basis_ref}
+        ),
+        selected_witness_ref=evaluation.selected.n5_execution_ref,
+        reentry_ref=str(checkpoint.reentry_ref.artifact_id),
+    )
+    frontier_cas = AcquisitionEvaluationFrontierCAS(
+        key=frontier.key,
+        expected_revision=frontier.revision,
+        expected_frontier_ref=frontier.frontier_ref,
+        replacement=AcquisitionEvaluationFrontierValue(
+            selected_evaluation_witness_ref=str(
+                terminal.selected_evaluation_witness_ref.artifact_id
+            ),
+            selected_evaluation_content_hash=evaluation.execution.content_hash,
+            basis_ref=str(terminal.selected_basis_ref.artifact_id),
+            basis_content_hash=basis.content_hash,
+            decision_ref=str(terminal.evaluation_decision_ref.artifact_id),
+        ),
+    )
+    work_event_ids = tuple(row.event_id for row in evaluation.result.physical_work_observations)
+    store = control_service._artifact_store
+    event_log = control_service._diagnostic_event_log
+    payload = terminal.model_dump(mode="json")
+    canon_spec = CanonSpec(forbid_floats=False)
+    terminal_digest = hashlib.sha256(to_canonical_bytes(payload, canon_spec)).hexdigest()
+    input_refs = _acquisition_route_receipt_inputs(terminal)
+    generated_at = terminal.generated_at.isoformat()
+    # Use the same CAS/event encoding as the ordinary route sink. Its live
+    # writer would also append SQL before the custody transaction can run.
+    result = write_authority_artifact(
+        store,
+        payload,
+        artifacts.ArtifactWriteOptions(
+            kind="runtime_quality.acquisition_route_loop_receipt",
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name="polisyos.runtime.AcquisitionRouteLoopReceipt",
+                version=terminal.schema_version.rsplit("@", 1)[-1],
+            ),
+            producer=artifacts.ProducerInfo(
+                component="polisyos.runtime.acquisition_route_loop",
+                version="2026.08.28+ds15-c02",
+            ),
+            governance=artifacts.ArtifactGovernanceInfo(classification="internal"),
+            inputs=_native_acquisition_receipt_selected_inputs(terminal),
+        ),
+        evidence_id=terminal.receipt_id,
+        evidence_class="authority_bearing",
+        authority_role="producer_authority",
+        provenance_kind="runtime_emitted",
+        owner="team-runtime-quality",
+        reader_contract="runtime.acquisition_route_loop.reader",
+        reader_contract_version="1.0",
+        tenant_id=terminal.tenant_id,
+        cell_id=terminal.cell_id,
+        run_id=terminal.run_id,
+        job_id=terminal.job_id,
+        trace_id=f"trace-{terminal.job_id}",
+        span_id=f"span-{terminal.receipt_phase}",
+        parent_span_id=None,
+        requested_execution_profile="governed",
+        effective_execution_profile="governed",
+        phase="acquisition_route_loop",
+        generated_at=generated_at,
+        as_of_time=generated_at,
+        same_input_closure={
+            "closure_id": f"acquisition-route:{terminal.receipt_id}",
+            "status": "closed",
+            "run_id": terminal.run_id,
+            "job_id": terminal.job_id,
+            "tenant_id": terminal.tenant_id,
+            "cell_id": terminal.cell_id,
+            "evidence_input_refs": input_refs,
+            "closure_sha256": terminal.route_id,
+        },
+        input_refs=input_refs,
+        effective_mode_ref=terminal.route_id,
+        semantic_binding_ref=terminal.cost_basis_hash,
+        validation_status="pass",
+        blocking_status="non_blocking",
+        governance=GovernanceMetadata(
+            classification="internal",
+            authority_boundary="runtime.acquisition_route_loop",
+            pii="none",
+            retention_policy="runtime-quality-90d",
+            review_status="runtime_verified",
+            override_policy="no_override",
+            approval_policy="pa2_ds9_decision_required",
+        ),
+        event_id=_acquisition_route_event_id(terminal, f"loop_terminal_{terminal_digest}"),
+        event_source="polisyos.runtime.quality.acquisition_route_loop",
+        event_type="polisyos.runtime.acquisition.route_loop.v2",
+        event_subject=(
+            f"run/{terminal.run_id}/job/{terminal.job_id}/acquisition/{terminal.receipt_phase}"
+        ),
+        state_before=pending.receipt_phase,
+        state_after=terminal.receipt_phase,
+        canon_spec=canon_spec,
+    )
+    receipt_ref = f"sha256:{terminal_digest}"
+    event = DiagnosticEvent.model_validate(
+        artifacts.read_core_json_artifact(store, result.diagnostic_event_ref).value
+    )
+    if (
+        result.cas_ref.manifest_profile_sha256 is None
+        or str(result.cas_ref.artifact_id) != receipt_ref
+        or event.payload_ref != receipt_ref
+    ):
+        raise ValueError("ordinary_acquisition_terminal_preparation_content_mismatch")
+    return PreparedOrdinaryAcquisitionTerminal(
+        terminal=terminal,
+        terminal_ref=result.cas_ref,
+        prepared_event=event_log.prepare(
+            event,
+            payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True),
+        ),
+        frontier_cas=frontier_cas,
+        reentry_ref=checkpoint.reentry_ref,
+        work_event_ids=work_event_ids,
     )
 
 
@@ -7724,7 +7925,7 @@ def complete_positive_acquisition_admission(
                     if old_ref is None or old_selected is None:
                         raise ValueError("acquisition_retained_actual_evaluation_missing")
                     terminal = _terminal_record(
-                        selection,
+                        selection.phase,
                         predecessor_ref=snapshot.head.receipt_ref,
                         owner_refs=tuple(
                             sorted(
@@ -7918,7 +8119,7 @@ def complete_positive_acquisition_admission(
         )
         owner.revalidate()
         terminal = _terminal_record(
-            selection,
+            selection.phase,
             predecessor_ref=pending_head.receipt_ref,
             owner_refs=pending.owner_receipt_refs,
             decision_ref=decision_ref,

@@ -8,9 +8,11 @@ permission, present source eligibility, or a new N5 occurrence.
 from __future__ import annotations
 
 import hashlib
+import json
 from collections.abc import Mapping
 from dataclasses import dataclass
 from itertools import pairwise
+from pathlib import Path
 from typing import TYPE_CHECKING, Self
 
 from pydantic import BaseModel, ConfigDict, model_validator
@@ -39,6 +41,7 @@ from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteLoop,
     AcquisitionRouteLoopReceipt,
     AcquisitionRouteLoopReceiptV2,
+    AcquisitionRoutePhaseReceipt,
 )
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
 from polisyos.runtime.quality.generation_cycle import GenerationCycleRecord, GenerationCycleRun
@@ -59,12 +62,14 @@ if TYPE_CHECKING:
         AcquisitionActionHeadRecord,
         AcquisitionEvaluationFrontierKey,
         AcquisitionEvaluationFrontierRecord,
+        ControlJobRecord,
         ControlPlaneStore,
     )
     from polisyos.runtime.quality.acquisition_evaluation import (
         CandidateEvaluationTerminalHistory,
         CandidateExperimentTerminalHistory,
     )
+    from polisyos.runtime.quality.acquisition_model_transition import CandidateModelRevision
     from polisyos.runtime.quality.acquisition_retained_continuation import (
         AcquisitionRetainedContinuation,
         AcquisitionRetainedCurrentProjection,
@@ -121,6 +126,24 @@ class _VerifiedRetainedRoute:
     evaluation: ResolvedAcquisitionEvaluation
     growth: AcquisitionWorldGrowthReceipt
     continuation: AcquisitionRetainedContinuation
+
+
+@dataclass(frozen=True, slots=True)
+class VerifiedOrdinaryAcquisitionTerminalCheckpoint:
+    """Evidence for constructing a terminal from an already completed execution."""
+
+    job: ControlJobRecord
+    head: AcquisitionActionHeadRecord
+    pending: AcquisitionRoutePhaseReceipt
+    decision_ref: ArtifactRef
+    decision: AcquisitionEvaluationDecisionV2
+    reentry_ref: ArtifactRef
+    reentry: AcquisitionOverlayReentryReceipt
+    selected_basis_ref: ArtifactRef
+    selected_basis: AcquisitionEvaluationBasisV2
+    evaluation: ResolvedAcquisitionEvaluation
+    frontier_before: AcquisitionEvaluationFrontierRecord
+    model_revision: CandidateModelRevision
 
 
 @dataclass(frozen=True, slots=True)
@@ -2413,7 +2436,7 @@ def _verified_growth(
     artifact_store: CoreJSONArtifactStore,
     event_log: RuntimeDiagnosticEventLog,
     snapshot: VerifiedAcquisitionActionOutcome,
-    terminal: AcquisitionRouteLoopReceiptV2,
+    terminal: AcquisitionRouteLoopReceiptV2 | AcquisitionRoutePhaseReceipt,
     decision: AcquisitionEvaluationDecision,
     current_basis: AcquisitionEvaluationBasis,
     design_problem_ref: str,
@@ -2484,6 +2507,340 @@ def _verified_growth(
     ):
         raise ValueError("acquisition_retained_admitted_source_mismatch")
     return growth
+
+
+def _ordinary_checkpoint_reentry(
+    *,
+    control_service: ControlPlaneService,
+    head: AcquisitionActionHeadRecord,
+    decision: AcquisitionEvaluationDecisionV2,
+    growth: AcquisitionWorldGrowthReceipt,
+    reentry_ref: ArtifactRef,
+) -> AcquisitionOverlayReentryReceipt:
+    """Reopen the growth-keyed event without repairing pointers or entering N5."""
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+    from polisyos.runtime.quality.generation_cycle import AcquisitionOverlayReentryReceipt
+
+    store = control_service._artifact_store
+    events = control_service._diagnostic_event_log
+    selected = _selected_ref(store, reentry_ref)
+    reentry_id = str(selected.artifact_id)
+    growth_id = str(decision.growth_receipt_ref.artifact_id)
+    growth_key = growth_id.removeprefix("sha256:")
+    records = events.list_events(
+        event_id="evt_acquisition_reentry_" + growth_key,
+        run_id=head.run_id,
+        job_id=head.source_job_id,
+        limit=2,
+    )
+    if len(records) != 1:
+        raise ValueError("ordinary_acquisition_checkpoint_reentry_event_missing")
+    event = records[0].event
+    if (
+        event.event_source != "polisyos.runtime.acquisition_world_growth"
+        or event.event_type != "polisyos.runtime.diagnostic.producer_execution.v1"
+        or event.phase != "reentry_terminal"
+        or event.state_after != "reentry_terminal"
+        or (event.tenant_id, event.cell_id) != (head.tenant_id, head.cell_id)
+        or event.input_refs != (decision.compiled_ref,)
+        or event.payload_ref != reentry_id
+        or event.artifact_refs != (reentry_id,)
+    ):
+        raise ValueError("ordinary_acquisition_checkpoint_reentry_event_mismatch")
+    reentry = AcquisitionOverlayReentryReceipt.model_validate(
+        AcquisitionWorldGrowthBridge.read_verified_artifact(
+            store, events, selected, "runtime_quality.acquisition_overlay_reentry_receipt"
+        )
+    )
+    if (
+        reentry.schema_version != "policyos.runtime.acquisition_overlay_reentry.v3"
+        or reentry.continued_generation_run is None
+        or reentry.epoch_id != growth.selection.epoch_id
+        or reentry.passport_id != growth.passport_id
+        or reentry.semantic_epoch_ref != growth.activation.semantic_epoch_stamp.epoch_ref
+        or reentry.semantic_epoch_production_receipt_ref
+        != str(growth.activation.semantic_epoch_production_receipt_ref.artifact_id)
+    ):
+        raise ValueError("ordinary_acquisition_checkpoint_reentry_growth_mismatch")
+
+    # The event is the immutable locator. An existing local hint must agree,
+    # while an archive with only the owner event still needs no pointer write.
+    scope = hashlib.sha256(canon.to_canonical_bytes(list(growth.selection.key[:2]))).hexdigest()
+    cas_root = Path(control_service._cas_root).resolve(strict=True)
+    root = cas_root / "runtime/acquisition/world-growth" / scope
+    pointer = root / (growth_key + ".reentry.json")
+    if pointer.is_symlink() or (
+        pointer.exists()
+        and (
+            not pointer.is_file()
+            or not pointer.resolve(strict=True).is_relative_to(cas_root)
+            or pointer.stat().st_size > 256
+            or json.loads(pointer.read_bytes()) != {"receipt_ref": reentry_id}
+        )
+    ):
+        raise ValueError("ordinary_acquisition_checkpoint_reentry_pointer_mismatch")
+    return reentry
+
+
+def verify_ordinary_acquisition_terminal_checkpoint(
+    *,
+    control_service: ControlPlaneService,
+    head: AcquisitionActionHeadRecord,
+    failed_attempt: int,
+    actor_subject: str,
+    reentry_ref: ArtifactRef,
+    decision_ref: ArtifactRef,
+    selected_basis_ref: ArtifactRef,
+    expected_frontier_revision: int,
+    expected_frontier_ref: str,
+) -> VerifiedOrdinaryAcquisitionTerminalCheckpoint:
+    """Verify one pending ordinary model revision from the existing execution.
+
+    The result carries historical evidence for a separate request owner. It
+    supplies no current execution authority and writes neither cursor nor receipt.
+    """
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.http.services.control_plane_store import (
+        AcquisitionActionHeadRecord,
+        AcquisitionEvaluationFrontierKey,
+    )
+    from polisyos.runtime.quality.acquisition_model_transition import (
+        resolve_candidate_model_revision,
+    )
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+    from polisyos.runtime.quality.agent_action_authority import agent_action_content_hash
+
+    if (
+        type(control_service) is not ControlPlaneService
+        or type(head) is not AcquisitionActionHeadRecord
+        or head.receipt_phase != "world_committed_reentry_pending"
+        or head.recovery_state != "reentry_recovery_required"
+        or head.receipt_manifest_profile_sha256 is not None
+        or type(failed_attempt) is not int
+        or failed_attempt < 1
+        or type(actor_subject) is not str
+        or not actor_subject.strip()
+        or type(expected_frontier_revision) is not int
+        or expected_frontier_revision < 1
+    ):
+        raise ValueError("ordinary_acquisition_checkpoint_scope_invalid")
+
+    control = control_service._control_store
+    store = control_service._artifact_store
+    events = control_service._diagnostic_event_log
+    sink = control_service.acquisition_route_sink
+    job = control.get_job(head.job_id)
+    if (
+        job is None
+        or job.kind != "acquisition"
+        or job.run_id != head.run_id
+        or job.state != "failed"
+        or job.attempt != failed_attempt
+        or job.submitted_by != actor_subject
+        or job.payload_ref is None
+        or job.lease_owner is not None
+        or job.lease_expires_at is not None
+        or job.finished_at is None
+    ):
+        raise ValueError("ordinary_acquisition_checkpoint_failed_job_mismatch")
+    scope, _ = control._reconcile_control_job_creation_envelope(job)
+    failure = control.get_job_terminal_source_event_record(job.job_id)
+    if (
+        scope.status != "established"
+        or not scope.actor_authenticated
+        or (scope.tenant_id, scope.cell_id, scope.actor_subject)
+        != (head.tenant_id, head.cell_id, actor_subject)
+        or failure.event_type != "job_failed"
+        or failure.payload.get("attempt") != failed_attempt
+        or failure.payload.get("error_message") != job.error_message
+    ):
+        raise ValueError("ordinary_acquisition_checkpoint_failed_owner_unverified")
+    route_scope = {
+        "tenant_id": head.tenant_id,
+        "cell_id": head.cell_id,
+        "run_id": head.run_id,
+        "source_job_id": head.source_job_id,
+        "route_id": head.route_id,
+    }
+    snapshot = sink.current_action_outcome(**route_scope)
+    if snapshot is None or snapshot.head != head:
+        raise ValueError("ordinary_acquisition_checkpoint_head_changed")
+    pending = snapshot.latest_receipt
+    if (
+        type(pending) is not AcquisitionRoutePhaseReceipt
+        or pending.schema_version != "AcquisitionRoutePhaseReceipt@1.0"
+        or pending.owner_declared_profile_ref is not None
+    ):
+        raise ValueError("ordinary_acquisition_checkpoint_phase_unverified")
+    source_payload = ControlPlaneService._job_payload_without_telemetry(
+        control_service._load_payload_ref(
+            job.payload_ref, kind="runtime.control_job_payload.acquisition"
+        )
+    )
+    if (
+        "action_kind" in source_payload
+        or source_payload.get("decision_ref") != pending.decision_ref
+        or any(
+            source_payload.get(name) != route_scope[name]
+            for name in ("tenant_id", "cell_id", "run_id", "route_id")
+        )
+    ):
+        raise ValueError("ordinary_acquisition_checkpoint_created_payload_mismatch")
+
+    origin = AcquisitionRouteLoop(
+        control_store=control,
+        artifact_store=store,
+        event_log=events,
+        core_source_resolver=control_service.resolve_completed_control_job_core_run_source,
+        tenant_id=head.tenant_id,
+        cell_id=head.cell_id,
+        action_outcome_reader=sink,
+    ).resolve_current_route(
+        run_id=head.run_id, route_id=head.route_id, before_action_generation=head.action_generation
+    )
+    decision = read_acquisition_basis_or_decision_artifact(
+        store=store, event_log=events, ref=decision_ref, kind="decision"
+    )
+    if (
+        origin.source_job_id != head.source_job_id
+        or origin.native_derivation_leaf_scope is not None
+        or origin.compiled_ref != pending.compiled_ref
+        or origin.cost_basis_hash != pending.cost_basis_hash
+        or agent_action_content_hash(origin.planner_report) != pending.planner_report_hash
+        or type(decision) is not AcquisitionEvaluationDecisionV2
+        or decision.compiled_ref != pending.compiled_ref
+        or (decision.tenant_id, decision.cell_id, decision.run_id, decision.source_job_id)
+        != (head.tenant_id, head.cell_id, head.run_id, head.source_job_id)
+        or (decision.action_job_id, decision.action_generation, decision.route_id)
+        != (head.job_id, head.action_generation, head.route_id)
+        or decision.comparison_result != "different"
+        or decision.predicate_provenance != "recomputed"
+        or decision.reason_codes
+        or decision.prior_basis_ref is None
+        or decision.prior_evaluation is None
+        or pending.owner_receipt_refs
+        != tuple(
+            sorted((str(decision_ref.artifact_id), str(decision.growth_receipt_ref.artifact_id)))
+        )
+        or (decision.expected_frontier_revision, decision.expected_frontier_ref)
+        != (expected_frontier_revision, expected_frontier_ref)
+    ):
+        raise ValueError("ordinary_acquisition_checkpoint_decision_mismatch")
+    current_basis = read_acquisition_basis_or_decision_artifact(
+        store=store, event_log=events, ref=decision.current_basis_ref, kind="basis"
+    )
+    prior_basis = read_acquisition_basis_or_decision_artifact(
+        store=store, event_log=events, ref=decision.prior_basis_ref, kind="basis"
+    )
+    selected_basis = read_acquisition_basis_or_decision_artifact(
+        store=store, event_log=events, ref=selected_basis_ref, kind="basis"
+    )
+    if (
+        type(current_basis) is not AcquisitionEvaluationBasisV2
+        or type(prior_basis) is not AcquisitionEvaluationBasisV2
+        or type(selected_basis) is not AcquisitionEvaluationBasisV2
+    ):
+        raise ValueError("ordinary_acquisition_checkpoint_basis_unverified")
+    key = AcquisitionEvaluationFrontierKey(
+        tenant_id=head.tenant_id,
+        cell_id=head.cell_id,
+        source_job_id=head.source_job_id,
+        design_problem_ref=origin.design_problem_ref,
+        candidate_id=origin.source_cycle.selected_candidate_ref,
+    )
+    frontier = control.read_acquisition_evaluation_frontier(key)
+    if (
+        frontier is None
+        or (frontier.revision, frontier.frontier_ref)
+        != (expected_frontier_revision, expected_frontier_ref)
+        or frontier.basis_ref != str(decision.prior_basis_ref.artifact_id)
+        or frontier.basis_content_hash != prior_basis.content_hash
+        or frontier.selected_evaluation_witness_ref
+        != str(decision.prior_evaluation.n5_execution_ref.artifact_id)
+    ):
+        raise ValueError("ordinary_acquisition_checkpoint_frontier_changed")
+    growth = _verified_growth(
+        artifact_store=store,
+        event_log=events,
+        snapshot=snapshot,
+        terminal=pending,
+        decision=decision,
+        current_basis=current_basis,
+        design_problem_ref=origin.design_problem_ref,
+    )
+    reentry = _ordinary_checkpoint_reentry(
+        control_service=control_service,
+        head=head,
+        decision=decision,
+        growth=growth,
+        reentry_ref=reentry_ref,
+    )
+    AcquisitionWorldGrowthBridge._validate_reentry(origin, growth, reentry)
+    selected_run = reentry.continued_generation_run
+    if selected_run is None:
+        raise ValueError("ordinary_acquisition_checkpoint_reentry_continuation_missing")
+    evaluation = resolve_selected_acquisition_evaluation_parts(
+        artifact_store=store,
+        control_store=control,
+        tenant_id=head.tenant_id,
+        cell_id=head.cell_id,
+        run_id=head.run_id,
+        generation_run=selected_run,
+        source_cycle=reentry.new_cycle,
+        design_problem_ref=origin.design_problem_ref,
+    )
+    work = evaluation.result.physical_work_observations
+    if (
+        evaluation.selected.evaluation_job_id != job.job_id
+        or selected_basis.evaluation != evaluation.selected
+        or frontier.selected_evaluation_witness_ref
+        == str(evaluation.selected.n5_execution_ref.artifact_id)
+        or not work
+        or any(row.status != "completed" or row.work_units <= 0 for row in work)
+        or len({row.event_id for row in work}) != len(work)
+    ):
+        raise ValueError("ordinary_acquisition_checkpoint_completed_work_unverified")
+    revision = resolve_candidate_model_revision(
+        artifact_store=store,
+        event_log=events,
+        control_store=control,
+        tenant_id=head.tenant_id,
+        cell_id=head.cell_id,
+        run_id=head.run_id,
+        design_problem_ref=origin.design_problem_ref,
+        action_job_id=job.job_id,
+        action_generation=head.action_generation,
+        route_id=head.route_id,
+        decision_ref=decision_ref,
+        selected_basis_ref=selected_basis_ref,
+        previous_run=origin.generation_run,
+        previous_cycle=origin.source_cycle,
+        selected_run=selected_run,
+        selected_cycle=reentry.new_cycle,
+    )
+    # A caller must repeat the current selector checks under the commit locks.
+    heads = control.list_acquisition_action_heads(**route_scope)
+    if (
+        not heads
+        or heads[-1] != head
+        or control.get_job(job.job_id) != job
+        or control.read_acquisition_evaluation_frontier(key) != frontier
+    ):
+        raise ValueError("ordinary_acquisition_checkpoint_cut_changed")
+    return VerifiedOrdinaryAcquisitionTerminalCheckpoint(
+        job=job,
+        head=head,
+        pending=pending,
+        decision_ref=decision_ref,
+        decision=decision,
+        reentry_ref=reentry_ref,
+        reentry=reentry,
+        selected_basis_ref=selected_basis_ref,
+        selected_basis=selected_basis,
+        evaluation=evaluation,
+        frontier_before=frontier,
+        model_revision=revision,
+    )
 
 
 def _prior_evaluation_job_id(

@@ -3494,10 +3494,14 @@ class AcquisitionRouteLoopAuthoritySink:
             selected_terminal_ref is None
         ):
             raise ValueError("acquisition_candidate_terminal_history_not_established")
-        if (
-            selected_terminal_ref is not None
-            and not isinstance(latest_receipt, AcquisitionCandidateRouteLoopReceipt)
-            and not _native_acquisition_receipt_selected_inputs(latest_receipt)
+        if selected_terminal_ref is not None and not (
+            isinstance(latest_receipt, AcquisitionCandidateRouteLoopReceipt)
+            or _native_acquisition_receipt_selected_inputs(latest_receipt)
+            or (
+                type(latest_receipt) is AcquisitionRouteLoopReceiptV2
+                and latest_receipt.terminal_outcome == "reentry_completed"
+                and not _native_acquisition_receipt_selected_inputs(identity)
+            )
         ):
             raise ValueError("acquisition_candidate_terminal_profile_invalid")
         if isinstance(latest_receipt, AcquisitionRouteLoopReceiptV2) and (
@@ -5304,7 +5308,11 @@ class AcquisitionRouteLoopAuthoritySink:
                         )
                     )
                 phase_chain = candidate_experiment_history.phase_chain
-            elif _native_acquisition_receipt_selected_inputs(selected.receipt):
+            elif type(
+                selected.receipt
+            ) is AcquisitionRouteLoopReceiptV2 or _native_acquisition_receipt_selected_inputs(
+                selected.receipt
+            ):
                 phase_chain = self._verified_action_phase_chain(
                     head, selected_terminal_ref=selected_ref
                 )

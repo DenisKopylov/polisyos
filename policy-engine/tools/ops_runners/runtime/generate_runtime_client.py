@@ -31,6 +31,7 @@ _GENERATED_POST_OPERATION_IDS = frozenset(
         "execute_run_acquisition_route",
         "execute_run_candidate_acquisition_experiment",
         "execute_run_candidate_acquisition_experiment_reuse",
+        "settle_run_acquisition_model_revision_terminal",
         "submit_run_normative_evidence",
         "admit_registered_sql_materialization",
         "cancel_control_job",

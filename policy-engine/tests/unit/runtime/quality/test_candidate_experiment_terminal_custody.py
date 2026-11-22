@@ -22,14 +22,23 @@ from polisyos.runtime.http.services.control_plane_store import (
 from polisyos.runtime.quality import acquisition_evaluation_dispatch as dispatch
 from polisyos.runtime.quality import acquisition_evaluation_history as history_owner
 from polisyos.runtime.quality.acquisition_evaluation import (
+    AcquisitionEvaluationBasisV2,
+    AcquisitionEvaluationDecisionV2,
     AcquisitionSelectedEvaluation,
     CandidateAcquisitionEvaluationBasis,
     CandidateAcquisitionEvaluationDecision,
     CandidateExperimentTerminalHistory,
     ResolvedAcquisitionEvaluation,
 )
+from polisyos.runtime.quality.acquisition_model_transition import CandidateModelRevision
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionCandidateExperimentTerminalReceipt,
+    AcquisitionRoutePhaseReceipt,
+)
+from polisyos.runtime.quality.generation_cycle import AcquisitionOverlayReentryReceipt
+from polisyos.runtime.quality.joint_simulation_horizon import (
+    JointSimulationResult,
+    PhysicalSimulationWorkObservation,
 )
 from tests._helpers.runtime_http import _build_control_service
 from tests.unit.runtime.quality.test_candidate_experiment_terminal_history import (
@@ -306,6 +315,157 @@ def test_custody_derives_exact_precommit_cas_and_event(
     assert (
         case.service._control_store.read_acquisition_evaluation_frontier(cas.key) == case.frontier
     )
+
+
+def test_ordinary_terminal_preparation_stages_canonical_event_without_sql(
+    custody_case, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Prove the real CAS/event bridge using an adapted completed checkpoint."""
+    case = custody_case
+    existing = case.history.terminal
+    head = replace(
+        case.history.head,
+        coarse_phase="world_committed",
+        receipt_phase="world_committed_reentry_pending",
+        receipt_manifest_profile_sha256=None,
+    )
+    growth_ref = _hash("a")
+    pending = AcquisitionRoutePhaseReceipt(
+        receipt_id=f"{head.job_id}.world-committed.evaluation",
+        tenant_id=head.tenant_id,
+        cell_id=head.cell_id,
+        run_id=head.run_id,
+        source_job_id=head.source_job_id,
+        route_id=head.route_id,
+        action_generation=head.action_generation,
+        job_id=head.job_id,
+        compiled_ref=_hash("b"),
+        planner_report_hash=_hash("c"),
+        cost_basis_hash=_hash("d"),
+        decision_ref=_hash("e"),
+        coarse_phase="world_committed",
+        receipt_phase="world_committed_reentry_pending",
+        recovery_state="reentry_recovery_required",
+        predecessor_receipt_ref=head.predecessor_receipt_ref,
+        owner_receipt_refs=tuple(
+            sorted((growth_ref, str(existing.evaluation_decision_ref.artifact_id)))
+        ),
+        generated_at=head.created_at,
+    )
+    selected = case.history.evaluation.selected
+    work = PhysicalSimulationWorkObservation(
+        invocation_id="a" * 32,
+        event_id="b" * 32,
+        physical_spec_ref="c" * 64,
+        effective_seed=11,
+        status="completed",
+        started_at=pending.generated_at,
+        completed_at=pending.generated_at + timedelta(seconds=1),
+        duration_seconds=1,
+        budget_status="not_established",
+    )
+    evaluation = replace(
+        case.history.evaluation,
+        result=JointSimulationResult.model_construct(
+            diagnostics={
+                "physical_work_observations": [work.model_dump(mode="python")],
+                "physical_work_capture_status": "observed",
+                "physical_work_units": 1,
+                "physical_work_unit": work.work_unit,
+                "physical_work_usd_cost_status": work.usd_cost_status,
+                "requested_replications": 1,
+                "replication_seeds": (work.effective_seed,),
+            },
+            trajectories=(),
+        ),
+    )
+    basis_ref = existing.selected_basis_ref
+    reentry_ref = _ref("runtime_quality.acquisition_overlay_reentry_receipt", "f")
+    checkpoint = history_owner.VerifiedOrdinaryAcquisitionTerminalCheckpoint(
+        job=None,  # The preceding historical proof is outside this component test.
+        head=head,
+        pending=pending,
+        decision_ref=existing.evaluation_decision_ref,
+        decision=AcquisitionEvaluationDecisionV2.model_construct(
+            expected_frontier_revision=case.frontier.revision,
+            expected_frontier_ref=case.frontier.frontier_ref,
+        ),
+        reentry_ref=reentry_ref,
+        reentry=AcquisitionOverlayReentryReceipt.model_construct(),
+        selected_basis_ref=basis_ref,
+        selected_basis=AcquisitionEvaluationBasisV2.model_construct(
+            evaluation=selected, content_hash=case.history.selected_basis.content_hash
+        ),
+        evaluation=evaluation,
+        frontier_before=case.frontier,
+        model_revision=CandidateModelRevision(
+            previous_input_ref=_ref("runtime.quality.candidate_simulation_n5_input", "1"),
+            selected_input_ref=selected.n5_input_ref,
+            previous_declaration_ref=_ref(
+                "runtime.quality.candidate_simulation_model_declaration", "2"
+            ),
+            selected_declaration_ref=_ref(
+                "runtime.quality.candidate_simulation_model_declaration", "3"
+            ),
+            previous_ncm_ref=_ref("ir.ncm_spec", "4"),
+            selected_ncm_ref=_ref("ir.ncm_spec", "5"),
+            previous_basis_ref=case.history.decision.prior_basis_ref,
+            selected_basis_ref=basis_ref,
+        ),
+    )
+
+    def refuse_sql(*_args: object, **_kwargs: object) -> None:
+        pytest.fail("terminal preparation must not access SQL")
+
+    with monkeypatch.context() as patch:
+        patch.setattr(case.service._control_store, "_sqlite_connection", refuse_sql)
+        prepared = dispatch.prepare_ordinary_acquisition_terminal(
+            control_service=case.service, checkpoint=checkpoint
+        )
+        with pytest.raises(
+            ValueError, match="ordinary_acquisition_terminal_preparation_checkpoint_mismatch"
+        ):
+            dispatch.prepare_ordinary_acquisition_terminal(
+                control_service=case.service,
+                checkpoint=replace(checkpoint, selected_basis_ref=checkpoint.decision_ref),
+            )
+
+    terminal = prepared.terminal
+    assert terminal.predecessor_receipt_ref == head.receipt_ref
+    assert terminal.owner_receipt_refs == pending.owner_receipt_refs
+    assert terminal.reentry_receipt_ref == str(reentry_ref.artifact_id)
+    assert terminal.selected_evaluation == selected.model_copy(update={"basis_ref": basis_ref})
+    assert terminal.selected_evaluation_witness_ref == selected.n5_execution_ref
+    assert prepared.reentry_ref == reentry_ref
+    assert prepared.work_event_ids == (work.event_id,)
+    assert prepared.frontier_cas.key == case.frontier.key
+    assert prepared.frontier_cas.expected_revision == case.frontier.revision
+    assert prepared.frontier_cas.expected_frontier_ref == case.frontier.frontier_ref
+    assert prepared.frontier_cas.replacement == AcquisitionEvaluationFrontierValue(
+        selected_evaluation_witness_ref=str(selected.n5_execution_ref.artifact_id),
+        selected_evaluation_content_hash=evaluation.execution.content_hash,
+        basis_ref=str(basis_ref.artifact_id),
+        basis_content_hash=checkpoint.selected_basis.content_hash,
+        decision_ref=str(checkpoint.decision_ref.artifact_id),
+    )
+    event, payload = prepared.prepared_event.publication_values()
+    terminal_id = str(prepared.terminal_ref.artifact_id)
+    assert (
+        event.event_id == f"evt_acquisition_4_loop_terminal_{terminal_id.removeprefix('sha256:')}"
+    )
+    assert event.event_type == "polisyos.runtime.acquisition.route_loop.v2"
+    assert event.state_before == pending.receipt_phase
+    assert event.state_after == "terminal"
+    assert event.payload_ref == terminal_id
+    assert event.input_refs == _acquisition_route_receipt_inputs(terminal)
+    assert payload is None
+    events = case.service._diagnostic_event_log
+    assert not events.list_events(event_id=event.event_id, limit=10)
+    events.append(event)
+    verified = case.service.acquisition_route_sink._read_verified_action_phase(
+        terminal_id, selected_ref=prepared.terminal_ref
+    )
+    assert (verified.receipt, verified.event) == (terminal, event)
 
 
 @pytest.mark.parametrize("outcome", ["candidate_evaluation_retained", "candidate_blocked"])

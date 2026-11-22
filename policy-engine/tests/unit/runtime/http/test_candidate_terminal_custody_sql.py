@@ -5,7 +5,7 @@ from __future__ import annotations
 import sqlite3
 import time
 from dataclasses import replace
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from pathlib import Path
 from types import SimpleNamespace
@@ -14,15 +14,26 @@ from typing import Any
 import pytest
 
 from polisyos.core.artifacts import ArtifactID, ArtifactRef
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.runtime.http.services import control_plane_store
+from polisyos.runtime.http.services.control.run_lifecycle import (
+    _acquisition_route_receipt_inputs,
+)
 from polisyos.runtime.http.services.control_plane_store import (
     AcquisitionEvaluationFrontierCAS,
     AcquisitionEvaluationFrontierRecord,
+    AcquisitionEvaluationFrontierValue,
     ControlJobExecutionAdmissionError,
     ControlJobLeaseLostError,
     ControlPlaneStore,
 )
+from polisyos.runtime.quality.acquisition_evaluation import AcquisitionSelectedEvaluation
+from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceiptV2
 from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
+from polisyos.runtime.quality.event_log import (
+    DiagnosticEventPayloadPolicy,
+    RuntimeDiagnosticEventLog,
+)
 from tests.unit.runtime.http.test_control_plane_store_action_head_history import (
     _action_scope,
     _append_head,
@@ -153,6 +164,217 @@ def _custody_case(
             "resource_digest": _sha("bound custody resource"),
             "authority_expires_at": expiry,
             "step_up_sha256": _sha("step-up"),
+        },
+        frontier,
+    )
+
+
+def _ordinary_custody_case(
+    tmp_path: Path,
+) -> tuple[ControlPlaneStore, dict[str, Any], AcquisitionEvaluationFrontierRecord]:
+    store = _make_store(tmp_path)
+    _, frontier, _ = _bootstrap(store, tmp_path, source_job_id="source-job")
+    scope = _action_scope()
+    job = _create_pending_action_job(store)
+    requested = _append_head(
+        store,
+        scope,
+        receipt_ref=_sha("ordinary-request"),
+        expected_head_generation=0,
+        predecessor_receipt_ref=None,
+        receipt_phase="requested",
+        receipt_manifest_profile_sha256=_sha("ordinary-request-profile"),
+        job_id=job.job_id,
+    )
+    refreshed = _append_head(
+        store,
+        scope,
+        receipt_ref=_sha("ordinary-refreshed"),
+        expected_head_generation=requested.head_generation,
+        predecessor_receipt_ref=requested.receipt_ref,
+        receipt_phase="authorization_refreshed",
+        receipt_manifest_profile_sha256=_sha("ordinary-refreshed-profile"),
+        pending_authorization_cas=_pending_authorization_cas(job),
+        job_id=job.job_id,
+    )
+    worker, attempt = _lease_job(store, job, "ordinary-prior-worker")
+    head = refreshed
+    with store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+        for phase in ("executing", "outcome_selected"):
+            head = _append_head(
+                store,
+                scope,
+                receipt_ref=_sha(f"ordinary-{phase}"),
+                expected_head_generation=head.head_generation,
+                predecessor_receipt_ref=head.receipt_ref,
+                receipt_phase=phase,
+                receipt_manifest_profile_sha256=_sha(f"ordinary-{phase}-profile"),
+                job_id=job.job_id,
+            )
+        head = store.advance_acquisition_action_head(
+            **scope,
+            expected_head_generation=head.head_generation,
+            receipt_ref=_sha("ordinary-world-pending"),
+            receipt_sha256=_sha("ordinary-world-pending"),
+            durable_event_id="event-ordinary-world-pending",
+            coarse_phase="world_committed",
+            receipt_phase="world_committed_reentry_pending",
+            recovery_state="reentry_recovery_required",
+            job_id=job.job_id,
+            predecessor_receipt_ref=head.receipt_ref,
+            receipt_manifest_profile_sha256=_sha("ordinary-world-pending-profile"),
+        )
+        store.upsert_progress(
+            job_id=job.job_id,
+            progress={"diagnostic_events": [{"event_id": "ordinary-prior-attempt"}]},
+        )
+        store.fail_job(
+            job_id=job.job_id,
+            error_message="interrupted ordinary terminal publication",
+            progress={
+                "state": "failed",
+                "phase": "acquisition_model_revision",
+                "attempt": attempt,
+            },
+        )
+
+    # Model the existing pre-profile legacy head; today's writer correctly
+    # refuses to create a profile downgrade as a new lifecycle transition.
+    with sqlite3.connect(tmp_path / "control-plane.sqlite3") as connection:
+        connection.execute(
+            "UPDATE runtime_acquisition_action_heads "
+            "SET receipt_manifest_profile_sha256 = NULL WHERE job_id = ? AND receipt_ref = ?",
+            (job.job_id, head.receipt_ref),
+        )
+    head = store.get_acquisition_action_head(**scope)
+    assert head is not None and head.receipt_manifest_profile_sha256 is None
+
+    def ref(label: str, kind: str) -> ArtifactRef:
+        return ArtifactRef(
+            artifact_id=ArtifactID(_sha(label)),
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256=_sha(f"{label}-profile"),
+        )
+
+    reentry = ref("ordinary-reentry", "runtime_quality.acquisition_overlay_reentry_receipt")
+    selected_execution = ref(
+        "ordinary-selected-execution", "runtime.quality.candidate_simulation_execution"
+    )
+    selected_basis = ref("ordinary-selected-basis", "runtime_quality.acquisition_evaluation_basis")
+    decision = ref("ordinary-selected-decision", "runtime_quality.acquisition_evaluation_decision")
+    selected = AcquisitionSelectedEvaluation(
+        candidate_id=frontier.key.candidate_id,
+        candidate_content_hash=_sha("ordinary-candidate-content"),
+        design_problem_ref=frontier.key.design_problem_ref,
+        world_model_record_hash=_sha("ordinary-world-record"),
+        evaluation_job_id=job.job_id,
+        evaluation_run_id=job.run_id,
+        generation_run_id="ordinary-generation-run",
+        cycle_index=0,
+        n4_source_ref=ref("ordinary-n4", "runtime.quality.n4_candidate_scenario_source"),
+        context_job_ref=ref("ordinary-context", "runtime.quality.cycle_substrate_context_job"),
+        n5_input_ref=ref("ordinary-n5-input", "runtime.quality.candidate_simulation_n5_input"),
+        n5_execution_ref=selected_execution,
+        n5_result_ref=ref("ordinary-n5-result", "polisyos.runtime.joint_simulation_result"),
+        basis_ref=selected_basis,
+    )
+    generated_at = datetime.now(UTC)
+    terminal = AcquisitionRouteLoopReceiptV2(
+        receipt_id=f"{job.job_id}.terminal.v2",
+        tenant_id=head.tenant_id,
+        cell_id=head.cell_id,
+        run_id=head.run_id,
+        source_job_id=head.source_job_id,
+        route_id=head.route_id,
+        action_generation=head.action_generation,
+        job_id=head.job_id,
+        compiled_ref=_sha("ordinary-compiled"),
+        planner_report_hash=_sha("ordinary-planner"),
+        cost_basis_hash=_sha("ordinary-cost-basis"),
+        decision_ref=_sha("ordinary-route-decision"),
+        terminal_outcome="reentry_completed",
+        predecessor_receipt_ref=head.receipt_ref,
+        owner_receipt_refs=(str(reentry.artifact_id), str(decision.artifact_id)),
+        reentry_receipt_ref=str(reentry.artifact_id),
+        evaluation_decision_ref=decision,
+        selected_basis_ref=selected_basis,
+        selected_evaluation_witness_ref=selected_execution,
+        selected_evaluation=selected,
+        generated_at=generated_at,
+    )
+    terminal_digest = sha256(
+        to_canonical_bytes(terminal.model_dump(mode="json"), CanonSpec(forbid_floats=False))
+    ).hexdigest()
+    terminal_id = f"sha256:{terminal_digest}"
+    terminal_ref = ArtifactRef(
+        artifact_id=ArtifactID(terminal_id),
+        kind="runtime_quality.acquisition_route_loop_receipt",
+        media_type="application/json",
+        manifest_profile_sha256=_sha("ordinary-terminal-profile"),
+    )
+    frontier_cas = AcquisitionEvaluationFrontierCAS(
+        key=frontier.key,
+        expected_revision=frontier.revision,
+        expected_frontier_ref=frontier.frontier_ref,
+        replacement=AcquisitionEvaluationFrontierValue(
+            selected_evaluation_witness_ref=str(selected_execution.artifact_id),
+            selected_evaluation_content_hash=_sha("ordinary-execution-content"),
+            basis_ref=str(selected_basis.artifact_id),
+            basis_content_hash=_sha("ordinary-basis-content"),
+            decision_ref=str(decision.artifact_id),
+        ),
+    )
+    event = DiagnosticEvent(
+        event_id=(f"evt_acquisition_{head.action_generation}_loop_terminal_{terminal_digest}"),
+        event_source="polisyos.runtime.quality.acquisition_route_loop",
+        event_type="polisyos.runtime.acquisition.route_loop.v2",
+        event_time=terminal.generated_at,
+        event_subject=f"run/{head.run_id}/job/{head.job_id}/acquisition/terminal",
+        schema_name="polisyos.runtime.quality.diagnostic_event",
+        schema_version="1.0",
+        trace_id=f"trace-{head.job_id}",
+        span_id="span-terminal",
+        parent_span_id=None,
+        run_id=head.run_id,
+        job_id=head.job_id,
+        tenant_id=head.tenant_id,
+        cell_id=head.cell_id,
+        producer_component="polisyos.runtime.acquisition_route_loop",
+        producer_version="2026.08.28+ds15-c02",
+        execution_profile="governed",
+        phase="acquisition_route_loop",
+        state_before=head.receipt_phase,
+        state_after="terminal",
+        payload_ref=terminal_id,
+        artifact_refs=(terminal_id,),
+        input_refs=_acquisition_route_receipt_inputs(terminal),
+        blocking_status="non_blocking",
+        redaction_policy_ref=None,
+        duplicate_of=None,
+        dedupe_key=None,
+    )
+    prepared_event = RuntimeDiagnosticEventLog(
+        store=store,
+        artifact_store=object(),
+    ).prepare(event, payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True))
+    expiry = int(time.time()) + 300
+    assert store.consume_step_up_assertion(assertion_id="ordinary-step-up", expires_at=expiry)
+    return (
+        store,
+        {
+            "expected_job": store.get_job(job.job_id),
+            "expected_head": head,
+            "terminal": terminal,
+            "terminal_ref": terminal_ref,
+            "frontier_cas": frontier_cas,
+            "prepared_event": prepared_event,
+            "reentry_ref": reentry,
+            "selected_n5_execution_ref": selected_execution,
+            "actor_subject": "tester",
+            "resource_digest": _sha("ordinary bound custody resource"),
+            "authority_expires_at": expiry,
+            "step_up_sha256": _sha("ordinary-step-up"),
         },
         frontier,
     )
@@ -344,4 +566,160 @@ def test_candidate_custody_expiry_at_commit_rolls_back_completed_private_attempt
         store.settle_candidate_experiment_terminal_custody(**args)
     assert states == ["failed", "failed", "completed"]
     assert _rows(path, job_id) == before
+    assert store.read_acquisition_evaluation_frontier(frontier.key) == frontier
+
+
+def test_ordinary_terminal_custody_appends_v2_and_preserves_failed_history(
+    tmp_path: Path,
+) -> None:
+    store, args, frontier = _ordinary_custody_case(tmp_path)
+    path = tmp_path / "control-plane.sqlite3"
+    original = args["expected_job"]
+    before = _rows(path, original.job_id)
+    failure = store.get_job_terminal_source_event_record(original.job_id)
+    original_dlq = store.list_dead_letter_jobs(acknowledged=False)[0]
+    assert failure.event_type == "job_failed"
+    assert failure.payload["error_message"] == original.error_message
+
+    head = store.settle_candidate_model_revision_terminal_custody(**args)
+
+    assert head.head_generation == args["expected_head"].head_generation + 1
+    assert head.receipt_phase == "terminal" and head.recovery_state == "complete"
+    assert head.receipt_ref == str(args["terminal_ref"].artifact_id)
+    assert head.receipt_manifest_profile_sha256 == args["terminal_ref"].manifest_profile_sha256
+    assert head.evaluation_frontier_before_ref == frontier.frontier_ref
+    after = _rows(path, original.job_id)
+    assert set(before["control_job_events"]) <= set(after["control_job_events"])
+    assert set(before["control_outbox_events"]) <= set(after["control_outbox_events"])
+    assert before["control_diagnostic_events"] == []
+    assert len(after["control_diagnostic_events"]) == 1
+    terminal_event = store.list_diagnostic_events(
+        event_id=args["prepared_event"].publication_values()[0].event_id,
+        run_id=original.run_id,
+        job_id=original.job_id,
+    )
+    assert len(terminal_event) == 1
+    event = terminal_event[0].event
+    assert event.event_type == "polisyos.runtime.acquisition.route_loop.v2"
+    assert event.state_before == "world_committed_reentry_pending"
+    assert event.state_after == "terminal"
+    assert event.event_subject == (
+        f"run/{original.run_id}/job/{original.job_id}/acquisition/terminal"
+    )
+    assert event.event_id.startswith(
+        f"evt_acquisition_{args['expected_head'].action_generation}_loop_terminal_"
+    )
+    legacy_event_id = (
+        f"evt_acquisition_{args['expected_head'].action_generation}_experiment_terminal_"
+        f"{sha256(f'{original.job_id}.candidate-experiment.terminal'.encode()).hexdigest()[:16]}"
+    )
+    assert event.event_id != legacy_event_id
+    assert event.input_refs == _acquisition_route_receipt_inputs(args["terminal"])
+    frontier_after = store.read_acquisition_evaluation_frontier(frontier.key)
+    assert frontier_after.revision == frontier.revision + 1
+    assert frontier_after.selected_evaluation_witness_ref == str(
+        args["selected_n5_execution_ref"].artifact_id
+    )
+    replacement = args["frontier_cas"].replacement
+    assert replacement is not None
+    assert frontier_after.basis_ref == replacement.basis_ref
+    assert frontier_after.decision_ref == replacement.decision_ref
+
+    audit = store._get_outbox_event_by_key(
+        topic="control.job.ordinary_acquisition_terminal_custody_settled",
+        event_key=args["step_up_sha256"],
+    )
+    assert audit is not None
+    assert audit.payload["schema_version"] == "ordinary_acquisition_terminal_custody.v1"
+    assert audit.payload["failed_event_id"] == failure.event_id
+    assert audit.payload["failed_progress"] == original.progress
+    assert audit.payload["pending_receipt_ref"] == args["expected_head"].receipt_ref
+    final = store.get_job(original.job_id)
+    assert final is not None
+    assert final.state == "completed" and final.attempt == original.attempt + 1
+    assert final.progress["phase"] == "acquisition_model_revision"
+    assert final.progress["terminal_outcome"] == "reentry_completed"
+    assert final.progress["terminal_receipt_ref"] == str(args["terminal_ref"].artifact_id)
+    failed_rows = [row for row in before["control_job_events"] if row[2] == "job_failed"]
+    assert len(failed_rows) == 1 and failed_rows[0] in after["control_job_events"]
+    final_dlq = store.list_dead_letter_jobs(acknowledged=True)[0]
+    assert final_dlq.attempt == original_dlq.attempt
+    assert final_dlq.error_message == original_dlq.error_message
+    assert final_dlq.failed_at == original_dlq.failed_at
+    assert final_dlq.acknowledged_by == args["actor_subject"]
+    assert any(
+        "ordinary_acquisition_terminal_custody_settled" in row
+        for row in after["control_job_events"]
+    )
+
+
+def test_ordinary_terminal_custody_head_abort_rolls_back_event_and_frontier(
+    tmp_path: Path,
+) -> None:
+    store, args, frontier = _ordinary_custody_case(tmp_path)
+    path = tmp_path / "control-plane.sqlite3"
+    with sqlite3.connect(path) as connection:
+        connection.execute(
+            "CREATE TRIGGER abort_ordinary_terminal_head "
+            "BEFORE INSERT ON runtime_acquisition_action_heads "
+            "WHEN NEW.receipt_phase = 'terminal' "
+            "BEGIN SELECT RAISE(ABORT, 'ordinary_terminal_sql_abort'); END"
+        )
+    original = args["expected_job"]
+    before = _rows(path, original.job_id)
+    with pytest.raises(sqlite3.IntegrityError, match="ordinary_terminal_sql_abort"):
+        store.settle_candidate_model_revision_terminal_custody(**args)
+    assert _rows(path, original.job_id) == before
+    assert (
+        store.list_diagnostic_events(
+            event_id=args["prepared_event"].publication_values()[0].event_id
+        )
+        == []
+    )
+    assert store.get_job_terminal_source_event_record(original.job_id).event_type == "job_failed"
+    assert store.read_acquisition_evaluation_frontier(frontier.key) == frontier
+
+
+def test_ordinary_terminal_custody_rejects_foreign_event_scope_without_effects(
+    tmp_path: Path,
+) -> None:
+    store, args, frontier = _ordinary_custody_case(tmp_path)
+    original = args["expected_job"]
+    path = tmp_path / "control-plane.sqlite3"
+    before = _rows(path, original.job_id)
+    event, _ = args["prepared_event"].publication_values()
+    foreign = event.model_copy(update={"tenant_id": "another-tenant"})
+    args["prepared_event"] = RuntimeDiagnosticEventLog(
+        store=store,
+        artifact_store=object(),
+    ).prepare(foreign, payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True))
+
+    with pytest.raises(ValueError, match="ordinary_terminal_custody_event_binding_invalid"):
+        store.settle_candidate_model_revision_terminal_custody(**args)
+
+    assert _rows(path, original.job_id) == before
+    assert store.read_acquisition_evaluation_frontier(frontier.key) == frontier
+
+
+def test_ordinary_terminal_custody_rejects_changed_event_time_without_effects(
+    tmp_path: Path,
+) -> None:
+    store, args, frontier = _ordinary_custody_case(tmp_path)
+    original = args["expected_job"]
+    path = tmp_path / "control-plane.sqlite3"
+    before = _rows(path, original.job_id)
+    event, _ = args["prepared_event"].publication_values()
+    changed_time = event.model_copy(update={"event_time": event.event_time + timedelta(seconds=1)})
+    args["prepared_event"] = RuntimeDiagnosticEventLog(
+        store=store,
+        artifact_store=object(),
+    ).prepare(
+        changed_time,
+        payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True),
+    )
+
+    with pytest.raises(ValueError, match="ordinary_terminal_custody_event_binding_invalid"):
+        store.settle_candidate_model_revision_terminal_custody(**args)
+
+    assert _rows(path, original.job_id) == before
     assert store.read_acquisition_evaluation_frontier(frontier.key) == frontier

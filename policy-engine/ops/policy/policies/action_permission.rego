@@ -67,6 +67,7 @@ authorization_source_vocabulary := {
 unsafe_methods := {"POST", "PUT", "PATCH", "DELETE"}
 
 candidate_terminal_custody_resource_class := "runtime.evidence.acquisition.candidate_experiment.terminal_custody"
+model_revision_terminal_custody_resource_class := "runtime.evidence.acquisition.model_revision_terminal_custody"
 
 # Every admitted action-guarded route has one exact permission/resource/authority
 # combination. Known values in a novel combination remain denied.
@@ -86,6 +87,7 @@ action_contracts := {
 	"evidence.acquire": {
 		"runtime.evidence.acquisition": {"request_bound"},
 		candidate_terminal_custody_resource_class: {"request_bound"},
+		model_revision_terminal_custody_resource_class: {"request_bound"},
 	},
 	"evidence.discover": {
 		"runtime.capability_discovery.search": {"tenant_collection"},
@@ -263,11 +265,17 @@ candidate_terminal_custody_path if {
 	regex.match("^/api/v1/runs/[^/]+/candidate-acquisition-experiment/[^/]+/terminal-custody$", input.request.path)
 }
 
+model_revision_terminal_custody_path if {
+	regex.match("^/api/v1/runs/[^/]+/acquisition-routes/[^/]+/terminal-custody$", input.request.path)
+}
+
 request_path_resource_allow if {
 	not acquisition_get_path
 	not acquisition_mutation_path
 	not candidate_terminal_custody_path
+	not model_revision_terminal_custody_path
 	resource_class != candidate_terminal_custody_resource_class
+	resource_class != model_revision_terminal_custody_resource_class
 }
 
 request_path_resource_allow if {
@@ -284,6 +292,12 @@ request_path_resource_allow if {
 	candidate_terminal_custody_path
 	input.request.method == "POST"
 	resource_class == candidate_terminal_custody_resource_class
+}
+
+request_path_resource_allow if {
+	model_revision_terminal_custody_path
+	input.request.method == "POST"
+	resource_class == model_revision_terminal_custody_resource_class
 }
 
 tenant_binding_allow if {

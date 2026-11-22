@@ -27,6 +27,7 @@ from polisyos.runtime.http.permissions import (
 )
 from polisyos.runtime.http.services.acquisition_action_service import (
     CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_RESOURCE_KIND,
+    CANDIDATE_MODEL_REVISION_TERMINAL_CUSTODY_RESOURCE_KIND,
     AcquisitionActionService,
     AcquisitionActionServiceError,
     AcquisitionDecisionRequestResponse,
@@ -40,6 +41,8 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     CandidateExperimentRouteProjection,
     CandidateExperimentTerminalCustodyRequest,
     CandidateExperimentTerminalCustodyResponse,
+    CandidateModelRevisionTerminalCustodyRequest,
+    CandidateModelRevisionTerminalCustodyResponse,
     NativeDerivationLeafRouteProjection,
     NativeModelInputTargetProjection,
 )
@@ -143,6 +146,18 @@ _CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_AUTHZ = require_action_permission(
         resource_kind=CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_RESOURCE_KIND,
         selector_fields=_CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_FIELDS,
         required_selector_fields=_CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_FIELDS,
+    ),
+)
+_CANDIDATE_MODEL_REVISION_TERMINAL_CUSTODY_FIELDS = tuple(
+    CandidateModelRevisionTerminalCustodyRequest.model_fields
+)
+_CANDIDATE_MODEL_REVISION_TERMINAL_CUSTODY_AUTHZ = require_action_permission(
+    RuntimePermission.EVIDENCE_ACQUIRE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.REQUEST_COMPOSITE,
+        resource_kind=CANDIDATE_MODEL_REVISION_TERMINAL_CUSTODY_RESOURCE_KIND,
+        selector_fields=_CANDIDATE_MODEL_REVISION_TERMINAL_CUSTODY_FIELDS,
+        required_selector_fields=_CANDIDATE_MODEL_REVISION_TERMINAL_CUSTODY_FIELDS,
     ),
 )
 _CANDIDATE_EXPERIMENT_REUSE_AUTHZ = require_action_permission(
@@ -306,6 +321,7 @@ def _raise_service_error(exc: AcquisitionActionServiceError) -> None:
     if code in {
         "candidate_experiment_n5_result_scope_refused",
         "candidate_experiment_terminal_custody_scope_refused",
+        "candidate_model_revision_terminal_custody_scope_refused",
         "candidate_experiment_reuse_source_scope_refused",
         "model_input_use_source_scope_refused",
     }:
@@ -582,6 +598,79 @@ def settle_run_candidate_acquisition_experiment_terminal(
     authorize_effect()
     try:
         return service.settle_candidate_experiment_terminal_custody(
+            request=body,
+            principal=principal,
+            bound_permission=bound_permission,
+            step_up=step_up,
+            authorize_effect=authorize_effect,
+        )
+    except AcquisitionActionServiceError as exc:
+        _raise_service_error(exc)
+
+
+@router.post(
+    "/{run_id}/acquisition-routes/{route_id}/terminal-custody",
+    response_model=CandidateModelRevisionTerminalCustodyResponse,
+    operation_id="settle_run_acquisition_model_revision_terminal",
+    responses={
+        200: {
+            "content": {
+                "application/json": {
+                    "example": CandidateModelRevisionTerminalCustodyResponse(
+                        run_id="run-example",
+                        route_id="sha256:" + "a" * 64,
+                        job_id="model-revision-job-example",
+                        terminal_ref=ArtifactRef(
+                            artifact_id=ArtifactID("sha256:" + "b" * 64),
+                            kind="runtime_quality.acquisition_route_loop_receipt",
+                            media_type="application/json",
+                            manifest_profile_sha256="sha256:" + "c" * 64,
+                        ),
+                        frontier_revision=4,
+                    ).model_dump(mode="json")
+                }
+            }
+        }
+    },
+)
+def settle_run_acquisition_model_revision_terminal(
+    run_id: str,
+    route_id: str,
+    body: CandidateModelRevisionTerminalCustodyRequest,
+    request: Request,
+    service: _Service,
+    bound_permission: Annotated[
+        BoundActionPermissionVerification,
+        Depends(_CANDIDATE_MODEL_REVISION_TERMINAL_CUSTODY_AUTHZ),
+    ],
+    step_up: Annotated[StepUpAssertionVerification, Depends(_MUTATION_STEP_UP)],
+) -> CandidateModelRevisionTerminalCustodyResponse:
+    """Select an ordinary model-revision terminal under a fresh user approval."""
+    tenant_id, _, principal = _scope(request)
+    set_authz_resource(
+        request,
+        tenant_id=tenant_id,
+        kind=CANDIDATE_MODEL_REVISION_TERMINAL_CUSTODY_RESOURCE_KIND,
+    )
+    if (run_id, route_id) != (body.run_id, body.route_id):
+        raise forbidden(
+            "The approval is bound to a different run or route",
+            code="candidate_model_revision_terminal_custody_scope_refused",
+        )
+
+    def authorize_effect() -> int:
+        return _require_live_user_approval(
+            request,
+            principal=principal,
+            bound_permission=bound_permission,
+            step_up=step_up,
+            refusal_code="candidate_model_revision_terminal_custody_scope_refused",
+            refusal_message="Terminal custody requires the original user's live bound approval",
+        )
+
+    authorize_effect()
+    try:
+        return service.settle_candidate_model_revision_terminal_custody(
             request=body,
             principal=principal,
             bound_permission=bound_permission,

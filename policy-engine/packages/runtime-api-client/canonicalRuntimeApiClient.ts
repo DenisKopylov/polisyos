@@ -340,6 +340,12 @@ export type CandidateLever = RuntimeApiComponents["schemas"]["CandidateLever"];
 export type CandidateLeverSpace =
   RuntimeApiComponents["schemas"]["CandidateLeverSpace"];
 
+export type CandidateModelRevisionTerminalCustodyRequest =
+  RuntimeApiComponents["schemas"]["CandidateModelRevisionTerminalCustodyRequest"];
+
+export type CandidateModelRevisionTerminalCustodyResponse =
+  RuntimeApiComponents["schemas"]["CandidateModelRevisionTerminalCustodyResponse"];
+
 export type CapabilityAuthorityPostureResult =
   RuntimeApiComponents["schemas"]["CapabilityAuthorityPostureResult"];
 
@@ -3464,6 +3470,22 @@ export class RuntimeApiClient {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}/execute`;
     const query = undefined;
     return this.request<AcquisitionExecutionResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
+      undefined,
+    );
+  }
+
+  async settleRunAcquisitionModelRevisionTerminal(params: {
+    run_id: string;
+    route_id: string;
+    body: CandidateModelRevisionTerminalCustodyRequest;
+  }): Promise<CandidateModelRevisionTerminalCustodyResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/acquisition-routes/${encodeURIComponent(String(params.route_id))}/terminal-custody`;
+    const query = undefined;
+    return this.request<CandidateModelRevisionTerminalCustodyResponse>(
       "POST",
       path,
       query,

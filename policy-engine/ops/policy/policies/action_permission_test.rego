@@ -131,6 +131,74 @@ test_candidate_terminal_custody_resource_rejects_other_paths_and_methods if {
 	)
 }
 
+model_revision_terminal_custody_path := "/api/v1/runs/run-c/acquisition-routes/route-c/terminal-custody"
+
+model_revision_terminal_custody_input(path, resource_class, method) := object.union(
+	runtime_action_input_with_method(
+		"evidence.acquire",
+		resource_class,
+		"request_bound",
+		"",
+		["evidence.acquire"],
+		method,
+	),
+	{
+		"peer": {"spiffe_id": ""},
+		"request": {"method": method, "path": path},
+	},
+)
+
+test_allows_exact_model_revision_terminal_custody_contract if {
+	decision.allow with input as model_revision_terminal_custody_input(
+		model_revision_terminal_custody_path,
+		"runtime.evidence.acquisition.model_revision_terminal_custody",
+		"POST",
+	)
+}
+
+test_model_revision_terminal_custody_rejects_ordinary_acquisition_resource if {
+	not action_permission.allow with input as model_revision_terminal_custody_input(
+		model_revision_terminal_custody_path,
+		"runtime.evidence.acquisition",
+		"POST",
+	)
+}
+
+test_model_revision_terminal_custody_rejects_other_paths_methods_and_resources if {
+	custody_class := "runtime.evidence.acquisition.model_revision_terminal_custody"
+	every path in [
+		"/api/v1/runs/run-c/acquisition-routes/route-c/decision-request",
+		sprintf("%s/extra", [model_revision_terminal_custody_path]),
+		sprintf("/prefix%s", [model_revision_terminal_custody_path]),
+	] {
+		not action_permission.allow with input as model_revision_terminal_custody_input(
+			path,
+			custody_class,
+			"POST",
+		)
+	}
+	every method in {"GET", "PUT", "PATCH", "DELETE"} {
+		not action_permission.allow with input as model_revision_terminal_custody_input(
+			model_revision_terminal_custody_path,
+			custody_class,
+			method,
+		)
+	}
+	not action_permission.allow with input as model_revision_terminal_custody_input(
+		model_revision_terminal_custody_path,
+		"runtime.evidence.acquisition.candidate_experiment.terminal_custody",
+		"POST",
+	)
+}
+
+test_model_revision_terminal_custody_keeps_existing_evidence_acquire_route if {
+	action_permission.allow with input as model_revision_terminal_custody_input(
+		"/api/v1/runs/run-c/acquisition-routes/route-c/decision-request",
+		"runtime.evidence.acquisition",
+		"POST",
+	)
+}
+
 test_every_ownership_verified_contract_requires_exact_grant_and_tenant if {
 	count(owned_action_contracts) > 0
 	every contract in owned_action_contracts {

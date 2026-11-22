@@ -66,9 +66,11 @@ from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
 
 from .acquisition_action_service import (
     CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_RESOURCE_KIND,
+    CANDIDATE_MODEL_REVISION_TERMINAL_CUSTODY_RESOURCE_KIND,
     AcquisitionRouteMutationRequest,
     CandidateExperimentRouteMutationRequest,
     CandidateExperimentTerminalCustodyRequest,
+    CandidateModelRevisionTerminalCustodyRequest,
 )
 from .model_input_successor_action import ModelInputSuccessorActionRequest
 
@@ -87,7 +89,11 @@ type _ActionRequest = (
     | CandidateExperimentReuseActionRequest
     | ModelInputSuccessorActionRequest
 )
-type _AcquisitionBindingRequest = _ActionRequest | CandidateExperimentTerminalCustodyRequest
+type _AcquisitionBindingRequest = (
+    _ActionRequest
+    | CandidateExperimentTerminalCustodyRequest
+    | CandidateModelRevisionTerminalCustodyRequest
+)
 type _AcquisitionRequestBinding = tuple[type[_AcquisitionBindingRequest], str, RuntimePermission]
 _REQUEST_BINDING_BY_KIND: dict[str, _AcquisitionRequestBinding] = {
     ACQUISITION_ACTION_KIND: (
@@ -615,6 +621,22 @@ def require_candidate_experiment_terminal_custody_bound_permission(
         selected=(
             CandidateExperimentTerminalCustodyRequest,
             CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_RESOURCE_KIND,
+            RuntimePermission.EVIDENCE_ACQUIRE,
+        ),
+    )
+
+
+def require_candidate_model_revision_terminal_custody_bound_permission(
+    bound_permission: BoundActionPermissionVerification,
+    request: CandidateModelRevisionTerminalCustodyRequest,
+) -> str:
+    """Bind ordinary model terminal custody to the exact failed checkpoint."""
+    return _recompute_bound_acquisition_request(
+        bound_permission,
+        request=request,
+        selected=(
+            CandidateModelRevisionTerminalCustodyRequest,
+            CANDIDATE_MODEL_REVISION_TERMINAL_CUSTODY_RESOURCE_KIND,
             RuntimePermission.EVIDENCE_ACQUIRE,
         ),
     )

@@ -12,6 +12,7 @@ import base64
 import hashlib
 import json
 import re
+from bisect import bisect_left
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
@@ -1825,10 +1826,14 @@ class CanonicalAcquisitionAuthority:
 
         self._require_provision_unchanged()
         registry = self._load_registry()
-        matches = [entry for entry in registry.entries if entry.entry_id == entry_id]
-        if len(matches) != 1:
+        if not isinstance(entry_id, str):
             raise AcquisitionAuthorityError("authority_entry_unresolved", entry_id)
-        entry = matches[0]
+        # The registry validator requires unique entries sorted by exact entry ID.
+        entries = registry.entries
+        position = bisect_left(entries, entry_id, key=lambda entry: entry.entry_id)
+        if position == len(entries) or entries[position].entry_id != entry_id:
+            raise AcquisitionAuthorityError("authority_entry_unresolved", entry_id)
+        entry = entries[position]
         if entry.source_lane == "live_fetch":
             (
                 projection,

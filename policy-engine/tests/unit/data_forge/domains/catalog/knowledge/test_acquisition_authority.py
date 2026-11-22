@@ -792,6 +792,62 @@ def test_authority_resolves_catalog_license_l5_and_registration(tmp_path: Path) 
     )
 
 
+def test_warm_authority_resolve_bounds_exact_entry_id_reads(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    resolver, entry = _resolver(tmp_path)
+    entry_id = entry.entry_id
+    original = resolver.resolve(entry_id)
+    fields = entry.model_dump(mode="python", exclude={"entry_id"})
+    distractors = tuple(
+        build_authority_entry(**(fields | {"title": f"Other registry entry {index}"}))
+        for index in range(255)
+    )
+    registry = build_authority_registry(
+        baseline_content_sha256=resolver.provision.baseline_content_sha256,
+        l5_measurement_registry_sha256=resolver.provision.l5_measurement_registry_content_sha256,
+        entries=(entry, *distractors),
+    )
+    registry_bytes = registry.model_dump_json().encode()
+    resolver.registry_path.write_bytes(registry_bytes)
+    selected = resolver.resolve(entry_id)
+    assert selected == original.model_copy(
+        update={"registry_content_sha256": registry.content_sha256}
+    )
+
+    read_entry_attribute = AcquisitionAuthorityEntry.__getattribute__
+    read_bytes = Path.read_bytes
+    entry_id_reads = 0
+    registry_bytes_read = []
+
+    def count_entry_id_reads(row: AcquisitionAuthorityEntry, name: str) -> Any:
+        nonlocal entry_id_reads
+        if name == "entry_id":
+            entry_id_reads += 1
+        return read_entry_attribute(row, name)
+
+    def count_registry_bytes(path: Path) -> bytes:
+        data = read_bytes(path)
+        if path == resolver.registry_path:
+            registry_bytes_read.append(len(data))
+        return data
+
+    monkeypatch.setattr(AcquisitionAuthorityEntry, "__getattribute__", count_entry_id_reads)
+    monkeypatch.setattr(Path, "read_bytes", count_registry_bytes)
+    probe_limit = len(registry.entries).bit_length() + 1
+
+    assert resolver.resolve(entry_id) == selected
+    assert 0 < entry_id_reads <= probe_limit
+    for digit in ("0", "f"):
+        entry_id_reads = 0
+        missing_id = "acquisition-authority:sha256:" + digit * 64
+        with pytest.raises(AcquisitionAuthorityError) as absent:
+            resolver.resolve(missing_id)
+        assert absent.value.code == "authority_entry_unresolved"
+        assert 0 < entry_id_reads <= probe_limit
+    assert registry_bytes_read == [len(registry_bytes)] * 3
+
+
 def test_authority_derives_missing_catalog_field_edge_through_generic_alignment(
     tmp_path: Path,
 ) -> None:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -1759,6 +1760,99 @@ def test_scoped_query_envelope_ignores_unrelated_registry_metadata(
     assert [row.entry_id for row in after.query_envelope.rows] == [selected.entry_id]
     assert after.query_envelope.rows[0].disposition == "compatible"
     assert after.query_envelope.rows[0].reason_codes == ()
+
+
+def test_warm_catalog_discovery_checks_registry_bytes_and_current_candidates(
+    tmp_path: Path,
+) -> None:
+    cas = tmp_path / "cas"
+    store = FileSystemCAS(cas)
+    definition_ref, representation_ref, _, interface_ref = _model_inputs(store)
+    selected = _authority_entry(definition_ref, representation_ref, suffix="selected")
+    unrelated_fields = _entry().model_dump(mode="python", exclude={"entry_id"})
+    unrelated_title = "Unselected V22 registry entry"
+    unrelated_fields["title"] = unrelated_title
+    unrelated = build_authority_entry(**unrelated_fields)
+    authority, _ = _resolver(tmp_path / "catalog-owner", authority_entry=selected)
+    _replace_authority_registry(authority, (selected, unrelated))
+
+    before = authority.discover_model_input_source_descriptor(
+        store,
+        model_input_interface_ref=interface_ref,
+        port_id="fiscal-balance-input",
+        include_query_envelope=True,
+    )
+    assert before.authority_entry_id == selected.entry_id
+    assert before.query_envelope is not None
+    assert [row.entry_id for row in before.query_envelope.rows] == [selected.entry_id]
+
+    path = authority.registry_path
+    original = path.read_bytes()
+    initial = path.stat()
+    marker = unrelated_title.encode()
+    assert original.count(marker) == 1
+    # Leave the registry's declared digest and all selected inputs intact.
+    offset = original.index(marker)
+    with path.open("r+b") as registry_file:
+        registry_file.seek(offset)
+        registry_file.write(b"X")
+    os.utime(path, ns=(initial.st_atime_ns, initial.st_mtime_ns))
+    changed = path.stat()
+    assert (changed.st_dev, changed.st_ino, changed.st_size, changed.st_mtime_ns) == (
+        initial.st_dev,
+        initial.st_ino,
+        initial.st_size,
+        initial.st_mtime_ns,
+    )
+    assert path.read_bytes() == original[:offset] + b"X" + original[offset + 1 :]
+
+    with pytest.raises(AcquisitionAuthorityError) as corrupt:
+        authority.discover_model_input_source_descriptor(
+            store,
+            model_input_interface_ref=interface_ref,
+            port_id="fiscal-balance-input",
+            include_query_envelope=True,
+        )
+    assert corrupt.value.code == "authority_registry_invalid"
+    assert corrupt.value.query_envelope is None
+
+    path.write_bytes(original)
+    assert (
+        authority.discover_model_input_source_descriptor(
+            store,
+            model_input_interface_ref=interface_ref,
+            port_id="fiscal-balance-input",
+            include_query_envelope=True,
+        )
+        == before
+    )
+
+    competitor = _authority_entry(definition_ref, representation_ref, suffix="countercandidate")
+    _replace_authority_registry(authority, (selected, unrelated, competitor))
+    fresh_authority = CanonicalAcquisitionAuthority.from_provision(
+        repo_root=authority.repo_root,
+        baseline_path=authority.baseline_path,
+        l5_measurement_registry_path=authority.l5_path,
+    )
+    fresh_store = FileSystemCAS.open_existing_read_only(cas)
+    envelopes = []
+    for owner, reader in ((authority, store), (fresh_authority, fresh_store)):
+        with pytest.raises(AcquisitionAuthorityError) as ambiguous:
+            owner.discover_model_input_source_descriptor(
+                reader,
+                model_input_interface_ref=interface_ref,
+                port_id="fiscal-balance-input",
+                include_query_envelope=True,
+            )
+        assert ambiguous.value.code == "model_input_source_descriptor_ambiguous"
+        envelope = ambiguous.value.query_envelope
+        assert envelope is not None
+        assert {row.entry_id for row in envelope.rows} == {selected.entry_id, competitor.entry_id}
+        assert all(
+            row.disposition == "compatible" and not row.reason_codes for row in envelope.rows
+        )
+        envelopes.append(envelope)
+    assert envelopes[0] == envelopes[1]
 
 
 def test_scoped_query_envelope_records_exact_definition_countercandidate(

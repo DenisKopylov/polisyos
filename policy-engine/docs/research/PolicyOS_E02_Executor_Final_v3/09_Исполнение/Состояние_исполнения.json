@@ -9079,7 +9079,7 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE. Scientific C revision 4 exact historical numerical result is verified in a fresh API on published runtime. Native R39 stopped on disk before N5. R40–R43 qualify the retained route and reproduce increasing charged memory across one coordinator's two reads. R44 proves measured post-dispatch full collection leaves the charged footprint unchanged. R45 and R46 observe lower retained increments for one A history and the stock A/B/A price-profile prefix. The larger full-context growth remains unresolved. Native calculation and cold read remain verification_missing. Gate B remains open.",
+        "status": "ACTIVE. Scientific C revision 4 exact historical numerical result is verified in a fresh API on published runtime. Native R39 stopped on disk before N5. R40–R43 qualify the retained route and reproduce increasing charged memory across one coordinator's two reads. R44 proves measured post-dispatch full collection leaves the charged footprint unchanged. R47 keeps the exact prior A outcome live and does not reproduce the larger complete-context increase. R48 qualifies the combined price-history read at 22313 ownership snapshots versus 35696 on R46. Native effect and fresh API await the bounded stock worker admitted from unmarked R35. Native calculation and cold read remain verification_missing. Gate B remains open.",
         "main_commit": "87b3154db6f7f421eea7bb9c1e17bf91e61e6434",
         "main_tree": "c328831d3f355218afec94ef96819322e38b4bfa",
         "native_r39": {
@@ -9150,6 +9150,146 @@
           "supervisor_receipt_sha256": "8ac8a7a05347622f032bc180931f51d8a3ee5975991fccc18392a4046b892061"
         },
         "native_route_resource_checks": {
+          "R48": {
+            "readout": "Primary:policy-engine/_cache/e02/native-r48-cost-history-wt0pevkj/",
+            "supervised_seconds": 319.264,
+            "runtime_commit": "07ac39faaf0b37349ebe5f530b770a0d907432fb",
+            "runtime_tree": "de606d4fdb83ecfd7def7f0c8187dad07aae62c9",
+            "stock_and_observer_quiescent": true,
+            "checksums_sha256": {
+              "supervisor": "45337337fb3e2f6392a9db439e21f3ced971e30327894b8e5bf2dab6ed2795dd",
+              "observer": "b5e9aa6d307ab516e7fda8f800637f40e3fd49a1b9fad5910d7a6809bc44e01c",
+              "effects": "e255417998f7c4106206526a9eb84835c62d25e0dbb69e9b71568328ca7625dd",
+              "prefix": "72de5c9751b14fe3a1f9a5256ea874bec608aa801592db99d96188dce07da5af",
+              "kernel": "6acbf6d292e5ef005beb7927568d714f6f158bc7f494e9842f1b9a75dbd8d418"
+            },
+            "prefix_released_delta_bytes": 74924152,
+            "owner_delta_bytes": 45383704,
+            "stock_read_counts": [
+              {
+                "blob_reads": 1997,
+                "manifest_reads": 5233,
+                "owner_snapshot_loads": 13383,
+                "returned_blob_bytes": 9652704
+              },
+              {
+                "blob_reads": 1284,
+                "manifest_reads": 3460,
+                "owner_snapshot_loads": 8930,
+                "returned_blob_bytes": 4406198
+              }
+            ],
+            "status": "PASS. One combined current quote-history call returns the two pinned historic profiles and exact action quote.",
+            "stock_read_totals": {
+              "blob_reads": 3281,
+              "manifest_reads": 8693,
+              "owner_snapshot_loads": 22313,
+              "returned_blob_bytes": 14058902
+            },
+            "r46_stock_read_totals": {
+              "blob_reads": 5278,
+              "manifest_reads": 13926,
+              "owner_snapshot_loads": 35696,
+              "returned_blob_bytes": 23711606
+            },
+            "verified_source_head_cuts": 2,
+            "combined_seconds": 83.497632166
+          },
+          "R47": {
+            "readout": "Primary:policy-engine/_cache/e02/native-r47-held-a-proof-pqCvCYXu/",
+            "supervised_seconds": 452.778,
+            "runtime_commit": "5b03daefc743c795328f44692b0977b9343b0102",
+            "runtime_tree": "1c0dd807dca81adf11fcd468f67b1401f2e660fa",
+            "stock_and_observer_quiescent": true,
+            "checksums_sha256": {
+              "supervisor": "1b088eecf18cbb121fa325d4617f33c77fb998fb2e802bb964f49c318f6f736a",
+              "observer": "c10606035987809add446e09f18a2bd5081fb90d0d7a82c8397f4b6a9518b5ae",
+              "effects": "437d21a0baac54974d9a0ceb40e80d586f75671adfc12311a273219567b4ffa8",
+              "prefix": "fd671f89be1fd401eb9df54e97948e191ff9d2ba01e0326e9978135f8463245f",
+              "kernel": "6acbf6d292e5ef005beb7927568d714f6f158bc7f494e9842f1b9a75dbd8d418"
+            },
+            "prefix_released_delta_bytes": 21446728,
+            "owner_delta_bytes": -71729152,
+            "stock_read_counts": [
+              {
+                "blob_reads": 1997,
+                "manifest_reads": 5233,
+                "owner_snapshot_loads": 13383,
+                "returned_blob_bytes": 9652704
+              },
+              {
+                "blob_reads": 1284,
+                "manifest_reads": 3460,
+                "owner_snapshot_loads": 8930,
+                "returned_blob_bytes": 4406198
+              },
+              {
+                "blob_reads": 1997,
+                "manifest_reads": 5233,
+                "owner_snapshot_loads": 13383,
+                "returned_blob_bytes": 9652704
+              }
+            ],
+            "status": "PASS. The explicitly held proved outcome and last phase do not reproduce the large R44 increment in the isolated warm prefix.",
+            "held_exact_a": {
+              "after_local_drop": {
+                "holder_alive": false,
+                "last_phase_alive": false
+              },
+              "charged_bytes": {
+                "holder_acquired": 3284209936,
+                "holder_before_release": 3305656664,
+                "holder_released": 3305656664,
+                "prefix_released": 3305656664,
+                "verify_entry": 3230060696
+              },
+              "heap": {
+                "holder_acquired": {
+                  "allocated_blocks": 10923282,
+                  "gc_count": [
+                    579,
+                    0,
+                    0
+                  ]
+                },
+                "holder_before_release": {
+                  "allocated_blocks": 15575346,
+                  "gc_count": [
+                    468,
+                    0,
+                    0
+                  ]
+                },
+                "holder_released": {
+                  "allocated_blocks": 15574520,
+                  "gc_count": [
+                    172,
+                    0,
+                    0
+                  ]
+                },
+                "prefix_released": {
+                  "allocated_blocks": 15571904,
+                  "gc_count": [
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                "verify_entry": {
+                  "allocated_blocks": 7985493,
+                  "gc_count": [
+                    1752,
+                    0,
+                    0
+                  ]
+                }
+              },
+              "release_charged_delta_bytes": 0,
+              "verifier_elapsed_seconds": 61.475863916,
+              "verify_charged_delta_bytes": 54149240
+            }
+          },
           "R46": {
             "status": "PASS. Actual stock Native origin and A/B/A history price-profile prefix on unmarked R35. No lease, provider or physical effect.",
             "readout": "Primary:policy-engine/_cache/e02/native-r46-a-b-a-profile-WCZK0JPN/",
@@ -9396,6 +9536,17 @@
           "v27": "PASS for the exact bounded registered four-role weighted subgroup mean. Missing/swapped weight refuses and the fresh selected certificate returns Decimal 8. Separate total/per-person and fiscal/calendar controls keep their own scope.",
           "v07": "Actual selected measurement history reaches Foundry optimizer and fresh report. Forecast ETS validates selected DataSnapshot profile, qualifies differing holdout support and retains predictive_only scope.",
           "v22": "A genuine nonempty same-DB count accompanies the exact stock Catalog scope query. Foreign geography and period independently refuse. Matching scope remains candidate-only. Downstream completeness remains a separate surface.",
+          "v22_warm_currentness": {
+            "status": "PASS. Same inode, width and mtime raw corruption of an unrelated row refuses without a scoped candidate. Exact restoration returns the original positive. A valid addition makes warm and fresh owners agree on the same two-candidate ambiguity.",
+            "exact_test_sha256": "04b687b6c00d17c8f99d662913b5ebc68019339c942fa51c55d56ec533974b81",
+            "receipt": "Native transition checkout:policy-engine/_cache/e02/lane01-native-cost-and-v22-0dL1gL/budget/result.json",
+            "receipt_sha256": "9bf17477baa51e77d6c2bcc8cbccb2717b6919f3f3a855915c734222bb7b0131"
+          },
+          "v24_owner_json_trial": {
+            "status": "COMMAND_FAIL. Literal plain-JSON draft and exact ArtifactID signature verify. Six positive paths reach public-read closure admission and refuse an actual new raw-manifest operation. The private reconciler also refuses its inventory. A current exact-byte reader can reuse the existing get_manifest_bytes operator, while prior active closure pairs require separate owner reconciliation. Trial reverted, original published runtime remains.",
+            "receipt": "Native transition checkout:policy-engine/_cache/e02/lane01-v24-governed-wire-xrvLLd8M/budget/result.json",
+            "receipt_sha256": "bec1b809af1aa59198a547f96373547a3e6958dd9e82215ee5d1496c1751a261"
+          },
           "composed_binding_cases": 15,
           "composed_binding_receipt": "Primary:policy-engine/_cache/e02/lane01-binding-final-consumers-FXzfqW/budget/result.json",
           "composed_binding_receipt_sha256": "a50243147306dd55ed2b2316407510257ead7533f328fc035fd61092ab03f401",

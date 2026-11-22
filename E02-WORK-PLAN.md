@@ -203,6 +203,25 @@ Gate A is qualified in its declared stock, held-out, refusal and changed-source 
 
 This table and `lanes[7].current_execution` in the existing execution-state JSON are the current execution view; dated objects/paragraphs retain their own historical source/evidence scope. An older `incomplete`, `UNRUN` or branch-composition statement does not override a later qualified result. Preserve the 11 packets/66 requirements/64 contracts and all repeated bindings.
 
+**Requirement evidence reconciliation.** All 66 requirements across the original 11 packets now have dispositions in the execution state. Each row links its original criterion, local tests, shared bindings, cited evidence and exact unresolved part where applicable. The counts below cover named local profiles. The shared integration scenarios, 300k operating profile and independent G retain their own acceptance.
+
+| Packet | Confirmed local | Partial | Blocked on external input |
+| --- | ---: | ---: | ---: |
+| REQ-01 | 7 | 2 | 0 |
+| ACQ-01 | 0 | 6 | 0 |
+| CYC-01 | 7 | 0 | 0 |
+| CYC-02 | 4 | 1 | 0 |
+| CYC-03 | 3 | 3 | 0 |
+| CYC-04 | 3 | 3 | 0 |
+| CYC-05 | 4 | 1 | 2 |
+| SIM-01 | 4 | 0 | 0 |
+| SIM-02 | 5 | 0 | 0 |
+| SIM-03 | 6 | 0 | 0 |
+| SEL-01 | 5 | 0 | 0 |
+| **Total** | **48** | **16** | **2** |
+
+The partial rows distinguish missing archival artifacts from missing served joins or semantic controls. Examples are the original historical V2 requirement report, recovery during a concurrent frontier change, and separate compiler/planner CAS removal at the actual acquisition executor. CYC-05-04 and CYC-05-05 require the appointed issuer and actually loaded build after LANE-12 under DA-06. The direct structural census already has all nine relevant controls. The three signed-consumer fixture failures belong to the loaded-build path and remain recorded. The stock transport witness, fresh CAS interruption read and bounded binary64 joint scale check are existing local evidence. Priority work on the paid Native continuation and CYC-03-03 targets the missing owner-to-consumer proof with focused semantic controls (P12/P37/P38). This reconciliation preserves the original denominator without an extra acceptance process (P13).
+
 | Work | Current result and next distinguishing signal |
 | --- | --- |
 | Native R54 stock paid B | Attempt 5 enters re-entry within the measured resource envelope. A 30 s coroutine bridge deadline cancels the operation after a controlled N4 response and before N5. One marked failed attempt, one controlled local N4 spend and the original ledger revision 18 reconcile. The same paid input still needs a new selected numerical result and fresh API read. |

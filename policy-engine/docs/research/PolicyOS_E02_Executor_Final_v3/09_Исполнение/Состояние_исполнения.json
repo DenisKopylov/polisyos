@@ -10849,7 +10849,17 @@
             "C105 production current-use/appointment",
             "independent G acceptance"
           ],
-          "x03": "CPI candidate and retained numerical/fresh-reader scopes qualified; original expired-bearer whole invocation stays FAIL. Comparative BIND-X03-E01 remains final DA08: independently selected compatible holdout after freeze, cold/warm cost/portability measurement; reuse retained outputs where applicable, no automatic CPI N5 repeat. Not a new local Lane01 producer block."
+          "x03": "CPI candidate and retained numerical/fresh-reader scopes qualified; original expired-bearer whole invocation stays FAIL. Comparative BIND-X03-E01 remains final DA08: independently selected compatible holdout after freeze, cold/warm cost/portability measurement; reuse retained outputs where applicable, no automatic CPI N5 repeat. Not a new local Lane01 producer block.",
+          "evidence_reconciliation": {
+            "packets_assessed": 11,
+            "requirements_assessed": 66,
+            "status_counts": {
+              "CONFIRMED_LOCAL_PROFILE": 48,
+              "PARTIAL": 16,
+              "BLOCKED_EXTERNAL_INPUT": 2
+            },
+            "scope": "Requirement-level retained evidence for named local profiles. Original shared scenarios, independent G and the 300k operating profile keep their own acceptance."
+          }
         },
         "ncm_request_census_repair": {
           "author_checkpoint": "34b6d88536b7f5840af50bf9ff26e965011dd29c",
@@ -19553,6 +19563,60 @@
           "named_inputs": 2,
           "inputs_unchanged": true,
           "scope": "Two real data_requirement groups use exact literal name gates, one source import, a local object map and indexed return. Uncached provider/importer identity remains checked. Fresh AUTHOR advances to missing repository re-export binding polisyos.ir.analytics.TruthfulnessTier. Independent review GO."
+        },
+        "sim03_joint_scale_retained": {
+          "output": "Primary:policy-engine/_cache/e02/lane01-horizon/sim03-joint-scale-r2/result.json",
+          "sha256": "0b3bfd64f09a3c921c609b9968bd806536aaec029c7469a0ec2b391d8cd99106",
+          "verified_boundary": "Return code 0, all 12 named inputs unchanged. Retained native finite binary64 joint scale control at 1e-13 with an independently derived error bound."
+        },
+        "generic_served_sequence_r4_retained": {
+          "output": "Primary:policy-engine/_cache/e02/generic-served-sequence-r4-20261114/junit.xml",
+          "sha256": "e84f9e25bc442e92397e5e27a34bb67d527e6de858de9e6849447e0c3dcc1433",
+          "source_commit": "407c6f445",
+          "verified_boundary": "One PASS on actual A/B1/B2/B3/C and durable-V5 interrupted worker recovery. Two total standard units, with no new N5 for equivalent B."
+        },
+        "p06_transport_served_reconciliation": {
+          "positive_output": "Primary:policy-engine/_cache/e02/p06-transport-served-r2/run/junit.xml",
+          "positive_sha256": "60f5b39264ac3755a371fa91c42407ab620909fe82b5a1df85d0a39c63d5db5e",
+          "catalog_control_output": "Primary:policy-engine/_cache/e02/p06-transport-catalog-controls-r3/run/junit.xml",
+          "catalog_control_sha256": "2469ed317d0e5c022b0aa6879844e91a834178c07a19fe11c8744d41f818c156",
+          "verified_boundary": "One actual served stock successor plus two actual catalog semantic refusals. Source unchanged across positive and declared fixture prep."
+        },
+        "cyc05_structural_census_reconciliation": {
+          "inspector_output": "Primary:policy-engine/_cache/e02/cyc05-inspector-cyc04-ingress-r1-20261113/junit.xml",
+          "inspector_sha256": "3096124ce1d6c681a6b03e56cb838c67925e7c4947631c9d691022e537d422ee",
+          "native_output": "Primary:policy-engine/_cache/e02/cyc05-native-census-r1-20261113/junit.xml",
+          "native_sha256": "3b29378acf0674cd557e6da32151f6ffd132249749165ec7c552138987121549",
+          "verified_boundary": "Eleven inspector and typed ingress PASS. Nine exact direct census PASS. Three signed consumer fixture FAIL before semantic execution; loaded build readiness stays open."
+        },
+        "cyc03_transition_control_20261122": {
+          "source_commit": "111ffc9e549d21b0c72601a0affc3fb2edfa2461",
+          "focused_output": "Primary:policy-engine/_cache/e02/lane01-cyc03-03-focused-e1cbCD/junit.xml",
+          "served_output": "Primary:policy-engine/_cache/e02/lane01-cyc03-03-served-fxHsAe/junit.xml",
+          "focused_pass": 18,
+          "served_failure": "costed_route_not_unique before B; no action heads, no injected resolution rows and no costed route",
+          "verified_boundary": "Classifier and focused evidence limits only. Served positive and the true equal independent-measurement discriminator remain open."
+        },
+        "scientific_c_selected_read_reconciliation": {
+          "output": "Primary:policy-engine/_cache/e02/lane01-c-final-shared-api-aX1qEn/fresh-api.json",
+          "sha256": "05b3c1d5e8158d6aecade34acc81507acf372b4cc7d0cbd0a08d2200cbd78ae4",
+          "source_commit": "87b3154db6f7f421eea7bb9c1e17bf91e61e6434",
+          "verified_boundary": "Unaffiliated authenticated fresh reader sees revision 4, effect 0.0020000000000000018, selected trajectories, standard work 4 to 6, protected use 0, with zero extra provider or N5 calls during read. Current-image equality and comparison with B remain not_established."
+        },
+        "gdp_producer_fresh_read_reconciliation": {
+          "producer_output": "Primary:policy-engine/_cache/e02/lane01-gdp-fourth-api-r1-20261113/junit.xml",
+          "fresh_output": "Primary:policy-engine/_cache/e02/lane01-gdp-fourth-api-r1-20261113/api-repaired-reader-r2/response.json.gz",
+          "producer_commit": "f9ec76d5b54745575eb5f037d0ae3c81917d45a9",
+          "reader_commit": "a9af35fdf",
+          "verified_boundary": "Actual A/B N5 and selected GDP terminal finish at four standard units. The overall producer command retains its original history assertion FAIL. The repaired independent authenticated API returns the exact retained selected body with no new transport or N5. Candidate-only scope."
+        },
+        "cyc01_profile_refusal_retained": {
+          "output_absent_profile": "Author job-publication checkout:policy-engine/_cache/e02/lane01-cyc01-profile-refusal-r4/junit.xml",
+          "sha256_absent_profile": "43f38589364e12b110a8d677d8b7ee8887d9a92a63ad71cfd9a1c50d17db2bbc",
+          "output_stale_profile": "Author job-publication checkout:policy-engine/_cache/e02/lane01-cyc01-profile-refusal-r2/junit.xml",
+          "sha256_stale_profile": "859e66b16effc0a38cec3456dc7364bf207bcddb9972de02b023510edc3f803c",
+          "verified_boundary": "Absent profile passes standalone in R4 with 47 named inputs unchanged. Unrefreshable profile passes as an individual test in R2, whose other selector failed. Each preserves the actual scoped N4 and records N5, N8, N9 and S8 not run. Stale profile records zero N5 calls.",
+          "scope": "Historical pinned owner path. The shared runtime has since changed. Requalify only the two N5-free refusal selectors on the affected composition."
         }
       },
       "independent_component_reviews": {
@@ -35394,7 +35458,203 @@
         "LANE-01.evidence_catalog.installed_req01_r3"
       ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-REQ-01-01",
+          "criterion_pointer": "04_Трассировка/REQ-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-REQ-01-01",
+            "TEST-REQ-01-02"
+          ],
+          "source_ids": [
+            "LA-046"
+          ],
+          "binding_ids": [
+            "E02-I01-B-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "compiler_slot_calendar_planner"
+          ],
+          "basis": "The composed compiler cohort verifies canonical domain values and three education spellings without a fiscal fallback.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-REQ-01-02",
+          "criterion_pointer": "04_Трассировка/REQ-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-REQ-01-01",
+            "TEST-REQ-01-08"
+          ],
+          "source_ids": [
+            "LA-046"
+          ],
+          "binding_ids": [
+            "E02-I01-B-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "compiler_slot_calendar_planner"
+          ],
+          "basis": "Unknown or absent domain remains explicit custom or unresolved and retains raw input and permitted candidate work. Conflicting or malformed typed input refuses.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-REQ-01-03",
+          "criterion_pointer": "04_Трассировка/REQ-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-REQ-01-02",
+            "TEST-REQ-01-03"
+          ],
+          "source_ids": [
+            "LA-046"
+          ],
+          "binding_ids": [
+            "E02-I01-B-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "compiler_slot_calendar_planner"
+          ],
+          "basis": "Actual compiler adapter controls preserve original text, scope and explicit constructs. Opaque scenario identity or generic geography and time do not supply required semantics.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-REQ-01-04",
+          "criterion_pointer": "04_Трассировка/REQ-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-REQ-01-02",
+            "TEST-REQ-01-03",
+            "TEST-REQ-01-04"
+          ],
+          "source_ids": [
+            "LA-046"
+          ],
+          "binding_ids": [
+            "E02-I01-B-B01",
+            "E02-X02-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "compiler_slot_calendar_planner"
+          ],
+          "basis": "The concrete resolver with a governed test fixture receives explicit constructs and scope. A missing resolver, unresolved need and supported no-need disposition remain distinct.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-REQ-01-05",
+          "criterion_pointer": "04_Трассировка/REQ-01.json#/requirements/4",
+          "test_ids": [
+            "TEST-REQ-01-02",
+            "TEST-REQ-01-05"
+          ],
+          "source_ids": [
+            "LA-046"
+          ],
+          "binding_ids": [
+            "E02-I01-B-B01",
+            "E02-X02-B01"
+          ],
+          "status": "PARTIAL",
+          "evidence_refs": [
+            "compiler_slot_calendar_planner",
+            "governed_n7_same_cycle_reentry_r8"
+          ],
+          "basis": "Compiler and planner tests enforce the owned denominator. The leased N7 bridge persists exact report and plan, preserves refusal and calls the pending-N5 port.",
+          "remaining_kinds": [
+            "verification_missing"
+          ],
+          "remaining": "Find or exercise the raw-spec override control against the same live N7 report and exact compiler-owned versioned denominator."
+        },
+        {
+          "requirement_id": "REQ-REQ-01-06",
+          "criterion_pointer": "04_Трассировка/REQ-01.json#/requirements/5",
+          "test_ids": [
+            "TEST-REQ-01-06"
+          ],
+          "source_ids": [
+            "LA-045"
+          ],
+          "binding_ids": [],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "compiler_retirement_test06_finite",
+            "installed_req01_r3"
+          ],
+          "basis": "Finite first-party census and installed-only wheel tests retain current public behavior and find no restored retired family functions or ordinals. The pinned denominator covers named first-party syntax and installed consumers.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-REQ-01-07",
+          "criterion_pointer": "04_Трассировка/REQ-01.json#/requirements/6",
+          "test_ids": [
+            "TEST-REQ-01-04",
+            "TEST-REQ-01-06"
+          ],
+          "source_ids": [
+            "LA-045",
+            "LA-046"
+          ],
+          "binding_ids": [
+            "E02-I01-B-B01",
+            "E02-X03-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "compiler_slot_calendar_planner",
+            "construct_catalog_fetch_binding_current",
+            "candidate_source_metric_separation_current"
+          ],
+          "basis": "The retired authority flag stays inert. A distinct Catalog metric and actual governed resource proceed through the common compiler and resolver with candidate-only semantics.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-REQ-01-08",
+          "criterion_pointer": "04_Трассировка/REQ-01.json#/requirements/7",
+          "test_ids": [
+            "TEST-REQ-01-07"
+          ],
+          "source_ids": [
+            "LA-046"
+          ],
+          "binding_ids": [
+            "E02-I01-B-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "mapping_claim_producer_census_current",
+            "mapping_claim_contract_current"
+          ],
+          "basis": "A complete 3,406-path source and tools census bounds DEC-REQ-01-02. The actual resolver receives the supported metadata shape. Five unsupported direct shapes refuse.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-REQ-01-09",
+          "criterion_pointer": "04_Трассировка/REQ-01.json#/requirements/8",
+          "test_ids": [
+            "TEST-REQ-01-08"
+          ],
+          "source_ids": [
+            "LA-045",
+            "LA-046"
+          ],
+          "binding_ids": [
+            "E02-I01-B-B01"
+          ],
+          "status": "PARTIAL",
+          "evidence_refs": [
+            "req01_pre_domain_v2_source_replay",
+            "req01_installed_v1_v2_compatibility",
+            "historical_v2_requirement_report_input"
+          ],
+          "basis": "The tracked fixture is emitted by the historical compiler and immutable writer. The fresh reader preserves its exact wire and unresolved provenance; the installed profile verifies v1/v2 and current domain provenance.",
+          "remaining_kinds": [
+            "artifact_missing"
+          ],
+          "remaining": "Original archival v2 bytes from the recorded historical run remain unavailable. The source replay is separately identified."
+        }
+      ]
     },
     {
       "packet_id": "CYC-01",
@@ -35438,6 +35698,155 @@
       "blockers": [],
       "deferred_ids": [
         "DA-07"
+      ],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-CYC-01-01",
+          "criterion_pointer": "04_Трассировка/CYC-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-CYC-01-01",
+            "TEST-CYC-01-02"
+          ],
+          "source_ids": [
+            "B01"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "ordinary_half_gain_current",
+            "candidate_method_served_current"
+          ],
+          "basis": "The ordinary HTTP and job owners authorize declared or legacy simulation, run the actual selected N4/N5, and expose the selected result to a fresh API. Required scope, lease and budget remain enforced.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CYC-01-02",
+          "criterion_pointer": "04_Трассировка/CYC-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-CYC-01-02",
+            "TEST-CYC-01-05"
+          ],
+          "source_ids": [
+            "B02"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "generic_fiscal_selected_family",
+            "ordinary_half_gain_current"
+          ],
+          "basis": "Actual selected leaf context binds the parent problem, Catalog and profile. A removed selected manifest or foreign bound basis refuses dependent use. The tested leaf families retain their candidate limitations.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CYC-01-03",
+          "criterion_pointer": "04_Трассировка/CYC-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-CYC-01-01",
+            "TEST-CYC-01-04"
+          ],
+          "source_ids": [
+            "B03"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B01",
+            "E02-X01-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "ordinary_half_gain_current",
+            "candidate_method_served_current"
+          ],
+          "basis": "The maintained ordinary worker reconstructs V1/V4 typed producer inputs and invokes the real controller. A separate served candidate-method profile persists and reopens the selected AIPW result.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CYC-01-04",
+          "criterion_pointer": "04_Трассировка/CYC-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-CYC-01-01"
+          ],
+          "source_ids": [
+            "B03"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B01",
+            "E02-X01-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "candidate_method_served_current",
+            "candidate_method_retained_strengthening_current"
+          ],
+          "basis": "The independent fixed-model oracle agrees with selected N5 effect 0.5. The fresh HTTP reader returns the recorded number, units and method or limitations under the selected receipt.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CYC-01-05",
+          "criterion_pointer": "04_Трассировка/CYC-01.json#/requirements/4",
+          "test_ids": [
+            "TEST-CYC-01-03",
+            "TEST-CYC-01-05"
+          ],
+          "source_ids": [
+            "B01",
+            "B02",
+            "B03"
+          ],
+          "binding_ids": [],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "cyc01_profile_refusal_retained"
+          ],
+          "basis": "In pinned historical served profiles the actual N4 proposal persists with a distinct absent or unrefreshable profile reason. N5, N8 and N9 stay not run and candidate limitations remain in the projection.",
+          "remaining_kinds": [],
+          "remaining": "The runtime source pins differ from current main. Recheck only these two nonnumerical refusals after the affected owner composition."
+        },
+        {
+          "requirement_id": "REQ-CYC-01-06",
+          "criterion_pointer": "04_Трассировка/CYC-01.json#/requirements/5",
+          "test_ids": [
+            "TEST-CYC-01-04"
+          ],
+          "source_ids": [
+            "B02",
+            "B03"
+          ],
+          "binding_ids": [],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "generic_served_sequence_r4_retained",
+            "changed_c_r2_retained_b_fresh_read"
+          ],
+          "basis": "The served changed-input sequence leaves historical B's exact contents readable while selecting a different numerical result under C's current basis. Durable recovery does not repeat the original invocation.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CYC-01-07",
+          "criterion_pointer": "04_Трассировка/CYC-01.json#/requirements/6",
+          "test_ids": [
+            "TEST-CYC-01-06"
+          ],
+          "source_ids": [
+            "B01",
+            "B02",
+            "B03"
+          ],
+          "binding_ids": [
+            "E02-X03-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "p06_transport_served_reconciliation",
+            "ordinary_half_gain_current"
+          ],
+          "basis": "A materially different transport maintenance question reaches the same stock composition and binding owners. The fixture supplies a namespaced definition, representation, population, source and declared stock operator. The existing server owner compiles the resource, horizon, comparator and budget bindings, and the real Catalog rejects same-label wrong quantity or denominator. Scope is the declared transport stock profile.",
+          "remaining_kinds": []
+        }
       ]
     },
     {
@@ -35479,7 +35888,155 @@
         "LANE-01.evidence_catalog.candidate_experiment_native_execute_r14"
       ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-ACQ-01-01",
+          "criterion_pointer": "04_Трассировка/ACQ-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-ACQ-01-01"
+          ],
+          "source_ids": [
+            "LA-046"
+          ],
+          "binding_ids": [
+            "E02-I01-B-B02"
+          ],
+          "status": "PARTIAL",
+          "evidence_refs": [
+            "governed_n7_same_cycle_reentry_r8",
+            "requirement_selection_consumer_current"
+          ],
+          "basis": "The actual N7 compiler and planner record typed scope and unresolved need. Empty or foreign inputs refuse, and the exact bridge points to the pending numerical port.",
+          "remaining_kinds": [
+            "verification_missing"
+          ],
+          "remaining": "Verify the joined N7 to resolver to executor path under the shared declared source and query, including complete bound inputs."
+        },
+        {
+          "requirement_id": "REQ-ACQ-01-02",
+          "criterion_pointer": "04_Трассировка/ACQ-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-ACQ-01-02"
+          ],
+          "source_ids": [
+            "B12",
+            "LA-046"
+          ],
+          "binding_ids": [
+            "E02-I01-B-B02",
+            "E02-X02-B01"
+          ],
+          "status": "PARTIAL",
+          "evidence_refs": [
+            "acq01_current",
+            "acq01_pending_macro_preflight_current",
+            "governed_n7_same_cycle_reentry_r8"
+          ],
+          "basis": "Live N7 report and planner authority, scoped lease and pending path are preserved. Existing ACQ route failures remain recorded.",
+          "remaining_kinds": [
+            "verification_missing"
+          ],
+          "remaining": "Qualify the actual executor's exact CAS readback with independent compiler and planner byte-removal refusals before effects."
+        },
+        {
+          "requirement_id": "REQ-ACQ-01-03",
+          "criterion_pointer": "04_Трассировка/ACQ-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-ACQ-01-03"
+          ],
+          "source_ids": [
+            "B12"
+          ],
+          "binding_ids": [
+            "E02-I01-B-B02",
+            "E02-X02-B02"
+          ],
+          "status": "PARTIAL",
+          "evidence_refs": [
+            "scientific_c_selected_read_reconciliation",
+            "gdp_producer_fresh_read_reconciliation",
+            "acq01_canonical_route_disposition"
+          ],
+          "basis": "Persisted source changes reach actual numerical computation in bounded C and GDP profiles. A fresh authenticated reader returns the exact selected C result at revision 4.",
+          "remaining_kinds": [
+            "semantic_test_missing"
+          ],
+          "remaining": "Qualify all four foreign constituent controls for state, path, baseline and NCM against the same declared changed-source profile."
+        },
+        {
+          "requirement_id": "REQ-ACQ-01-04",
+          "criterion_pointer": "04_Трассировка/ACQ-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-ACQ-01-04"
+          ],
+          "source_ids": [
+            "B12"
+          ],
+          "binding_ids": [
+            "E02-I01-B-B02"
+          ],
+          "status": "PARTIAL",
+          "evidence_refs": [
+            "generic_served_sequence_r4_retained",
+            "lane01_r33_composed_historical_reader"
+          ],
+          "basis": "Actual interrupted-worker recovery from durable V5 preserves existing invocation and selected effect. Scientific C also has scoped rollback and stale-head controls.",
+          "remaining_kinds": [
+            "verification_missing"
+          ],
+          "remaining": "Exercise the relevant persisted-boundary recovery and genuinely concurrent current-frontier change at the acquired source and selected numerical path."
+        },
+        {
+          "requirement_id": "REQ-ACQ-01-05",
+          "criterion_pointer": "04_Трассировка/ACQ-01.json#/requirements/4",
+          "test_ids": [
+            "TEST-ACQ-01-05"
+          ],
+          "source_ids": [
+            "B12",
+            "LA-046"
+          ],
+          "binding_ids": [
+            "E02-X03-B01"
+          ],
+          "status": "PARTIAL",
+          "evidence_refs": [
+            "p06_transport_served_reconciliation",
+            "gdp_producer_fresh_read_reconciliation",
+            "candidate_source_metric_separation_current"
+          ],
+          "basis": "Transport stock and GDP witnesses confirm concrete results in named profiles under existing owners, with metadata-only fixture preparation in transport.",
+          "remaining_kinds": [
+            "verification_missing"
+          ],
+          "remaining": "Record the exact changed-value and negative source/basis coupling for the declared second-resource test. Multi-row consumption needs explicit units, time, population and aggregation evidence when supported."
+        },
+        {
+          "requirement_id": "REQ-ACQ-01-06",
+          "criterion_pointer": "04_Трассировка/ACQ-01.json#/requirements/5",
+          "test_ids": [
+            "TEST-ACQ-01-06"
+          ],
+          "source_ids": [
+            "LA-046"
+          ],
+          "binding_ids": [
+            "E02-X03-B01"
+          ],
+          "status": "PARTIAL",
+          "evidence_refs": [
+            "scientific_c_selected_read_reconciliation",
+            "gdp_producer_fresh_read_reconciliation",
+            "candidate_source_metric_separation_current"
+          ],
+          "basis": "Scientific C and GDP provide actual distinct scoped producer and reader witnesses. A shared candidate source owner independently exercises typed metric separation.",
+          "remaining_kinds": [
+            "verification_missing"
+          ],
+          "remaining": "Join the accepted common contract, actual source IDs and queries, second-domain consumer and missing-need control for the shared LA-046 disposition."
+        }
+      ]
     },
     {
       "packet_id": "CYC-03",
@@ -35517,7 +36074,153 @@
         "LANE-01.evidence_catalog.candidate_experiment_native_execute_r14"
       ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-CYC-03-01",
+          "criterion_pointer": "04_Трассировка/CYC-03.json#/requirements/0",
+          "test_ids": [
+            "TEST-CYC-03-01"
+          ],
+          "source_ids": [
+            "B09",
+            "B27",
+            "B28"
+          ],
+          "binding_ids": [
+            "E02-I01-B-B03",
+            "E02-X02-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "generic_served_sequence_r4_retained",
+            "changed_c_r2_retained_b_fresh_read"
+          ],
+          "basis": "Real A, B1, B2, B3 and C preserve the original number for equivalent inputs and issue distinct current-use decisions. Changed C computes a new number. Durable-V5 recovery adds no duplicate N5.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CYC-03-02",
+          "criterion_pointer": "04_Трассировка/CYC-03.json#/requirements/1",
+          "test_ids": [
+            "TEST-CYC-03-02"
+          ],
+          "source_ids": [
+            "B09",
+            "B27",
+            "B28"
+          ],
+          "binding_ids": [
+            "E02-I01-B-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "cyc03_grammar_fence_composed_r2",
+            "cyc03_hint_only_source_reissue_composed"
+          ],
+          "basis": "The existing owner reissues a governance grammar hint on retained input. Subject, model, population or method change cannot use the hint-only path.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CYC-03-03",
+          "criterion_pointer": "04_Трассировка/CYC-03.json#/requirements/2",
+          "test_ids": [
+            "TEST-CYC-03-03"
+          ],
+          "source_ids": [
+            "B09",
+            "B27",
+            "B28"
+          ],
+          "binding_ids": [
+            "E02-I01-B-B03"
+          ],
+          "status": "PARTIAL",
+          "evidence_refs": [
+            "cyc03_transition_control_20261122"
+          ],
+          "basis": "Eighteen focused checks pass for the transition classifier, declared equal-value identity and technical replay. The served coefficient selector stops at costed_route_not_unique before B, with zero action heads or injected resolution rows.",
+          "remaining_kinds": [
+            "semantic_test_missing"
+          ],
+          "remaining": "Qualify actual model-change output and a verified distinct equal-valued measurement against technical replay through the served owner and fresh reader. Keep absent owners explicitly unsupported."
+        },
+        {
+          "requirement_id": "REQ-CYC-03-04",
+          "criterion_pointer": "04_Трассировка/CYC-03.json#/requirements/3",
+          "test_ids": [
+            "TEST-CYC-03-04"
+          ],
+          "source_ids": [
+            "B09",
+            "B27",
+            "B28"
+          ],
+          "binding_ids": [
+            "E02-I01-B-B03",
+            "E02-X02-B02"
+          ],
+          "status": "PARTIAL",
+          "evidence_refs": [
+            "changed_c_r2_retained_b_fresh_read",
+            "lane01_r33_composed_historical_reader",
+            "r33_independent_fresh_reader_r6"
+          ],
+          "basis": "Fresh API reads confirm that changed C is current and retained B remains identifiable and readable.",
+          "remaining_kinds": [
+            "verification_missing"
+          ],
+          "remaining": "Show a worse latest valid occurrence at the current frontier with prior and later occurrence history preserved for the same stable candidate."
+        },
+        {
+          "requirement_id": "REQ-CYC-03-05",
+          "criterion_pointer": "04_Трассировка/CYC-03.json#/requirements/4",
+          "test_ids": [
+            "TEST-CYC-03-05"
+          ],
+          "source_ids": [
+            "B09",
+            "B27",
+            "B28"
+          ],
+          "binding_ids": [
+            "E02-I01-B-B03",
+            "E02-X02-B02"
+          ],
+          "status": "PARTIAL",
+          "evidence_refs": [
+            "lane01_r33_composed_historical_reader",
+            "r33_independent_fresh_reader_r6"
+          ],
+          "basis": "Actual backend reads distinguish current C and retained original execution. An isolated Chromium test verifies the history presentation using injected discovery.",
+          "remaining_kinds": [
+            "verification_missing"
+          ],
+          "remaining": "Qualify the live coupled UI or export through the actual owner-joined route, including current occurrence and original computation provenance."
+        },
+        {
+          "requirement_id": "REQ-CYC-03-06",
+          "criterion_pointer": "04_Трассировка/CYC-03.json#/requirements/5",
+          "test_ids": [
+            "TEST-CYC-03-06"
+          ],
+          "source_ids": [
+            "B09",
+            "B27",
+            "B28"
+          ],
+          "binding_ids": [
+            "E02-X03-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "p06_transport_served_reconciliation",
+            "candidate_source_world_scope_companion"
+          ],
+          "basis": "The held-out transport reserve follows the same acquisition and basis owners, persists its selected result and is read back by authenticated GET and fresh Foundry replay. Its inputs and dedicated Catalog metadata fixture are declared.",
+          "remaining_kinds": []
+        }
+      ]
     },
     {
       "packet_id": "CYC-04",
@@ -35556,7 +36259,145 @@
         "LANE-01.evidence_catalog.cyc04_full_served_r7"
       ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-CYC-04-01",
+          "criterion_pointer": "04_Трассировка/CYC-04.json#/requirements/0",
+          "test_ids": [
+            "TEST-CYC-04-01"
+          ],
+          "source_ids": [
+            "B10",
+            "B11"
+          ],
+          "binding_ids": [
+            "E02-I01-C-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "cyc04_current_grounded_fallback",
+            "cyc04_full_served_r7"
+          ],
+          "basis": "The real post-grounding selector retains both decisions and completes the eligible sibling with effect 0.125 and SE 0. A distinct fresh reader checks selected ownership.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CYC-04-02",
+          "criterion_pointer": "04_Трассировка/CYC-04.json#/requirements/1",
+          "test_ids": [
+            "TEST-CYC-04-02"
+          ],
+          "source_ids": [
+            "B10",
+            "B11"
+          ],
+          "binding_ids": [],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "cyc04_full_served_r7",
+            "cyc05_structural_census_reconciliation"
+          ],
+          "basis": "The served fixture supplies an actual DesignProblem and named required inputs. An untyped fixture fails before generation in the separate exact negative.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CYC-04-03",
+          "criterion_pointer": "04_Трассировка/CYC-04.json#/requirements/2",
+          "test_ids": [
+            "TEST-CYC-04-03"
+          ],
+          "source_ids": [
+            "B10",
+            "B11"
+          ],
+          "binding_ids": [
+            "E02-I01-C-B01",
+            "E02-X01-B02"
+          ],
+          "status": "PARTIAL",
+          "evidence_refs": [
+            "cyc04_full_served_r7",
+            "cyc04_grounded_fallback_current"
+          ],
+          "basis": "Actual candidate-local N5 refusal falls through once to an already grounded sibling. Shared-currentness, marker and global resource failures remain upstream stops.",
+          "remaining_kinds": [
+            "semantic_test_missing"
+          ],
+          "remaining": "Exercise candidate-local N8 failure followed by the suitable already-generated candidate without redraft, preserving the first attempt and its cost."
+        },
+        {
+          "requirement_id": "REQ-CYC-04-04",
+          "criterion_pointer": "04_Трассировка/CYC-04.json#/requirements/3",
+          "test_ids": [
+            "TEST-CYC-04-04"
+          ],
+          "source_ids": [
+            "B10",
+            "B11"
+          ],
+          "binding_ids": [
+            "E02-I01-C-B01"
+          ],
+          "status": "PARTIAL",
+          "evidence_refs": [
+            "lane01_current_cycle_owner_checks",
+            "n5_budget_di_current"
+          ],
+          "basis": "The scheduler admits positive information gain below the ROI threshold, and actual budget observer controls exercise physical admission. Monetary value stays explicit unknown.",
+          "remaining_kinds": [
+            "semantic_test_missing"
+          ],
+          "remaining": "Join the same positive-information below-ROI case to an actual admitted and charged numerical producer on the selected route."
+        },
+        {
+          "requirement_id": "REQ-CYC-04-05",
+          "criterion_pointer": "04_Трассировка/CYC-04.json#/requirements/4",
+          "test_ids": [
+            "TEST-CYC-04-05"
+          ],
+          "source_ids": [
+            "B10",
+            "B11"
+          ],
+          "binding_ids": [
+            "E02-I01-C-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "n5_budget_di_current",
+            "candidate_selected_quota_binding",
+            "cyc04_full_served_r7",
+            "terminal_existing_quota_author_r1"
+          ],
+          "basis": "The actual route and ledger derive standard physical-work units from the selected plan. The allocation and reservation are distinct and no per-call monetary amount is inferred.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CYC-04-06",
+          "criterion_pointer": "04_Трассировка/CYC-04.json#/requirements/5",
+          "test_ids": [
+            "TEST-CYC-04-06"
+          ],
+          "source_ids": [
+            "B10",
+            "B11"
+          ],
+          "binding_ids": [
+            "E02-I01-C-B01"
+          ],
+          "status": "PARTIAL",
+          "evidence_refs": [
+            "lane01_current_cycle_owner_checks",
+            "native_protected_quota_composed_r1"
+          ],
+          "basis": "Allocation checks confirm the named protected partition, no-guarantee and lost-ack handling. Two C49 cases execute a single protected seed and fail at the strict trajectory-free reader expectation.",
+          "remaining_kinds": [
+            "verification_missing"
+          ],
+          "remaining": "Establish the intended C49 protected diagnostic readback and distinguish its authoritative no-guarantee or candidate result projection."
+        }
+      ]
     },
     {
       "packet_id": "CYC-05",
@@ -35601,6 +36442,166 @@
       "blockers": [],
       "deferred_ids": [
         "DA-06"
+      ],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-CYC-05-01",
+          "criterion_pointer": "04_Трассировка/CYC-05.json#/requirements/0",
+          "test_ids": [
+            "TEST-CYC-05-01"
+          ],
+          "source_ids": [
+            "B15",
+            "B29",
+            "B30"
+          ],
+          "binding_ids": [
+            "E02-I01-C-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "cyc05_two_children_served_current",
+            "lane01_current_cycle_owner_checks"
+          ],
+          "basis": "Two actual source-derived children yield distinct effects 0.125 and 0.15 with exact independent targets, budgets and fresh reads. Four standard units finish while the protected unit is preserved.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CYC-05-02",
+          "criterion_pointer": "04_Трассировка/CYC-05.json#/requirements/1",
+          "test_ids": [
+            "TEST-CYC-05-02"
+          ],
+          "source_ids": [
+            "B15",
+            "B29",
+            "B30"
+          ],
+          "binding_ids": [
+            "E02-I01-C-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "frontier_current_r8",
+            "lane01_current_cycle_owner_checks"
+          ],
+          "basis": "Real capacity interruption keeps the completed first child selected and an exact unattempted frontier. Fresh GET, missing-result and cross-profile controls exercise the mounted route.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CYC-05-03",
+          "criterion_pointer": "04_Трассировка/CYC-05.json#/requirements/2",
+          "test_ids": [
+            "TEST-CYC-05-03"
+          ],
+          "source_ids": [
+            "B15",
+            "B29",
+            "B30"
+          ],
+          "binding_ids": [
+            "E02-I01-C-B02"
+          ],
+          "status": "PARTIAL",
+          "evidence_refs": [
+            "cyc05_stop_dashboard_composed_r1",
+            "frontier_current_r8"
+          ],
+          "basis": "Backend output distinguishes normal, capacity and abstention paths and preserves the selected partial result. Dashboard controls verify presentation on injected rows.",
+          "remaining_kinds": [
+            "verification_missing"
+          ],
+          "remaining": "Read the durable outcomes through the actual mounted UI and served history route with the neighboring projection corruption discriminator."
+        },
+        {
+          "requirement_id": "REQ-CYC-05-04",
+          "criterion_pointer": "04_Трассировка/CYC-05.json#/requirements/3",
+          "test_ids": [
+            "TEST-CYC-05-04"
+          ],
+          "source_ids": [
+            "B15",
+            "B29",
+            "B30"
+          ],
+          "binding_ids": [
+            "E02-I01-C-B03"
+          ],
+          "status": "BLOCKED_EXTERNAL_INPUT",
+          "evidence_refs": [
+            "cyc05_structural_census_reconciliation"
+          ],
+          "basis": "Inspector and direct structural census evidence establish the dependency boundary for readiness.",
+          "remaining_kinds": [
+            "bridge_missing"
+          ],
+          "remaining": "DA-06 needs the actually loaded build after LANE-12 and its appointed readiness issuer or bridge into N6."
+        },
+        {
+          "requirement_id": "REQ-CYC-05-05",
+          "criterion_pointer": "04_Трассировка/CYC-05.json#/requirements/4",
+          "test_ids": [
+            "TEST-CYC-05-05"
+          ],
+          "source_ids": [
+            "B15",
+            "B29",
+            "B30"
+          ],
+          "binding_ids": [
+            "E02-I01-C-B03"
+          ],
+          "status": "BLOCKED_EXTERNAL_INPUT",
+          "evidence_refs": [
+            "cyc05_structural_census_reconciliation"
+          ],
+          "basis": "Bounded source change and receipt checking controls exist. A positive appointed and loaded deployment issuer is missing.",
+          "remaining_kinds": [
+            "bridge_missing"
+          ],
+          "remaining": "After LANE-12, compare exact positive and changed loaded build and show unchanged-run I/O and historical readability in the same admitted route."
+        },
+        {
+          "requirement_id": "REQ-CYC-05-06",
+          "criterion_pointer": "04_Трассировка/CYC-05.json#/requirements/5",
+          "test_ids": [
+            "TEST-CYC-05-06"
+          ],
+          "source_ids": [
+            "B15",
+            "B29",
+            "B30"
+          ],
+          "binding_ids": [
+            "E02-I01-C-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "cyc05_structural_census_reconciliation"
+          ],
+          "basis": "Nine direct structural controls distinguish missing, empty, unreadable, parse failure, allowed and disallowed callers. A denied nested source cannot hide a caller behind a readable sibling.",
+          "remaining_kinds": [],
+          "remaining": "The separate three signed-consumer fixture failures remain unresolved. The direct census requirement is covered, while the composed signed loaded-build path remains with DA-06."
+        },
+        {
+          "requirement_id": "REQ-CYC-05-07",
+          "criterion_pointer": "04_Трассировка/CYC-05.json#/requirements/6",
+          "test_ids": [
+            "TEST-CYC-05-07"
+          ],
+          "source_ids": [
+            "B15",
+            "B29",
+            "B30"
+          ],
+          "binding_ids": [],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "authored_joint_current_retained_qualification"
+          ],
+          "basis": "The actual authored compound produces independent child effects 0.2 and 0.375, joint 0.875 and interaction 0.3. Retained fresh HTTP/CAS, component-removal and alternatives-versus-joint controls qualify the bounded numerical profile.",
+          "remaining_kinds": []
+        }
       ]
     },
     {
@@ -35644,7 +36645,118 @@
         "DA-01",
         "DA-07"
       ],
-      "current_assessment": "TEST-CYC-02-01: saved cyc02_legacy_selected_reader_replay qualifies old-source native v2 producer/current selected consumer and native-numerical v3 compatibility, composed at494de0b36b32f11025796e8dd42fa393a84314a6 (1PASS; source/input scope retained). The earlier v2 UNRUN assessment is superseded. V3 is a newly produced compatibility wire from a real native result, not a recovered historical archive; archival provenance remains not_established, without blocking independent Gate A. Independent N8, exact profiles, unchanged saved bytes, derived limitations and refusals are covered in that scoped result; I01 and G acceptance remain separate."
+      "current_assessment": "TEST-CYC-02-01: saved cyc02_legacy_selected_reader_replay qualifies old-source native v2 producer/current selected consumer and native-numerical v3 compatibility, composed at494de0b36b32f11025796e8dd42fa393a84314a6 (1PASS; source/input scope retained). The earlier v2 UNRUN assessment is superseded. V3 is a newly produced compatibility wire from a real native result, not a recovered historical archive; archival provenance remains not_established, without blocking independent Gate A. Independent N8, exact profiles, unchanged saved bytes, derived limitations and refusals are covered in that scoped result; I01 and G acceptance remain separate.",
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-CYC-02-01",
+          "criterion_pointer": "04_Трассировка/CYC-02.json#/requirements/0",
+          "test_ids": [
+            "TEST-CYC-02-01"
+          ],
+          "source_ids": [
+            "B04",
+            "B05",
+            "B08"
+          ],
+          "binding_ids": [],
+          "status": "PARTIAL",
+          "evidence_refs": [
+            "cyc02_legacy_selected_reader_replay",
+            "cyc02_historical_producer_feasibility"
+          ],
+          "basis": "Actual v2 producer replay and v3 wire-shape compatibility preserve the bounded legacy conditional read, comparison limitations and original bytes during the read.",
+          "remaining_kinds": [
+            "artifact_missing"
+          ],
+          "remaining": "An independently retained genuine v3 producer artifact was not found. The v3 resynchronization control proves reader compatibility only."
+        },
+        {
+          "requirement_id": "REQ-CYC-02-02",
+          "criterion_pointer": "04_Трассировка/CYC-02.json#/requirements/1",
+          "test_ids": [
+            "TEST-CYC-02-02"
+          ],
+          "source_ids": [
+            "B04",
+            "B05",
+            "B08"
+          ],
+          "binding_ids": [],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "cyc02_reopenable_cas_current"
+          ],
+          "basis": "The exact fixture put_json selected-profile option persists distinct generic and selected views and exercises corrupt selected content.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CYC-02-03",
+          "criterion_pointer": "04_Трассировка/CYC-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-CYC-02-03"
+          ],
+          "source_ids": [
+            "B04",
+            "B05",
+            "B08"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B01",
+            "E02-X01-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "cyc02_fresh_native_composed_r1",
+            "cyc02_configured_cross_process_composed_r6"
+          ],
+          "basis": "Separate producer and N8 processes reopen the complete selected typed numerical artifact. Missing, foreign or corrupt inputs refuse on the named native profile.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CYC-02-04",
+          "criterion_pointer": "04_Трассировка/CYC-02.json#/requirements/3",
+          "test_ids": [
+            "TEST-CYC-02-04"
+          ],
+          "source_ids": [
+            "B04",
+            "B05",
+            "B08"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "cyc02_configured_cross_process_composed_r6"
+          ],
+          "basis": "Configured K_sim emits an effect of 0.5 within 0.02 and retains typed blockers for changed model, baseline, trajectory or unsupported inputs. Authority stays candidate-only.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CYC-02-05",
+          "criterion_pointer": "04_Трассировка/CYC-02.json#/requirements/4",
+          "test_ids": [
+            "TEST-CYC-02-05"
+          ],
+          "source_ids": [
+            "B04",
+            "B05",
+            "B08"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B01",
+            "E02-X01-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "cyc02_configured_cross_process_composed_r6",
+            "sim03_numeric_oracle_current"
+          ],
+          "basis": "The actual configured API returns the selected conditional result and basis or limitations. The result is checked against an independent bounded numeric oracle.",
+          "remaining_kinds": []
+        }
+      ]
     },
     {
       "packet_id": "SIM-01",
@@ -35681,7 +36793,90 @@
         "LANE-01.evidence_catalog.sim01_compatible_model_orders"
       ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-SIM-01-01",
+          "criterion_pointer": "04_Трассировка/SIM-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-SIM-01-01"
+          ],
+          "source_ids": [
+            "B06",
+            "B07"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "sim01_real_fallback_current"
+          ],
+          "basis": "The first engine receives the actual incomplete coupled input and refuses before work. The supported second engine computes and the fresh read retains its reason and result.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-SIM-01-02",
+          "criterion_pointer": "04_Трассировка/SIM-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-SIM-01-02"
+          ],
+          "source_ids": [
+            "B06",
+            "B07"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "sim01_real_fallback_current"
+          ],
+          "basis": "The owner checks coupling, horizon, and atom composition. Retained all-invalid and legacy paths preserve the full disposition.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-SIM-01-03",
+          "criterion_pointer": "04_Трассировка/SIM-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-SIM-01-03"
+          ],
+          "source_ids": [
+            "B06",
+            "B07"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "sim01_real_fallback_current",
+            "numeric_native"
+          ],
+          "basis": "Real seed, plan, and physical-request joins reject a mismatched or rehashed foreign result before current use.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-SIM-01-04",
+          "criterion_pointer": "04_Трассировка/SIM-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-SIM-01-04"
+          ],
+          "source_ids": [
+            "B06",
+            "B07"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "sim01_compatible_model_orders"
+          ],
+          "basis": "Both orders of distinct server-configured models reach the actual producer and fresh GET with different effects. The controlled singleton remains available. Scope is configured upstream proposals.",
+          "remaining_kinds": []
+        }
+      ]
     },
     {
       "packet_id": "SIM-02",
@@ -35720,7 +36915,114 @@
         "LANE-01.evidence_catalog.sim02_refusal_contour_forward_fix"
       ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-SIM-02-01",
+          "criterion_pointer": "04_Трассировка/SIM-02.json#/requirements/0",
+          "test_ids": [
+            "TEST-SIM-02-01"
+          ],
+          "source_ids": [
+            "B18",
+            "B20",
+            "B22"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "sim02_final_affected_composed"
+          ],
+          "basis": "Actual adapters reject effective target conflicts before work and distinguish separate indices or keys.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-SIM-02-02",
+          "criterion_pointer": "04_Трассировка/SIM-02.json#/requirements/1",
+          "test_ids": [
+            "TEST-SIM-02-02"
+          ],
+          "source_ids": [
+            "B18",
+            "B20",
+            "B22"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "sim02_retained_interruption_current"
+          ],
+          "basis": "Native interruption persists distinct missing and nonfinite causes, exact affected slot and a prior completed role. A fresh CAS consumer reopens it.",
+          "remaining_kinds": [],
+          "remaining": "The same two causes and the saved partial trajectory still need the exact shared HTTP consumer if that affected scope is selected."
+        },
+        {
+          "requirement_id": "REQ-SIM-02-03",
+          "criterion_pointer": "04_Трассировка/SIM-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-SIM-02-03"
+          ],
+          "source_ids": [
+            "B18",
+            "B20",
+            "B22"
+          ],
+          "binding_ids": [],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "sim02_retained_interruption_current",
+            "sim02_final_affected_composed"
+          ],
+          "basis": "Real persisted partial work exposes its typed cause. Explicit finite zero survives and abbreviated or false proof inputs refuse.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-SIM-02-04",
+          "criterion_pointer": "04_Трассировка/SIM-02.json#/requirements/3",
+          "test_ids": [
+            "TEST-SIM-02-04"
+          ],
+          "source_ids": [
+            "B18",
+            "B20",
+            "B22"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "sim02_final_affected_composed"
+          ],
+          "basis": "Declared coordinate roles, the 10 to 12 to 14 step oracle, incompatible horizon and incomplete temporal prefix are exercised.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-SIM-02-05",
+          "criterion_pointer": "04_Трассировка/SIM-02.json#/requirements/4",
+          "test_ids": [
+            "TEST-SIM-02-05"
+          ],
+          "source_ids": [
+            "B18",
+            "B20",
+            "B22"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B03"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "sim02_final_affected_composed"
+          ],
+          "basis": "Scalar and declared vector or population aggregation paths use exact units, weights and denominators. Ambiguous shapes refuse.",
+          "remaining_kinds": []
+        }
+      ]
     },
     {
       "packet_id": "SIM-03",
@@ -35763,7 +37065,130 @@
         "LANE-01.evidence_catalog.sim03_numeric_oracle_current"
       ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-SIM-03-01",
+          "criterion_pointer": "04_Трассировка/SIM-03.json#/requirements/0",
+          "test_ids": [
+            "TEST-SIM-03-01"
+          ],
+          "source_ids": [
+            "B21"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "numeric_native",
+            "numeric_quantile_removal"
+          ],
+          "basis": "Native paired finite and singleton controls plus a distinguishing quantile-removal case qualify the declared deterministic confidence profile and unavailable interval projections.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-SIM-03-02",
+          "criterion_pointer": "04_Трассировка/SIM-03.json#/requirements/1",
+          "test_ids": [
+            "TEST-SIM-03-02"
+          ],
+          "source_ids": [
+            "B19"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B04",
+            "E02-X01-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "sim03_comparator_current",
+            "sim03_numeric_oracle_current"
+          ],
+          "basis": "Actual model-bound comparator and independent integer oracle verify 2, 3, 9 and residual 4, additive control, paired identity and source-basis refusal.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-SIM-03-03",
+          "criterion_pointer": "04_Трассировка/SIM-03.json#/requirements/2",
+          "test_ids": [
+            "TEST-SIM-03-03"
+          ],
+          "source_ids": [
+            "B21"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "sim03_native_current"
+          ],
+          "basis": "Actual seed-sensitive draws, saved completed roles, counts and paired variation verify independently. Repeated-first-seed, replayed-draw and baseline pairing mutations distinguish the expected behavior.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-SIM-03-04",
+          "criterion_pointer": "04_Трассировка/SIM-03.json#/requirements/3",
+          "test_ids": [
+            "TEST-SIM-03-04"
+          ],
+          "source_ids": [
+            "B23"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "sim03_physical_projection_composed_r1"
+          ],
+          "basis": "Real per-invocation physical dedupe retains separate role effects and rejects different seed or plan. Distinct declared projection remains separately checked.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-SIM-03-05",
+          "criterion_pointer": "04_Трассировка/SIM-03.json#/requirements/4",
+          "test_ids": [
+            "TEST-SIM-03-05"
+          ],
+          "source_ids": [
+            "B25"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B04"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "numeric_native"
+          ],
+          "basis": "Native SMM checks duplicate IDs, lost or missing required moments and comparable objective denominators on the tested profile.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-SIM-03-06",
+          "criterion_pointer": "04_Трассировка/SIM-03.json#/requirements/5",
+          "test_ids": [
+            "TEST-SIM-03-06"
+          ],
+          "source_ids": [
+            "B26"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B04",
+            "E02-X04-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "sim03_numeric_oracle_current",
+            "req01_current_wheel_and_sim0306_native_reader",
+            "sim03_joint_scale_retained"
+          ],
+          "basis": "Actual joint, higher-order and selected conditional-read controls include a real bounded binary64 scale check, separating zero from residual 4e-13 within an independently derived bound.",
+          "remaining_kinds": [],
+          "remaining": "A separate decimal mutation has a maintained selector; its dedicated receipt was not found. No positive-SE empirical inference claim."
+        }
+      ]
     },
     {
       "packet_id": "SEL-01",
@@ -35804,7 +37229,108 @@
       ],
       "blockers": [],
       "deferred_ids": [],
-      "current_assessment": "R11 qualifies ordinary compiler, N4, N5, native AIPW, persisted CAS and fresh API read. Composed R14 reads the exact saved selection receipt, degrades on removal and restores the same estimate with zero new N5 and unchanged retained CAS and SQLite. Canonical verifier controls cover relevant and unrelated Catalog drift separately. Installed delivery remains a distinct boundary."
+      "current_assessment": "R11 qualifies ordinary compiler, N4, N5, native AIPW, persisted CAS and fresh API read. Composed R14 reads the exact saved selection receipt, degrades on removal and restores the same estimate with zero new N5 and unchanged retained CAS and SQLite. Canonical verifier controls cover relevant and unrelated Catalog drift separately. Installed delivery remains a distinct boundary.",
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-SEL-01-01",
+          "criterion_pointer": "04_Трассировка/SEL-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-SEL-01-01"
+          ],
+          "source_ids": [
+            "B36"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "selection_current_four"
+          ],
+          "basis": "Technical renaming preserves eligibility; an explicit semantic requirement continues to govern the actual scoped planner.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-SEL-01-02",
+          "criterion_pointer": "04_Трассировка/SEL-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-SEL-01-02"
+          ],
+          "source_ids": [
+            "B35"
+          ],
+          "binding_ids": [],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "selection_current_four"
+          ],
+          "basis": "The recorded losing key is the first deciding rank key on the named controlled method catalog.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-SEL-01-03",
+          "criterion_pointer": "04_Трассировка/SEL-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-SEL-01-03"
+          ],
+          "source_ids": [
+            "B35"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "selection_current_four",
+            "selection_final_catalog_drift"
+          ],
+          "basis": "Exact scoped list retains hard-excluded members and their reasons and tests relevant versus unrelated Catalog changes.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-SEL-01-04",
+          "criterion_pointer": "04_Трассировка/SEL-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-SEL-01-04"
+          ],
+          "source_ids": [
+            "B34"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B02"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "selection_current_four"
+          ],
+          "basis": "A genuine bounded singleton is selected, a concordantly truncated intake refuses, and synthetic methods do not enter the registered result.",
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-SEL-01-05",
+          "criterion_pointer": "04_Трассировка/SEL-01.json#/requirements/4",
+          "test_ids": [
+            "TEST-SEL-01-05"
+          ],
+          "source_ids": [
+            "B34",
+            "B35",
+            "B36"
+          ],
+          "binding_ids": [
+            "E02-I01-A-B02",
+            "E02-X01-B01"
+          ],
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "evidence_refs": [
+            "candidate_method_served_current",
+            "method_selection_receipt_composed_r14"
+          ],
+          "basis": "Ordinary ingress consumes actual selected AIPW and persists an exact result. Fresh history withdraws the estimate when its receipt is removed and restores the same number with zero new N5.",
+          "remaining_kinds": [],
+          "remaining": "The old CAS and SQLite are no longer accessible for a new direct read; recorded test logs retain this historical scope. Requalify only a changed shared or installed consumer."
+        }
+      ]
     },
     {
       "packet_id": "EMP-01",

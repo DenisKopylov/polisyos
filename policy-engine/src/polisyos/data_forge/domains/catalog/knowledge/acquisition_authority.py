@@ -2844,12 +2844,12 @@ class CanonicalAcquisitionAuthority:
                 "authority_registry_missing", self.registry_path.as_posix()
             )
         try:
-            raw = self.registry_path.read_bytes()
-            raw_sha256 = hashlib.sha256(raw).hexdigest()
             cached = self._registry_snapshot_cache
-            if cached is not None and cached[0] == raw_sha256:
+            if cached is not None and cached[0] == _file_sha256(self.registry_path):
                 registry = cached[1]
             else:
+                raw = self.registry_path.read_bytes()
+                raw_sha256 = f"sha256:{hashlib.sha256(raw).hexdigest()}"
                 payload = json.loads(raw.decode("utf-8"))
                 registry = AcquisitionAuthorityRegistry.model_validate(payload)
                 self._registry_snapshot_cache = (raw_sha256, registry)

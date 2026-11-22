@@ -49,6 +49,7 @@ from polisyos.core.contracts.variable_binding import (
     load_variable_representation,
     variable_representation_manifest_inputs,
 )
+from polisyos.data_forge.domains.catalog.knowledge import acquisition_authority as authority_module
 from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
     AcquisitionAuthorityEntry,
     AcquisitionAuthorityRegistry,
@@ -698,8 +699,11 @@ def _run_semantic_corpus_profile(
     # The reopened typed evidence is measured independently below.
     registry_read_calls = 0
     registry_read_bytes = 0
+    registry_digest_calls = 0
+    registry_file_size = authority.registry_path.stat().st_size
     warm_owner_query_ms: list[float] = []
     original_path_read_bytes = Path.read_bytes
+    original_file_sha256 = authority_module._file_sha256
 
     def count_registry_reads(path: Path) -> bytes:
         nonlocal registry_read_calls, registry_read_bytes
@@ -709,8 +713,16 @@ def _run_semantic_corpus_profile(
             registry_read_bytes += len(raw)
         return raw
 
+    def count_registry_digests(path: Path) -> str:
+        nonlocal registry_digest_calls
+        digest = original_file_sha256(path)
+        if path == authority.registry_path:
+            registry_digest_calls += 1
+        return digest
+
     with monkeypatch.context() as read_patch:
         read_patch.setattr(Path, "read_bytes", count_registry_reads)
+        read_patch.setattr(authority_module, "_file_sha256", count_registry_digests)
         for ref in query_refs:
             started = time.perf_counter_ns()
             snapshot = authority._load_registry()
@@ -720,6 +732,10 @@ def _run_semantic_corpus_profile(
             warm_owner_query_ms.append((time.perf_counter_ns() - started) / 1_000_000)
             assert snapshot.content_sha256 == registry.content_sha256
             assert actual == exhaustive(_definition_identity(ref), snapshot)
+
+    assert authority.registry_path.stat().st_size == registry_file_size
+    assert registry_digest_calls == len(query_refs)
+    assert registry_read_calls == registry_read_bytes == 0
 
     reversed_registry = build_authority_registry(
         baseline_content_sha256=authority.provision.baseline_content_sha256,
@@ -869,33 +885,34 @@ def _run_semantic_corpus_profile(
         entries=(*registry.entries, updated_source),
     )
 
-    old_registry_raw_sha256 = hashlib.sha256(authority.registry_path.read_bytes()).hexdigest()
+    with authority.registry_path.open("rb") as old_registry:
+        old_registry_raw_sha256 = (
+            f"sha256:{hashlib.file_digest(old_registry, 'sha256').hexdigest()}"
+        )
+    old_registry_file_size = authority.registry_path.stat().st_size
     update_overlap_barrier = Barrier(2)
-    old_registry_bytes_read = Event()
+    old_registry_digest_read = Event()
     updated_registry_published = Event()
     reader_thread_ident: int | None = None
     observed_old_registry_raw_sha256: str | None = None
-    observed_old_registry_raw_bytes: int | None = None
     reader_gate_wait_seconds: float | None = None
 
-    def read_registry_bytes_while_writer_waits(path: Path) -> bytes:
-        nonlocal observed_old_registry_raw_bytes
+    def digest_registry_while_writer_waits(path: Path) -> str:
         nonlocal observed_old_registry_raw_sha256
         nonlocal reader_gate_wait_seconds
-        raw = original_path_read_bytes(path)
+        digest = original_file_sha256(path)
         if path == authority.registry_path and get_ident() == reader_thread_ident:
-            observed_old_registry_raw_sha256 = hashlib.sha256(raw).hexdigest()
-            observed_old_registry_raw_bytes = len(raw)
-            old_registry_bytes_read.set()
+            observed_old_registry_raw_sha256 = digest
+            old_registry_digest_read.set()
             gate_started = time.perf_counter()
             if not updated_registry_published.wait(timeout=30):
                 raise TimeoutError("registry writer did not publish while owner read was held")
             reader_gate_wait_seconds = time.perf_counter() - gate_started
-        return raw
+        return digest
 
     def publish_updated_snapshot(payload: AcquisitionAuthorityRegistry) -> float:
         update_overlap_barrier.wait(timeout=30)
-        if not old_registry_bytes_read.wait(timeout=30):
+        if not old_registry_digest_read.wait(timeout=30):
             raise TimeoutError("owner did not read the old registry before publication")
         publish_started = time.perf_counter()
         _publish_registry_snapshot(authority.registry_path, payload)
@@ -936,7 +953,7 @@ def _run_semantic_corpus_profile(
 
     update_overlap_started = time.perf_counter()
     with monkeypatch.context() as read_patch:
-        read_patch.setattr(Path, "read_bytes", read_registry_bytes_while_writer_waits)
+        read_patch.setattr(authority_module, "_file_sha256", digest_registry_while_writer_waits)
         with ThreadPoolExecutor(max_workers=2, thread_name_prefix="p07-registry-update") as pool:
             publish_future = pool.submit(publish_updated_snapshot, updated_registry_payload)
             old_during_update_future = pool.submit(load_and_query_old_snapshot)
@@ -944,7 +961,6 @@ def _run_semantic_corpus_profile(
             old_during_update_result = old_during_update_future.result(timeout=60)
     concurrent_update_overlap_seconds = time.perf_counter() - update_overlap_started
     assert observed_old_registry_raw_sha256 == old_registry_raw_sha256
-    assert observed_old_registry_raw_bytes is not None
     assert reader_gate_wait_seconds is not None
     old_owner_load_seconds_excluding_gate = old_during_update_result[3] - reader_gate_wait_seconds
     assert old_owner_load_seconds_excluding_gate >= 0.0
@@ -1077,7 +1093,7 @@ def _run_semantic_corpus_profile(
             "owner_registry_read_held_across_atomic_publish": True,
             "old_snapshot_content_sha256": old_during_update_result[0],
             "old_snapshot_raw_sha256": observed_old_registry_raw_sha256,
-            "old_snapshot_raw_bytes": observed_old_registry_raw_bytes,
+            "old_snapshot_file_bytes_covered_by_streamed_digest": old_registry_file_size,
             "published_snapshot_content_sha256": published_snapshot_sha256,
             "old_snapshot_query_matches_independent_scan": (
                 old_during_update_result[1] == old_during_update_result[2]
@@ -1100,9 +1116,9 @@ def _run_semantic_corpus_profile(
                 new_snapshot_owner_load_query_seconds
             ),
             "boundary": (
-                "warm old load includes registry Path.read_bytes/raw hash/cache hit plus baseline "
-                "SHA-256 verification; fresh new load includes registry read/hash/parse/schema "
-                "validation plus baseline hash; first new exact-index query includes index "
+                "warm old load includes full streamed registry digest/cache hit plus baseline "
+                "SHA-256 verification; changed load includes streamed digest plus registry "
+                "read/hash/parse/schema validation and baseline hash; first new query includes index "
                 "rebuild; timings are API-level wall time, not physical device I/O or full consumer "
                 "proof"
             ),
@@ -1147,6 +1163,10 @@ def _run_semantic_corpus_profile(
             "p99_ms": _percentile(warm_owner_query_ms, 99),
             "registry_read_bytes_calls": registry_read_calls,
             "registry_bytes_returned": registry_read_bytes,
+            "registry_streamed_digest_calls": registry_digest_calls,
+            "registry_file_bytes_covered_by_streamed_digest": (
+                registry_file_size * registry_digest_calls
+            ),
         },
         "corpus_generation_seconds": generation_seconds,
         "corpus_full_typed_reopen_seconds": verification_seconds,

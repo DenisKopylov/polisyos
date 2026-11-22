@@ -21,6 +21,7 @@ from polisyos.core.canon.canon_json import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import chronology as chronology_contract
 from polisyos.core.contracts import epoch as epoch_contract
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+from polisyos.data_forge.domains.catalog.knowledge import acquisition_authority as authority_module
 from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
     DEFAULT_ACQUISITION_AUTHORITY_REGISTRY,
     AcquisitionAuthorityEntry,
@@ -816,9 +817,9 @@ def test_warm_authority_resolve_bounds_exact_entry_id_reads(
     )
 
     read_entry_attribute = AcquisitionAuthorityEntry.__getattribute__
-    read_bytes = Path.read_bytes
+    file_sha256 = authority_module._file_sha256
     entry_id_reads = 0
-    registry_bytes_read = []
+    registry_digests = []
 
     def count_entry_id_reads(row: AcquisitionAuthorityEntry, name: str) -> Any:
         nonlocal entry_id_reads
@@ -826,14 +827,14 @@ def test_warm_authority_resolve_bounds_exact_entry_id_reads(
             entry_id_reads += 1
         return read_entry_attribute(row, name)
 
-    def count_registry_bytes(path: Path) -> bytes:
-        data = read_bytes(path)
+    def count_registry_digests(path: Path) -> str:
+        digest = file_sha256(path)
         if path == resolver.registry_path:
-            registry_bytes_read.append(len(data))
-        return data
+            registry_digests.append(digest)
+        return digest
 
     monkeypatch.setattr(AcquisitionAuthorityEntry, "__getattribute__", count_entry_id_reads)
-    monkeypatch.setattr(Path, "read_bytes", count_registry_bytes)
+    monkeypatch.setattr(authority_module, "_file_sha256", count_registry_digests)
     probe_limit = len(registry.entries).bit_length() + 1
 
     assert resolver.resolve(entry_id) == selected
@@ -845,7 +846,8 @@ def test_warm_authority_resolve_bounds_exact_entry_id_reads(
             resolver.resolve(missing_id)
         assert absent.value.code == "authority_entry_unresolved"
         assert 0 < entry_id_reads <= probe_limit
-    assert registry_bytes_read == [len(registry_bytes)] * 3
+    expected_digest = f"sha256:{hashlib.sha256(registry_bytes).hexdigest()}"
+    assert registry_digests == [expected_digest] * 3
 
 
 def test_authority_derives_missing_catalog_field_edge_through_generic_alignment(

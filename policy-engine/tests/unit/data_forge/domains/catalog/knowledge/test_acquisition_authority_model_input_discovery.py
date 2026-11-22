@@ -1764,6 +1764,7 @@ def test_scoped_query_envelope_ignores_unrelated_registry_metadata(
 
 def test_warm_catalog_discovery_checks_registry_bytes_and_current_candidates(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     cas = tmp_path / "cas"
     store = FileSystemCAS(cas)
@@ -1789,6 +1790,24 @@ def test_warm_catalog_discovery_checks_registry_bytes_and_current_candidates(
     path = authority.registry_path
     original = path.read_bytes()
     initial = path.stat()
+    read_bytes = Path.read_bytes
+
+    def refuse_warm_registry_buffer(artifact_path: Path) -> bytes:
+        assert artifact_path != path, "warm discovery allocated a whole registry buffer"
+        return read_bytes(artifact_path)
+
+    with monkeypatch.context() as warm:
+        warm.setattr(Path, "read_bytes", refuse_warm_registry_buffer)
+        assert (
+            authority.discover_model_input_source_descriptor(
+                store,
+                model_input_interface_ref=interface_ref,
+                port_id="fiscal-balance-input",
+                include_query_envelope=True,
+            )
+            == before
+        )
+
     marker = unrelated_title.encode()
     assert original.count(marker) == 1
     # Leave the registry's declared digest and all selected inputs intact.

@@ -9188,7 +9188,7 @@
               "kernel": "6acbf6d292e5ef005beb7927568d714f6f158bc7f494e9842f1b9a75dbd8d418"
             },
             "effects": "Attempt 4, all jobs/heads/events, complete CAS and both journals reconcile. Original ledger revision 16, no reservations, new lease, marker, N5 or successor.",
-            "interpretation": "The one owner read retains about 51.6 MiB charged. The larger nested increases require separate attribution. No allocator cause or Native numerical result is established."
+            "interpretation": "The one owner read retains about 51.6 MiB charged. The next bounded discriminator is stock Native origin and historical cost-profile selection followed by exact A action profile selection, observing direct A/B/A caller and route identities without a claim or full currentness. R44 inferred order is source-derived. No allocator cause or Native numerical result is established."
           },
           "R44": {
             "status": "PASS. One no-effect currentness round and one post-dispatch full collection.",
@@ -9329,7 +9329,10 @@
           "v24_authority_http_components": {
             "status": "Two generic controls pass on selected artifact HTTP/export authority and governed candidate-ledger refusal. The exact same-number model-input/N5 projection remains semantic_test_missing. The neighboring anonymous withdrawal row stops at publication_preparation_invalid before issuance and withdrawal. The first request persists a private draft with no canon profile and strict Core reread rejects canon_profile_absent.",
             "receipt": "Primary:policy-engine/_cache/e02/lane01-v24-surface-hhOejF/budget/result.json",
-            "receipt_sha256": "ceca71f16bfcea9f919899c12a88780f3884ce47373e5efe0323e33d12500a82"
+            "receipt_sha256": "ceca71f16bfcea9f919899c12a88780f3884ce47373e5efe0323e33d12500a82",
+            "profiled_candidate_status": "COMMAND_FAIL, five cases, 25.304s, quiescent. Core 0.2 unfolds a literal datetime tag in the signed public JSON. Ordinary Core 0.3 writes refuse and the bounded publication owner profile is missing. The legacy verifier gets ArtifactRef where its first identity check requires ArtifactID. The unreleasable trial changed no published source.",
+            "profiled_candidate_receipt": "Primary:policy-engine/_cache/e02/lane01-v24-profiled-publication-GxgNl1/budget/result.json",
+            "profiled_candidate_receipt_sha256": "a860be9952eed04c1c1bfcd1f80f59c62519401bcbc7833a6d0a07c394972fe5"
           },
           "v12_source_owner_boundary": "Complete signed distinct-source served reuse still needs a comparable V2 predecessor and the matching active physical image. The qualified two-WDI-release and the retained same-source served proofs supply different cuts. Publisher release currentness is not established and institutional revocation has no verified WDI producer/bridge.",
           "v27": "PASS for the exact bounded registered four-role weighted subgroup mean. Missing/swapped weight refuses and the fresh selected certificate returns Decimal 8. Separate total/per-person and fiscal/calendar controls keep their own scope.",

@@ -6,6 +6,7 @@ from email.message import Message
 from importlib.machinery import ModuleSpec
 from pathlib import Path
 from types import ModuleType
+from zipfile import ZipFile
 
 import pytest
 
@@ -97,6 +98,7 @@ def _profile_for_module_set(
     declared_settings: dict[str, object] | None = None,
     backend: N5BackendObservation | None = None,
     include_extra_distribution: bool = False,
+    sys_path: tuple[str, ...] | None = None,
 ):
     first_party_root = _first_party_root(tmp_path)
     provider_root = tmp_path / "site-packages"
@@ -104,10 +106,11 @@ def _profile_for_module_set(
     interpreter = tmp_path / "venv" / "bin" / "python"
     interpreter.parent.mkdir(parents=True, exist_ok=True)
     interpreter.write_bytes(b"fixture-interpreter-image")
+    module_sys_path = (str(tmp_path),) if sys_path is None else sys_path
     observation = _observe_loaded_module_images(
         first_party_root=first_party_root,
         modules=modules,
-        sys_path=(str(tmp_path),),
+        sys_path=module_sys_path,
         interpreter_path=str(interpreter),
         entrypoint_module_names=entrypoint_module_names,
     )
@@ -116,7 +119,7 @@ def _profile_for_module_set(
         "_observe_loaded_module_images",
         lambda **_kwargs: observation,
     )
-    profile_sys_path = (str(tmp_path.resolve()),)
+    profile_sys_path = tuple(str(Path(root).resolve()) for root in module_sys_path)
     monkeypatch.setattr(
         profile_module,
         "_observe_sys_path",
@@ -737,6 +740,81 @@ def test_current_bytes_reconciliation_rejects_changed_or_missing_provider(
     assert missing.missing_provider_identities
 
 
+@pytest.mark.parametrize("earlier_root_becomes_alias", [False, True])
+@pytest.mark.parametrize(
+    ("selected_state", "expected_status", "expected_reasons"),
+    [
+        ("unchanged", "recomputed", ()),
+        ("changed", "changed", ("provider_file_bytes_changed",)),
+        ("removed", "not_established", ("provider_file_bytes_not_established",)),
+    ],
+)
+def test_current_bytes_reconciliation_uses_distinct_import_root_slots(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    selected_state: str,
+    expected_status: str,
+    expected_reasons: tuple[str, ...],
+    earlier_root_becomes_alias: bool,
+) -> None:
+    nested = tmp_path / "nested"
+    alias = tmp_path / "alias"
+    alias.symlink_to(tmp_path, target_is_directory=True)
+    missing_root = tmp_path / "missing"
+    archive = tmp_path / "library.zip"
+    later_root = tmp_path / "later"
+    with ZipFile(archive, "w") as library:
+        library.writestr("zipped_provider.py", "value = 3\n")
+    sys_path = tuple(
+        str(root) for root in (tmp_path, missing_root, archive, alias, nested, later_root)
+    )
+    relative = Path("site-packages/selected_provider.py")
+    provider = nested / relative
+    decoy = tmp_path / relative
+    shifted_slot_decoy = later_root / relative
+    provider.parent.mkdir(parents=True)
+    decoy.parent.mkdir(parents=True)
+    shifted_slot_decoy.parent.mkdir(parents=True)
+    original = b"value = 1\n"
+    other = b"value = 2\n"
+    provider.write_bytes(original)
+    decoy.write_bytes(other if selected_state == "unchanged" else original)
+    shifted_slot_decoy.write_bytes(decoy.read_bytes())
+    recorded = _profile_for_module_set(
+        monkeypatch,
+        tmp_path,
+        {"selected_provider": _module("selected_provider", provider)},
+        sys_path=sys_path,
+    )
+    current = _profile_for_module_set(monkeypatch, tmp_path, {}, sys_path=sys_path)
+    source_image = _source_image(tmp_path)
+    identity = "sys_path/3/site-packages/selected_provider.py"
+    assert recorded.sys_path[0] == recorded.sys_path[3] == str(tmp_path.resolve())
+    assert any(
+        row.relative_identity == identity and row.module_names == ("selected_provider",)
+        for row in recorded.loaded_module_observation.file_images
+    )
+
+    if earlier_root_becomes_alias:
+        missing_root.symlink_to(tmp_path, target_is_directory=True)
+    if selected_state == "changed":
+        provider.write_bytes(other)
+    elif selected_state == "removed":
+        provider.unlink()
+    comparison = profile_module.reconcile_recorded_n5_profile_current_bytes(
+        recorded,
+        current,
+        recorded_source_image=source_image,
+        current_source_image=source_image,
+    )
+
+    assert comparison.status == expected_status
+    assert comparison.reason_codes == expected_reasons
+    assert (identity in comparison.matched_provider_identities) == (selected_state == "unchanged")
+    assert (identity in comparison.changed_provider_identities) == (selected_state == "changed")
+    assert (identity in comparison.missing_provider_identities) == (selected_state == "removed")
+
+
 def test_current_bytes_reconciliation_uses_source_image_for_unloaded_first_party(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -943,9 +1021,11 @@ def test_current_bytes_reconciliation_refuses_unsafe_and_unknown_paths(
     assert "provider_file_identity_not_established" in unsupported_result.reason_codes
 
 
+@pytest.mark.parametrize("base_change", ["declared_settings", "duplicate_import_root"])
 def test_current_bytes_base_change_refuses_before_provider_file_reads(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
+    base_change: str,
 ) -> None:
     provider = tmp_path / "site-packages" / "selected_provider.py"
     provider.parent.mkdir(parents=True)
@@ -959,7 +1039,8 @@ def test_current_bytes_base_change_refuses_before_provider_file_reads(
         monkeypatch,
         tmp_path,
         {},
-        declared_settings={"replications": 4},
+        declared_settings={"replications": 4} if base_change == "declared_settings" else None,
+        sys_path=(str(tmp_path), str(tmp_path)) if base_change == "duplicate_import_root" else None,
     )
     source_image = _source_image(tmp_path)
 

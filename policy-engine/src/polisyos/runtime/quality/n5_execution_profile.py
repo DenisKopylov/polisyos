@@ -1493,6 +1493,7 @@ def reconcile_recorded_n5_profile_current_bytes(
         )
 
     remaining_bytes = _CURRENT_BYTES_READ_LIMIT
+    import_root_entries: tuple[str, ...] | None = None
     for identity, row in sorted(recorded_images.items()):
         if row.profile_scope == "entrypoint":
             continue
@@ -1540,7 +1541,11 @@ def reconcile_recorded_n5_profile_current_bytes(
                 matched.append(identity)
             continue
 
-        path = _admitted_current_provider_path(identity, current.sys_path, row.file_kind)
+        if import_root_entries is None:
+            # Capture indexes distinct resolved roots. Keep the sealed slot
+            # order even if a different root has changed on disk since capture.
+            import_root_entries = tuple(dict.fromkeys(current.sys_path))
+        path = _admitted_current_provider_path(identity, import_root_entries, row.file_kind)
         if path is None:
             missing.append(identity)
             reasons.add("provider_file_bytes_not_established")
@@ -1591,7 +1596,7 @@ def _current_bytes_image_index(
 
 def _admitted_current_provider_path(
     identity: str,
-    sys_path: tuple[str, ...],
+    import_root_entries: tuple[str, ...],
     file_kind: str,
 ) -> Path | None:
     if not _safe_relative_identity(identity):
@@ -1600,9 +1605,9 @@ def _admitted_current_provider_path(
     if len(parts) < 3 or parts[0] != "sys_path":
         return None
     path_index = int(parts[1])
-    if path_index >= len(sys_path):
+    if path_index >= len(import_root_entries):
         return None
-    root_value = sys_path[path_index]
+    root_value = import_root_entries[path_index]
     try:
         if type(root_value) is not str or not Path(root_value).is_absolute():
             return None

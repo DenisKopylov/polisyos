@@ -61,9 +61,6 @@ from polisyos.core.contracts.variable_binding import (
     ScopedMeasurementOccurrence,
     ScopedMeasurementOccurrenceRef,
     SelectedVariableBindingRef,
-    replay_scoped_measurement_occurrence,
-    scoped_measurement_occurrence_manifest_inputs,
-    scoped_source_selection_from_passport_mapping,
 )
 from polisyos.core.derivations import DerivationRefusalCode, DerivationRefusalError
 from polisyos.data_forge.read_api import catalog as catalog_read_api
@@ -76,6 +73,7 @@ from polisyos.foundry.execute.api import ExecutionSourceAdmissionRefusal, admit_
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import load_state_snapshot
 from polisyos.ir.kernel.units import MoneyUnit
+from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
 from polisyos.runtime.quality.model_input_routing import materialize_derived_model_input
 from tests._helpers.program_graph_tax_subsidy_input import (
     prepare_program_graph_tax_subsidy_input_case,
@@ -223,40 +221,20 @@ def _one_aggregate_income_case(tmp_path: Path, *, shape=(1,)):
 def _replay_native_role(store, owner, variable_id: str, *, role: str, arithmetic, metadata):
     projection = owner.projections[variable_id]
     (row,) = projection.observations
-    passport = epoch_contract.load_verified_epoch_statement(
-        store=store,
-        ref=projection.passport_ref,
-        expected_kind="epoch.acquisition_passport_snapshot",
-    )
-    boundary_ref = _selected(
-        store, ArtifactRef.model_validate(passport["semantic_boundary_candidate_ref"])
-    )
-    boundary = epoch_contract.AcquisitionSemanticBoundaryCandidateStatement.model_validate(
+    passport = AdmissionPassport.model_validate(
         epoch_contract.load_verified_epoch_statement(
             store=store,
-            ref=boundary_ref,
-            expected_kind="epoch.acquisition_semantic_boundary_candidate",
+            ref=projection.passport_ref,
+            expected_kind="epoch.acquisition_passport_snapshot",
         )
     )
-    source = scoped_source_selection_from_passport_mapping(
-        passport,
-        source_receipt_ref=_selected(store, projection.receipt_ref),
-        source_passport_ref=_selected(store, projection.passport_ref),
-        source_boundary_candidate_ref=boundary_ref,
-        source_record_ref=_selected(store, boundary.source_record_ref),
-    )
-    occurrence = replay_scoped_measurement_occurrence(
-        catalog_read_api.read_scoped_measurement_source_body(
-            store, passport_mapping=passport, source_selection=source
-        ),
+    occurrence_ref = catalog_read_api.materialize_activated_measurement_occurrence(
+        store,
+        owner.overlay,
+        receipt_ref=projection.receipt_ref,
+        passport=passport,
+        authority=owner.authority,
         observation_id=row.observation.observation_id,
-        source_selection=source,
-        unit_transform_evidence=None,
-    )
-    occurrence_ref = ScopedMeasurementOccurrenceRef.model_validate(
-        _put_contract(
-            store, occurrence, inputs=scoped_measurement_occurrence_manifest_inputs(occurrence)
-        ).model_dump()
     )
     return DerivedMeasurementRole(
         role=role,
@@ -267,8 +245,13 @@ def _replay_native_role(store, owner, variable_id: str, *, role: str, arithmetic
     )
 
 
+@pytest.mark.parametrize(
+    ("ratio_raw_value", "ratio_raw_unit"),
+    [(-0.03, "ratio"), (-3.0, "percent")],
+    ids=("identity", "fixed_percent"),
+)
 def test_declared_derived_income_flow_reaches_actual_step_and_fresh_reader(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, ratio_raw_value: float, ratio_raw_unit: str
 ) -> None:
     case, metadata = _one_aggregate_income_case(tmp_path)
     owner = None
@@ -305,15 +288,24 @@ def test_declared_derived_income_flow_reaches_actual_step_and_fresh_reader(
                 if role == "ratio"
                 else "fixture.economy-gdp-flow"
             )
+            raw_unit = ratio_raw_unit if role == "ratio" else unit
+            uses_fixed_conversion = raw_unit != unit
             specs.append(
                 {
                     "target_variable": definition_id,
                     "raw_field": raw_field,
-                    "raw_unit": unit,
+                    "raw_unit": raw_unit,
                     "canonical_unit": unit,
-                    "unit_transform_ref": f"fabric://units/{unit}-identity/v1",
-                    "valid_min": minimum,
-                    "valid_max": maximum,
+                    "unit_transform": "fixed_multiplicative"
+                    if uses_fixed_conversion
+                    else "identity",
+                    "unit_transform_ref": (
+                        "fabric://units/fixed-multiplicative/v1"
+                        if uses_fixed_conversion
+                        else f"fabric://units/{unit}-identity/v1"
+                    ),
+                    "valid_min": -100 if uses_fixed_conversion else minimum,
+                    "valid_max": 100 if uses_fixed_conversion else maximum,
                     "source_measure_scope": {
                         "population": population,
                         "temporal_granularity": "annual",
@@ -332,12 +324,17 @@ def test_declared_derived_income_flow_reaches_actual_step_and_fresh_reader(
                 {
                     "country_code": "UA",
                     "year": 2024,
-                    "income_gdp_ratio": -0.03,
+                    "income_gdp_ratio": ratio_raw_value,
                     "gdp_usd": 200_000_000_000,
-                    "condition_json": {},
+                    "condition_json": "{}" if ratio_raw_unit == "percent" else {},
                 }
             ],
             variable_specs=tuple(specs),
+            condition_units_by_raw_field=(
+                {"income_gdp_ratio": "percent", "gdp_usd": "usd"}
+                if ratio_raw_unit == "percent"
+                else None
+            ),
             artifact_store=store,
             return_selected_raw_profile=True,
         )
@@ -349,6 +346,16 @@ def test_declared_derived_income_flow_reaches_actual_step_and_fresh_reader(
             arithmetic=arithmetic,
             metadata=metadata,
         )
+        ratio_occurrence = validate_core_model_json_artifact(
+            ScopedMeasurementOccurrence, store, ratio.occurrence_ref
+        )
+        assert tuple(map(Decimal, ratio_occurrence.raw_values)) == (Decimal(str(ratio_raw_value)),)
+        assert Decimal(ratio_occurrence.canonical_value) == Decimal("-0.03")
+        witness = ratio_occurrence.unit_transform_evidence
+        if ratio_raw_unit == "percent":
+            assert witness is not None and Decimal(witness.multiplier) == Decimal("0.01")
+        else:
+            assert witness is None
         denominator = _replay_native_role(
             store,
             owner,

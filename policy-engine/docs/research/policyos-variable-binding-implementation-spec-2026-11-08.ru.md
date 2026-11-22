@@ -8,7 +8,7 @@
 **База исторического инцидента:** `414c95e4f374b88aeb8241d7d319b5866d564341`  
 **Статус:** спецификация для реализации, не доказательство реализованной capability
 
-**Execution status.** The current LANE-01 results and residuals are in `E02-WORK-PLAN.md` and `lanes[7].current_execution` in the existing executor state. The package checklists below preserve the original acceptance design. Use the current source-bound results for Generic continuation, the supported P06 carriers and derivation, the 30,000-definition P07 run, and P08 SQL 1.3 readback. The full Native continuation, scientific changed-source C, X03 comparison, and independent G acceptance have their own criteria.
+**Execution status.** The [work plan](../../../E02-WORK-PLAN.md) and `lanes[7].current_execution` in the existing executor state record the source-bound results. Gate A is qualified in the declared stock, metadata-only and changed-source profiles. Gate B remains open for the remaining semantic discriminators and the operational scale suite. The package checklists preserve the acceptance design. Native numerical continuation, final comparative X03 and independent G acceptance have their own criteria.
 
 **Цель:** новый показатель должен проходить от реальной потребности модели до фактически потреблённого входа через версионированные описания и проверяемое соответствие, без ветки общего runtime для каждого показателя
 

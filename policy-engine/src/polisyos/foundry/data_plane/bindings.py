@@ -3839,7 +3839,12 @@ def _replay_selected_scoped_measurement(
     ScopedMeasurementOccurrence | RegisteredSQLMeasurementOccurrence,
     ScopedSourceSelection | RegisteredSQLMeasurementSourceSelection,
 ]:
-    """Reopen and replay the exact admitted source, independent of output meaning."""
+    """Reopen the exact Catalog source and replay any registered fixed conversion.
+
+    The Catalog owner recomputes the transform witness from the selected passport
+    and raw source. Both callers use that canonical occurrence and separately
+    verify its correspondence to the selected model input.
+    """
     try:
         occurrence, replayed, source = read_api.catalog.replay_selected_scoped_measurement_facts(
             store, occurrence_ref
@@ -3853,8 +3858,6 @@ def _replay_selected_scoped_measurement(
         }:
             raise ValueError(f"foundry_input_bindings_semantic_{code}") from exc
         raise
-    if source.unit_transform != "identity":
-        raise ValueError("foundry_input_bindings_fixed_unit_verifier_not_established")
     return occurrence, replayed, source
 
 

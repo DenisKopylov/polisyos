@@ -2413,26 +2413,10 @@ export interface components {
             voi_owner_ref: string;
         };
         /**
-         * AcquisitionCustodyRecoveryRequest
-         * @description Locate an exact failed attempt/head; this is never an action grant.
+         * AcquisitionCustodyRecoveryProjection
+         * @description Public locator for the selected failed attempt and phase.
          */
-        "AcquisitionCustodyRecoveryRequest-Input": {
-            /** Failed Attempt */
-            failed_attempt: number;
-            head_ref: {
-                /** @constant */
-                kind: "runtime_quality.acquisition_route_phase_receipt";
-                manifest_profile_sha256: string;
-                /** @constant */
-                media_type: "application/json";
-                artifact_id: unknown;
-            } & WithRequired<components["schemas"]["ArtifactRef-Input"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
-        };
-        /**
-         * AcquisitionCustodyRecoveryRequest
-         * @description Locate an exact failed attempt/head; this is never an action grant.
-         */
-        "AcquisitionCustodyRecoveryRequest-Output": {
+        AcquisitionCustodyRecoveryProjection: {
             /** Failed Attempt */
             failed_attempt: number;
             head_ref: {
@@ -2443,6 +2427,23 @@ export interface components {
                 media_type: "application/json";
                 artifact_id: unknown;
             } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+        };
+        /**
+         * AcquisitionCustodyRecoveryRequest
+         * @description Select the recovery purpose bound to the authenticated mutation.
+         */
+        AcquisitionCustodyRecoveryRequest: {
+            /** Failed Attempt */
+            failed_attempt: number;
+            head_ref: {
+                /** @constant */
+                kind: "runtime_quality.acquisition_route_phase_receipt";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Input"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            settled_draft?: components["schemas"]["NativeSettledDraftRecovery"] | null;
         };
         /**
          * AcquisitionDecisionRequestResponse
@@ -2635,7 +2636,7 @@ export interface components {
          * @description Strict caller fields; route facts, status, authority, and epochs are forbidden.
          */
         AcquisitionRouteMutationRequest: {
-            custody_recovery?: components["schemas"]["AcquisitionCustodyRecoveryRequest-Input"] | null;
+            custody_recovery?: components["schemas"]["AcquisitionCustodyRecoveryRequest"] | null;
             /** Human Decision Record Ref */
             human_decision_record_ref?: string | null;
             /** Idempotency Key */
@@ -2670,7 +2671,7 @@ export interface components {
             cost_basis: {
                 [key: string]: unknown;
             };
-            custody_recovery?: components["schemas"]["AcquisitionCustodyRecoveryRequest-Output"] | null;
+            custody_recovery?: components["schemas"]["AcquisitionCustodyRecoveryProjection"] | null;
             /**
              * Execution Capability
              * @enum {string}
@@ -14966,6 +14967,18 @@ export interface components {
                 media_type: "application/json";
                 artifact_id: unknown;
             };
+        };
+        /**
+         * NativeSettledDraftRecovery
+         * @description Candidate bytes and exact ledger pins supplied with the new approval.
+         */
+        NativeSettledDraftRecovery: {
+            /** Ledger Revision */
+            ledger_revision: number;
+            /** Producer Event Id */
+            producer_event_id: string;
+            /** Response Text */
+            response_text: string;
         };
         /**
          * NaturalLanguageRunRequest

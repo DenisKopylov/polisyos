@@ -222,6 +222,9 @@ class LLMGenerationCall(_StrictModel):
     request_id: str | None = None
     cache_status: str | None = None
     cache_key: str | None = None
+    historical_settlement_event_id: str | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
 
 class ModelProfilePreflight(_StrictModel):
@@ -1049,6 +1052,8 @@ class RecordingLLMClient:
         return [str(item) for item in result]
 
     async def generate(self, **kwargs: object) -> object:
+        from polisyos.runtime.quality.native_settled_draft import _adopt_settled_draft
+
         prepared_present = _PREPARED_INPUT_KEY in kwargs
         prepared_handle = kwargs.pop(_PREPARED_INPUT_KEY, None)
         if prepared_present and prepared_handle is None:
@@ -1073,6 +1078,7 @@ class RecordingLLMClient:
             producer_context["stage"] if producer_context is not None else _llm_role_hint(kwargs)
         )
         started = time.monotonic()
+        historical_response = None
         try:
             with ExitStack() as source_scope:
                 source_scope.enter_context(
@@ -1089,11 +1095,15 @@ class RecordingLLMClient:
                         )
                     elif prepared_handle is not None:
                         raise ValueError("producer_prepared_input_unexpected")
-                result = self._inner.generate(**kwargs)
-                if inspect.isawaitable(result):
-                    response = await result
+                historical_response = _adopt_settled_draft(self._inner, kwargs, producer_context)
+                if historical_response is not None:
+                    response = historical_response
                 else:
-                    response = result
+                    result = self._inner.generate(**kwargs)
+                    if inspect.isawaitable(result):
+                        response = await result
+                    else:
+                        response = result
         except BaseException as exc:
             details = _llm_exception_details(exc)
             self._record_call(
@@ -1147,6 +1157,11 @@ class RecordingLLMClient:
                 wall_seconds=max(0.0, time.monotonic() - started),
                 cache_status=cache_info.get("cache_status"),
                 cache_key=cache_info.get("cache_key"),
+                historical_settlement_event_id=(
+                    historical_response.settlement.event.event_id
+                    if historical_response is not None
+                    else None
+                ),
             ),
             response=response,
             producer_context=producer_context,

@@ -340,6 +340,7 @@ class ResourceBindingSpec:
     allow_empty_body: bool = False
     related_run_source: RelatedRunBindingSource | None = None
     omit_absent_selector_fields: tuple[str, ...] = ()
+    policy_digest_selector_fields: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         if self.related_run_source is not None and (
@@ -376,6 +377,17 @@ class ResourceBindingSpec:
         _validate_binding_token(self.parent_field, field_name="parent_field")
         if not isinstance(self.selector_fields, tuple):
             raise TypeError("selector_fields must be an immutable tuple")
+        if (
+            not isinstance(self.policy_digest_selector_fields, tuple)
+            or len(set(self.policy_digest_selector_fields))
+            != len(self.policy_digest_selector_fields)
+            or not set(self.policy_digest_selector_fields).issubset(self.selector_fields)
+            or (
+                self.policy_digest_selector_fields
+                and self.source is not ResourceBindingSource.REQUEST_COMPOSITE
+            )
+        ):
+            raise ValueError("policy digest selectors require request-composite fields")
         if (
             not isinstance(self.omit_absent_selector_fields, tuple)
             or len(set(self.omit_absent_selector_fields)) != len(self.omit_absent_selector_fields)

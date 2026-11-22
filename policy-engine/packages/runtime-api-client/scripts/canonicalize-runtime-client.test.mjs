@@ -571,6 +571,127 @@ export class RuntimeApiClient {}
   );
 });
 
+test("legacy custody recovery aliases retain the request and public projection", () => {
+  const requestName = "AcquisitionCustodyRecoveryRequest";
+  const projectionName = "AcquisitionCustodyRecoveryProjection";
+  const refProperties = {
+    kind: { const: "runtime_quality.acquisition_route_phase_receipt" },
+    manifest_profile_sha256: {
+      pattern: "^sha256:[0-9a-f]{64}$",
+      type: "string",
+    },
+    media_type: { const: "application/json" },
+  };
+  const refRequired = [
+    "artifact_id",
+    "kind",
+    "media_type",
+    "manifest_profile_sha256",
+  ];
+  const baseProperties = {
+    failed_attempt: {
+      minimum: 1,
+      title: "Failed Attempt",
+      type: "integer",
+    },
+  };
+  const common = {
+    additionalProperties: false,
+    required: ["failed_attempt", "head_ref"],
+    type: "object",
+  };
+  const componentSchemas = {
+    [requestName]: {
+      ...common,
+      properties: {
+        ...baseProperties,
+        head_ref: {
+          $ref: "#/components/schemas/ArtifactRef-Input",
+          properties: refProperties,
+          required: refRequired,
+        },
+        settled_draft: {
+          anyOf: [
+            { $ref: "#/components/schemas/NativeSettledDraftRecovery" },
+            { type: "null" },
+          ],
+        },
+      },
+    },
+    [projectionName]: {
+      ...common,
+      properties: {
+        ...baseProperties,
+        head_ref: {
+          $ref: "#/components/schemas/ArtifactRef-Output",
+          properties: refProperties,
+          required: refRequired,
+        },
+      },
+    },
+  };
+  const generatedSource = `// GENERATED FILE. DO NOT EDIT.
+// Source: schemas/runtime_api_v1.openapi.json
+
+export type AcquisitionCustodyRecoveryProjection = { failed_attempt: number };
+export type AcquisitionCustodyRecoveryRequest = { failed_attempt: number };
+export interface RuntimeApiClientOptions { baseUrl: string; }
+export class RuntimeApiClient {}
+`;
+  const componentTypes = `export interface components {
+  schemas: {
+    "${requestName}": { failed_attempt: number; settled_draft?: { response_text: string } | null };
+    "${projectionName}": { failed_attempt: number };
+  };
+}
+`;
+  const canonicalized = canonicalizeRuntimeClientSource(
+    generatedSource,
+    [projectionName, requestName],
+    componentSchemas,
+  );
+  const aliases = new Map(
+    exportedTypeAliases(canonicalized).map((declaration) => [
+      declaration.name.text,
+      declaration,
+    ]),
+  );
+
+  assert.equal(
+    aliases.get("AcquisitionCustodyRecoveryRequestInput")?.type.getText(),
+    `RuntimeApiComponents["schemas"]["${requestName}"]`,
+  );
+  assert.equal(
+    aliases.get("AcquisitionCustodyRecoveryRequestOutput")?.type.getText(),
+    `RuntimeApiComponents["schemas"]["${projectionName}"]`,
+  );
+  assert.deepEqual(typeDiagnostics(canonicalized, componentTypes), []);
+  assert.equal(
+    canonicalizeRuntimeClientSource(
+      canonicalized,
+      [projectionName, requestName],
+      componentSchemas,
+    ),
+    canonicalized,
+  );
+});
+
+test("legacy custody recovery compatibility rejects schema drift", () => {
+  const requestName = "AcquisitionCustodyRecoveryRequest";
+  assert.throws(
+    () =>
+      canonicalizeRuntimeClientSource(
+        `// GENERATED FILE. DO NOT EDIT.\n// Source: schemas/runtime_api_v1.openapi.json\n\nexport type AcquisitionCustodyRecoveryRequest = { failed_attempt: number };\nexport interface RuntimeApiClientOptions { baseUrl: string; }\nexport class RuntimeApiClient {}\n`,
+        [requestName],
+        { [requestName]: { additionalProperties: false } },
+      ),
+    (error) =>
+      error instanceof RuntimeApiClientGenerationError &&
+      error.code === "compatibility_export_schema_changed" &&
+      error.details.targetSchemaName === requestName,
+  );
+});
+
 const DATA_SNAPSHOT_INPUT_SCHEMA = {
   additionalProperties: false,
   properties: {

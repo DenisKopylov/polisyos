@@ -343,6 +343,39 @@ def test_committed_openapi_preserves_lex_truth_fields() -> None:
     } <= set(result_properties)
 
 
+def test_native_settled_draft_is_request_only_and_public_custody_is_locator_only() -> None:
+    spec = json.loads(
+        (REPO_ROOT / "schemas" / "runtime_api_v1.openapi.json").read_text(encoding="utf-8")
+    )
+    schemas = spec["components"]["schemas"]
+    request = schemas["AcquisitionCustodyRecoveryRequest"]
+    projection = schemas["AcquisitionCustodyRecoveryProjection"]
+    draft = schemas["NativeSettledDraftRecovery"]
+
+    assert "settled_draft" not in request["required"]
+    assert request["properties"]["settled_draft"]["anyOf"] == [
+        {"$ref": "#/components/schemas/NativeSettledDraftRecovery"},
+        {"type": "null"},
+    ]
+    assert "settled_draft" not in projection["properties"]
+    assert set(projection["properties"]) == {"failed_attempt", "head_ref"}
+    assert schemas["AcquisitionRouteMutationRequest"]["properties"]["custody_recovery"][
+        "anyOf"
+    ][0]["$ref"] == "#/components/schemas/AcquisitionCustodyRecoveryRequest"
+    assert schemas["AcquisitionRouteProjection"]["properties"]["custody_recovery"][
+        "anyOf"
+    ][0]["$ref"] == "#/components/schemas/AcquisitionCustodyRecoveryProjection"
+    assert draft["additionalProperties"] is False
+    assert set(draft["required"]) == {"producer_event_id", "ledger_revision", "response_text"}
+    assert draft["properties"]["producer_event_id"]["pattern"] == (
+        r"^llm-provider:[a-f0-9]{32}$"
+    )
+    assert draft["properties"]["ledger_revision"]["type"] == "integer"
+    assert draft["properties"]["ledger_revision"]["minimum"] == 1.0
+    assert draft["properties"]["response_text"]["minLength"] == 1
+    assert draft["properties"]["response_text"]["maxLength"] == 131072
+
+
 def test_committed_openapi_has_governed_export_contracts() -> None:
     spec = json.loads(
         (REPO_ROOT / "schemas" / "runtime_api_v1.openapi.json").read_text(encoding="utf-8")

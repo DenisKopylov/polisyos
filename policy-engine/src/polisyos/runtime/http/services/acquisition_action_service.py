@@ -68,6 +68,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     _receipt_verification_scoped,
     _receipt_verification_worker_scoped,
 )
+from polisyos.runtime.quality.native_settled_draft import NativeSettledDraftRecovery
 
 from .control.job_diagnostics import _ModelInputUseJobCompletion
 from .control.run_lifecycle import ControlPlaneService
@@ -181,8 +182,8 @@ class AcquisitionRouteReplayPins(BaseModel):
     cost_basis_hash: str = Field(pattern=_SHA256_PATTERN)
 
 
-class AcquisitionCustodyRecoveryRequest(BaseModel):
-    """Locate an exact failed attempt/head; this is never an action grant."""
+class AcquisitionCustodyRecoveryProjection(BaseModel):
+    """Public locator for the selected failed attempt and phase."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -199,7 +200,7 @@ class AcquisitionCustodyRecoveryRequest(BaseModel):
     )
 
     @model_validator(mode="after")
-    def _selected_phase_profile(self) -> AcquisitionCustodyRecoveryRequest:
+    def _selected_phase_profile(self) -> AcquisitionCustodyRecoveryProjection:
         ref = self.head_ref
         if (
             ref.kind != "runtime_quality.acquisition_route_phase_receipt"
@@ -209,6 +210,14 @@ class AcquisitionCustodyRecoveryRequest(BaseModel):
         ):
             raise ValueError("acquisition_custody_recovery_profile_required")
         return self
+
+
+class AcquisitionCustodyRecoveryRequest(AcquisitionCustodyRecoveryProjection):
+    """Select the recovery purpose bound to the authenticated mutation."""
+
+    settled_draft: NativeSettledDraftRecovery | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
 
 class AcquisitionRouteMutationRequest(BaseModel):
@@ -700,7 +709,7 @@ class AcquisitionRouteProjection(BaseModel):
     prior_paid_input_admission: NativePaidInputAdmissionSelection | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
-    custody_recovery: AcquisitionCustodyRecoveryRequest | None = Field(
+    custody_recovery: AcquisitionCustodyRecoveryProjection | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
     authority_capability: Literal["ready", "producer_missing"]
@@ -1356,6 +1365,7 @@ class AcquisitionActionService:
         bound_permission: BoundActionPermissionVerification,
         request_id: str | None,
         principal: RuntimePrincipal | None,
+        recovery_approval_expires_at: int | None = None,
     ) -> AcquisitionExecutionResponse:
         """Reserve a durable allow, persist requested phase, and enqueue without effect."""
 
@@ -1368,6 +1378,7 @@ class AcquisitionActionService:
                 request=request,
                 bound_permission=bound_permission,
                 principal=principal,
+                approval_expires_at=recovery_approval_expires_at,
             )
         admission = self._validated_mutation(
             tenant_id=tenant_id,
@@ -1452,7 +1463,7 @@ class AcquisitionActionService:
     def _native_custody_recovery_descriptor(
         self,
         closure: VerifiedAcquisitionRouteClosure,
-    ) -> AcquisitionCustodyRecoveryRequest | None:
+    ) -> AcquisitionCustodyRecoveryProjection | None:
         """Expose a failed-attempt/head locator; it supplies no permission."""
         if closure.native_derivation_leaf_scope is None:
             return None
@@ -1490,7 +1501,7 @@ class AcquisitionActionService:
             != head
         ):
             raise AcquisitionActionServiceError("acquisition_custody_recovery_head_changed")
-        return AcquisitionCustodyRecoveryRequest(failed_attempt=job.attempt, head_ref=selected)
+        return AcquisitionCustodyRecoveryProjection(failed_attempt=job.attempt, head_ref=selected)
 
     def _native_custody_selected_head(
         self,
@@ -1572,8 +1583,9 @@ class AcquisitionActionService:
         request: AcquisitionRouteMutationRequest,
         bound_permission: BoundActionPermissionVerification,
         principal: RuntimePrincipal | None,
+        approval_expires_at: int | None = None,
     ) -> AcquisitionExecutionResponse:
-        """Request one existing failed attempt's custody, without a new action allow."""
+        """Select recovery of the existing action under exactly bound approval."""
         from .acquisition_admission_bundle import require_acquisition_bound_permission
 
         selected = request.custody_recovery
@@ -1584,6 +1596,11 @@ class AcquisitionActionService:
             or (principal.tenant_id, principal.cell_id) != (tenant_id, cell_id)
         ):
             raise AcquisitionActionServiceError("acquisition_custody_recovery_actor_refused")
+        if selected.settled_draft is not None and (
+            type(approval_expires_at) is not int
+            or approval_expires_at <= datetime.now(UTC).timestamp()
+        ):
+            raise AcquisitionActionServiceError("acquisition_custody_recovery_step_up_expired")
         resource_digest = require_acquisition_bound_permission(bound_permission, request)
         permission_sha256 = agent_action_permission_hash(bound_permission)
         proof = bound_permission.verification
@@ -1687,6 +1704,14 @@ class AcquisitionActionService:
             job_id=job_id,
             selected=selected.head_ref,
         )
+        draft_args = (
+            {
+                "settled_draft": selected.settled_draft,
+                "approval_expires_at": approval_expires_at,
+            }
+            if selected.settled_draft is not None
+            else {}
+        )
         try:
             recovered = control.recover_native_acquisition_custody_job(
                 expected_job=job,
@@ -1696,6 +1721,7 @@ class AcquisitionActionService:
                 request_sha256=agent_action_content_hash(request),
                 permission_sha256=permission_sha256,
                 resource_digest=resource_digest,
+                **draft_args,
             )
         except (RuntimeError, ValueError) as exc:
             raise AcquisitionActionServiceError("acquisition_custody_recovery_conflict") from exc
@@ -1771,6 +1797,7 @@ class AcquisitionActionService:
                         head_ref=artifacts.ArtifactRef.model_validate(
                             custody.event.payload["head_ref"]
                         ),
+                        settled_draft=custody.settled_draft,
                     ),
                 }
             )
@@ -1822,6 +1849,8 @@ class AcquisitionActionService:
                 "terminal",
             }:
                 raise AcquisitionActionServiceError("acquisition_custody_recovery_effect_refused")
+            if custody.settled_draft is not None and head != custody.head:
+                raise AcquisitionActionServiceError("acquisition_custody_recovery_head_changed")
         port = self._require_execution_port()
         if head.receipt_phase == "terminal":
             self._consume_movement(head.receipt_ref)

@@ -1734,6 +1734,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/terminal-custody": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Settle Run Candidate Acquisition Experiment Terminal
+     * @description Select an existing numerical candidate under a fresh same-actor approval.
+     */
+    post: operations["settle_run_candidate_acquisition_experiment_terminal"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/runs/{run_id}/case-inspection": {
     parameters: {
       query?: never;
@@ -2393,29 +2413,10 @@ export interface components {
       voi_owner_ref: string;
     };
     /**
-     * AcquisitionCustodyRecoveryRequest
-     * @description Locate an exact failed attempt/head; this is never an action grant.
+     * AcquisitionCustodyRecoveryProjection
+     * @description Public locator for the selected failed attempt and phase.
      */
-    "AcquisitionCustodyRecoveryRequest-Input": {
-      /** Failed Attempt */
-      failed_attempt: number;
-      head_ref: {
-        /** @constant */
-        kind: "runtime_quality.acquisition_route_phase_receipt";
-        manifest_profile_sha256: string;
-        /** @constant */
-        media_type: "application/json";
-        artifact_id: unknown;
-      } & WithRequired<
-        components["schemas"]["ArtifactRef-Input"],
-        "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256"
-      >;
-    };
-    /**
-     * AcquisitionCustodyRecoveryRequest
-     * @description Locate an exact failed attempt/head; this is never an action grant.
-     */
-    "AcquisitionCustodyRecoveryRequest-Output": {
+    AcquisitionCustodyRecoveryProjection: {
       /** Failed Attempt */
       failed_attempt: number;
       head_ref: {
@@ -2429,6 +2430,28 @@ export interface components {
         components["schemas"]["ArtifactRef-Output"],
         "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256"
       >;
+    };
+    /**
+     * AcquisitionCustodyRecoveryRequest
+     * @description Select the recovery purpose bound to the authenticated mutation.
+     */
+    AcquisitionCustodyRecoveryRequest: {
+      /** Failed Attempt */
+      failed_attempt: number;
+      head_ref: {
+        /** @constant */
+        kind: "runtime_quality.acquisition_route_phase_receipt";
+        manifest_profile_sha256: string;
+        /** @constant */
+        media_type: "application/json";
+        artifact_id: unknown;
+      } & WithRequired<
+        components["schemas"]["ArtifactRef-Input"],
+        "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256"
+      >;
+      settled_draft?:
+        | components["schemas"]["NativeSettledDraftRecovery"]
+        | null;
     };
     /**
      * AcquisitionDecisionRequestResponse
@@ -2633,7 +2656,7 @@ export interface components {
      */
     AcquisitionRouteMutationRequest: {
       custody_recovery?:
-        | components["schemas"]["AcquisitionCustodyRecoveryRequest-Input"]
+        | components["schemas"]["AcquisitionCustodyRecoveryRequest"]
         | null;
       /** Human Decision Record Ref */
       human_decision_record_ref?: string | null;
@@ -2672,7 +2695,7 @@ export interface components {
         [key: string]: unknown;
       };
       custody_recovery?:
-        | components["schemas"]["AcquisitionCustodyRecoveryRequest-Output"]
+        | components["schemas"]["AcquisitionCustodyRecoveryProjection"]
         | null;
       /**
        * Execution Capability
@@ -5352,6 +5375,57 @@ export interface components {
       source_job_id: string;
       /** Source Payload Ref */
       source_payload_ref: string;
+    };
+    /**
+     * CandidateExperimentTerminalCustodyRequest
+     * @description Identify one failed candidate attempt and its already published terminal.
+     */
+    CandidateExperimentTerminalCustodyRequest: {
+      /** Failed Attempt */
+      failed_attempt: number;
+      /** Job Id */
+      job_id: string;
+      pending_head_ref: {
+        /** @constant */
+        kind: "runtime_quality.acquisition_candidate_experiment_phase_receipt";
+        manifest_profile_sha256: string;
+        /** @constant */
+        media_type: "application/json";
+        artifact_id: unknown;
+      } & WithRequired<
+        components["schemas"]["ArtifactRef-Input"],
+        "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256"
+      >;
+      /** Route Id */
+      route_id: string;
+      /** Run Id */
+      run_id: string;
+      terminal_ref: {
+        /** @constant */
+        kind: "runtime_quality.acquisition_route_loop_receipt";
+        manifest_profile_sha256: string;
+        /** @constant */
+        media_type: "application/json";
+        artifact_id: unknown;
+      } & WithRequired<
+        components["schemas"]["ArtifactRef-Input"],
+        "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256"
+      >;
+    };
+    /**
+     * CandidateExperimentTerminalCustodyResponse
+     * @description The candidate terminal and frontier revision selected by this request.
+     */
+    CandidateExperimentTerminalCustodyResponse: {
+      /** Frontier Revision */
+      frontier_revision: number;
+      /** Job Id */
+      job_id: string;
+      /** Route Id */
+      route_id: string;
+      /** Run Id */
+      run_id: string;
+      terminal_ref: components["schemas"]["ArtifactRef-Output"];
     };
     /**
      * CandidateLever
@@ -15895,6 +15969,18 @@ export interface components {
         media_type: "application/json";
         artifact_id: unknown;
       };
+    };
+    /**
+     * NativeSettledDraftRecovery
+     * @description Candidate bytes and exact ledger pins supplied with the new approval.
+     */
+    NativeSettledDraftRecovery: {
+      /** Ledger Revision */
+      ledger_revision: number;
+      /** Producer Event Id */
+      producer_event_id: string;
+      /** Response Text */
+      response_text: string;
     };
     /**
      * NaturalLanguageRunRequest
@@ -34860,6 +34946,111 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["AcquisitionExecutionResponse"];
+        };
+      };
+      /** @description Malformed request payload or parameters. */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authentication is required for this route. */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Authenticated principal cannot access this resource. */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested resource does not exist. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Requested representation is not supported for this resource. */
+      406: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+      /** @description Unexpected runtime API failure. */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+        };
+      };
+    };
+  };
+  settle_run_candidate_acquisition_experiment_terminal: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        run_id: string;
+        route_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CandidateExperimentTerminalCustodyRequest"];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          /**
+           * @example {
+           *       "frontier_revision": 4,
+           *       "job_id": "candidate-experiment-job-example",
+           *       "route_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+           *       "run_id": "run-example",
+           *       "terminal_ref": {
+           *         "artifact_id": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+           *         "kind": "runtime_quality.acquisition_route_loop_receipt",
+           *         "manifest_profile_sha256": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+           *         "media_type": "application/json"
+           *       }
+           *     }
+           */
+          "application/json": components["schemas"]["CandidateExperimentTerminalCustodyResponse"];
         };
       };
       /** @description Malformed request payload or parameters. */

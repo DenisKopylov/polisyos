@@ -5,11 +5,13 @@ import json
 import sqlite3
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, replace
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
 import pytest
 
+from polisyos.runtime.http.services import control_plane_store
 from polisyos.runtime.http.services.control_plane_store import (
     AcquisitionActionHeadRecord,
     ControlJobExecutionScope,
@@ -17,6 +19,7 @@ from polisyos.runtime.http.services.control_plane_store import (
     ControlJobRecord,
     ControlPlaneStore,
 )
+from polisyos.runtime.quality.native_settled_draft import NativeSettledDraftRecovery
 from tests.unit.runtime.http.test_control_plane_store_action_head_history import (
     _action_scope,
     _append_head,
@@ -49,11 +52,24 @@ def _failed_action(
     job_id: str = "native-action",
     newer_head: bool = False,
     world_pending: bool = False,
+    failed_error: str = "native materialization failed",
+    competitor: str | None = None,
 ) -> _FailedAction:
     store = _make_store(tmp_path)
     sqlite_path = tmp_path / "control-plane.sqlite3"
+    if competitor in {"before", "completed_before"}:
+        peer = _create_pending_action_job(store, job_id="native-competing-action")
+        peer_worker, peer_attempt = _lease_job(store, peer, "competing-worker")
+        if competitor == "completed_before":
+            with store.job_execution_fence(
+                job_id=peer.job_id, worker_id=peer_worker, attempt=peer_attempt
+            ):
+                store.complete_job(job_id=peer.job_id, run_id=peer.run_id)
     job = _create_pending_action_job(store, job_id=job_id)
     worker_id, attempt = _lease_job(store, job, f"worker-{job_id}")
+    if competitor == "during":
+        peer = _create_pending_action_job(store, job_id="native-competing-action")
+        _lease_job(store, peer, "competing-worker")
     scope = _action_scope()
     failure_progress = {
         "state": "failed",
@@ -107,7 +123,7 @@ def _failed_action(
     with store.job_execution_fence(job_id=job.job_id, worker_id=worker_id, attempt=attempt):
         store.fail_job(
             job_id=job.job_id,
-            error_message="native materialization failed",
+            error_message=failed_error,
             progress=failure_progress,
         )
     failed_job = store.get_job(job.job_id)
@@ -147,6 +163,135 @@ def _request(action: _FailedAction, **overrides: Any) -> ControlJobRecord:
     return action.store.request_native_acquisition_custody_recovery(
         **_request_args(action, **overrides)
     )
+
+
+def _draft_selection() -> NativeSettledDraftRecovery:
+    return NativeSettledDraftRecovery(
+        producer_event_id="llm-provider:" + "a" * 32,
+        ledger_revision=18,
+        response_text='{"draft_id":"exact-private-candidate"}',
+    )
+
+
+def test_draft_recovery_outbox_projects_hash_and_reclaimed_lease_cannot_execute(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    action = _failed_action(tmp_path, world_pending=True, failed_error="reentry_recovery_required")
+    selected = _draft_selection()
+    now = datetime.now(UTC)
+    _request(
+        action,
+        settled_draft=selected,
+        approval_expires_at=int((now + timedelta(minutes=2)).timestamp()),
+    )
+    first = action.store.lease_next_job(worker_id="draft-1", lease_seconds=5)
+    assert first is not None
+    with action.store.job_execution_fence(
+        job_id=first.job_id, worker_id="draft-1", attempt=first.attempt
+    ):
+        record = action.store.current_native_acquisition_custody_recovery()
+    assert record is not None
+    assert record.settled_draft == selected
+    assert record.recovery_attempt == first.attempt
+    assert record.failed_lease_started_at is not None
+    assert record.event.payload["settled_draft"]["response_text"] == selected.response_text
+    public = action.store.get_outbox_topic_event(
+        topic="control.job.custody_recovery_requested",
+        event_key=f"{first.job_id}:custody_recovery:{action.failed_attempt}",
+        job_id=first.job_id,
+    )
+    assert public is not None
+    assert (
+        public.payload["response_sha256"]
+        == hashlib.sha256(selected.response_text.encode()).hexdigest()
+    )
+    assert "response_text" not in json.dumps(public.payload)
+    assert selected.response_text not in json.dumps(public.payload)
+
+    monkeypatch.setattr(control_plane_store, "_utc_now", lambda: now + timedelta(seconds=10))
+    reclaimed = action.store.lease_next_job(worker_id="draft-2", lease_seconds=60)
+    assert reclaimed is not None
+    with (
+        action.store.job_execution_fence(
+            job_id=reclaimed.job_id, worker_id="draft-2", attempt=reclaimed.attempt
+        ),
+        pytest.raises(ValueError, match="native_settled_draft_recovery_lease_mismatch"),
+    ):
+        action.store.current_native_acquisition_custody_recovery()
+
+
+@pytest.mark.parametrize("competitor", ["before", "during"])
+def test_draft_recovery_refuses_a_competing_source_run_lease(
+    tmp_path: Path, competitor: str
+) -> None:
+    action = _failed_action(
+        tmp_path,
+        world_pending=True,
+        failed_error="reentry_recovery_required",
+        competitor=competitor,
+    )
+    with pytest.raises(ValueError, match="native_settled_draft_concurrent_source_job"):
+        _request(
+            action,
+            settled_draft=_draft_selection(),
+            approval_expires_at=int((datetime.now(UTC) + timedelta(minutes=2)).timestamp()),
+        )
+    assert len(_recovery_event_rows(action.sqlite_path, action.failed_job.job_id)) == 0
+    assert action.store.get_job(action.failed_job.job_id) == action.failed_job
+
+
+def test_draft_recovery_refuses_a_sibling_terminal_for_the_wrong_attempt(tmp_path: Path) -> None:
+    action = _failed_action(
+        tmp_path,
+        world_pending=True,
+        failed_error="reentry_recovery_required",
+        competitor="completed_before",
+    )
+    with sqlite3.connect(action.sqlite_path) as connection:
+        event_id, raw = connection.execute(
+            "SELECT event_id, payload_json FROM control_job_events WHERE job_id = ? "
+            "AND event_type = 'job_completed'",
+            ("native-competing-action",),
+        ).fetchone()
+        payload = json.loads(raw)
+        payload["attempt"] += 1
+        connection.execute(
+            "UPDATE control_job_events SET payload_json = ? WHERE event_id = ?",
+            (json.dumps(payload, sort_keys=True), event_id),
+        )
+    with pytest.raises(ValueError, match="native_settled_draft_sibling_lifecycle_changed"):
+        _request(
+            action,
+            settled_draft=_draft_selection(),
+            approval_expires_at=int((datetime.now(UTC) + timedelta(minutes=2)).timestamp()),
+        )
+
+
+def test_draft_recovery_outbox_rejects_rewritten_private_expiry(tmp_path: Path) -> None:
+    action = _failed_action(tmp_path, world_pending=True, failed_error="reentry_recovery_required")
+    _request(
+        action,
+        settled_draft=_draft_selection(),
+        approval_expires_at=int((datetime.now(UTC) + timedelta(minutes=2)).timestamp()),
+    )
+    job_id = action.failed_job.job_id
+    (event,) = _recovery_event_rows(action.sqlite_path, job_id)
+    payload = json.loads(event["payload_json"])
+    payload["approval_expires_at"] += 1_000
+    with sqlite3.connect(action.sqlite_path) as connection:
+        connection.execute(
+            "UPDATE control_job_events SET payload_json = ? WHERE event_id = ?",
+            (json.dumps(payload, sort_keys=True), event["event_id"]),
+        )
+    leased = action.store.lease_next_job(worker_id="draft-worker", lease_seconds=60)
+    assert leased is not None
+    with (
+        action.store.job_execution_fence(
+            job_id=job_id, worker_id="draft-worker", attempt=leased.attempt
+        ),
+        pytest.raises(ValueError, match="native_custody_recovery_event_outbox_mismatch"),
+    ):
+        action.store.current_native_acquisition_custody_recovery()
 
 
 def _rows(path: Path, query: str, parameters: tuple[Any, ...]) -> list[sqlite3.Row]:

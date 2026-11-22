@@ -9,7 +9,7 @@ import json
 import math
 import uuid
 from collections.abc import Callable, Iterator, Mapping
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from contextvars import ContextVar
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
@@ -2081,6 +2081,7 @@ if TYPE_CHECKING:
         ObservationalRunIntent as _ObservationalRunIntent,
     )
     from polisyos.core.llm import LLMProducerIntent
+    from polisyos.core.llm.settlement import LLMProducerSettlement
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
@@ -2167,6 +2168,7 @@ if TYPE_CHECKING:
         GenericCycleSimulationAdmissionOwner,
         GenericCycleSimulationContextHandoffV1,
     )
+    from polisyos.runtime.quality.native_settled_draft import NativeSettledDraftRecovery
     from polisyos.runtime.quality.recursive_generation_cycle import (
         ExecutionIntent,
         RecursiveCycleBudget,
@@ -9717,6 +9719,10 @@ class ControlPlaneService(
             _ControlJobProducerIntent,
         )
         from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+        from polisyos.runtime.quality.native_settled_draft import (
+            _native_settled_draft_scope,
+            _verify_settled_draft,
+        )
         from polisyos.scientist import gateway_cache_reuse_scope
         from polisyos.scientist.orchestration.engine import (
             BudgetLedgerProducerRecord,
@@ -9749,6 +9755,7 @@ class ControlPlaneService(
         _selected, phase, admission = bridge._current_native_reentry_action(
             closure=closure, action_phase_ref=reentry_budget_scope.action_phase_ref
         )
+        recovery = self._control_store.current_native_acquisition_custody_recovery()
         if (
             reentry_budget_scope.action_job_id != phase.job_id
             or reentry_budget_scope.action_generation != phase.action_generation
@@ -9792,6 +9799,35 @@ class ControlPlaneService(
             validate_current_admission()
 
         validate_current_admission()
+        draft_scope = nullcontext()
+        if recovery is not None and recovery.settled_draft is not None:
+            draft = recovery.settled_draft
+            started_at = recovery.failed_lease_started_at
+            if started_at is None:
+                raise ValueError("native_settled_draft_failed_lease_missing")
+            failed_at = datetime.fromisoformat(recovery.event.payload["failed_event"]["created_at"])
+            window = observer.reentry_budget_window
+
+            def reopen_settled_draft() -> LLMProducerSettlement:
+                validate_current_admission()
+                if self._control_store.current_native_acquisition_custody_recovery() != recovery:
+                    raise ValueError("native_settled_draft_recovery_changed")
+                snapshot = run_guarded_dependency_operation(
+                    self._control_store, store.snapshot_safe
+                )
+                result = _verify_settled_draft(
+                    draft,
+                    snapshot=snapshot,
+                    window=window,
+                    source_attempt=source_job.attempt,
+                    failed_lease_started_at=started_at,
+                    failed_at=failed_at,
+                )
+                validate_current_admission()
+                return result
+
+            reopen_settled_draft()
+            draft_scope = _native_settled_draft_scope(draft, reopen_settled_draft)
         with (
             store.producer_run_binding_scope(binding, control_job_attempt=source_job.attempt),
             gateway_cache_reuse_scope(
@@ -9805,6 +9841,7 @@ class ControlPlaneService(
                 validate_admission=validate_current_admission,
                 intent_observer=observe_intent,
             ),
+            draft_scope,
         ):
             yield
 
@@ -10647,6 +10684,8 @@ class ControlPlaneService(
         request_sha256: str,
         permission_sha256: str,
         resource_digest: str,
+        settled_draft: NativeSettledDraftRecovery | None = None,
+        approval_expires_at: int | None = None,
     ) -> ControlJobRecord:
         """Queue custody of an existing acquisition, retaining its original admission.
 
@@ -10662,6 +10701,8 @@ class ControlPlaneService(
             request_sha256=request_sha256,
             permission_sha256=permission_sha256,
             resource_digest=resource_digest,
+            settled_draft=settled_draft,
+            approval_expires_at=approval_expires_at,
         )
 
     def enqueue_acquisition_job(

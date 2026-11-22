@@ -50,6 +50,82 @@ const LEGACY_TYPE_EXPORT_COMPATIBILITY = Object.freeze([
       type: "object",
     }),
   }),
+  Object.freeze({
+    exportName: "AcquisitionCustodyRecoveryRequestInput",
+    targetSchemaName: "AcquisitionCustodyRecoveryRequest",
+    expectedSchema: Object.freeze({
+      additionalProperties: false,
+      properties: {
+        failed_attempt: {
+          minimum: 1,
+          title: "Failed Attempt",
+          type: "integer",
+        },
+        head_ref: {
+          $ref: "#/components/schemas/ArtifactRef-Input",
+          properties: {
+            kind: {
+              const: "runtime_quality.acquisition_route_phase_receipt",
+            },
+            manifest_profile_sha256: {
+              pattern: "^sha256:[0-9a-f]{64}$",
+              type: "string",
+            },
+            media_type: { const: "application/json" },
+          },
+          required: [
+            "artifact_id",
+            "kind",
+            "media_type",
+            "manifest_profile_sha256",
+          ],
+        },
+        settled_draft: {
+          anyOf: [
+            { $ref: "#/components/schemas/NativeSettledDraftRecovery" },
+            { type: "null" },
+          ],
+        },
+      },
+      required: ["failed_attempt", "head_ref"],
+      type: "object",
+    }),
+  }),
+  Object.freeze({
+    exportName: "AcquisitionCustodyRecoveryRequestOutput",
+    targetSchemaName: "AcquisitionCustodyRecoveryProjection",
+    expectedSchema: Object.freeze({
+      additionalProperties: false,
+      properties: {
+        failed_attempt: {
+          minimum: 1,
+          title: "Failed Attempt",
+          type: "integer",
+        },
+        head_ref: {
+          $ref: "#/components/schemas/ArtifactRef-Output",
+          properties: {
+            kind: {
+              const: "runtime_quality.acquisition_route_phase_receipt",
+            },
+            manifest_profile_sha256: {
+              pattern: "^sha256:[0-9a-f]{64}$",
+              type: "string",
+            },
+            media_type: { const: "application/json" },
+          },
+          required: [
+            "artifact_id",
+            "kind",
+            "media_type",
+            "manifest_profile_sha256",
+          ],
+        },
+      },
+      required: ["failed_attempt", "head_ref"],
+      type: "object",
+    }),
+  }),
 ]);
 const SERIALIZED_SCHEMA_METADATA_KEYS = new Set(["description", "title"]);
 

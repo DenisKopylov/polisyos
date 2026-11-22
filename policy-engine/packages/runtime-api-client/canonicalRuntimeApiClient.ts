@@ -18,11 +18,11 @@ export type AccessRef = RuntimeApiComponents["schemas"]["AccessRef"];
 export type AcquisitionBacklogProjection =
   RuntimeApiComponents["schemas"]["AcquisitionBacklogProjection"];
 
-export type AcquisitionCustodyRecoveryRequestInput =
-  RuntimeApiComponents["schemas"]["AcquisitionCustodyRecoveryRequest-Input"];
+export type AcquisitionCustodyRecoveryProjection =
+  RuntimeApiComponents["schemas"]["AcquisitionCustodyRecoveryProjection"];
 
-export type AcquisitionCustodyRecoveryRequestOutput =
-  RuntimeApiComponents["schemas"]["AcquisitionCustodyRecoveryRequest-Output"];
+export type AcquisitionCustodyRecoveryRequest =
+  RuntimeApiComponents["schemas"]["AcquisitionCustodyRecoveryRequest"];
 
 export type AcquisitionDecisionRequestResponse =
   RuntimeApiComponents["schemas"]["AcquisitionDecisionRequestResponse"];
@@ -1310,6 +1310,9 @@ export type NativeModelInputTargetProjection =
 
 export type NativePaidInputAdmissionSelection =
   RuntimeApiComponents["schemas"]["NativePaidInputAdmissionSelection"];
+
+export type NativeSettledDraftRecovery =
+  RuntimeApiComponents["schemas"]["NativeSettledDraftRecovery"];
 
 export type NaturalLanguageRunRequest =
   RuntimeApiComponents["schemas"]["NaturalLanguageRunRequest"];
@@ -4222,3 +4225,11 @@ export type polisyos__core__artifacts__ids__ArtifactID =
 /** Compatibility export retained for established package-root imports. */
 export type DataSnapshotRef =
   RuntimeApiComponents["schemas"]["DataSnapshotRef-Input"];
+
+/** Compatibility export retained for established package-root imports. */
+export type AcquisitionCustodyRecoveryRequestInput =
+  RuntimeApiComponents["schemas"]["AcquisitionCustodyRecoveryRequest"];
+
+/** Compatibility export retained for established package-root imports. */
+export type AcquisitionCustodyRecoveryRequestOutput =
+  RuntimeApiComponents["schemas"]["AcquisitionCustodyRecoveryProjection"];

@@ -84,6 +84,7 @@ if TYPE_CHECKING:
         ControlJobExecutionAdmission,
         ControlJobRecord,
         ControlPlaneStore,
+        NativeAcquisitionCustodyRecoveryRecord,
     )
     from polisyos.runtime.quality.acquisition_evaluation import ResolvedAcquisitionEvaluation
     from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
@@ -7492,6 +7493,10 @@ class AcquisitionWorldGrowthBridge:
                 if native_configuration is not None
                 else None
             )
+            draft_recovery = (
+                custody if custody is not None and custody.settled_draft is not None else None
+            )
+            custody_only = custody is not None and draft_recovery is None
             if native_configuration is not None:
                 collection_ref = self._collect_current_native_derivation_inputs(
                     closure, growth_refs[0]
@@ -7510,7 +7515,7 @@ class AcquisitionWorldGrowthBridge:
                 if required is None:
                     return NativeDerivationInputsPending(collection_ref=collection_ref)
                 native_collections = (collection_ref,)
-                if custody is None:
+                if not custody_only:
                     current_owner = {
                         "action_job_id": current_action_job_id,
                         "route_id": closure.route_id,
@@ -7519,8 +7524,12 @@ class AcquisitionWorldGrowthBridge:
                     }
                     if native_owner_pointer.exists():
                         if json.loads(native_owner_pointer.read_text()) != current_owner:
+                            if draft_recovery is not None:
+                                raise ValueError("native_settled_draft_reentry_owner_mismatch")
                             return NativeDerivationInputsPending(collection_ref=collection_ref)
                     else:
+                        if draft_recovery is not None:
+                            raise ValueError("native_settled_draft_reentry_owner_missing")
                         fd, temporary = tempfile.mkstemp(
                             prefix="native-owner-", dir=native_owner_pointer.parent
                         )
@@ -7544,7 +7553,7 @@ class AcquisitionWorldGrowthBridge:
             )
             if existing_reentry is not None:
                 return existing_reentry
-            if custody is not None:
+            if custody_only:
                 from polisyos.runtime.quality.acquisition_route_loop import (
                     AcquisitionRouteClosureError,
                 )
@@ -7557,6 +7566,18 @@ class AcquisitionWorldGrowthBridge:
             started = fence.exists()
             if started and (not native_collections or fence.read_text() != growth_refs[0]):
                 raise ValueError("acquisition_reentry_outcome_not_established")
+            draft_fence = None
+            if draft_recovery is not None:
+                if (
+                    not started
+                    or native_configuration is None
+                    or native_configuration.reentry_timeout_seconds is None
+                    or native_configuration.reentry_timeout_seconds <= 0
+                ):
+                    raise ValueError("native_settled_draft_reentry_marker_or_timeout_missing")
+                draft_fence = fence.with_suffix(".settled-draft-resume")
+                if draft_fence.exists():
+                    raise ValueError("native_settled_draft_reentry_already_started")
             payload = load_core_json_artifact(self.artifact_store, closure.source_payload_ref)
             models = payload.get("llm_models")
             model = str(models[0]) if isinstance(models, list) and models else None
@@ -7723,6 +7744,7 @@ class AcquisitionWorldGrowthBridge:
                 coordinator=native_reentry_coordinator,
                 started=started,
                 model_configured=model is not None,
+                draft_recovery=draft_recovery,
             )
             controller = GenerationCycleController(
                 repo_root=self.repo_root,
@@ -7762,6 +7784,11 @@ class AcquisitionWorldGrowthBridge:
                     growth_ref=growth_refs[0],
                     started=started,
                     native_configuration=native_configuration,
+                    draft_recovery_fence=(
+                        (draft_fence, str(draft_recovery.event.event_id))
+                        if draft_fence is not None and draft_recovery is not None
+                        else None
+                    ),
                     reenter=lambda: controller.reenter_after_active_acquisition_overlay(
                         original_run=closure.generation_run,
                         source_cycle=closure.source_cycle,
@@ -7832,11 +7859,18 @@ class AcquisitionWorldGrowthBridge:
         started: bool,
         native_configuration: NativeDerivationRouteConfiguration | None,
         reenter: Callable[[], Awaitable[AcquisitionOverlayReentryReceipt]],
+        draft_recovery_fence: tuple[Path, str] | None = None,
     ) -> AcquisitionOverlayReentryReceipt:
         """Start the selected re-entry once within the caller's admitted scopes."""
         if not started:
             with fence.open("x") as stream:
                 stream.write(growth_ref)
+                stream.flush()
+                os.fsync(stream.fileno())
+        if draft_recovery_fence is not None:
+            recovery_path, event_id = draft_recovery_fence
+            with recovery_path.open("x") as stream:
+                stream.write(event_id)
                 stream.flush()
                 os.fsync(stream.fileno())
         timeout_seconds = (
@@ -7932,6 +7966,7 @@ class AcquisitionWorldGrowthBridge:
         phase = self._validate_action_phase(closure, selected, action_phase_ref)
         admission = self.control_store.current_execution_job_admission()
         job = admission.job
+        recovery = self.control_store.current_native_acquisition_custody_recovery()
         if (
             job.kind != "acquisition"
             or job.state != "running"
@@ -7941,7 +7976,14 @@ class AcquisitionWorldGrowthBridge:
             or admission.scope.actor_authenticated is not True
             or (admission.scope.tenant_id, admission.scope.cell_id)
             != (closure.tenant_id, closure.cell_id)
-            or self.control_store.current_native_acquisition_custody_recovery() is not None
+            or (
+                recovery is not None
+                and (
+                    recovery.settled_draft is None
+                    or recovery.head.job_id != phase.job_id
+                    or recovery.head.action_generation != phase.action_generation
+                )
+            )
         ):
             raise AcquisitionRouteClosureError("native_reentry_budget_action_not_current")
         current = self._native_derivation_route_reader(
@@ -8143,6 +8185,7 @@ class AcquisitionWorldGrowthBridge:
         coordinator: NativeSourceReentryCoordinator | None,
         started: bool = False,
         model_configured: bool = True,
+        draft_recovery: NativeAcquisitionCustodyRecoveryRecord | None = None,
     ) -> None:
         """Read one selected cut for preparation and remaining producer readiness."""
         from polisyos.runtime.quality.native_source_reentry_history import (
@@ -8159,7 +8202,15 @@ class AcquisitionWorldGrowthBridge:
         # A caller flag, `.started` file or claimed completion is insufficient.
         progress = coordinator.progress() if coordinator is not None else None
         prepared = progress is not None and progress.prepared is not None
-        if started and not prepared:
+        if draft_recovery is not None and (
+            not started
+            or progress is None
+            or prepared
+            or observer is None
+            or draft_recovery.settled_draft is None
+        ):
+            raise ValueError("native_settled_draft_recovery_progress_changed")
+        if started and not prepared and draft_recovery is None:
             raise ValueError("acquisition_reentry_outcome_not_established")
         if not model_configured and not prepared:
             raise ValueError("acquisition_reentry_model_unconfigured")

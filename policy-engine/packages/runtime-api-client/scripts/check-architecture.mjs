@@ -27,7 +27,11 @@ const expectedImports = new Map([
   ["canonicalRuntimeApiClient.js", []],
   [
     "runtimeApiClient.type-test.ts",
-    ["./canonicalRuntimeApiClient.js", "./types.js"],
+    [
+      "./canonicalRuntimeApiClient.js",
+      "./types.js",
+      "@polisyos/runtime-api-client",
+    ],
   ],
   ["types.ts", []],
   [

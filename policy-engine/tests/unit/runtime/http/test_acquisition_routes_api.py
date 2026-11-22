@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import hashlib
+import json
+import time
 from types import SimpleNamespace
 
 import pytest
 from _helpers.runtime_http import _runtime_api_request
+from fastapi import Request
 from fastapi.routing import APIRoute
 
 from polisyos.core.artifacts import ArtifactRef
@@ -24,6 +28,7 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionActionServiceError,
     AcquisitionDecisionRequestResponse,
     AcquisitionExecutionResponse,
+    AcquisitionRouteMutationRequest,
     CandidateExperimentRouteExecutionRequest,
     CandidateExperimentRouteMutationRequest,
     CandidateExperimentRouteProjection,
@@ -31,6 +36,7 @@ from polisyos.runtime.http.services.acquisition_action_service import (
 )
 from polisyos.runtime.http.services.acquisition_admission_bundle import (
     AcquisitionAdmissionBundleBlocked,
+    require_acquisition_bound_permission,
     require_candidate_experiment_terminal_custody_bound_permission,
 )
 from polisyos.runtime.http.step_up import StepUpClass, get_route_step_up_dependency
@@ -41,6 +47,7 @@ from tests.unit.runtime.http.test_runtime_api_authz import (
     _AllowOPA,
     _build_permissionless_client,
     _build_secure_client,
+    _CaptureOPA,
     _claims,
     _fixture_bearer,
     _install_bound_test_step_up,
@@ -65,6 +72,104 @@ _ROUTES = {
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request"),
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"),
 }
+
+
+def test_native_draft_approval_binds_body_and_bearer_but_keeps_draft_out_of_opa(
+    runtime_api_env,
+) -> None:
+    raw_draft = '{"draft_id":"private-settled-content"}'
+    digest = "sha256:" + "d" * 64
+    body = AcquisitionRouteMutationRequest.model_validate(
+        {
+            "route_projection_hash": digest,
+            "planner_report_hash": digest,
+            "replay_pins": {
+                "source_job_id": "native-source",
+                "compiled_ref": digest,
+                "compiled_content_hash": digest,
+                "terminal_event_id": "native-original-terminal",
+                "design_problem_ref": digest,
+                "cost_basis_hash": digest,
+            },
+            "idempotency_key": "same-action",
+            "custody_recovery": {
+                "failed_attempt": 5,
+                "head_ref": {
+                    "artifact_id": digest,
+                    "kind": "runtime_quality.acquisition_route_phase_receipt",
+                    "media_type": "application/json",
+                    "manifest_profile_sha256": digest,
+                },
+                "settled_draft": {
+                    "producer_event_id": "llm-provider:" + "f" * 32,
+                    "ledger_revision": 18,
+                    "response_text": raw_draft,
+                },
+            },
+        }
+    )
+    opa = _CaptureOPA()
+    client, cell, provider = _build_secure_client(
+        runtime_api_env, opa_client=opa, claims_by_token={}, raise_server_exceptions=False
+    )
+    bearer = _fixture_bearer("native-draft-recovery")
+    expiry = int(time.time()) + 45
+    claims = _claims(
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=cell.cell_id,
+        jti="jwt-native-draft-recovery",
+        roles=frozenset({PolicyOSRole.ANALYST}),
+    ).model_copy(update={"exp": expiry})
+    provider.put_claim(bearer, claims)
+    calls = []
+    policy_projections = []
+
+    def execute(**kwargs):
+        calls.append(kwargs)
+        return AcquisitionExecutionResponse(
+            run_id="native-run",
+            route_id=digest,
+            job_id="same-native-action",
+            authority_decision_ref=digest,
+        )
+
+    def service(request: Request) -> SimpleNamespace:
+        policy_projections.append(request.state.authz_resource)
+        return SimpleNamespace(execute=execute)
+
+    client.app.dependency_overrides[get_acquisition_action_service] = service
+    try:
+        step_up = _install_bound_test_step_up(client)
+        result = client.post(
+            f"/api/v1/runs/native-run/acquisition-routes/{digest}/execute",
+            headers={
+                "Authorization": f"Bearer {bearer}",
+                "X-Tenant-ID": runtime_api_env["tenant_a"],
+                "X-PolicyOS-Step-Up": step_up,
+            },
+            json=body.model_dump(mode="json"),
+        )
+    finally:
+        client.close()
+    assert result.status_code == 200, result.text
+    assert len(calls) == len(opa.inputs) == len(policy_projections) == 1
+    assert calls[0]["request"] == body
+    assert calls[0]["recovery_approval_expires_at"] == expiry
+    bound = calls[0]["bound_permission"]
+    local_selector = dict(bound.bound_resource.canonical_selectors)["custody_recovery"]
+    middleware_projection = policy_projections[0]
+    policy_selectors = dict(middleware_projection["selectors"])
+    policy_resource = opa.inputs[0].to_opa_input()["resource"]
+    assert raw_draft == json.loads(local_selector)["settled_draft"]["response_text"]
+    assert "private-settled-content" not in json.dumps(policy_resource)
+    assert "private-settled-content" not in json.dumps(policy_selectors)
+    assert json.loads(policy_selectors["custody_recovery"]) == {
+        "sha256": hashlib.sha256(local_selector.encode()).hexdigest(),
+    }
+    assert middleware_projection["resource_digest"] == require_acquisition_bound_permission(
+        bound, body
+    )
+    assert policy_resource["artifact_id"] == middleware_projection["artifact_id"]
 
 
 def _route(app: object, method: str, path: str) -> APIRoute:

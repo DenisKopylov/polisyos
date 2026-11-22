@@ -153,9 +153,47 @@
         "title": "AcquisitionBacklogProjection",
         "type": "object"
       },
-      "AcquisitionCustodyRecoveryRequest-Input": {
+      "AcquisitionCustodyRecoveryProjection": {
         "additionalProperties": false,
-        "description": "Locate an exact failed attempt/head; this is never an action grant.",
+        "description": "Public locator for the selected failed attempt and phase.",
+        "properties": {
+          "failed_attempt": {
+            "minimum": 1.0,
+            "title": "Failed Attempt",
+            "type": "integer"
+          },
+          "head_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output",
+            "properties": {
+              "kind": {
+                "const": "runtime_quality.acquisition_route_phase_receipt"
+              },
+              "manifest_profile_sha256": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "media_type": {
+                "const": "application/json"
+              }
+            },
+            "required": [
+              "artifact_id",
+              "kind",
+              "media_type",
+              "manifest_profile_sha256"
+            ]
+          }
+        },
+        "required": [
+          "failed_attempt",
+          "head_ref"
+        ],
+        "title": "AcquisitionCustodyRecoveryProjection",
+        "type": "object"
+      },
+      "AcquisitionCustodyRecoveryRequest": {
+        "additionalProperties": false,
+        "description": "Select the recovery purpose bound to the authenticated mutation.",
         "properties": {
           "failed_attempt": {
             "minimum": 1.0,
@@ -182,43 +220,15 @@
               "media_type",
               "manifest_profile_sha256"
             ]
-          }
-        },
-        "required": [
-          "failed_attempt",
-          "head_ref"
-        ],
-        "title": "AcquisitionCustodyRecoveryRequest",
-        "type": "object"
-      },
-      "AcquisitionCustodyRecoveryRequest-Output": {
-        "additionalProperties": false,
-        "description": "Locate an exact failed attempt/head; this is never an action grant.",
-        "properties": {
-          "failed_attempt": {
-            "minimum": 1.0,
-            "title": "Failed Attempt",
-            "type": "integer"
           },
-          "head_ref": {
-            "$ref": "#/components/schemas/ArtifactRef-Output",
-            "properties": {
-              "kind": {
-                "const": "runtime_quality.acquisition_route_phase_receipt"
+          "settled_draft": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NativeSettledDraftRecovery"
               },
-              "manifest_profile_sha256": {
-                "pattern": "^sha256:[0-9a-f]{64}$",
-                "type": "string"
-              },
-              "media_type": {
-                "const": "application/json"
+              {
+                "type": "null"
               }
-            },
-            "required": [
-              "artifact_id",
-              "kind",
-              "media_type",
-              "manifest_profile_sha256"
             ]
           }
         },
@@ -672,7 +682,7 @@
           "custody_recovery": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/AcquisitionCustodyRecoveryRequest-Input"
+                "$ref": "#/components/schemas/AcquisitionCustodyRecoveryRequest"
               },
               {
                 "type": "null"
@@ -801,7 +811,7 @@
           "custody_recovery": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/AcquisitionCustodyRecoveryRequest-Output"
+                "$ref": "#/components/schemas/AcquisitionCustodyRecoveryProjection"
               },
               {
                 "type": "null"
@@ -31867,6 +31877,35 @@
           "owner_declared_profile_ref"
         ],
         "title": "NativePaidInputAdmissionSelection",
+        "type": "object"
+      },
+      "NativeSettledDraftRecovery": {
+        "additionalProperties": false,
+        "description": "Candidate bytes and exact ledger pins supplied with the new approval.",
+        "properties": {
+          "ledger_revision": {
+            "minimum": 1.0,
+            "title": "Ledger Revision",
+            "type": "integer"
+          },
+          "producer_event_id": {
+            "pattern": "^llm-provider:[a-f0-9]{32}$",
+            "title": "Producer Event Id",
+            "type": "string"
+          },
+          "response_text": {
+            "maxLength": 131072,
+            "minLength": 1,
+            "title": "Response Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "producer_event_id",
+          "ledger_revision",
+          "response_text"
+        ],
+        "title": "NativeSettledDraftRecovery",
         "type": "object"
       },
       "NaturalLanguageRunRequest": {

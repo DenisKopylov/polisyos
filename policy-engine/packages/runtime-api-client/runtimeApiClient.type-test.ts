@@ -1,4 +1,9 @@
 import type {
+  AcquisitionCustodyRecoveryProjection,
+  AcquisitionCustodyRecoveryRequest,
+  AcquisitionCustodyRecoveryRequestInput,
+  AcquisitionCustodyRecoveryRequestOutput,
+  AcquisitionRouteProjection,
   AcquisitionRouteMutationRequest,
   ArtifactID,
   ArtifactMissingGovernedProjectionPacket,
@@ -16,6 +21,12 @@ import type {
   RuntimeApiClient,
 } from "./canonicalRuntimeApiClient.js";
 import type { components as RawRuntimeApiComponents } from "./types.js";
+import type {
+  AcquisitionCustodyRecoveryProjection as PublicRootCustodyRecoveryProjection,
+  AcquisitionCustodyRecoveryRequest as PublicRootCustodyRecoveryRequest,
+  AcquisitionCustodyRecoveryRequestInput as PublicRootCustodyRecoveryRequestInput,
+  AcquisitionCustodyRecoveryRequestOutput as PublicRootCustodyRecoveryRequestOutput,
+} from "@polisyos/runtime-api-client";
 
 type Equal<Left, Right> =
   (<Value>() => Value extends Left ? 1 : 2) extends <
@@ -106,6 +117,52 @@ type CanonicalLiteralWitnesses = [
     Equal<
       ChannelRegistryResponse["schema_version"],
       "policyos.runtime.channel_registry.v1"
+    >
+  >,
+];
+
+type NativeSettledDraft = NonNullable<
+  AcquisitionCustodyRecoveryRequest["settled_draft"]
+>;
+type PublicCustodyRecovery = NonNullable<
+  AcquisitionRouteProjection["custody_recovery"]
+>;
+type NativeCustodyRecoveryWitnesses = [
+  Assert<
+    Equal<
+      PublicRootCustodyRecoveryRequestInput,
+      PublicRootCustodyRecoveryRequest
+    >
+  >,
+  Assert<
+    Equal<
+      PublicRootCustodyRecoveryRequestOutput,
+      PublicRootCustodyRecoveryProjection
+    >
+  >,
+  Assert<
+    Equal<
+      AcquisitionCustodyRecoveryRequestInput,
+      AcquisitionCustodyRecoveryRequest
+    >
+  >,
+  Assert<
+    Equal<
+      AcquisitionCustodyRecoveryRequestOutput,
+      AcquisitionCustodyRecoveryProjection
+    >
+  >,
+  Assert<
+    Equal<
+      NativeSettledDraft,
+      RawRuntimeApiComponents["schemas"]["NativeSettledDraftRecovery"]
+    >
+  >,
+  Assert<Equal<PublicCustodyRecovery, AcquisitionCustodyRecoveryProjection>>,
+  Assert<
+    Equal<
+      "settled_draft" extends keyof PublicCustodyRecovery ? true : false,
+      false
     >
   >,
 ];
@@ -315,8 +372,40 @@ const recoveredAcquisitionRouteMutation: AcquisitionRouteMutationRequest = {
       media_type: "application/json",
       manifest_profile_sha256: `sha256:${"b".repeat(64)}`,
     },
+    settled_draft: {
+      producer_event_id: `llm-provider:${"a".repeat(32)}`,
+      ledger_revision: 18,
+      response_text: "exact retained provider response\n",
+    },
   },
 };
+
+const legacyCustodyRecoveryRequest: AcquisitionCustodyRecoveryRequestInput = {
+  failed_attempt: 2,
+  head_ref: {
+    artifact_id: "sha256:" + "a".repeat(64),
+    kind: "runtime_quality.acquisition_route_phase_receipt",
+    media_type: "application/json",
+    manifest_profile_sha256: "sha256:" + "b".repeat(64),
+  },
+  settled_draft: {
+    producer_event_id: `llm-provider:${"a".repeat(32)}`,
+    ledger_revision: 18,
+    response_text: "exact retained provider response\n",
+  },
+};
+const legacyCustodyRecoveryProjection: AcquisitionCustodyRecoveryRequestOutput =
+  {
+    failed_attempt: 2,
+    head_ref: {
+      artifact_id: "sha256:" + "a".repeat(64),
+      kind: "runtime_quality.acquisition_route_phase_receipt",
+      media_type: "application/json",
+      manifest_profile_sha256: "sha256:" + "b".repeat(64),
+    },
+  };
+void legacyCustodyRecoveryRequest;
+void legacyCustodyRecoveryProjection;
 
 declare const initialObservationFields: Omit<
   RunModelInputInitialObservation,

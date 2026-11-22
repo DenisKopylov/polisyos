@@ -315,6 +315,7 @@ class BoundAuthorizationResource:
         back to the caller tenant only when the key is absent.  Unscoped
         bindings must therefore carry the key without inventing ownership.
         """
+        digest_only = self.requirement.resource_binding.policy_digest_selector_fields
         return {
             "tenant_id": self.tenant_id or "",
             "kind": self.resource_kind,
@@ -323,7 +324,14 @@ class BoundAuthorizationResource:
             "resource_digest": self.resource_digest,
             "body_sha256": self.body_sha256,
             "query_sha256": self.query_sha256,
-            "selectors": dict(self.canonical_selectors),
+            "selectors": {
+                name: (
+                    _canonical_json({"sha256": hashlib.sha256(value.encode()).hexdigest()})
+                    if name in digest_only
+                    else value
+                )
+                for name, value in self.canonical_selectors
+            },
         }
 
 

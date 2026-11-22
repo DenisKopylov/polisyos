@@ -97,6 +97,7 @@ _MUTATION_AUTHZ = require_action_permission(
             "custody_recovery",
         ),
         omit_absent_selector_fields=("custody_recovery",),
+        policy_digest_selector_fields=("custody_recovery",),
         required_selector_fields=(
             "route_projection_hash",
             "planner_report_hash",
@@ -221,6 +222,42 @@ def _bound_proof(request: Request) -> BoundActionPermissionVerification:
             code="authorization_binding_context_missing",
         )
     return proof
+
+
+def _require_live_user_approval(
+    request: Request,
+    *,
+    principal: RuntimePrincipal,
+    bound_permission: BoundActionPermissionVerification,
+    step_up: object,
+    refusal_code: str,
+    refusal_message: str,
+) -> int:
+    scope = getattr(request.state, "authz_effective_scope", None)
+    claims = getattr(request.state, "user_claims", None)
+    current_permission = getattr(request.state, "action_permission_verification", None)
+    if (
+        type(bound_permission) is not BoundActionPermissionVerification
+        or type(step_up) is not StepUpAssertionVerification
+        or not isinstance(scope, AccessScope)
+        or scope.principal_type != "user"
+        or scope.delegation_jti
+        or (scope.tenant_id, scope.cell_id, scope.user_sub)
+        != (principal.tenant_id, principal.cell_id, principal.subject)
+        or scope.roles != principal.roles
+        or not isinstance(claims, UserIdentityClaims)
+        or (claims.sub, claims.tenant_id, claims.jti)
+        != (principal.subject, principal.tenant_id, bound_permission.verification.jwt_id)
+        or current_permission is not bound_permission
+        or getattr(request.state, "step_up_verification", None) is not step_up
+    ):
+        raise forbidden(refusal_message, code=refusal_code)
+    expires_at = min(claims.exp, step_up.expires_at)
+    if expires_at <= int(time.time()):
+        raise forbidden("The custody approval has expired", code="step_up_expired")
+    if not step_up_verification_matches_request(request, action_verification=bound_permission):
+        raise forbidden("The custody approval no longer matches this request", code=refusal_code)
+    return expires_at
 
 
 def _candidate_experiment_bound_proof(
@@ -522,7 +559,7 @@ def settle_run_candidate_acquisition_experiment_terminal(
     step_up: Annotated[StepUpAssertionVerification, Depends(_MUTATION_STEP_UP)],
 ) -> CandidateExperimentTerminalCustodyResponse:
     """Select an existing numerical candidate under a fresh same-actor approval."""
-    tenant_id, cell_id, principal = _scope(request)
+    tenant_id, _, principal = _scope(request)
     set_authz_resource(
         request, tenant_id=tenant_id, kind=CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_RESOURCE_KIND
     )
@@ -533,37 +570,14 @@ def settle_run_candidate_acquisition_experiment_terminal(
         )
 
     def authorize_effect() -> int:
-        scope = getattr(request.state, "authz_effective_scope", None)
-        claims = getattr(request.state, "user_claims", None)
-        current_permission = getattr(request.state, "action_permission_verification", None)
-        if (
-            type(bound_permission) is not BoundActionPermissionVerification
-            or type(step_up) is not StepUpAssertionVerification
-            or not isinstance(scope, AccessScope)
-            or scope.principal_type != "user"
-            or scope.delegation_jti
-            or (scope.tenant_id, scope.cell_id, scope.user_sub)
-            != (tenant_id, cell_id, principal.subject)
-            or scope.roles != principal.roles
-            or not isinstance(claims, UserIdentityClaims)
-            or (claims.sub, claims.tenant_id, claims.jti)
-            != (principal.subject, tenant_id, bound_permission.verification.jwt_id)
-            or current_permission is not bound_permission
-            or getattr(request.state, "step_up_verification", None) is not step_up
-        ):
-            raise forbidden(
-                "Terminal custody requires the original user's live bound approval",
-                code="candidate_experiment_terminal_custody_scope_refused",
-            )
-        expires_at = min(claims.exp, step_up.expires_at)
-        if expires_at <= int(time.time()):
-            raise forbidden("The custody approval has expired", code="step_up_expired")
-        if not step_up_verification_matches_request(request, action_verification=bound_permission):
-            raise forbidden(
-                "The custody approval no longer matches this request",
-                code="candidate_experiment_terminal_custody_scope_refused",
-            )
-        return expires_at
+        return _require_live_user_approval(
+            request,
+            principal=principal,
+            bound_permission=bound_permission,
+            step_up=step_up,
+            refusal_code="candidate_experiment_terminal_custody_scope_refused",
+            refusal_message="Terminal custody requires the original user's live bound approval",
+        )
 
     authorize_effect()
     try:
@@ -733,6 +747,17 @@ def execute_run_acquisition_route(
         tenant_id=tenant_id,
         kind="runtime.evidence.acquisition.request_bound",
     )
+    proof = _bound_proof(request)
+    recovery_args = {}
+    if body.custody_recovery is not None and body.custody_recovery.settled_draft is not None:
+        recovery_args["recovery_approval_expires_at"] = _require_live_user_approval(
+            request,
+            principal=principal,
+            bound_permission=proof,
+            step_up=getattr(request.state, "step_up_verification", None),
+            refusal_code="acquisition_custody_recovery_actor_refused",
+            refusal_message="Native recovery requires live approval for this settled draft",
+        )
     try:
         return service.execute(
             tenant_id=tenant_id,
@@ -740,9 +765,10 @@ def execute_run_acquisition_route(
             run_id=run_id,
             route_id=route_id,
             request=body,
-            bound_permission=_bound_proof(request),
+            bound_permission=proof,
             request_id=ensure_request_id(request),
             principal=principal,
+            **recovery_args,
         )
     except AcquisitionActionServiceError as exc:
         _raise_service_error(exc)

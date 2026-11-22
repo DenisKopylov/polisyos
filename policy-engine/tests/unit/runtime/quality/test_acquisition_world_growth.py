@@ -267,3 +267,41 @@ def test_active_overlay_native_reentry_uses_selected_timeout(
         assert isinstance(refused.value.__cause__.__cause__, asyncio.CancelledError)  # noqa: S101
         assert milestones == ["proof_complete"]  # noqa: S101
     assert fence.read_text() == growth_ref  # noqa: S101
+
+
+def test_settled_draft_reentry_writes_one_new_marker_and_keeps_original(
+    tmp_path: Path, native_route: growth.NativeDerivationRouteConfiguration
+) -> None:
+    original = tmp_path / "world.reentry.started"
+    retry = original.with_suffix(".settled-draft-resume")
+    growth_ref = "sha256:" + "3" * 64
+    original.write_text(growth_ref)
+    config = native_route.model_copy(update={"reentry_timeout_seconds": 2.0})
+    observed = []
+
+    async def stop() -> growth.AcquisitionOverlayReentryReceipt:
+        observed.append(retry.read_text())
+        assert original.read_text() == growth_ref  # noqa: S101
+        raise ValueError("short stop after new marker")
+
+    with pytest.raises(ValueError, match="short stop"):
+        growth.AcquisitionWorldGrowthBridge._run_active_overlay_reentry(
+            fence=original,
+            growth_ref=growth_ref,
+            started=True,
+            native_configuration=config,
+            reenter=stop,
+            draft_recovery_fence=(retry, "event-1"),
+        )
+    with pytest.raises(FileExistsError):
+        growth.AcquisitionWorldGrowthBridge._run_active_overlay_reentry(
+            fence=original,
+            growth_ref=growth_ref,
+            started=True,
+            native_configuration=config,
+            reenter=stop,
+            draft_recovery_fence=(retry, "event-2"),
+        )
+    assert observed == ["event-1"]  # noqa: S101
+    assert original.read_text() == growth_ref  # noqa: S101
+    assert retry.read_text() == "event-1"  # noqa: S101

@@ -134,6 +134,7 @@ def test_legacy_request_keeps_wire_and_resource_digest() -> None:
             current_binding,
             selector_fields=legacy_selector_fields,
             omit_absent_selector_fields=(),
+            policy_digest_selector_fields=(),
         ),
     )
     selectors = fixture._request_composite_selectors(

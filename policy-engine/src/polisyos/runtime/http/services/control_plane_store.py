@@ -62,6 +62,7 @@ if TYPE_CHECKING:
         NoCallReason,
     )
     from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorRef
+    from polisyos.runtime.quality.native_settled_draft import NativeSettledDraftRecovery
 
 from polisyos.runtime.http.services.control.response_shapes import (
     _operator_diagnostic_from_failure_payload,
@@ -83,6 +84,7 @@ from polisyos.runtime.quality.evidence_spine_handoff import (
 
 
 _NATIVE_CUSTODY_RECOVERY_EVENT = "native_acquisition_custody_recovery_requested"
+_NATIVE_DRAFT_RECOVERY_PURPOSE = "resume_native_from_settled_draft"
 _CANDIDATE_TERMINAL_CUSTODY_EVENT = "candidate_experiment_terminal_custody_settled"
 
 _COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC = "control.decision_validity.hte_source_update"
@@ -1441,11 +1443,7 @@ class AcquisitionActionHeadRecord:
 
 @dataclass(frozen=True)
 class NativeAcquisitionCustodyRecoveryRecord:
-    """One explicit custody request, attributed to its immutable failed attempt.
-
-    This is a restriction on a new worker lease, never an execution grant for
-    activation, materialization or simulation.
-    """
+    """One explicit Native recovery request bound to its immutable failed attempt."""
 
     event: _ControlJobLifecycleSourceEventRecord
     failed_attempt: int
@@ -1453,6 +1451,9 @@ class NativeAcquisitionCustodyRecoveryRecord:
     head: AcquisitionActionHeadRecord
     payload_ref: str
     execution_scope: ControlJobExecutionScope
+    settled_draft: NativeSettledDraftRecovery | None = None
+    failed_lease_started_at: datetime | None = None
+    approval_expires_at: int | None = None
 
 
 @dataclass(frozen=True)
@@ -9042,9 +9043,16 @@ class ControlPlaneStore:
             failed_attempt = value.get("failed_attempt")
             recovery_attempt = value.get("recovery_attempt")
             head_value = value.get("head")
+            draft_requested = value.get("authority_purpose") == _NATIVE_DRAFT_RECOVERY_PURPOSE
             if (
-                value.get("schema_version") != "native_acquisition_custody_recovery.v1"
-                or value.get("authority_purpose") != "historical_custody_only"
+                (
+                    value.get("schema_version"),
+                    value.get("authority_purpose"),
+                )
+                not in (
+                    ("native_acquisition_custody_recovery.v1", "historical_custody_only"),
+                    ("native_acquisition_custody_recovery.v2", _NATIVE_DRAFT_RECOVERY_PURPOSE),
+                )
                 or value.get("state") != "pending"
                 or value.get("job_id") != job_id
                 or type(failed_attempt) is not int
@@ -9124,6 +9132,30 @@ class ControlPlaneStore:
                 }
             ):
                 raise ValueError("native_custody_recovery_failure_changed")
+            draft = None
+            draft_lease_started_at = None
+            approval_expires_at = None
+            if draft_requested:
+                from polisyos.runtime.quality.native_settled_draft import NativeSettledDraftRecovery
+
+                draft = NativeSettledDraftRecovery.model_validate(value.get("settled_draft"))
+                approval_expires_at = value.get("approval_expires_at")
+                running = self._native_draft_failed_lease(
+                    job_id=job_id, failure=source, failed_attempt=failed_attempt
+                )
+                if (
+                    head.receipt_phase != "world_committed_reentry_pending"
+                    or type(approval_expires_at) is not int
+                    or approval_expires_at <= event.created_at.timestamp()
+                    or value.get("failed_lease_event_id") != running.event_id
+                ):
+                    raise ValueError("native_settled_draft_recovery_event_invalid")
+                draft_lease_started_at = running.created_at
+            elif any(
+                field in value
+                for field in ("settled_draft", "approval_expires_at", "failed_lease_event_id")
+            ):
+                raise ValueError("native_custody_recovery_unexpected_draft")
             outbox = self.get_outbox_topic_event(
                 topic="control.job.custody_recovery_requested",
                 event_key=f"{job_id}:custody_recovery:{failed_attempt}",
@@ -9132,7 +9164,10 @@ class ControlPlaneStore:
             if (
                 outbox is None
                 or outbox.run_id != head.run_id
-                or not _json_values_equal_strict(outbox.payload, value)
+                or not _json_values_equal_strict(
+                    outbox.payload,
+                    self._native_recovery_outbox_payload(value, event.payload_sha256),
+                )
             ):
                 raise ValueError("native_custody_recovery_event_outbox_mismatch")
             records.append(
@@ -9143,10 +9178,127 @@ class ControlPlaneStore:
                     head=head,
                     payload_ref=value["payload_ref"],
                     execution_scope=scope,
+                    settled_draft=draft,
+                    failed_lease_started_at=draft_lease_started_at,
+                    approval_expires_at=approval_expires_at,
                 )
             )
             seen.add(failed_attempt)
         return tuple(records)
+
+    @staticmethod
+    def _native_recovery_outbox_payload(
+        value: dict[str, Any], event_payload_sha256: str | None = None
+    ) -> dict[str, Any]:
+        if value["authority_purpose"] != _NATIVE_DRAFT_RECOVERY_PURPOSE:
+            return value
+        draft = value["settled_draft"]
+        projection = {
+            name: value[name]
+            for name in (
+                "schema_version",
+                "authority_purpose",
+                "state",
+                "job_id",
+                "failed_attempt",
+                "recovery_attempt",
+                "head_ref",
+                "request_sha256",
+            )
+        }
+        raw_event_hash = event_payload_sha256 or (
+            "sha256:" + hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
+        )
+        return projection | {
+            "producer_event_id": draft["producer_event_id"],
+            "ledger_revision": draft["ledger_revision"],
+            "response_sha256": hashlib.sha256(draft["response_text"].encode()).hexdigest(),
+            "private_event_sha256": raw_event_hash,
+        }
+
+    def _native_draft_failed_lease(
+        self, *, job_id: str, failure: _ControlJobLifecycleSourceEventRecord, failed_attempt: int
+    ) -> _ControlJobLifecycleSourceEventRecord:
+        row = self._fetchone(
+            "SELECT event_id, job_id, event_type, payload_json, created_at "
+            "FROM control_job_events WHERE job_id = ? AND event_type = 'job_running' "
+            "AND event_id < ? ORDER BY event_id DESC LIMIT 1",
+            (job_id, failure.event_id),
+        )
+        if row is None:
+            raise ValueError("native_settled_draft_failed_lease_missing")
+        running = self._control_job_lifecycle_event_record_from_row(
+            row, expected_job_id=job_id, expected_event_type="job_running"
+        )
+        if (
+            running.payload.get("attempt") != failed_attempt
+            or running.payload.get("lease_owner") != failure.payload.get("lease_owner")
+            or failure.payload.get("error_message") != "reentry_recovery_required"
+            or running.created_at > failure.created_at
+        ):
+            raise ValueError("native_settled_draft_failed_lease_mismatch")
+        self._require_exclusive_native_draft_lease(
+            job_id=job_id,
+            running_event=running,
+            failure_event=failure,
+        )
+        return running
+
+    def _require_exclusive_native_draft_lease(
+        self,
+        *,
+        job_id: str,
+        running_event: _ControlJobLifecycleSourceEventRecord,
+        failure_event: _ControlJobLifecycleSourceEventRecord,
+    ) -> None:
+        """Exclude other admitted writers of the completed source run in the failed lease."""
+        rows = self._fetchall(
+            "SELECT e.event_id, j.job_id, e.event_type, e.payload_json, e.created_at, j.attempt "
+            "FROM control_jobs j LEFT JOIN control_job_events e ON j.job_id = e.job_id "
+            "AND e.event_type IN ('job_running', 'job_failed', 'job_completed', 'job_cancelled') "
+            "WHERE j.run_id = (SELECT run_id FROM control_jobs WHERE job_id = ?) "
+            "AND j.job_id <> ? ORDER BY e.event_id",
+            (job_id, job_id),
+        )
+        active_prior_leases: dict[str, tuple[int, str]] = {}
+        expected_attempts: dict[str, int] = {}
+        observed_attempts: dict[str, int] = {}
+        for row in rows:
+            event_id, target_job_id, event_type, job_attempt = (
+                (row["event_id"], row["job_id"], row["event_type"], row["attempt"])
+                if isinstance(row, Mapping)
+                else (row[0], row[1], row[2], row[5])
+            )
+            expected_attempts[target_job_id] = job_attempt
+            if event_id is None:
+                continue
+            event = self._control_job_lifecycle_event_record_from_row(
+                row, expected_job_id=target_job_id, expected_event_type=event_type
+            )
+            if event.payload.get("state") != event_type.removeprefix("job_"):
+                raise ValueError("native_settled_draft_sibling_lifecycle_changed")
+            attempt, lease_owner = event.payload.get("attempt"), event.payload.get("lease_owner")
+            if event_type == "job_running":
+                if (
+                    type(attempt) is not int
+                    or attempt != observed_attempts.get(target_job_id, 0) + 1
+                    or not isinstance(lease_owner, str)
+                    or not lease_owner
+                ):
+                    raise ValueError("native_settled_draft_sibling_lifecycle_changed")
+                observed_attempts[target_job_id] = attempt
+                if event.event_id < running_event.event_id:
+                    active_prior_leases[target_job_id] = (attempt, lease_owner)
+                elif event.event_id < failure_event.event_id:
+                    raise ValueError("native_settled_draft_concurrent_source_job")
+            elif event.event_id < running_event.event_id and event_type != "job_cancelled":
+                if active_prior_leases.get(target_job_id) != (attempt, lease_owner):
+                    raise ValueError("native_settled_draft_sibling_lifecycle_changed")
+                del active_prior_leases[target_job_id]
+        if any(observed_attempts.get(job, 0) != count for job, count in expected_attempts.items()):
+            raise ValueError("native_settled_draft_sibling_lifecycle_incomplete")
+        if active_prior_leases:
+            raise ValueError("native_settled_draft_concurrent_source_job")
 
     def settle_candidate_experiment_terminal_custody(
         self,
@@ -9452,6 +9604,8 @@ class ControlPlaneStore:
         request_sha256: str,
         permission_sha256: str,
         resource_digest: str,
+        settled_draft: NativeSettledDraftRecovery | None = None,
+        approval_expires_at: int | None = None,
     ) -> ControlJobRecord:
         """Atomically queue an explicitly requested recovery of one failed custody attempt.
 
@@ -9461,6 +9615,8 @@ class ControlPlaneStore:
         then changes the aggregate queue projection. The creation payload stays
         unchanged and the ordinary lease owner supplies the next attempt.
         """
+        from polisyos.runtime.quality.native_settled_draft import NativeSettledDraftRecovery
+
         if self._job_execution_fence.get() is not None:
             raise ControlJobExecutionAdmissionError(
                 "native_custody_recovery_requires_request_owner"
@@ -9476,6 +9632,15 @@ class ControlPlaneStore:
             or expected_job.job_id != head.job_id
             or expected_job.payload_ref is None
             or head.receipt_phase not in {"outcome_selected", "world_committed_reentry_pending"}
+            or (
+                settled_draft is not None
+                and (
+                    type(settled_draft) is not NativeSettledDraftRecovery
+                    or type(approval_expires_at) is not int
+                    or head.receipt_phase != "world_committed_reentry_pending"
+                )
+            )
+            or (settled_draft is None and approval_expires_at is not None)
             or not _is_sha256_ref(head.receipt_manifest_profile_sha256)
             or not all(
                 _is_sha256_ref(v) for v in (request_sha256, permission_sha256, resource_digest)
@@ -9507,15 +9672,13 @@ class ControlPlaneStore:
                 or (scope.tenant_id, scope.cell_id) != (head.tenant_id, head.cell_id)
             ):
                 raise ValueError("native_custody_recovery_scope_refused")
-            previous = tuple(
-                r
-                for r in self._native_acquisition_custody_recovery_records(job.job_id)
-                if r.failed_attempt == failed_attempt
-            )
+            recoveries = self._native_acquisition_custody_recovery_records(job.job_id)
+            previous = tuple(r for r in recoveries if r.failed_attempt == failed_attempt)
             if previous:
                 record = previous[0]
                 if (
                     record.head != head
+                    or record.settled_draft != settled_draft
                     or record.execution_scope != scope
                     or record.event.payload["request_sha256"] != request_sha256
                     or record.event.payload["resource_digest"] != resource_digest
@@ -9548,6 +9711,27 @@ class ControlPlaneStore:
                 or failure.payload.get("attempt") != failed_attempt
             ):
                 raise ValueError("native_custody_recovery_failure_not_established")
+            draft_fields: dict[str, Any] = {}
+            if settled_draft is not None:
+                if (
+                    approval_expires_at is None
+                    or approval_expires_at <= _utc_now().timestamp()
+                    or any(
+                        record.head == head and record.settled_draft is not None
+                        for record in recoveries
+                    )
+                ):
+                    raise ValueError("native_settled_draft_approval_unavailable")
+                running = self._native_draft_failed_lease(
+                    job_id=job.job_id, failure=failure, failed_attempt=failed_attempt
+                )
+                draft_fields = {
+                    "schema_version": "native_acquisition_custody_recovery.v2",
+                    "authority_purpose": _NATIVE_DRAFT_RECOVERY_PURPOSE,
+                    "approval_expires_at": approval_expires_at,
+                    "failed_lease_event_id": running.event_id,
+                    "settled_draft": settled_draft.model_dump(mode="json"),
+                }
             failed_row = self._fetchone(
                 "SELECT * FROM control_jobs WHERE job_id = ?", (job.job_id,)
             )
@@ -9598,6 +9782,7 @@ class ControlPlaneStore:
                     "created_at": failure.created_at.isoformat(),
                 },
             }
+            value.update(draft_fields)
             self.append_event(
                 job_id=job.job_id, event_type=_NATIVE_CUSTODY_RECOVERY_EVENT, payload=value
             )
@@ -9615,7 +9800,7 @@ class ControlPlaneStore:
                 progress={
                     "state": "pending",
                     "phase": "acquisition_custody_recovery",
-                    "authority_purpose": "historical_custody_only",
+                    "authority_purpose": value["authority_purpose"],
                     "failed_attempt": failed_attempt,
                 },
             )
@@ -9624,7 +9809,7 @@ class ControlPlaneStore:
                 job_id=job.job_id,
                 run_id=job.run_id,
                 event_key=f"{job.job_id}:custody_recovery:{failed_attempt}",
-                payload=value,
+                payload=self._native_recovery_outbox_payload(value),
                 require_matching_payload=True,
             )
             recovered = self.get_job(job.job_id)
@@ -9663,6 +9848,19 @@ class ControlPlaneStore:
             or record.event.payload["failed_event"]["event_id"] != failure.event_id
         ):
             raise ValueError("native_custody_recovery_lease_mismatch")
+        if record.settled_draft is not None:
+            running = self._latest_control_job_lifecycle_event_record(
+                job_id=job.job_id, event_type="job_running"
+            )
+            if (
+                job.attempt != record.recovery_attempt
+                or running.payload.get("attempt") != record.recovery_attempt
+                or running.payload.get("lease_owner") != job.lease_owner
+                or running.event_id <= record.event.event_id
+                or record.approval_expires_at is None
+                or running.created_at.timestamp() >= record.approval_expires_at
+            ):
+                raise ValueError("native_settled_draft_recovery_lease_mismatch")
         return record
 
     def acknowledge_dead_letter_job(self, *, job_id: str, acknowledged_by: str) -> None:

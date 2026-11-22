@@ -18,7 +18,7 @@ function createClient(calls, payload = { ok: true }) {
   });
 }
 
-test("acquisition execute POST preserves legacy omission and exact custody recovery head", async () => {
+test("acquisition execute POST preserves legacy omission and exact settled draft", async () => {
   const runId = "run/with space";
   const routeId = "route/with space";
   const legacyBody = {
@@ -41,6 +41,11 @@ test("acquisition execute POST preserves legacy omission and exact custody recov
       kind: "runtime_quality.acquisition_route_phase_receipt",
       media_type: "application/json",
       manifest_profile_sha256: `sha256:${"2".repeat(64)}`,
+    },
+    settled_draft: {
+      producer_event_id: `llm-provider:${"a".repeat(32)}`,
+      ledger_revision: 18,
+      response_text: "exact retained provider response — keep whitespace\n",
     },
   };
   const recoveryBody = {
@@ -78,6 +83,10 @@ test("acquisition execute POST preserves legacy omission and exact custody recov
   const recoveryForwarded = JSON.parse(calls[1].init.body);
   assert.equal(Object.hasOwn(legacyForwarded, "custody_recovery"), false);
   assert.deepEqual(recoveryForwarded.custody_recovery, custodyRecovery);
+  assert.equal(
+    recoveryForwarded.custody_recovery.settled_draft.response_text,
+    custodyRecovery.settled_draft.response_text,
+  );
   assert.deepEqual(
     Object.keys(recoveryForwarded.custody_recovery.head_ref).sort(),
     ["artifact_id", "kind", "manifest_profile_sha256", "media_type"],

@@ -293,14 +293,17 @@ def test_real_epoch_negative_replays_selected_owner_and_refuses_scope_grafts(
             default_manifest.write_bytes(before)
 
         prepared = case.negative.prepared_epoch_ref
-        prepared_blob, _prepared_manifest = case.store._paths(prepared.artifact_id)
-        prepared_bytes = prepared_blob.read_bytes()
+        assert prepared is not None
+        prepared_blob, _ = case.store._paths(prepared.artifact_id)
+        held_blob = prepared_blob.with_suffix(".held")
+        prepared_blob.rename(held_blob)
         try:
-            prepared_blob.unlink()
-            with pytest.raises((ValueError, artifacts.ArtifactUnavailableError)):
+            with pytest.raises(
+                FileNotFoundError, match=rf"^Artifact not found: {prepared.artifact_id.hex}$"
+            ):
                 growth.resolve_native_admission_deferral_outcome(case.store, case.events, **kwargs)
         finally:
-            prepared_blob.write_bytes(prepared_bytes)
+            held_blob.rename(prepared_blob)
         assert (
             growth.resolve_native_admission_deferral_outcome(case.store, case.events, **kwargs)
             == case.ref

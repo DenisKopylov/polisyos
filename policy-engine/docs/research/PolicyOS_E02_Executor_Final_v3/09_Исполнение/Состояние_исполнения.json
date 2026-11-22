@@ -9079,7 +9079,7 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE. Scientific C revision 4 exact historical numerical result is verified in a fresh API on published runtime. Native R39 stopped on disk before N5. R40–R43 qualify the retained route and reproduce increasing charged memory across one coordinator's two reads. R44 proves the measured post-dispatch full collection leaves the charged footprint unchanged and records repeated ownership snapshot loads. Native calculation and cold read remain verification_missing. Gate B remains open.",
+        "status": "ACTIVE. Scientific C revision 4 exact historical numerical result is verified in a fresh API on published runtime. Native R39 stopped on disk before N5. R40–R43 qualify the retained route and reproduce increasing charged memory across one coordinator's two reads. R44 proves measured post-dispatch full collection leaves the charged footprint unchanged. R45 separates a smaller retained charge from one A history read and leaves attribution of the larger nested increase open. Native calculation and cold read remain verification_missing. Gate B remains open.",
         "main_commit": "87b3154db6f7f421eea7bb9c1e17bf91e61e6434",
         "main_tree": "c328831d3f355218afec94ef96819322e38b4bfa",
         "native_r39": {
@@ -9150,6 +9150,46 @@
           "supervisor_receipt_sha256": "8ac8a7a05347622f032bc180931f51d8a3ee5975991fccc18392a4046b892061"
         },
         "native_route_resource_checks": {
+          "R45": {
+            "status": "PASS. One isolated stock A history owner call returns two selected generations, without a live lease or any effects.",
+            "readout": "Primary:policy-engine/_cache/e02/native-r45-single-a-owner-UnqSOQkG/",
+            "runtime_commit": "728f6975fe964d68a20af88e696fbe825cdf5673",
+            "runtime_tree": "548cf773ddabc5d4d620dcb601cadf8b6849aeea",
+            "supervised_seconds": 269.899,
+            "owner_seconds": 59.220413625,
+            "stock_and_observer_quiescent": true,
+            "owner_entry_charged_bytes": 3239202944,
+            "owner_released_charged_bytes": 3293319416,
+            "owner_retained_delta_bytes": 54116472,
+            "owner_snapshot_loads": 13383,
+            "stock_read_counts": {
+              "blob_reads": 1997,
+              "manifest_reads": 5233,
+              "owner_snapshot_loads": 13383,
+              "returned_blob_bytes": 9652704
+            },
+            "both_vmmap_samples": {
+              "owner_entry": {
+                "bytes": 6020,
+                "file": "phase-1.vmmap.txt",
+                "sha256": "dcb7ad770f5a2facfa08cab0e4acf411c0da671169e215399899bbc10d1b4df6"
+              },
+              "owner_return": {
+                "bytes": 6274,
+                "file": "phase-2.vmmap.txt",
+                "sha256": "c68a2c54a227827eaeb5f93738b6af291a4ec91d30fc76fdf0e878bd26de1137"
+              }
+            },
+            "checksums_sha256": {
+              "supervisor": "8d2e830695dca3a66f2504420a2a8671c6c93ff2c71877ce9abee0a52e04279f",
+              "observer": "f901b97b873a66dda0833ef48d917f9d0892eed2316f71f87dbd34860bbc2c1a",
+              "effects": "d77c79a9c063fe30b85528b413323c1ed544679dd1d6d34e899723eea7caef27",
+              "owner": "0e5086a3e77872e87c507e1348d4af8023c8512205e52fe579954513c865275a",
+              "kernel": "6acbf6d292e5ef005beb7927568d714f6f158bc7f494e9842f1b9a75dbd8d418"
+            },
+            "effects": "Attempt 4, all jobs/heads/events, complete CAS and both journals reconcile. Original ledger revision 16, no reservations, new lease, marker, N5 or successor.",
+            "interpretation": "The one owner read retains about 51.6 MiB charged. The larger nested increases require separate attribution. No allocator cause or Native numerical result is established."
+          },
           "R44": {
             "status": "PASS. One no-effect currentness round and one post-dispatch full collection.",
             "reason": null,
@@ -9281,7 +9321,10 @@
             "supervised_seconds": 31.478,
             "sibling_wave": "3 pass, 2 fail. Foreign-price setup stops on signature custodian conflict. Paid deferral removal returns FileNotFoundError from the Core epoch reader. Attribution to this test change is unknown.",
             "sibling_wave_receipt": "Primary:policy-engine/_cache/e02/lane01-v26-sibling-dCjHP3/budget/result.json",
-            "sibling_wave_receipt_sha256": "ecb4398e319969c332f0f6ea6d61c87b08f2991a42c6ae2a38093a4af23b73d5"
+            "sibling_wave_receipt_sha256": "ecb4398e319969c332f0f6ea6d61c87b08f2991a42c6ae2a38093a4af23b73d5",
+            "repaired_siblings": "5 pass after the fixture uses one signer for the retained and foreign observations, requires the production money_basis_not_established guard at equal numeric evidence, and reconciles the exact prepared-epoch removal and restoration.",
+            "repaired_siblings_receipt": "Primary:policy-engine/_cache/e02/lane01-v26-sibling-custody-xTeqsruP/budget/result.json",
+            "repaired_siblings_receipt_sha256": "cfe59e622596a3bef993c798d4241e9ce337f9ed1567225475ada7c5258a535d"
           },
           "v24_authority_http_components": {
             "status": "Two generic controls pass on selected artifact HTTP/export authority and governed candidate-ledger refusal. The exact same-number model-input/N5 projection remains semantic_test_missing. The neighboring anonymous withdrawal row stops at publication_preparation_invalid before issuance and withdrawal. The first request persists a private draft with no canon profile and strict Core reread rejects canon_profile_absent.",

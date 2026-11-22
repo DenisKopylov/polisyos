@@ -247,12 +247,36 @@ def test_native_step_preparation_refuses_wrong_year_and_missing_selected_source(
 def test_native_step_preparation_refuses_a_foreign_price_basis(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    from polisyos.data_forge.read_api import catalog
     from polisyos.ir.kernel import MoneyUnit
+    from tests._helpers.semantic_epoch_native import NativeEpochFixtureCustodian
+
+    activate = registered_fixture.make_native_multivariable_active_projections
+    custodian: NativeEpochFixtureCustodian | None = None
+
+    def activate_under_same_custodian(path, *, artifact_store, **kwargs):
+        nonlocal custodian
+        if custodian is None:
+            custodian = NativeEpochFixtureCustodian.create(artifact_store, tmp_path / "custodian")
+        return activate(path, artifact_store=artifact_store, fixture_custodian=custodian, **kwargs)
+
+    monkeypatch.setattr(
+        registered_fixture,
+        "make_native_multivariable_active_projections",
+        activate_under_same_custodian,
+    )
 
     fixture = prepare_temporal_registered_method_inputs(tmp_path)
     case = fixture.case
     try:
         first = fixture.requests[0]
+        original = prepare_registered_derived_model_input_steps(
+            case.store,
+            base_data_snapshot_ref=case.data_snapshot_ref,
+            obligation_set_ref=fixture.preflight.obligation_set_ref,
+            inputs=(first,),
+        )
+        assert original.coverage.supplied_step_scopes == (first.step_scope,)
         metadata = dict(fixture.metadata_by_step[0])
         setup = registered_fixture.prepare_registered_method_input_profile(case, metadata)
         role = setup.profile.denominator_role
@@ -318,7 +342,21 @@ def test_native_step_preparation_refuses_a_foreign_price_basis(
                 binding_id="foreign-price-same-value",
                 source_year=fixture.spec.rows[0].year,
             )
-        with pytest.raises(ValueError, match="registered_derived_model_input_semantic_"):
+        original_ref = next(
+            row.occurrence_ref for row in first.request.role_occurrences if row.role == role
+        )
+        changed_ref = next(
+            row.occurrence_ref for row in foreign.role_occurrences if row.role == role
+        )
+        assert artifact_ref_identity_key(original_ref) != artifact_ref_identity_key(changed_ref)
+        prior, _, _ = catalog.replay_selected_scoped_measurement_facts(case.store, original_ref)
+        changed, _, _ = catalog.replay_selected_scoped_measurement_facts(case.store, changed_ref)
+        assert Decimal(prior.canonical_value) == Decimal(changed.canonical_value)
+        assert prior.source_scope == changed.source_scope
+        with pytest.raises(
+            ValueError,
+            match=r"^registered_derived_model_input_semantic_refused:.*\bmoney_basis_not_established\b",
+        ):
             prepare_registered_derived_model_input_steps(
                 case.store,
                 base_data_snapshot_ref=case.data_snapshot_ref,

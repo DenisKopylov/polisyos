@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 from decimal import Decimal
+from functools import partial as bind_arguments
 from pathlib import Path
 
 import pytest
@@ -35,7 +36,7 @@ from polisyos.runtime.quality.data_snapshot_lineage import (
     DataSnapshotLineageError,
     validate_data_snapshot_owner_lineage,
 )
-from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationController
+from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
 from polisyos.runtime.quality.model_input_step_materialization import (
     RegisteredDerivedModelInputStepRequest,
     prepare_registered_derived_model_input_steps,
@@ -62,7 +63,7 @@ def test_native_step_preparation_replays_partial_and_complete_fixed_price_inputs
             numerical_calls.append(True)
             pytest.fail("temporal input preparation must not dispatch N5")
 
-        monkeypatch.setattr(JointSimulationController, "run", forbid_n5)
+        monkeypatch.setattr(JointSimulationHorizonController, "run", forbid_n5)
         partial = prepare_registered_derived_model_input_steps(
             case.store,
             base_data_snapshot_ref=case.data_snapshot_ref,
@@ -73,7 +74,7 @@ def test_native_step_preparation_replays_partial_and_complete_fixed_price_inputs
         partial_manifest = load_resolved_input_binding_manifest(
             fresh, partial.resolved_binding_manifest_ref
         )
-        partial_bytes = fresh.get_bytes(partial.resolved_binding_manifest_ref.artifact_id)
+        partial_bytes = fresh.get_bytes(partial.resolved_binding_manifest_ref)
         assert partial.coverage.missing_step_scopes == (fixture.requests[1].step_scope,)
         assert recompute_resolved_step_input_coverage(fresh, partial_manifest) == partial.coverage
         with pytest.raises(ValueError, match="model_input_step_coverage_incomplete"):
@@ -90,12 +91,43 @@ def test_native_step_preparation_replays_partial_and_complete_fixed_price_inputs
         )
         assert not hasattr(partial, "input_bindings_ref")
 
-        full = prepare_registered_derived_model_input_steps(
-            case.store,
+        prepare_full = bind_arguments(
+            prepare_registered_derived_model_input_steps,
             base_data_snapshot_ref=case.data_snapshot_ref,
             obligation_set_ref=fixture.preflight.obligation_set_ref,
             inputs=tuple(reversed(fixture.requests)),
         )
+        second_occurrence = fixture.requests[1].request.role_occurrences[0].occurrence_ref
+        assert all(
+            role.occurrence_ref.artifact_id != second_occurrence.artifact_id
+            for role in fixture.requests[0].request.role_occurrences
+        )
+        with _removed_blob(case.store, second_occurrence):
+            restarted = FileSystemCAS(case.store.root)
+            with pytest.raises(ValueError, match=r"^selected_occurrence_source_replay_failed$"):
+                prepare_full(restarted)
+
+            fresh = FileSystemCAS.open_existing_read_only(case.store.root)
+            assert fresh.get_bytes(partial.resolved_binding_manifest_ref) == partial_bytes
+            retained = load_resolved_input_binding_manifest(
+                fresh, partial.resolved_binding_manifest_ref
+            )
+            coverage = recompute_resolved_step_input_coverage(fresh, retained)
+            assert coverage == partial.coverage
+            with pytest.raises(ValueError, match=r"^model_input_step_coverage_incomplete$"):
+                coverage.require_complete()
+            manifests_at_refusal = set(
+                (case.store.root / "artifacts" / "sha256").glob("*/*/*.manifest.json")
+            )
+
+        full = prepare_full(FileSystemCAS(case.store.root))
+        for ref in (full.data_snapshot_ref, full.resolved_binding_manifest_ref):
+            assert ref.manifest_profile_sha256 is not None
+            selected_path = case.store._manifest_path_for_ref(
+                ref.artifact_id, ref.manifest_profile_sha256
+            )
+            assert selected_path.is_file() and selected_path not in manifests_at_refusal
+        fresh = FileSystemCAS.open_existing_read_only(case.store.root)
         full_manifest = load_resolved_input_binding_manifest(
             fresh, full.resolved_binding_manifest_ref
         )
@@ -105,7 +137,7 @@ def test_native_step_preparation_replays_partial_and_complete_fixed_price_inputs
             partial_manifest.model_input_obligation_set_ref
         )
         assert full_manifest.method_input_steps[0] == partial_manifest.method_input_steps[0]
-        assert fresh.get_bytes(partial.resolved_binding_manifest_ref.artifact_id) == partial_bytes
+        assert fresh.get_bytes(partial.resolved_binding_manifest_ref) == partial_bytes
         observed = []
         for row, expected in zip(full_manifest.method_input_steps, fixture.spec.rows, strict=True):
             proof = load_registered_derived_input_correspondence(

@@ -9274,6 +9274,21 @@
           "p07_100k_allocated_scratch_bytes": 2704310272,
           "v08": "PASS on the final bounded four-step selected-method fixture. Actual undeclared GDP lookup first fails on effective step 3 after three persisted successes. The fresh reader refuses the incomplete chain. Restored input reaches the deciding latest step and the complete fresh chain.",
           "v08_receipt": "Native transition checkout:policy-engine/_cache/e02/lane01-v08-late-state-r3-M6SGqh/budget/result.json",
+          "v26_selected_input_restart": {
+            "status": "PASS. After the selected second source occurrence is withheld, the fresh stock writer refuses. A separate reader recomputes incomplete coverage from byte-identical partial custody. Both final selected profiles are absent at refusal. Restored retry preserves the first step and yields the exact complete candidate views, with zero N5. Paid retry/accounting stays open.",
+            "receipt": "Primary:policy-engine/_cache/e02/lane01-v26-partial-restart-r3-b4lS76St/budget/result.json",
+            "receipt_sha256": "919a5f666d351cd8556b091d19cd3cb99f51f3443e31e8f19491026f14b62027",
+            "supervised_seconds": 31.478,
+            "sibling_wave": "3 pass, 2 fail. Foreign-price setup stops on signature custodian conflict. Paid deferral removal returns FileNotFoundError from the Core epoch reader. Attribution to this test change is unknown.",
+            "sibling_wave_receipt": "Primary:policy-engine/_cache/e02/lane01-v26-sibling-dCjHP3/budget/result.json",
+            "sibling_wave_receipt_sha256": "ecb4398e319969c332f0f6ea6d61c87b08f2991a42c6ae2a38093a4af23b73d5"
+          },
+          "v24_authority_http_components": {
+            "status": "Two generic controls pass on selected artifact HTTP/export authority and governed candidate-ledger refusal. The exact same-number model-input/N5 projection remains semantic_test_missing. The neighboring anonymous withdrawal row stops at publication_preparation_invalid before issuance and withdrawal. The first request persists a private draft with no canon profile and strict Core reread rejects canon_profile_absent.",
+            "receipt": "Primary:policy-engine/_cache/e02/lane01-v24-surface-hhOejF/budget/result.json",
+            "receipt_sha256": "ceca71f16bfcea9f919899c12a88780f3884ce47373e5efe0323e33d12500a82"
+          },
+          "v12_source_owner_boundary": "Complete signed distinct-source served reuse still needs a comparable V2 predecessor and the matching active physical image. The qualified two-WDI-release and the retained same-source served proofs supply different cuts. Publisher release currentness is not established and institutional revocation has no verified WDI producer/bridge.",
           "v27": "PASS for the exact bounded registered four-role weighted subgroup mean. Missing/swapped weight refuses and the fresh selected certificate returns Decimal 8. Separate total/per-person and fiscal/calendar controls keep their own scope.",
           "v07": "Actual selected measurement history reaches Foundry optimizer and fresh report. Forecast ETS validates selected DataSnapshot profile, qualifies differing holdout support and retains predictive_only scope.",
           "v22": "A genuine nonempty same-DB count accompanies the exact stock Catalog scope query. Foreign geography and period independently refuse. Matching scope remains candidate-only. Downstream completeness remains a separate surface.",

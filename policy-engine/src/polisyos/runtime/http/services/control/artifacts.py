@@ -1443,6 +1443,11 @@ def _authority_payload_write_options(
     )
 
 
+def authority_artifact_cas_write_dedupe_key(*, job_id: str, phase: str, evidence_id: str) -> str:
+    """Return the event key for the canonical authority artifact write."""
+    return f"{job_id}:{phase}:{evidence_id}:cas_write"
+
+
 def _build_diagnostic_event(
     *,
     event_id: str | None,
@@ -1503,7 +1508,9 @@ def _build_diagnostic_event(
             "blocking_status": blocking_status,
             "redaction_policy_ref": redaction_policy_ref,
             "duplicate_of": None,
-            "dedupe_key": f"{job_id}:{phase}:{evidence_id}:cas_write",
+            "dedupe_key": authority_artifact_cas_write_dedupe_key(
+                job_id=job_id, phase=phase, evidence_id=evidence_id
+            ),
             "sampling_decision": "always_record",
             "sampling_rate": None,
         }

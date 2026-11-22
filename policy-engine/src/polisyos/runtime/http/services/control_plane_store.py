@@ -9394,6 +9394,9 @@ class ControlPlaneStore:
         one transaction boundary.
         """
         from polisyos.core.canon import CanonSpec, to_canonical_bytes
+        from polisyos.runtime.http.services.control.artifacts import (
+            authority_artifact_cas_write_dedupe_key,
+        )
         from polisyos.runtime.http.services.control.run_lifecycle import (
             _acquisition_route_receipt_inputs,
         )
@@ -9516,7 +9519,12 @@ class ControlPlaneStore:
             or event.blocking_status != "non_blocking"
             or event.redaction_policy_ref is not None
             or event.duplicate_of is not None
-            or event.dedupe_key is not None
+            or event.dedupe_key
+            != authority_artifact_cas_write_dedupe_key(
+                job_id=expected_job.job_id,
+                phase="acquisition_route_loop",
+                evidence_id=terminal.receipt_id,
+            )
             or event.payload_ref != terminal_id
             or prepared_event.payload_ref != terminal_id
             or prepared_event.payload_sha256 is not None
@@ -9682,6 +9690,9 @@ class ControlPlaneStore:
                 ):
                     raise ValueError("ordinary_terminal_custody_event_identity_changed")
                 event, payload = prepared_event.publication_values()
+                from polisyos.runtime.http.services.control.artifacts import (
+                    authority_artifact_cas_write_dedupe_key,
+                )
                 from polisyos.runtime.http.services.control.run_lifecycle import (
                     _acquisition_route_receipt_inputs,
                 )
@@ -9717,7 +9728,12 @@ class ControlPlaneStore:
                     or event.blocking_status != "non_blocking"
                     or event.redaction_policy_ref is not None
                     or event.duplicate_of is not None
-                    or event.dedupe_key is not None
+                    or event.dedupe_key
+                    != authority_artifact_cas_write_dedupe_key(
+                        job_id=job_id,
+                        phase="acquisition_route_loop",
+                        evidence_id=terminal.receipt_id,
+                    )
                     or event.payload_ref != terminal_id
                     or event.artifact_refs != (terminal_id,)
                     or event.input_refs != _acquisition_route_receipt_inputs(terminal)

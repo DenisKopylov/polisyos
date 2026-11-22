@@ -352,7 +352,7 @@ def _ordinary_custody_case(
         blocking_status="non_blocking",
         redaction_policy_ref=None,
         duplicate_of=None,
-        dedupe_key=None,
+        dedupe_key=f"{head.job_id}:acquisition_route_loop:{terminal.receipt_id}:cas_write",
     )
     prepared_event = RuntimeDiagnosticEventLog(
         store=store,
@@ -701,20 +701,27 @@ def test_ordinary_terminal_custody_rejects_foreign_event_scope_without_effects(
     assert store.read_acquisition_evaluation_frontier(frontier.key) == frontier
 
 
-def test_ordinary_terminal_custody_rejects_changed_event_time_without_effects(
+@pytest.mark.parametrize("field", ["event_time", "dedupe_key"])
+def test_ordinary_terminal_custody_rejects_changed_event_metadata_without_effects(
     tmp_path: Path,
+    field: str,
 ) -> None:
     store, args, frontier = _ordinary_custody_case(tmp_path)
     original = args["expected_job"]
     path = tmp_path / "control-plane.sqlite3"
     before = _rows(path, original.job_id)
     event, _ = args["prepared_event"].publication_values()
-    changed_time = event.model_copy(update={"event_time": event.event_time + timedelta(seconds=1)})
+    changed_value = (
+        event.event_time + timedelta(seconds=1)
+        if field == "event_time"
+        else "foreign-terminal:cas_write"
+    )
+    changed_event = event.model_copy(update={field: changed_value})
     args["prepared_event"] = RuntimeDiagnosticEventLog(
         store=store,
         artifact_store=object(),
     ).prepare(
-        changed_time,
+        changed_event,
         payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True),
     )
 

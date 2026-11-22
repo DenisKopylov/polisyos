@@ -1146,6 +1146,7 @@ def test_generation_snapshot_cache_is_detached_and_keeps_owner_profile_scopes(
 
 def test_generation_snapshot_cache_hash_checks_current_bytes_and_pointer(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     index = ArtifactOwnershipIndex(tmp_path / "cas")
     artifact_id = ArtifactID.from_sha256_hex("d" * 64)
@@ -1153,12 +1154,21 @@ def test_generation_snapshot_cache_hash_checks_current_bytes_and_pointer(
     assert index.is_owned_by(artifact_id, tenant_id="tenant-a", cell_id="cell-a")
 
     pointer = json.loads(index.path.read_bytes())
-    assert index._current_generation_token() == pointer["generation_sha256"]
     generation_path = index._generation_path(pointer["generation_sha256"])
     generation_bytes = generation_path.read_bytes()
     generation_stat = generation_path.stat()
+    read_bytes = Path.read_bytes
+
+    def read_bytes_without_whole_generation(path: Path) -> bytes:
+        assert path != generation_path, "warm owner query read the entire generation into memory"
+        return read_bytes(path)
+
+    monkeypatch.setattr(Path, "read_bytes", read_bytes_without_whole_generation)
+    assert index.is_owned_by(artifact_id, tenant_id="tenant-a", cell_id="cell-a")
+    assert index._current_generation_token() == pointer["generation_sha256"]
+
     tampered = bytearray(generation_bytes)
-    tampered[0] = ord(" ")
+    tampered[-2] ^= 1
     assert len(tampered) == len(generation_bytes)
     generation_path.write_bytes(tampered)
     os.utime(

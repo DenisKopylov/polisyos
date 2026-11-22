@@ -2178,20 +2178,21 @@ class ArtifactOwnershipIndex:
             raise ValueError("ownership_index_pointer_invalid")
         generation_sha256 = pointer["generation_sha256"]
         generation_path = self._generation_path(generation_sha256)
-        try:
-            generation_bytes = generation_path.read_bytes()
-            if _sha256_bytes(generation_bytes) != generation_sha256:
-                raise ValueError("ownership_index_generation_invalid")
-        except (OSError, ValueError):
-            raise ValueError("ownership_index_generation_invalid") from None
-
         pointer_sha256 = _sha256_bytes(pointer_bytes)
         cache_key = (str(self.root), pointer_sha256, generation_sha256)
         cached = self._snapshot_cache
-        if cached is not None and cached.key == cache_key:
-            return cached
-
         try:
+            if cached is not None and cached.key == cache_key:
+                # Recheck every byte before reusing the decoded projection.
+                with generation_path.open("rb", buffering=0) as stream:
+                    digest = hashlib.file_digest(stream, "sha256").hexdigest()
+                if f"sha256:{digest}" != generation_sha256:
+                    raise ValueError("ownership_index_generation_invalid")
+                return cached
+
+            generation_bytes = generation_path.read_bytes()
+            if _sha256_bytes(generation_bytes) != generation_sha256:
+                raise ValueError("ownership_index_generation_invalid")
             generation = _decode_json(generation_bytes, reject_duplicate_keys=True)
             snapshot = self._parse_generation(generation)
         except (

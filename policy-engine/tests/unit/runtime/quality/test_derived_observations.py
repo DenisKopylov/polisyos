@@ -280,6 +280,7 @@ def _persist(
     basis: BasisSignature,
     values: tuple[tuple[int, str], ...],
     score: str,
+    return_selected_profile: bool = False,
 ) -> artifacts.ArtifactRef:
     return persist_source_series(
         store,
@@ -290,6 +291,7 @@ def _persist(
             authority=_authority(store, label=role, score=score),
             observation_class="observed",
         ),
+        return_selected_profile=return_selected_profile,
     )
 
 
@@ -1070,6 +1072,134 @@ def test_novel_family_is_typed_refused_then_accepted_by_registry_data_only(
     assert materialized.series.points[0].value == Decimal("10")
     assert len(recipe.inputs) == 3
     assert materialized.certificate.effective_authority == Decimal("0.7")
+
+
+def test_declared_weighted_mean_requires_both_selected_subgroup_weights(tmp_path: Path) -> None:
+    """Replay a fixed, fixture-registered derivation with separately selected weights."""
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    period = "calendar_year"
+    sources = {
+        "mean_a": (_basis("per_person_mean", "usd", population="a", period=period), "2"),
+        "mean_b": (_basis("per_person_mean", "usd", population="b", period=period), "10"),
+        "weight_a": (
+            _basis("relative_population_weight", "ratio", population="a", period=period),
+            "1",
+        ),
+        "weight_b": (
+            _basis("relative_population_weight", "ratio", population="b", period=period),
+            "3",
+        ),
+    }
+    refs = {
+        role: _persist(
+            store,
+            role=role,
+            basis=basis,
+            values=((2024, value),),
+            score="0.8",
+            return_selected_profile=True,
+        )
+        for role, (basis, value) in sources.items()
+    }
+    assert all(ref.manifest_profile_sha256 for ref in refs.values())
+    output_basis = _basis("per_person_mean", "usd", population="a_and_b", period=period)
+    mean_a, mean_b, weight_a, weight_b = (_leaf("current_value", role=role) for role in sources)
+    family_id = "fixture_two_subgroup_weighted_mean"
+    registry = _registry(
+        {
+            "family_id": family_id,
+            "method_id": "arithmetic.exact_year.two_subgroup_weighted_mean",
+            "method_version": "1.0.0",
+            "input_specs": tuple(
+                {
+                    "role": role,
+                    "basis": basis,
+                    "value_constraints": ("positive",) if role.startswith("weight_") else (),
+                }
+                for role, (basis, _) in sorted(sources.items())
+            ),
+            "output_basis": output_basis,
+            "year_domain_role": "mean_a",
+            "expression": {
+                "operator": "divide",
+                "operands": (
+                    _leaf(
+                        "add",
+                        operands=(
+                            _leaf("multiply", operands=(mean_a, weight_a)),
+                            _leaf("multiply", operands=(mean_b, weight_b)),
+                        ),
+                    ),
+                    _leaf("add", operands=(weight_a, weight_b)),
+                ),
+            },
+            "assumption_rules": (
+                {"name": "scope", "literal_value": "two disjoint subgroups of one calendar year"},
+            ),
+        }
+    )
+    registry_ref = persist_transform_family_registry(store, registry)
+    registry_ref = registry_ref.model_copy(
+        update={
+            "manifest_profile_sha256": artifacts.artifact_manifest_profile_sha256(
+                store.get_manifest(registry_ref)
+            )
+        }
+    )
+
+    def build_recipe(
+        selected_refs: dict[str, artifacts.ArtifactRef],
+    ) -> core_derivations.DerivationRecipe:
+        return build_derivation_recipe(
+            store,
+            registry=registry,
+            registry_ref=registry_ref,
+            input_refs=selected_refs,
+            output_variable_id="test.fixture.derived.weighted_mean",
+            output_basis=output_basis,
+            family_id=family_id,
+        )
+
+    for invalid_refs in (
+        {role: ref for role, ref in refs.items() if role != "weight_b"},
+        {**refs, "weight_a": refs["weight_b"], "weight_b": refs["weight_a"]},
+    ):
+        with pytest.raises(DerivationRefusalError) as refused:
+            build_recipe(invalid_refs)
+        assert refused.value.code is DerivationRefusalCode.BASIS_MISMATCH
+        assert refused.value.reason is DerivationRefusalReason.NO_CERTIFIED_TRANSFORM
+
+    recipe = build_recipe(refs)
+    recipe_ref = core_derivations.persist_derivation_recipe_artifact(store, recipe)
+    produced = materialize_derivation(store, recipe)
+    # Independent expectation: (2 × 1 + 10 × 3) / 4 = 8, versus an unweighted mean of 6.
+    expected = (SeriesPoint(year=2024, value=Decimal("8")),)
+    assert produced.series.points == expected
+    assert produced.series.basis == output_basis
+    fresh = artifacts.FileSystemCAS.open_existing_read_only(store.root)
+    assert core_derivations.load_derivation_recipe_artifact(fresh, recipe_ref) == recipe
+    resolved = core_derivations.resolve_certified_derivation(
+        fresh,
+        certificate_ref=produced.certificate_artifact_ref,
+        consumer_method_id="test.fixture.weighted_mean.consumer@1.0.0",
+    )
+    assert resolved.series.points == expected
+    assert resolved.consumption.cache_verified
+    assert resolved.certificate.recipe == recipe
+    assert recipe.registry_artifact.manifest_profile_sha256 == registry_ref.manifest_profile_sha256
+    assert resolved.certificate.authoritative_for == ("certified_derived_series",)
+    assert {
+        item.role: (item.artifact.artifact_id, item.artifact.manifest_profile_sha256)
+        for item in resolved.certificate.recipe.inputs
+    } == {role: (ref.artifact_id, ref.manifest_profile_sha256) for role, ref in refs.items()}
+    assert {
+        item.role: (item.artifact_id, item.manifest_profile_sha256)
+        for item in fresh.get_manifest(produced.certificate_artifact_ref).inputs
+        if item.role.startswith("source:")
+    } == {
+        f"source:{role}": (ref.artifact_id, ref.manifest_profile_sha256)
+        for role, ref in refs.items()
+    }
 
 
 def test_same_source_artifact_can_fill_two_recipe_roles_and_replay(

@@ -9079,9 +9079,9 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE. Scientific C is verified through revision 4 and fresh numerical API read. Native R39 used the independent SQLite pulse and preserved the paid B action, then hit the disk floor before numerical work. The expired marked cut retains no prepared member or terminal; Native calculation and cold read remain verification_missing.",
-        "main_commit": "bb144c4b62ed52b33a1d1196146231469fa8ad9a",
-        "main_tree": "2fb65c5437b91ee43f21a78171397adf3d974dc6",
+        "status": "ACTIVE. Scientific C revision 4 exact historical numerical result is verified in a fresh API on published runtime. Native R39 stopped on disk before N5 and its expired marked cut has no prepared result. R40–R43 qualify the retained route and reproduce retained charged memory over two no-effect currentness rounds. Native calculation and cold read remain verification_missing. Gate B remains open.",
+        "main_commit": "87b3154db6f7f421eea7bb9c1e17bf91e61e6434",
+        "main_tree": "c328831d3f355218afec94ef96819322e38b4bfa",
         "native_r39": {
           "status": "RESOURCE_ABORT: disk_floor_during_run. Actual exit -2 via SIGINT. Stock and observer groups quiescent.",
           "runtime_commit": "bb144c4b62ed52b33a1d1196146231469fa8ad9a",
@@ -9124,9 +9124,103 @@
           "peer_samples": "Primary:policy-engine/_cache/e02/native-r39-from-unmarked-r35-xlndbato/peer-lease-observations.jsonl",
           "peer_samples_sha256": "ff66d5c12cd46332f2d21cb962b7e50b7b0e4151ad4e19f6bc53e46d140c4094"
         },
+        "scientific_c_final_shared": {
+          "status": "PASS. A separate authenticated Run Details consumer returned HTTP 200 and the exact historical selected body and trajectories.",
+          "runtime_commit": "87b3154db6f7f421eea7bb9c1e17bf91e61e6434",
+          "runtime_tree": "c328831d3f355218afec94ef96819322e38b4bfa",
+          "frontier_revision": 4,
+          "joint_points": [
+            {
+              "effect": 0.0020000000000000018,
+              "outcome": 0.21199999344348908,
+              "step": 0
+            }
+          ],
+          "standard_units_before_changed_source": 4,
+          "standard_units_after_changed_source": 6,
+          "protected_units_used": 0,
+          "extra_provider_calls": 0,
+          "extra_n5_calls": 0,
+          "original_catalog": "Exact R16 absolute path, device and inode. Reconciled to the retained producer hash.",
+          "current_image_equality": "not_established",
+          "comparison_with_b": "not_established",
+          "elapsed_seconds": 133.837,
+          "receipt": "Primary:policy-engine/_cache/e02/lane01-c-final-shared-api-aX1qEn/fresh-api.json",
+          "receipt_sha256": "05b3c1d5e8158d6aecade34acc81507acf372b4cc7d0cbd0a08d2200cbd78ae4",
+          "supervisor_receipt_sha256": "8ac8a7a05347622f032bc180931f51d8a3ee5975991fccc18392a4046b892061"
+        },
+        "native_route_resource_checks": {
+          "R40": {
+            "status": "PASS",
+            "reason": null,
+            "elapsed_seconds": 528.557,
+            "peak_sampled_rss_bytes": 4549394432,
+            "stock_and_observer_quiescent": true,
+            "readout": "Primary:policy-engine/_cache/e02/native-r40-route-footprint-ilcr125x/",
+            "supervisor_sha256": "3fe1c9425b0b200dc6faf7ecbe470c67d0dffb079dd729bd1e14a8524a37d3f2",
+            "observer_sha256": "ae66bf449a337176500137011f378eca5cdb5abf607ad7a82d54418178e2738d",
+            "effect_reconciliation_sha256": "b8a6a324532ea603812d74d4277593ab05fed35b4f1ec97c688a900e21cf6cd7",
+            "route_seconds": 173.54886045795865,
+            "peak_charged_bytes": 3407909160
+          },
+          "R41": {
+            "status": "RESOURCE_ABORT",
+            "reason": "rss_cap_observed",
+            "elapsed_seconds": 984.706,
+            "peak_sampled_rss_bytes": 5371641856,
+            "stock_and_observer_quiescent": true,
+            "readout": "Primary:policy-engine/_cache/e02/native-r41-one-current-footprint-Bp0gDjKX/",
+            "supervisor_sha256": "2d54d5762a44f746942c4fd8352e84caabd85705c894921c84fb1f5334043835",
+            "observer_sha256": "7cd492e948f576861ab6060224edc186f1361ba9f0d30066270361170fe00dac",
+            "effect_reconciliation_sha256": "b8a6a324532ea603812d74d4277593ab05fed35b4f1ec97c688a900e21cf6cd7",
+            "peak_charged_bytes": 4693906304,
+            "deciding_boundary": "Inside the sibling A route in current_collection, after exact B and pending owner replay. No whole currentness return."
+          },
+          "R42": {
+            "status": "PASS",
+            "reason": null,
+            "elapsed_seconds": 1206.894,
+            "peak_sampled_rss_bytes": 5516525568,
+            "stock_and_observer_quiescent": true,
+            "readout": "Primary:policy-engine/_cache/e02/native-r42-one-current-footprint-8zfM4V1O/",
+            "supervisor_sha256": "1bb959bdadb2c22705823f48f9e1680087ec8938e7723777b507e1ca9222d634",
+            "observer_sha256": "333772e79d0b40ad5439714bfc832ef5e916a064456c8e3761da27bbe687443e",
+            "effect_reconciliation_sha256": "b8a6a324532ea603812d74d4277593ab05fed35b4f1ec97c688a900e21cf6cd7",
+            "current_seconds": 654.822054458,
+            "charged_entry_bytes": 3266154912,
+            "charged_released_bytes": 4837069816
+          },
+          "R43": {
+            "status": "PASS",
+            "reason": null,
+            "elapsed_seconds": 1926.224,
+            "peak_sampled_rss_bytes": 6575177728,
+            "stock_and_observer_quiescent": true,
+            "readout": "Primary:policy-engine/_cache/e02/native-r43-two-current-retry-oQSlvo/",
+            "supervisor_sha256": "965439c745dee6591d70dbb8eee7140f6c12149227b463c761bb1bc22499a049",
+            "observer_sha256": "f8e7151ae0f6a1dd33b4456811a7213efb9a8f150647512d908c0053c7cd34ae",
+            "effect_reconciliation_sha256": "b8a6a324532ea603812d74d4277593ab05fed35b4f1ec97c688a900e21cf6cd7",
+            "one_live_attempt_and_coordinator": true,
+            "current_seconds": [
+              668.23423025,
+              673.66552275
+            ],
+            "charged_entry_bytes": 3261944152,
+            "charged_after_round_release_bytes": [
+              4883403768,
+              7035574800
+            ],
+            "charged_peak_bytes": 7076895248,
+            "largest_route_aligned_charge_deltas_bytes": [1044005416, 833028648],
+            "attribution_scope": "First sibling A and second-round B route deltas use nearest earlier samples within 0.740 s. Allocation ownership is not established.",
+            "current_receipt_sha256": "ec87cd6e229aab0473883eca6d5ca4e425bb68370af75fa3b804d4d31531f1f7",
+            "first_launch_failed_before_clone": "ACCESS_DENIED during supervisor sampling, zero effects. Byte-identical fresh diagnostic package passed stock and observer.",
+            "first_launch_receipt": "Primary:policy-engine/_cache/e02/native-r43-two-current-footprint-aVRf4PVn/budget/result.json"
+          }
+        },
         "variable_binding_20261122": {
           "gate_a": "Qualified for the declared stock and metadata-only profiles, semantic refusals, repeated B and changed C.",
-          "gate_b": "Open. Preserve exact V02–V33 evidence scopes. Remaining exact discriminators, benchmark 100k and ≥300k under preregistered budgets, full controlled growth/update measurements and production readiness remain unresolved.",
+          "gate_b": "Open. Preserve exact V02–V33 evidence scopes. Remaining exact discriminators, benchmark ≥300k under preregistered budgets, full controlled growth/update measurements and production readiness remain unresolved.",
           "v01_tax_ratio": "Transition PASS on the declared test-owned compiled tax-ratio port. Catalog converts 20% to 0.2, the real Foundry call sees float32 0.20000000298023224 and the fresh reader matches 0.7999999970197678 and the same argument digest. Fiscal numerator/denominator, altered multiplier and absent correspondence controls refuse. Fixed −3% gives the independently expected −6e9 USD derived flow.",
           "v01_receipt": "Native transition checkout:policy-engine/_cache/e02/lane01-v01-selected-tax-rate-j4gdku/budget/result.json",
           "derived_receipt": "Native transition checkout:policy-engine/_cache/e02/lane01-v01-fixed-derived-kTifNX/budget/result.json",
@@ -9139,6 +9233,20 @@
           "p07_independent_receipt": "Primary:policy-engine/_cache/e02/lane01-p07-independent-holdout-5werWf/budget/result.json",
           "v12": "PASS for distinct WDI releases with literal 0.175 and equal complete five-facet numerical preparation, verified before N5. Authorized reuse and current revocation retain their deciding served scenario.",
           "v12_receipt": "Primary:policy-engine/_cache/e02/lane01-p05-v12-v2-prep-FPRWLi/budget/result.json",
+          "p07_100k": "PASS of 100,000 exact definition/revision records and 99,984 namespaced semantic definitions. Independent old/new maps and atomic publication agree, with 100,049→100,050 registry rows. Index-only p95 0.004208 ms. Warm canonical owner+index p95 128.469375 ms and 235,112,672 registry bytes returned per query across 16 reads, excluding evidence reopen. Baseline scope, no deployment SLO.",
+          "p07_100k_receipt": "Primary:policy-engine/_cache/e02/lane01-p07-expanded-100k-TSxA3M/budget/result.json",
+          "p07_100k_receipt_sha256": "2481b1d249611b58d0cccf139427b13171a312890dff1da0f9a850930a5b06ad",
+          "p07_100k_elapsed_seconds": 1986.933,
+          "p07_100k_peak_sampled_rss_bytes": 6729990144,
+          "p07_100k_allocated_scratch_bytes": 2704310272,
+          "v08": "PASS on the final bounded four-step selected-method fixture. Actual undeclared GDP lookup first fails on effective step 3 after three persisted successes. The fresh reader refuses the incomplete chain. Restored input reaches the deciding latest step and the complete fresh chain.",
+          "v08_receipt": "Native transition checkout:policy-engine/_cache/e02/lane01-v08-late-state-r3-M6SGqh/budget/result.json",
+          "v27": "PASS for the exact bounded registered four-role weighted subgroup mean. Missing/swapped weight refuses and the fresh selected certificate returns Decimal 8. Separate total/per-person and fiscal/calendar controls keep their own scope.",
+          "v07": "Actual selected measurement history reaches Foundry optimizer and fresh report. Forecast ETS validates selected DataSnapshot profile, qualifies differing holdout support and retains predictive_only scope.",
+          "v22": "A genuine nonempty same-DB count accompanies the exact stock Catalog scope query. Foreign geography and period independently refuse. Matching scope remains candidate-only. Downstream completeness remains a separate surface.",
+          "composed_binding_cases": 15,
+          "composed_binding_receipt": "Primary:policy-engine/_cache/e02/lane01-binding-final-consumers-FXzfqW/budget/result.json",
+          "composed_binding_receipt_sha256": "a50243147306dd55ed2b2316407510257ead7533f328fc035fd61092ab03f401",
           "runtime_api_and_shared_consumers": "142 non-skipped affected cases and Runtime API OpenAPI/three-client byte contract passed on bb144c4b.",
           "shared_consumer_receipt": "Primary:policy-engine/_cache/e02/lane01-r39-shared-consumers-3AwYbX/budget/result.json",
           "api_receipt": "Primary:policy-engine/_cache/e02/lane01-r39-runtime-api-nkNGMg/budget/result.json"
@@ -10062,7 +10170,7 @@
           "repair": "Main 0e003218d, independent review and 58 affected checks pass",
           "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. R18 on cc646d605 returns HTTP 409 at decision request and completes with no new job. Its exact selected typed manifest waited 2.048 s at a 1.5 s guard. Main bfefb6188 extends the existing single retry to raw and typed profile reads. Focused checks and the path-aware docs/API gate pass. R19 loses acknowledgement of a completed payload CAS write (1.903 s). It leaves exact CAS links, without durable event or acquisition job. Main 24d5538e4 adds read-only recovery with 73 tests and docs/API gate PASS. R20 records zero CAS wait timeouts, then HTTP 503 at decision-request after its event lands 49 s beyond the Step-Up deadline. No new acquisition job or N5. R21 resolves the Native route in 264.615 s of 265.480 s total, with no observed CAS wait timeout. The exact mutation selects one node/supplier group and replays all competing profiles within it."
         },
-        "next": "Measure the on-lease stock route on a separate COW of unmarked R35 under a charged-footprint and disk bound, before considering another paid-B numerical qualification. Qualify remaining finite Gate B discriminators and large profiles against an admitted resource envelope. DA-06, DA-07, DA-08, comparative X03 and G keep their existing criteria.",
+        "next": "Localize the charged-memory retention in the actual no-effect Native currentness seam before a new expensive numerical qualification. Preserve the exact original paid B, unmarked R35 admission and marked R39 cut. Qualify remaining Gate B discriminators and a ≥300k operational workload under an admitted envelope and preregistered budgets. DA-06, DA-07, DA-08, comparative X03 and G keep their existing gates.",
         "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",

@@ -96,8 +96,9 @@ def prepare_temporal_registered_method_inputs(
     tmp_path: Path,
     *,
     spec: TemporalSelectedMethodInputSpec | None = None,
+    method_class: type[PeriodFlowToStock] = PeriodFlowToStock,
 ) -> TemporalRegisteredMethodInputs:
-    """Prepare a two-year model with source roles on a common fixed-price basis.
+    """Prepare annual model inputs with source roles on a common fixed-price basis.
 
     Canonical shared helpers own the actual compiler, native activation and
     occurrence producers. This helper chooses literal local test rows and
@@ -108,7 +109,7 @@ def prepare_temporal_registered_method_inputs(
     spec = constant_price_two_year_method_spec() if spec is None else spec
     case, metadata = prepare_selected_method_input_case(
         tmp_path,
-        method_class=PeriodFlowToStock,
+        method_class=method_class,
         period_step_profile=True,
         time_semantics=spec.time_semantics,
         scope=spec.scope,

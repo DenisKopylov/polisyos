@@ -108,7 +108,11 @@ def _source(
     snapshot_ref = _put_json(
         store,
         snapshot.model_dump(mode="json"),
-        kind="fabric.data_snapshot",
+        kind=DataSnapshot.ARTIFACT_KIND,
+        schema=SchemaInfo(
+            name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+            version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+        ),
     )
     return DataSnapshotRef(
         artifact_id=snapshot_ref.artifact_id,

@@ -7,8 +7,13 @@ import json
 import os
 import subprocess
 import sys
+from collections.abc import Mapping
+from contextlib import ExitStack
+from dataclasses import replace
+from datetime import date
 from decimal import Decimal
 from pathlib import Path
+from typing import Any, ClassVar
 
 import numpy as np
 import pytest
@@ -22,6 +27,7 @@ from polisyos.core.contracts.foundry import (
     FoundryInputBindingsRef,
     MethodExecutionBundle,
     SemanticHorizonStepContext,
+    SimulationResultRef,
 )
 from polisyos.core.contracts.model_input_requirements import load_model_input_obligation_set
 from polisyos.foundry.data_plane.bindings import (
@@ -33,12 +39,18 @@ from polisyos.foundry.execute import api as execute_api
 from polisyos.foundry.execute.api import execute_semantic_horizon_step
 from polisyos.foundry.execute.executor import load_state_snapshot
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+from polisyos.foundry.methods.base import MethodSignature
 from polisyos.foundry.methods.catalog.policy.accounting import PeriodFlowToStock
 from polisyos.runtime.quality.model_input_step_materialization import (
     prepare_registered_derived_model_input_steps,
 )
 from tests._helpers.temporal_registered_method_inputs import (
+    TemporalRegisteredMethodInputs,
     prepare_temporal_registered_method_inputs,
+)
+from tests._helpers.temporal_selected_method_input import (
+    TemporalMethodYearInput,
+    constant_price_two_year_method_spec,
 )
 
 
@@ -407,3 +419,161 @@ def test_selected_method_inputs_execute_and_reopen_exact_two_step_chain(
         close = getattr(case.store, "close", None)
         if callable(close):
             close()
+
+
+_LATE_HIDDEN_LOOKUP_FLOW = Decimal("-3000000000")
+
+
+class _LateUndeclaredGDPReader(PeriodFlowToStock):
+    signature: ClassVar[MethodSignature] = replace(
+        PeriodFlowToStock.signature,
+        namespace="tests.selected_input",
+        name="late_undeclared_gdp_reader",
+    )
+
+    @staticmethod
+    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        flow = state["period_flow"]
+        if float(flow) == float(_LATE_HIDDEN_LOOKUP_FLOW) and float(state["gdp"]) < 0:
+            raise ValueError("fixture_ambient_gdp_must_be_nonnegative")
+        # Keep the stock delta valid even if a widened adapter exposes ambient GDP.
+        return PeriodFlowToStock.pure_step({"period_flow": flow}, params)
+
+
+def test_late_undeclared_method_port_blocks_complete_semantic_horizon(tmp_path: Path) -> None:
+    """Reject a hidden port first read at effective step 3 despite complete declared inputs."""
+    base = constant_price_two_year_method_spec()
+    final_row = TemporalMethodYearInput(
+        step=3,
+        year=2023,
+        ratio=Decimal("0.02"),
+        denominator=Decimal("100000000000"),
+        expected_flow=Decimal("2000000000"),
+    )
+    positive_spec = replace(
+        base,
+        time_semantics=base.time_semantics.model_copy(update={"step_count": 4}),
+        scope=base.scope.model_copy(update={"period_end": date(2023, 12, 31)}),
+        rows=(
+            *base.rows,
+            TemporalMethodYearInput(
+                step=2,
+                year=2022,
+                ratio=Decimal("0.01"),
+                denominator=Decimal("180000000000"),
+                expected_flow=Decimal("1800000000"),
+            ),
+            final_row,
+        ),
+        # The positive control ends on an exactly representable float32 stock.
+        expected_closing_stock=Decimal("12000000000"),
+    )
+    refusal_spec = replace(
+        positive_spec,
+        rows=(
+            *positive_spec.rows[:-1],
+            replace(final_row, ratio=Decimal("-0.03"), expected_flow=_LATE_HIDDEN_LOOKUP_FLOW),
+        ),
+        expected_closing_stock=Decimal("7000000000"),
+    )
+
+    def run_horizon(
+        fixture: TemporalRegisteredMethodInputs,
+        *,
+        verified_prefix: tuple[SimulationResultRef, ...] = (),
+        expect_refusal: bool = False,
+    ) -> tuple[SimulationResultRef, ...]:
+        case = fixture.case
+        invocation, full, facts = _prepare_complete_input_bindings(fixture)
+        assert invocation.steps == (0, 1, 2, 3)
+        assert facts.bindings.schema_version == "1.5"
+        assert facts.coverage.is_complete
+        assert set(facts.values) == {("period_flow", step) for step in invocation.steps}
+        request = ExecuteRequest(
+            exec_plan_ref=case.exec_plan_ref,
+            registry_bundle_ref=case.registry_bundle_ref,
+            input_bindings_ref=full.input_bindings_ref,
+            return_selected_profile=True,
+        )
+        selected_rows = {
+            item.step_scope.step: item.input for item in facts.bindings.selected_method_input_steps
+        }
+        result_refs = list(verified_prefix)
+        for index, row in enumerate(
+            fixture.spec.rows[len(verified_prefix) :], start=len(verified_prefix)
+        ):
+            assert Decimal(str(facts.values[("period_flow", row.step)].item())) == row.expected_flow
+            executed = execute_semantic_horizon_step(
+                case.store,
+                request,
+                expected_invocation=invocation,
+                step=SemanticHorizonStepContext(
+                    obligation_set_ref=fixture.preflight.obligation_set_ref,
+                    steps=invocation.steps,
+                    step_index=index,
+                    replication_seed=17,
+                    previous_result_ref=result_refs[-1] if result_refs else None,
+                ),
+            )
+            assert executed.method_execution_bundle_ref is not None
+            bundle = validate_core_model_json_artifact(
+                MethodExecutionBundle, case.store, executed.method_execution_bundle_ref
+            )
+            (occurrence,) = (item for item in bundle.occurrences if item.node_kind == "method")
+            assert occurrence.method_fqn == _LateUndeclaredGDPReader.signature.fqn
+            assert occurrence.dispatch is not None
+            assert occurrence.dispatch.step == row.step
+            (argument,) = occurrence.dispatch.input_slot_values
+            assert argument.slot_id == "period_flow"
+            assert argument.value_sha256 == selected_rows[row.step].value_sha256
+            if expect_refusal and row.step == 3:
+                assert occurrence.status == "failed"
+                assert (
+                    occurrence.dispatch.failure_message_sha256
+                    == hashlib.sha256(
+                        b"Declared method invocation attempted an unavailable lookup"
+                    ).hexdigest()
+                )
+                assert "method_execution_aborted" in executed.notes
+                assert not executed.ok and executed.simulation_result_ref is None
+            else:
+                assert occurrence.status == "succeeded"
+                assert executed.ok and executed.simulation_result_ref is not None
+                result_refs.append(executed.simulation_result_ref)
+
+        fresh = FileSystemCAS(case.store_root)
+        try:
+            if expect_refusal:
+                assert len(result_refs) == 3
+                with pytest.raises(ValueError, match="^semantic_horizon_result_schedule_mismatch$"):
+                    execute_api.admit_semantic_horizon_step_chain(fresh, tuple(result_refs))
+            else:
+                admitted = execute_api.admit_semantic_horizon_step_chain(fresh, tuple(result_refs))
+                assert len(admitted) == 4
+                expected_stocks = (4000000000, 8200000000, 10000000000, 12000000000)
+                for index, (item, stock) in enumerate(zip(admitted, expected_stocks, strict=True)):
+                    assert item.basis is not None and item.basis.effective_step == index
+                    snapshot_ref = item.simulation_result.state_snapshot_ref
+                    assert snapshot_ref is not None
+                    state = load_state_snapshot(fresh, snapshot_ref=snapshot_ref)
+                    assert Decimal(str(float(state.government_balance))) == stock
+        finally:
+            close = getattr(fresh, "close", None)
+            if callable(close):
+                close()
+        return tuple(result_refs)
+
+    with ExitStack() as cases:
+        positive = prepare_temporal_registered_method_inputs(
+            tmp_path / "positive", spec=positive_spec, method_class=_LateUndeclaredGDPReader
+        )
+        cases.callback(positive.case.close)
+        positive_results = run_horizon(positive)
+
+        refusal = prepare_temporal_registered_method_inputs(
+            tmp_path / "refusal", spec=refusal_spec, method_class=_LateUndeclaredGDPReader
+        )
+        cases.callback(refusal.case.close)
+        run_horizon(refusal, expect_refusal=True)
+        # Repeat the deciding step through the same dispatcher on the exact admitted prefix.
+        run_horizon(positive, verified_prefix=positive_results[:-1])

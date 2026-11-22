@@ -9,6 +9,7 @@ import json
 import shlex
 import subprocess
 from datetime import UTC, date, datetime, timedelta
+from pathlib import Path
 from types import MappingProxyType
 
 import duckdb
@@ -50,6 +51,7 @@ from polisyos.runtime.quality.capability_discovery import (
     LexOwnerReceipt,
     ScientistRegistryOwnerReceipt,
     SourceProfileOwnerReceipt,
+    load_capability_index_release,
     main,
 )
 from polisyos.runtime.quality.capability_index import (
@@ -350,6 +352,94 @@ def test_default_causal_method_index_provider_projects_owner_rows_without_execut
     assert {item.execution_result.state for item in response.results} == {"not_established"}
     assert {item.authority_result.state for item in response.results} == {"bridge_missing"}
     assert all(item.authoritative_for == () for item in response.results)
+
+
+def test_dataset_index_cutoff_keeps_a_competing_meaning_visible_in_the_ledger(
+    tmp_path: Path,
+) -> None:
+    """The same GDP query finds two meanings, even when only one row is returned."""
+    input_root = create_capability_index_fixture_inputs(tmp_path / "production_data")
+    (catalog_path,) = input_root.glob("*/dataset_catalog.duckdb")
+    with duckdb.connect(str(catalog_path)) as connection:
+        connection.execute(
+            """
+            INSERT INTO ds_datasets (id, dataset_id, title, description, coverage_granularity)
+            VALUES ('dataset:gdp-growth', 'gdp_growth', 'GDP growth rate',
+                    'Annual percentage change in real output', 'annual'),
+                   ('dataset:gdp-level', 'gdp_level', 'GDP nominal level',
+                    'Annual output valued in current US dollars', 'annual')
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO ds_metric_bindings (metric_id, dataset_id, confidence)
+            VALUES ('gdp_growth', 'gdp_growth', 0.9), ('gdp_level', 'gdp_level', 0.9)
+            """
+        )
+    build = compile_capability_index(
+        CapabilityIndexCompilerConfig(
+            production_data_root=input_root,
+            output_dir=tmp_path / "capability-index",
+            mode="fixture",
+            generated_at="2026-05-25T00:00:00Z",
+        )
+    )
+    provider = CapabilityIndexCapabilityDiscoveryProvider(
+        resource_kind="dataset",
+        capability_index=load_capability_index_release(build.primary_duckdb_path),
+    )
+    request = _request(("dataset",))
+    search = request.search.model_copy(
+        update={
+            "query_text": "GDP",
+            "construct_refs": ("construct:gdp",),
+            "required_layers": ("L1",),
+            "allowed_modes": ("exact", "lexical"),
+            "budget": {"top_k": 1},
+        }
+    )
+    shortlist_request = request.model_copy(update={"search": search})
+    shortlist = provider.search(shortlist_request)
+    full = provider.search(
+        request.model_copy(update={"search": search.model_copy(update={"budget": {"top_k": 2}})})
+    )
+
+    growth, level = full.rows
+    assert growth.construct_refs[0] == "construct:gdp_growth_gdp_growth_rate"
+    assert level.construct_refs[0] == "construct:gdp_level_gdp_nominal_level"
+    assert "duckdb:dataset_catalog.duckdb:ds_metric_bindings:gdp_growth" in growth.provenance_refs
+    assert "duckdb:dataset_catalog.duckdb:ds_metric_bindings:gdp_level" in level.provenance_refs
+    assert full.completeness_status == "complete"
+    assert full.actual_cutoff is None
+    assert shortlist.rows == (growth,)
+    assert shortlist.ledger.candidates == full.ledger.candidates[:1]
+    assert shortlist.ledger.corpus_snapshot_hash == full.ledger.corpus_snapshot_hash
+    assert shortlist.evaluated_count == full.evaluated_count
+    assert shortlist.actual_cutoff == 1
+    assert shortlist.completeness_status == "budget_cutoff"
+    cutoff_reason = "dataset_capability_index_budget_cutoff"
+    assert shortlist.incompleteness_reasons == (cutoff_reason,)
+    assert shortlist.ledger.incompleteness == {
+        "status": "budget_cutoff",
+        "reason_codes": [cutoff_reason],
+    }
+    (omitted,) = (
+        candidate
+        for candidate in shortlist.ledger.rejected_candidates
+        if candidate.limitation_refs == (cutoff_reason,)
+    )
+    assert omitted.candidate_ref == level.capability_ref
+    assert shortlist.ledger.query_plan["execution_projection"] == "forbidden"
+    assert all("execution_authority" in row.may_not_use_for for row in full.rows)
+
+    response = _composer(providers=(provider,)).search(
+        shortlist_request, meta=ApiMeta(request_id="http:dataset-cutoff")
+    )
+    (item,) = response.results
+    assert item.capability_ref == growth.capability_ref
+    assert response.frontier.completeness_status == item.discovery_result.state == "budget_cutoff"
+    assert item.execution_result.state == "not_established"
+    assert item.authoritative_for == ()
 
 
 def test_owner_signed_capability_purpose_binding_joins_ds9_currentness(

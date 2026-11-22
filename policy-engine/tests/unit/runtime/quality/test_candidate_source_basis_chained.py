@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import struct
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -10,7 +11,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from polisyos.core.artifacts import ArtifactWriteOptions, ProducerInfo
+from polisyos.core.artifacts import ArtifactWriteOptions, ProducerInfo, artifact_ref_identity_key
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.quality.candidate_acquisition_source import (
     read_candidate_acquisition_source,
@@ -20,6 +21,7 @@ from polisyos.runtime.quality.candidate_source_basis import (
     CandidateSourceBasisPredecessor,
     CandidateSourceBasisValues,
     prepare_candidate_source_basis_values,
+    prepare_candidate_source_numerical_basis_values_v2,
 )
 from polisyos.runtime.quality.cycle_substrate import (
     ConfiguredCandidateSimulationContextAdmissionOwner,
@@ -28,6 +30,7 @@ from polisyos.runtime.quality.data_state_substrate import (
     build_candidate_acquisition_world,
     materialize_candidate_acquisition_snapshot,
 )
+from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationHorizonController
 from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
 from polisyos.runtime.quality.world_model_record import world_model_artifact_views
 from tests._helpers.lane01_wdi_profiles import UNEMPLOYMENT_PROFILE, fixture_wdi_response
@@ -385,6 +388,7 @@ def test_repeated_source_uses_verified_latest_world_without_losing_scientific_sc
             body=release_body,
         )
         assert release_ref != next_source_ref
+        assert artifact_ref_identity_key(release_ref) != artifact_ref_identity_key(next_source_ref)
         prior_persisted_source = read_candidate_acquisition_source(
             case.store,
             source_ref=next_source_ref,
@@ -394,11 +398,18 @@ def test_repeated_source_uses_verified_latest_world_without_losing_scientific_sc
             source_ref=release_ref,
         )
         assert release_persisted_source.raw_source_ref != prior_persisted_source.raw_source_ref
+        assert artifact_ref_identity_key(release_persisted_source.raw_source_ref) != (
+            artifact_ref_identity_key(prior_persisted_source.raw_source_ref)
+        )
+        assert prior_persisted_source.observation == release_persisted_source.observation
+        assert release_persisted_source.observation == pytest.approx(0.175)
+        assert prior_persisted_source.status == release_persisted_source.status == "candidate_only"
 
+        released_inputs = next_inputs.model_copy(update={"candidate_source_ref": release_ref})
         released = prepare_candidate_source_basis_values(
             store=case.store,
             problem=case.problem,
-            inputs=next_inputs.model_copy(update={"candidate_source_ref": release_ref}),
+            inputs=released_inputs,
             predecessors=(predecessor,),
         )
         assert released.predicate_provenance == "recomputed", released.reason_codes
@@ -422,6 +433,43 @@ def test_repeated_source_uses_verified_latest_world_without_losing_scientific_sc
             "sample_denominator_evidence": "not_established",
             "publication_authority": False,
         }
+
+        def forbid_n5(*_args: object, **_kwargs: object) -> None:
+            pytest.fail("Numerical basis preparation must not dispatch N5")
+
+        with monkeypatch.context() as no_n5:
+            no_n5.setattr(JointSimulationHorizonController, "run", forbid_n5)
+            before_release, after_release = (
+                prepare_candidate_source_numerical_basis_values_v2(
+                    store=case.store,
+                    problem=case.problem,
+                    inputs=inputs,
+                    predecessors=(predecessor,),
+                )
+                for inputs in (next_inputs, released_inputs)
+            )
+
+        expected_baseline = struct.unpack("!f", struct.pack("!f", 0.175))[0]
+        for prepared in (before_release, after_release):
+            assert prepared.predicate_provenance == "recomputed", prepared.reason_codes
+            assert not prepared.reason_codes
+            assert set(prepared.effective_values) == {
+                "foundry_state",
+                "applied_rules",
+                "selected_native_ncm",
+                "declared_model",
+                "n5_request_values",
+            }
+            assert prepared.prospective_model is not None
+            assert (
+                prepared.prospective_model.n5_config.baseline_state["global.unemployment_rate"]
+                == expected_baseline
+            )
+        assert exact_n5_content_bytes(before_release.effective_values) == exact_n5_content_bytes(
+            after_release.effective_values
+        ), _different_paths(
+            before_release.effective_values, after_release.effective_values, "v2_numerical"
+        )
 
 
 def test_changed_scientific_source_remains_in_restored_source_ancestry(

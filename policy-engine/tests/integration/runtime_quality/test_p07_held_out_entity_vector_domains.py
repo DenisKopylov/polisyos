@@ -108,6 +108,50 @@ _CASES = (
         (Fraction(13, 40), Fraction(5, 24)),
         id="synthetic-school-activity-sessions",
     ),
+    pytest.param(
+        SelectedMethodEntityVectorFixtureData(
+            namespace="heldout.coastal_habitat_monitoring",
+            stable_id="annual_completed_shoreline_transects",
+            meaning=(
+                "Synthetic calendar-year count of completed shoreline survey transects in each "
+                "conservation sector, counting each traversal once regardless of birds detected."
+            ),
+            population_ref="population:synthetic-coastal-monitoring-sectors",
+            geography_ref="geography:synthetic-coastal-monitoring-sectors",
+            jurisdiction_ref="jurisdiction:synthetic-coastal-monitoring-program",
+            member_ids=(
+                "monitoring-sector-bay",
+                "monitoring-sector-delta",
+                "monitoring-sector-estuary",
+                "monitoring-sector-headland",
+            ),
+            annual_values=((0, 8, 12, 28), (8, 16, 16, 16)),
+        ),
+        (Fraction(11, 24), Fraction(3, 28)),
+        id="synthetic-coastal-completed-transects",
+    ),
+    pytest.param(
+        SelectedMethodEntityVectorFixtureData(
+            namespace="heldout.public_digital_archives",
+            stable_id="annual_verified_archive_accessions",
+            meaning=(
+                "Synthetic calendar-year count of accession packages accepted after checksum "
+                "verification in each archive branch; each accepted package is counted once."
+            ),
+            population_ref="population:synthetic-digital-archive-branches",
+            geography_ref="geography:synthetic-digital-archive-service-areas",
+            jurisdiction_ref="jurisdiction:synthetic-digital-archives-network",
+            member_ids=(
+                "archive-branch-central",
+                "archive-branch-east",
+                "archive-branch-north",
+                "archive-branch-south",
+            ),
+            annual_values=((7, 14, 21, 35), (12, 12, 24, 48)),
+        ),
+        (Fraction(13, 44), Fraction(5, 16)),
+        id="synthetic-archives-verified-accessions",
+    ),
 )
 
 

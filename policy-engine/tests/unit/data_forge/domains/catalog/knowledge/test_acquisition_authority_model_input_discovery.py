@@ -1069,16 +1069,59 @@ def test_catalog_supplier_declaration_replays_selected_owner_refs_and_scope(
 ) -> None:
     """Persist a real authority resolution without promoting it to permission."""
     from polisyos.data_forge.read_api import catalog as catalog_read_api
+    from tests._helpers import acquisition_production
 
     store = FileSystemCAS(tmp_path / "cas")
-    definition_ref, representation_ref, _, _ = _model_inputs(store, unit_id="percent_gdp")
+    definition_ref, representation_ref, _, interface_ref = _model_inputs(
+        store, unit_id="percent_gdp", period_start=date(2022, 1, 1), period_end=date(2022, 12, 31)
+    )
     entry = _supplier_declaration_entry(
         definition_ref,
         representation_ref,
         suffix="supplier-declaration",
     )
-    authority, _ = _resolver(tmp_path / "catalog-owner", authority_entry=entry)
+
+    def baseline_with_observation(repo_root: Path, *, license_id: str) -> Path:
+        baseline = _baseline(repo_root, license_id=license_id)
+        with duckdb.connect(str(baseline)) as connection:
+            connection.execute(
+                """
+                INSERT INTO ds_observations (
+                    observation_id, dataset_id, raw_variable, canonical_var,
+                    country_code, year, value
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                [
+                    "fixture-observation-ukr-2022",
+                    entry.source_catalog_dataset_id,
+                    entry.catalog_raw_variable,
+                    entry.upstream_metric_id,
+                    "UKR",
+                    2022,
+                    -0.175,
+                ],
+            )
+        return baseline
+
+    with monkeypatch.context() as context:
+        # Seed the real fixture relation before the resolver hashes its baseline.
+        context.setattr(acquisition_production, "_baseline", baseline_with_observation)
+        authority, _ = _resolver(tmp_path / "catalog-owner", authority_entry=entry)
     resolved = authority.resolve(entry.entry_id)
+    reader = catalog_read_api.DatasetCatalogStore(
+        authority.baseline_path, authority.baseline_path.parent
+    )
+    try:
+        assert reader.database_identity.content_sha256 == resolved.baseline_content_sha256
+        assert reader.variable_availability_counts(entry.upstream_metric_id) == (1, 1, 1)
+        (binding,) = reader.reconciled_metric_binding_population(entry.upstream_metric_id)
+        assert (binding.metric_id, binding.catalog_dataset_id, binding.distribution_id) == (
+            entry.upstream_metric_id,
+            entry.source_catalog_dataset_id,
+            entry.source_catalog_distribution_id,
+        )
+    finally:
+        reader.close()
 
     declaration_ref = catalog_read_api.persist_acquisition_supplier_declaration(
         store,
@@ -1131,15 +1174,9 @@ def test_catalog_supplier_declaration_replays_selected_owner_refs_and_scope(
         == declaration
     )
 
-    matching_scope = ModelInputScope(
-        population_ref="population:whole-country",
-        geography_ref="UKR",
-        jurisdiction_ref="UKR",
-        period_start=date(2022, 1, 1),
-        period_end=date(2022, 12, 31),
-        time_role="observation_time",
-        period_basis="calendar_year",
-    )
+    interface = load_program_graph_input_interface(fresh_store, interface_ref)
+    (port,) = interface.ports
+    matching_scope = port.scope
     assert (
         catalog_read_api.acquisition_supplier_declaration_scope_refusal(
             fresh_store,
@@ -1173,6 +1210,48 @@ def test_catalog_supplier_declaration_replays_selected_owner_refs_and_scope(
         )
         == "source_temporal_scope_mismatch"
     )
+
+    candidate = authority.discover_model_input_source_descriptor(
+        fresh_store,
+        model_input_interface_ref=interface_ref,
+        port_id=port.port_id,
+        include_query_envelope=True,
+    )
+    assert candidate.authority_entry_id == declaration.entry.entry_id
+    assert candidate.semantic_correspondence == "not_established"
+    assert candidate.query_envelope is not None
+    (matching_row,) = candidate.query_envelope.rows
+    assert matching_row.entry_id == entry.entry_id and matching_row.disposition == "compatible"
+
+    for bad_scope, reason in (
+        (foreign_geography, "source_geography_scope_mismatch"),
+        (outside_declared_period, "source_temporal_scope_mismatch"),
+    ):
+        wrong_interface_ref = persist_program_graph_input_interface(
+            store,
+            interface.model_copy(update={"ports": (port.model_copy(update={"scope": bad_scope}),)}),
+        )
+        with pytest.raises(AcquisitionAuthorityError) as refused:
+            authority.discover_model_input_source_descriptor(
+                fresh_store,
+                model_input_interface_ref=wrong_interface_ref,
+                port_id=port.port_id,
+                include_query_envelope=True,
+            )
+        assert refused.value.code == "model_input_source_descriptor_incompatible"
+        envelope = refused.value.query_envelope
+        assert envelope is not None
+        assert (
+            envelope.model_input_interface_ref,
+            envelope.model_input_port_id,
+            envelope.scope,
+        ) == (wrong_interface_ref, port.port_id, bad_scope)
+        (row,) = envelope.rows
+        assert (row.entry_id, row.disposition, row.reason_codes) == (
+            entry.entry_id,
+            "incompatible",
+            (reason,),
+        )
 
     annual_representation = load_variable_representation(store, representation_ref)
     wrong_unit_representation = annual_representation.model_copy(

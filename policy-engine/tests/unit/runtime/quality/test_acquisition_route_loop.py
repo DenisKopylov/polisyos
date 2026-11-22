@@ -1527,7 +1527,7 @@ def test_exact_native_route_resolution_replays_only_requested_leaf_group(
     design_problem = _problem("ds15_costed_closure")
     design_problem_ref = gy_content_hash(design_problem.model_dump(mode="json"))
     origin = _Origin(
-        job=SimpleNamespace(job_id="source-job"),
+        job=SimpleNamespace(job_id="source-job", run_id="run-a"),
         payload_ref="sha256:" + "1" * 64,
         manifest_ref="sha256:" + "2" * 64,
         compiled_ref="sha256:" + "3" * 64,
@@ -1631,8 +1631,6 @@ def test_exact_native_route_resolution_replays_only_requested_leaf_group(
     )
     monkeypatch.setattr(loop, "_resolve_verified_origin", lambda **_kwargs: origin)
     monkeypatch.setattr(loop, "_native_leaf_cost_profile_refs", lambda _origin: tuple(profile_refs))
-    monkeypatch.setattr(loop, "_native_historical_cost_profile_refs", lambda _origin: ())
-    monkeypatch.setattr(loop, "_native_action_recorded_profile_ref", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(loop, "_native_leaf_provider_selections", lambda _origin: tuple(providers))
     monkeypatch.setattr(
         acquisition_route_loop,
@@ -1723,6 +1721,7 @@ def test_exact_native_route_resolution_replays_only_requested_leaf_group(
     with pytest.raises(AcquisitionRouteClosureError, match="native_leaf_cost_profile_ambiguous"):
         loop.resolve_current_route(run_id="run-a", route_id=target.route_id)
     assert len(replayed_route_ids) == 2
+
     assert replayed_node_ids == ["leaf-b", "leaf-b"]
 
     replayed_route_ids.clear()
@@ -1731,3 +1730,68 @@ def test_exact_native_route_resolution_replays_only_requested_leaf_group(
         loop.resolve_current_route(run_id="run-a", route_id="sha256:" + "f" * 64)
     assert replayed_route_ids == []
     assert replayed_node_ids == []
+
+    heads = tuple(
+        SimpleNamespace(job_id=f"action-{index}", route_id=route.route_id)
+        for index, route in enumerate(full_routes)
+    )
+    verified = {
+        head.route_id: SimpleNamespace(
+            head=head,
+            latest_receipt=acquisition_route_loop.AcquisitionRouteLoopReceipt.model_construct(
+                terminal_outcome="inputs_pending", owner_declared_profile_ref=profile_ref
+            ),
+            executing_phase=None,
+        )
+        for head, profile_ref in zip(heads, profile_refs[:2], strict=True)
+    }
+    listed_heads = heads
+    stock_reads: list[str] = []
+
+    def read_outcomes(*, route_id: str, **_scope: str) -> tuple[object, ...]:
+        stock_reads.append(route_id)
+        return (verified[route_id],)
+
+    monkeypatch.setattr(
+        loop,
+        "_control_store",
+        SimpleNamespace(list_acquisition_action_heads_for_source=lambda **_scope: listed_heads),
+    )
+    monkeypatch.setattr(
+        loop, "_action_outcome_reader", SimpleNamespace(action_outcomes=read_outcomes)
+    )
+
+    assert (
+        loop.resolve_current_route(
+            run_id="run-a", route_id=target.route_id, action_job_id=heads[1].job_id
+        )
+        == target
+    )
+    assert stock_reads == sorted(verified)
+
+    target_outcome = verified.pop(target.route_id)
+    monkeypatch.setattr(
+        loop._action_outcome_reader,
+        "action_outcomes",
+        lambda *, route_id, **_scope: (verified[route_id],) if route_id in verified else (),
+    )
+    with pytest.raises(
+        AcquisitionRouteClosureError, match="native_action_recorded_profile_not_verified"
+    ):
+        loop.resolve_current_route(
+            run_id="run-a", route_id=target.route_id, action_job_id=heads[1].job_id
+        )
+    verified[target.route_id] = target_outcome
+
+    def read_during_head_change(*, route_id: str, **scope: str) -> tuple[object, ...]:
+        nonlocal listed_heads
+        listed_heads = heads[:1]
+        return read_outcomes(route_id=route_id, **scope)
+
+    monkeypatch.setattr(loop._action_outcome_reader, "action_outcomes", read_during_head_change)
+    with pytest.raises(
+        AcquisitionRouteClosureError, match="native_paid_input_source_history_changed"
+    ):
+        loop.resolve_current_route(
+            run_id="run-a", route_id=target.route_id, action_job_id=heads[1].job_id
+        )

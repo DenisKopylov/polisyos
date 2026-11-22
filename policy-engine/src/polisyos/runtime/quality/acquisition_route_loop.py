@@ -1400,6 +1400,9 @@ class _VerifiedActionOutcome(Protocol):
     head: _ActionHead
     latest_receipt: AcquisitionRoutePhaseReceipt | AcquisitionTerminalReceipt
     executing_phase_ref: str | None
+    executing_phase: (
+        AcquisitionRoutePhaseReceipt | AcquisitionCandidateExperimentPhaseReceipt | None
+    )
     candidate_terminal_history: CandidateEvaluationTerminalHistory | None
 
 
@@ -3332,50 +3335,18 @@ class AcquisitionRouteLoop:
             raise AcquisitionRouteClosureError("native_leaf_provider_configuration_invalid")
         return values
 
-    def _native_action_recorded_profile_ref(
+    def _native_cost_history(
         self, origin: _VerifiedAcquisitionOrigin, *, action_job_id: str | None
-    ) -> ArtifactRef | None:
-        """Select one existing action's quote fact without treating it as paid."""
-        if action_job_id is None or self._action_outcome_reader is None:
-            return None
-        heads = self._control_store.list_acquisition_action_heads_for_source(
-            tenant_id=self._tenant_id,
-            cell_id=self._cell_id,
-            run_id=origin.job.run_id,
-            source_job_id=origin.job.job_id,
-        )
-        matches = tuple(head for head in heads if head.job_id == action_job_id)
-        if not matches:
-            return None
-        if len(matches) != 1:
-            raise AcquisitionRouteClosureError("native_action_recorded_profile_ambiguous")
-        head = matches[0]
-        outcomes = self._action_outcome_reader.action_outcomes(
-            tenant_id=self._tenant_id,
-            cell_id=self._cell_id,
-            run_id=origin.job.run_id,
-            source_job_id=origin.job.job_id,
-            route_id=head.route_id,
-        )
-        selected = tuple(item for item in outcomes if item.head == head)
-        if len(selected) != 1:
-            raise AcquisitionRouteClosureError("native_action_recorded_profile_not_verified")
-        receipt = selected[0].latest_receipt
-        if type(receipt) not in {AcquisitionRoutePhaseReceipt, AcquisitionRouteLoopReceipt}:
-            return None
-        ref = receipt.owner_declared_profile_ref
-        return _require_native_leaf_cost_profile_ref(ref) if ref is not None else None
+    ) -> tuple[tuple[ArtifactRef, ...], ArtifactRef | None]:
+        """Select historical quotes and the action's recorded quote in one verified cut.
 
-    def _native_historical_cost_profile_refs(
-        self, origin: _VerifiedAcquisitionOrigin
-    ) -> tuple[ArtifactRef, ...]:
-        """Collect historical quote candidates from the full verified source heads.
-
-        A receipt only selects a past quote here. The native owner must prove a
-        completed purchase before that quote can support admission-only use.
+        These references locate past quotes. Paid status is established separately
+        by the native owner. Each route history is reopened and the source heads
+        are rechecked before the selected references leave this operation.
         """
-        if self._action_outcome_reader is None:
-            return ()
+        reader = self._action_outcome_reader
+        if reader is None:
+            return (), None
         subject = {
             "tenant_id": self._tenant_id,
             "cell_id": self._cell_id,
@@ -3383,10 +3354,16 @@ class AcquisitionRouteLoop:
             "source_job_id": origin.job.job_id,
         }
         heads = self._control_store.list_acquisition_action_heads_for_source(**subject)
+        matches = tuple(head for head in heads if head.job_id == action_job_id)
+        if len(matches) > 1:
+            raise AcquisitionRouteClosureError("native_action_recorded_profile_ambiguous")
+        recorded_head = matches[0] if matches else None
+        recorded_ref = None
+        recorded_verified = False
         refs: dict[tuple[str, str, str, str | None], ArtifactRef] = {}
         for route_id in sorted({head.route_id for head in heads}):
             try:
-                outcomes = self._action_outcome_reader.action_outcomes(**subject, route_id=route_id)
+                outcomes = reader.action_outcomes(**subject, route_id=route_id)
             except (AttributeError, OSError, TypeError, ValueError) as exc:
                 from polisyos.core.artifacts import raise_artifact_read_access_error
 
@@ -3396,6 +3373,17 @@ class AcquisitionRouteLoop:
                 ) from exc
             for outcome in outcomes:
                 receipt = outcome.latest_receipt
+                if recorded_head is not None and outcome.head == recorded_head:
+                    if recorded_verified:
+                        raise AcquisitionRouteClosureError(
+                            "native_action_recorded_profile_not_verified"
+                        )
+                    recorded_verified = True
+                    if type(receipt) in {AcquisitionRoutePhaseReceipt, AcquisitionRouteLoopReceipt}:
+                        ref = receipt.owner_declared_profile_ref
+                        if ref is not None:
+                            recorded_ref = _require_native_leaf_cost_profile_ref(ref)
+
                 phase = outcome.executing_phase
                 if (
                     type(receipt) is not AcquisitionRouteLoopReceipt
@@ -3409,7 +3397,9 @@ class AcquisitionRouteLoop:
                 refs[artifact_ref_identity_key(ref)] = ref
         if self._control_store.list_acquisition_action_heads_for_source(**subject) != heads:
             raise AcquisitionRouteClosureError("native_paid_input_source_history_changed")
-        return tuple(refs[key] for key in sorted(refs))
+        if recorded_head is not None and not recorded_verified:
+            raise AcquisitionRouteClosureError("native_action_recorded_profile_not_verified")
+        return tuple(refs[key] for key in sorted(refs)), recorded_ref
 
     def _native_prior_paid_input_admission(
         self, closure: VerifiedAcquisitionRouteClosure
@@ -3506,8 +3496,7 @@ class AcquisitionRouteLoop:
             )
         bundle = _n7_load_derivation_bundle(self._artifact_store, bundle_ref)
         configured_profile_refs = self._native_leaf_cost_profile_refs(origin)
-        historical_profiles = self._native_historical_cost_profile_refs(origin)
-        recorded_profile_ref = self._native_action_recorded_profile_ref(
+        historical_profiles, recorded_profile_ref = self._native_cost_history(
             origin, action_job_id=action_job_id
         )
         configured_keys = {artifact_ref_identity_key(ref) for ref in configured_profile_refs}

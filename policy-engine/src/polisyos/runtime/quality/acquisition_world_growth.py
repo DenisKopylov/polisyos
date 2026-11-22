@@ -68,7 +68,7 @@ from polisyos.scientist import BudgetState
 from polisyos.scientist.orchestration.engine import BudgetLedgerReentryBudgetScope
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Iterator
+    from collections.abc import Awaitable, Callable, Iterator
 
     from polisyos.core.contracts import (
         RegisteredDerivedModelInputRequest,
@@ -877,6 +877,7 @@ class NativeDerivationRouteConfiguration(_Strict):
 
     Empty quote and semantic selections remain unestablished. Each native leaf
     must still pass its own current route, PA2, DS9, provider and budget fences.
+    The optional timeout bounds the active-overlay re-entry coroutine.
     """
 
     tenant_id: str = Field(min_length=1)
@@ -887,6 +888,9 @@ class NativeDerivationRouteConfiguration(_Strict):
     owner_declared_cost_profile_refs: tuple[artifacts.ArtifactRef, ...] = ()
     ports: tuple[NativeDerivationPortSelection, ...] = ()
     supplier_selections: tuple[NativeDerivationLeafProviderSelection, ...] = ()
+    reentry_timeout_seconds: float | None = Field(
+        default=None, strict=True, gt=0, allow_inf_nan=False, exclude_if=lambda value: value is None
+    )
 
     @property
     def key(self) -> tuple[str, str, str, str]:
@@ -7753,13 +7757,12 @@ class AcquisitionWorldGrowthBridge:
                 else nullcontext()
             )
             with context_binding, producer_scope:
-                if not started:
-                    with fence.open("x") as stream:
-                        stream.write(growth_refs[0])
-                        stream.flush()
-                        os.fsync(stream.fileno())
-                receipt = async_tools.run_coro_sync(
-                    controller.reenter_after_active_acquisition_overlay(
+                receipt = self._run_active_overlay_reentry(
+                    fence=fence,
+                    growth_ref=growth_refs[0],
+                    started=started,
+                    native_configuration=native_configuration,
+                    reenter=lambda: controller.reenter_after_active_acquisition_overlay(
                         original_run=closure.generation_run,
                         source_cycle=closure.source_cycle,
                         problem=closure.design_problem_basis,
@@ -7778,7 +7781,7 @@ class AcquisitionWorldGrowthBridge:
                             else {}
                         ),
                         budget_state=reentry_budget_state,
-                    )
+                    ),
                 )
             # No copied-context borrowing is permitted. Re-read complete owner
             # selections on the deciding thread after async/numerical work, then
@@ -7820,6 +7823,26 @@ class AcquisitionWorldGrowthBridge:
                 )
                 self._write_pointer(pointer, ref)
                 return ref
+
+    @staticmethod
+    def _run_active_overlay_reentry(
+        *,
+        fence: Path,
+        growth_ref: str,
+        started: bool,
+        native_configuration: NativeDerivationRouteConfiguration | None,
+        reenter: Callable[[], Awaitable[AcquisitionOverlayReentryReceipt]],
+    ) -> AcquisitionOverlayReentryReceipt:
+        """Start the selected re-entry once within the caller's admitted scopes."""
+        if not started:
+            with fence.open("x") as stream:
+                stream.write(growth_ref)
+                stream.flush()
+                os.fsync(stream.fileno())
+        timeout_seconds = (
+            native_configuration.reentry_timeout_seconds if native_configuration else None
+        )
+        return async_tools.run_coro_sync(reenter(), timeout_seconds=timeout_seconds)
 
     def _native_derivation_configuration(
         self, closure: VerifiedAcquisitionRouteClosure

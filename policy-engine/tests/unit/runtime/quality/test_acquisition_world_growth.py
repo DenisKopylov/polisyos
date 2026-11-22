@@ -1,11 +1,15 @@
 """Behavioral witnesses for native membership growth and empty deployment slots."""
 
+import asyncio
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from pydantic import ValidationError
 
+from polisyos.common import async_tools
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts, canon
 from polisyos.runtime.quality import acquisition_world_growth as growth
@@ -156,3 +160,110 @@ def test_action_phase_refuses_extra_manifest_input_before_payload_reads(
 
     assert refused.value.code == "canon_profile_typed_artifact_profile_mismatch"  # noqa: S101
     assert reads == []  # noqa: S101
+
+
+@pytest.fixture
+def native_route() -> growth.NativeDerivationRouteConfiguration:
+    return growth.NativeDerivationRouteConfiguration(
+        tenant_id="tenant",
+        cell_id="cell",
+        run_id="run",
+        source_job_id="source",
+        configured_port_source_ref=artifacts.ArtifactRef(
+            artifact_id="sha256:" + "1" * 64,
+            kind="runtime.quality.n7_configured_candidate_port_source",
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "2" * 64,
+        ),
+    )
+
+
+def test_native_reentry_timeout_preserves_legacy_configuration_serialization(
+    native_route: growth.NativeDerivationRouteConfiguration,
+) -> None:
+    legacy = native_route.model_dump(mode="json")
+    assert native_route.reentry_timeout_seconds is None  # noqa: S101
+    assert "reentry_timeout_seconds" not in legacy  # noqa: S101
+    assert (
+        growth.NativeDerivationRouteConfiguration.model_validate(  # noqa: S101
+            {**legacy, "reentry_timeout_seconds": None}
+        ).model_dump(mode="json")
+        == legacy
+    )
+    assert growth.NativeDerivationRouteConfiguration.model_validate(  # noqa: S101
+        {**legacy, "reentry_timeout_seconds": 3600}
+    ).model_dump(mode="json") == {**legacy, "reentry_timeout_seconds": 3600.0}
+
+
+@pytest.mark.parametrize("invalid_timeout", [0, -1, float("inf"), float("nan"), True, "120"])
+def test_native_reentry_timeout_requires_finite_positive_number(
+    native_route: growth.NativeDerivationRouteConfiguration, invalid_timeout: object
+) -> None:
+    with pytest.raises(ValidationError, match="reentry_timeout_seconds"):
+        growth.NativeDerivationRouteConfiguration.model_validate(
+            {**native_route.model_dump(mode="json"), "reentry_timeout_seconds": invalid_timeout}
+        )
+
+
+@pytest.mark.parametrize(
+    ("native", "selected_timeout", "default_timeout", "expected_timeout"),
+    [
+        pytest.param(False, None, 0.01, 0.01, id="ordinary-default"),
+        pytest.param(True, None, 0.01, 0.01, id="native-default"),
+        pytest.param(True, 2.0, 0.01, None, id="selected-completes"),
+        pytest.param(True, 0.01, 2.0, 0.01, id="selected-expires"),
+    ],
+)
+def test_active_overlay_native_reentry_uses_selected_timeout(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    native_route: growth.NativeDerivationRouteConfiguration,
+    native: bool,
+    selected_timeout: float | None,
+    default_timeout: float,
+    expected_timeout: float | None,
+) -> None:
+    monkeypatch.setattr(async_tools, "_DEFAULT_TIMEOUT_SECONDS", default_timeout)
+    configuration = (
+        growth.NativeDerivationRouteConfiguration.model_validate(
+            {**native_route.model_dump(mode="json"), "reentry_timeout_seconds": selected_timeout}
+        )
+        if native
+        else None
+    )
+    fence = tmp_path / "world.reentry.started"
+    growth_ref = "sha256:" + "3" * 64
+    receipt = growth.AcquisitionOverlayReentryReceipt.model_construct()
+    milestones = []
+
+    async def reenter() -> growth.AcquisitionOverlayReentryReceipt:
+        assert fence.read_text() == growth_ref  # noqa: S101
+        # Start the adapter timer before modeling a synchronous route proof.
+        await asyncio.sleep(0)
+        time.sleep(0.04)
+        milestones.append("proof_complete")
+        await asyncio.sleep(0.005)
+        milestones.append("async_work_complete")
+        return receipt
+
+    def run() -> growth.AcquisitionOverlayReentryReceipt:
+        return growth.AcquisitionWorldGrowthBridge._run_active_overlay_reentry(
+            fence=fence,
+            growth_ref=growth_ref,
+            started=False,
+            native_configuration=configuration,
+            reenter=reenter,
+        )
+
+    if expected_timeout is None:
+        assert run() is receipt  # noqa: S101
+        assert milestones == ["proof_complete", "async_work_complete"]  # noqa: S101
+    else:
+        with pytest.raises(
+            TimeoutError, match=f"did not complete within {expected_timeout:.3f}s"
+        ) as refused:
+            run()
+        assert isinstance(refused.value.__cause__, TimeoutError)  # noqa: S101
+        assert isinstance(refused.value.__cause__.__cause__, asyncio.CancelledError)  # noqa: S101
+        assert milestones == ["proof_complete"]  # noqa: S101
+    assert fence.read_text() == growth_ref  # noqa: S101

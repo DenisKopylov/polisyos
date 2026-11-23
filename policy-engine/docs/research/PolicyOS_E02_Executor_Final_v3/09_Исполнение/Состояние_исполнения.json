@@ -20065,6 +20065,13 @@
           "sha256": "8a8d3a02d25203ad3097a2b5700a4ec3126828fad1a0fa5de4f493568884ddb8",
           "verified_boundary": "Nine scoped unit/projection selectors and one exact wrapper selected-FQN case pass. Typed AIPW local refusal checks both treatment arms and pure selected method parameters; markerless or unsupported shared input refuses the sibling. The wrapper verifies stored method/N5 lineage and sends FQN, method ref and preserved N5 to the actual route adapter. Legacy refusal wire remains. 147 Dashboard tests, 63 SDK tests, their types, runtime contract drift and normal hooks pass. Actual served N5-to-N8-to-sibling, preserved spend and mounted HTTP are still missing."
         },
+        "acq01_n7_two_suppliers_same_leaf_r2": {
+          "source_commit": "511eecf2f1c2bb9e26f6f23f234c2b546850ebc8",
+          "source_tree": "2fca4cd92847609146963f2e855b0641f4b37273",
+          "output": "Primary:policy-engine/_cache/e02/acq01-n7-two-supplier-r2.3t0a7q7c/junit.xml",
+          "sha256": "db174352b81f20cdc45ac146bd5442966b02d48295ace56368b6429dc0c51aed",
+          "verified_boundary": "The exact N7 resolver R2 passes 1/1, no skips and no effects. Two real test-owned Catalog declarations qualify for one typed GDP denominator leaf against a selected percent-to-ratio representation. Removal of each selected manifest refuses the original bundle with n7_derivation_input_profile_unverified, replans the same gap with the remaining supplier and restores exact selection from a new read-only CAS. 39 stable source pins and 1,800 matching imported paths. API projection, purchasing and independent supplier authority are outside this component."
+        },
         "acq01_domain_scope_r2": {
           "source_commit": "f78f9aadff3809a3bd2e086ff8feca84b39a0f69",
           "source_tree": "d35e8bb3bede23f99d24780d6bd331add9d7d870",
@@ -20500,6 +20507,48 @@
           "command_log_sha256": "2e158d406e3f296610b84e02373cf81e548ad8423f11d074a5c5d95d978382b2",
           "source_pin_sha256": "2c14c1f7a4125c0714827218cc8c956b5d211503ed8a23be64a4892ba5b8f463",
           "verified_boundary": "PASS, stable full Python source and exact original CAS (3905 files), SQL and Catalog; 1767 checkout module origins. CG1 certified-specialization; CG2 abstain on open admissibility_closed; CG3 rejects outcome_wish. Graph confirms tax_subsidy actuation consumes income and writes income and fiscal balance. The requested research ATE objective names government.balance; the retained proposal sets both action and outcome to agents.income. Component only, zero provider/worker/N5, with CG4/CG5 and method/N6 untouched. Group joined in 48.961s at 1651310592B RSS."
+        },
+        "acq01_05_retained_cpi_r9_raw_cas_audit": {
+          "source_commit": "f39e11f24cce6514cae6d2495a1dc43a32cd113f",
+          "source_tree": "26e6f8cbd1f35342a36bdf9a6481b719a174aa7e",
+          "output": "Primary:policy-engine/_cache/e02/acq01-05-cpi-r9-cas-audit-r1/report.json",
+          "sha256": "96fe5ae59a2310b9193d662fa13d3b521ceca9181a0683a6c80bba65638a73f7",
+          "verified_boundary": "Read-only reconciliation reopens exact 312-byte controlled CPI raw response, original evidence journal, selected source snapshot and N4/N5 through execution/result manifests. Two completed physical NCM calls have seeds 11 and 12, modeled value 456.5909729003906 and effect -0.5. R9 is an orphan failed run with candidate_experiment_terminal_identity_mismatch and canonical_loaded_runtime_mismatch. The R4 cold GET for the distinct R10 producer confirms its selected candidate-only result at different refs, and PP3b verifies prefetch-only refusals on a later source. A same-slice useful terminal and distinguishing aggregation/preparation evidence remain open."
+        },
+        "native_r56_archived_cgf_n6_actuation_reconciled_r3": {
+          "source_commit": "511eecf2f1c2bb9e26f6f23f234c2b546850ebc8",
+          "source_tree": "2fca4cd92847609146963f2e855b0641f4b37273",
+          "output": "Primary:policy-engine/_cache/e02/native-r56-ab-fiscal-grounding-20261123/retained-proof/run-Ai2RPj5Q/postjoin-ownership-reconciliation.json",
+          "sha256": "fd8e8e28a70ae076fa9db0be397c2389355b6d464e1d42f9289ecb6fde4cc3cf",
+          "verified_boundary": "On exact retained paid A+B with working CGF repair, stock historical replay and selected Foundry actuation removal/restoration succeed. Ordinary grounding is grounded_shadow, preserving actual CG2 abstain and CG3 reject_hallucination/outcome_wish. N6 permits candidate computation at the prospective .50 budget and defers at .49. The expected candidate output is a government_balance USD post-step level, with empirical effect not established. Zero provider, worker, signed action or N5. The outer zero-business-bytes guard remains failed. Post-join exact census proves only local appends for the single new actuation object and its selected manifest, with originals, SQL, protected ledger and Catalog unchanged. Stock CG4 projection took under 1 ms in each phase at no measured readback RSS increase. No successful live N5 or actual cost allowance here."
+        },
+        "native_r56_archived_cgf_identity_diagnostic": {
+          "source_commit": "511eecf2f1c2bb9e26f6f23f234c2b546850ebc8",
+          "source_tree": "2fca4cd92847609146963f2e855b0641f4b37273",
+          "output": "Primary:policy-engine/_cache/e02/native-r56-ab-fiscal-grounding-20261123/retained-proof/run-7d1aJmI4/guard/command.log",
+          "sha256": "b9abe5d21168aca8fcee2f090a58d94845fd8306692d41974ebd37db87a6a3ee",
+          "verified_boundary": "Exact unchanged-stock R56 A+B refusal diagnostic. The valid verified primary CG2/CG3 are 51774884eb8ecd4e and 834016d8210f7035. The phrasing run names 09af526d088c9eb7 and 4c452d68b52822ae from an independently recreated budget-free CG2/CG3. Those are the only mismatches. Actual decisions/reasons and full CG3 recompute agree, and recorded/recomputed risk and quarantine are all absent. No new source call, worker, N5 or charge. Independent source review agrees, and the original guard result remains failed."
+        },
+        "acq01_04_two_catalog_offers_component_r4": {
+          "source_commit": "511eecf2f1c2bb9e26f6f23f234c2b546850ebc8",
+          "source_tree": "2fca4cd92847609146963f2e855b0641f4b37273",
+          "output": "Primary:policy-engine/_cache/e02/acq01-04-ordinary-offers-r4.R0PEja2k/junit.xml",
+          "sha256": "6b948395b245bfc638853dfa4e2822ebb3c300fb202134bd0816640f17d7cd94",
+          "verified_boundary": "One exact offline component passes on the current working planner and stock semantic-emission compiler fixture. The same costed N7 requirement verifies two different independently registered supplier request/dataset keys with exact source basis and authority. An alias of the same request is refused, along with foreign candidate, wrong region, expiry at the exact boundary and wrong cost. One controlled job establishes the real compiler/plan model context, with no new supplier transport, paid execution or N5 for this component. The two real authorized actor/frontier transition and cold read remain open."
+        },
+        "native_r56_archived_cgf_stock_replay_r1": {
+          "source_commit": "511eecf2f1c2bb9e26f6f23f234c2b546850ebc8",
+          "source_tree": "2fca4cd92847609146963f2e855b0641f4b37273",
+          "output": "Primary:policy-engine/_cache/e02/native-r56-ab-fiscal-grounding-20261123/retained-proof/run-dQnWZnSH/guard/result.json",
+          "sha256": "acdd181888534027365df1f0915dffbe01680e299c8a6a371c31265114293bd3",
+          "verified_boundary": "The exact paid R56 A+B source reopened in a private copy. The unchanged stock N4 producer generated exactly one candidate on the real successor WMR and passed the singleton candidate check. The current trace then refused native_retained_candidate_grounding_replay_mismatch before the selected research basis, N6, provider or physical N5. This is the same verifier used by the stock retained V3 reader. Full Python namespace pins matched through the quiescent group. The decisive mismatched predicate is still under review. No action or worker was launched."
+        },
+        "native_r56_dual_atom_level_component_r3": {
+          "source_commit": "f78f9aadff3809a3bd2e086ff8feca84b39a0f69",
+          "source_tree": "d35e8bb3bede23f99d24780d6bd331add9d7d870",
+          "output": "Primary:policy-engine/_cache/e02/native-r56-ab-fiscal-grounding-20261123/component-draft/mirror-r3-BEe8VW/guard/result.json",
+          "sha256": "a398d4ee23d981856a78adf7e12fc15c4b5e5b0b147f6acbe03345109ef1e59d",
+          "verified_boundary": "Seven controlled components pass on actual Foundry graph and separate real source and successor world profiles. The proof keeps the original adverse atom and current atom under distinct content identities and checks the same declared action, output, money unit and actual stock actuation order. It refuses relabelled adverse, mismatched old action, different graph and missing selected artifact. Exact R56, signed live action, N6 budget, physical N5 and fresh API remain separate. Earlier fixture and exact Core ref typing failures stay retained."
         },
         "native_r56_paid_ab_fiscal_component_r1": {
           "source_base": "427c8a5cb41960ec02aaa337794cfedf79d7be01",
@@ -36844,6 +36893,7 @@
           ],
           "status": "PARTIAL",
           "evidence_refs": [
+            "acq01_n7_two_suppliers_same_leaf_r2",
             "acq01_domain_scope_r2",
             "governed_n7_same_cycle_reentry_r8",
             "requirement_selection_consumer_current"
@@ -36919,6 +36969,7 @@
           ],
           "status": "PARTIAL",
           "evidence_refs": [
+            "acq01_04_two_catalog_offers_component_r4",
             "generic_served_sequence_r4_retained",
             "lane01_r33_composed_historical_reader"
           ],
@@ -36943,6 +36994,7 @@
           ],
           "status": "PARTIAL",
           "evidence_refs": [
+            "acq01_05_retained_cpi_r9_raw_cas_audit",
             "p06_transport_served_reconciliation",
             "gdp_producer_fresh_read_reconciliation",
             "candidate_source_metric_separation_current"

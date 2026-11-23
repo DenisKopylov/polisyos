@@ -78,6 +78,40 @@ def test_historical_source_only_abi_field_is_absent() -> None:
     assert d.TransformFamily.model_validate(wire) == family
 
 
+def test_executable_operator_metadata_refuses_before_registry_write(tmp_path: Path) -> None:
+    """Treat executable-looking operator text as invalid data before CAS writes."""
+    from pydantic import ValidationError
+
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    marker = tmp_path / "operator-executed"
+    executable_text = f"__import__('pathlib').Path({str(marker)!r}).touch()"
+    before = tuple(store.iter_artifact_ids())
+
+    untrusted_family = _family().model_dump(mode="python")
+    untrusted_family["expression"] = {
+        **untrusted_family["expression"],
+        "operator": executable_text,
+    }
+    with pytest.raises(ValidationError):
+        d.TransformFamily.model_validate(untrusted_family)
+
+    invalid_expression = d.ArithmeticExpression.model_construct(
+        operator=executable_text,
+        role=None,
+        parameter_name=None,
+        constant_value=None,
+        operands=(),
+    )
+    invalid_family = _family().model_copy(update={"expression": invalid_expression})
+    invalid_registry = d.TransformFamilyRegistry.model_construct(families=(invalid_family,))
+    with pytest.raises(d.DerivationRefusalError) as refused:
+        d.persist_transform_family_registry(store, invalid_registry)
+
+    assert refused.value.code is d.DerivationRefusalCode.INPUT_ARTIFACT_DRIFT
+    assert tuple(store.iter_artifact_ids()) == before
+    assert not marker.exists()
+
+
 def test_candidate_real_cas_wire_roundtrip_and_unknown_score(tmp_path: Path) -> None:
     store = artifacts.FileSystemCAS(tmp_path / "cas")
     context = d.DerivationContext(

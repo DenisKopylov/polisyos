@@ -9249,9 +9249,11 @@ async def _exercise_n7_selected_source_candidate(
     assert len(simulation_probe.calls) == 1
 
 
+@pytest.mark.parametrize("historical_unranked", [False, True], ids=["ranked", "unranked-history"])
 def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    historical_unranked: bool,
 ) -> None:
     import asyncio
 
@@ -9331,6 +9333,8 @@ def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry(
         assert case.compiler_report.requirement_basis.source == "governed_capability_resolution"
         assert case.compiler_report.requirement_basis.basis_grade == "recomputed"
         assert case.data_spec.required_data_families == ("wdi_nominal_gdp_annual",)
+        if historical_unranked:
+            case.candidate.candidate_id = "candidate_" + case.candidate.atom.content_hash[7:23]
 
         with (
             _published_worldbank_owner(
@@ -9461,7 +9465,50 @@ def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry(
                 return decision
 
             monkeypatch.setattr(controller, "decide_next_action", record_action_decision)
+            reentry_schedules = []
+            if historical_unranked:
+                from polisyos.runtime.quality.design_generation import (
+                    N4CandidateScenarioProposalCandidate,
+                )
+
+                reenter = controller._reenter_cycle_after_n7_acquisition
+                dispatch = controller._joint_value_node
+
+                def reenter_unranked(problem, *, cycle, cycle_summaries, **kwargs):
+                    key = (cycle.selected_candidate_ref, cycle.selected_candidate_content_hash)
+                    prior = controller._n7_candidate_bindings[key]
+                    controller._n7_candidate_bindings[key] = N4CandidateScenarioProposalCandidate(
+                        candidate_id=prior.candidate_id,
+                        intervention_id=prior.atom.intervention_id,
+                        atom=prior.atom,
+                    )
+                    historical = tuple(
+                        summary.model_copy(update={"proxy_score": 0.0, "voi_estimate": 0.0})
+                        for summary in cycle_summaries
+                    )
+                    return reenter(problem, cycle=cycle, cycle_summaries=historical, **kwargs)
+
+                def record_reentry_schedule(state):
+                    output = dispatch(state)
+                    if "candidates" not in state:
+                        reentry_schedules.append(output["execution_schedule"])
+                    return output
+
+                monkeypatch.setattr(
+                    controller, "_reenter_cycle_after_n7_acquisition", reenter_unranked
+                )
+                monkeypatch.setattr(controller, "_joint_value_node", record_reentry_schedule)
+
             run = asyncio.run(controller.run(case.problem, budget_state=_budget(), max_cycles=1))
+            if historical_unranked:
+                (schedule,) = reentry_schedules
+                assert schedule.candidate_id == case.candidate.candidate_id
+                assert schedule.economics.expected_improvement_per_usd is None
+                assert schedule.economics.value_proxy_basis == "not_established"
+                assert schedule.reason == "roi_below_threshold"
+                assert run.cycles[0].acquisition_receipt is not None
+                assert len(simulation.calls) == 1
+                return
 
             assert len(planned_routes) == 1
             planned = planned_routes[0]
@@ -10274,6 +10321,114 @@ def test_historical_partial_terminal_row_remains_candidate_only(tmp_path: Path) 
     # controller produced a partial terminal or that it is deployment-current.
 
 
+@pytest.mark.parametrize(
+    ("max_usd", "action", "reason"),
+    [
+        ("5.0", "reject", "roi_below_threshold"),
+        ("0.0", "defer", "budget_exhausted_for_next_level"),
+    ],
+)
+def test_n6_dispatch_preserves_missing_objective_proxy_in_voi_report(
+    tmp_path: Path, max_usd: str, action: str, reason: str
+) -> None:
+    from polisyos.scientist.methods.search.voi_scheduler import (
+        SimpleVOIScheduler,
+        load_voi_run_report,
+        persist_voi_run_report,
+    )
+
+    controller = GenerationCycleController(authority_scope="contract_testing")
+    scheduler = controller._voi_scheduler
+    assert type(scheduler) is SimpleVOIScheduler
+    candidate = _Candidate(
+        candidate_id="candidate_missing_or_zero_proxy",
+        atom=_Atom(intervention_id="candidate_atom", content_hash="sha256:" + "a" * 64),
+        diversity_key=("target", "measurement", "method", "profile"),
+    )
+    budget = _budget(max_usd)
+    missing, zero = (
+        controller._joint_value_node(
+            {
+                "selected_candidate": candidate,
+                "problem": _problem(),
+                "cycle_index": 1,
+                "budget_state": budget,
+                "rankings": rankings,
+            }
+        )
+        for rankings in ({}, {candidate.candidate_id: (0.0, 0.0)})
+    )
+    missing_schedule = missing["execution_schedule"]
+    zero_schedule = zero["execution_schedule"]
+    assert missing_schedule.economics.expected_improvement_per_usd is None
+    assert missing_schedule.economics.value_proxy_basis == "not_established"
+    assert "objective_value" not in missing_schedule.economics.predicted_metric_vector
+    assert zero_schedule.economics.expected_improvement_per_usd == 0.0
+    assert zero_schedule.economics.value_proxy_basis == "supplied_numeric_proxy"
+    assert zero_schedule.economics.predicted_metric_vector["objective_value"] == 0.0
+    assert missing_schedule.priority == zero_schedule.priority
+    assert missing_schedule.recommended_action == zero_schedule.recommended_action == action
+    assert missing_schedule.reason == zero_schedule.reason == reason
+    assert missing["simulation"].status == zero["simulation"].status == "simulation_blocked"
+    assert budget.spent == {}
+
+    report = scheduler.report_for_decisions(
+        run_id="n6-missing-or-zero-proxy", decisions=[missing_schedule, zero_schedule]
+    )
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = persist_voi_run_report(store, report)
+    reopened = load_voi_run_report(FileSystemCAS.open_existing_read_only(store.root), ref)
+    assert reopened == report
+    missing_record, zero_record = reopened.decisions
+    assert missing_record.metadata["value_proxy_basis"] == "not_established"
+    assert missing_record.metadata["expected_value_basis"] == "heuristic_available_signals"
+    assert zero_record.metadata["value_proxy_basis"] == "supplied_numeric_proxy"
+
+
+@pytest.mark.parametrize("legacy_basis", [None, "supplied_numeric_proxy"])
+def test_retained_unranked_schedule_preserves_exact_old_bytes(legacy_basis: str | None) -> None:
+    from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
+
+    controller = GenerationCycleController(authority_scope="contract_testing")
+    kwargs = {"candidate_id": "candidate_retained", "voi_estimate": 0.0, "budget_state": _budget()}
+    current = controller._schedule_candidate_for_execution(proxy_score=None, **kwargs)
+    known_zero = controller._schedule_candidate_for_execution(proxy_score=0.0, **kwargs)
+    assert current.economics.value_proxy_basis == "not_established"
+    wire = known_zero.model_dump(mode="json")
+    if legacy_basis is None:
+        del wire["economics"]["value_proxy_basis"]
+    profile = canon.CanonSpec(forbid_floats=False)
+    raw = canon.to_canonical_bytes(wire, profile)
+    recorded = SchedulingDecision.model_validate(canon.from_canonical_bytes(raw))
+    assert canon.to_canonical_bytes(recorded.model_dump(mode="json"), profile) == raw
+    matches = generation_cycle_module._matches_historical_unranked_schedule
+    assert matches(current, recorded)
+    assert not matches(known_zero, recorded)
+
+    for change in (
+        {"priority": 0.25},
+        {"next_level": 4},
+        {"reason": "budget_exhausted_for_next_level", "recommended_action": "defer"},
+    ):
+        assert not matches(current, recorded.model_copy(update=change))
+    for change in (
+        {"expected_improvement_per_usd": 0.1},
+        {"expected_falsification_value": 0.1},
+        {"predicted_metric_vector": {}},
+        {"estimated_cost_usd": 0.7},
+        {"scheduler_mode": "predictive"},
+    ):
+        altered_economics = recorded.economics.model_copy(update=change)
+        assert not matches(current, recorded.model_copy(update={"economics": altered_economics}))
+    exhausted = controller._schedule_candidate_for_execution(
+        proxy_score=None,
+        candidate_id=recorded.candidate_id,
+        voi_estimate=0.0,
+        budget_state=_budget("0"),
+    )
+    assert not matches(exhausted, recorded)
+
+
 @pytest.mark.asyncio
 async def test_voi_scheduler_changes_next_action_under_varying_budget_and_terminal() -> None:
     controller = GenerationCycleController(
@@ -10285,6 +10440,13 @@ async def test_voi_scheduler_changes_next_action_under_varying_budget_and_termin
     advance = controller.decide_next_action(
         candidate_id="candidate_advance",
         proxy_score=0.8,
+        voi_estimate=0.8,
+        prior_terminal_kind="search_ceiling_repair_required",
+        budget_state=_budget("5.0"),
+    )
+    information_advance = controller.decide_next_action(
+        candidate_id="candidate_information_advance",
+        proxy_score=None,
         voi_estimate=0.8,
         prior_terminal_kind="search_ceiling_repair_required",
         budget_state=_budget("5.0"),
@@ -10305,6 +10467,8 @@ async def test_voi_scheduler_changes_next_action_under_varying_budget_and_termin
     )
 
     assert advance.next_action == "advance"
+    assert information_advance.next_action == "advance"
+    assert information_advance.scheduler_reason == "advance_by_information_value"
     assert stop.next_action == "stop"
     assert escalate.next_action == "escalate"
     assert {advance.scheduler_action, stop.scheduler_action, escalate.terminal_kind} >= {

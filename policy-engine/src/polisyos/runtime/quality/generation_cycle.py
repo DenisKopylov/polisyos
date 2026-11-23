@@ -11464,7 +11464,7 @@ class CounterexampleDrivenRevisionPolicy:
 
 @dataclass(frozen=True)
 class _CheapSignal:
-    expected_value_proxy: float
+    expected_value_proxy: float | None
     expected_information_gain: float
 
 
@@ -11575,6 +11575,36 @@ class _RetainedCheapProjection:
     current_route: _N7PlannedRoute | None
     retained_port_capture_ref: CASArtifactRef | None = None
     retained_budget_fence: _CandidateRetainedBudgetFence | None = None
+
+
+def _matches_historical_unranked_schedule(
+    current: SchedulingDecision, recorded: SchedulingDecision
+) -> bool:
+    """Recognize the original numeric-default wire for an unranked candidate."""
+    from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+
+    basis = recorded.economics.value_proxy_basis
+    if (
+        current.economics.scheduler_mode != "simple"
+        or current.economics.value_proxy_basis != "not_established"
+        or basis not in (None, "supplied_numeric_proxy")
+    ):
+        return False
+    historical = current.model_copy(
+        update={
+            "economics": current.economics.model_copy(
+                update={
+                    "expected_improvement_per_usd": 0.0,
+                    "value_proxy_basis": basis,
+                    "predicted_metric_vector": {
+                        **current.economics.predicted_metric_vector,
+                        "objective_value": 0.0,
+                    },
+                }
+            )
+        }
+    )
+    return exact_n5_content_bytes(historical) == exact_n5_content_bytes(recorded)
 
 
 def _scheduler_allows_candidate_n5(schedule: SchedulingDecision, *, configured: bool) -> bool:
@@ -13900,7 +13930,7 @@ class GenerationCycleController:
         self,
         *,
         candidate_id: str,
-        proxy_score: float,
+        proxy_score: float | None,
         voi_estimate: float,
         budget_state: BudgetState,
     ) -> SchedulingDecision:
@@ -13913,7 +13943,7 @@ class GenerationCycleController:
                 raise GenerationCycleError(str(exc)) from exc
         stage_result = _StageResult(
             cheap_signal=_CheapSignal(
-                expected_value_proxy=max(float(proxy_score), 0.0),
+                expected_value_proxy=None if proxy_score is None else max(float(proxy_score), 0.0),
                 expected_information_gain=max(float(voi_estimate), 0.0),
             ),
             feedback={},
@@ -13937,7 +13967,7 @@ class GenerationCycleController:
         self,
         *,
         candidate_id: str,
-        proxy_score: float,
+        proxy_score: float | None,
         voi_estimate: float,
         prior_terminal_kind: str,
         budget_state: BudgetState,
@@ -17469,10 +17499,16 @@ class GenerationCycleController:
             ),
             None,
         )
-        proxy_score = prior_summary.proxy_score if prior_summary is not None else 0.0
-        voi_estimate = prior_summary.voi_estimate if prior_summary is not None else 0.0
         if prior_candidate is None:
             raise GenerationCycleError("n7_reentry_candidate_binding_unavailable")
+        from polisyos.runtime.quality.design_generation import N4CandidateScenarioProposalCandidate
+
+        # Scenario proposals carry no N4 ranking, including when their saved
+        # summaries use the historical numeric defaults.
+        if prior_summary is None or type(prior_candidate) is N4CandidateScenarioProposalCandidate:
+            proxy_score, voi_estimate = None, 0.0
+        else:
+            proxy_score, voi_estimate = prior_summary.proxy_score, prior_summary.voi_estimate
         from polisyos.runtime.quality.intervention_atom_binding import (
             InterventionAtomBinding,
             intervention_atom_content_hash,
@@ -17619,9 +17655,11 @@ class GenerationCycleController:
                 "problem": problem,
                 "cycle_index": cycle.cycle_index,
                 "budget_state": budget_state,
-                "rankings": {
-                    cycle.selected_candidate_ref: (proxy_score, voi_estimate),
-                },
+                "rankings": (
+                    {cycle.selected_candidate_ref: (proxy_score, voi_estimate)}
+                    if proxy_score is not None
+                    else {}
+                ),
             }
         )
         simulation = dependent["simulation"]
@@ -18524,6 +18562,7 @@ class GenerationCycleController:
             )
         )
         prior_generated_at = self._generated_at
+        recorded_schedule = None
         if saved is not None:
             previous = saved[1]
             if (
@@ -18542,11 +18581,12 @@ class GenerationCycleController:
             # asserted observation time. The dispatcher later compares the
             # complete replay before it can repair a pointer or terminal.
             self._generated_at = previous.current_projection.current_planner_report.generated_at
+            recorded_schedule = previous.current_projection.execution_schedule
         try:
             fence = owner.begin_retained_port_capture()
             self._begin_source_run(original_run.run_id)
             self._acquisition_retention_current_owner = owner
-            return self._retained_configured_cheap_continuation(
+            result = self._retained_configured_cheap_continuation(
                 original_run=original_run,
                 source_cycle=source_cycle,
                 problem=problem,
@@ -18557,6 +18597,19 @@ class GenerationCycleController:
                 _candidate_owner=owner,
                 _candidate_fence=fence,
             )
+            # Live cheap ports already revalidated the current budget and
+            # action. Preserve the selected historical schedule only if its
+            # complete wire matches the former unranked representation.
+            if (
+                type(result) is _RetainedCheapProjection
+                and recorded_schedule is not None
+                and type(self._voi_scheduler) is SimpleVOIScheduler
+                and _matches_historical_unranked_schedule(
+                    result.execution_schedule, recorded_schedule
+                )
+            ):
+                return replace(result, execution_schedule=recorded_schedule)
+            return result
         finally:
             self._generated_at = prior_generated_at
             self._acquisition_retention_current_owner = None
@@ -18795,7 +18848,7 @@ class GenerationCycleController:
         self._n7_candidate_bindings[
             (_candidate_id(selected), _candidate_content_hash(selected))
         ] = selected
-        score, voi = rankings.get(_candidate_id(selected), (0.0, 0.0))
+        score, voi = rankings.get(_candidate_id(selected), (None, 0.0))
         schedule = self._schedule_candidate_for_execution(
             candidate_id=_candidate_id(selected),
             proxy_score=score,
@@ -19636,7 +19689,7 @@ class GenerationCycleController:
                     update={"world_model_record": self._cycle_substrate_context.world_model_record}
                 )
         elif completed_n5 is None:
-            proxy_score, voi_estimate = state["rankings"].get(candidate_id, (0.0, 0.0))
+            proxy_score, voi_estimate = state["rankings"].get(candidate_id, (None, 0.0))
             schedule = self._schedule_candidate_for_execution(
                 candidate_id=candidate_id,
                 proxy_score=proxy_score,
@@ -20900,7 +20953,7 @@ class GenerationCycleController:
         candidate = state["selected_candidate"]
         candidate_id = _candidate_id(candidate)
         grounding = state["selected_grounding"]
-        proxy_score, voi_estimate = state["rankings"].get(candidate_id, (0.0, 0.0))
+        proxy_score, voi_estimate = state["rankings"].get(candidate_id, (None, 0.0))
         terminal_kind = _select_terminal_kind(
             grounding=grounding,
             proxy_score=proxy_score,
@@ -26007,7 +26060,7 @@ def _ranking_by_candidate(result: object) -> dict[str, tuple[float, float]]:
 def _select_terminal_kind(
     *,
     grounding: CandidateGroundingObservation,
-    proxy_score: float,
+    proxy_score: float | None,
     value_port: ValuePortObservation,
 ) -> str:
     del proxy_score

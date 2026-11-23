@@ -544,6 +544,11 @@ async def test_route_closure_rejects_complete_before_terminal_then_ignores_newer
     assert closure.cost_basis_record.missing_distribution == "administrative_tax_receipts"
     assert closure.cost_basis_record.record_content_hash == closure.cost_basis_hash
     assert closure.terminal_event_id == "evt-ds15-nl-terminal"
+    assert (
+        loop.resolve_current_ordinary_route(run_id="run-ds15", route_id=closure.route_id) == closure
+    )
+    with pytest.raises(AcquisitionRouteClosureError, match=r"^acquisition_route_not_current$"):
+        loop.resolve_current_ordinary_route(run_id="run-ds15", route_id="sha256:" + "f" * 64)
     with pytest.raises(
         AcquisitionRouteClosureError, match="model_input_source_report_not_selected"
     ):

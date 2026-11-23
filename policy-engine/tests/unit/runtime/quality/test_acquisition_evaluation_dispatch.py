@@ -29,6 +29,70 @@ if TYPE_CHECKING:
     from tests.unit.runtime.quality.test_acquisition_evidence_transition import _ControlledDraws
 
 
+def test_ordinary_evaluation_rejects_foreign_persisted_job_route_scope(tmp_path: Path) -> None:
+    """Use the actual job payload owner and live lease before resolving the N7 source."""
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.execution_policy import RuntimePrincipal
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthBridge,
+        AcquisitionWorldGrowthConfig,
+    )
+    from tests._helpers.lane01_wdi_profiles import UNEMPLOYMENT_PROFILE, build_fixture_wdi_authority
+
+    authority, _ = build_fixture_wdi_authority(tmp_path / "wdi", UNEMPLOYMENT_PROFILE)
+    service = _build_control_service(tmp_path / "control")
+    store = service._control_store
+    bridge = AcquisitionWorldGrowthBridge(
+        config=AcquisitionWorldGrowthConfig(),
+        repo_root=authority.repo_root,
+        runtime_root=tmp_path / "runtime",
+        authority=authority,
+        artifact_store=service._artifact_store,
+        event_log=service._diagnostic_event_log,
+        epoch_deployment=None,
+        control_store=store,
+        action_head_sink=service.acquisition_route_sink,
+        source_control_service=service,
+    )
+    principal = RuntimePrincipal(
+        subject="ordinary-acquisition-reader",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        roles=frozenset({"analyst"}),
+        authenticated=True,
+    )
+    route_id = "sha256:" + "a" * 64
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        for payload_run_id, reason in (
+            ("foreign-run", "acquisition_evaluation_job_route_not_established"),
+            ("admitted-run", "source_job_not_completed"),
+        ):
+            job = service.enqueue_acquisition_job(
+                job_id=payload_run_id,
+                run_id="admitted-run",
+                payload={"run_id": payload_run_id, "route_id": route_id},
+                principal=principal,
+            )
+            assert job.payload_ref is not None
+            worker = "worker-" + payload_run_id
+            leased = store.lease_next_job(worker_id=worker, lease_seconds=60)
+            assert leased is not None and leased.job_id == job.job_id
+            with store.job_execution_fence(
+                job_id=job.job_id, worker_id=worker, attempt=leased.attempt
+            ):
+                admission = store.current_execution_job_admission()
+                assert admission.scope.status == "established"
+                assert admission.job.run_id == "admitted-run"
+                payload = service._load_payload_ref(
+                    job.payload_ref, kind="runtime.control_job_payload.acquisition"
+                )
+                assert (payload["run_id"], payload["route_id"]) == (payload_run_id, route_id)
+                with pytest.raises(ValueError) as refusal:
+                    dispatch._current_selection(bridge)
+                assert str(refusal.value) == reason
+            assert store.get_job(job.job_id) == leased
+
+
 def test_ordinary_retention_composes_current_owner_and_reopens_source(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

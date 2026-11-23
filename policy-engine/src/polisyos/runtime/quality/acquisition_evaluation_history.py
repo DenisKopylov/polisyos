@@ -3426,8 +3426,9 @@ def verify_acquisition_retention_history(
         cell_id=cell_id,
         action_outcome_reader=sink,
     )
-    closure = loop.resolve_current_route(
+    closure = loop.resolve_current_ordinary_route(
         run_id=source_run_id,
+        route_id=head.route_id,
         before_action_generation=head.action_generation,
     )
     source_job = control_store.get_unique_completed_job_by_run_and_kind(
@@ -3450,8 +3451,9 @@ def verify_acquisition_retention_history(
         # Include this selected action in the owner fold. A reentry is accepted
         # only after the existing real continuation owner verifies it; a
         # no-growth action remains its old meaning, with no retention claim.
-        loop.resolve_current_route(
+        loop.resolve_current_ordinary_route(
             run_id=source_run_id,
+            route_id=head.route_id,
             before_action_generation=head.action_generation + 1,
         )
         legacy = AcquisitionRouteLoopReceipt.model_validate(

@@ -20304,7 +20304,7 @@
           "output": "Primary:policy-engine/_cache/e02/lane01-v5-run-details-r9-preflight-r8/",
           "execution_status_sha256": "37e130e35f767b33b76aeec7c2b95659be0e556750b7ec5689930b700e92fd53",
           "guard_sha256": "2684a74842b6d224851c34b331edb22684960fe98e6a372b271267c278918e78",
-          "verified_boundary": "After exact source-run versus Core-run correction, the completed source job resolves. The first artifact read in the owner pre-read refuses source_artifact_unverified. HTTP and retained owner composition are unentered. Original inputs unchanged on factory proof; strict FAIL, group joined in 19.143s with 1811628032B RSS. R6 remains the latest actual GET."
+          "verified_boundary": "After exact source-run versus Core-run correction, the completed source job resolves. The first artifact read in the owner pre-read refuses source_artifact_unverified. A direct immutable reconciliation finds the exact blob, manifest and owner generation present. The pre-read lacks ambient tenant scope required by the stock CAS; a fresh authenticated GET must retain its own scope. HTTP and retained owner composition are unentered. Original inputs unchanged on factory proof; strict FAIL, group joined in 19.143s with 1811628032B RSS. R6 remains the latest actual GET."
         },
         "acq_01_served_gdp_retained_trial_r1": {
           "source_commit": "49cee621a8588fe43e0107b0acae25034fdb5668",
@@ -20331,6 +20331,14 @@
           "guard_sha256": "0ac86d398a2aaf19341ad2028146008591795c96154957f3cae1823706e3f23d",
           "verified_boundary": "Exact retained GDP B and WMR. Stock owners refuse non-target state, wrong rule path, bad baseline, and exact foreign NCM separately. Correct model attempt stops at genuine missing live lease. Original preserved, 1724 local imported origins, zero provider, worker, N4, N5, reservations or writes. Component PASS only on its read scope."
         },
+        "acq_01_06_exact_gdp_r1_missing_need": {
+          "source_commit": "49cee621a8588fe43e0107b0acae25034fdb5668",
+          "source_tree": "ef223b126533ab768bbd753a7f8b91dd985f8dd6",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/acq01-gdp-r1-missing-need-20261123/",
+          "result_sha256": "7575927629cb3794b95ca1347cdb0396eca6a6612604ffdec7c10745abc3d285",
+          "guard_sha256": "357d66c93d4e5a5e1366efe486185a9fc9fcddc883a84bccf8ff6e53874f05c0",
+          "verified_boundary": "Exact retained GDP B route 8937b774 and selected compiler/planner reopen. Stock missing acquisition_request.requirement_gap produces unbound_requirement_input_refused and source_requirement_binding_mismatch. Same exact B after restoration. Zero source, N4, N5, worker or API invocation. Original archive unchanged. Scoped checkpoint PASS in 27.705s, 1671397376B RSS. Earlier R1 umbrella FAIL remains. This closes the exact negative only."
+        },
         "acq_01_04_ordinary_persisted_route_prerequisite_r1": {
           "source_base": "b8b92eefd85dc131370e6bb68fb99e87ad31007f",
           "output": "Primary:policy-engine/_cache/e02/acq01-04-persisted-route-r1.qOxCm4P3/",
@@ -20338,6 +20346,13 @@
           "junit_sha256": "e925d8b959c10380890be0c03b54efdca93ed548df4dcf9a5a2b878b6301d607",
           "source_pin_sha256": "f1f3a3136d11d840850206d60fda28a2cb12f0e2e951404b225f373987f7755a",
           "verified_boundary": "Actual persisted ordinary job payload and lease reject foreign run scope prior to reopening the N7 route. The existing supported V1 kept-route and foreign selected-route controls also complete; both are success rows in the retained JUnit. V5 and Native selectors have no outcome in this group. Guard stops at physical disk floor after 51.746s, 1851949056B RSS, minimum 3208691712B, group joined. Five owned paths retain their original working SHA. This prerequisite does not establish dual served routes or concurrent-frontier closure."
+        },
+        "acq_01_04_ordinary_persisted_route_prerequisite_r2": {
+          "source_base": "427c8a5cb41960ec02aaa337794cfedf79d7be01",
+          "output": "Primary:policy-engine/_cache/e02/acq01-04-persisted-route-r2.C3fabvA5/",
+          "junit_sha256": "0fac990d47a833dd4e7954a3078f0b9e01e2a9032a3d1b40366c9ff527e47ac9",
+          "guard_sha256": "9ce86ed6af73796092b14add81344ecf7511e00779429fc4dd3dea0c35cbe8af",
+          "verified_boundary": "The two previously unrun exact selectors, persisted V5 refusal and adjacent Native scoped route, both pass with zero skips. Nine source pins include all five R1 owned paths and remain stable. R2 joins 71.292s, 1545142272B RSS and 25000280064B minimum free. With the two named completed cases in the historically aborted R1, this verifies the admitted route prerequisite. Two actual independently authorized offers sharing a frontier and the stale-worker effect are still unrun."
         },
         "acq_01_05_cpi_prefetch_year_unit": {
           "source_base": "8c9faa172e5faf7373d5f9226080b10434050207",
@@ -20443,6 +20458,14 @@
           "command_log_sha256": "2e158d406e3f296610b84e02373cf81e548ad8423f11d074a5c5d95d978382b2",
           "source_pin_sha256": "2c14c1f7a4125c0714827218cc8c956b5d211503ed8a23be64a4892ba5b8f463",
           "verified_boundary": "PASS, stable full Python source and exact original CAS (3905 files), SQL and Catalog; 1767 checkout module origins. CG1 certified-specialization; CG2 abstain on open admissibility_closed; CG3 rejects outcome_wish. Graph confirms tax_subsidy actuation consumes income and writes income and fiscal balance. The requested research ATE objective names government.balance; the retained proposal sets both action and outcome to agents.income. Component only, zero provider/worker/N5, with CG4/CG5 and method/N6 untouched. Group joined in 48.961s at 1651310592B RSS."
+        },
+        "native_r56_paid_ab_fiscal_component_r1": {
+          "source_base": "427c8a5cb41960ec02aaa337794cfedf79d7be01",
+          "output": "Primary:policy-engine/_cache/e02/native-r56-ab-fiscal-grounding-20261123/run-1XAGgjQD/",
+          "guard_sha256": "c8653745a8a424f1f823d6538cea60931e6cddb08aec6f575ab7295d6985f103",
+          "command_log_sha256": "686989d535e30b0fd016fedd9dbe2d0a05712d9f7aed4f8c2a970897e6ef6cb8",
+          "source_pin_sha256": "d3780dcf0af1e73c57f9d16c4b94f3bf3b24bcea02ffa152ffbd4218befc800f",
+          "verified_boundary": "Component PASS, exact old tautology reproduced; existing parser flattens income and balance ABI writes into X_do while exact typed do expression writes income. Separate model-conditioned research diagnostic uses income as actuation and government.balance, USD opening_balance, as observed response. CG1 novel-candidate; CG2 refuses false-analog and keeps admissibility and critical axis obligations open; CG3 acquire_then_decide/cg2_revalidation_failed. Wrong estimand and absent fiscal write both refuse. Exact compiler-view removal and restore observed through stock owner. Original unchanged, guarded network/scratch scope and no worker/supplier/N5 branch. No CG4/CG5, PA2, affordability, N6 or current numerical acceptance. 66.863s and 1668038656B RSS, joined."
         },
         "sel01_r12_current_consumer_profile_attempt": {
           "source_commit": "0234a6ce0bd297226d3ed9e6d6f37661e23bd2be",

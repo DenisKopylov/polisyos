@@ -3713,7 +3713,7 @@ class AcquisitionRouteLoop:
         before_action_generation: int | None = None,
         action_job_id: str | None = None,
     ) -> VerifiedAcquisitionRouteClosure:
-        """Resolve the sole completed natural-language costed source closure."""
+        """Resolve a current Native leaf or the ordinary costed route."""
         if route_id is not None:
             native = self.resolve_native_derivation_leaf_routes(
                 run_id=run_id,
@@ -3734,16 +3734,30 @@ class AcquisitionRouteLoop:
                 return selected
             if native:
                 raise AcquisitionRouteClosureError("native_leaf_route_not_current")
+        return self.resolve_current_ordinary_route(
+            run_id=run_id,
+            route_id=route_id,
+            before_action_generation=before_action_generation,
+            action_job_id=action_job_id,
+        )
+
+    def resolve_current_ordinary_route(
+        self,
+        *,
+        run_id: str,
+        route_id: str | None = None,
+        before_action_generation: int | None = None,
+        action_job_id: str | None = None,
+    ) -> VerifiedAcquisitionRouteClosure:
+        """Reopen the ordinary route for a known action or history reader."""
         origin = self._resolve_verified_origin(run_id=run_id)
-        resolved = self._resolve_current_route_from_origin(
+        return self._resolve_current_route_from_origin(
             origin,
             run_id=run_id,
             before_action_generation=before_action_generation,
             action_job_id=action_job_id,
+            requested_route_id=route_id,
         )
-        if route_id is not None and resolved.route_id != route_id:
-            raise AcquisitionRouteClosureError("acquisition_route_not_current")
-        return resolved
 
     def _acquisition_route_id(
         self,
@@ -3786,6 +3800,7 @@ class AcquisitionRouteLoop:
         run_id: str,
         before_action_generation: int | None = None,
         action_job_id: str | None = None,
+        requested_route_id: str | None = None,
         native_scope: NativeDerivationLeafCostProfileScope | None = None,
         native_provider: NativeDerivationLeafProviderSelection | None = None,
         owner_declared_profile_ref: ArtifactRef | None = None,
@@ -3841,6 +3856,8 @@ class AcquisitionRouteLoop:
             native_provider=native_provider,
             owner_declared_profile_ref=owner_declared_profile_ref,
         )
+        if requested_route_id is not None and route_id != requested_route_id:
+            raise AcquisitionRouteClosureError("acquisition_route_not_current")
         (
             generation_run,
             source_cycle,

@@ -1235,11 +1235,24 @@ def _current_selection(bridge: AcquisitionWorldGrowthBridge) -> _CurrentSelectio
         job.kind != "acquisition"
         or job.state != "running"
         or not job.run_id
+        or job.payload_ref is None
         or admission.scope.status != "established"
         or not admission.scope.tenant_id
         or not admission.scope.cell_id
     ):
         raise ValueError("acquisition_evaluation_current_job_not_admitted")
+    payload = service._load_payload_ref(
+        job.payload_ref, kind="runtime.control_job_payload.acquisition"
+    )
+    route_id = payload.get("route_id")
+    if (
+        not isinstance(route_id, str)
+        or not route_id
+        or "action_kind" in payload
+        or (payload.get("tenant_id"), payload.get("cell_id"), payload.get("run_id"))
+        != (admission.scope.tenant_id, admission.scope.cell_id, job.run_id)
+    ):
+        raise ValueError("acquisition_evaluation_job_route_not_established")
     closure = AcquisitionRouteLoop(
         control_store=bridge.control_store,
         artifact_store=bridge.artifact_store,
@@ -1248,7 +1261,7 @@ def _current_selection(bridge: AcquisitionWorldGrowthBridge) -> _CurrentSelectio
         tenant_id=admission.scope.tenant_id,
         cell_id=admission.scope.cell_id,
         action_outcome_reader=service.acquisition_route_sink,
-    ).resolve_current_route(run_id=job.run_id, action_job_id=job.job_id)
+    ).resolve_current_ordinary_route(run_id=job.run_id, route_id=route_id, action_job_id=job.job_id)
     snapshot = service.acquisition_route_sink.current_action_outcome(
         tenant_id=closure.tenant_id,
         cell_id=closure.cell_id,

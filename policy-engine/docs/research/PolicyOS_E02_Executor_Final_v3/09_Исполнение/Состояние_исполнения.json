@@ -20585,6 +20585,135 @@
           "sha256": "3562dcfc536eb6d3cc631879ca91f6fbedc0b279b19388e12aad412be222b78b",
           "verified_boundary": "Independently reconciled Gate B V25 for configured local transport-reserve source: exact new current source re-request before awaiting a separate fresh approval, configured-entry-only withdrawal causing 409 before effects, immutable historical full result at 602.5 with one original N5 and exact ledger, fresh process and signature withdrawal/restoration with zero additional N5. The full retained producer command stays failed at the later obsolete projection field. This witness is scoped to current source requalification, fail-closed withdrawal and preserved history."
         },
+        "native_r56_signed_r4_durable_queue_response_unresolved": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "python_source_pin_sha256": "19d79443c4331459bbf2d1b12702e3572aaf58c0078cd77399c386e35f64624a",
+          "output": "Primary:policy-engine/_cache/e02/native-use-r56-actor-guard-20261123/execute-once-native-paid-b-r4/execution-result.json",
+          "sha256": "312fab77911c4bc609ae2758effec96b8fa50b8b5c54e28367c3b54737e4735f",
+          "guard_sha256": "2988b6a63045ff1ddb45612b7f3a1ef5325755b8aac3b24be862c133df14d25c",
+          "verified_boundary": "Fresh PA2 allowed over the exact paid B and one durable stock queue job d9464de9 at pending attempt 0 without a lease. Outer command failed at the execute response assertion; exact response status is unresolved. Zero worker, supplier and physical reservations, private ledger remains revision 35, prior R3 failure and signed paid evidence preserved. Group quiescent in 697.718 s at 1924202496 B. The job and exact selected payload/profile reconcile. The consumed Step-Up expired about 35 seconds before durable job creation. Middleware would refuse a successful response at this time; original execute status remains unrecorded. DS9 expired at 21:07:27 UTC. Preserve the pending job unclaimed while verifying native queue deadline and source-read latency."
+        },
+        "native_r56_exact_paid_b_source_owner_latency": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "python_source_pin_sha256": "19d79443c4331459bbf2d1b12702e3572aaf58c0078cd77399c386e35f64624a",
+          "output": "Primary:policy-engine/_cache/e02/native-use-r56-actor-guard-20261123/positive-source-owner-timed-LduL24fd/selected-owner-timing.json",
+          "sha256": "4d5bb9bfe517ca88824502beb6b93180a262fd7758c629d105e98cd6c70ec80d",
+          "guard_sha256": "e03ac45c2f0c0115a5fc0ba973b7811b438ff8388d5afb71e37e444cada41b0e",
+          "verified_boundary": "One stock exact-paid A+B source selection passes and reopens in 267.988 seconds of measured owner time. Three full B selections take 81.259, 83.034 and 80.176 seconds; three nested route closures account for 58.740, 60.145 and 57.119 seconds. Checked source files and SQL stable; zero queue, worker, supplier and N5. Group joins in 325.107 s, peak 1967390720 B, with the independent Labor run concurrent."
+        },
+        "native_r56_step_up_response_archived_time_component": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "output": "Primary:policy-engine/_cache/e02/native-use-r56-actor-guard-20261123/stepup-response-archived-r3.E6bYOzE5/budget/result.json",
+          "sha256": "f3d8142798e0b1363e9418b8ddd5f9a49a3e60abe3aa5e576787d7100b335f04",
+          "junit_sha256": "ff186fa80b0fd85adb6d6d27ea1b92eb68ae3aeefb74c119a299d262d838f680",
+          "verified_boundary": "One controlled authenticated request reaches the real response middleware with the exact archived Native request body and expired Step-Up clock at preserved SQL queue-write time. The no-write service fixture returns a typed success, which stock middleware refuses with HTTP 503 authorization_binding_integrity_violation. Original R4 wire status remains unrecorded. No queue, worker, supplier or N5. Group 83.394 s, peak 1416577024 B and joined."
+        },
+        "cyc03_04_v5_latest_research_and_exact_result_withdrawal_r2": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "source_branch": "codex/lane01-acq-owner-isolated-20261123",
+          "output": "policy-engine/_cache/e02/cyc03-04-v5-current-front-r1/execution-r2/v5-trilogy.sanitized.json in the isolated ACQ owner checkout",
+          "sha256": "474472e21eeda775951b8dd8e9eb37818dd50a7cf855b01590f6a4941759314b",
+          "guard_sha256": "55d2d7ea515e129b921ce228a2a7545414814c6e5c3c4b3036261614bae90f03",
+          "verified_boundary": "Three signed fresh OS reader GETs return 200. Exact selected cycle-1 research occurrence, basis and N5 result reopen; exact selected result-profile removal withholds the current projection with typed unavailability and no historical fallback, restoration returns identical rows and selected result. Independent foreign-run, occurrence and root-origin controls refuse. Audit-only change, no worker, provider or N5. 206.356 s, peak 1440186368 B and joined. The actual adverse occurrence for the original criterion is still unresolved."
+        },
+        "native_r56_queue_expiry_commit_fence_r3": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "source_branch": "codex/lane01-acq-owner-isolated-20261123",
+          "output": "policy-engine/_cache/e02/native-queue-admission-R3-g46eyHax/guard/result.json in the isolated ACQ owner checkout",
+          "sha256": "2421f55c14f5a7f2482c29f51d69daa93c5c98bae76114c1b2e5bb734c1f4ace",
+          "junit_sha256": "656b2eafdd34257f4f5169abfb55bdeb328da30f4b49d02daf8ffea79aad5ce0",
+          "verified_boundary": "Four focused cases. Real SQLite job, creation history and outbox roll back when exact Native JWT/Step-Up deadline expires inside the writer transaction. A fresh retry gives one exact pending attempt 0 with idempotent repeat. Candidate-experiment scope, current selected receipt memo and historical Native stage refs keep their controls. No provider, worker or N5 in these checks. 16 unchanged pins, 24.266 s, peak 1679982592 B and group joined. Native owner bookends still await exact retained timing."
+        },
+        "native_r56_exact_paid_b_optimized_source_latency": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "source_branch": "codex/lane01-acq-owner-isolated-20261123",
+          "source_pin_sha256": "d4e917d92070b02dfd7c78db89b44a882d80097a3114612d92dd49ac036be51c",
+          "output": "Primary:policy-engine/_cache/e02/native-use-r56-actor-guard-20261123/positive-source-owner-route-timed-P8XNyHQU/selected-owner-timing.json",
+          "sha256": "5dc449d2b2b74fa7c9b46882a1cae7502f91493a65e63d97074478c277f3af4e",
+          "guard_sha256": "3ee20bc179ad5667a1f973573d85a161ba7dc61fde90cf917c19e57cfcac3625",
+          "verified_boundary": "Exact no-effect A+B owner probe on two requalification bookends and existing operation memo. Owner 148.962 seconds versus baseline 267.988; two full B reads 64.328 and 66.156 seconds, twelve action-outcome reads 112.226 inclusive seconds. Stock source paths resolve to the isolated checkout, checked SQL and paid input files remain stable, and the command joins PASS with zero queue, worker, supplier or N5 in 197.822 seconds at 1987133440 B. Real paid action still unverified."
+        },
+        "native_r56_exact_stage_ref_identity_component": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "output": "Primary:policy-engine/_cache/e02/native-r56-ab-fiscal-grounding-20261123/component-draft/native-stage-DJBTWR/guard/result.json",
+          "sha256": "ef72f9092194a52b8c0d7b88172b6da61ebf8561f093a3633da678258d28e97d",
+          "verified_boundary": "All fifteen R3 persisted stage predicates reconcile except a concrete-class equality of identical selected Foundry bindings. The authenticated phase uses a FoundryInputBindingsRef, old world checkpoint an ArtifactRef, both carry exact artifact ID/kind/media/profile. The working fix uses the full identity predicate shared with the historical reader. Actual CAS stage component passes on the same reference and refuses a different selected manifest profile. No N5/worker. Original failed R3 stays. Stock same-job recovery is unsupported for a failed persisted two-ref stage; a fresh idempotency key and separately signed new action keep the old job/window intact."
+        },
+        "acq01_06_consistent_labor_number_withheld": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "output": "Primary:policy-engine/_cache/e02/acq01-coherent-labor-served-r1.fn52oc2n/budget/result.json",
+          "sha256": "5028ff98ba2cbfbd0c20bf2249bf4c643e02200393f5ffe9d747af50ff2de95c",
+          "junit_sha256": "e679e8aec28259b05258c9a9e11791d9961f0b41abac5d3a17c78d8f5f595ef8",
+          "python_source_aggregate_sha256": "13044848fcdc359d0e0a123cda65eb9e289ded46f1ae20584839c1e1e6a31e9e",
+          "verified_boundary": "Actual coherent minimize/minimize Labor source action completes first attempt, with durable N5 checkpoint 0.17699999701976776 and effect +0.0020000000000000018; four standard units complete and one protected unit remains. Selected basis is blocked on candidate_n5_declared_identity_not_established from missing loaded-module census; no selected frontier. Fresh GET HTTP 400 candidate_history_terminal_projection_unavailable. The old R9 ambient module pair was observed without this reason; current extra unclassified pytest parent awaits controlled reproduction. Original FAIL, joined in 4383.014 seconds at 1748484096 B."
+        },
+        "native_r56_exact_paid_b_local_history_latency": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "source_branch": "codex/lane01-acq-owner-isolated-20261123",
+          "output": "Primary:policy-engine/_cache/e02/native-use-r56-actor-guard-20261123/positive-source-owner-history-timed-ch8DIOW6/selected-owner-timing.json",
+          "sha256": "f91b24730083611402e29e67ab00e134ce3defce414a83341049140b130eb746",
+          "guard_sha256": "b0d1088ae715c9b954302745c7de2a7a277980cf01fff41e61117780f7da6e46",
+          "source_pin_sha256": "8639e1575c9baa94cad7e81b8011d86765d77386160cfc1c26771d6b13d24df4",
+          "verified_boundary": "Same paid A+B owner selects once in 111.828 seconds, with two full B reads at 45.436 and 48.293 seconds. The middle structural route folds each take under 0.03 seconds after bounded exact history reuse; complete late owner fencing retained. Joined PASS 161.357 seconds, peak 2069282816 B, stable source/SQL, zero provider or N5. Actual paid action remains open."
+        },
+        "acq01_06_labor_fixture_import_census_pair": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "output": "Primary:policy-engine/_cache/e02/acq01-labor-module-census-compare.nP1JW8LN/{importlib.json,prepend.json}",
+          "sha256": "d3286cfe4a6cc05b34327430f45e404514d9469c83a60ce6415be48e8fea1d2d",
+          "prepend_sha256": "2996b6c055b9810394666fd40bd13c9c92ca18edcc3d89d1436022e0e7261afd",
+          "verified_boundary": "Same controlled Labor selector collected with zero test-body executions in separate fresh processes. Pytest importlib creates an extra synthetic parent pointing at a directory and stock loaded-module file census refuses. Prepend leaves the same ambient diagnostic names and establishes census and file bytes without reasons. Both guards pass and join on the same source. This proves the fixture-loading discriminator and leaves the archived blocked evaluation unchanged."
+        },
+        "acq01_06_consistent_labor_pre_effect_r1": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "output": "Primary:policy-engine/_cache/e02/acq01-labor-direction-preflight-r1.fkmy39t1/junit.xml",
+          "sha256": "bc8e4d77ad9768ce86aac244e44314af42859e842df53d449de2556969d09d32",
+          "verified_boundary": "One exact pre-effect test passes. Actual served Labor factory previously kept maximize on outcome although objective minimizes. Correct scoping of the test-only fixture owner passes both minimize declarations, then actual N7 resolves Labor unemployment for USA/2024/total labor force. No provider, worker or N5. New coherent actual materialization and numerical read remain missing, while old scoped results retain original declarations."
+        },
+        "acq01_04_isolated_two_actors_leased_route_r7": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "source_branch": "codex/lane01-acq-owner-isolated-20261123",
+          "output": "policy-engine/_cache/e02/acq01-04-ordinary-reentry-r7.HFxw45eR/budget/result.json in the isolated ACQ owner checkout",
+          "sha256": "ed978a60d5a316aae216c63d20bc4f65ffd7e87d896595ac53ab354d586b6ccc",
+          "junit_sha256": "b5cb2181a0184a6c5f87b72d9385f715b5d4945be884462fdf7568d0ca6b7aba",
+          "verified_boundary": "Two stock signed subjects; exact leased ordinary route reopened and reaches the later deliberate problem-scope refusal. Sibling route on same lease and absent ambiguous route refuse earlier. Native and legacy contracts pass in the same guarded group. 3 passed, 27 stable inputs, 56.125 seconds, peak 1631010816 B. No handler physical work, supplier call or frontier effect. The original shared-frontier race remains."
+        },
+        "native_r56_complete_history_reuse_scope_r1": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "source_branch": "codex/lane01-acq-owner-isolated-20261123",
+          "output": "policy-engine/_cache/e02/native-history-local-R1-NVd2AMf3/guard/result.json in the isolated ACQ owner checkout",
+          "sha256": "b072c3131049bf99b7b1e4d34bf0103700aad03c815a566666bd7699add476af",
+          "junit_sha256": "e5de7ed90b2ff4a7131812d316726a1a1f6d6bfadc561517f8be4d11d5008697",
+          "verified_boundary": "Stock Native action reader uses one full selected newest phase read. Exact selected sidecar removal with same CAS blob and SQL head refuses; exact restoration reopens. A genuine later SQL head refuses previous observed inventory. Same-leaf, paid-ancestry and queue-commit regressions pass. 4 cases, 20 unchanged pins, 26.902 s, peak 1726644224 B, no new physical or supplier effects."
+        },
+        "acq01_04_isolated_two_signed_offer_enqueues_r5": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "source_branch": "codex/lane01-acq-owner-isolated-20261123",
+          "output": "policy-engine/_cache/e02/acq01-04-ordinary-signed-offers-r5.bjilSJYW/budget/result.json in the isolated ACQ owner checkout",
+          "sha256": "ee8c9fef94bc03506af579994df365fa1b6677683ef3265ca425a802bb025bd6",
+          "junit_sha256": "7e94cb6b03bc0e2c08ba8c87a4c6e83aa458d93cafaf47caeb7dbfc72828d35f",
+          "verified_boundary": "Two genuine PA2 approvals and two stock pending jobs attempt 0 for different ordinary offers, both requested events scoped to exact route and action. Fresh app reopens both after expiry, with omission, foreign or removed offer refusing while sibling and restored case remain readable. Separate legacy ID stays unchanged. Two checks pass with 21 stable inputs; total 56.420 s, peak 1692745728 B, no worker, supplier, physical reservation, N5 or frontier write. Same-frontier conflict and isolated fresh process of numerical result remain open."
+        },
+        "acq01_04_signed_offer_second_enqueue_event_collision": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "output": "Primary:policy-engine/_cache/e02/acq01-04-ordinary-signed-offers-r4.yCbX4iId/budget/result.json",
+          "sha256": "d8fb2942e423081f32ad4ac882f0484896e3fb0b48a1e11432b3f39bb3b89e0e",
+          "verified_boundary": "Actual first signed ordinary offer previously passes source and exact stock queue; R4 verifies persisted typed offer and immutable signed hash, omission and foreign-offer refusal and immediate historical reopen. Second ordinary execute returns HTTP 400 from a duplicate diagnostic event ID with different payload. One pending attempt0, requested head, no frontier write, no provider/N5. Strict outer result FAIL. The two-actor same-key frontier and cold authoritative result remain open."
+        },
         "native_r56_signed_r3_stock_stage_binding_refusal": {
           "source_commit": "c6c9f3d2f30cc8ed1b6c8c314180899b6d800d20",
           "source_tree": "07841a7c624e3e4f1879981375f96a304d289d7a",
@@ -37060,6 +37189,7 @@
           ],
           "status": "PARTIAL",
           "evidence_refs": [
+            "acq01_04_signed_offer_second_enqueue_event_collision",
             "acq01_04_two_catalog_offers_component_r4",
             "generic_served_sequence_r4_retained",
             "lane01_r33_composed_historical_reader"
@@ -37111,6 +37241,7 @@
           ],
           "status": "PARTIAL",
           "evidence_refs": [
+            "acq01_06_consistent_labor_pre_effect_r1",
             "scientific_c_selected_read_reconciliation",
             "gdp_producer_fresh_read_reconciliation",
             "candidate_source_metric_separation_current",

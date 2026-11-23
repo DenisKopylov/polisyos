@@ -20224,6 +20224,32 @@
           "source_tree": "f5edce8f360cd0ab43664fe180e0a1f3cf71d2bd",
           "verified_boundary": "Separate typed selected budget-defer row, exact phase/head/event/activation and framed overlay with no result or authority; old V1 keeps exact wire. Independent Python and public-companion reviews, 64 scoped Python passes with separately recorded guard exit 1, 100 focused Dashboard checks and 63 SDK checks, type checks and Runtime API contract drift PASS. Verified real archived R56 GET, absence and restoration are still unrun on the new publication."
         },
+        "acq_01_02_retained_gdp_stock_route_no_effect": {
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "source_tree": "93dd2fe60a0afcd4463e6b77a43a5ea53f691640",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/acq01-gdp-retained-resolver-ro-20261123-r1/probe-result.json",
+          "sha256": "3a2dea9d74ab60a056348a128652dd7cddb7f8d001ae03b0eb18aab42ce38f55",
+          "budget_sha256": "94178d466b71b66edb0df4ac047e46aac6bf04973187a969323e38612b5596e7",
+          "verified_boundary": "Stock immutable retained C0 resolver selects same unique costed GDP USA 2024 route before actions 1 and 2 with separate tax target, exact prod_full Catalog identity and bound compiler/planner bytes and profiles, full 3176-file archive and SQL unchanged. Zero provider, worker and N5; 25.139s, 1701675008B peak RSS, joined. Physical removal and maintained permitted-gateway successor remain separate."
+        },
+        "native_r56_published_blocked_history_trilogy": {
+          "source_commit": "302a237db00b4f7538b18f366a54ffbc8a15bbd6",
+          "source_tree": "8858bea59fcddda5c2ae4bf30f3029111d938eaa",
+          "output": "Primary:policy-engine/_cache/e02/native-r56-blocked-current-reader-20261123/result-pvp3ZKPw/result.json",
+          "sha256": "c0f4df97d30a47ff5bf6eb3f7b3007ce34a43f5935e9807984c559b596940281",
+          "budget_sha256": "d670a221848ed5e998835422aace6f957ea778f1ec5a021a45e006057745950d",
+          "verified_boundary": "Three distinct authenticated fresh HTTP 200 processes and exact generated contract. Positive/restored history both five rows and identical selected generation-3 budget defer, older quarantines retained. Removing only selected framed overlay view yields integrity limitation and no history with original cycle-0 unchanged. Exact restoration, original SQL/CAS/ledger/Catalog/journals equal, nine scoped read-audit rows on copy only; zero physical/N5/Gateway/WDI. 244.986s, 2153185280B peak RSS, 4638511104B minimum disk, quiescent PASS. Original R56 strict FAIL and numerical acceptance remain."
+        },
+        "cyc_05_03_fresh_actual_n6_stop_http": {
+          "source_commit": "302a237db00b4f7538b18f366a54ffbc8a15bbd6",
+          "source_tree": "8858bea59fcddda5c2ae4bf30f3029111d938eaa",
+          "maintained_test_commit": "6025c52102835434c0d3e3d780d73654687d937c",
+          "output": "Primary:policy-engine/_cache/e02/cyc05-03-cold-http-20261123/run-qgm2op9o/",
+          "budget_sha256": "3783e044b6cc2eb000fbfd49f5cfba55b2b2a367a6f56b957a0f8ac32dde5bcb",
+          "junit_sha256": "b72f5931729ea640922faf50e993a1b0b4e98305b9d28f35ec1c1747b41a7d36",
+          "origins_sha256": "7ccba17030b9d0f833a69fd8567e47abd172fa94d1773aa6212fb933cb73a191",
+          "verified_boundary": "Actual scoped N6 frontier_stable, budget_exhausted and grounded_abstention persist and reopen in fresh stock Run Details. Each arbitrary sibling mutation (6) returns exact HTTP 400 and restored response matches. Candidate-only, no currentness, no N5 or embedded worker. 1951 module files exact, joined 42.242s and 1763983360B. Historical true partial projection and mounted Dashboard remain open."
+        },
         "sel01_r12_current_consumer_profile_attempt": {
           "source_commit": "0234a6ce0bd297226d3ed9e6d6f37661e23bd2be",
           "source_tree": "6bf7d48e21fbc20545a220f0c5c6213926e04bc4",
@@ -37184,13 +37210,14 @@
           "status": "PARTIAL",
           "evidence_refs": [
             "cyc05_stop_dashboard_composed_r1",
-            "frontier_current_r8"
+            "frontier_current_r8",
+            "cyc_05_03_fresh_actual_n6_stop_http"
           ],
-          "basis": "A real capacity interruption persists the completed result and unattempted frontier for a fresh API reader. The Dashboard independently distinguishes normal, capacity and abstention presentation on injected rows.",
+          "basis": "Real capacity interruption preserves completed result and unattempted frontier. Separately, actual three stock N6 terminal outcomes reopen in fresh Run Details, six independent field corruptions refuse and exact restoration matches. Dashboard component coverage remains scoped to injected rows and saved capacity wire.",
           "remaining_kinds": [
             "verification_missing"
           ],
-          "remaining": "Read the durable stop outcomes through the actual mounted UI and served history route, with independent sibling projection corruption. An owner-produced historical partial row with declared currentness limits can qualify the original historical control."
+          "remaining": "Verify genuine historical grounded_partial_admissible through a full owner-produced persisted cycle or an explicit verified bridge, with historical currentness limits. Mount the actual Dashboard against fresh authenticated responses for the four kinds and keep the sibling controls."
         },
         {
           "requirement_id": "REQ-CYC-05-04",

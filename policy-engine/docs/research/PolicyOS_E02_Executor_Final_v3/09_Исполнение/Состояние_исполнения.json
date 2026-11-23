@@ -10854,11 +10854,12 @@
             "packets_assessed": 11,
             "requirements_assessed": 66,
             "status_counts": {
-              "CONFIRMED_LOCAL_PROFILE": 48,
-              "PARTIAL": 16,
+              "CONFIRMED_LOCAL_PROFILE": 52,
+              "PARTIAL": 12,
               "BLOCKED_EXTERNAL_INPUT": 2
             },
-            "scope": "Requirement-level retained evidence for named local profiles. Original shared scenarios, independent G and the 300k operating profile keep their own acceptance."
+            "scope": "Requirement-level retained evidence for named local profiles. Original shared scenarios, independent G and the 300k operating profile keep their own acceptance.",
+            "handoff_rule": "Only requirements with a named dependency on a later lane may remain open at LANE-01 handoff. CYC-05-04/05 require the appointed issuer evidence and actually loaded LANE-12 build under DA-06. DA-07 applies to consumers actually changed in LANE-03; DA-08/X03 follow the common freeze. Local implementation, semantic and archival-evidence residuals stay with LANE-01."
           }
         },
         "ncm_request_census_repair": {
@@ -19893,6 +19894,177 @@
           "sha256": "3749910bd4b35171d81e4bb0e3d89beb3a94ed499de353945417780e9767312d",
           "verified_boundary": "One recovery reuses the exact saved second capture. Actual G3 selected quarantine d0036cdb and one controlled delivery with zero N5. The first delivered sample presented as the later capture refuses. G4 reaches the equivalent-basis branch then fails generation_cycle_candidate_handoff_currentness_missing; ordinary cheap retention omits the required actor-bound currentness resolver at construction. Supervisor joined quiescent at 157.044s and 1876967424B peak RSS. G4 head 3 remains outcome_selected with active epoch 2 and prospective basis 70a0ba24, whose effective numerical bytes equal B. No G4 decision, re-entry or terminal; original frontier 1 remains selected. Stock current owner/source repository composition and fresh G4 API remain open."
         },
+        "cyc03_ordinary_retained_owner_composition": {
+          "source_commit": "e7c697ad10b1f6db852ae5635a8e66e80abbe9ea",
+          "source_tree": "d66d8e1bc9a661f2231ab6b8083bad8ecdffec4b",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/cyc-owner-order/ordinary-retained-read-r2/pytest.xml",
+          "sha256": "f9f58322ed42bb26c0eafd33817e681d200f4e0ddd7afe428a22e117102203f7",
+          "verified_boundary": "Four focused no-N5 cases pass after exact constructor refusal on the preimage. The same actual ordinary current owner is bound before controller construction and owns revalidation, scoped Catalog/CAS/SourceRepository and cheap source consumption. Changed saved basis refuses before source. Independent review GO; component stops on deliberately unqualified historical N4. A positive ordinary G4 and distinct fresh HTTP on the same released image remain pending."
+        },
+        "cyc03_ordinary_retained_owner_full_recheck": {
+          "source_commit": "e7c697ad10b1f6db852ae5635a8e66e80abbe9ea",
+          "source_tree": "d66d8e1bc9a661f2231ab6b8083bad8ecdffec4b",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/lane01-cyc03-controlled-replica-fixed-20261123.p8Uvz6/",
+          "sha256": "086d0c517a2a52c7824465c34a8e97f027855064d1feff795b68da0501f4ac7d",
+          "status": "COMMAND_FAIL_G4_PAID_PHASE",
+          "verified_boundary": "On isolated repair A/G1/G2/G3 complete and B durable readback passes. Exactly two controlled deliveries and sole frontier 1. G4 head 2 executing fails acquisition_negative_paid_attempt_phase_mismatch, before equivalent cheap-controller entry. 566.423 s, peak 2202959872 B RSS, min disk 5935411200 B, quiescent. Preserve both cuts and compare exact paid deferral/attempt phases; no G4 terminal or cold API."
+        },
+        "cyc03_retained_replica_fixture_issuer_rollover": {
+          "source_commit": "e7c697ad10b1f6db852ae5635a8e66e80abbe9ea",
+          "source_tree": "d66d8e1bc9a661f2231ab6b8083bad8ecdffec4b",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/lane01-cyc03-controlled-replica-fixed-20261123.p8Uvz6/g4-epoch-negative-cut-reconciliation.json",
+          "sha256": "638ffe98a8d45f6a171ad9ad3de74d9a1c37ca60e875bcc2c270ef270f15048e",
+          "verified_boundary": "Both actual signed policy admissions verify against distinct original public keys. Latest maintained fixture drops the prior accepted issuer/ref at fresh-app rollover, causing epoch_scope_unresolved. The consequent G4 deferral uses its own phase and the exact paid G3 attempt; strict phase replay rejects. Passport 2 and raw #002 already exist, only epoch 1 is active, B and ledger rev27 unchanged, four original physical completions, no G4 growth/decision. Preserve both authentic issuer/admission selections in fixture composition. No G4 or cold API claim."
+        },
+        "cyc03_replica_retained_issuer_trust_fix": {
+          "source_commit": "d5f0721b246a85c4d653b678b5ec385764e52d9b",
+          "source_tree": "4803bc6ed94d2986e9f807cd865f951698ca79ef",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/cyc-owner-order/epoch-trust-reopen.7YQnV8/proof/qualification.json",
+          "sha256": "faa0ee3717b196e3eb5f03ac7c931a7fcd70dfd24f4388a93680ad69f5742679",
+          "verified_boundary": "Actual archived first projection and both valid exact cutoff admissions requalify under additive fixture config. Removing prior key or reverting to latest-only config refuses distinct stock codes. 4.714s, no app, activation, supplier or N5. Two focused fixture cases and independent review pass. Single maintained e2e recheck now started on the fixture-only successor with both previous archives protected."
+        },
+        "cyc03_replica_trust_fixed_full_result": {
+          "source_commit": "d5f0721b246a85c4d653b678b5ec385764e52d9b",
+          "source_tree": "4803bc6ed94d2986e9f807cd865f951698ca79ef",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/lane01-cyc03-controlled-replica-trust-fixed-20261123.GZMbgf/junit.xml",
+          "sha256": "91e17155afb5bd13b2181ee771e385184b3b48112b876fd97df1d3dc2eed72bf",
+          "status": "COMMAND_FAIL_EXTRA_N5_AFTER_CATALOG_REFUSAL",
+          "verified_boundary": "Both issuer admissions activate; all original and four acquisition jobs complete and there are exactly two controlled deliveries. Retained N7 refuses n7_catalog_source_refused, equivalence decision becomes not_established. Stock fallback legitimately runs one extra actual N5 with two completed seed units 17/18, advances frontier 1 to 2 and selects result 73f5837c with same plus-250-billion trajectory values. Guard 836.223s and 2012577792B peak, quiescent. Zero extra N5 falsified; retained G4 and cold consumer still pending."
+        },
+        "cyc03_retained_catalog_owner_root_discriminator": {
+          "source_commit": "d5f0721b246a85c4d653b678b5ec385764e52d9b",
+          "source_tree": "4803bc6ed94d2986e9f807cd865f951698ca79ef",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/lane01-cyc03-controlled-replica-trust-fixed-20261123.GZMbgf/catalog-owner-affinity-read-only.json",
+          "sha256": "90d3c32979d67fce06ac709646e78fa3023b8051ea64acc886a30f40b80a835d",
+          "verified_boundary": "Same real retained B source and exact registry recompute under the candidate Catalog owner's app root. Stock verifier refuses catalog_source_repo_root_mismatch under the WDI transport root that the retained controller passed. Both retained and fallback contexts have same Catalog/registry identities. Read-only, no worker, provider or N5. Complete live owner/N7 retention remains pending."
+        },
+        "cyc03_retained_n7_catalog_composed_preflight": {
+          "source_commit": "6b74c65e961292c3adf1081df0e355996444ccc6",
+          "source_tree": "3e6350692d0217546b2452bf9327b3fe8dc307e9",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/lane01-cyc03-controlled-replica-trust-fixed-20261123.GZMbgf/post-reaction-n7-r1/n7-plan-reconciliation.json",
+          "sha256": "9d5c72e898d02d37c7101287a45bdde6d0fa96203bd70c7d509ccd65dde8f1b2",
+          "verified_boundary": "All four scoped retained controllers keep their selected Catalog owner root. Eighteen focused tests and independent reviews pass. On archived B with exact actor, Catalog and selected refs, stock N7 compiler/planner/report readback complete and return the typed blocked unbound_requirement_input_refused. Governing basis established, no eligible rows. Ordinary retention accepts that typed planner status; live action/lease remains unverified. Zero N5/worker/provider, 25.403s, 1692106752B peak, immutable original."
+        },
+        "cyc03_controlled_replica_fenced_full_recheck": {
+          "source_commit": "712a0b2d147fee97ff5e63edcd74344c6eb6dcba",
+          "source_tree": "341ffb3bd321653c81ea44e1785866ecbe0262c7",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/lane01-cyc03-controlled-replica-n5-fence-20261123.34YgDk/",
+          "sha256": "b11a8cd675398b667e4e73df2fa85fdede99013191cbb3c47dac52e1f833e226",
+          "status": "COMMAND_FAIL_STRICT_RETAINED_PROOF_WIRE",
+          "verified_boundary": "On the exact Catalog-owner repair, G4 crosses live Catalog/N7, emits equivalence, stays outcome_selected at frontier 1 and hits strict continuation proof validation before terminal. Six bad Python-type inputs come from JSON lists/datetimes for the actual prior and selected observations. No physical fallback or new N5. Command failure elapsed 657.456s, peak 2412920832B and quiescent. Preserve old archives. Writer/reader canonical wire proof and cold retained API pending."
+        },
+        "cyc03_controlled_replica_strict_wire_archive": {
+          "source_commit": "b30c1a1b27d749b1623d907aa09e4aba57dbec52",
+          "source_tree": "cec0c05a61bb7508e56c8e54b89d4ce7854a9701",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/lane01-cyc03-controlled-replica-n5-fence-20261123.34YgDk/archived-wire-probe-r2/retained-wire-archive-reconciliation.json",
+          "sha256": "dae3ae29c5854e48a4f6d40cfdfeca6243ed99579800d9c947359ef8ad9c0e15",
+          "verified_boundary": "23/23 focused tests and independent review. Actual archived proof component stock writes and reads exact continuation 07ebbcfb; old capture and parsed relabel refuse distinct typed codes. Footer rejects legitimate ownership index update, reconciled exactly by separate immutable census. Same provider, physical, ledger, epoch, all other SQL and existing CAS; no live authority, terminal, worker or N5. Positive maintained selector and cold authenticated API remain pending."
+        },
+        "cyc04_protected_quota_r3_verified_receipt": {
+          "source_commit": "f2dd0ef1eb74d10e062b1dba6aca5622299b37ef",
+          "source_tree": "74463661e41ccf5c4fdddbd07d829c24e2189c00",
+          "output": "VERIFY:policy-engine/_cache/e02/lane01-protected-quota-current-r3/result.json",
+          "sha256": "d17158c0a04632d04dd13d30d92cfeecaf62f1e1feab1fd57ad44c2fcb43c44a",
+          "verified_boundary": "Original protected-quota selector group passes 5/5 over 24 unchanged named inputs. Actual diagnostic and counterevidence execute after exhaustion of eight standard units, the protected limit stops the next invocation, and the fresh read joins the selected ledger. No-guarantee and lost-ack controls pass. Both C49 cases read exact zero-trajectory diagnostic authority through the audit while candidate numerical projection remains withheld. This qualifies the named local profile at the recorded source."
+        },
+        "cyc03_controlled_replica_live_retained_terminal": {
+          "source_commit": "b30c1a1b27d749b1623d907aa09e4aba57dbec52",
+          "source_tree": "cec0c05a61bb7508e56c8e54b89d4ce7854a9701",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/lane01-cyc03-controlled-replica-wire-fixed-20261123.C0hjXd/",
+          "status": "TERMINAL_SELECTED_MAINTAINED_READER_FOOTER_FAILED",
+          "verified_boundary": "Live stock G4 terminal cb00d48b selects exact prior G2 B 19d89d10 and sole frontier1, decision 64955bd4 and continuation 4afd9f2f. Two genuine distinct controlled blocks, five SQL jobs complete, only original re-entry/N5 work. Owned reader, prior Passport and relabel refusals, positive fresh app all pass. Command joins with fixture using the closed GuardedCAS before missing-capture isolation, no blob removed. Separate authenticated cold positive/removal/restoration pending."
+        },
+        "acq01_02_resolver_real_blob_refusals": {
+          "source_commit": "b30c1a1b27d749b1623d907aa09e4aba57dbec52",
+          "source_tree": "cec0c05a61bb7508e56c8e54b89d4ce7854a9701",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/acq01-d5f-resolver-cow-r1/probe-result.json",
+          "sha256": "89754c17af9350309f9ef016670a4f52a3c80b32a12538ac3e9fe7611ca689f2",
+          "verified_boundary": "Stock resolver on the d5 archived selected source reopens both exact reports, refuses both missing reads and both independently removed COW blobs before effects, and reopens after restoration. Configured compiler failure maps to acquisition_planner_report_readback_failed; physical planner loss maps to writer_profile_mismatch. Original required role-specific codes remain unmet. No worker, HTTP, provider or N5; original unchanged."
+        },
+        "acq01_02_selected_report_readback_roles": {
+          "source_commit": "5a565848d153bd604ed0a166786ba7a116153b2c",
+          "source_tree": "e19de0438bf0c07989dbda784817d464e1cb97db",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/acq01-typed-miss-final-r2/result.json",
+          "sha256": "c0bf661455d97476c66dd7ca3565a9acaad22c00057dd18b47005d7109cf0709",
+          "verified_boundary": "Eight focused selectors pass on identical committed product and test bytes, with independent review. Exact compiler and planner blob removal, a second compiler read after withdrawal, and a distinct foreign writer profile give their respective typed refusals. The separate Native resolver attempt stops in setup at the unregistered percent_gdp unit before validation, baseline attribution unresolved. The maintained served gateway positive is separate."
+        },
+        "acq01_02_retained_exact_role_refusals": {
+          "source_commit": "5a565848d153bd604ed0a166786ba7a116153b2c",
+          "source_tree": "e19de0438bf0c07989dbda784817d464e1cb97db",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/acq01-d5f-resolver-cow-r2/probe-result.json",
+          "sha256": "7b74a9962ba76702a319cc3eeb0ecbd60bf353f97c690860ca14540f21858096",
+          "verified_boundary": "On the exact D5 retained profile, stock resolver positive reopens both selected compiler and planner refs. Scoped read failures and physical removals independently give n7_compiler_report_readback_failed and acquisition_planner_report_readback_failed. Original archive unchanged, both restored refs/profiles reopen, CAS tree and SQLite unchanged, zero HTTP, worker, supplier or N5. Guard passes and joins in 22.1s at 1715175424B peak RSS. The maintained served permitted-gateway positive remains open."
+        },
+        "acq01_02_03_served_fixture_setup": {
+          "source_commit": "c2b78ed2dd4889b139cf8017efb38b1b4a41fc3a",
+          "source_tree": "f972f1bb117c4decd4f778df55091ef82d921760",
+          "output": "Primary:policy-engine/_cache/e02/acq01-served-setup-preflight-20261123-r1/setup-result.json",
+          "sha256": "315ad3e8da7b2c0a69151a24d10b5e4bcc550f836c2394174c8b2146c4a4c30a",
+          "verified_boundary": "Bounded actual preflight_core Catalog and L6 owner setup and exact synthetic stage/candidate selection profile. Missing fixture slot refuses and restoration reopens. Zero K_ref alignment rows, with costed route, permitted gateway and N5 still untested. Denied network and off-scratch writes, zero API startup, worker, WDI, supplier or N5. 17.628s, 1703362560B sampled RSS, source pins unchanged and quiescent."
+        },
+        "acq01_06_retained_governed_missing_need": {
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "source_tree": "93dd2fe60a0afcd4463e6b77a43a5ea53f691640",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/acq01-d5f-missing-need-r4/probe-result.json",
+          "sha256": "de42cae5dc776b52d1d29ac735458e6c42d53b8114b8c55ed40d2fd921c68337",
+          "verified_boundary": "Existing D5 stock route reopens exact GDP query and selected compiler/planner. A single post-owner-read in-memory removal of acquisition_request.requirement_gap yields unbound_requirement_input_refused and source_requirement_binding_mismatch. Original input reopens the same refs/query, no durable artifact substitution. Zero action submit, worker claim, supplier, N5. Read-only SQL/CAS/ledger/Catalog equal before and after. 21.239s, 1676001280B RSS, quiescent. R1–R3 harness failures retained. Compound LA-046 remains separate."
+        },
+        "req01_05_selected_compiler_denominator": {
+          "source_commit": "4bc7d7f87783e3f94e3b3ed299311d399d8be195",
+          "source_tree": "917c0b375be163120512b6f04a98548b556cf7c5",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/req01-05-selected-denominator-r1.xFOtfO/budget/result.json",
+          "sha256": "fb386d09efd3d5e36c1c3a1bbbaabca1e1ce3f3dd5de9e7132b744182676dbb1",
+          "verified_boundary": "One guarded test on byte-identical committed caller/planner/test pins passes three independent raw input injections. All four plans reuse exact compiler 58e963e5 and writer 02090d21. The producer-bound positive selects firm_survival. Each negative persists unbound_requirement_input_refused with no route or cost, and the stock dispatcher does no work. Fresh CAS reads all four reports. 18.678s, 1475198976B peak, quiescent, independent review. Shared ACQ effects retain their own acceptance."
+        },
+        "req01_05_current_source_gap_discriminator": {
+          "source_commit": "5a565848d153bd604ed0a166786ba7a116153b2c",
+          "source_tree": "e19de0438bf0c07989dbda784817d464e1cb97db",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/req01-05-gap-source-r1.2TP7HB/budget/result.json",
+          "sha256": "736113897b55ba949b220eba4e64e84feb409e8e94b0200794e23490763560b8",
+          "verified_boundary": "Separate guarded stock selector passes owned gap binding to the current problem, refuses changed source claim bytes, same-ID foreign problem and conflicting family, and preserves the compiler denominator. 17.641s, 1421656064B peak, quiescent."
+        },
+        "req01_09_current_historical_compatibility": {
+          "source_commit": "c2b78ed2dd4889b139cf8017efb38b1b4a41fc3a",
+          "source_tree": "f972f1bb117c4decd4f778df55091ef82d921760",
+          "output": "Primary:policy-engine/_cache/e02/req01-09-current-compatibility-r1.JtRSCb/budget/result.json",
+          "sha256": "d727e4b2523a7e45b2e10920979eb4f3097924206f1c7c62a0e284175d77112c",
+          "verified_boundary": "Five current targeted cases pass on published source. Track V1 and actual historical-compiler V2, preserve old bytes and unsupported basis across fresh current reader, refuse forged V1 basis and tampered V2, and bind new raw input and canonical domain to its versioned rule. Existing installed wheel proof is separate and remains valid on its source. The exact archived 76304aa run unavailable remains recorded separately from the original compatibility oracle. 10.387s, 1063288832B peak, quiescent."
+        },
+        "cyc04_04_information_route_actual_ncm_budget": {
+          "source_commit": "19c7b5aa2de72eea6a050962a413fab7d0a284a6",
+          "source_tree": "d60ab2d2b86f394ad041791c0bc3385661b738f6",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/cyc04-info-ncm-r1.aL1dkR/budget/result.json",
+          "sha256": "82e3f4e3fa02b1383dda32a320a400a24d09f93be3858f49c694b41c2c4e0579",
+          "verified_boundary": "Three actual bounded NCM cases pass. The new numeric-low case receives advance_by_information_value at the owner-refreshed pre-N5 admission, completes one physical seed and refuses the next after the separate controlled producer settlement exhausts the same ledger. Numerical USD remains not_established. The selected interrupted artifact and one owner-checked physical unit reopen. 20.781s, 1535131648B peak, quiescent, independent review. A missing monetary-value proxy is still distinct unfinished work."
+        },
+        "cyc04_04_simple_scheduler_missing_proxy": {
+          "source_commit": "c6b77ccfe6471c3f4d5ea5cf20b58d839cffd27d",
+          "source_tree": "465f92b0c91289d6b52c10ccd355a9860e153c15",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/cyc04-voi-missing-proxy-green.acAGOh/budget/result.json",
+          "sha256": "6a7acdcde69bfc96e7699d2713764d216102a3d364647fd514d1120131ad03bb",
+          "verified_boundary": "Three new controls pass. The Simple scheduler distinguishes truly absent proxy from supplied numeric zero under identical positive information and budget, closes the null/refusal shape, persists and reopens the heuristic VOI audit, and preserves exact legacy nested canonical bytes and digest. Full wave 20 passed, one failed, zero skips. The strict 19c7 preimage replay loads original scheduler and test, verifies 885 source origins and reproduces the same legacy_evaluation_subject_unbound before scheduling. Independent review limits proof to Simple/audit; stock N6 wiring and affected retained consumer replay pending."
+        },
+        "cyc03_05_overview_selected_n5_profile_links": {
+          "source_commit": "ce28cd2fa517db565ffd97595c828685318827d0",
+          "source_tree": "35f22a80b8fea4920c6d2db3875a9a80d7c5e362",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/cyc03-selected-n5-ui-r4.SsNm97/vitest/result.json",
+          "sha256": "878fb7ad0d6c3b8f8b703f360effee56e0e6e8dee5cc7e2a5f738cc84c9b6ebe",
+          "verified_boundary": "Overview links exact selected N5 input/execution/result profiles behind existing resolved body validators. Controlled V2 execution plus V3 retention render distinct provenance and exact artifact selectors. V2 paired profile removal refuses in nested schema, V3 execution ref removal withholds its numbers. 82/82 component tests, 22.130s Dashboard typecheck and normal hooks pass. This is component coverage; the genuine V2 B/V3 retained G4 browser-to-fresh-API join is still open."
+        },
+        "cyc04_03_candidate_local_aipw_projection": {
+          "source_commit": "602d12553a325c586686312d552a8fe35cd001ba",
+          "source_tree": "8100df59c5ca58e06e4b7238a86fe83ab0ac3adb",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/cyc0403-fqn-wrapper-r1-20261123/result.json",
+          "sha256": "8a8d3a02d25203ad3097a2b5700a4ec3126828fad1a0fa5de4f493568884ddb8",
+          "verified_boundary": "Nine scoped unit/projection selectors and one exact wrapper selected-FQN case pass. Typed AIPW local refusal checks both treatment arms and pure selected method parameters; markerless or unsupported shared input refuses the sibling. The wrapper verifies stored method/N5 lineage and sends FQN, method ref and preserved N5 to the actual route adapter. Legacy refusal wire remains. 147 Dashboard tests, 63 SDK tests, their types, runtime contract drift and normal hooks pass. Actual served N5-to-N8-to-sibling, preserved spend and mounted HTTP are still missing."
+        },
+        "cyc03_controlled_replica_fresh_api_removal_restoration": {
+          "source_commit": "b30c1a1b27d749b1623d907aa09e4aba57dbec52",
+          "source_tree": "cec0c05a61bb7508e56c8e54b89d4ce7854a9701",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/lane01-cyc03-controlled-replica-wire-fixed-20261123.C0hjXd/fresh-http-r2/fresh-removal-restoration-reconciliation.json",
+          "sha256": "a5f1fdc0df2a5b576e72935afacf480ed68634966eb6a9661fac1924fd8ec19e",
+          "verified_boundary": "Actual stock G4 uses distinct local samples with equal scalar, dates and exact sizes 2/3; zero post-B N5 and exact retained B at sole frontier1. Prior raw delivery and relabel refuse. Maintained producer command fails after durable terminal/positive reads on closed fixture CAS, archived exact selected cut separately audited. Separate authenticated fresh positive/refused removal/restoration return exact same B, all generations and candidate-only provenance. Missing capture gives acquisition_action_history_integrity_not_established and empty history. Restored identical blob reopens selected value, zero extra provider/worker/physical/N5. R2 guard PASS at 97.976s, quiescent. Qualification is for this controlled local sampling profile."
+        },
         "sim02_retained_interruption_current_projection": {
           "source_commit": "635dfbe95aff8a09703bdcfe3aa237237f5868ec",
           "source_tree": "1297619c5873d071b44a2cd13ec9052f8d278d84",
@@ -19920,6 +20092,59 @@
           "output": "Primary:policy-engine/_cache/e02/lane01-native-composed-entry-20261123.Ly9Qwn/junit.xml",
           "sha256": "f92b044df05c69ac0cadf6787cfadf8e3ce07106ac485f4959bf62abdd9add33",
           "verified_boundary": "71/71 focused cycle, Native progress/transition and SQLite custody cases pass on composed main, 42.990 s, zero skips. The one-call orchestration regression observes two progress reads on the preimage. The current internal handoff reuses exactly one verified read without waiving its two-sided freshness, the completed replay check or later prepare/claim fences. Independent review passes. This establishes reduced repeated work without a new R56 resource or numerical claim."
+        },
+        "native_r56_published_selector_no_effect": {
+          "source_commit": "c2b78ed2dd4889b139cf8017efb38b1b4a41fc3a",
+          "source_tree": "f972f1bb117c4decd4f778df55091ef82d921760",
+          "output": "Primary:policy-engine/_cache/e02/native-paid-b-r56-runner-20261123/no-effect-selector-observation.json",
+          "sha256": "880b212f68f5c4e9d5afaa5aa3bb40ef420b501c4a5c5f7bb58dee1100a2e857",
+          "verified_boundary": "Remote branch and local HEAD match, dashboard pre-push typecheck passes. On loaded primary release the exact v3 selector rebuilds the same body 2337d436, 3144 bytes, with 95-path source pin. All 20 application SQL tables, rev30 ledger and six sealed wires remain unchanged. Body kept in memory, zero approval, POST, worker, supplier or N5. Protected lease 7, one numerical result and cold API remain pending."
+        },
+        "native_r56_paid_b_supervised_execution": {
+          "source_commit": "c2b78ed2dd4889b139cf8017efb38b1b4a41fc3a",
+          "source_tree": "f972f1bb117c4decd4f778df55091ef82d921760",
+          "output": "Primary:policy-engine/_cache/e02/native-paid-b-r56-runner-20261123/",
+          "sha256": "613b3626a1e999240819cfaf4e6bed9946623896b481e062fd52398d1376c436",
+          "status": "COMMAND_FAIL",
+          "verified_boundary": "Script seal anchors the one authorized guarded R56 launch. Loaded probe verifies 37 Runtime modules and 54 test paths; 14 runner unit controls and independent audit pass. One authenticated stock POST returns HTTP 200, SQL appends V3 event 33 and the same job takes lease 7. All three selected paid N4 responses are adopted. Two subsequent controlled synthetic settlements at rev32/34 repeat request and matching response bytes from same-run pre-window rev10/12. SQL generation 3/head 5 completes attempt 7 with route terminal 35bc7bce/reentry_completed. Its verified e68f3bfd overlay selects fallback, simulation_blocked and budget_exhausted_for_next_level, with n5_model_input_obligations_required and no N5 refs. Both original WDI journals remain exact, reserved and physical count zero. Guard exits 1 at r56_supplier_or_kernel_count_changed and joins with its observer. 11606.481s, 4234723328B peak RSS, 3287220224B minimum disk. Strict qualification and positive cold API are unrun or unmet. Keep original terminal and seal."
+        },
+        "native_r56_poststop_exact_census": {
+          "source_commit": "c2b78ed2dd4889b139cf8017efb38b1b4a41fc3a",
+          "source_tree": "f972f1bb117c4decd4f778df55091ef82d921760",
+          "output": "Primary:policy-engine/_cache/e02/native-r56-poststop-census-20261123/census.json",
+          "sha256": "e0c234c1d73142ad359bda05a9810852780636fd18612033ecf58edafb6adea0",
+          "verified_boundary": "Read-only census of 20 SQL and six budget tables preserves earlier heads, outboxes, events, all ledger prefixes and the exact recovery markers. Attempt 7 terminal selected, fallback finding cgf_disposition_missing, no N5 refs/checkpoints, compute, invocation, open USD reserve or WDI. Rev34 fixture spend USD 0.75285, one protected unit. Only runtime intent is preexisting completed with unchanged table fingerprint. Both original WDI journals identical; no further effects or freshness claims. The original N4 source and producer intent carry exact matching historical formalizer/critic responses, and a successor needs a legitimately selected current use of the already active Native scale observation."
+        },
+        "native_r56_v3_pre_window_reuse_repair": {
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "source_tree": "93dd2fe60a0afcd4463e6b77a43a5ea53f691640",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/native-baseline-paid-response-green.9VkJK5/budget/result.json",
+          "sha256": "9ddd5d6600ad5cb5572cb5f104195daa5e7aa118ddf6bb407b8ead3fce16913b",
+          "verified_boundary": "Stock V3 managed recovery identifies same-source pre-window paid requests and verifies original Core intent, N4 source plus committed settlement/spend and full response. It can reuse each exact historic paid answer once before transport. Missing/altered/ambiguous or foreign proof refuses; unrelated new requests remain eligible. Exact preimage reproduces missed same-request guard. Final targeted 89/89, 31.246s, 1655816192B RSS, quiescent, independent review. Predecessor R56 still recorded as strict FAIL. No actual R56 rereplay, legacy V2 qualification, one-N5 settlement or fresh numerical API."
+        },
+        "lane01_composed_affected_consumers_20261123": {
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "source_tree": "93dd2fe60a0afcd4463e6b77a43a5ea53f691640",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/lane01-affected-projection-composed-r1.w4VOVT/budget/result.json",
+          "sha256": "55b7a01ea071d9492a7b8eeae475a6281e512246709a60a5b769f61f3619cee9",
+          "verified_boundary": "67 focused tests without skips in 44.478s, 1931083776B peak RSS on the combined exact source. Native and Candidate retained history and continuation, HTTP projection and N7 lineage qualify at the test boundary. Retained R56 numerical completion and actual served consumer checks have separate evidence."
+        },
+        "native_r56_blocked_reader_first_attempt": {
+          "source_commit": "c2b78ed2dd4889b139cf8017efb38b1b4a41fc3a",
+          "source_tree": "f972f1bb117c4decd4f778df55091ef82d921760",
+          "output": "Primary:policy-engine/_cache/e02/native-r56-blocked-reader-20261123/result-cZ7Jq1yg/",
+          "status": "COMMAND_FAIL at clone audit guard after 45.8s",
+          "verified_boundary": "First isolated GET reaches finalization. Three actual typed read-audit writes append to the clone, with untouched original and exact SQL and budget/dispatch/supplier evidence. The first harness did not retain the HTTP projection separately before full finalization. No retained fresh numerical API or extra N5. The launch preflight had verified the ledger but omitted the downstream N6 estimate comparison."
+        },
+        "native_r56_blocked_reader_diagnostic": {
+          "source_commit": "c2b78ed2dd4889b139cf8017efb38b1b4a41fc3a",
+          "source_tree": "f972f1bb117c4decd4f778df55091ef82d921760",
+          "output": "Primary:policy-engine/_cache/e02/native-r56-blocked-reader-20261123/result-HzuqSTMF/blocked-read-result.json",
+          "sha256": "4f9ae8f8b1d5463dd296fb8ae6687d7a90c9f5fb7f6a60bd5671329d10db7886",
+          "http_observation_sha256": "7ad729b31b4cf4e0e2df5a5c0459f8fd9f544323e6808e83a0367deaef0a6a1b",
+          "budget_result_sha256": "aa9cc698a354fe129778d5f198deb576f5bea147589cd7da7af9a100f6b6d482",
+          "status": "DIAGNOSTIC_COMPLETE; strict no-repeat FAIL; acceptance not_established",
+          "verified_boundary": "Fresh authorized HTTP 200 resolves only original cycle-0 blocked N5 and returns acquisition_action_history_integrity_not_established with absent action history. Cycle-1 R56 terminal and its budget stop reopen only in the independently pinned SQL/CAS. No selected new result. Original and clone business state/ledgers/journals are unchanged. Only three exact scoped read-audit writes on the private clone. Zero kernel or WDI calls, group quiescent, 50.889s, 1624195072B peak RSS, 5276635136B minimum disk."
         },
         "sel01_r12_current_consumer_profile_attempt": {
           "source_commit": "0234a6ce0bd297226d3ed9e6d6f37661e23bd2be",
@@ -35910,17 +36135,16 @@
             "E02-I01-B-B01",
             "E02-X02-B01"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "compiler_slot_calendar_planner",
             "governed_n7_same_cycle_reentry_r8",
-            "generic_source_planner_join_current"
+            "generic_source_planner_join_current",
+            "req01_05_selected_compiler_denominator",
+            "req01_05_current_source_gap_discriminator"
           ],
-          "basis": "Compiler and planner tests enforce the owned denominator. The leased N7 bridge persists exact report and plan and calls the pending-N5 port. The retained four-case planner wave reopens the versioned compiler/planner facts through fresh CAS and refuses the exact owner or selected bytes when changed. Its production source pins precede the current runtime.",
-          "remaining_kinds": [
-            "verification_missing"
-          ],
-          "remaining": "Exercise acquisition_request.data_requirement_specs, acquisition_request.compiled_requirement_specs and runtime_hints.n7_data_requirement_specs independently against the same current selected N7 report. The persisted planner must preserve the full compiler-owned versioned denominator, record the refusal and admit no acquisition to the owner."
+          "basis": "One exact selected V2 compiler and full owned denominator survive three independent raw overrides. The real N7 dispatcher refuses each persisted blocked route without acquisition or N5. A positive owner-produced gap selects only the compiled firm_survival requirement, and the separate current discriminator refuses foreign gap bytes, subject and family. The earlier leased N7 bridge joins the actual persisted report and pending-N5 owner. Shared ACQ effect acceptance is separate.",
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-REQ-01-06",
@@ -35997,17 +36221,15 @@
           "binding_ids": [
             "E02-I01-B-B01"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "req01_pre_domain_v2_source_replay",
             "req01_installed_v1_v2_compatibility",
+            "req01_09_current_historical_compatibility",
             "historical_v2_requirement_report_input"
           ],
-          "basis": "The tracked fixture is emitted by the historical compiler and immutable writer. The fresh reader preserves its exact wire and unresolved provenance; the installed profile verifies v1/v2 and current domain provenance.",
-          "remaining_kinds": [
-            "artifact_missing"
-          ],
-          "remaining": "Original archival v2 bytes from the recorded historical run remain unavailable. The source replay is separately identified."
+          "basis": "The tracked V2 fixture is emitted by the historical compiler and immutable writer. The current fresh reader preserves V1/V2 exact wires and unresolved provenance, rejects tamper and forged legacy basis, and emits the versioned current raw/canonical domain. The independent installed profile also verifies both historical wires and current domain audit. The unavailable distinct historical run remains recorded as archive provenance outside the specified compatibility oracle.",
+          "remaining_kinds": []
         }
       ]
     },
@@ -36286,13 +36508,16 @@
           "evidence_refs": [
             "acq01_current",
             "acq01_pending_macro_preflight_current",
-            "governed_n7_same_cycle_reentry_r8"
+            "governed_n7_same_cycle_reentry_r8",
+            "acq01_02_selected_report_readback_roles",
+            "acq01_02_retained_exact_role_refusals",
+            "acq01_02_03_served_fixture_setup"
           ],
           "basis": "Live N7 report and planner authority, scoped lease and pending path are preserved. Existing ACQ route failures remain recorded.",
           "remaining_kinds": [
             "verification_missing"
           ],
-          "remaining": "Qualify the actual executor's exact CAS readback with independent compiler and planner byte-removal refusals before effects."
+          "remaining": "The repaired stock retained resolver qualifies both role-specific physical/read faults, refusal before effects, and exact restoration. Complete the maintained served permitted-gateway positive with its selected compiler/planner refs on the affected composition."
         },
         {
           "requirement_id": "REQ-ACQ-01-03",
@@ -36340,7 +36565,7 @@
           "remaining_kinds": [
             "verification_missing"
           ],
-          "remaining": "Exercise the relevant persisted-boundary recovery and genuinely concurrent current-frontier change at the acquired source and selected numerical path."
+          "remaining": "Resolve the ordinary fsynced-started gap with positive evidence from the physical reservation owner. Exercise an actual authorized change to the selected projection or same frontier during N5. Existing custody recovery from the completed result and SQL stale-terminal refusal cover separate cuts. The next ordinary same-route action is gated on the prior terminal, so it cannot supply the concurrent change."
         },
         {
           "requirement_id": "REQ-ACQ-01-05",
@@ -36361,11 +36586,11 @@
             "gdp_producer_fresh_read_reconciliation",
             "candidate_source_metric_separation_current"
           ],
-          "basis": "Transport stock and GDP witnesses confirm concrete results in named profiles under existing owners, with metadata-only fixture preparation in transport.",
+          "basis": "Transport and stock GDP confirm concrete results under existing owners. CPI uses the generic metadata-selected one-row WDI profile with a configured candidate path, actual changed numerical result, fresh read and separate wrong-indicator Catalog refusal.",
           "remaining_kinds": [
             "verification_missing"
           ],
-          "remaining": "Record the exact changed-value and negative source/basis coupling for the declared second-resource test. Multi-row consumption needs explicit units, time, population and aggregation evidence when supported."
+          "remaining": "Qualify the changed-query/source-basis controls and preparation on a supported second-resource profile. CPI R10 exact original writer input was not found in the inspected location. One-row GDP provides a retained alternative. Multi-row consumption needs explicit units, time, population and aggregation evidence when supported."
         },
         {
           "requirement_id": "REQ-ACQ-01-06",
@@ -36383,13 +36608,14 @@
           "evidence_refs": [
             "scientific_c_selected_read_reconciliation",
             "gdp_producer_fresh_read_reconciliation",
-            "candidate_source_metric_separation_current"
+            "candidate_source_metric_separation_current",
+            "acq01_06_retained_governed_missing_need"
           ],
           "basis": "Scientific C and GDP provide actual distinct scoped producer and reader witnesses. A shared candidate source owner independently exercises typed metric separation.",
           "remaining_kinds": [
             "verification_missing"
           ],
-          "remaining": "Join the accepted common contract, actual source IDs and queries, second-domain consumer and missing-need control for the shared LA-046 disposition."
+          "remaining": "Join the accepted common contract, actual source IDs and queries and both numerical consumers after the remaining ACQ-01-01 through ACQ-01-05 criteria. The real D5 retained resolver missing-need control is verified before effects. Preserve the candidate authority envelope in the shared LA-046 disposition."
         }
       ]
     },
@@ -36490,7 +36716,7 @@
           "binding_ids": [
             "E02-I01-B-B03"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "cyc03_transition_control_20261122",
             "cyc03_gdp_costed_seed_preflight",
@@ -36511,14 +36737,11 @@
             "cyc03_same_image_g4_custody_r1_refusal",
             "cyc03_same_image_g4_custody_r2_preflight",
             "cyc03_same_image_g4_custody_r2_settled",
-            "cyc03_same_image_g4_custody_fresh_api"
+            "cyc03_same_image_g4_custody_fresh_api",
+            "cyc03_controlled_replica_fresh_api_removal_restoration"
           ],
-          "basis": "Eighteen focused classifier checks pass. The isolated owner-order repair interoperates with real retained R3 prior evidence. R4 first B uses the retained controlled source and settles a two-unit N5. Its repaired history reopens and refuses independently on source or basis removal. The saved g3 attempt feeds g4 with no new transport. Actual selected coefficient -500000000000 to -1000000000000 doubles both GDP effects from 250000000000 to 500000000000 with one N5. The cross-image comparison is not_established and a separate cold API confirms that history limit. The same-image comparison is recomputed. Stock custody selects its exact result on frontier 2 and a separate authenticated API reads generations 1 to 4, old B, and new G4 with zero additional numerical or provider work.",
-          "remaining_kinds": [
-            "semantic_test_missing",
-            "verification_missing"
-          ],
-          "remaining": "Exercise the equal-value replica with verified independent measurement occurrences, observation times and exact denominators, and distinguish a technical replay on the same occurrence. The supported model coefficient transition is independently verified as a candidate through the exact fresh API."
+          "basis": "The selected same-image coefficient change doubles both GDP effects from 250000000000 to 500000000000 with one N5. Stock custody selects frontier 2 and a separate authenticated API reads the history and both values. In the separate controlled local equal-value profile, stock G4 binds different verified sample memberships, times and sizes 2/3, and retains exact B on frontier 1 with zero extra N5. Reusing the old delivery as the new sample refuses. A separate authenticated API reads all four generations, withholds the history when the exact second capture is removed and restores the same B on reinstatement. The local qualification preserves the candidate-only ceiling and does not establish external empirical independence.",
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-CYC-03-04",
@@ -36545,7 +36768,7 @@
           "remaining_kinds": [
             "verification_missing"
           ],
-          "remaining": "Show a worse latest valid occurrence at the current frontier with prior and later occurrence history preserved for the same stable candidate."
+          "remaining": "Show a worse latest valid occurrence in the live front, with both occurrences in history for the same stable candidate. Scientific C, R33 and same-image GDP re-entry retain research occurrences; an evaluation refusal is not an adverse candidate occurrence. The modern experiment reader verifies V5 history but currently does not join its effective candidate run into the current-front projection."
         },
         {
           "requirement_id": "REQ-CYC-03-05",
@@ -36565,7 +36788,8 @@
           "status": "PARTIAL",
           "evidence_refs": [
             "lane01_r33_composed_historical_reader",
-            "r33_independent_fresh_reader_r6"
+            "r33_independent_fresh_reader_r6",
+            "cyc03_05_overview_selected_n5_profile_links"
           ],
           "basis": "Actual backend reads distinguish current C and retained original execution. An isolated Chromium test verifies the history presentation using injected discovery.",
           "remaining_kinds": [
@@ -36693,13 +36917,14 @@
           "status": "PARTIAL",
           "evidence_refs": [
             "cyc04_full_served_r7",
-            "cyc04_grounded_fallback_current"
+            "cyc04_grounded_fallback_current",
+            "cyc04_03_candidate_local_aipw_projection"
           ],
-          "basis": "Actual candidate-local N5 refusal falls through once to an already grounded sibling. Shared-currentness, marker and global resource failures remain upstream stops.",
+          "basis": "Actual candidate-local N5 refusal falls through once to an already grounded sibling. The narrow AIPW path now classifies a verified local estimand treatment divergence after shared source admission and preserves selected method, its typed refusal and first N5 through the tested wrapper and route adapter. Existing shared/markerless stops remain.",
           "remaining_kinds": [
             "semantic_test_missing"
           ],
-          "remaining": "Exercise candidate-local N8 failure followed by the suitable already-generated candidate without redraft, preserving the first attempt and its cost."
+          "remaining": "Run one actual N5-to-N8 owner-backed AIPW profile with genuine local divergence, suitable already-generated sibling and no redraft. Preserve the exact first completed numerical result and physical spend, show both through fresh HTTP, and pair a real shared malformed/stale source or budget refusal that permits no sibling work. The current wrapper, wire and route tests do not execute this numerical chain. N5-local fallback remains independently demonstrated."
         },
         {
           "requirement_id": "REQ-CYC-04-04",
@@ -36717,13 +36942,16 @@
           "status": "PARTIAL",
           "evidence_refs": [
             "lane01_current_cycle_owner_checks",
-            "n5_budget_di_current"
+            "n5_budget_di_current",
+            "cyc04_04_information_route_actual_ncm_budget",
+            "cyc04_04_simple_scheduler_missing_proxy"
           ],
-          "basis": "The scheduler admits positive information gain below the ROI threshold, and actual budget observer controls exercise physical admission. Monetary value stays explicit unknown.",
+          "basis": "The stock scheduler admits the same candidate by information at positive numeric proxy ratio 0.2 below threshold 1.0. The actual NCM run finishes one seed and refuses another after a separate controlled producer charge exhausts this run's ledger. NCM monetary cost remains not_established and the partial work is readable.",
           "remaining_kinds": [
+            "bridge_missing",
             "semantic_test_missing"
           ],
-          "remaining": "Join the same positive-information below-ROI case to an actual admitted and charged numerical producer on the selected route."
+          "remaining": "Wire stock N6 missing proxy to the verified Simple scheduler and persisted audit instead of supplying a default numeric zero. Reverify affected Native and Candidate retained schedule readers on that composition. The Simple scheduler/report unknown-versus-zero and legacy DTO round-trip already qualify."
         },
         {
           "requirement_id": "REQ-CYC-04-05",
@@ -36761,16 +36989,14 @@
           "binding_ids": [
             "E02-I01-C-B01"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "lane01_current_cycle_owner_checks",
-            "native_protected_quota_composed_r1"
+            "native_protected_quota_composed_r1",
+            "cyc04_protected_quota_r3_verified_receipt"
           ],
-          "basis": "Allocation checks confirm the named protected partition, no-guarantee and lost-ack handling. Two C49 cases execute a single protected seed and fail at the strict trajectory-free reader expectation.",
-          "remaining_kinds": [
-            "verification_missing"
-          ],
-          "remaining": "Establish the intended C49 protected diagnostic readback and distinguish its authoritative no-guarantee or candidate result projection."
+          "basis": "The exact later R3 five-case profile supersedes the early C49 reader failures. Real diagnostic and counterevidence execute after the ordinary allocation is exhausted, exhaustion of the protected partition refuses the next call, and a fresh ledger read verifies both. The no-guarantee case makes no protection claim. The exact selected C49 audit reads both zero-trajectory diagnostic cases without promoting candidate numerical output.",
+          "remaining_kinds": []
         }
       ]
     },
@@ -36886,7 +37112,7 @@
           "remaining_kinds": [
             "verification_missing"
           ],
-          "remaining": "Read the durable outcomes through the actual mounted UI and served history route with the neighboring projection corruption discriminator."
+          "remaining": "Read the durable stop outcomes through the actual mounted UI and served history route, with independent sibling projection corruption. An owner-produced historical partial row with declared currentness limits can qualify the original historical control."
         },
         {
           "requirement_id": "REQ-CYC-05-04",

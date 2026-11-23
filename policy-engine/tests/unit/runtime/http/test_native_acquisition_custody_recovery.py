@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
+import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
@@ -19,7 +20,11 @@ from polisyos.runtime.http.services.control_plane_store import (
     ControlJobRecord,
     ControlPlaneStore,
 )
-from polisyos.runtime.quality.native_settled_draft import NativeSettledDraftRecovery
+from polisyos.runtime.quality.native_settled_draft import (
+    NativeSettledDraftRecovery,
+    NativeSettledN4Occurrence,
+    NativeSettledN4Recovery,
+)
 from tests.unit.runtime.http.test_control_plane_store_action_head_history import (
     _action_scope,
     _append_head,
@@ -171,6 +176,351 @@ def _draft_selection() -> NativeSettledDraftRecovery:
         ledger_revision=18,
         response_text='{"draft_id":"exact-private-candidate"}',
     )
+
+
+def _interrupted_selection(
+    action: _FailedAction,
+) -> tuple[ControlJobRecord, NativeSettledN4Recovery]:
+    """Create a real v2 recovery lease and bind a prospective v3 selection to it."""
+    _request(
+        action,
+        settled_draft=_draft_selection(),
+        approval_expires_at=int((datetime.now(UTC) + timedelta(minutes=5)).timestamp()),
+    )
+    (event,) = _recovery_event_rows(action.sqlite_path, action.failed_job.job_id)
+    previous_sha = "sha256:" + hashlib.sha256(str(event["payload_json"]).encode()).hexdigest()
+    leased = action.store.lease_next_job(worker_id="interrupted-v2", lease_seconds=1)
+    assert leased is not None
+    occurrences = tuple(
+        NativeSettledN4Occurrence(
+            producer_event_id="llm-provider:" + str(index) * 32,
+            stage="drafter_multipass",
+            instance=instance,
+            ordinal=0,
+            context_id=str(index) * 64,
+            request_digest=str(index + 2) * 64,
+            response_text=f"private-response-{index}",
+        )
+        for index, instance in ((1, "side_effects_check"), (2, "constraint_verify"))
+    )
+    selected = NativeSettledN4Recovery(
+        prior_recovery_event_id=event["event_id"],
+        prior_recovery_event_sha256=previous_sha,
+        ledger_revision=30,
+        draft=_draft_selection(),
+        occurrences=occurrences,
+    )
+    return leased, selected
+
+
+def _interrupted_request_args(
+    action: _FailedAction, leased: ControlJobRecord, selected: NativeSettledN4Recovery
+) -> dict[str, Any]:
+    return {
+        "expected_job": leased,
+        "interrupted_attempt": leased.attempt,
+        "head": action.head,
+        "execution_scope": action.execution_scope,
+        "request_sha256": _digest("interrupted-request"),
+        "permission_sha256": _digest("interrupted-permission"),
+        "resource_digest": _digest("interrupted-resource"),
+        "n4_recovery": selected,
+        "approval_expires_at": int((datetime.now(UTC) + timedelta(minutes=5)).timestamp()),
+    }
+
+
+def test_expired_interrupted_native_custody_preserves_v2_and_uses_one_fresh_lease(
+    tmp_path: Path,
+) -> None:
+    """A live SQLite v2 lease is retired only after expiry; old bytes remain intact."""
+    action = _failed_action(tmp_path, world_pending=True, failed_error="reentry_recovery_required")
+    leased, selected = _interrupted_selection(action)
+    arguments = _interrupted_request_args(action, leased, selected)
+    event_before = _recovery_event_rows(action.sqlite_path, leased.job_id)[0]
+    event_bytes = _event_payload_bytes(action.sqlite_path, event_before["event_id"])
+    outbox_before = _recovery_outbox_rows(action.sqlite_path, leased.job_id)[0]
+    outbox_bytes = _outbox_payload_bytes(action.sqlite_path, outbox_before["event_id"])
+    with pytest.raises(ValueError, match="native_interrupted_custody_job_or_expiry_changed"):
+        action.store.request_expired_native_acquisition_custody_recovery(**arguments)
+    assert action.store.get_job(leased.job_id) == leased
+    time.sleep(1.05)
+
+    for overrides in (
+        {"execution_scope": replace(action.execution_scope, actor_subject="different-actor")},
+        {"head": replace(action.head, receipt_ref=_digest("different-head"))},
+        {"interrupted_attempt": leased.attempt + 1},
+        {"expected_job": replace(leased, lease_owner="different-owner")},
+        {
+            "n4_recovery": selected.model_copy(
+                update={"prior_recovery_event_id": selected.prior_recovery_event_id + 1}
+            )
+        },
+        {
+            "n4_recovery": selected.model_copy(
+                update={"prior_recovery_event_sha256": _digest("different-event")}
+            )
+        },
+        {
+            "n4_recovery": selected.model_copy(
+                update={"draft": _draft_selection().model_copy(update={"response_text": "changed"})}
+            )
+        },
+        {
+            "n4_recovery": selected.model_copy(
+                update={"occurrences": (selected.occurrences[0], selected.occurrences[0])}
+            )
+        },
+        {"approval_expires_at": int((datetime.now(UTC) - timedelta(seconds=1)).timestamp())},
+    ):
+        with pytest.raises(ValueError, match="native_interrupted_custody"):
+            action.store.request_expired_native_acquisition_custody_recovery(
+                **(arguments | overrides)
+            )
+        assert action.store.get_job(leased.job_id) == leased
+        assert len(_recovery_event_rows(action.sqlite_path, leased.job_id)) == 1
+
+    queued = action.store.request_expired_native_acquisition_custody_recovery(**arguments)
+    assert (queued.state, queued.attempt) == ("pending", leased.attempt)
+    with pytest.raises(ValueError, match="native_custody_recovery_request_stale"):
+        _request(
+            action,
+            settled_draft=_draft_selection(),
+            approval_expires_at=int((datetime.now(UTC) + timedelta(minutes=2)).timestamp()),
+        )
+    assert action.store.request_expired_native_acquisition_custody_recovery(**arguments) == queued
+    assert (
+        action.store.request_expired_native_acquisition_custody_recovery(
+            **(arguments | {"expected_job": queued})
+        )
+        == queued
+    )
+    with pytest.raises(ValueError, match="native_interrupted_custody_request_stale"):
+        action.store.request_expired_native_acquisition_custody_recovery(
+            **(
+                arguments
+                | {"expected_job": queued, "resource_digest": _digest("different-resource")}
+            )
+        )
+    events = _recovery_event_rows(action.sqlite_path, leased.job_id)
+    assert len(events) == 2
+    assert _event_payload_bytes(action.sqlite_path, event_before["event_id"]) == event_bytes
+    assert _outbox_payload_bytes(action.sqlite_path, outbox_before["event_id"]) == outbox_bytes
+    value = json.loads(events[-1]["payload_json"])
+    assert value["interrupted_attempt"] == leased.attempt
+    assert value["interrupted_job"]["state"] == "running"
+    assert value["interrupted_running_event"]["payload"]["attempt"] == leased.attempt
+    assert not ({"failed_event", "failed_job", "dead_letter"} & value.keys())
+    assert len(action.store.list_dead_letter_jobs(acknowledged=True)) == 1
+    public = action.store.get_outbox_topic_event(
+        topic="control.job.custody_recovery_requested",
+        event_key=f"{leased.job_id}:custody_interruption:{leased.attempt}",
+        job_id=leased.job_id,
+    )
+    assert public is not None
+    assert (
+        public.payload["private_event_sha256"]
+        == "sha256:" + hashlib.sha256(str(events[-1]["payload_json"]).encode()).hexdigest()
+    )
+    for private_text in (
+        selected.draft.response_text,
+        *(item.response_text for item in selected.occurrences),
+    ):
+        assert private_text not in json.dumps(public.payload)
+    next_lease = action.store.lease_next_job(worker_id="one-new-lease", lease_seconds=60)
+    assert next_lease is not None and next_lease.attempt == leased.attempt + 1
+    assert (
+        action.store.request_expired_native_acquisition_custody_recovery(
+            **(arguments | {"expected_job": next_lease})
+        )
+        == next_lease
+    )
+    with action.store.job_execution_fence(
+        job_id=leased.job_id, worker_id="one-new-lease", attempt=next_lease.attempt
+    ):
+        record = action.store.current_native_acquisition_custody_recovery()
+    assert record is not None and record.failed_attempt is None
+    assert record.interrupted_attempt == leased.attempt and record.n4_recovery == selected
+    with action.store.job_execution_fence(
+        job_id=leased.job_id, worker_id="one-new-lease", attempt=next_lease.attempt
+    ):
+        action.store.complete_job(job_id=leased.job_id, run_id=leased.run_id)
+    completed = action.store.get_job(leased.job_id)
+    assert completed is not None and completed.state == "completed"
+    assert (
+        action.store.request_expired_native_acquisition_custody_recovery(
+            **(arguments | {"expected_job": completed})
+        )
+        == completed
+    )
+
+
+def test_two_expired_native_request_owners_append_only_one_recovery(tmp_path: Path) -> None:
+    """Two real SQLite connections racing on the same cut do not issue two grants."""
+    action = _failed_action(tmp_path, world_pending=True, failed_error="reentry_recovery_required")
+    leased, selected = _interrupted_selection(action)
+    arguments = _interrupted_request_args(action, leased, selected)
+    other = ControlPlaneStore(backend="sqlite", sqlite_path=action.sqlite_path)
+    time.sleep(1.05)
+
+    def request(store: ControlPlaneStore) -> ControlJobRecord:
+        return store.request_expired_native_acquisition_custody_recovery(**arguments)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        result = tuple(pool.map(request, (action.store, other)))
+    assert all((item.state, item.attempt) == ("pending", leased.attempt) for item in result)
+    assert len(_recovery_event_rows(action.sqlite_path, leased.job_id)) == 2
+    assert len(_recovery_outbox_rows(action.sqlite_path, leased.job_id)) == 2
+
+
+def test_interrupted_native_custody_refuses_reclaimed_new_lease(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    action = _failed_action(tmp_path, world_pending=True, failed_error="reentry_recovery_required")
+    leased, selected = _interrupted_selection(action)
+    arguments = _interrupted_request_args(action, leased, selected)
+    time.sleep(1.05)
+    action.store.request_expired_native_acquisition_custody_recovery(**arguments)
+    once = action.store.lease_next_job(worker_id="approved-worker", lease_seconds=1)
+    assert once is not None and once.attempt == leased.attempt + 1
+    monkeypatch.setattr(
+        control_plane_store, "_utc_now", lambda: datetime.now(UTC) + timedelta(seconds=3)
+    )
+    reclaimed = action.store.lease_next_job(worker_id="unapproved-worker", lease_seconds=60)
+    assert reclaimed is not None and reclaimed.attempt == once.attempt + 1
+    with (
+        action.store.job_execution_fence(
+            job_id=leased.job_id, worker_id="unapproved-worker", attempt=reclaimed.attempt
+        ),
+        pytest.raises(ValueError, match="native_interrupted_custody_recovery_lease_mismatch"),
+    ):
+        action.store.current_native_acquisition_custody_recovery()
+
+
+@pytest.mark.parametrize(
+    "tamper",
+    [
+        "predecessor_outbox",
+        "predecessor_removed",
+        "v3_private_event",
+        "v3_head_bool",
+        "v3_job_kind",
+        "v3_job_profile",
+        "v3_outbox_removed",
+    ],
+)
+def test_interrupted_native_custody_rejects_tampered_persisted_evidence(
+    tmp_path: Path,
+    tamper: str,
+) -> None:
+    action = _failed_action(tmp_path, world_pending=True, failed_error="reentry_recovery_required")
+    leased, selected = _interrupted_selection(action)
+    arguments = _interrupted_request_args(action, leased, selected)
+    time.sleep(1.05)
+    action.store.request_expired_native_acquisition_custody_recovery(**arguments)
+    rows = _recovery_event_rows(action.sqlite_path, leased.job_id)
+    with sqlite3.connect(action.sqlite_path) as db:
+        if tamper == "predecessor_outbox":
+            row = _recovery_outbox_rows(action.sqlite_path, leased.job_id)[0]
+            value = json.loads(row["payload_json"])
+            value["private_event_sha256"] = _digest("tampered-predecessor")
+            db.execute(
+                "UPDATE control_outbox_events SET payload_json = ? WHERE event_id = ?",
+                (json.dumps(value, sort_keys=True), row["event_id"]),
+            )
+        elif tamper == "predecessor_removed":
+            db.execute("DELETE FROM control_job_events WHERE event_id = ?", (rows[0]["event_id"],))
+        elif tamper == "v3_outbox_removed":
+            row = _recovery_outbox_rows(action.sqlite_path, leased.job_id)[-1]
+            db.execute("DELETE FROM control_outbox_events WHERE event_id = ?", (row["event_id"],))
+        elif tamper == "v3_private_event":
+            value = json.loads(rows[-1]["payload_json"])
+            value["n4_recovery"]["draft"]["response_text"] = "substituted-private-response"
+            db.execute(
+                "UPDATE control_job_events SET payload_json = ? WHERE event_id = ?",
+                (json.dumps(value, sort_keys=True), rows[-1]["event_id"]),
+            )
+        else:
+            value = json.loads(rows[-1]["payload_json"])
+            if tamper == "v3_head_bool":
+                assert value["head"]["action_generation"] == 1
+                value["head"]["action_generation"] = True
+            elif tamper == "v3_job_kind":
+                value["interrupted_job"]["job_kind"] = "workflow_run"
+            else:
+                value["interrupted_job"]["effective_profile"] = "changed-profile"
+            raw = json.dumps(value, sort_keys=True)
+            db.execute(
+                "UPDATE control_job_events SET payload_json = ? WHERE event_id = ?",
+                (raw, rows[-1]["event_id"]),
+            )
+            outbox = _recovery_outbox_rows(action.sqlite_path, leased.job_id)[-1]
+            projection = json.loads(outbox["payload_json"])
+            projection["private_event_sha256"] = (
+                "sha256:" + hashlib.sha256(raw.encode()).hexdigest()
+            )
+            db.execute(
+                "UPDATE control_outbox_events SET payload_json = ? WHERE event_id = ?",
+                (json.dumps(projection, sort_keys=True), outbox["event_id"]),
+            )
+    next_lease = action.store.lease_next_job(worker_id="readback-worker", lease_seconds=60)
+    assert next_lease is not None
+    with (
+        action.store.job_execution_fence(
+            job_id=leased.job_id, worker_id="readback-worker", attempt=next_lease.attempt
+        ),
+        pytest.raises(ValueError, match=r"native_.*custody"),
+    ):
+        action.store.current_native_acquisition_custody_recovery()
+
+
+def test_interrupted_custody_rejects_expiry_at_transaction_commit(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A late expiry rolls back the event, outbox and job projection together."""
+    action = _failed_action(tmp_path, world_pending=True, failed_error="reentry_recovery_required")
+    leased, selected = _interrupted_selection(action)
+    arguments = _interrupted_request_args(action, leased, selected)
+    time.sleep(1.05)
+    original = ControlPlaneStore._upsert_progress_unchecked
+
+    def expire_after_progress(
+        store: ControlPlaneStore, *, job_id: str, progress: dict[str, Any]
+    ) -> None:
+        original(store, job_id=job_id, progress=progress)
+        if progress.get("authority_purpose") == "resume_native_from_settled_n4":
+            monkeypatch.setattr(
+                control_plane_store,
+                "_utc_now",
+                lambda: datetime.fromtimestamp(arguments["approval_expires_at"] + 1, UTC),
+            )
+
+    monkeypatch.setattr(ControlPlaneStore, "_upsert_progress_unchecked", expire_after_progress)
+    with pytest.raises(ValueError, match="native_interrupted_custody_approval_expired"):
+        action.store.request_expired_native_acquisition_custody_recovery(**arguments)
+    assert action.store.get_job(leased.job_id) == leased
+    assert len(_recovery_event_rows(action.sqlite_path, leased.job_id)) == 1
+    assert len(_recovery_outbox_rows(action.sqlite_path, leased.job_id)) == 1
+
+
+def test_interrupted_custody_timestamp_projection_accepts_aware_database_values() -> None:
+    """PostgreSQL datetime rows and SQLite text rows get one canonical UTC form."""
+    aware = datetime(2026, 11, 23, 8, 10, 11, tzinfo=UTC)
+    projected = control_plane_store._native_interrupted_json_row(
+        {
+            "created_at": aware,
+            "lease_expires_at": "2026-11-23T11:10:11+03:00",
+            "finished_at": None,
+            "payload_ref": "unchanged",
+        }
+    )
+    assert projected == {
+        "created_at": "2026-11-23T08:10:11+00:00",
+        "lease_expires_at": "2026-11-23T08:10:11+00:00",
+        "finished_at": None,
+        "payload_ref": "unchanged",
+    }
+    with pytest.raises(ValueError, match="native_interrupted_custody_timestamp_invalid"):
+        control_plane_store._native_interrupted_json_row({"created_at": aware.replace(tzinfo=None)})
 
 
 def test_draft_recovery_outbox_projects_hash_and_reclaimed_lease_cannot_execute(

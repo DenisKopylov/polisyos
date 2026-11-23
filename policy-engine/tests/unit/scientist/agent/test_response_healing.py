@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
+from types import SimpleNamespace
 
 import jax
 import pytest
 
+import polisyos.scientist.agent.formalizer as formalizer_module
+from polisyos.core.llm.settlement import LLMManagedProducerOutcomeError
 from polisyos.foundry.agent_sim.agents import AdaptiveAgentMechanism
 from polisyos.foundry.agent_sim.state import GlobalState
 from polisyos.ir.kernel import (
@@ -64,6 +68,36 @@ class _FailingLLMClient:
     async def generate(self, **kwargs):
         self.calls.append(dict(kwargs))
         raise RuntimeError("provider unavailable")
+
+
+class _BareMarkerJSONLLMClient(_FakeJSONLLMClient):
+    def __init__(
+        self,
+        payload: dict[str, object] | str,
+        *,
+        delay_s: float = 0.0,
+        error: Exception | None = None,
+    ) -> None:
+        super().__init__(payload)
+        self.delay_s = delay_s
+        self.error = error
+        self.capability_requests: list[dict[str, object]] = []
+
+    def _has_owned_prepared_transport(self, request_args: dict[str, object]) -> bool:
+        self.capability_requests.append(dict(request_args))
+        return True
+
+    async def generate(self, **kwargs):
+        self.calls.append(dict(kwargs))
+        if self.delay_s:
+            await asyncio.sleep(self.delay_s)
+        if self.error is not None:
+            raise self.error
+        return GatewayLLMResponse(
+            content=(self.payload if isinstance(self.payload, str) else json.dumps(self.payload)),
+            usage=GatewayUsage(),
+            raw={},
+        )
 
 
 @pytest.mark.asyncio
@@ -287,6 +321,53 @@ async def test_formalizer_falls_back_when_gateway_fails(monkeypatch):
     assert client.calls[0]["timeout"] == 1.0
     assert bundle.schema_version
     assert bundle.policy_spec.interventions
+
+
+@pytest.mark.asyncio
+async def test_formalizer_ignores_untrusted_client_managed_marker(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    draft = create_mock_draft(draft_id="draft_untrusted_managed_marker")
+    expected = await MockFormalizerAgent().formalize(draft)
+    client = _BareMarkerJSONLLMClient(
+        expected.model_dump(mode="json"),
+        delay_s=0.02,
+    )
+    agent = LLMFormalizerAgent(client)
+    agent._timeout_s = 0.001
+    observed_outer_timeouts: list[float] = []
+
+    async def _record_outer_wait(awaitable: object, *, timeout: float) -> object:
+        observed_outer_timeouts.append(timeout)
+        return await awaitable  # type: ignore[misc]
+
+    monkeypatch.setattr(
+        formalizer_module,
+        "asyncio",
+        SimpleNamespace(wait_for=_record_outer_wait),
+    )
+
+    result = await agent.formalize(draft)
+
+    assert result == expected
+    assert len(client.calls) == 1
+    assert client.capability_requests == []
+    assert client.calls[0]["timeout"] == 0.001
+    assert observed_outer_timeouts == [5.001]
+
+
+@pytest.mark.asyncio
+async def test_formalizer_propagates_managed_settlement_failure_without_fallback() -> None:
+    expected_error = LLMManagedProducerOutcomeError("managed_settlement_not_committed")
+    client = _BareMarkerJSONLLMClient("{}", error=expected_error)
+
+    with pytest.raises(LLMManagedProducerOutcomeError) as exc_info:
+        await LLMFormalizerAgent(client).formalize(
+            create_mock_draft(draft_id="draft_managed_settlement_failure")
+        )
+
+    assert exc_info.value is expected_error
+    assert len(client.calls) == 1
 
 
 @pytest.mark.asyncio

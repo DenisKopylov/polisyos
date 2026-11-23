@@ -15,6 +15,7 @@ from polisyos.scientist.agent.pi import LLMPIAgent
 from polisyos.scientist.orchestration.llm.factory import (
     GatewayLLMConfig,
     create_traced_gateway_client,
+    gateway_cache_reuse_scope,
 )
 from polisyos.scientist.orchestration.llm.fallback_router import FallbackRouter
 from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
@@ -308,6 +309,41 @@ def test_stable_scientist_facade_preserves_factory_object_identity() -> None:
     assert factory._GATEWAY_CACHE_REUSE_SCOPE.get() is before
     assert not scope.state.active
     assert closed == [True]
+
+
+@pytest.mark.parametrize("mode", ["direct", "cached", "fallback", "simulated", "retrying"])
+def test_managed_transport_is_issued_only_for_one_direct_gateway(monkeypatch, mode):
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1" if mode == "simulated" else "0")
+    config = GatewayLLMConfig(
+        base_url="http://fixture.invalid",
+        api_key="fixture",
+        max_retries=int(mode == "retrying"),
+        cache_maxsize=int(mode == "cached"),
+        fallback_urls=("http://alternative.invalid",) if mode == "fallback" else (),
+        enable_prompt_sanitizer=False,
+    )
+    with gateway_cache_reuse_scope(
+        authorizer=None,
+        principal=None,
+        context=None,
+        cache=None,
+        run_id="managed-direct-only-control",
+        settlement_store=object(),
+        reuse_guard=lambda operation: operation(),
+        validate_admission=lambda: None,
+        intent_observer=lambda *_: None,
+        validate_direct_dispatch=lambda _: None,
+    ):
+        client = create_traced_gateway_client(model_name="fixture-model", config=config)
+        assert client is not None
+        handle = client.prepare_producer_input(user="an exact issued request")
+        assert client.has_owned_prepared_transport(handle) is (mode == "direct")
+        with traced_client_module._producer_route_scope(client._resolve_producer_route()):
+            nested = client.prepare_producer_input(user="an ordinary nested request")
+            assert not client.has_owned_prepared_transport(nested)
+            assert not client.has_owned_prepared_transport(handle)
+        foreign = TracedLLMClient(client.unwrap()).prepare_producer_input(user="foreign")
+        assert not client.has_owned_prepared_transport(foreign)
 
 
 @pytest.mark.parametrize(

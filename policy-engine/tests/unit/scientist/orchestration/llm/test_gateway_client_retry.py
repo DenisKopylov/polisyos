@@ -79,6 +79,65 @@ class TestSessionLifecycle:
         assert client._session is None
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize("revoke_during_session", [False, True])
+async def test_owned_direct_dispatch_has_late_guard_and_disables_json_fallback(
+    monkeypatch, revoke_during_session
+):
+    client = GatewayLLMClient(
+        base_url="http://test.local", api_key="key", model="m", max_retries=0, timeout_s=30
+    )
+    posts = []
+    live = True
+    checks = []
+
+    class Response:
+        status = 400
+        headers = {}
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *_):
+            return None
+
+        async def text(self):
+            return '{"error":{"code":"invalid_request","message":"response_format json_object unsupported"}}'
+
+    class Session:
+        def post(self, _url, *, data, headers, timeout, allow_redirects):
+            posts.append((json.loads(data), headers, timeout.total, allow_redirects))
+            return Response()
+
+    async def session(_timeout):
+        nonlocal live
+        if revoke_during_session:
+            live = False
+        return Session()
+
+    def before_dispatch():
+        checks.append(live)
+        if not live:
+            raise ValueError("selected lease revoked")
+
+    monkeypatch.setattr(client, "_ensure_session", session)
+    expected = "selected lease revoked" if revoke_during_session else "400"
+    with pytest.raises((RuntimeError, ValueError), match=expected):
+        await client._generate_single_dispatch(
+            {"user": "exact request", "response_format": {"type": "json_object"}},
+            before_dispatch=before_dispatch,
+        )
+    assert checks == [not revoke_during_session]
+    if revoke_during_session:
+        assert posts == []
+    else:
+        ((payload, _headers, timeout_s, allow_redirects),) = posts
+        assert payload["response_format"] == {"type": "json_object"}
+        assert timeout_s == 30.0
+        assert not allow_redirects
+        assert not client._response_format_unsupported
+
+
 class TestConnectionPooling:
     @pytest.mark.asyncio
     async def test_session_created_lazily(self):

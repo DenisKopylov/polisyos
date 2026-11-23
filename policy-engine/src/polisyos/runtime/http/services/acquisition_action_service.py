@@ -68,7 +68,10 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     _receipt_verification_scoped,
     _receipt_verification_worker_scoped,
 )
-from polisyos.runtime.quality.native_settled_draft import NativeSettledDraftRecovery
+from polisyos.runtime.quality.native_settled_draft import (
+    NativeSettledDraftRecovery,
+    NativeSettledN4Recovery,
+)
 
 from .control.job_diagnostics import _ModelInputUseJobCompletion
 from .control.run_lifecycle import ControlPlaneService
@@ -185,33 +188,37 @@ class AcquisitionRouteReplayPins(BaseModel):
     cost_basis_hash: str = Field(pattern=_SHA256_PATTERN)
 
 
+_CUSTODY_HEAD_SCHEMA = {
+    "required": ["artifact_id", "kind", "media_type", "manifest_profile_sha256"],
+    "properties": {
+        "kind": {"const": "runtime_quality.acquisition_route_phase_receipt"},
+        "media_type": {"const": "application/json"},
+        "manifest_profile_sha256": {"type": "string", "pattern": _SHA256_PATTERN},
+    },
+}
+
+
+def _require_custody_head_profile(ref: artifacts.ArtifactRef) -> None:
+    if (
+        ref.kind != "runtime_quality.acquisition_route_phase_receipt"
+        or ref.media_type != "application/json"
+        or ref.manifest_profile_sha256 is None
+        or set(type(ref).model_fields) != set(artifacts.ArtifactRef.model_fields)
+    ):
+        raise ValueError("acquisition_custody_recovery_profile_required")
+
+
 class AcquisitionCustodyRecoveryProjection(BaseModel):
     """Public locator for the selected failed attempt and phase."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     failed_attempt: int = Field(ge=1, strict=True)
-    head_ref: artifacts.ArtifactRef = Field(
-        json_schema_extra={
-            "required": ["artifact_id", "kind", "media_type", "manifest_profile_sha256"],
-            "properties": {
-                "kind": {"const": "runtime_quality.acquisition_route_phase_receipt"},
-                "media_type": {"const": "application/json"},
-                "manifest_profile_sha256": {"type": "string", "pattern": _SHA256_PATTERN},
-            },
-        }
-    )
+    head_ref: artifacts.ArtifactRef = Field(json_schema_extra=_CUSTODY_HEAD_SCHEMA)
 
     @model_validator(mode="after")
     def _selected_phase_profile(self) -> AcquisitionCustodyRecoveryProjection:
-        ref = self.head_ref
-        if (
-            ref.kind != "runtime_quality.acquisition_route_phase_receipt"
-            or ref.media_type != "application/json"
-            or ref.manifest_profile_sha256 is None
-            or set(type(ref).model_fields) != set(artifacts.ArtifactRef.model_fields)
-        ):
-            raise ValueError("acquisition_custody_recovery_profile_required")
+        _require_custody_head_profile(self.head_ref)
         return self
 
 
@@ -221,6 +228,31 @@ class AcquisitionCustodyRecoveryRequest(AcquisitionCustodyRecoveryProjection):
     settled_draft: NativeSettledDraftRecovery | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+
+    @property
+    def requires_live_approval(self) -> bool:
+        """Return whether this recovery may execute protected work."""
+        return self.settled_draft is not None
+
+
+class AcquisitionInterruptedCustodyRecoveryRequest(BaseModel):
+    """Select an expired Native attempt and its exact earlier N4 occurrences."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    interrupted_attempt: int = Field(ge=1, strict=True)
+    head_ref: artifacts.ArtifactRef = Field(json_schema_extra=_CUSTODY_HEAD_SCHEMA)
+    n4_recovery: NativeSettledN4Recovery
+
+    @model_validator(mode="after")
+    def _selected_phase_profile(self) -> AcquisitionInterruptedCustodyRecoveryRequest:
+        _require_custody_head_profile(self.head_ref)
+        return self
+
+    @property
+    def requires_live_approval(self) -> bool:
+        """Require fresh user approval for the resumed protected operation."""
+        return True
 
 
 class AcquisitionRouteMutationRequest(BaseModel):
@@ -233,9 +265,9 @@ class AcquisitionRouteMutationRequest(BaseModel):
     replay_pins: AcquisitionRouteReplayPins
     idempotency_key: str = Field(min_length=1, max_length=200)
     human_decision_record_ref: str | None = Field(default=None, pattern=_SHA256_PATTERN)
-    custody_recovery: AcquisitionCustodyRecoveryRequest | None = Field(
-        default=None, exclude_if=lambda value: value is None
-    )
+    custody_recovery: (
+        AcquisitionCustodyRecoveryRequest | AcquisitionInterruptedCustodyRecoveryRequest | None
+    ) = Field(default=None, exclude_if=lambda value: value is None)
 
 
 class CandidateExperimentRouteReplayPins(BaseModel):
@@ -1659,7 +1691,7 @@ class AcquisitionActionService:
             or (principal.tenant_id, principal.cell_id) != (tenant_id, cell_id)
         ):
             raise AcquisitionActionServiceError("acquisition_custody_recovery_actor_refused")
-        if selected.settled_draft is not None and (
+        if selected.requires_live_approval and (
             type(approval_expires_at) is not int
             or approval_expires_at <= datetime.now(UTC).timestamp()
         ):
@@ -1767,25 +1799,39 @@ class AcquisitionActionService:
             job_id=job_id,
             selected=selected.head_ref,
         )
-        draft_args = (
-            {
-                "settled_draft": selected.settled_draft,
-                "approval_expires_at": approval_expires_at,
-            }
-            if selected.settled_draft is not None
-            else {}
-        )
+        request_sha256 = agent_action_content_hash(request)
         try:
-            recovered = control.recover_native_acquisition_custody_job(
-                expected_job=job,
-                failed_attempt=selected.failed_attempt,
-                head=head,
-                execution_scope=scope,
-                request_sha256=agent_action_content_hash(request),
-                permission_sha256=permission_sha256,
-                resource_digest=resource_digest,
-                **draft_args,
-            )
+            if isinstance(selected, AcquisitionInterruptedCustodyRecoveryRequest):
+                recovered = store.request_expired_native_acquisition_custody_recovery(
+                    expected_job=job,
+                    interrupted_attempt=selected.interrupted_attempt,
+                    head=head,
+                    execution_scope=scope,
+                    request_sha256=request_sha256,
+                    permission_sha256=permission_sha256,
+                    resource_digest=resource_digest,
+                    n4_recovery=selected.n4_recovery,
+                    approval_expires_at=approval_expires_at,
+                )
+            else:
+                draft_args = (
+                    {
+                        "settled_draft": selected.settled_draft,
+                        "approval_expires_at": approval_expires_at,
+                    }
+                    if selected.settled_draft is not None
+                    else {}
+                )
+                recovered = control.recover_native_acquisition_custody_job(
+                    expected_job=job,
+                    failed_attempt=selected.failed_attempt,
+                    head=head,
+                    execution_scope=scope,
+                    request_sha256=request_sha256,
+                    permission_sha256=permission_sha256,
+                    resource_digest=resource_digest,
+                    **draft_args,
+                )
         except (RuntimeError, ValueError) as exc:
             raise AcquisitionActionServiceError("acquisition_custody_recovery_conflict") from exc
         current = control.acquisition_route_sink.current_action_outcome(
@@ -1853,17 +1899,23 @@ class AcquisitionActionService:
             )
         custody = self.control_service._control_store.current_native_acquisition_custody_recovery()
         if custody is not None:
-            recorded_request = request.model_copy(
-                update={
-                    "custody_recovery": AcquisitionCustodyRecoveryRequest(
-                        failed_attempt=custody.failed_attempt,
-                        head_ref=artifacts.ArtifactRef.model_validate(
-                            custody.event.payload["head_ref"]
-                        ),
-                        settled_draft=custody.settled_draft,
-                    ),
-                }
+            head_ref = artifacts.ArtifactRef.model_validate(custody.event.payload["head_ref"])
+            recorded_custody: (
+                AcquisitionCustodyRecoveryRequest | AcquisitionInterruptedCustodyRecoveryRequest
             )
+            if custody.n4_recovery is not None:
+                recorded_custody = AcquisitionInterruptedCustodyRecoveryRequest(
+                    interrupted_attempt=custody.interrupted_attempt,
+                    head_ref=head_ref,
+                    n4_recovery=custody.n4_recovery,
+                )
+            else:
+                recorded_custody = AcquisitionCustodyRecoveryRequest(
+                    failed_attempt=custody.failed_attempt,
+                    head_ref=head_ref,
+                    settled_draft=custody.settled_draft,
+                )
+            recorded_request = request.model_copy(update={"custody_recovery": recorded_custody})
             if (
                 agent_action_content_hash(recorded_request)
                 != custody.event.payload["request_sha256"]
@@ -1912,7 +1964,7 @@ class AcquisitionActionService:
                 "terminal",
             }:
                 raise AcquisitionActionServiceError("acquisition_custody_recovery_effect_refused")
-            if custody.settled_draft is not None and head != custody.head:
+            if recorded_custody.requires_live_approval and head != custody.head:
                 raise AcquisitionActionServiceError("acquisition_custody_recovery_head_changed")
         port = self._require_execution_port()
         if head.receipt_phase == "terminal":

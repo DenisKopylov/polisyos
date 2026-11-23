@@ -62,7 +62,10 @@ if TYPE_CHECKING:
         NoCallReason,
     )
     from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorRef
-    from polisyos.runtime.quality.native_settled_draft import NativeSettledDraftRecovery
+    from polisyos.runtime.quality.native_settled_draft import (
+        NativeSettledDraftRecovery,
+        NativeSettledN4Recovery,
+    )
     from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceiptV2
 
 from polisyos.runtime.http.services.control.response_shapes import (
@@ -86,6 +89,7 @@ from polisyos.runtime.quality.evidence_spine_handoff import (
 
 _NATIVE_CUSTODY_RECOVERY_EVENT = "native_acquisition_custody_recovery_requested"
 _NATIVE_DRAFT_RECOVERY_PURPOSE = "resume_native_from_settled_draft"
+_NATIVE_N4_RECOVERY_PURPOSE = "resume_native_from_settled_n4"
 _CANDIDATE_TERMINAL_CUSTODY_EVENT = "candidate_experiment_terminal_custody_settled"
 _ORDINARY_TERMINAL_CUSTODY_EVENT = "ordinary_acquisition_terminal_custody_settled"
 
@@ -179,6 +183,50 @@ def _required_aware_datetime(value: datetime, *, field_name: str) -> datetime:
     if not isinstance(value, datetime) or value.tzinfo is None:
         raise TypeError(f"{field_name} must be a timezone-aware datetime")
     return value.astimezone(timezone.utc)
+
+
+def _native_interrupted_json_row(row: Mapping[str, Any] | sqlite3.Row) -> dict[str, Any]:
+    """Normalize real SQLite/PostgreSQL timestamp columns for private v3 events."""
+    result = dict(row)
+    for name in ("created_at", "started_at", "finished_at", "lease_expires_at", "updated_at"):
+        value = result.get(name)
+        if value is None:
+            continue
+        if isinstance(value, str):
+            try:
+                value = datetime.fromisoformat(value.replace("Z", "+00:00"))
+            except ValueError as exc:
+                raise ValueError("native_interrupted_custody_timestamp_invalid") from exc
+        if not isinstance(value, datetime) or value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("native_interrupted_custody_timestamp_invalid")
+        result[name] = _iso(value)
+    return result
+
+
+def _native_interrupted_matches_prior_job(prior: object, interrupted: dict[str, Any]) -> bool:
+    """Bind the interruption to the v2 job's stable creation inputs."""
+    if not isinstance(prior, dict):
+        return False
+    old = _native_interrupted_json_row(prior)
+    fields = (
+        "job_id",
+        "job_kind",
+        "run_id",
+        "pipeline_id",
+        "requested_profile",
+        "effective_profile",
+        "policy_flags_json",
+        "payload_ref",
+        "submitted_by",
+        "created_at",
+        "method_execution_selection_json",
+    )
+    return all(
+        name in old
+        and name in interrupted
+        and _json_values_equal_strict(old[name], interrupted[name])
+        for name in fields
+    )
 
 
 def _is_sha256_ref(value: object) -> bool:
@@ -1448,7 +1496,7 @@ class NativeAcquisitionCustodyRecoveryRecord:
     """One explicit Native recovery request bound to its immutable failed attempt."""
 
     event: _ControlJobLifecycleSourceEventRecord
-    failed_attempt: int
+    failed_attempt: int | None
     recovery_attempt: int
     head: AcquisitionActionHeadRecord
     payload_ref: str
@@ -1456,6 +1504,8 @@ class NativeAcquisitionCustodyRecoveryRecord:
     settled_draft: NativeSettledDraftRecovery | None = None
     failed_lease_started_at: datetime | None = None
     approval_expires_at: int | None = None
+    interrupted_attempt: int | None = None
+    n4_recovery: NativeSettledN4Recovery | None = None
 
 
 @dataclass(frozen=True)
@@ -9042,6 +9092,15 @@ class ControlPlaneStore:
                 row, expected_job_id=job_id, expected_event_type=_NATIVE_CUSTODY_RECOVERY_EVENT
             )
             value = event.payload
+            if value.get("schema_version") == "native_acquisition_custody_recovery.v3":
+                record = self._read_interrupted_native_recovery_event(
+                    event=event, previous=records[-1] if records else None
+                )
+                if record.interrupted_attempt in seen:
+                    raise ValueError("native_custody_recovery_event_invalid")
+                records.append(record)
+                seen.add(cast("int", record.interrupted_attempt))
+                continue
             failed_attempt = value.get("failed_attempt")
             recovery_attempt = value.get("recovery_attempt")
             head_value = value.get("head")
@@ -9188,10 +9247,243 @@ class ControlPlaneStore:
             seen.add(failed_attempt)
         return tuple(records)
 
+    def _read_interrupted_native_recovery_event(
+        self,
+        *,
+        event: _ControlJobLifecycleSourceEventRecord,
+        previous: NativeAcquisitionCustodyRecoveryRecord | None,
+    ) -> NativeAcquisitionCustodyRecoveryRecord:
+        """Reopen an interrupted-lease request and its exact v2 predecessor."""
+        from polisyos.runtime.quality.native_settled_draft import NativeSettledN4Recovery
+
+        value = event.payload
+        expected_fields = {
+            "schema_version",
+            "authority_purpose",
+            "state",
+            "job_id",
+            "interrupted_attempt",
+            "recovery_attempt",
+            "payload_ref",
+            "head",
+            "head_ref",
+            "execution_scope",
+            "request_sha256",
+            "permission_sha256",
+            "resource_digest",
+            "approval_expires_at",
+            "interrupted_job",
+            "interrupted_progress",
+            "interrupted_running_event",
+            "n4_recovery",
+        }
+        interrupted_attempt = value.get("interrupted_attempt")
+        if (
+            set(value) != expected_fields
+            or value.get("schema_version") != "native_acquisition_custody_recovery.v3"
+            or value.get("authority_purpose") != _NATIVE_N4_RECOVERY_PURPOSE
+            or value.get("state") != "pending"
+            or value.get("job_id") != event.job_id
+            or type(interrupted_attempt) is not int
+            or interrupted_attempt < 1
+            or type(value.get("recovery_attempt")) is not int
+            or value["recovery_attempt"] != interrupted_attempt + 1
+            or type(value.get("approval_expires_at")) is not int
+            or value["approval_expires_at"] <= event.created_at.timestamp()
+            or not isinstance(value.get("head"), dict)
+            or not _is_sha256_ref(value.get("payload_ref"))
+            or not all(
+                _is_sha256_ref(value.get(name))
+                for name in ("request_sha256", "permission_sha256", "resource_digest")
+            )
+        ):
+            raise ValueError("native_interrupted_custody_event_invalid")
+        selected = NativeSettledN4Recovery.model_validate(value.get("n4_recovery"))
+        head = self._row_to_acquisition_action_head(value["head"])
+        head_ref = ArtifactRef.model_validate(value.get("head_ref"))
+        scope = _control_job_execution_scope_from_event(value)
+        expected_head = dict(vars(head))
+        expected_head["created_at"] = _iso(head.created_at)
+        if (
+            head.job_id != event.job_id
+            or head.receipt_phase != "world_committed_reentry_pending"
+            or head.recovery_state != "reentry_recovery_required"
+            or head_ref.kind != "runtime_quality.acquisition_route_phase_receipt"
+            or head_ref.media_type != "application/json"
+            or head_ref.manifest_profile_sha256 is None
+            or str(head_ref.artifact_id) != head.receipt_ref
+            or head_ref.manifest_profile_sha256 != head.receipt_manifest_profile_sha256
+            or head.receipt_sha256 != head.receipt_ref
+            or not _json_values_equal_strict(value["head"], expected_head)
+            or self.get_acquisition_action_head_by_receipt(
+                tenant_id=head.tenant_id,
+                cell_id=head.cell_id,
+                run_id=head.run_id,
+                source_job_id=head.source_job_id,
+                route_id=head.route_id,
+                action_generation=head.action_generation,
+                receipt_ref=head.receipt_ref,
+            )
+            != head
+            or scope.status != "established"
+            or not scope.actor_authenticated
+            or (scope.tenant_id, scope.cell_id) != (head.tenant_id, head.cell_id)
+            or previous is None
+            or previous.event.event_id != selected.prior_recovery_event_id
+            or previous.event.payload_sha256 != selected.prior_recovery_event_sha256
+            or previous.event.payload.get("schema_version")
+            != "native_acquisition_custody_recovery.v2"
+            or previous.recovery_attempt != interrupted_attempt
+            or previous.head != head
+            or previous.payload_ref != value["payload_ref"]
+            or previous.execution_scope != scope
+            or previous.settled_draft != selected.draft
+        ):
+            raise ValueError("native_interrupted_custody_predecessor_changed")
+        interrupted_job = value.get("interrupted_job")
+        recorded_running = value.get("interrupted_running_event")
+        if (
+            not isinstance(interrupted_job, dict)
+            or not isinstance(recorded_running, dict)
+            or _native_interrupted_json_row(interrupted_job) != interrupted_job
+            or (
+                value.get("interrupted_progress") is not None
+                and (
+                    not isinstance(value["interrupted_progress"], dict)
+                    or value["interrupted_progress"].get("job_id") != event.job_id
+                    or _native_interrupted_json_row(value["interrupted_progress"])
+                    != value["interrupted_progress"]
+                )
+            )
+            or interrupted_job.get("job_id") != event.job_id
+            or interrupted_job.get("job_kind") != "acquisition"
+            or interrupted_job.get("state") != "running"
+            or type(interrupted_job.get("attempt")) is not int
+            or interrupted_job.get("attempt") != interrupted_attempt
+            or interrupted_job.get("payload_ref") != value["payload_ref"]
+            or interrupted_job.get("submitted_by") != scope.actor_subject
+            or interrupted_job.get("run_id") != head.run_id
+            or interrupted_job.get("finished_at") is not None
+            or interrupted_job.get("error_message") is not None
+            or not _native_interrupted_matches_prior_job(
+                previous.event.payload.get("failed_job"), interrupted_job
+            )
+            or not isinstance(interrupted_job.get("lease_owner"), str)
+            or not interrupted_job["lease_owner"]
+        ):
+            raise ValueError("native_interrupted_custody_job_invalid")
+        expired_at = _parse_dt(interrupted_job.get("lease_expires_at"))
+        if expired_at is None or expired_at.tzinfo is None or expired_at > event.created_at:
+            raise ValueError("native_interrupted_custody_lease_not_expired")
+        row = self._fetchone(
+            "SELECT event_id, job_id, event_type, payload_json, created_at FROM control_job_events "
+            "WHERE job_id = ? AND event_type = 'job_running' AND event_id < ? "
+            "ORDER BY event_id DESC LIMIT 1",
+            (event.job_id, event.event_id),
+        )
+        if row is None:
+            raise ValueError("native_interrupted_custody_running_missing")
+        running = self._control_job_lifecycle_event_record_from_row(
+            row, expected_job_id=event.job_id, expected_event_type="job_running"
+        )
+        if (
+            running.event_id <= previous.event.event_id
+            or running.payload.get("state") != "running"
+            or type(running.payload.get("attempt")) is not int
+            or running.payload.get("attempt") != interrupted_attempt
+            or running.payload.get("lease_owner") != interrupted_job["lease_owner"]
+            or running.created_at > expired_at
+            or previous.approval_expires_at is None
+            or running.created_at.timestamp() >= previous.approval_expires_at
+            or not _json_values_equal_strict(
+                recorded_running,
+                {
+                    "event_id": running.event_id,
+                    "payload_sha256": running.payload_sha256,
+                    "payload": running.payload,
+                    "created_at": running.created_at.isoformat(),
+                },
+            )
+        ):
+            raise ValueError("native_interrupted_custody_running_changed")
+        self._require_exclusive_native_lease_interval(
+            job_id=event.job_id, running_event=running, end_event_id=event.event_id
+        )
+        terminal = self._fetchone(
+            "SELECT event_id FROM control_job_events WHERE job_id = ? "
+            "AND event_type IN ('job_failed', 'job_completed', 'job_cancelled') "
+            "AND event_id > ? AND event_id < ? LIMIT 1",
+            (event.job_id, running.event_id, event.event_id),
+        )
+        if terminal is not None:
+            raise ValueError("native_interrupted_custody_terminal_already_recorded")
+        outbox = self.get_outbox_topic_event(
+            topic="control.job.custody_recovery_requested",
+            event_key=f"{event.job_id}:custody_interruption:{interrupted_attempt}",
+            job_id=event.job_id,
+        )
+        if (
+            outbox is None
+            or outbox.run_id != head.run_id
+            or not _json_values_equal_strict(
+                outbox.payload, self._native_recovery_outbox_payload(value, event.payload_sha256)
+            )
+        ):
+            raise ValueError("native_interrupted_custody_outbox_mismatch")
+        return NativeAcquisitionCustodyRecoveryRecord(
+            event=event,
+            failed_attempt=None,
+            recovery_attempt=value["recovery_attempt"],
+            head=head,
+            payload_ref=value["payload_ref"],
+            execution_scope=scope,
+            approval_expires_at=value["approval_expires_at"],
+            interrupted_attempt=interrupted_attempt,
+            n4_recovery=selected,
+        )
+
     @staticmethod
     def _native_recovery_outbox_payload(
         value: dict[str, Any], event_payload_sha256: str | None = None
     ) -> dict[str, Any]:
+        if value["authority_purpose"] == _NATIVE_N4_RECOVERY_PURPOSE:
+            n4 = value["n4_recovery"]
+            return {
+                **{
+                    name: value[name]
+                    for name in (
+                        "schema_version",
+                        "authority_purpose",
+                        "state",
+                        "job_id",
+                        "interrupted_attempt",
+                        "recovery_attempt",
+                        "head_ref",
+                        "request_sha256",
+                    )
+                },
+                "prior_recovery_event_id": n4["prior_recovery_event_id"],
+                "prior_recovery_event_sha256": n4["prior_recovery_event_sha256"],
+                "ledger_revision": n4["ledger_revision"],
+                "draft_producer_event_id": n4["draft"]["producer_event_id"],
+                "draft_response_sha256": hashlib.sha256(
+                    n4["draft"]["response_text"].encode()
+                ).hexdigest(),
+                "occurrences": [
+                    {
+                        "producer_event_id": item["producer_event_id"],
+                        "response_sha256": hashlib.sha256(
+                            item["response_text"].encode()
+                        ).hexdigest(),
+                    }
+                    for item in n4["occurrences"]
+                ],
+                "private_event_sha256": event_payload_sha256
+                or (
+                    "sha256:"
+                    + hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
+                ),
+            }
         if value["authority_purpose"] != _NATIVE_DRAFT_RECOVERY_PURPOSE:
             return value
         draft = value["settled_draft"]
@@ -9254,6 +9546,18 @@ class ControlPlaneStore:
         failure_event: _ControlJobLifecycleSourceEventRecord,
     ) -> None:
         """Exclude other admitted writers of the completed source run in the failed lease."""
+        self._require_exclusive_native_lease_interval(
+            job_id=job_id, running_event=running_event, end_event_id=failure_event.event_id
+        )
+
+    def _require_exclusive_native_lease_interval(
+        self,
+        *,
+        job_id: str,
+        running_event: _ControlJobLifecycleSourceEventRecord,
+        end_event_id: int | None,
+    ) -> None:
+        """Reconcile sibling job lifecycles across one selected Native interval."""
         rows = self._fetchall(
             "SELECT e.event_id, j.job_id, e.event_type, e.payload_json, e.created_at, j.attempt "
             "FROM control_jobs j LEFT JOIN control_job_events e ON j.job_id = e.job_id "
@@ -9291,7 +9595,7 @@ class ControlPlaneStore:
                 observed_attempts[target_job_id] = attempt
                 if event.event_id < running_event.event_id:
                     active_prior_leases[target_job_id] = (attempt, lease_owner)
-                elif event.event_id < failure_event.event_id:
+                elif end_event_id is None or event.event_id < end_event_id:
                     raise ValueError("native_settled_draft_concurrent_source_job")
             elif event.event_id < running_event.event_id and event_type != "job_cancelled":
                 if active_prior_leases.get(target_job_id) != (attempt, lease_owner):
@@ -9998,7 +10302,8 @@ class ControlPlaneStore:
             if previous:
                 record = previous[0]
                 if (
-                    record.head != head
+                    recoveries[-1] != record
+                    or record.head != head
                     or record.settled_draft != settled_draft
                     or record.execution_scope != scope
                     or record.event.payload["request_sha256"] != request_sha256
@@ -10138,12 +10443,313 @@ class ControlPlaneStore:
                 raise RuntimeError("native_custody_recovery_job_missing")
             return recovered
 
+    def request_expired_native_acquisition_custody_recovery(
+        self,
+        *,
+        expected_job: ControlJobRecord,
+        interrupted_attempt: int,
+        head: AcquisitionActionHeadRecord,
+        execution_scope: ControlJobExecutionScope,
+        request_sha256: str,
+        permission_sha256: str,
+        resource_digest: str,
+        n4_recovery: NativeSettledN4Recovery,
+        approval_expires_at: int,
+    ) -> ControlJobRecord:
+        """Queue a new grant over an exact expired Native lease without inventing failure.
+
+        The request owner supplies current authorization and later owns the
+        ledger/physical-work verifier. SQL preserves and reopens the prior v2
+        event, expired job and running event; it does not authorize N4 or N5.
+        """
+        from polisyos.runtime.quality.native_settled_draft import NativeSettledN4Recovery
+
+        if self._job_execution_fence.get() is not None:
+            raise ControlJobExecutionAdmissionError(
+                "native_custody_recovery_requires_request_owner"
+            )
+        if (
+            type(expected_job) is not ControlJobRecord
+            or type(interrupted_attempt) is not int
+            or interrupted_attempt < 1
+            or expected_job.kind != "acquisition"
+            or expected_job.payload_ref is None
+            or type(head) is not AcquisitionActionHeadRecord
+            or head.job_id != expected_job.job_id
+            or head.run_id != expected_job.run_id
+            or head.receipt_phase != "world_committed_reentry_pending"
+            or head.recovery_state != "reentry_recovery_required"
+            or not _is_sha256_ref(head.receipt_manifest_profile_sha256)
+            or type(execution_scope) is not ControlJobExecutionScope
+            or type(n4_recovery) is not NativeSettledN4Recovery
+            or type(approval_expires_at) is not int
+            or not all(
+                _is_sha256_ref(item)
+                for item in (request_sha256, permission_sha256, resource_digest)
+            )
+        ):
+            raise ValueError("native_interrupted_custody_subject_invalid")
+        try:
+            selected = NativeSettledN4Recovery.model_validate(
+                n4_recovery.model_dump(mode="python"), strict=True
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError("native_interrupted_custody_subject_invalid") from exc
+        if selected != n4_recovery:
+            raise ValueError("native_interrupted_custody_subject_invalid")
+
+        def require_current_approval() -> None:
+            if approval_expires_at <= _utc_now().timestamp():
+                raise ValueError("native_interrupted_custody_approval_expired")
+
+        require_current_approval()
+        with self._job_transaction(commit_admission=require_current_approval):
+            self._lock_job_state(expected_job.job_id)
+            job = self.get_job(expected_job.job_id)
+            if job is None:
+                raise ValueError("native_interrupted_custody_job_changed")
+            scope, _ = self._reconcile_control_job_creation_envelope(job)
+            if (
+                scope.status != "established"
+                or not scope.actor_authenticated
+                or scope != execution_scope
+                or scope.actor_subject != expected_job.submitted_by
+                or (scope.tenant_id, scope.cell_id) != (head.tenant_id, head.cell_id)
+            ):
+                raise ValueError("native_interrupted_custody_scope_refused")
+            recoveries = self._native_acquisition_custody_recovery_records(job.job_id)
+            existing = tuple(r for r in recoveries if r.interrupted_attempt == interrupted_attempt)
+            if existing:
+                record = existing[0]
+                interrupted = record.event.payload["interrupted_job"]
+                expected_is_interrupted = (
+                    expected_job.state == "running"
+                    and expected_job.attempt == interrupted_attempt
+                    and interrupted.get("lease_owner") == expected_job.lease_owner
+                    and _parse_dt(interrupted.get("lease_expires_at"))
+                    == expected_job.lease_expires_at
+                    and interrupted.get("payload_ref") == expected_job.payload_ref
+                )
+                if (
+                    len(existing) != 1
+                    or recoveries[-1] != record
+                    or record.head != head
+                    or record.n4_recovery != n4_recovery
+                    or record.execution_scope != scope
+                    or record.event.payload["request_sha256"] != request_sha256
+                    or record.event.payload["resource_digest"] != resource_digest
+                    or not (job == expected_job or expected_is_interrupted)
+                    or (job.state == "pending" and job.attempt != interrupted_attempt)
+                    or (
+                        job.state in {"running", "completed"}
+                        and job.attempt != record.recovery_attempt
+                    )
+                    or job.state not in {"pending", "running", "completed"}
+                    or (
+                        job.state == "pending"
+                        and (
+                            record.approval_expires_at is None
+                            or record.approval_expires_at <= _utc_now().timestamp()
+                        )
+                    )
+                ):
+                    raise ValueError("native_interrupted_custody_request_stale")
+                return job
+            now = _utc_now()
+            if (
+                job != expected_job
+                or job.state != "running"
+                or job.attempt != interrupted_attempt
+                or job.lease_owner is None
+                or job.lease_expires_at is None
+                or job.finished_at is not None
+                or job.lease_expires_at > now
+                or approval_expires_at <= now.timestamp()
+            ):
+                raise ValueError("native_interrupted_custody_job_or_expiry_changed")
+            if not recoveries:
+                raise ValueError("native_interrupted_custody_predecessor_missing")
+            prior = recoveries[-1]
+            if (
+                prior.event.event_id != n4_recovery.prior_recovery_event_id
+                or prior.event.payload_sha256 != n4_recovery.prior_recovery_event_sha256
+                or prior.event.payload.get("schema_version")
+                != "native_acquisition_custody_recovery.v2"
+                or prior.recovery_attempt != interrupted_attempt
+                or prior.head != head
+                or prior.payload_ref != job.payload_ref
+                or prior.execution_scope != scope
+                or prior.settled_draft != n4_recovery.draft
+            ):
+                raise ValueError("native_interrupted_custody_predecessor_changed")
+            self._lock_acquisition_route_source(head.source_job_id)
+            heads = self.list_acquisition_action_heads(
+                tenant_id=head.tenant_id,
+                cell_id=head.cell_id,
+                run_id=head.run_id,
+                source_job_id=head.source_job_id,
+                route_id=head.route_id,
+            )
+            if not heads or heads[-1] != head:
+                raise ValueError("native_interrupted_custody_head_changed")
+            running = self._latest_control_job_lifecycle_event_record(
+                job_id=job.job_id, event_type="job_running"
+            )
+            if (
+                running.event_id <= prior.event.event_id
+                or running.payload.get("state") != "running"
+                or type(running.payload.get("attempt")) is not int
+                or running.payload.get("attempt") != interrupted_attempt
+                or running.payload.get("lease_owner") != job.lease_owner
+                or running.created_at > job.lease_expires_at
+                or prior.approval_expires_at is None
+                or running.created_at.timestamp() >= prior.approval_expires_at
+            ):
+                raise ValueError("native_interrupted_custody_running_changed")
+            self._require_exclusive_native_lease_interval(
+                job_id=job.job_id, running_event=running, end_event_id=None
+            )
+            terminal = self._fetchone(
+                "SELECT event_id FROM control_job_events WHERE job_id = ? "
+                "AND event_type IN ('job_failed', 'job_completed', 'job_cancelled') "
+                "AND event_id > ? LIMIT 1",
+                (job.job_id, running.event_id),
+            )
+            if terminal is not None:
+                raise ValueError("native_interrupted_custody_terminal_already_recorded")
+            interrupted_row = self._fetchone(
+                "SELECT * FROM control_jobs WHERE job_id = ?", (job.job_id,)
+            )
+            progress_row = self._fetchone(
+                "SELECT * FROM control_job_progress WHERE job_id = ?", (job.job_id,)
+            )
+            if interrupted_row is None:
+                raise ValueError("native_interrupted_custody_job_changed")
+            head_value = dict(vars(head))
+            head_value["created_at"] = _iso(head.created_at)
+            value = {
+                "schema_version": "native_acquisition_custody_recovery.v3",
+                "authority_purpose": _NATIVE_N4_RECOVERY_PURPOSE,
+                "state": "pending",
+                "job_id": job.job_id,
+                "interrupted_attempt": interrupted_attempt,
+                "recovery_attempt": interrupted_attempt + 1,
+                "payload_ref": job.payload_ref,
+                "head": head_value,
+                "head_ref": ArtifactRef(
+                    artifact_id=ArtifactID(head.receipt_ref),
+                    kind="runtime_quality.acquisition_route_phase_receipt",
+                    media_type="application/json",
+                    manifest_profile_sha256=head.receipt_manifest_profile_sha256,
+                ).model_dump(mode="json"),
+                "execution_scope": {
+                    "schema_version": _CONTROL_EXECUTION_SCOPE_SCHEMA_VERSION,
+                    "status": scope.status,
+                    "tenant_id": scope.tenant_id,
+                    "cell_id": scope.cell_id,
+                    "actor_subject": scope.actor_subject,
+                    "actor_authenticated": scope.actor_authenticated,
+                    "actor_roles": list(scope.actor_roles),
+                },
+                "request_sha256": request_sha256,
+                "permission_sha256": permission_sha256,
+                "resource_digest": resource_digest,
+                "approval_expires_at": approval_expires_at,
+                "interrupted_job": _native_interrupted_json_row(interrupted_row),
+                "interrupted_progress": (
+                    _native_interrupted_json_row(progress_row) if progress_row is not None else None
+                ),
+                "interrupted_running_event": {
+                    "event_id": running.event_id,
+                    "payload_sha256": running.payload_sha256,
+                    "payload": running.payload,
+                    "created_at": running.created_at.isoformat(),
+                },
+                "n4_recovery": n4_recovery.model_dump(mode="json"),
+            }
+            now = _utc_now()
+            if approval_expires_at <= now.timestamp():
+                raise ValueError("native_interrupted_custody_approval_expired")
+            self.append_event(
+                job_id=job.job_id, event_type=_NATIVE_CUSTODY_RECOVERY_EVENT, payload=value
+            )
+            changed = self._execute(
+                "UPDATE control_jobs SET state = 'pending', finished_at = NULL, error_message = NULL, "
+                "lease_owner = NULL, lease_expires_at = NULL "
+                "WHERE job_id = ? AND state = 'running' AND attempt = ? AND payload_ref = ? "
+                "AND lease_owner = ? AND lease_expires_at = ? AND lease_expires_at <= ?",
+                (
+                    job.job_id,
+                    interrupted_attempt,
+                    job.payload_ref,
+                    job.lease_owner,
+                    _iso(job.lease_expires_at),
+                    _iso(now),
+                ),
+            )
+            if changed != 1:
+                raise ValueError("native_interrupted_custody_job_or_expiry_changed")
+            self._upsert_progress_unchecked(
+                job_id=job.job_id,
+                progress={
+                    "state": "pending",
+                    "phase": "acquisition_custody_recovery",
+                    "authority_purpose": _NATIVE_N4_RECOVERY_PURPOSE,
+                    "interrupted_attempt": interrupted_attempt,
+                },
+            )
+            self.enqueue_outbox_event(
+                topic="control.job.custody_recovery_requested",
+                job_id=job.job_id,
+                run_id=job.run_id,
+                event_key=f"{job.job_id}:custody_interruption:{interrupted_attempt}",
+                payload=self._native_recovery_outbox_payload(value),
+                require_matching_payload=True,
+            )
+            reopened = self._native_acquisition_custody_recovery_records(job.job_id)
+            recovered = self.get_job(job.job_id)
+            if (
+                not reopened
+                or reopened[-1].n4_recovery != n4_recovery
+                or recovered is None
+                or recovered.state != "pending"
+                or recovered.attempt != interrupted_attempt
+            ):
+                raise RuntimeError("native_interrupted_custody_readback_failed")
+            return recovered
+
     def current_native_acquisition_custody_recovery(
         self,
     ) -> NativeAcquisitionCustodyRecoveryRecord | None:
         """Replay the custody restriction for the actual running lease, fail closed."""
         job = self.current_execution_job_record()
         records = self._native_acquisition_custody_recovery_records(job.job_id)
+        if records and records[-1].n4_recovery is not None:
+            record = records[-1]
+            scope, _ = self._reconcile_control_job_creation_envelope(job)
+            running = self._latest_control_job_lifecycle_event_record(
+                job_id=job.job_id, event_type="job_running"
+            )
+            terminal = self._fetchone(
+                "SELECT event_id FROM control_job_events WHERE job_id = ? "
+                "AND event_type IN ('job_failed', 'job_completed', 'job_cancelled') "
+                "AND event_id > ? LIMIT 1",
+                (job.job_id, record.event.event_id),
+            )
+            if (
+                job.kind != "acquisition"
+                or job.attempt != record.recovery_attempt
+                or job.payload_ref != record.payload_ref
+                or scope != record.execution_scope
+                or running.payload.get("attempt") != record.recovery_attempt
+                or running.payload.get("lease_owner") != job.lease_owner
+                or running.event_id <= record.event.event_id
+                or record.approval_expires_at is None
+                or running.created_at.timestamp() >= record.approval_expires_at
+                or terminal is not None
+            ):
+                raise ValueError("native_interrupted_custody_recovery_lease_mismatch")
+            return record
         failures = self._fetchall(
             "SELECT event_id, job_id, event_type, payload_json, created_at FROM control_job_events "
             "WHERE job_id = ? AND event_type = 'job_failed' ORDER BY event_id DESC LIMIT 1",

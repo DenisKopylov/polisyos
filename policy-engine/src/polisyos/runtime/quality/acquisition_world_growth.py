@@ -7618,7 +7618,10 @@ class AcquisitionWorldGrowthBridge:
                 else None
             )
             draft_recovery = (
-                custody if custody is not None and custody.settled_draft is not None else None
+                custody
+                if custody is not None
+                and (custody.settled_draft is not None or custody.n4_recovery is not None)
+                else None
             )
             custody_only = custody is not None and draft_recovery is None
             if native_configuration is not None:
@@ -7699,9 +7702,14 @@ class AcquisitionWorldGrowthBridge:
                     or native_configuration.reentry_timeout_seconds <= 0
                 ):
                     raise ValueError("native_settled_draft_reentry_marker_or_timeout_missing")
-                draft_fence = fence.with_suffix(".settled-draft-resume")
-                if draft_fence.exists():
-                    raise ValueError("native_settled_draft_reentry_already_started")
+                n4_recovery = draft_recovery.n4_recovery
+                draft_fence = self._settled_native_reentry_fence(
+                    fence,
+                    recovery_event_id=draft_recovery.event.event_id,
+                    prior_recovery_event_id=(
+                        n4_recovery.prior_recovery_event_id if n4_recovery is not None else None
+                    ),
+                )
             payload = load_core_json_artifact(self.artifact_store, closure.source_payload_ref)
             models = payload.get("llm_models")
             model = str(models[0]) if isinstance(models, list) and models else None
@@ -7976,6 +7984,20 @@ class AcquisitionWorldGrowthBridge:
                 return ref
 
     @staticmethod
+    def _settled_native_reentry_fence(
+        fence: Path, *, recovery_event_id: int, prior_recovery_event_id: int | None
+    ) -> Path:
+        """Select one unconsumed marker while retaining any previous recovery marker."""
+        marker = fence.with_suffix(".settled-draft-resume")
+        if prior_recovery_event_id is not None:
+            if not marker.is_file() or marker.read_text() != str(prior_recovery_event_id):
+                raise ValueError("native_settled_n4_prior_reentry_marker_mismatch")
+            marker = fence.with_suffix(f".settled-n4-resume-{recovery_event_id}")
+        if marker.exists():
+            raise ValueError("native_settled_draft_reentry_already_started")
+        return marker
+
+    @staticmethod
     def _run_active_overlay_reentry(
         *,
         fence: Path,
@@ -8103,7 +8125,7 @@ class AcquisitionWorldGrowthBridge:
             or (
                 recovery is not None
                 and (
-                    recovery.settled_draft is None
+                    (recovery.settled_draft is None and recovery.n4_recovery is None)
                     or recovery.head.job_id != phase.job_id
                     or recovery.head.action_generation != phase.action_generation
                 )
@@ -8331,7 +8353,11 @@ class AcquisitionWorldGrowthBridge:
             or progress is None
             or prepared
             or observer is None
-            or draft_recovery.settled_draft is None
+            or (draft_recovery.settled_draft is None and draft_recovery.n4_recovery is None)
+            or progress.n5_claimed
+            or progress.n5_completed is not None
+            or progress.tail_claimed
+            or progress.cycle_completed is not None
         ):
             raise ValueError("native_settled_draft_recovery_progress_changed")
         if started and not prepared and draft_recovery is None:

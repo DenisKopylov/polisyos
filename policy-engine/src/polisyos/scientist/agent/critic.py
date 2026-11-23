@@ -12,6 +12,8 @@ from typing import Any
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import extract_llm_json_object
 from polisyos.core.canon import content_hash, truncated_hash
+from polisyos.core.llm.settlement import LLMManagedProducerOutcomeError
+from polisyos.core.llm.traced_client import has_managed_prepared_producer_request
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent._llm_timeouts import resolve_agent_llm_timeout_s
 from polisyos.scientist.agent.feasibility import FeasibilityProbe
@@ -431,6 +433,12 @@ class LLMCriticAgent:
             default=60.0,
         )
 
+    def _has_owned_managed_transport(self, request_args: dict[str, Any]) -> bool:
+        """Return whether this exact issued N4 request has a managed transport."""
+        if type(self._llm) is not TracedLLMClient:
+            return False
+        return has_managed_prepared_producer_request(self._llm, request_args)
+
     async def critique(
         self,
         ir: TrinityBundle,
@@ -467,22 +475,30 @@ WEB EVIDENCE:
 Provide your critique as a JSON object.
 """
 
+        managed_transport = False
         try:
-            response = await asyncio.wait_for(
-                self._llm.generate(
-                    **_request_args(
-                        self._llm,
-                        stage="critic",
-                        instance="critique",
-                        system=prompt,
-                        user=user_message,
-                        response_format={"type": "json_object"},
-                        timeout=self._timeout_s,
-                    )
-                ),
-                timeout=self._timeout_s + 5.0,
+            request_args = _request_args(
+                self._llm,
+                stage="critic",
+                instance="critique",
+                system=prompt,
+                user=user_message,
+                response_format={"type": "json_object"},
+                timeout=self._timeout_s,
             )
+            managed_transport = self._has_owned_managed_transport(request_args)
+            if managed_transport:
+                response = await self._llm.generate(**request_args)
+            else:
+                response = await asyncio.wait_for(
+                    self._llm.generate(**request_args),
+                    timeout=self._timeout_s + 5.0,
+                )
+        except LLMManagedProducerOutcomeError:
+            raise
         except (OSError, RuntimeError, TimeoutError, ValueError) as exc:
+            if managed_transport:
+                raise LLMManagedProducerOutcomeError("managed_transport_failed") from exc
             emit_degraded_path(
                 component="agent.critic",
                 operation="critique",
@@ -576,7 +592,9 @@ Provide your critique as a JSON object.
                 },
                 created_at=datetime.now(UTC),
             )
-        except (json.JSONDecodeError, KeyError, ValueError) as exc:
+        except (json.JSONDecodeError, KeyError, ValueError, TypeError) as exc:
+            if isinstance(exc, TypeError) and not managed_transport:
+                raise
             return CritiqueReport(
                 report_id=str(uuid.uuid4()),
                 ir_ref="",

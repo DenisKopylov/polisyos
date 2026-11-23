@@ -212,6 +212,46 @@ def test_recorded_owner_return_precedes_complete_collection_custody_refusal(
     assert protected == []
 
 
+def test_interrupted_native_reentry_keeps_prior_markers_and_fences_one_owner(tmp_path) -> None:
+    bridge = world_owner.AcquisitionWorldGrowthBridge
+    fence = tmp_path / "selected.reentry.started"
+    growth_ref = "sha256:" + "a" * 64
+    fence.write_text(growth_ref)
+    prior = fence.with_suffix(".settled-draft-resume")
+
+    def select():
+        return bridge._settled_native_reentry_fence(
+            fence, recovery_event_id=33, prior_recovery_event_id=31
+        )
+
+    with pytest.raises(ValueError, match="native_settled_n4_prior_reentry_marker_mismatch"):
+        select()
+    prior.write_text("30")
+    with pytest.raises(ValueError, match="native_settled_n4_prior_reentry_marker_mismatch"):
+        select()
+    prior.write_text("31")
+    selected = select()
+    assert selected == fence.with_suffix(".settled-n4-resume-33")
+
+    async def stop_before_producer():
+        assert selected.read_text() == "33"
+        raise RuntimeError("fixture_stops_before_producer")
+
+    with pytest.raises(RuntimeError, match="fixture_stops_before_producer"):
+        bridge._run_active_overlay_reentry(
+            fence=fence,
+            growth_ref=growth_ref,
+            started=True,
+            native_configuration=None,
+            reenter=stop_before_producer,
+            draft_recovery_fence=(selected, "33"),
+        )
+    assert fence.read_text() == growth_ref
+    assert prior.read_text() == "31"
+    with pytest.raises(ValueError, match="native_settled_draft_reentry_already_started"):
+        select()
+
+
 def test_selected_phase_reader_keeps_full_profile_and_never_falls_back(tmp_path) -> None:
     """Real CAS view/removal control; source admission is outside this reader test."""
     from tests.unit.runtime.quality.test_native_derivation_action_history import _native_requested

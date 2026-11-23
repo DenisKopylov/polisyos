@@ -27,6 +27,21 @@ class LLMSettlementIntegrityError(RuntimeError):
     """A nested producer result does not match its owner-bound event and receipt."""
 
 
+class LLMManagedProducerOutcomeError(RuntimeError):
+    """A managed producer occurrence failed to yield a consumable durable response."""
+
+    def __init__(
+        self,
+        reason: Literal[
+            "managed_admission_failed",
+            "managed_transport_failed",
+            "managed_settlement_not_committed",
+        ],
+    ) -> None:
+        self.reason = reason
+        super().__init__(reason)
+
+
 class LLMProducerAdmissionGuard(Protocol):
     """Validate and fence a producer operation under its current owner admission."""
 

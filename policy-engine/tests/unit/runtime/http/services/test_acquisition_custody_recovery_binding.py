@@ -185,6 +185,58 @@ def test_custody_recovery_descriptor_binds_attempt_and_full_head_profile() -> No
     assert custody_selector["head_ref"]["manifest_profile_sha256"] == "sha256:" + "a" * 64
 
 
+def test_interrupted_recovery_binds_the_exact_prior_event_and_chosen_occurrences() -> None:
+    """The existing acquisition permission seals the explicit interrupted selector."""
+
+    occurrences = [
+        {
+            "producer_event_id": "llm-provider:" + event * 32,
+            "stage": "drafter_multipass",
+            "instance": instance,
+            "ordinal": 0,
+            "context_id": event * 64,
+            "request_digest": event * 64,
+            "response_text": '{"findings": []}',
+        }
+        for event, instance in (("a", "side_effects_check"), ("b", "constraint_verify"))
+    ]
+    recovery = {
+        "interrupted_attempt": 6,
+        "head_ref": _phase_receipt_ref_payload(),
+        "n4_recovery": {
+            "prior_recovery_event_id": 31,
+            "prior_recovery_event_sha256": "sha256:" + "c" * 64,
+            "ledger_revision": 30,
+            "draft": {
+                "producer_event_id": "llm-provider:" + "d" * 32,
+                "ledger_revision": 18,
+                "response_text": '{"draft": true}',
+            },
+            "occurrences": occurrences,
+        },
+    }
+    payload = fixture.ACQUISITION_REQUEST.model_dump(mode="python")
+    request = AcquisitionRouteMutationRequest.model_validate(
+        {**payload, "custody_recovery": recovery}
+    )
+    assert request.custody_recovery is not None
+    assert request.custody_recovery.requires_live_approval
+    assert request.model_dump(mode="json")["custody_recovery"] == recovery
+    proof, digest = _bound_permission_for_request(request)
+    assert require_acquisition_bound_permission(proof, request) == digest
+
+    occurrences[0]["request_digest"] = "e" * 64
+    changed = AcquisitionRouteMutationRequest.model_validate(
+        {**payload, "custody_recovery": recovery}
+    )
+    with pytest.raises(AcquisitionAdmissionBundleBlocked):
+        require_acquisition_bound_permission(proof, changed)
+    with pytest.raises(ValidationError):
+        AcquisitionRouteMutationRequest.model_validate(
+            {**payload, "custody_recovery": {**recovery, "failed_attempt": 6}}
+        )
+
+
 @pytest.mark.parametrize(
     "custody_recovery",
     [

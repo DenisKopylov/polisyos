@@ -36,6 +36,9 @@ export type AcquisitionGrowthPayload =
 export type AcquisitionGrowthSummary =
   RuntimeApiComponents["schemas"]["AcquisitionGrowthSummary"];
 
+export type AcquisitionInterruptedCustodyRecoveryRequest =
+  RuntimeApiComponents["schemas"]["AcquisitionInterruptedCustodyRecoveryRequest"];
+
 export type AcquisitionMovementArtifact =
   RuntimeApiComponents["schemas"]["AcquisitionMovementArtifact"];
 
@@ -1319,6 +1322,12 @@ export type NativePaidInputAdmissionSelection =
 
 export type NativeSettledDraftRecovery =
   RuntimeApiComponents["schemas"]["NativeSettledDraftRecovery"];
+
+export type NativeSettledN4Occurrence =
+  RuntimeApiComponents["schemas"]["NativeSettledN4Occurrence"];
+
+export type NativeSettledN4Recovery =
+  RuntimeApiComponents["schemas"]["NativeSettledN4Recovery"];
 
 export type NaturalLanguageRunRequest =
   RuntimeApiComponents["schemas"]["NaturalLanguageRunRequest"];

@@ -32,6 +32,7 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionActionServiceError,
     AcquisitionDecisionRequestResponse,
     AcquisitionExecutionResponse,
+    AcquisitionInterruptedCustodyRecoveryRequest,
     AcquisitionRouteListResponse,
     AcquisitionRouteMutationRequest,
     AcquisitionRouteProjection,
@@ -838,14 +839,19 @@ def execute_run_acquisition_route(
     )
     proof = _bound_proof(request)
     recovery_args = {}
-    if body.custody_recovery is not None and body.custody_recovery.settled_draft is not None:
+    recovery = body.custody_recovery
+    if recovery is not None and recovery.requires_live_approval:
         recovery_args["recovery_approval_expires_at"] = _require_live_user_approval(
             request,
             principal=principal,
             bound_permission=proof,
             step_up=getattr(request.state, "step_up_verification", None),
             refusal_code="acquisition_custody_recovery_actor_refused",
-            refusal_message="Native recovery requires live approval for this settled draft",
+            refusal_message=(
+                "Native recovery requires live approval for these settled N4 occurrences"
+                if isinstance(recovery, AcquisitionInterruptedCustodyRecoveryRequest)
+                else "Native recovery requires live approval for this settled draft"
+            ),
         )
     try:
         return service.execute(

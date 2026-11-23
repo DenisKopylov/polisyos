@@ -9745,7 +9745,11 @@ class ControlPlaneService(
         from polisyos.runtime.http.services.control.producer_basis import (
             _ControlJobProducerIntent,
         )
-        from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+        from polisyos.runtime.quality.acquisition_world_growth import (
+            _ATTEMPT_KIND,
+            AcquisitionWorldGrowthAttempt,
+            AcquisitionWorldGrowthBridge,
+        )
         from polisyos.runtime.quality.native_settled_draft import (
             _native_settled_draft_scope,
             _verify_settled_draft,
@@ -9779,7 +9783,7 @@ class ControlPlaneService(
         source_job = self._control_store.get_job(closure.source_job_id)
         if source_job is None or source_job.state != "completed":
             raise ValueError("native_reentry_producer_source_missing")
-        _selected, phase, admission = bridge._current_native_reentry_action(
+        selected, phase, admission = bridge._current_native_reentry_action(
             closure=closure, action_phase_ref=reentry_budget_scope.action_phase_ref
         )
         recovery = self._control_store.current_native_acquisition_custody_recovery()
@@ -9791,11 +9795,12 @@ class ControlPlaneService(
             raise ValueError("native_reentry_producer_action_mismatch")
 
         def validate_current_admission() -> None:
-            _fresh, fresh_phase, fresh = bridge._current_native_reentry_action(
+            fresh_selected, fresh_phase, fresh = bridge._current_native_reentry_action(
                 closure=closure, action_phase_ref=reentry_budget_scope.action_phase_ref
             )
             if (
-                fresh_phase != phase
+                fresh_selected != selected
+                or fresh_phase != phase
                 or fresh.job.job_id != admission.job.job_id
                 or fresh.job.lease_owner != admission.job.lease_owner
                 or fresh.attempt != admission.attempt
@@ -9827,13 +9832,14 @@ class ControlPlaneService(
 
         validate_current_admission()
         draft_scope = nullcontext()
+        direct_dispatch = None
+        window = observer.reentry_budget_window
         if recovery is not None and recovery.settled_draft is not None:
             draft = recovery.settled_draft
             started_at = recovery.failed_lease_started_at
             if started_at is None:
                 raise ValueError("native_settled_draft_failed_lease_missing")
             failed_at = datetime.fromisoformat(recovery.event.payload["failed_event"]["created_at"])
-            window = observer.reentry_budget_window
 
             def reopen_settled_draft() -> LLMProducerSettlement:
                 validate_current_admission()
@@ -9855,6 +9861,123 @@ class ControlPlaneService(
 
             reopen_settled_draft()
             draft_scope = _native_settled_draft_scope(draft, reopen_settled_draft)
+        elif recovery is not None and recovery.n4_recovery is not None:
+            from polisyos.runtime.quality.native_settled_draft import (
+                VerifiedNativeSettledN4Recovery,
+                _native_settled_n4_scope,
+                _verify_settled_n4_recovery,
+            )
+
+            selected_recovery = recovery.n4_recovery
+            if closure.prior_paid_input_admission is None:
+                raise ValueError("native_settled_n4_paid_input_missing")
+            prior_records = self._control_store._native_acquisition_custody_recovery_records(
+                phase.job_id
+            )
+            prior = next(
+                (
+                    record
+                    for record in prior_records
+                    if record.event.event_id == selected_recovery.prior_recovery_event_id
+                ),
+                None,
+            )
+            if (
+                prior is None
+                or prior.event.payload_sha256 != selected_recovery.prior_recovery_event_sha256
+                or prior.failed_lease_started_at is None
+                or prior.settled_draft != selected_recovery.draft
+                or prior.head != recovery.head
+                or prior.recovery_attempt != recovery.interrupted_attempt
+            ):
+                raise ValueError("native_settled_n4_prior_recovery_changed")
+            failed_lease_started_at = prior.failed_lease_started_at
+            failed_at = datetime.fromisoformat(prior.event.payload["failed_event"]["created_at"])
+            interrupted = recovery.event.payload["interrupted_running_event"]
+            action_started_at = datetime.fromisoformat(interrupted["created_at"])
+            action_expires_at = datetime.fromisoformat(
+                recovery.event.payload["interrupted_job"]["lease_expires_at"]
+            )
+
+            def reopen_settled_n4() -> VerifiedNativeSettledN4Recovery:
+                validate_current_admission()
+                if self._control_store.current_native_acquisition_custody_recovery() != recovery:
+                    raise ValueError("native_settled_n4_recovery_changed")
+                snapshot = run_guarded_dependency_operation(
+                    self._control_store, store.snapshot_safe
+                )
+                proof = _verify_settled_n4_recovery(
+                    selected_recovery,
+                    snapshot=snapshot,
+                    window=window,
+                    source_attempt=source_job.attempt,
+                    source_lease_started_at=failed_lease_started_at,
+                    source_failed_at=failed_at,
+                    action_lease_started_at=action_started_at,
+                    action_lease_expires_at=action_expires_at,
+                )
+                validate_current_admission()
+                return proof
+
+            reopen_settled_n4()
+            draft_scope = _native_settled_n4_scope(selected_recovery, reopen_settled_n4)
+        if recovery is not None and (
+            recovery.settled_draft is not None or recovery.n4_recovery is not None
+        ):
+            paid = closure.prior_paid_input_admission
+            if paid is not None:
+                subject = {
+                    "tenant_id": closure.tenant_id,
+                    "cell_id": closure.cell_id,
+                    "run_id": closure.run_id,
+                    "source_job_id": closure.source_job_id,
+                }
+                heads = self._control_store.list_acquisition_action_heads_for_source(**subject)
+                selected_heads = tuple(head for head in heads if head.route_id == closure.route_id)
+                if not selected_heads or selected_heads[-1] != recovery.head:
+                    raise ValueError("native_reentry_producer_action_changed")
+                attempt_pointer = bridge._growth_pointer(selected, create=False).with_suffix(
+                    ".attempt.json"
+                )
+
+                def validate_direct_dispatch(point: Literal["scope", "transport"]) -> None:
+                    if point == "transport":
+                        attempt = AcquisitionWorldGrowthAttempt.model_validate(
+                            bridge._read(paid.attempt_ref, _ATTEMPT_KIND)
+                        )
+                        if (
+                            bridge._attempt_pointer_ref(attempt_pointer, require_selected=True)
+                            != paid.attempt_ref
+                            or attempt.selection != selected
+                            or any(
+                                ref != paid.attempt_ref and not self._artifact_store.verify(ref).ok
+                                for _role, ref in paid.lineage_inputs()
+                            )
+                        ):
+                            raise ValueError("native_reentry_producer_paid_input_changed")
+                        bridge._verify_paid_native_attempt_current_source(closure, attempt)
+                    if (
+                        store.resolve_reentry_budget_window_safe(reentry_budget_scope) != window
+                        or self._control_store.list_acquisition_action_heads_for_source(**subject)
+                        != heads
+                        or self._control_store.current_native_acquisition_custody_recovery()
+                        != recovery
+                    ):
+                        raise ValueError("native_reentry_producer_action_changed")
+                    fresh = self._control_store.current_execution_job_admission()
+                    live = self._control_store.current_execution_job_record()
+                    if (
+                        fresh.job.job_id != admission.job.job_id
+                        or fresh.job.lease_owner != admission.job.lease_owner
+                        or fresh.attempt != admission.attempt
+                        or fresh.scope != admission.scope
+                        or live.job_id != admission.job.job_id
+                        or live.lease_owner != admission.job.lease_owner
+                        or live.attempt != admission.attempt
+                    ):
+                        raise ValueError("native_reentry_producer_action_changed")
+
+                direct_dispatch = validate_direct_dispatch
         with (
             store.producer_run_binding_scope(binding, control_job_attempt=source_job.attempt),
             gateway_cache_reuse_scope(
@@ -9867,6 +9990,7 @@ class ControlPlaneService(
                 reuse_guard=bounded_operation,
                 validate_admission=validate_current_admission,
                 intent_observer=observe_intent,
+                validate_direct_dispatch=direct_dispatch,
             ),
             draft_scope,
         ):

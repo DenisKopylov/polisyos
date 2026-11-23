@@ -129,6 +129,253 @@ def test_pass1_delegates_to_inner() -> None:
     assert inner.draft_count == 1
 
 
+@pytest.mark.parametrize(
+    "outcome",
+    [
+        "late_success",
+        "managed_after_prepare_retry",
+        "postprocess_failure",
+        "unknown_settlement",
+        "invalid_critique",
+        "invalid_draft",
+    ],
+)
+def test_actual_managed_drafter_has_no_outer_timeout_retry_or_fallback(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+    outcome: str,
+) -> None:
+    import json
+    from decimal import Decimal
+    from types import SimpleNamespace
+
+    import polisyos.scientist.agent._drafter_orchestrator as orchestrator_module
+    from polisyos.core.llm.settlement import LLMManagedProducerOutcomeError
+    from polisyos.runtime.quality.design_generation import RecordingLLMClient
+    from polisyos.scientist.agent._drafter_orchestrator import (
+        ManagedN4InvocationError,
+        ManagedN4ResponseInvalidError,
+    )
+    from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+        FileBudgetLedger,
+    )
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.llm.factory import (
+        GatewayLLMConfig,
+        create_traced_gateway_client,
+        gateway_cache_reuse_scope,
+    )
+    from polisyos.scientist.orchestration.llm.gateway_client import (
+        GatewayLLMClient,
+        GatewayLLMResponse,
+        GatewayUsage,
+    )
+
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "0")
+
+    async def _forbid_outer_wait_for(*_args, **_kwargs):
+        raise AssertionError("managed N4 must use the transport-owned deadline")
+
+    monkeypatch.setattr(
+        orchestrator_module,
+        "asyncio",
+        SimpleNamespace(wait_for=_forbid_outer_wait_for),
+    )
+
+    frame = _problem_frame()
+    valid_draft = json.dumps(
+        {
+            "draft_id": "managed-drafter-fixture",
+            "problem_frame_ref": frame.frame_id,
+            "narrative": "A cautious candidate plan.",
+            "interventions": [{"kind": "tax_subsidy"}],
+            "rationale": "Constrained candidate intervention.",
+            "confidence": 0.5,
+        }
+    )
+    if outcome == "invalid_draft":
+        response_texts = ["not JSON"]
+    elif outcome == "invalid_critique":
+        response_texts = [valid_draft, "not JSON"]
+    else:
+        response_texts = [valid_draft, '{"findings":[],"confidence_adjustment":0.0}']
+    raw_calls: list[dict[str, object]] = []
+    transport_timeouts: list[float] = []
+    prepare_attempts: list[tuple[str, int]] = []
+
+    if outcome == "managed_after_prepare_retry":
+        issue_producer_request = RecordingLLMClient._issue_producer_request
+
+        def _fail_first_managed_prepare(
+            self, *, stage: str, attempt: int, instance: str | None, request: object
+        ) -> dict[str, object]:
+            prepare_attempts.append((stage, attempt))
+            if stage == "drafter_multipass" and attempt == 0:
+                raise ValueError("transient pre-issue fixture failure")
+            return issue_producer_request(
+                self,
+                stage=stage,
+                attempt=attempt,
+                instance=instance,
+                request=request,
+            )
+
+        monkeypatch.setattr(
+            RecordingLLMClient,
+            "_issue_producer_request",
+            _fail_first_managed_prepare,
+        )
+    elif outcome == "postprocess_failure":
+        estimate_cost = MultiPassLLMDrafter._estimate_cost
+        critique_response = '{"findings":[],"confidence_adjustment":0.0}'
+
+        def _fail_postprocess(self, **kwargs):
+            if kwargs.get("raw_response") == critique_response:
+                raise RuntimeError("transient post-settlement consumer fixture failure")
+            return estimate_cost(self, **kwargs)
+
+        monkeypatch.setattr(MultiPassLLMDrafter, "_estimate_cost", _fail_postprocess)
+
+    async def _dispatch(self, request_args, *, before_dispatch):
+        transport_timeouts.append(self.timeout_s)
+        call_index = len(raw_calls)
+        raw_calls.append(dict(request_args))
+        if call_index == 1:
+            await asyncio.sleep(0.02)
+        before_dispatch()
+        usage = (
+            GatewayUsage()
+            if outcome == "unknown_settlement" and call_index == 1
+            else GatewayUsage(
+                prompt_tokens=5,
+                completion_tokens=7,
+                cost_usd=0.001,
+                cost_status="known",
+                usage_status="known",
+            )
+        )
+        return GatewayLLMResponse(
+            content=response_texts[call_index],
+            usage=usage,
+            model="managed-drafter-fixture",
+            provider="declared-fixture",
+            raw={},
+        )
+
+    monkeypatch.setattr(GatewayLLMClient, "_generate_single_dispatch", _dispatch)
+    run_id = f"managed-drafter-{outcome}"
+    budget_key = f"nl-run:{run_id}"
+    ledger = FileBudgetLedger(tmp_path / f"{outcome}-ledger.json")
+    settlement_store = BudgetMiddleware(
+        BudgetState(limits={budget_key: BudgetLimit(key=budget_key, max_usd=Decimal("10"))}),
+        ledger=ledger,
+    )
+    run_binding = BudgetLedgerProducerRunBinding(
+        run_id=run_id,
+        control_job_id=f"job-{run_id}",
+        tenant_id="tenant",
+        cell_id="tenant/cell",
+        profile_id="managed-drafter-fixture",
+    )
+    observed_events: list[dict[str, object]] = []
+
+    async def _run_managed() -> tuple[object, RecordingLLMClient, object]:
+        with settlement_store.producer_run_binding_scope(run_binding, control_job_attempt=1):
+            with gateway_cache_reuse_scope(
+                authorizer=None,
+                principal=None,
+                context=None,
+                cache=None,
+                run_id=run_id,
+                settlement_store=settlement_store,
+                reuse_guard=lambda operation: operation(),
+                validate_admission=lambda: None,
+                intent_observer=lambda *_: None,
+                validate_direct_dispatch=lambda _: None,
+            ):
+                inner = create_traced_gateway_client(
+                    model_name="managed-drafter-fixture",
+                    call_observer=observed_events.append,
+                    config=GatewayLLMConfig(
+                        base_url="http://fixture.invalid/v1",
+                        api_key="fixture-key",
+                        timeout_s=30.0,
+                        max_retries=0,
+                        cache_maxsize=0,
+                        enable_prompt_sanitizer=False,
+                    ),
+                )
+                assert inner is not None
+                recorder = RecordingLLMClient(
+                    inner,
+                    model_id="managed-drafter-fixture",
+                    producer_problem_ref="sha256:" + "a" * 64,
+                )
+                agent = create_drafter_agent(
+                    recorder,
+                    model_name="managed-drafter-fixture",
+                    config=MultiPassConfig(
+                        max_passes=2,
+                        early_exit_confidence=1.0,
+                        pass_timeout_s=0.001,
+                        pass_retry_count=2,
+                        constitution_enabled=False,
+                        rag_enabled=False,
+                    ),
+                    multipass_mode="active",
+                )
+                try:
+                    try:
+                        result = await agent.draft_policy(frame)
+                        outcome_value: object = result
+                    except Exception as exc:
+                        outcome_value = exc
+                    return outcome_value, recorder, ledger.snapshot()
+                finally:
+                    await inner.aclose()
+
+    result, recorder, snapshot = run(_run_managed())
+    expected_calls = 1 if outcome == "invalid_draft" else 2
+    assert len(raw_calls) == expected_calls
+    assert len(recorder.calls) == expected_calls
+    assert len(snapshot.producer_settlements) == expected_calls
+    assert len(observed_events) == expected_calls
+    assert all("pass_timeout_s" not in call for call in raw_calls)
+    assert all("timeout" not in call for call in raw_calls)
+    assert transport_timeouts == [30.0] * expected_calls
+    if outcome == "managed_after_prepare_retry":
+        assert prepare_attempts == [
+            ("draft", 0),
+            ("drafter_multipass", 0),
+            ("drafter_multipass", 1),
+        ]
+
+    if outcome in {"late_success", "managed_after_prepare_retry"}:
+        assert not isinstance(result, Exception)
+        assert all(call.status == "success" for call in recorder.calls)
+        assert all(
+            settlement.status == "committed"
+            for settlement in snapshot.producer_settlements.values()
+        )
+    elif outcome == "unknown_settlement":
+        assert isinstance(result, LLMManagedProducerOutcomeError)
+        assert result.reason == "managed_settlement_not_committed"
+        statuses = {settlement.status for settlement in snapshot.producer_settlements.values()}
+        assert statuses == {"committed", "unknown"}
+    elif outcome == "postprocess_failure":
+        assert isinstance(result, ManagedN4InvocationError)
+        assert all(call.status == "success" for call in recorder.calls)
+        assert all(
+            settlement.status == "committed"
+            for settlement in snapshot.producer_settlements.values()
+        )
+    else:
+        assert isinstance(result, ManagedN4ResponseInvalidError)
+        assert all(call.status == "success" for call in recorder.calls)
+
+
 def test_pass1_injects_rag_few_shot_hint() -> None:
     class RecordingDrafter(MockDrafterAgent):
         def __init__(self) -> None:
@@ -209,6 +456,20 @@ def test_all_four_passes_execute() -> None:
 
     assert llm.call_count == 3
     assert "Updated narrative after consolidation" in result.narrative
+
+
+def test_unmanaged_drafter_pass_keeps_timeout_retry() -> None:
+    llm = SequenceLLM(['{"findings":[],"confidence_adjustment":0.0}'], fail_calls={1})
+    agent = MultiPassLLMDrafter(
+        MockDrafterAgent(),
+        config=MultiPassConfig(max_passes=2, pass_retry_count=1, pass_timeout_s=1.0),
+        llm_client=llm,
+    )
+
+    result = run(agent.draft_policy(_problem_frame()))
+
+    assert result.draft_id
+    assert llm.call_count == 2
 
 
 def test_multipass_drafter_accepts_injected_observability(monkeypatch) -> None:

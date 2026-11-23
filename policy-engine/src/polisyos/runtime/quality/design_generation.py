@@ -26,6 +26,7 @@ from dataclasses import dataclass, field, is_dataclass, replace
 from dataclasses import fields as dataclass_fields
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, Any, Literal
+from weakref import WeakKeyDictionary
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -118,6 +119,7 @@ from polisyos.scientist.orchestration.engine.convergence import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.core.llm.traced_client import PreparedLLMInput, TracedLLMClient
     from polisyos.core.registry import RegistryBundleContent
     from polisyos.data_forge.read_api.academic import (
         ConfidenceLayerVintage,
@@ -1008,6 +1010,96 @@ class RecordingLLMClient:
             else None
         )
         self.calls: list[LLMGenerationCall] = []
+        self._managed_call_indices: set[int] = set()
+        self._managed_failure_call_indices: set[int] = set()
+        self._managed_invalid_response_call_indices: set[int] = set()
+        self._managed_handle_call_indices: WeakKeyDictionary[object, int] = WeakKeyDictionary()
+
+    def _managed_prepared_producer_owner(
+        self, request: Mapping[str, Any]
+    ) -> tuple[TracedLLMClient, PreparedLLMInput] | None:
+        """Return the exact live inner producer for one prepared managed request."""
+        from polisyos.core.llm import PreparedLLMInput, TracedLLMClient
+
+        if type(self) is not RecordingLLMClient or self._producer_request_binding is None:
+            return None
+        prepared = request.get(_PREPARED_INPUT_KEY)
+        if type(prepared) is not PreparedLLMInput or type(self._inner) is not TracedLLMClient:
+            return None
+        if self._inner.has_owned_prepared_transport(prepared) is not True:
+            return None
+        return self._inner, prepared
+
+    def _has_managed_call_since(self, call_index: int) -> bool:
+        if type(self) is not RecordingLLMClient:
+            return False
+        return any(index >= call_index for index in self._managed_call_indices)
+
+    def _has_managed_failure_since(self, call_index: int) -> bool:
+        if type(self) is not RecordingLLMClient:
+            return False
+        return any(index >= call_index for index in self._managed_failure_call_indices)
+
+    def _has_managed_invalid_response_since(self, call_index: int) -> bool:
+        if type(self) is not RecordingLLMClient:
+            return False
+        return any(index >= call_index for index in self._managed_invalid_response_call_indices)
+
+    def _has_managed_outcome_problem_since(self, call_index: int) -> bool:
+        failed = self._has_managed_failure_since(call_index)
+        invalid_response = self._has_managed_invalid_response_since(call_index)
+        return failed or invalid_response
+
+    def _mark_managed_response_invalid(self, request: Mapping[str, Any]) -> bool:
+        """Bind a consumer parse refusal to its already-recorded managed call."""
+        from polisyos.core.llm import PreparedLLMInput
+
+        prepared = request.get(_PREPARED_INPUT_KEY)
+        if type(prepared) is not PreparedLLMInput:
+            return False
+        call_index = self._managed_handle_call_indices.get(prepared)
+        if call_index is None:
+            return False
+        self._managed_invalid_response_call_indices.add(call_index)
+        return True
+
+    @staticmethod
+    def _managed_failure_reason(exc: BaseException) -> str:
+        from polisyos.core.llm.settlement import (
+            LLMSettlementIntegrityError,
+            LLMSettlementOwnershipError,
+        )
+        from polisyos.core.llm.traced_client import LLMAccountingError
+
+        if isinstance(exc, (LLMSettlementIntegrityError, LLMSettlementOwnershipError)):
+            return "managed_admission_failed"
+        if isinstance(exc, LLMAccountingError):
+            return "managed_settlement_not_committed"
+        return "managed_transport_failed"
+
+    @staticmethod
+    def _require_managed_settlement(response: object) -> None:
+        from polisyos.core.llm.settlement import (
+            LLMManagedProducerOutcomeError,
+            LLMProducerSettlement,
+            LLMSettledResponse,
+        )
+
+        if type(response) is not LLMSettledResponse:
+            raise LLMManagedProducerOutcomeError("managed_settlement_not_committed")
+        settlement = response.settlement
+        if type(settlement) is not LLMProducerSettlement:
+            raise LLMManagedProducerOutcomeError("managed_settlement_not_committed")
+        event = settlement.event
+        ack = settlement.ack
+        if (
+            ack.status != "committed"
+            or ack.durability != "ledger"
+            or ack.receipts != (event.event_id,)
+            or ack.event_id != event.event_id
+            or ack.payload_digest != event.payload_digest
+        ):
+            raise LLMManagedProducerOutcomeError("managed_settlement_not_committed")
 
     def _issue_producer_request(
         self, *, stage: str, attempt: int, instance: str | None, request: Mapping[str, Any]
@@ -1054,6 +1146,8 @@ class RecordingLLMClient:
     async def generate(self, **kwargs: object) -> object:
         from polisyos.runtime.quality.native_settled_draft import _adopt_settled_draft
 
+        managed_owner = self._managed_prepared_producer_owner(kwargs)
+        managed_handle = managed_owner[1] if managed_owner is not None else None
         prepared_present = _PREPARED_INPUT_KEY in kwargs
         prepared_handle = kwargs.pop(_PREPARED_INPUT_KEY, None)
         if prepared_present and prepared_handle is None:
@@ -1104,6 +1198,8 @@ class RecordingLLMClient:
                         response = await result
                     else:
                         response = result
+                if managed_owner is not None:
+                    self._require_managed_settlement(response)
         except BaseException as exc:
             details = _llm_exception_details(exc)
             self._record_call(
@@ -1128,7 +1224,19 @@ class RecordingLLMClient:
                 ),
                 response=None,
                 producer_context=producer_context,
+                managed_handle=managed_handle,
+                managed_failure=managed_owner is not None,
             )
+            if (
+                managed_owner is not None
+                and isinstance(exc, Exception)
+                and not isinstance(exc, asyncio.CancelledError)
+            ):
+                from polisyos.core.llm.settlement import LLMManagedProducerOutcomeError
+
+                if isinstance(exc, LLMManagedProducerOutcomeError):
+                    raise
+                raise LLMManagedProducerOutcomeError(self._managed_failure_reason(exc)) from exc
             raise
         content = response.content if hasattr(response, "content") else str(response)
         usage = getattr(response, "usage", None)
@@ -1165,6 +1273,7 @@ class RecordingLLMClient:
             ),
             response=response,
             producer_context=producer_context,
+            managed_handle=managed_handle,
         )
         return response
 
@@ -1174,11 +1283,21 @@ class RecordingLLMClient:
         *,
         response: object = None,
         producer_context: Mapping[str, Any] | None = None,
+        managed_handle: PreparedLLMInput | None = None,
+        managed_failure: bool = False,
     ) -> None:
         from polisyos.core.llm.cache_settlement import CacheSettlementSession
         from polisyos.runtime.quality._n4_usage_capture import _observe_call
 
+        assigned_index = len(self.calls)
+        if call.call_index != assigned_index:
+            call = call.model_copy(update={"call_index": assigned_index})
         self.calls.append(call)
+        if managed_handle is not None:
+            self._managed_call_indices.add(call.call_index)
+            self._managed_handle_call_indices[managed_handle] = call.call_index
+            if managed_failure:
+                self._managed_failure_call_indices.add(call.call_index)
         _append_llm_call_journal(call)
         session = getattr(self._inner, "_cache_settlement_session", None)
         _observe_call(
@@ -2174,11 +2293,56 @@ async def _generate_design_candidate_bundle_under_a(
         )
 
     draft_call_start = len(recording_client.calls)
+    from polisyos.core.llm.settlement import LLMManagedProducerOutcomeError
+    from polisyos.scientist.agent._drafter_orchestrator import (
+        ManagedN4InvocationError,
+        ManagedN4ResponseInvalidError,
+    )
+
     try:
         draft = await drafter.draft_policy(
             scientist_frame,
             data_context=data_context or {},
         )
+    except ManagedN4ResponseInvalidError:
+        return _terminal_result(
+            design_problem_ref=design_problem_ref,
+            model_id=model_id,
+            preflight=preflight,
+            status="generation_unavailable",
+            reason="managed_drafter_response_invalid",
+            organ="drafter",
+            min_diverse_candidates=min_diverse_candidates,
+            llm_calls=tuple(recording_client.calls),
+            lever_space_prompt_slice=lever_space_prompt_slice,
+            effective_runtime_config=effective_runtime_config,
+        ).as_organ_run()
+    except ManagedN4InvocationError:
+        return _terminal_result(
+            design_problem_ref=design_problem_ref,
+            model_id=model_id,
+            preflight=preflight,
+            status="generation_unavailable",
+            reason="drafter_managed_invocation_failed",
+            organ="drafter",
+            min_diverse_candidates=min_diverse_candidates,
+            llm_calls=tuple(recording_client.calls),
+            lever_space_prompt_slice=lever_space_prompt_slice,
+            effective_runtime_config=effective_runtime_config,
+        ).as_organ_run()
+    except LLMManagedProducerOutcomeError as exc:
+        return _terminal_result(
+            design_problem_ref=design_problem_ref,
+            model_id=model_id,
+            preflight=preflight,
+            status="generation_unavailable",
+            reason=f"drafter_managed_outcome:{exc.reason}",
+            organ="drafter",
+            min_diverse_candidates=min_diverse_candidates,
+            llm_calls=tuple(recording_client.calls),
+            lever_space_prompt_slice=lever_space_prompt_slice,
+            effective_runtime_config=effective_runtime_config,
+        ).as_organ_run()
     except (OSError, RuntimeError, TimeoutError, ValueError) as exc:
         return _terminal_result(
             design_problem_ref=design_problem_ref,
@@ -2186,6 +2350,19 @@ async def _generate_design_candidate_bundle_under_a(
             preflight=preflight,
             status="generation_unavailable",
             reason=f"drafter_call_failed:{type(exc).__name__}",
+            organ="drafter",
+            min_diverse_candidates=min_diverse_candidates,
+            llm_calls=tuple(recording_client.calls),
+            lever_space_prompt_slice=lever_space_prompt_slice,
+            effective_runtime_config=effective_runtime_config,
+        ).as_organ_run()
+    if recording_client._has_managed_outcome_problem_since(draft_call_start):
+        return _terminal_result(
+            design_problem_ref=design_problem_ref,
+            model_id=model_id,
+            preflight=preflight,
+            status="generation_unavailable",
+            reason="drafter_managed_outcome_unavailable",
             organ="drafter",
             min_diverse_candidates=min_diverse_candidates,
             llm_calls=tuple(recording_client.calls),
@@ -2216,6 +2393,19 @@ async def _generate_design_candidate_bundle_under_a(
     formalizer_call_start = len(recording_client.calls)
     try:
         bundle = await formalizer.formalize(draft)
+    except LLMManagedProducerOutcomeError as exc:
+        return _terminal_result(
+            design_problem_ref=design_problem_ref,
+            model_id=model_id,
+            preflight=preflight,
+            status="generation_unavailable",
+            reason=f"formalizer_managed_outcome:{exc.reason}",
+            organ="formalizer",
+            min_diverse_candidates=min_diverse_candidates,
+            llm_calls=tuple(recording_client.calls),
+            lever_space_prompt_slice=lever_space_prompt_slice,
+            effective_runtime_config=effective_runtime_config,
+        ).as_organ_run(draft=draft)
     except (OSError, RuntimeError, TimeoutError, ValueError) as exc:
         return _terminal_result(
             design_problem_ref=design_problem_ref,
@@ -2229,11 +2419,26 @@ async def _generate_design_candidate_bundle_under_a(
             lever_space_prompt_slice=lever_space_prompt_slice,
             effective_runtime_config=effective_runtime_config,
         ).as_organ_run(draft=draft)
+    if recording_client._has_managed_outcome_problem_since(formalizer_call_start):
+        return _terminal_result(
+            design_problem_ref=design_problem_ref,
+            model_id=model_id,
+            preflight=preflight,
+            status="generation_unavailable",
+            reason="formalizer_managed_outcome_unavailable",
+            organ="formalizer",
+            min_diverse_candidates=min_diverse_candidates,
+            llm_calls=tuple(recording_client.calls),
+            lever_space_prompt_slice=lever_space_prompt_slice,
+            effective_runtime_config=effective_runtime_config,
+        ).as_organ_run(draft=draft)
     formalizer_path = trinity_bundle_formalizer_generator_path(
         bundle,
         recorded_calls=recording_client.calls[formalizer_call_start:],
     )
-    if formalizer_path != _REAL_GENERATOR_PATH:
+    if formalizer_path != _REAL_GENERATOR_PATH and not recording_client._has_managed_call_since(
+        formalizer_call_start
+    ):
         bundle, formalizer_path = await _salvage_formalizer_terminal(
             formalizer=formalizer,
             draft=draft,
@@ -2268,9 +2473,38 @@ async def _generate_design_candidate_bundle_under_a(
         ).as_organ_run(draft=draft)
 
     critic_call_start = len(recording_client.calls)
-    critique = await critic.critique(bundle, scientist_frame, depth="standard")
+    try:
+        critique = await critic.critique(bundle, scientist_frame, depth="standard")
+    except LLMManagedProducerOutcomeError as exc:
+        return _terminal_result(
+            design_problem_ref=design_problem_ref,
+            model_id=model_id,
+            preflight=preflight,
+            status="generation_unavailable",
+            reason=f"critic_managed_outcome:{exc.reason}",
+            organ="critic",
+            min_diverse_candidates=min_diverse_candidates,
+            llm_calls=tuple(recording_client.calls),
+            lever_space_prompt_slice=lever_space_prompt_slice,
+            effective_runtime_config=effective_runtime_config,
+        ).as_organ_run(draft=draft, trinity_bundle=bundle)
+    if recording_client._has_managed_outcome_problem_since(critic_call_start):
+        return _terminal_result(
+            design_problem_ref=design_problem_ref,
+            model_id=model_id,
+            preflight=preflight,
+            status="generation_unavailable",
+            reason="critic_managed_outcome_unavailable",
+            organ="critic",
+            min_diverse_candidates=min_diverse_candidates,
+            llm_calls=tuple(recording_client.calls),
+            lever_space_prompt_slice=lever_space_prompt_slice,
+            effective_runtime_config=effective_runtime_config,
+        ).as_organ_run(draft=draft, trinity_bundle=bundle)
     critic_path = str(critique.metadata.get("generator_path") or "")
-    if critic_path != _REAL_GENERATOR_PATH:
+    if critic_path != _REAL_GENERATOR_PATH and not recording_client._has_managed_call_since(
+        critic_call_start
+    ):
         critique, critic_path = await _salvage_critic_terminal(
             critic=critic,
             bundle=bundle,

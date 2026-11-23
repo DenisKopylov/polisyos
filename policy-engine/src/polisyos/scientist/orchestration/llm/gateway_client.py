@@ -352,7 +352,17 @@ class GatewayLLMClient:
 
     def prepare_cache_request(self, **kwargs: Any) -> PreparedLLMRequest:
         """Freeze payload and transport once; compare the actual successful dispatch."""
+        return self._prepare_completion_request(kwargs)
+
+    def _prepare_completion_request(
+        self, kwargs: dict[str, Any], *, before_dispatch: Callable[[], None] | None = None
+    ) -> PreparedLLMRequest:
         caller = thaw_wire_object(freeze_wire_object(kwargs))
+        if before_dispatch is not None and (
+            self.max_retries != 0
+            or (self._response_format_unsupported and caller.get("response_format") is not None)
+        ):
+            raise ValueError("gateway_owned_direct_dispatch_not_single")
         with _capture_payload(_plain_json_payload) as capture:
             payload = self.completion_request_payload(**caller)
             producer_emission = capture.finish(payload)
@@ -384,6 +394,7 @@ class GatewayLLMClient:
                 _prepared_transport=transport,
                 _on_success=successful.append,
                 _producer_emission=producer_emission,
+                **({"_before_dispatch": before_dispatch} if before_dispatch is not None else {}),
             )
             return PreparedLLMResult(
                 self._parse_completion_payload(
@@ -397,6 +408,13 @@ class GatewayLLMClient:
             )
 
         return PreparedLLMRequest(identity, execute, wire_payload=payload_bytes)
+
+    async def _generate_single_dispatch(
+        self, kwargs: dict[str, Any], *, before_dispatch: Callable[[], None]
+    ) -> GatewayLLMResponse:
+        """Execute one immutable provider request under the actual owner's live fence."""
+        prepared = self._prepare_completion_request(kwargs, before_dispatch=before_dispatch)
+        return (await prepared.execute()).response
 
     def cache_request_identity(self, **kwargs: Any) -> dict[str, Any]:
         """Expose the same detached model request descriptor used by preparation."""
@@ -604,6 +622,7 @@ class GatewayLLMClient:
         _prepared_transport: bytes | None = None,
         _on_success: Callable[[bytes], None] | None = None,
         _producer_emission: _PreparedEmission | None = None,
+        _before_dispatch: Callable[[], None] | None = None,
     ) -> dict[str, Any]:
         if _prepared_transport is None:
             generated_nonce = not any(
@@ -628,19 +647,24 @@ class GatewayLLMClient:
         payload_bytes = freeze_wire_object(payload)
         payload = thaw_wire_object(payload_bytes)
         max_retries = transport["max_retries"]
+        if _before_dispatch is not None and max_retries != 0:
+            raise ValueError("gateway_owned_direct_dispatch_not_single")
 
         last_error: Exception | None = None
         for attempt in range(max_retries + 1):
             try:
                 session = await self._ensure_session(timeout_s)
+                if _before_dispatch is not None:
+                    _before_dispatch()
                 async with session.post(
                     url,
                     data=payload_bytes,
                     headers=headers,
                     timeout=self._request_timeout(timeout_s),
+                    **({"allow_redirects": False} if _before_dispatch is not None else {}),
                 ) as response:
                     raw_text = await response.text()
-                    if response.status >= 400:
+                    if response.status >= (300 if _before_dispatch is not None else 400):
                         response_headers = getattr(response, "headers", {}) or {}
                         error_code = _extract_error_code(raw_text)
                         retry_after_s = _parse_retry_after_seconds(
@@ -662,7 +686,7 @@ class GatewayLLMClient:
                             retry_after_s=retry_after_s,
                             request_id=request_id,
                         )
-                        if _should_retry_without_response_format(
+                        if _before_dispatch is None and _should_retry_without_response_format(
                             response.status,
                             error_code,
                             raw_text,

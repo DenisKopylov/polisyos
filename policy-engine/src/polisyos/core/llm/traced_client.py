@@ -42,6 +42,7 @@ from .cache_settlement import CacheSettlementSession, session_for_cache_client
 from .protocols import LLMClientProtocol
 from .response import LLMResponseData, extract_llm_response_data
 from .settlement import (
+    LLMManagedProducerOutcomeError,
     LLMProducerAdmissionGuard,
     LLMProducerEvent,
     LLMProducerIntent,
@@ -53,7 +54,7 @@ from .settlement import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Awaitable, Callable
 
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
 
@@ -124,6 +125,7 @@ class _ProducerSettlementRoute:
     intent: Any | None = None
     readback_record: Any | None = None
     settlement: LLMProducerSettlement | None = None
+    managed_prepared_delegate: tuple[TracedLLMClient, PreparedLLMInput] | None = None
 
 
 _ACTIVE_PRODUCER_ROUTE: contextvars.ContextVar[_ProducerSettlementRoute | None] = (
@@ -272,7 +274,15 @@ class PreparedLLMInput:
     credential or an external producer/billing signature.
     """
 
-    __slots__ = ("__weakref__", "_owner", "_preparation_bytes", "_prepared_bytes", "_source_sha256")
+    __slots__ = (
+        "__weakref__",
+        "_direct_transport",
+        "_owner",
+        "_preparation_bytes",
+        "_prepared_bytes",
+        "_source_sha256",
+    )
+    _direct_transport: _ManagedDirectProducerTransport | None
     _owner: object
     _source_sha256: str
     _prepared_bytes: bytes
@@ -309,6 +319,7 @@ class _PreparedInvocation:
     """One actual generate permit shared by context-inheriting asynchronous tasks."""
 
     call_bytes: bytes
+    prepared: PreparedLLMInput
     _claimed: bool = False
     _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
 
@@ -322,6 +333,19 @@ class _PreparedInvocation:
         if args or _producer_input_bytes(kwargs) != self.call_bytes:
             raise ValueError("producer_prepared_call_substituted")
         return json.loads(self.call_bytes)
+
+
+@dataclass(frozen=True, slots=True)
+class _ManagedDirectProducerTransport:
+    """Factory-selected one-shot dispatch for a single direct provider owner."""
+
+    client: object
+    guard: LLMProducerAdmissionGuard
+    execute: Callable[[dict[str, Any]], Awaitable[Any]]
+
+
+class _ManagedDirectDispatchRefusalError(LLMSettlementOwnershipError):
+    """The managed transport's final owner check refused before any POST."""
 
 
 class TracedLLMClient:
@@ -355,6 +379,7 @@ class TracedLLMClient:
         producer_admission_guard: LLMProducerAdmissionGuard | None = None,
         producer_intent_observer: Callable[[LLMProducerIntent, object], None] | None = None,
         producer_begin_executor: LLMProducerAdmissionGuard | None = None,
+        producer_direct_transport: _ManagedDirectProducerTransport | None = None,
     ) -> None:
         if prompt_mode not in {"auto", "native", "user"}:
             raise ValueError("prompt_mode must be 'auto', 'native', or 'user'")
@@ -372,6 +397,7 @@ class TracedLLMClient:
         self._producer_admission_guard = producer_admission_guard
         self._producer_intent_observer = producer_intent_observer
         self._producer_begin_executor = producer_begin_executor
+        self._producer_direct_transport = producer_direct_transport
         self._producer_intents_by_event: dict[str, Any] = {}
         self._pending_ledger_observation_ids: set[str] = set()
         self._producer_intents_lock = threading.Lock()
@@ -569,6 +595,7 @@ class TracedLLMClient:
             ).hexdigest()
         result = object.__new__(PreparedLLMInput)
         object.__setattr__(result, "_owner", self._producer_input_owner)
+        object.__setattr__(result, "_direct_transport", self._managed_direct_transport())
         object.__setattr__(
             result, "_source_sha256", hashlib.sha256(_producer_input_bytes(kwargs)).hexdigest()
         )
@@ -616,12 +643,73 @@ class TracedLLMClient:
                 raise ValueError("producer_prepared_input_not_issued_or_consumed")
             self._producer_inputs.remove(prepared)
         token = self._prepared_producer_call.set(
-            _PreparedInvocation(_producer_input_bytes(request))
+            _PreparedInvocation(_producer_input_bytes(request), prepared)
         )
         try:
             yield
         finally:
             self._prepared_producer_call.reset(token)
+
+    def has_owned_prepared_transport(self, prepared: PreparedLLMInput) -> bool:
+        """Check whether this still-issued input can use the managed transport."""
+        if type(prepared) is not PreparedLLMInput:
+            return False
+        with self._producer_inputs_lock:
+            return (
+                prepared in self._producer_inputs
+                and prepared._owner is self._producer_input_owner
+                and prepared._direct_transport is not None
+                and prepared._direct_transport is self._managed_direct_transport(prepared)
+            )
+
+    def _managed_direct_transport(
+        self, prepared: PreparedLLMInput | None = None
+    ) -> _ManagedDirectProducerTransport | None:
+        transport = self._producer_direct_transport
+        active = _ACTIVE_PRODUCER_ROUTE.get()
+        if (
+            type(self) is not TracedLLMClient
+            or type(transport) is not _ManagedDirectProducerTransport
+            or transport.client is not self._client
+            or self._producer_settlement_store is None
+            or self._producer_admission_guard is None
+            or self._producer_begin_executor is None
+            or self._producer_intent_observer is None
+            or self._cache_settlement_hooks
+            or (
+                active is not None
+                and (
+                    prepared is None
+                    or active.store is not None
+                    or active.managed_prepared_delegate != (self, prepared)
+                )
+            )
+            or self._traced_client_chain() != (self,)
+        ):
+            return None
+        return transport
+
+    def _managed_prepared_delegate(
+        self, request: Mapping[str, Any]
+    ) -> tuple[TracedLLMClient, PreparedLLMInput] | None:
+        selected = _read_managed_prepared_producer_owner(self._client, request)
+        if selected is None:
+            return None
+        if (
+            type(self) is not TracedLLMClient
+            or _ACTIVE_PRODUCER_ROUTE.get() is not None
+            or self._traced_client_chain() != (self,)
+            or self._producer_settlement_store is not None
+            or self._required_accounting is not None
+            or self._producer_admission_guard is not None
+            or self._producer_begin_executor is not None
+            or self._producer_intent_observer is not None
+            or self._producer_direct_transport is not None
+            or self._cache_settlement_hooks
+            or self._prompt_sanitizer is not None
+        ):
+            raise LLMSettlementOwnershipError("producer_prepared_transport_outer_conflict")
+        return selected
 
     def _restore_response(self, response: Any) -> Any:
         if self._prompt_sanitizer is None:
@@ -691,6 +779,7 @@ class TracedLLMClient:
         *,
         route: _ProducerSettlementRoute | None = None,
         reuse_response: object | None = None,
+        admission_guard: LLMProducerAdmissionGuard | None = None,
     ) -> Any | None:
         store = self._producer_settlement_store
         if store is None:
@@ -766,7 +855,7 @@ class TracedLLMClient:
                 )
             return intent
 
-        guard = self._producer_admission_guard
+        guard = admission_guard if admission_guard is not None else self._producer_admission_guard
         try:
             intent = guard(begin_owned) if guard is not None else begin_owned()
         except BaseException:
@@ -830,12 +919,16 @@ class TracedLLMClient:
         kwargs: dict[str, Any],
         provider: str,
         route: _ProducerSettlementRoute,
+        *,
+        admission_guard: LLMProducerAdmissionGuard | None = None,
     ) -> tuple[str, str] | None:
         if self._producer_settlement_store is None or route.owner is not self:
             return None
         event_id = f"llm-provider:{uuid.uuid4().hex}"
         request_digest = self._request_digest(args, kwargs)
-        self._begin_provider_event(event_id, request_digest, provider, route=route)
+        self._begin_provider_event(
+            event_id, request_digest, provider, route=route, admission_guard=admission_guard
+        )
         return event_id, request_digest
 
     def _traced_client_chain(self) -> tuple[TracedLLMClient, ...]:
@@ -853,9 +946,11 @@ class TracedLLMClient:
             current = nested
         return tuple(clients)
 
-    def _resolve_producer_route(self) -> _ProducerSettlementRoute:
+    def _resolve_producer_route(
+        self, *, admission_guard: LLMProducerAdmissionGuard | None = None
+    ) -> _ProducerSettlementRoute:
         """Select one real wrapper/store owner and reject ambiguous nested stores."""
-        guard = self._producer_admission_guard
+        guard = admission_guard if admission_guard is not None else self._producer_admission_guard
         if guard is not None:
             guard(lambda: None)
         clients = self._traced_client_chain()
@@ -1138,16 +1233,31 @@ class TracedLLMClient:
         except asyncio.CancelledError:
             try:
                 response = await asyncio.shield(task)
+            except _ManagedDirectDispatchRefusalError:
+                self._retire_undispatched_producer_event(intent[0])
             except BaseException as error:
                 self._settle_unknown_provider_event(*intent, error)
             else:
                 self._settle_provider_response(*intent, response)
                 self._clear_pending_ledger_observation(intent[0])
             raise
+        except _ManagedDirectDispatchRefusalError:
+            self._retire_undispatched_producer_event(intent[0])
+            raise
         except BaseException as error:
             self._settle_unknown_provider_event(*intent, error)
             raise
         return response, self._settle_provider_response(*intent, response)
+
+    def _retire_undispatched_producer_event(self, event_id: str) -> None:
+        """Release local ownership of an existing begin without reporting a provider call."""
+        with self._producer_intents_lock:
+            intent = self._producer_intents_by_event.pop(event_id, None)
+        finish_attempt = getattr(
+            self._producer_settlement_store, "_finish_scoped_producer_attempt", None
+        )
+        if intent is not None and callable(finish_attempt):
+            finish_attempt(event_id, intent)
 
     def _persist_producer_event(
         self,
@@ -1648,16 +1758,33 @@ class TracedLLMClient:
 
     async def generate(self, *args: Any, **kwargs: Any) -> Any:
         prepared_call = self._prepared_producer_call.get()
+        managed_delegate = None
         if prepared_call is None:
-            call_args, call_kwargs = self._normalize_generate_call(args, kwargs)
+            managed_delegate = self._managed_prepared_delegate(kwargs)
+            if managed_delegate is None:
+                call_args, call_kwargs = self._normalize_generate_call(args, kwargs)
+            else:
+                if args:
+                    raise ValueError("producer_prepared_call_substituted")
+                call_args, call_kwargs = (), kwargs
+            direct_transport = None
         else:
             call_args, call_kwargs = (), prepared_call.claim(args, kwargs)
+            direct_transport = prepared_call.prepared._direct_transport
+            if (
+                direct_transport is not None
+                and direct_transport is not self._managed_direct_transport(prepared_call.prepared)
+            ):
+                raise LLMSettlementOwnershipError("producer_prepared_transport_changed")
         prompt = call_args[0] if call_args else call_kwargs.get("prompt")
         prompt_kwargs = dict(call_kwargs)
         prompt_kwargs.pop("prompt", None)
         prompt_text = self._build_prompt_text(prompt, **prompt_kwargs)
         provider = self._detect_provider()
-        route = self._resolve_producer_route()
+        guard = direct_transport.guard if direct_transport is not None else None
+        route = self._resolve_producer_route(admission_guard=guard)
+        if managed_delegate is not None:
+            route.managed_prepared_delegate = managed_delegate
         span_attrs = self._build_span_attributes(prompt_text, provider=provider)
         start = time.perf_counter()
 
@@ -1679,11 +1806,17 @@ class TracedLLMClient:
                     sanitized_args, sanitized_kwargs = call_args, call_kwargs
                 if not self._cache_settlement_hooks:
                     producer_intent = self._start_direct_producer_event(
-                        sanitized_args, sanitized_kwargs, provider, route
+                        sanitized_args, sanitized_kwargs, provider, route, admission_guard=guard
                     )
+                if direct_transport is not None and producer_intent is None:
+                    raise LLMSettlementOwnershipError("producer_prepared_transport_begin_missing")
                 with _producer_route_scope(route):
                     response, prior_settlement = await self._await_direct_provider(
-                        self._client.generate(*sanitized_args, **sanitized_kwargs),
+                        (
+                            direct_transport.execute(sanitized_kwargs)
+                            if direct_transport is not None
+                            else self._client.generate(*sanitized_args, **sanitized_kwargs)
+                        ),
                         producer_intent,
                     )
                 if route.owner is not self:
@@ -1788,6 +1921,41 @@ class TracedLLMClient:
             )
         except Exception:
             _report_optional_telemetry_failure("record_error_metric")
+
+
+def _read_managed_prepared_producer_owner(
+    client: object, request: Mapping[str, Any]
+) -> tuple[TracedLLMClient, PreparedLLMInput] | None:
+    # The recorder can link only an occurrence issued by its actual inner
+    # Trace. Resolve on the directly wrapped type, without attribute forwarding.
+    select = getattr(type(client), "_managed_prepared_producer_owner", None)
+    if not callable(select):
+        return None
+    selected = select(client, request)
+    if selected is None:
+        return None
+    if type(selected) is not tuple or len(selected) != 2:
+        raise LLMSettlementOwnershipError("producer_prepared_transport_changed")
+    owner, prepared = selected
+    if type(owner) is not TracedLLMClient or not TracedLLMClient.has_owned_prepared_transport(
+        owner, prepared
+    ):
+        raise LLMSettlementOwnershipError("producer_prepared_transport_changed")
+    return owner, prepared
+
+
+def has_managed_prepared_producer_request(client: object, request: Mapping[str, Any]) -> bool:
+    """Recognize an actual managed occurrence before a stage selects its deadline.
+
+    The transport owner still proves the complete request when it consumes the
+    occurrence. Client attributes that merely claim capability grant no authority.
+    """
+    try:
+        if type(client) is TracedLLMClient:
+            return TracedLLMClient._managed_prepared_delegate(client, request) is not None
+        return _read_managed_prepared_producer_owner(client, request) is not None
+    except LLMSettlementOwnershipError as exc:
+        raise LLMManagedProducerOutcomeError("managed_admission_failed") from exc
 
 
 __all__ = [

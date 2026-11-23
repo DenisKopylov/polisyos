@@ -2569,6 +2569,23 @@ export interface components {
             structural_route_count: number;
         };
         /**
+         * AcquisitionInterruptedCustodyRecoveryRequest
+         * @description Select an expired Native attempt and its exact earlier N4 occurrences.
+         */
+        AcquisitionInterruptedCustodyRecoveryRequest: {
+            head_ref: {
+                /** @constant */
+                kind: "runtime_quality.acquisition_route_phase_receipt";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Input"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            /** Interrupted Attempt */
+            interrupted_attempt: number;
+            n4_recovery: components["schemas"]["NativeSettledN4Recovery"];
+        };
+        /**
          * AcquisitionMovementArtifact
          * @description Supplier-derived facts, still a candidate until distinct GY admission.
          */
@@ -2656,7 +2673,8 @@ export interface components {
          * @description Strict caller fields; route facts, status, authority, and epochs are forbidden.
          */
         AcquisitionRouteMutationRequest: {
-            custody_recovery?: components["schemas"]["AcquisitionCustodyRecoveryRequest"] | null;
+            /** Custody Recovery */
+            custody_recovery?: components["schemas"]["AcquisitionCustodyRecoveryRequest"] | components["schemas"]["AcquisitionInterruptedCustodyRecoveryRequest"] | null;
             /** Human Decision Record Ref */
             human_decision_record_ref?: string | null;
             /** Idempotency Key */
@@ -15058,6 +15076,47 @@ export interface components {
             producer_event_id: string;
             /** Response Text */
             response_text: string;
+        };
+        /**
+         * NativeSettledN4Occurrence
+         * @description One selected, already-paid N4 multipass result and its prepared request identity.
+         */
+        NativeSettledN4Occurrence: {
+            /** Context Id */
+            context_id: string;
+            /**
+             * Instance
+             * @enum {string}
+             */
+            instance: "side_effects_check" | "constraint_verify";
+            /** Ordinal */
+            ordinal: number;
+            /** Producer Event Id */
+            producer_event_id: string;
+            /** Request Digest */
+            request_digest: string;
+            /** Response Text */
+            response_text: string;
+            /**
+             * Stage
+             * @constant
+             */
+            stage: "drafter_multipass";
+        };
+        /**
+         * NativeSettledN4Recovery
+         * @description Exact post-stop ledger cut and the two paid N4 outputs to adopt once.
+         */
+        NativeSettledN4Recovery: {
+            draft: components["schemas"]["NativeSettledDraftRecovery"];
+            /** Ledger Revision */
+            ledger_revision: number;
+            /** Occurrences */
+            occurrences: components["schemas"]["NativeSettledN4Occurrence"][];
+            /** Prior Recovery Event Id */
+            prior_recovery_event_id: number;
+            /** Prior Recovery Event Sha256 */
+            prior_recovery_event_sha256: string;
         };
         /**
          * NaturalLanguageRunRequest

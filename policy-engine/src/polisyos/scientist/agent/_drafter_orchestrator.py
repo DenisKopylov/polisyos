@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import time
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from dataclasses import replace
 from typing import Any
 
@@ -65,6 +65,14 @@ from .drafter_models import (
 logger = get_logger(__name__)
 
 __all__ = ["MultiPassLLMDrafter"]
+
+
+class ManagedN4ResponseInvalidError(RuntimeError):
+    """A settled managed N4 organ response failed its consumer schema."""
+
+
+class ManagedN4InvocationError(RuntimeError):
+    """An exact managed N4 call failed outside its canonical producer owner."""
 
 
 def _default_tracer():
@@ -170,7 +178,13 @@ class MultiPassLLMDrafter(
         except ConvergenceValidationError:
             # Invalid configured stopping/resource inputs must not trigger another LLM call.
             raise
+        except ManagedN4ResponseInvalidError:
+            raise
+        except ManagedN4InvocationError:
+            raise
         except Exception as exc:
+            if _is_managed_producer_outcome_error(exc):
+                raise
             logger.exception("Multipass drafter failed; fallback to single-pass: %s", exc)
             return await self._inner.draft_policy(
                 problem_frame,
@@ -599,12 +613,16 @@ class MultiPassLLMDrafter(
                         "polisyos.drafter.rag_snapshot_ref",
                         self._frozen_rag_snapshot_ref,
                     )
+            draft_llm = getattr(self._inner, "_llm", self._llm)
+            managed_call_cursor = _managed_recording_call_cursor(draft_llm)
             draft = await self._inner.draft_policy(
                 prepared_problem_frame,
                 data_context=data_context,
                 hints=effective_hints or None,
                 prior_drafts=prior_drafts,
             )
+            if _managed_recording_call_since(managed_call_cursor) and not draft.raw_llm_response:
+                raise ManagedN4ResponseInvalidError("managed_n4_draft_response_invalid")
             raw = draft.raw_llm_response
             cost = self._estimate_cost_from_text(raw, model=self._inner_model_name())
             return PassExecution(
@@ -648,6 +666,9 @@ class MultiPassLLMDrafter(
         )
 
         attempts = self._config.pass_retry_count + 1
+        user_message = (
+            "Review the draft and return strict JSON with findings. Do not include markdown."
+        )
         with tracer.start_as_current_span(
             f"drafter.pass.{pass_name}",
             attributes={
@@ -663,89 +684,111 @@ class MultiPassLLMDrafter(
                 nonlocal request_attempt
                 current_attempt = request_attempt
                 request_attempt += 1
-                user_message = (
-                    "Review the draft and return strict JSON with findings. "
-                    "Do not include markdown."
-                )
                 request_ref = (
                     confidence_request_ref(system=prompt, user=user_message)
                     if self._config.convergence is not None
                     else None
                 )
-                response = await asyncio.wait_for(
-                    self._llm.generate(
-                        **_request_args(
-                            self._llm,
-                            stage="drafter_multipass",
-                            instance=pass_name,
-                            attempt=current_attempt,
-                            system=prompt,
-                            user=user_message,
-                            response_format={"type": "json_object"},
+                request_args = _request_args(
+                    self._llm,
+                    stage="drafter_multipass",
+                    instance=pass_name,
+                    attempt=current_attempt,
+                    system=prompt,
+                    user=user_message,
+                    response_format={"type": "json_object"},
+                )
+                managed_request = _has_managed_prepared_request(self._llm, request_args)
+                try:
+                    if managed_request:
+                        response = await self._llm.generate(**request_args)
+                    else:
+                        response = await asyncio.wait_for(
+                            self._llm.generate(**request_args),
+                            timeout=self._config.pass_timeout_s,
                         )
-                    ),
-                    timeout=self._config.pass_timeout_s,
-                )
-                content, prompt_tokens, completion_tokens = self._extract_response_data(response)
-                findings, confidence_adjustment, parse_ok, verification_code = (
-                    self._parse_critique_payload(
-                        content,
+                    content, prompt_tokens, completion_tokens = self._extract_response_data(
+                        response
+                    )
+                    findings, confidence_adjustment, parse_ok, verification_code = (
+                        self._parse_critique_payload(
+                            content,
+                            pass_name=pass_name,
+                        )
+                    )
+                    if managed_request and not parse_ok:
+                        _mark_managed_response_invalid(self._llm, request_args)
+                        raise ManagedN4ResponseInvalidError("managed_n4_critique_response_invalid")
+                    cost = self._estimate_cost(
+                        model=self._critique_model_name(),
+                        prompt_tokens=prompt_tokens,
+                        completion_tokens=completion_tokens,
+                        raw_response=content,
+                    )
+                    span.set_attribute("polisyos.drafter.findings_count", len(findings))
+                    observation = None
+                    if (
+                        self._config.convergence is not None
+                        and parse_ok
+                        and draft.confidence_status != "not_established"
+                        and (confidence_adjustment is not None or findings)
+                    ):
+                        assessed = self._update_confidence(draft, findings, confidence_adjustment)
+                        assert request_ref is not None
+                        observation = observe_candidate_confidence(
+                            response=response,
+                            source_text=content,
+                            subject_ref=confidence_subject_ref(problem_frame),
+                            request_ref=request_ref,
+                            pass_number=pass_number,
+                            value=assessed.confidence,
+                        )
+                    return PassExecution(
                         pass_name=pass_name,
-                    )
-                )
-                cost = self._estimate_cost(
-                    model=self._critique_model_name(),
-                    prompt_tokens=prompt_tokens,
-                    completion_tokens=completion_tokens,
-                    raw_response=content,
-                )
-                span.set_attribute("polisyos.drafter.findings_count", len(findings))
-                observation = None
-                if (
-                    self._config.convergence is not None
-                    and parse_ok
-                    and draft.confidence_status != "not_established"
-                    and (confidence_adjustment is not None or findings)
-                ):
-                    assessed = self._update_confidence(draft, findings, confidence_adjustment)
-                    assert request_ref is not None
-                    observation = observe_candidate_confidence(
-                        response=response,
-                        source_text=content,
-                        subject_ref=confidence_subject_ref(problem_frame),
-                        request_ref=request_ref,
                         pass_number=pass_number,
-                        value=assessed.confidence,
+                        executed=True,
+                        findings=findings,
+                        raw_llm_response=content,
+                        prompt_tokens=prompt_tokens,
+                        completion_tokens=completion_tokens,
+                        cost_usd=cost,
+                        duration_ms=int((time.perf_counter() - started) * 1000),
+                        parse_ok=parse_ok,
+                        confidence_adjustment=confidence_adjustment,
+                        verification_code=verification_code,
+                        confidence_request_ref=request_ref,
+                        confidence_observation=observation,
                     )
-                return PassExecution(
-                    pass_name=pass_name,
-                    pass_number=pass_number,
-                    executed=True,
-                    findings=findings,
-                    raw_llm_response=content,
-                    prompt_tokens=prompt_tokens,
-                    completion_tokens=completion_tokens,
-                    cost_usd=cost,
-                    duration_ms=int((time.perf_counter() - started) * 1000),
-                    parse_ok=parse_ok,
-                    confidence_adjustment=confidence_adjustment,
-                    verification_code=verification_code,
-                    confidence_request_ref=request_ref,
-                    confidence_observation=observation,
-                )
+                except Exception as exc:
+                    if managed_request:
+                        if isinstance(
+                            exc,
+                            (ManagedN4InvocationError, ManagedN4ResponseInvalidError),
+                        ) or _is_managed_producer_outcome_error(exc):
+                            raise
+                        raise ManagedN4InvocationError(
+                            "managed_n4_critique_invocation_failed"
+                        ) from exc
+                    raise
 
             def _on_error(exc: Exception, _attempt: int, _total: int) -> None:
                 nonlocal last_error
+                if isinstance(
+                    exc,
+                    (ManagedN4InvocationError, ManagedN4ResponseInvalidError),
+                ) or _is_managed_producer_outcome_error(exc):
+                    raise exc
                 last_error = exc
                 logger.warning("%s failed; retrying: %s", pass_name, exc)
 
             try:
-                return await retry_async(
-                    _invoke_once,
-                    attempts=attempts,
-                    on_error=_on_error,
-                )
+                return await retry_async(_invoke_once, attempts=attempts, on_error=_on_error)
             except Exception as exc:
+                if isinstance(
+                    exc,
+                    (ManagedN4InvocationError, ManagedN4ResponseInvalidError),
+                ) or _is_managed_producer_outcome_error(exc):
+                    raise
                 logger.debug("Ignored exception: %s", exc)
 
             span.set_attribute("polisyos.drafter.pass_error", True)
@@ -776,6 +819,10 @@ class MultiPassLLMDrafter(
             previous_pass_findings=self._format_findings(all_findings),
         )
         attempts = self._config.pass_retry_count + 1
+        user_message = (
+            "Integrate findings and return strict JSON of the full revised draft. "
+            "Do not include markdown."
+        )
         with tracer.start_as_current_span(
             "drafter.pass.consolidation",
             attributes={
@@ -791,61 +838,86 @@ class MultiPassLLMDrafter(
                 nonlocal request_attempt
                 current_attempt = request_attempt
                 request_attempt += 1
-                response = await asyncio.wait_for(
-                    self._llm.generate(
-                        **_request_args(
-                            self._llm,
-                            stage="drafter_consolidation",
-                            instance="consolidation",
-                            attempt=current_attempt,
-                            system=prompt,
-                            user=(
-                                "Integrate findings and return strict JSON of the full revised draft. "
-                                "Do not include markdown."
-                            ),
-                            response_format={"type": "json_object"},
+                request_args = _request_args(
+                    self._llm,
+                    stage="drafter_consolidation",
+                    instance="consolidation",
+                    attempt=current_attempt,
+                    system=prompt,
+                    user=user_message,
+                    response_format={"type": "json_object"},
+                )
+                managed_request = _has_managed_prepared_request(self._llm, request_args)
+                try:
+                    if managed_request:
+                        response = await self._llm.generate(**request_args)
+                    else:
+                        response = await asyncio.wait_for(
+                            self._llm.generate(**request_args),
+                            timeout=self._config.pass_timeout_s,
                         )
-                    ),
-                    timeout=self._config.pass_timeout_s,
-                )
-                content, prompt_tokens, completion_tokens = self._extract_response_data(response)
-                updated_draft, parse_ok = self._parse_consolidated_draft(
-                    raw_response=content,
-                    original=draft,
-                )
-                cost = self._estimate_cost(
-                    model=self._critique_model_name(),
-                    prompt_tokens=prompt_tokens,
-                    completion_tokens=completion_tokens,
-                    raw_response=content,
-                )
-                span.set_attribute("polisyos.drafter.consolidation_parse_ok", parse_ok)
-                return PassExecution(
-                    pass_name="consolidation",
-                    pass_number=4,
-                    executed=True,
-                    draft=updated_draft,
-                    findings=[],
-                    raw_llm_response=content,
-                    prompt_tokens=prompt_tokens,
-                    completion_tokens=completion_tokens,
-                    cost_usd=cost,
-                    duration_ms=int((time.perf_counter() - started) * 1000),
-                    parse_ok=parse_ok,
-                )
+                    content, prompt_tokens, completion_tokens = self._extract_response_data(
+                        response
+                    )
+                    updated_draft, parse_ok = self._parse_consolidated_draft(
+                        raw_response=content,
+                        original=draft,
+                    )
+                    if managed_request and not parse_ok:
+                        _mark_managed_response_invalid(self._llm, request_args)
+                        raise ManagedN4ResponseInvalidError(
+                            "managed_n4_consolidation_response_invalid"
+                        )
+                    cost = self._estimate_cost(
+                        model=self._critique_model_name(),
+                        prompt_tokens=prompt_tokens,
+                        completion_tokens=completion_tokens,
+                        raw_response=content,
+                    )
+                    span.set_attribute("polisyos.drafter.consolidation_parse_ok", parse_ok)
+                    return PassExecution(
+                        pass_name="consolidation",
+                        pass_number=4,
+                        executed=True,
+                        draft=updated_draft,
+                        findings=[],
+                        raw_llm_response=content,
+                        prompt_tokens=prompt_tokens,
+                        completion_tokens=completion_tokens,
+                        cost_usd=cost,
+                        duration_ms=int((time.perf_counter() - started) * 1000),
+                        parse_ok=parse_ok,
+                    )
+                except Exception as exc:
+                    if managed_request:
+                        if isinstance(
+                            exc,
+                            (ManagedN4InvocationError, ManagedN4ResponseInvalidError),
+                        ) or _is_managed_producer_outcome_error(exc):
+                            raise
+                        raise ManagedN4InvocationError(
+                            "managed_n4_consolidation_invocation_failed"
+                        ) from exc
+                    raise
 
             def _on_error(exc: Exception, _attempt: int, _total: int) -> None:
                 nonlocal last_error
+                if isinstance(
+                    exc,
+                    (ManagedN4InvocationError, ManagedN4ResponseInvalidError),
+                ) or _is_managed_producer_outcome_error(exc):
+                    raise exc
                 last_error = exc
                 logger.warning("consolidation failed; retrying: %s", exc)
 
             try:
-                return await retry_async(
-                    _invoke_once,
-                    attempts=attempts,
-                    on_error=_on_error,
-                )
+                return await retry_async(_invoke_once, attempts=attempts, on_error=_on_error)
             except Exception as exc:
+                if isinstance(
+                    exc,
+                    (ManagedN4InvocationError, ManagedN4ResponseInvalidError),
+                ) or _is_managed_producer_outcome_error(exc):
+                    raise
                 logger.debug("Ignored exception: %s", exc)
 
             span.set_attribute("polisyos.drafter.pass_error", True)
@@ -1059,3 +1131,48 @@ class MultiPassLLMDrafter(
                     )
 
         return draft
+
+
+def _has_managed_prepared_request(client: object, request: Mapping[str, Any]) -> bool:
+    from polisyos.core.llm.traced_client import has_managed_prepared_producer_request
+
+    return has_managed_prepared_producer_request(client, request)
+
+
+def _is_managed_producer_outcome_error(exc: BaseException) -> bool:
+    from polisyos.core.llm.settlement import LLMManagedProducerOutcomeError
+
+    return isinstance(exc, LLMManagedProducerOutcomeError)
+
+
+def _mark_managed_response_invalid(client: object, request: Mapping[str, Any]) -> None:
+    from polisyos.core.llm.traced_client import TracedLLMClient
+
+    if type(client) is not TracedLLMClient:
+        return
+    recorder = client._client
+    mark = getattr(type(recorder), "_mark_managed_response_invalid", None)
+    if callable(mark):
+        mark(recorder, request)
+
+
+def _managed_recording_call_cursor(client: object) -> tuple[object, int] | None:
+    from polisyos.core.llm.traced_client import TracedLLMClient
+
+    if type(client) is not TracedLLMClient:
+        return None
+    recorder = client._client
+    calls = getattr(recorder, "calls", None)
+    if type(calls) is not list:
+        return None
+    if not callable(getattr(type(recorder), "_has_managed_call_since", None)):
+        return None
+    return recorder, len(calls)
+
+
+def _managed_recording_call_since(cursor: tuple[object, int] | None) -> bool:
+    if cursor is None:
+        return False
+    recorder, call_index = cursor
+    has_managed_call = getattr(type(recorder), "_has_managed_call_since", None)
+    return bool(callable(has_managed_call) and has_managed_call(recorder, call_index))

@@ -10,12 +10,16 @@ from contextvars import ContextVar
 from dataclasses import dataclass, field
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from polisyos.core.llm import LLMProducerIntent, LLMSettlementOwnershipError
 from polisyos.core.llm.cache_settlement import session_for_cache_client
 from polisyos.core.llm.sanitization import PromptSanitizer
-from polisyos.core.llm.traced_client import TracedLLMClient
+from polisyos.core.llm.traced_client import (
+    TracedLLMClient,
+    _ManagedDirectDispatchRefusalError,
+    _ManagedDirectProducerTransport,
+)
 
 from .fallback_router import EndpointConfig, FallbackRouter
 from .gateway_client import GatewayLLMClient
@@ -65,6 +69,7 @@ class _GatewayCacheReuseScope:
     validate_admission: Callable[[], None] | None
     intent_observer: Callable[[LLMProducerIntent, object], None] | None
     on_close: Callable[[bool], None] | None
+    validate_direct_dispatch: Callable[[Literal["scope", "transport"]], None] | None
     state: _AdmissionState = field(default_factory=_AdmissionState)
 
 
@@ -86,6 +91,7 @@ def _gateway_cache_reuse_scope(
     validate_admission: Callable[[], None] | None = None,
     intent_observer: Callable[[LLMProducerIntent, object], None] | None = None,
     on_close: Callable[[bool], None] | None = None,
+    validate_direct_dispatch: Callable[[Literal["scope", "transport"]], None] | None = None,
 ) -> Iterator[None]:
     """Close admission without waiting for a timed-out dependency thread."""
     scope = _GatewayCacheReuseScope(
@@ -99,6 +105,7 @@ def _gateway_cache_reuse_scope(
         validate_admission,
         intent_observer,
         on_close,
+        validate_direct_dispatch,
     )
     token = _GATEWAY_CACHE_REUSE_SCOPE.set(scope)
     try:
@@ -201,6 +208,54 @@ def _current_producer_begin_executor[T](
     operation: Callable[[], T],
 ) -> T:
     return _execute_scope_ticket(scope, operation, bounded=True)
+
+
+def _direct_producer_transport(
+    scope: _GatewayCacheReuseScope | None, client: object
+) -> _ManagedDirectProducerTransport | None:
+    """Select the no-retry Gateway only for an owner with both full begin checks."""
+    if (
+        scope is None
+        or type(client) is not GatewayLLMClient
+        or client.max_retries != 0
+        or scope.validate_admission is None
+        or scope.intent_observer is None
+        or scope.validate_direct_dispatch is None
+        or any(
+            item is not None
+            for item in (scope.authorizer, scope.principal, scope.context, scope.cache)
+        )
+    ):
+        return None
+    validate = scope.validate_direct_dispatch
+
+    def guard[T](operation: Callable[[], T]) -> T:
+        def admitted() -> T:
+            validate("scope")
+            result = operation()
+            validate("scope")
+            return result
+
+        try:
+            return _execute_scope_ticket(scope, admitted, bounded=False)
+        except LLMSettlementOwnershipError:
+            raise
+        except Exception as exc:
+            raise LLMSettlementOwnershipError("producer_managed_direct_admission_failed") from exc
+
+    def before_dispatch() -> None:
+        try:
+            _execute_scope_ticket(scope, partial(validate, "transport"), bounded=False)
+        except Exception as exc:
+            raise _ManagedDirectDispatchRefusalError(
+                "producer_managed_direct_dispatch_refused"
+            ) from exc
+
+    return _ManagedDirectProducerTransport(
+        client,
+        guard,
+        partial(client._generate_single_dispatch, before_dispatch=before_dispatch),
+    )
 
 
 def _as_bool(value: str | None, *, default: bool) -> bool:
@@ -532,6 +587,7 @@ def create_traced_gateway_client(
             else None
         ),
         producer_intent_observer=(reuse_scope.intent_observer if reuse_scope is not None else None),
+        producer_direct_transport=_direct_producer_transport(reuse_scope, raw_client),
     )
 
 

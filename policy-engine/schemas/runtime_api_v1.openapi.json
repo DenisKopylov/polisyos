@@ -456,6 +456,48 @@
         "title": "AcquisitionGrowthSummary",
         "type": "object"
       },
+      "AcquisitionInterruptedCustodyRecoveryRequest": {
+        "additionalProperties": false,
+        "description": "Select an expired Native attempt and its exact earlier N4 occurrences.",
+        "properties": {
+          "head_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input",
+            "properties": {
+              "kind": {
+                "const": "runtime_quality.acquisition_route_phase_receipt"
+              },
+              "manifest_profile_sha256": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "media_type": {
+                "const": "application/json"
+              }
+            },
+            "required": [
+              "artifact_id",
+              "kind",
+              "media_type",
+              "manifest_profile_sha256"
+            ]
+          },
+          "interrupted_attempt": {
+            "minimum": 1.0,
+            "title": "Interrupted Attempt",
+            "type": "integer"
+          },
+          "n4_recovery": {
+            "$ref": "#/components/schemas/NativeSettledN4Recovery"
+          }
+        },
+        "required": [
+          "interrupted_attempt",
+          "head_ref",
+          "n4_recovery"
+        ],
+        "title": "AcquisitionInterruptedCustodyRecoveryRequest",
+        "type": "object"
+      },
       "AcquisitionMovementArtifact": {
         "additionalProperties": false,
         "description": "Supplier-derived facts, still a candidate until distinct GY admission.",
@@ -685,9 +727,13 @@
                 "$ref": "#/components/schemas/AcquisitionCustodyRecoveryRequest"
               },
               {
+                "$ref": "#/components/schemas/AcquisitionInterruptedCustodyRecoveryRequest"
+              },
+              {
                 "type": "null"
               }
-            ]
+            ],
+            "title": "Custody Recovery"
           },
           "human_decision_record_ref": {
             "anyOf": [
@@ -32059,6 +32105,105 @@
           "response_text"
         ],
         "title": "NativeSettledDraftRecovery",
+        "type": "object"
+      },
+      "NativeSettledN4Occurrence": {
+        "additionalProperties": false,
+        "description": "One selected, already-paid N4 multipass result and its prepared request identity.",
+        "properties": {
+          "context_id": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Context Id",
+            "type": "string"
+          },
+          "instance": {
+            "enum": [
+              "side_effects_check",
+              "constraint_verify"
+            ],
+            "title": "Instance",
+            "type": "string"
+          },
+          "ordinal": {
+            "maximum": 2.0,
+            "minimum": 0.0,
+            "title": "Ordinal",
+            "type": "integer"
+          },
+          "producer_event_id": {
+            "pattern": "^llm-provider:[a-f0-9]{32}$",
+            "title": "Producer Event Id",
+            "type": "string"
+          },
+          "request_digest": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Request Digest",
+            "type": "string"
+          },
+          "response_text": {
+            "maxLength": 131072,
+            "minLength": 1,
+            "title": "Response Text",
+            "type": "string"
+          },
+          "stage": {
+            "const": "drafter_multipass",
+            "title": "Stage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "producer_event_id",
+          "stage",
+          "instance",
+          "ordinal",
+          "context_id",
+          "request_digest",
+          "response_text"
+        ],
+        "title": "NativeSettledN4Occurrence",
+        "type": "object"
+      },
+      "NativeSettledN4Recovery": {
+        "additionalProperties": false,
+        "description": "Exact post-stop ledger cut and the two paid N4 outputs to adopt once.",
+        "properties": {
+          "draft": {
+            "$ref": "#/components/schemas/NativeSettledDraftRecovery"
+          },
+          "ledger_revision": {
+            "minimum": 1.0,
+            "title": "Ledger Revision",
+            "type": "integer"
+          },
+          "occurrences": {
+            "items": {
+              "$ref": "#/components/schemas/NativeSettledN4Occurrence"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Occurrences",
+            "type": "array"
+          },
+          "prior_recovery_event_id": {
+            "exclusiveMinimum": 0.0,
+            "title": "Prior Recovery Event Id",
+            "type": "integer"
+          },
+          "prior_recovery_event_sha256": {
+            "pattern": "^sha256:[a-f0-9]{64}$",
+            "title": "Prior Recovery Event Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "prior_recovery_event_id",
+          "prior_recovery_event_sha256",
+          "ledger_revision",
+          "draft",
+          "occurrences"
+        ],
+        "title": "NativeSettledN4Recovery",
         "type": "object"
       },
       "NaturalLanguageRunRequest": {

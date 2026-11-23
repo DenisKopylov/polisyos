@@ -78,11 +78,50 @@ _ROUTES = {
 }
 
 
+@pytest.mark.parametrize("interrupted", [False, True], ids=["failed-draft", "interrupted-n4"])
 def test_native_draft_approval_binds_body_and_bearer_but_keeps_draft_out_of_opa(
     runtime_api_env,
+    interrupted: bool,
 ) -> None:
     raw_draft = '{"draft_id":"private-settled-content"}'
     digest = "sha256:" + "d" * 64
+    head = {
+        "artifact_id": digest,
+        "kind": "runtime_quality.acquisition_route_phase_receipt",
+        "media_type": "application/json",
+        "manifest_profile_sha256": digest,
+    }
+    draft = {
+        "producer_event_id": "llm-provider:" + "f" * 32,
+        "ledger_revision": 18,
+        "response_text": raw_draft,
+    }
+    recovery: dict[str, object]
+    if interrupted:
+        recovery = {
+            "interrupted_attempt": 6,
+            "head_ref": head,
+            "n4_recovery": {
+                "prior_recovery_event_id": 31,
+                "prior_recovery_event_sha256": digest,
+                "ledger_revision": 30,
+                "draft": draft,
+                "occurrences": [
+                    {
+                        "producer_event_id": "llm-provider:" + event * 32,
+                        "stage": "drafter_multipass",
+                        "instance": instance,
+                        "ordinal": 0,
+                        "context_id": event * 64,
+                        "request_digest": event * 64,
+                        "response_text": '{"findings":["private-settled-pass"]}',
+                    }
+                    for event, instance in (("a", "side_effects_check"), ("b", "constraint_verify"))
+                ],
+            },
+        }
+    else:
+        recovery = {"failed_attempt": 5, "head_ref": head, "settled_draft": draft}
     body = AcquisitionRouteMutationRequest.model_validate(
         {
             "route_projection_hash": digest,
@@ -96,20 +135,7 @@ def test_native_draft_approval_binds_body_and_bearer_but_keeps_draft_out_of_opa(
                 "cost_basis_hash": digest,
             },
             "idempotency_key": "same-action",
-            "custody_recovery": {
-                "failed_attempt": 5,
-                "head_ref": {
-                    "artifact_id": digest,
-                    "kind": "runtime_quality.acquisition_route_phase_receipt",
-                    "media_type": "application/json",
-                    "manifest_profile_sha256": digest,
-                },
-                "settled_draft": {
-                    "producer_event_id": "llm-provider:" + "f" * 32,
-                    "ledger_revision": 18,
-                    "response_text": raw_draft,
-                },
-            },
+            "custody_recovery": recovery,
         }
     )
     opa = _CaptureOPA()
@@ -164,9 +190,11 @@ def test_native_draft_approval_binds_body_and_bearer_but_keeps_draft_out_of_opa(
     middleware_projection = policy_projections[0]
     policy_selectors = dict(middleware_projection["selectors"])
     policy_resource = opa.inputs[0].to_opa_input()["resource"]
-    assert raw_draft == json.loads(local_selector)["settled_draft"]["response_text"]
+    assert json.loads(local_selector) == recovery
     assert "private-settled-content" not in json.dumps(policy_resource)
     assert "private-settled-content" not in json.dumps(policy_selectors)
+    assert "private-settled-pass" not in json.dumps(policy_resource)
+    assert "private-settled-pass" not in json.dumps(policy_selectors)
     assert json.loads(policy_selectors["custody_recovery"]) == {
         "sha256": hashlib.sha256(local_selector.encode()).hexdigest(),
     }

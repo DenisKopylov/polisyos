@@ -18,6 +18,8 @@ from pydantic import ValidationError
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import extract_llm_json_object
 from polisyos.core.canon import truncated_hash
+from polisyos.core.llm.settlement import LLMManagedProducerOutcomeError
+from polisyos.core.llm.traced_client import has_managed_prepared_producer_request
 from polisyos.ir.governance.policy_spec import InterventionSpec as TrinityInterventionSpec
 from polisyos.ir.governance.policy_spec import ParameterSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import (
@@ -1981,6 +1983,12 @@ class LLMFormalizerAgent:
         )
         self._last_schema_healing_events: tuple[dict[str, Any], ...] = ()
 
+    def _has_owned_managed_transport(self, request_args: dict[str, Any]) -> bool:
+        """Return whether this exact issued N4 request has a managed transport."""
+        if type(self._llm) is not TracedLLMClient:
+            return False
+        return has_managed_prepared_producer_request(self._llm, request_args)
+
     def set_method_catalog_snapshot(self, payload: dict[str, Any] | None) -> None:
         self._method_catalog_snapshot = dict(payload or {})
 
@@ -2022,28 +2030,34 @@ Generate a valid TrinityBundle v{schema_version} JSON.
                     "Please fix and try again."
                 )
 
+            managed_transport = False
             try:
-                response = await asyncio.wait_for(
-                    self._llm.generate(
-                        **_request_args(
-                            self._llm,
-                            stage="formalizer",
-                            instance="formalize",
-                            attempt=attempt,
-                            system=prompt,
-                            user=attempt_message,
-                            response_format={"type": "json_object"},
-                            plugins=(
-                                [{"id": "response-healing"}]
-                                if self._enable_response_healing
-                                else None
-                            ),
-                            timeout=self._timeout_s,
-                        )
+                request_args = _request_args(
+                    self._llm,
+                    stage="formalizer",
+                    instance="formalize",
+                    attempt=attempt,
+                    system=prompt,
+                    user=attempt_message,
+                    response_format={"type": "json_object"},
+                    plugins=(
+                        [{"id": "response-healing"}] if self._enable_response_healing else None
                     ),
-                    timeout=self._timeout_s + 5.0,
+                    timeout=self._timeout_s,
                 )
+                managed_transport = self._has_owned_managed_transport(request_args)
+                if managed_transport:
+                    response = await self._llm.generate(**request_args)
+                else:
+                    response = await asyncio.wait_for(
+                        self._llm.generate(**request_args),
+                        timeout=self._timeout_s + 5.0,
+                    )
+            except LLMManagedProducerOutcomeError:
+                raise
             except (OSError, RuntimeError, TimeoutError, ValueError) as exc:
+                if managed_transport:
+                    raise LLMManagedProducerOutcomeError("managed_transport_failed") from exc
                 envelope = emit_degraded_path(
                     component="agent.formalizer",
                     operation="formalize",
@@ -2077,6 +2091,13 @@ Generate a valid TrinityBundle v{schema_version} JSON.
             except FormalizerSchemaValidationError:
                 raise
             except (json.JSONDecodeError, ValidationError, ValueError, TypeError) as exc:
+                if managed_transport:
+                    raise FormalizerSchemaValidationError(
+                        "Managed LLM formalizer response failed TrinityBundle validation.",
+                        phase="schema_validation",
+                        field_errors=[{"path": "TrinityBundle", "error": str(exc)}],
+                        draft_id=draft.draft_id,
+                    ) from exc
                 last_error = str(exc)
                 last_schema_error = str(exc)
 

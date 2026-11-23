@@ -39401,6 +39401,28 @@
             "title": "Candidate Id",
             "type": "string"
           },
+          "candidate_value_method_local_refusal": {
+            "anyOf": [
+              {
+                "const": "method_estimand_binding_mismatch",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidate Value Method Local Refusal"
+          },
+          "candidate_value_method_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "context_job_ref": {
             "anyOf": [
               {

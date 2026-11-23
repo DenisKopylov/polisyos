@@ -2251,6 +2251,268 @@ def test_b31_source_atom_binding_requires_recomputed_exact_join() -> None:
     refuses(selected_candidate=_avg_income_candidate(), code="value_owner_source_atom_untyped")
 
 
+def test_b31_source_atom_binding_classifies_only_valid_treatment_divergence_as_local() -> None:
+    from polisyos.runtime.quality import generation_cycle as gc
+
+    problem = _avg_income_problem()
+    candidate = _avg_income_typed_atom_candidate(problem)
+    estimand = EstimandSpec(
+        query_id="b31-candidate-local-treatment-estimand",
+        estimand_id="ATE",
+        outcome="avg_income",
+        treatment_or_exposure="agents.income",
+        covariates_or_conditioning=("income_covariate",),
+        adjustment_set=("income_covariate",),
+        unit="binary",
+    )
+    with pytest.raises(ValueError) as local_refusal:
+        gc._value_owner_source_atom_estimand_binding(
+            candidate=candidate,
+            problem=problem,
+            estimand=replace(estimand, treatment_or_exposure="government.balance"),
+            measurement_unit="binary",
+        )
+    assert type(local_refusal.value).__name__ == "_CandidateLocalMethodEstimandMismatchError"
+    assert getattr(local_refusal.value, "code", None) == "method_estimand_binding_mismatch"
+
+    # A simultaneous invalid conditioning declaration is not eligible for the
+    # local N8 retry. It must retain its ordinary source refusal.
+    with pytest.raises(ValueError, match="value_owner_source_atom_conditioning_mismatch"):
+        gc._value_owner_source_atom_estimand_binding(
+            candidate=candidate,
+            problem=problem,
+            estimand=replace(
+                estimand,
+                treatment_or_exposure="government.balance",
+                covariates_or_conditioning=("foreign_covariate",),
+            ),
+            measurement_unit="binary",
+        )
+
+
+def test_candidate_local_aipw_preflight_is_two_arm_and_prepare_only(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import numpy as np
+
+    from polisyos.foundry.methods.catalog.causal import AIPWEstimator
+    from polisyos.foundry.methods.causal import HTEObservationalData
+    from polisyos.runtime.quality import generation_cycle as gc
+
+    row_count = 80
+    treatment = np.tile(np.asarray([0.0, 1.0]), row_count // 2)
+    panel = HTEObservationalData(
+        outcome=np.linspace(1.0, 8.0, row_count),
+        treatment=treatment,
+        covariates=treatment.reshape(-1, 1),
+        feature_names=["baseline_covariate"],
+    )
+    method_parameters = json.dumps(
+        {
+            "confidence_level": 0.95,
+            "direct_model_type": "linear",
+            "estimation_backend": "custom",
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    method_calls: list[object] = []
+
+    def unexpected_fit(*args: Any, **kwargs: Any) -> object:
+        method_calls.append((args, kwargs))
+        raise AssertionError("pure_step_must_not_run_during_candidate_preflight")
+
+    monkeypatch.setattr(AIPWEstimator, "pure_step", staticmethod(unexpected_fit))
+    gc._value_owner_source_candidate_local_method_preflight(
+        panel=panel,
+        method_parameters_json=method_parameters,
+        seed=7,
+        selected_method_fqn=AIPWEstimator.signature.fqn,
+        selected_method_class=AIPWEstimator,
+    )
+    assert method_calls == []
+
+    one_arm = HTEObservationalData(
+        outcome=np.linspace(1.0, 8.0, row_count),
+        treatment=np.zeros(row_count),
+        covariates=np.zeros((row_count, 1)),
+        feature_names=["baseline_covariate"],
+    )
+    with pytest.raises(
+        ValueError,
+        match="value_owner_source_candidate_local_treatment_arms_not_qualified",
+    ):
+        gc._value_owner_source_candidate_local_method_preflight(
+            panel=one_arm,
+            method_parameters_json=method_parameters,
+            seed=7,
+            selected_method_fqn=AIPWEstimator.signature.fqn,
+            selected_method_class=AIPWEstimator,
+        )
+
+    unsupported_confidence = json.dumps(
+        {
+            "confidence_level": 0.90,
+            "direct_model_type": "linear",
+            "estimation_backend": "custom",
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    with pytest.raises(
+        ValueError,
+        match="value_owner_source_candidate_local_method_parameters_not_qualified",
+    ):
+        gc._value_owner_source_candidate_local_method_preflight(
+            panel=panel,
+            method_parameters_json=unsupported_confidence,
+            seed=7,
+            selected_method_fqn=AIPWEstimator.signature.fqn,
+            selected_method_class=AIPWEstimator,
+        )
+
+    undeclared_parameter = json.dumps(
+        {
+            "confidence_level": 0.95,
+            "direct_model_type": "linear",
+            "estimation_backend": "custom",
+            "unsupported_setting": True,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    with pytest.raises(
+        ValueError,
+        match="value_owner_source_candidate_local_method_parameters_not_qualified",
+    ):
+        gc._value_owner_source_candidate_local_method_preflight(
+            panel=panel,
+            method_parameters_json=undeclared_parameter,
+            seed=7,
+            selected_method_fqn=AIPWEstimator.signature.fqn,
+            selected_method_class=AIPWEstimator,
+        )
+    assert method_calls == []
+
+
+def test_candidate_value_method_local_refusal_is_additive_to_existing_record_wire() -> None:
+    from polisyos.core.artifacts import ArtifactRef as CoreArtifactRef
+    from polisyos.runtime.quality.candidate_value_method import CandidateValueMethodRecord
+
+    def ref(fill: str, kind: str) -> dict[str, str]:
+        manifest_fill = format((int(fill, 16) + 1) % 16, "x")
+        return CoreArtifactRef(
+            artifact_id="sha256:" + fill * 64,
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + manifest_fill * 64,
+        ).model_dump(mode="json")
+
+    old_wire: dict[str, Any] = {
+        "schema_version": "policyos.runtime.candidate_value_method.v1",
+        "authority_purpose": "candidate_source_rows_only",
+        "production_value_eligible": False,
+        "candidate_id": "selected-candidate",
+        "candidate_content_hash": "sha256:" + "c" * 64,
+        "design_problem_ref": "sha256:" + "d" * 64,
+        "world_model_record_content_hash": "sha256:" + "e" * 64,
+        "profile_ref": ref("a", "runtime.generic_cycle_simulation_profile"),
+        "source_request_ref": ref(
+            "b", "runtime.value_owner_source_projection_request"
+        ),
+        "n5_input_ref": ref("c", "runtime.generic_cycle_simulation_n5_input"),
+        "n5_result_ref": ref("d", "runtime.generic_cycle_simulation_n5_result"),
+        "n5_execution_ref": ref("e", "runtime.generic_cycle_simulation_n5_execution"),
+        "cycle_index": 0,
+        "selection_inputs": {"method_fqn": "causal.treatment_effects.aipw@1.0.0"},
+        "status": "completed",
+        "limitation_codes": ["outcome_query_coordinates_proposed_unverified"],
+        "reason": "Existing selected candidate method result.",
+        "discovery_limitations": [],
+        "failure_kind": None,
+        "selected_method_fqn": "causal.treatment_effects.aipw@1.0.0",
+        "run_basis_ref": ref("f", "runtime.value_owner_method_run_basis"),
+        "value_ref": ref("a", "runtime.value_outer_set_candidate_fixture"),
+    }
+    old_wire["content_hash"] = gy_content_hash(old_wire)
+    legacy = CandidateValueMethodRecord.model_validate(old_wire)
+    assert legacy.model_dump(mode="json") == old_wire
+    assert "candidate_local_refusal" not in legacy.model_dump(mode="json")
+
+    legacy_refusal_wire = {
+        key: value for key, value in old_wire.items() if key != "content_hash"
+    }
+    legacy_refusal_wire.update(
+        status="refused",
+        limitation_codes=["method_estimand_binding_mismatch"],
+        reason="Legacy refusal carried only the plain limitation code.",
+        failure_kind="input_refused",
+        run_basis_ref=None,
+        value_ref=None,
+    )
+    legacy_refusal_wire["content_hash"] = gy_content_hash(legacy_refusal_wire)
+    legacy_refusal = CandidateValueMethodRecord.model_validate(legacy_refusal_wire)
+    assert legacy_refusal.model_dump(mode="json") == legacy_refusal_wire
+    assert legacy_refusal.candidate_local_refusal is None
+
+    refusal_payload = {
+        key: value for key, value in old_wire.items() if key != "content_hash"
+    }
+    refusal_payload.update(
+        status="refused",
+        limitation_codes=["method_estimand_binding_mismatch"],
+        reason="The candidate writes another treatment variable.",
+        failure_kind="input_refused",
+        run_basis_ref=None,
+        value_ref=None,
+        candidate_local_refusal="method_estimand_binding_mismatch",
+    )
+    method_fqn = "causal.treatment_effects.aipw@1.0.0"
+    receipt_payload = {
+        "schema_version": "policyos.foundry.method_selection_receipt.v2",
+        "selection_authority": "requested_registry_method",
+        "selected_method_fqn": method_fqn,
+        "ranked_alternatives": [
+            {
+                "rank": 1,
+                "method_fqn": method_fqn,
+                "method_family": "causal_treatment_effects",
+                "data_modalities": ["panel"],
+                "advisor_score": None,
+                "selected": True,
+                "loss_reasons": [],
+            }
+        ],
+        "denominator": [method_fqn],
+        "selection_context_hash": "sha256:" + "1" * 64,
+    }
+    receipt_hash = "sha256:" + hashlib.sha256(
+        json.dumps(
+            receipt_payload,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=True,
+        ).encode("utf-8")
+    ).hexdigest()
+    refusal_payload["candidate_local_selection_receipt"] = {
+        **receipt_payload,
+        "content_hash": receipt_hash,
+    }
+    refusal_payload["content_hash"] = gy_content_hash(refusal_payload)
+    refusal = CandidateValueMethodRecord.model_validate(refusal_payload)
+    assert refusal.status == "refused"
+    assert refusal.candidate_local_refusal == "method_estimand_binding_mismatch"
+    assert refusal.model_dump(mode="json")["candidate_local_refusal"] == (
+        "method_estimand_binding_mismatch"
+    )
+
+    unowned_refusal = {key: value for key, value in refusal_payload.items() if key != "content_hash"}
+    unowned_refusal.pop("candidate_local_selection_receipt")
+    unowned_refusal["content_hash"] = gy_content_hash(unowned_refusal)
+    with pytest.raises(ValueError, match="candidate_value_method_local_refusal_binding_invalid"):
+        CandidateValueMethodRecord.model_validate(unowned_refusal)
+
+
 def _rehash_typed_atom_candidate(candidate: Any, **atom_updates: Any) -> Any:
     """Rehash controlled atom edits so tests reach semantic checks after identity passes."""
     from polisyos.runtime.quality.intervention_atom_binding import (

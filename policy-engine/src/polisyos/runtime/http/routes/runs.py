@@ -4746,6 +4746,10 @@ def _candidate_evaluation_attempt_projection(
                 value_ref=value.value_ref,
                 value_authority_blockers=value.authority_blockers,
                 selected_method_fqn=value.selected_method_fqn,
+                candidate_value_method_ref=value.candidate_value_method_ref,
+                candidate_value_method_local_refusal=(
+                    value.candidate_value_method_local_refusal
+                ),
             )
         )
     return tuple(rows), None

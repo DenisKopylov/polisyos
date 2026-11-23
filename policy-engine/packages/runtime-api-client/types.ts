@@ -18018,6 +18018,9 @@ export interface components {
             candidate_content_hash: string;
             /** Candidate Id */
             candidate_id: string;
+            /** Candidate Value Method Local Refusal */
+            candidate_value_method_local_refusal?: "method_estimand_binding_mismatch" | null;
+            candidate_value_method_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             context_job_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             /** Cycle Index */
             cycle_index: number;

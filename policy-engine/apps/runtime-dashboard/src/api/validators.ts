@@ -3167,6 +3167,11 @@ const runCandidateEvaluationAttemptProjectionSchema = z
       .optional(),
     value_ref: z.string().nullable().optional(),
     value_authority_blockers: z.array(z.string()).default([]),
+    candidate_value_method_ref: coreArtifactRefSchema.nullable().optional(),
+    candidate_value_method_local_refusal: z
+      .literal("method_estimand_binding_mismatch")
+      .nullable()
+      .optional(),
     selected_method_fqn: z.string().nullable().optional(),
     scope: z
       .literal("recorded_candidate_attempt")
@@ -3178,12 +3183,56 @@ const runCandidateEvaluationAttemptProjectionSchema = z
   })
   .strict()
   .superRefine((attempt, context) => {
+    const methodRef = attempt.candidate_value_method_ref;
+    const methodRefBound =
+      methodRef != null &&
+      methodRef.kind === "runtime.candidate_value_method" &&
+      methodRef.media_type === "application/json" &&
+      methodRef.manifest_profile_sha256 != null;
+    const selectedMethodFqnPresent =
+      typeof attempt.selected_method_fqn === "string" &&
+      attempt.selected_method_fqn.trim().length > 0;
+    const localN8Conditional =
+      attempt.failure_stage === "n8" &&
+      attempt.simulation_status === "joint_simulated" &&
+      attempt.value_status === "value_conditional" &&
+      methodRefBound &&
+      attempt.candidate_value_method_local_refusal ===
+        "method_estimand_binding_mismatch" &&
+      selectedMethodFqnPresent;
+    if (
+      methodRef != null &&
+      (attempt.value_status !== "value_conditional" || !methodRefBound)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["candidate_value_method_ref"],
+        message: "run_candidate_attempt_value_method_ref_invalid",
+      });
+    }
+    if (
+      attempt.candidate_value_method_local_refusal != null &&
+      !localN8Conditional
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["candidate_value_method_local_refusal"],
+        message: "run_candidate_attempt_value_method_local_refusal_invalid",
+      });
+    }
+    if (attempt.value_status === "value_conditional" && !localN8Conditional) {
+      context.addIssue({
+        code: "custom",
+        path: ["value_status"],
+        message: "run_candidate_attempt_conditional_value_not_local",
+      });
+    }
     if (
       (attempt.failure_stage === "n5" &&
         attempt.simulation_status !== "simulation_blocked") ||
       (attempt.failure_stage === "n8" &&
         (attempt.simulation_status !== "joint_simulated" ||
-          attempt.value_status !== "value_blocked"))
+          (attempt.value_status !== "value_blocked" && !localN8Conditional)))
     ) {
       context.addIssue({
         code: "custom",

@@ -680,6 +680,167 @@ async def test_candidate_local_refusal_retries_existing_grounded_candidate_with_
 
 
 @pytest.mark.asyncio
+async def test_candidate_local_n8_method_refusal_retries_existing_candidate_without_redraft() -> None:
+    from polisyos.core.artifacts import ArtifactRef as CoreArtifactRef
+    from polisyos.runtime.quality.generation_cycle import _N8_CANDIDATE_LOCAL_FAILURE_ISSUER
+
+    first = _candidate("method-treatment-mismatch", "4")
+    second = _candidate("method-treatment-match", "5")
+    generation_calls: list[int] = []
+    simulation_calls: list[str] = []
+    value_calls: list[str] = []
+
+    class _GeneratedPair:
+        async def __call__(self, problem: object, *, cycle_index: int) -> _GenerationResult:
+            del problem, cycle_index
+            generation_calls.append(1)
+            return _GenerationResult(
+                status="generated",
+                candidates=(first, second),
+                surrogate_rankings=(
+                    _Ranking(first.candidate_id, score=0.9, voi_estimate=0.9),
+                    _Ranking(second.candidate_id, score=0.8, voi_estimate=0.8),
+                ),
+            )
+
+    class _GroundBoth:
+        def __call__(
+            self,
+            *,
+            candidate: object,
+            problem: object,
+            cycle_index: int,
+            generation_result: object,
+        ) -> CandidateGroundingObservation:
+            del problem, cycle_index, generation_result
+            candidate_id = str(candidate.candidate_id)
+            return CandidateGroundingObservation(
+                candidate_id=candidate_id,
+                status="grounded_shadow",
+                grounding_score=0.9,
+                evidence_refs=(f"evidence://{candidate_id}",),
+                report_ref=f"grounding://{candidate_id}",
+                grounding_source="cgf_firewall",
+                grounding_disposition="shadow_bound",
+            )
+
+    class _CompletedN5:
+        def __call__(
+            self,
+            *,
+            candidate: object,
+            problem: object,
+            cycle_index: int,
+        ) -> SimulationPortObservation:
+            del problem, cycle_index
+            candidate_id = str(candidate.candidate_id)
+            simulation_calls.append(candidate_id)
+            return SimulationPortObservation(
+                candidate_id=candidate_id,
+                status="joint_simulated",
+                simulation_ref="sha256:" + ("6" if candidate_id == first.candidate_id else "7") * 64,
+            )
+
+    def method_ref(fill: str) -> CoreArtifactRef:
+        return CoreArtifactRef(
+            artifact_id="sha256:" + fill * 64,
+            kind="runtime.candidate_value_method",
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + ("f" if fill == "8" else "e") * 64,
+        )
+
+    def candidate_value(*, candidate: object, simulation: object, **_: Any) -> ValuePortObservation:
+        candidate_id = str(candidate.candidate_id)
+        value_calls.append(candidate_id)
+        method_record_ref = method_ref("8" if candidate_id == first.candidate_id else "9")
+        observation = ValuePortObservation(
+            status="value_conditional",
+            candidate_id=candidate_id,
+            value_ref="sha256:" + "a" * 64,
+            authority_blockers=("interaction_sampling_not_established",),
+            reason="Conditional N5 output remains candidate-only.",
+            evaluation_mode="simulate_only",
+            decision_grade="low",
+            world_model_record_content_hash="sha256:" + "b" * 64,
+            candidate_value_method_local_refusal=(
+                "method_estimand_binding_mismatch"
+                if candidate_id == first.candidate_id
+                else None
+            ),
+            candidate_value_method_ref=method_record_ref,
+            n5_interaction_schema_version="policyos.runtime.joint_simulation_horizon.v5",
+            numeric_interaction="none",
+            numeric_interaction_basis="not_established",
+            interaction_sampling_status="not_established",
+        )
+        if candidate_id == first.candidate_id:
+            observation._candidate_local_failure_issuer = _N8_CANDIDATE_LOCAL_FAILURE_ISSUER
+            observation._candidate_method_local_refusal = "method_estimand_binding_mismatch"
+        del simulation
+        return observation
+
+    controller = GenerationCycleController(
+        generation_port=_GeneratedPair(),
+        grounding_port=_GroundBoth(),
+        simulation_port=_CompletedN5(),
+        value_port=candidate_value,
+        authority_scope="contract_testing",
+    )
+    state = {
+        "problem": _public_problem(),
+        "cycle_index": 0,
+        "budget_state": _budget(),
+        "previous_cycle": None,
+        "value_port_override": None,
+        "stable_design_problem_ref": None,
+    }
+    generated = await controller._generate_node(state)
+    grounded = controller._ground_node(generated)
+    result = controller._joint_value_node(grounded)
+
+    assert generation_calls == [1]
+    assert simulation_calls == [first.candidate_id, second.candidate_id]
+    assert value_calls == [first.candidate_id, second.candidate_id]
+    assert result["selected_candidate"].candidate_id == second.candidate_id
+    assert result["simulation"].candidate_id == second.candidate_id
+    attempts = [summary.evaluation_attempt for summary in result["candidate_summaries"]]
+    assert sum(attempt is not None for attempt in attempts) == 1
+    attempt = next(attempt for attempt in attempts if attempt is not None)
+    assert attempt.candidate_id == first.candidate_id
+    assert attempt.failure_stage == "n8"
+    assert attempt.simulation.status == "joint_simulated"
+    assert attempt.value.status == "value_conditional"
+    assert attempt.value.candidate_value_method_local_refusal == (
+        "method_estimand_binding_mismatch"
+    )
+    assert attempt.value.candidate_value_method_ref == method_ref("8")
+    replayed = CandidateEvaluationAttempt.model_validate_json(attempt.model_dump_json())
+    assert replayed.value.candidate_value_method_local_refusal == (
+        "method_estimand_binding_mismatch"
+    )
+
+    markerless_value = attempt.value.model_copy(
+        update={"candidate_value_method_local_refusal": None}
+    )
+    markerless_fields = {
+        "candidate_id": attempt.candidate_id,
+        "candidate_content_hash": attempt.candidate_content_hash,
+        "cycle_index": attempt.cycle_index,
+        "problem_ref": attempt.problem_ref,
+        "failure_stage": attempt.failure_stage,
+        "simulation": attempt.simulation,
+        "value": markerless_value,
+    }
+    with pytest.raises(ValueError, match="candidate_evaluation_attempt_n8_failure_missing"):
+        CandidateEvaluationAttempt.model_validate(
+            {
+                **markerless_fields,
+                "attempt_ref": _candidate_evaluation_attempt_ref(**markerless_fields),
+            }
+        )
+
+
+@pytest.mark.asyncio
 async def test_public_run_retains_blocked_first_reason_after_executing_second() -> None:
     simulation = _RecordingSimulation()
     controller = GenerationCycleController(

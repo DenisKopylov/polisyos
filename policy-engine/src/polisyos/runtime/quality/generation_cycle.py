@@ -2688,6 +2688,10 @@ class ValuePortObservation(_StrictModel):
     _candidate_method_value_ref: object | None = PrivateAttr(default=None)
     _candidate_method_scope_limitations: tuple[str, ...] = PrivateAttr(default=())
     _candidate_method_failure_kind: str | None = PrivateAttr(default=None)
+    _candidate_method_local_refusal: str | None = PrivateAttr(default=None)
+    candidate_value_method_local_refusal: Literal["method_estimand_binding_mismatch"] | None = (
+        Field(default=None, exclude_if=lambda value: value is None)
+    )
     candidate_value_method_ref: CASArtifactRef | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
@@ -2743,6 +2747,12 @@ class ValuePortObservation(_StrictModel):
             or self.candidate_value_method_limitation_code is not None
         ):
             raise ValueError("candidate_value_method_projection_binding_invalid")
+        if self.candidate_value_method_local_refusal is not None and (
+            self.status != "value_conditional"
+            or method_ref is None
+            or self.candidate_value_method_limitation_code is not None
+        ):
+            raise ValueError("candidate_value_method_local_refusal_binding_invalid")
         if self.candidate_value_method_limitation_code is not None and (
             self.status != "value_conditional"
         ):
@@ -3004,8 +3014,14 @@ class CandidateEvaluationAttempt(_StrictModel):
             raise ValueError("candidate_evaluation_attempt_content_mismatch")
         if self.failure_stage == "n5" and self.simulation.status != "simulation_blocked":
             raise ValueError("candidate_evaluation_attempt_n5_failure_missing")
+        n8_value_refusal = self.value.status == "value_blocked" or (
+            self.value.status == "value_conditional"
+            and self.value.candidate_value_method_ref is not None
+            and self.value.candidate_value_method_local_refusal
+            == "method_estimand_binding_mismatch"
+        )
         if self.failure_stage == "n8" and (
-            self.simulation.status != "joint_simulated" or self.value.status != "value_blocked"
+            self.simulation.status != "joint_simulated" or not n8_value_refusal
         ):
             raise ValueError("candidate_evaluation_attempt_n8_failure_missing")
         return self
@@ -8801,6 +8817,7 @@ class ValueOwnerGateway(Protocol):
         world_record: WorldModelRecord,
         profile: ValueDataProfile,
         selected_method_fqn: str,
+        selected_method_class: type | None = None,
     ) -> ValueOwnerMethodRunIntentV1 | None:
         """Resolve an explicit owner assignment and estimand for one selected method."""
 
@@ -8959,6 +8976,7 @@ class RealValueOwnerGateway:
         world_record: WorldModelRecord,
         profile: ValueDataProfile,
         selected_method_fqn: str,
+        selected_method_class: type | None = None,
     ) -> ValueOwnerMethodRunIntentV1 | None:
         """Build a candidate intent from explicit selected source roles.
 
@@ -8982,6 +9000,7 @@ class RealValueOwnerGateway:
             world_record=world_record,
             outcome_profile=profile,
             selected_method_fqn=selected_method_fqn,
+            selected_method_class=selected_method_class,
             request=request,
         )
 
@@ -9658,6 +9677,13 @@ class FoundryValuePort:
                 mode=mode,
                 started=started,
                 candidate_id=candidate_id,
+                allow_candidate_local_refusal=(
+                    not builtin_scope_limited
+                    and self._owner_gateway is not None
+                    and type(self._owner_gateway) is RealValueOwnerGateway
+                    and type(self._owner_gateway.source_projection_request)
+                    is ValueOwnerSourceProjectionRequestV1
+                ),
             )
             if not builtin_scope_limited:
                 return observation
@@ -9698,6 +9724,7 @@ class FoundryValuePort:
         mode: ValueEvaluationMode,
         started: float,
         candidate_id: str,
+        allow_candidate_local_refusal: bool,
     ) -> ValuePortObservation:
         selector_problem = _selector_problem_for_value_profile(problem, method_state)
         selection = _select_value_method(
@@ -9796,13 +9823,60 @@ class FoundryValuePort:
         run_intent_loader = getattr(self._owner_gateway, "load_value_method_run_intent", None)
         if callable(run_intent_loader):
             try:
+                run_intent_kwargs: dict[str, Any] = {
+                    "candidate": candidate,
+                    "problem": problem,
+                    "world_record": world_record,
+                    "profile": method_state,
+                    "selected_method_fqn": selected_method_fqn,
+                }
+                if type(self._owner_gateway) is RealValueOwnerGateway:
+                    run_intent_kwargs["selected_method_class"] = registry.get(
+                        selected_method_fqn
+                    )
                 candidate_intent = run_intent_loader(
-                    candidate=candidate,
-                    problem=problem,
-                    world_record=world_record,
-                    profile=method_state,
-                    selected_method_fqn=selected_method_fqn,
+                    **run_intent_kwargs,
                 )
+            except _CandidateLocalMethodEstimandMismatchError as exc:
+                if not allow_candidate_local_refusal:
+                    return _blocked_value_owner_failure(
+                        failure=exc,
+                        fallback_code="value_owner_method_run_intent_unresolved",
+                        fallback_reason_prefix="Owner method-run intent could not be resolved: ",
+                        candidate=candidate,
+                        problem=problem,
+                        mode=mode,
+                        started=started,
+                        candidate_id=candidate_id,
+                        selected_method_fqn=selected_method_fqn,
+                        method_selection_receipt=selection_receipt,
+                        value_data_profile_content_hash=method_state.content_hash,
+                        world_model_record_content_hash=str(
+                            _object_get(world_record, "content_hash")
+                        ),
+                    )
+                local_refusal = _blocked_value_observation(
+                    code=exc.code,
+                    reason=(
+                        "The selected real method and current source roles are valid, but "
+                        "the candidate intervention writes a different treatment variable."
+                    ),
+                    mode=mode,
+                    started=started,
+                    candidate_id=candidate_id,
+                    selected_method_fqn=selected_method_fqn,
+                    method_selection_receipt=selection_receipt,
+                    value_data_profile_content_hash=method_state.content_hash,
+                    world_model_record_content_hash=str(
+                        _object_get(world_record, "content_hash")
+                    ),
+                )
+                local_refusal._candidate_local_failure_issuer = (
+                    _N8_CANDIDATE_LOCAL_FAILURE_ISSUER
+                )
+                local_refusal._candidate_method_local_refusal = exc.code
+                local_refusal._candidate_method_failure_kind = "input_refused"
+                return local_refusal
             except Exception as exc:
                 return _blocked_value_owner_failure(
                     failure=exc,
@@ -11242,6 +11316,60 @@ class _DefaultSimulationBoundFoundryValuePort:
                         conditional = conditional.model_copy(
                             update={"candidate_value_method_ref": method_ref}
                         )
+                        if self.artifact_store is None:
+                            raise GenerationCycleError(
+                                "candidate_value_method_record_store_missing"
+                            )
+                        from polisyos.runtime.quality.candidate_value_method import (
+                            CandidateValueMethodRecord,
+                        )
+
+                        method_record = CandidateValueMethodRecord.model_validate(
+                            read_core_json_artifact(self.artifact_store, method_ref).value
+                        )
+                        if method_record.selected_method_fqn is not None:
+                            if (
+                                conditional.selected_method_fqn is not None
+                                and conditional.selected_method_fqn
+                                != method_record.selected_method_fqn
+                            ):
+                                raise GenerationCycleError(
+                                    "candidate_value_method_selected_method_mismatch"
+                                )
+                            conditional = conditional.model_copy(
+                                update={
+                                    "selected_method_fqn": method_record.selected_method_fqn
+                                }
+                            )
+                        if method_record.candidate_local_refusal is not None:
+                            if (
+                                method_record.candidate_id != _candidate_id(candidate)
+                                or method_record.candidate_content_hash
+                                != _candidate_content_hash(candidate)
+                                or method_record.design_problem_ref != _problem_ref(problem)
+                                or method_record.cycle_index != cycle_index
+                                or method_record.profile_ref != simulation.generic_profile_ref
+                                or method_record.n5_input_ref != simulation.generic_n5_input_ref
+                                or method_record.n5_result_ref != simulation.simulation_result_ref
+                                or method_record.n5_execution_ref
+                                != simulation.generic_n5_execution_ref
+                            ):
+                                raise GenerationCycleError(
+                                    "candidate_value_method_local_refusal_scope_mismatch"
+                                )
+                            conditional = conditional.model_copy(
+                                update={
+                                    "candidate_value_method_local_refusal": (
+                                        method_record.candidate_local_refusal
+                                    )
+                                }
+                            )
+                            conditional._candidate_local_failure_issuer = (
+                                _N8_CANDIDATE_LOCAL_FAILURE_ISSUER
+                            )
+                            conditional._candidate_method_local_refusal = (
+                                method_record.candidate_local_refusal
+                            )
             return conditional
         if any(
             ref is not None
@@ -18958,8 +19086,17 @@ class GenerationCycleController:
                 failure_stage: Literal["n5", "n8"] = "n5"
             elif (
                 simulation.status == "joint_simulated"
-                and value.status == "value_blocked"
                 and value._candidate_local_failure_issuer is _N8_CANDIDATE_LOCAL_FAILURE_ISSUER
+                and (
+                    value.status == "value_blocked"
+                    or (
+                        value.status == "value_conditional"
+                        and value.candidate_value_method_ref is not None
+                        and value.candidate_value_method_local_refusal
+                        == "method_estimand_binding_mismatch"
+                        and value.candidate_value_method_limitation_code is None
+                    )
+                )
             ):
                 failure_stage = "n8"
             else:
@@ -27980,6 +28117,15 @@ def _value_manifest_has_exact_inputs(
     return observed_edges == expected_edges
 
 
+class _CandidateLocalMethodEstimandMismatchError(ValueError):
+    """Exact valid method/candidate treatment divergence after shared checks pass."""
+
+    code = "method_estimand_binding_mismatch"
+
+    def __init__(self) -> None:
+        super().__init__("value_owner_source_atom_treatment_mismatch")
+
+
 def _value_owner_source_atom_estimand_binding(
     *,
     candidate: object,
@@ -28056,16 +28202,19 @@ def _value_owner_source_atom_estimand_binding(
         or not treatment.strip()
         or len(target_world_slots) != len(set(target_world_slots))
         or not set(actual_writes).issubset(target_world_slots)
-        or treatment != actual_writes[0]
-        or actual_assignments[0].variable != treatment
     ):
         raise ValueError("value_owner_source_atom_treatment_mismatch")
+    if actual_assignments[0].variable != actual_writes[0]:
+        raise ValueError("value_owner_source_atom_assignment_treatment_mismatch")
+    treatment_mismatch = treatment != actual_writes[0]
     if intended.conditioning_set != tuple(estimand.covariates_or_conditioning):
         raise ValueError("value_owner_source_atom_conditioning_mismatch")
     if not isinstance(intended.unit_id, str) or not intended.unit_id.strip():
         raise ValueError("value_owner_source_atom_unit_unbound")
     if intended.unit_id != estimand.unit or intended.unit_id != measurement_unit:
         raise ValueError("value_owner_source_atom_unit_mismatch")
+    if treatment_mismatch:
+        raise _CandidateLocalMethodEstimandMismatchError()
     return recomputed_hash
 
 
@@ -28078,6 +28227,7 @@ def _value_owner_source_projection_intent(
     outcome_profile: ValueDataProfile,
     selected_method_fqn: str,
     request: ValueOwnerSourceProjectionRequestV1,
+    selected_method_class: type | None = None,
 ) -> ValueOwnerMethodRunIntentV1:
     """Resolve, bind, and persist the explicit source-role profiles for N8."""
     from polisyos.core.artifacts import ensure_ir_artifact_store
@@ -28105,12 +28255,17 @@ def _value_owner_source_projection_intent(
         raise ValueError("value_owner_source_outcome_binding_mismatch")
     if estimand.unit != outcome_profile.measurement_unit:
         raise ValueError("value_owner_source_outcome_unit_not_identity")
-    candidate_atom_hash = _value_owner_source_atom_estimand_binding(
-        candidate=candidate,
-        problem=problem,
-        estimand=estimand,
-        measurement_unit=outcome_profile.measurement_unit,
-    )
+    candidate_local_mismatch: _CandidateLocalMethodEstimandMismatchError | None = None
+    try:
+        candidate_atom_hash = _value_owner_source_atom_estimand_binding(
+            candidate=candidate,
+            problem=problem,
+            estimand=estimand,
+            measurement_unit=outcome_profile.measurement_unit,
+        )
+    except _CandidateLocalMethodEstimandMismatchError as exc:
+        candidate_atom_hash = _candidate_content_hash(candidate)
+        candidate_local_mismatch = exc
     outcome_binding = next(item for item in request.variable_projections if item.role == "outcome")
     if gateway.activated_observation_projection is None:
         raise ValueError("value_owner_source_outcome_projection_missing")
@@ -28138,6 +28293,7 @@ def _value_owner_source_projection_intent(
     projection_type = data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
     role_profiles: list[ValueOwnerSourceRoleProfileV1] = []
     selected_profile_refs: dict[str, ValueArtifactBindingRefV1] = {}
+    selected_profiles: dict[str, ValueDataProfile] = {}
     for binding in request.variable_projections:
         try:
             projection = projection_type.model_validate(binding.projection_payload)
@@ -28198,6 +28354,7 @@ def _value_owner_source_projection_intent(
         )
         profile_ref = _value_artifact_ref(profile_ref_raw)
         selected_profile_refs[binding.variable_id] = profile_ref
+        selected_profiles[binding.variable_id] = profile
         role_profiles.append(
             ValueOwnerSourceRoleProfileV1(
                 role=binding.role,
@@ -28239,6 +28396,18 @@ def _value_owner_source_projection_intent(
     }
     assignment_payload["content_hash"] = gy_content_hash(assignment_payload)
     assignment = ValueOwnerSourceVariableAssignmentV1.model_validate(assignment_payload)
+    if candidate_local_mismatch is not None:
+        # Only the canonical AIPW owner/profile has a pure preflight proven
+        # before execution. Other methods remain ordinary fail-closed refusals.
+        panel = _value_source_observational_data(assignment, selected_profiles)
+        _value_owner_source_candidate_local_method_preflight(
+            panel=panel,
+            method_parameters_json=assignment.method_parameters_json,
+            seed=assignment.seed,
+            selected_method_fqn=selected_method_fqn,
+            selected_method_class=selected_method_class,
+        )
+        raise candidate_local_mismatch
     assignment_inputs = [
         edge
         for role_profile in role_profiles
@@ -28422,6 +28591,67 @@ def _value_source_observational_data(
             },
         }
     )
+
+
+def _value_owner_source_candidate_local_method_preflight(
+    *,
+    panel: object,
+    method_parameters_json: str,
+    seed: int,
+    selected_method_fqn: str,
+    selected_method_class: type | None,
+) -> None:
+    """Require exact AIPW input and parameter preparation before local retry.
+
+    This performs only the existing runner's pure call preparation. It does
+    not execute ``pure_step`` or produce a numerical result.
+    """
+    import numpy as np
+
+    from polisyos.foundry.methods.backends import NumpyRunner
+    from polisyos.foundry.methods.catalog.causal import AIPWEstimator
+    from polisyos.foundry.methods.catalog.causal.treatment_effects import (
+        _is_supported_aipw_confidence_level,
+    )
+    from polisyos.foundry.methods.causal import HTEObservationalData
+
+    if (
+        selected_method_class is not AIPWEstimator
+        or selected_method_fqn != AIPWEstimator.signature.fqn
+        or getattr(getattr(selected_method_class, "signature", None), "fqn", None)
+        != selected_method_fqn
+        or type(panel) is not HTEObservationalData
+    ):
+        raise ValueError("value_owner_source_candidate_local_method_not_qualified")
+    treatment = np.asarray(panel.treatment, dtype=float).reshape(-1)
+    if set(np.unique(treatment).tolist()) != {0.0, 1.0}:
+        raise ValueError("value_owner_source_candidate_local_treatment_arms_not_qualified")
+    method_parameters = _value_canonical_json_object(
+        method_parameters_json,
+        "value_owner_source_candidate_local_method_parameters_not_qualified",
+    )
+    runner = NumpyRunner()
+    runner_state = {
+        "outcome": panel.outcome,
+        "treatment": panel.treatment,
+        "X": panel.covariates,
+    }
+    try:
+        prepared = runner.prepare_call(
+            method_class=AIPWEstimator,
+            signature=AIPWEstimator.signature,
+            state=runner_state,
+            params=method_parameters,
+            seed=seed,
+        )
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "value_owner_source_candidate_local_method_parameters_not_qualified"
+        ) from exc
+    if not _is_supported_aipw_confidence_level(
+        prepared.resolved_params.get("confidence_level")
+    ):
+        raise ValueError("value_owner_source_candidate_local_method_parameters_not_qualified")
 
 
 def _value_source_bounds_bundle(

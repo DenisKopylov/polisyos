@@ -364,6 +364,27 @@ function recordedLocalAttemptFixture() {
   };
 }
 
+function candidateValueMethodRef() {
+  return {
+    artifact_id: "sha256:" + "8".repeat(64),
+    kind: "runtime.candidate_value_method",
+    media_type: "application/json",
+    manifest_profile_sha256: "sha256:" + "f".repeat(64),
+  };
+}
+
+function recordedLocalConditionalAttemptFixture() {
+  return {
+    ...recordedLocalAttemptFixture(),
+    value_status: "value_conditional",
+    value_decision_grade: "low",
+    value_authority_blockers: ["method_estimand_binding_mismatch"],
+    candidate_value_method_ref: candidateValueMethodRef(),
+    candidate_value_method_local_refusal: "method_estimand_binding_mismatch",
+    selected_method_fqn: "policyos.example.value_method",
+  };
+}
+
 function compiledAttemptProjection(attempt: unknown) {
   return {
     schema_version: "policyos.runtime.run_candidate_simulation_projection.v1",
@@ -397,6 +418,112 @@ describe("recorded local attempt wire", () => {
     );
     expect(attempt.numerical_result_verification).toBe("not_established");
     expect(attempt.publication_authority).toBe(false);
+  });
+
+  it("keeps an N8 local method refusal candidate-only with its method binding", () => {
+    const projection = runDetailsSchema.parse(
+      response(
+        compiledAttemptProjection(recordedLocalConditionalAttemptFixture()),
+      ),
+    ).run.candidate_simulation;
+    if (
+      projection?.schema_version !==
+      "policyos.runtime.run_candidate_simulation_projection.v1"
+    )
+      throw new Error("wrong projection");
+    const attempt = projection.candidate_evaluation_attempts![0]!;
+    expect(attempt.failure_stage).toBe("n8");
+    expect(attempt.simulation_status).toBe("joint_simulated");
+    expect(attempt.value_status).toBe("value_conditional");
+    expect(attempt.candidate_value_method_local_refusal).toBe(
+      "method_estimand_binding_mismatch",
+    );
+    expect(attempt.selected_method_fqn).toBe("policyos.example.value_method");
+    expect(attempt.candidate_value_method_ref).toEqual(
+      candidateValueMethodRef(),
+    );
+  });
+
+  it.each([
+    [
+      "missing method ref",
+      (attempt: Record<string, unknown>) => {
+        Reflect.deleteProperty(attempt, "candidate_value_method_ref");
+      },
+    ],
+    [
+      "missing local refusal",
+      (attempt: Record<string, unknown>) => {
+        Reflect.deleteProperty(attempt, "candidate_value_method_local_refusal");
+      },
+    ],
+    [
+      "missing selected FQN",
+      (attempt: Record<string, unknown>) => {
+        Reflect.deleteProperty(attempt, "selected_method_fqn");
+      },
+    ],
+    [
+      "empty selected FQN",
+      (attempt: Record<string, unknown>) => {
+        Reflect.set(attempt, "selected_method_fqn", "  ");
+      },
+    ],
+    [
+      "wrong method kind",
+      (attempt: Record<string, unknown>) => {
+        Reflect.set(
+          attempt.candidate_value_method_ref as object,
+          "kind",
+          "runtime.other",
+        );
+      },
+    ],
+    [
+      "missing method profile",
+      (attempt: Record<string, unknown>) => {
+        Reflect.deleteProperty(
+          attempt.candidate_value_method_ref as object,
+          "manifest_profile_sha256",
+        );
+      },
+    ],
+    [
+      "non-JSON method ref",
+      (attempt: Record<string, unknown>) => {
+        Reflect.set(
+          attempt.candidate_value_method_ref as object,
+          "media_type",
+          "text/plain",
+        );
+      },
+    ],
+    [
+      "nonlocal simulation status",
+      (attempt: Record<string, unknown>) => {
+        Reflect.set(attempt, "simulation_status", "simulation_blocked");
+      },
+    ],
+  ] as const)("refuses conditional N8 attempt with %s", (_name, mutate) => {
+    const attempt: Record<string, unknown> =
+      recordedLocalConditionalAttemptFixture();
+    mutate(attempt);
+    expect(
+      runDetailsSchema.safeParse(response(compiledAttemptProjection(attempt)))
+        .success,
+    ).toBe(false);
+  });
+
+  it("refuses method-local metadata on a legacy blocked N8 attempt", () => {
+    const attempt = {
+      ...recordedLocalAttemptFixture(),
+      candidate_value_method_ref: candidateValueMethodRef(),
+      candidate_value_method_local_refusal: "method_estimand_binding_mismatch",
+    };
+    expect(
+      runDetailsSchema.safeParse(response(compiledAttemptProjection(attempt)))
+        .success,
+    ).toBe(false);
   });
 
   it.each([

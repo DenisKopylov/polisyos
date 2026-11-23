@@ -579,6 +579,111 @@ def test_recorded_local_attempt_preserves_status_and_prior_n5_without_new_verifi
     assert "candidate_evaluation_attempts" not in empty.model_dump(mode="json")
 
 
+def test_recorded_n8_method_refusal_preserves_conditional_and_completed_n5_refs() -> None:
+    method_fqn = "causal.treatment_effects.aipw@1.0.0"
+    method_ref = _ref(
+        "runtime.candidate_value_method",
+        "9",
+        manifest_profile_sha256=f"sha256:{'f' * 64}",
+    )
+    payload = {
+        **_recorded_attempt(),
+        "n4_source_ref": _ref(
+            "runtime.quality.n4_candidate_scenario_source",
+            "1",
+            manifest_profile_sha256=f"sha256:{'e' * 64}",
+        ),
+        "context_job_ref": _ref(
+            "runtime.quality.cycle_substrate_context_job",
+            "2",
+            manifest_profile_sha256=f"sha256:{'d' * 64}",
+        ),
+        "n5_execution_ref": _ref(
+            "runtime.quality.generic_cycle_simulation_n5_execution",
+            "3",
+            manifest_profile_sha256=f"sha256:{'c' * 64}",
+        ),
+        "value_status": "value_conditional",
+        "value_decision_grade": "low",
+        "value_ref": f"sha256:{'4' * 64}",
+        "value_authority_blockers": ("interaction_sampling_not_established",),
+        "selected_method_fqn": method_fqn,
+        "candidate_value_method_ref": method_ref,
+        "candidate_value_method_local_refusal": "method_estimand_binding_mismatch",
+    }
+
+    row = RunCandidateEvaluationAttemptProjection.model_validate(payload)
+    projection = RunCandidateSimulationProjection(
+        run_id="run-a",
+        artifact_status="resolved",
+        source_ref=_ref("runtime.compiled_recursive_generation_cycle", "a"),
+        source_content_hash=f"sha256:{'b' * 64}",
+        candidate_evaluation_attempts=(row,),
+    )
+    fresh = RunCandidateSimulationProjection.model_validate_json(projection.model_dump_json())
+
+    assert fresh.candidate_evaluation_attempts[0].value_status == "value_conditional"
+    assert fresh.candidate_evaluation_attempts[0].value_ref == payload["value_ref"]
+    assert fresh.candidate_evaluation_attempts[0].selected_method_fqn == method_fqn
+    assert fresh.candidate_evaluation_attempts[0].candidate_value_method_ref == method_ref
+    assert fresh.candidate_evaluation_attempts[0].candidate_value_method_local_refusal == (
+        "method_estimand_binding_mismatch"
+    )
+    assert fresh.candidate_evaluation_attempts[0].n4_source_ref == payload["n4_source_ref"]
+    assert fresh.candidate_evaluation_attempts[0].context_job_ref == payload["context_job_ref"]
+    assert fresh.candidate_evaluation_attempts[0].n5_input_ref == payload["n5_input_ref"]
+    assert fresh.candidate_evaluation_attempts[0].n5_execution_ref == payload["n5_execution_ref"]
+    assert fresh.candidate_evaluation_attempts[0].simulation_result_ref == payload[
+        "simulation_result_ref"
+    ]
+    assert fresh.candidate_evaluation_attempts[0].numerical_result_verification == (
+        "not_established"
+    )
+    assert fresh.candidate_evaluation_attempts[0].publication_authority is False
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {
+            "value_status": "value_conditional",
+            "value_decision_grade": "low",
+            "value_ref": f"sha256:{'4' * 64}",
+            "value_authority_blockers": ("interaction_sampling_not_established",),
+            "selected_method_fqn": "causal.treatment_effects.aipw@1.0.0",
+            "candidate_value_method_ref": _ref(
+                "runtime.candidate_value_method",
+                "9",
+                manifest_profile_sha256=f"sha256:{'f' * 64}",
+            ),
+        },
+        {
+            "candidate_value_method_local_refusal": "method_estimand_binding_mismatch",
+            "selected_method_fqn": "causal.treatment_effects.aipw@1.0.0",
+        },
+        {
+            "value_status": "value_conditional",
+            "value_decision_grade": "low",
+            "value_ref": f"sha256:{'4' * 64}",
+            "value_authority_blockers": ("interaction_sampling_not_established",),
+            "candidate_value_method_local_refusal": "method_estimand_binding_mismatch",
+            "selected_method_fqn": "causal.treatment_effects.aipw@1.0.0",
+            "candidate_value_method_ref": _ref(
+                "runtime.candidate_value_method",
+                "9",
+                manifest_profile_sha256=f"sha256:{'f' * 64}",
+            ),
+            "failure_stage": "n5",
+        },
+    ],
+)
+def test_recorded_attempt_rejects_markerless_or_misbound_conditional_n8(
+    change: dict[str, object],
+) -> None:
+    with pytest.raises(ValidationError):
+        RunCandidateEvaluationAttemptProjection.model_validate({**_recorded_attempt(), **change})
+
+
 @pytest.mark.parametrize(
     "change",
     [

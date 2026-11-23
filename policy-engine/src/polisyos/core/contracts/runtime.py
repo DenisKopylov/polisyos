@@ -4339,16 +4339,46 @@ class RunCandidateEvaluationAttemptProjection(BaseModel):
     value_ref: str | None = None
     value_authority_blockers: tuple[str, ...] = ()
     selected_method_fqn: str | None = None
+    candidate_value_method_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    candidate_value_method_local_refusal: Literal["method_estimand_binding_mismatch"] | None = (
+        Field(default=None, exclude_if=lambda value: value is None)
+    )
     scope: Literal["recorded_candidate_attempt"] = "recorded_candidate_attempt"
     numerical_result_verification: Literal["not_established"] = "not_established"
     publication_authority: Literal[False] = False
 
     @model_validator(mode="after")
     def _bind_recorded_failure(self) -> RunCandidateEvaluationAttemptProjection:
+        method_ref = self.candidate_value_method_ref
+        local_refusal = self.candidate_value_method_local_refusal
+        if method_ref is not None and (
+            method_ref.kind != "runtime.candidate_value_method"
+            or method_ref.media_type != "application/json"
+            or method_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("run_candidate_attempt_candidate_method_ref_invalid")
+        if local_refusal is not None and (
+            self.failure_stage != "n8"
+            or self.simulation_status != "joint_simulated"
+            or self.value_status != "value_conditional"
+            or method_ref is None
+            or not self.selected_method_fqn
+        ):
+            raise ValueError("run_candidate_attempt_candidate_method_refusal_binding_invalid")
+        n8_failure_valid = self.value_status == "value_blocked" and local_refusal is None
+        n8_candidate_local_method_refusal = (
+            self.value_status == "value_conditional"
+            and local_refusal == "method_estimand_binding_mismatch"
+            and method_ref is not None
+            and bool(self.selected_method_fqn)
+        )
         if (self.failure_stage == "n5" and self.simulation_status != "simulation_blocked") or (
             self.failure_stage == "n8"
             and (
-                self.simulation_status != "joint_simulated" or self.value_status != "value_blocked"
+                self.simulation_status != "joint_simulated"
+                or not (n8_failure_valid or n8_candidate_local_method_refusal)
             )
         ):
             raise ValueError("run_candidate_attempt_failure_stage_mismatch")

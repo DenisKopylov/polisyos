@@ -192,6 +192,330 @@ def test_recorded_attempt_projection_requires_the_exact_owner_history_problem() 
         ) == ((), "candidate_attempt_context_history_not_established")
 
 
+def test_recorded_n8_local_method_refusal_survives_fresh_projection_with_n5_lineage() -> None:
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.contracts.runtime import RunCandidateEvaluationAttemptProjection
+    from polisyos.runtime.http.routes.runs import _candidate_evaluation_attempt_projection
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+    from polisyos.runtime.quality.generation_cycle import (
+        CandidateEvaluationAttempt,
+        GenerationCycleContextHistoryBinding,
+        GenerationCycleContextHistoryProjection,
+        SimulationPortObservation,
+        ValuePortObservation,
+        _candidate_evaluation_attempt_ref,
+    )
+    from tests._helpers.controlled_candidate_profile import _problem
+
+    def ref(kind: str, digit: str) -> ArtifactRef:
+        return ArtifactRef(
+            artifact_id=f"sha256:{digit * 64}",
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256=f"sha256:{format((int(digit, 16) + 1) % 16, 'x') * 64}",
+        )
+
+    problem = _problem()
+    result_ref = ref("polisyos.runtime.joint_simulation_result", "3")
+    context_ref = ref("runtime.quality.cycle_substrate_context_job", "4")
+    simulation = SimulationPortObservation(
+        candidate_id="attempt-first",
+        status="joint_simulated",
+        simulation_ref=f"sha256:{'5' * 64}",
+        simulation_result_ref=result_ref,
+        generic_n4_source_ref=ref("runtime.generation_source_handoff", "6"),
+        generic_context_job_ref=context_ref,
+        generic_profile_ref=ref("runtime.quality.generic_cycle_simulation_profile", "7"),
+        generic_n5_input_ref=ref(
+            "runtime.quality.generic_cycle_simulation_n5_input", "8"
+        ),
+        generic_n5_execution_ref=ref(
+            "runtime.quality.generic_cycle_simulation_n5_execution", "9"
+        ),
+        generic_profile_selection_ref=f"sha256:{'a' * 64}",
+    )
+    method_ref = ref("runtime.candidate_value_method", "b")
+    value = ValuePortObservation(
+        status="value_conditional",
+        candidate_id="attempt-first",
+        value_ref=f"sha256:{'c' * 64}",
+        authority_blockers=("interaction_sampling_not_established",),
+        evaluation_mode="simulate_only",
+        selected_method_fqn="causal.treatment_effects.aipw@1.0.0",
+        decision_grade="low",
+        candidate_value_method_ref=method_ref,
+        candidate_value_method_local_refusal="method_estimand_binding_mismatch",
+        n5_interaction_schema_version="policyos.runtime.joint_simulation_horizon.v5",
+        numeric_interaction="none",
+        numeric_interaction_basis="not_established",
+        interaction_sampling_status="not_established",
+    )
+    fields = {
+        "candidate_id": "attempt-first",
+        "candidate_content_hash": f"sha256:{'d' * 64}",
+        "cycle_index": 2,
+        "problem_ref": cycle_job_design_problem_ref(problem),
+        "failure_stage": "n8",
+        "simulation": simulation,
+        "value": value,
+    }
+    attempt = CandidateEvaluationAttempt(
+        **fields,
+        attempt_ref=_candidate_evaluation_attempt_ref(**fields),
+    )
+    cycle_run = SimpleNamespace(candidate_summaries=(SimpleNamespace(evaluation_attempt=attempt),))
+    binding = GenerationCycleContextHistoryBinding(
+        cycle_index=2, problem=problem, context_job_ref=context_ref, context=None
+    )
+    history = GenerationCycleContextHistoryProjection(
+        status="resolved", bindings=(binding,), issues=()
+    )
+
+    rows, limitation = _candidate_evaluation_attempt_projection(
+        node_ref="problem://attempt", cycle_run=cycle_run, context_history=history
+    )
+    assert limitation is None and len(rows) == 1
+    fresh = RunCandidateEvaluationAttemptProjection.model_validate_json(rows[0].model_dump_json())
+    assert fresh.value_status == "value_conditional"
+    assert fresh.selected_method_fqn == value.selected_method_fqn
+    assert fresh.candidate_value_method_ref == method_ref
+    assert fresh.candidate_value_method_local_refusal == "method_estimand_binding_mismatch"
+    assert fresh.n4_source_ref == simulation.generic_n4_source_ref
+    assert fresh.context_job_ref == context_ref
+    assert fresh.n5_input_ref == simulation.generic_n5_input_ref
+    assert fresh.n5_execution_ref == simulation.generic_n5_execution_ref
+    assert fresh.simulation_result_ref == result_ref
+    assert fresh.numerical_result_verification == "not_established"
+    assert fresh.publication_authority is False
+
+    markerless_value = value.model_copy(update={"candidate_value_method_local_refusal": None})
+    markerless_fields = {**fields, "value": markerless_value}
+    markerless = CandidateEvaluationAttempt.model_construct(
+        **markerless_fields,
+        attempt_ref=_candidate_evaluation_attempt_ref(**markerless_fields),
+    )
+    markerless_run = SimpleNamespace(
+        candidate_summaries=(SimpleNamespace(evaluation_attempt=markerless),)
+    )
+    with pytest.raises(ValueError, match="candidate_evaluation_attempt_n8_failure_missing"):
+        _candidate_evaluation_attempt_projection(
+            node_ref="problem://attempt", cycle_run=markerless_run, context_history=history
+        )
+
+
+def test_default_value_port_reopens_method_record_fqn_before_attempt_projection(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.foundry.methods.selection import MethodSelectionReceipt
+    from polisyos.foundry.methods.selection.receipt import (
+        _method_selection_receipt_content_hash,
+    )
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.http.routes.runs import _candidate_evaluation_attempt_projection
+    from polisyos.runtime.quality import candidate_value_method
+    from polisyos.runtime.quality import generation_cycle as gc
+    from polisyos.runtime.quality.candidate_value_method import CandidateValueMethodRecord
+    from polisyos.runtime.quality.cycle_substrate import (
+        cycle_job_design_problem_ref,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        CandidateEvaluationAttempt,
+        GenerationCycleContextHistoryBinding,
+        GenerationCycleContextHistoryProjection,
+        SimulationPortObservation,
+        ValuePortObservation,
+        _candidate_evaluation_attempt_ref,
+    )
+    from tests._helpers.controlled_candidate_profile import _problem
+
+    def ref(kind: str, digit: str) -> ArtifactRef:
+        manifest_digit = format((int(digit, 16) + 1) % 16, "x")
+        return ArtifactRef(
+            artifact_id=f"sha256:{digit * 64}",
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256=f"sha256:{manifest_digit * 64}",
+        )
+
+    method_fqn = "causal.treatment_effects.aipw@1.0.0"
+    problem = _problem()
+    candidate_id = "attempt-first"
+    candidate_hash = f"sha256:{'d' * 64}"
+    candidate = SimpleNamespace(candidate_id=candidate_id, content_hash=candidate_hash)
+    result_ref = ref("polisyos.runtime.joint_simulation_result", "3")
+    context_ref = ref("runtime.quality.cycle_substrate_context_job", "4")
+    simulation = SimulationPortObservation(
+        candidate_id=candidate_id,
+        status="joint_simulated",
+        simulation_ref=f"sha256:{'5' * 64}",
+        simulation_result_ref=result_ref,
+        generic_n4_source_ref=ref("runtime.generation_source_handoff", "6"),
+        generic_context_job_ref=context_ref,
+        generic_profile_ref=ref("runtime.quality.generic_cycle_simulation_profile", "7"),
+        generic_n5_input_ref=ref(
+            "runtime.quality.generic_cycle_simulation_n5_input", "8"
+        ),
+        generic_n5_execution_ref=ref(
+            "runtime.quality.generic_cycle_simulation_n5_execution", "9"
+        ),
+        generic_profile_selection_ref=f"sha256:{'a' * 64}",
+    )
+    method_ref = ref("runtime.candidate_value_method", "b")
+    receipt_payload: dict[str, object] = {
+        "schema_version": "policyos.foundry.method_selection_receipt.v2",
+        "selection_authority": "requested_registry_method",
+        "selected_method_fqn": method_fqn,
+        "ranked_alternatives": [
+            {
+                "rank": 1,
+                "method_fqn": method_fqn,
+                "method_family": "causal_treatment_effects",
+                "data_modalities": ["panel"],
+                "advisor_score": None,
+                "selected": True,
+                "loss_reasons": [],
+            }
+        ],
+        "denominator": [method_fqn],
+        "selection_context_hash": f"sha256:{'1' * 64}",
+    }
+    receipt_payload["content_hash"] = _method_selection_receipt_content_hash(receipt_payload)
+    receipt = MethodSelectionReceipt.model_validate(receipt_payload)
+    method_record_payload: dict[str, object] = {
+        "schema_version": "policyos.runtime.candidate_value_method.v1",
+        "authority_purpose": "candidate_source_rows_only",
+        "production_value_eligible": False,
+        "candidate_id": candidate_id,
+        "candidate_content_hash": candidate_hash,
+        "design_problem_ref": gc._problem_ref(problem),
+        "world_model_record_content_hash": f"sha256:{'2' * 64}",
+        "profile_ref": simulation.generic_profile_ref.model_dump(mode="json"),
+        "source_request_ref": ref("runtime.value_owner_source_projection_request", "1").model_dump(
+            mode="json"
+        ),
+        "n5_input_ref": simulation.generic_n5_input_ref.model_dump(mode="json"),
+        "n5_result_ref": simulation.simulation_result_ref.model_dump(mode="json"),
+        "n5_execution_ref": simulation.generic_n5_execution_ref.model_dump(mode="json"),
+        "cycle_index": 2,
+        "selection_inputs": {"method_fqn": method_fqn},
+        "status": "refused",
+        "limitation_codes": ["method_estimand_binding_mismatch"],
+        "reason": "The candidate writes another treatment variable.",
+        "discovery_limitations": [],
+        "failure_kind": "input_refused",
+        "candidate_local_refusal": "method_estimand_binding_mismatch",
+        "candidate_local_selection_receipt": receipt.model_dump(mode="json"),
+        "selected_method_fqn": method_fqn,
+        "run_basis_ref": None,
+        "value_ref": None,
+    }
+    method_record_payload["content_hash"] = gy_content_hash(method_record_payload)
+    method_record = CandidateValueMethodRecord.model_validate(method_record_payload)
+    method_record_wire = method_record.model_dump(mode="json")
+    conditional = ValuePortObservation(
+        status="value_conditional",
+        candidate_id=candidate_id,
+        value_ref=str(result_ref.artifact_id),
+        authority_blockers=("interaction_sampling_not_established",),
+        evaluation_mode="simulate_only",
+        decision_grade="low",
+        world_model_record_content_hash=f"sha256:{'2' * 64}",
+        n5_interaction_schema_version="policyos.runtime.joint_simulation_horizon.v5",
+        numeric_interaction="none",
+        numeric_interaction_basis="not_established",
+        interaction_sampling_status="not_established",
+    )
+    fake_store = object()
+    port = gc._DefaultSimulationBoundFoundryValuePort(
+        repo_root=None,
+        cycle_substrate_context=None,
+        artifact_store=fake_store,
+    )
+    monkeypatch.setattr(
+        gc,
+        "_conditional_simulation_value_observation",
+        lambda **_: conditional,
+    )
+    monkeypatch.setattr(
+        candidate_value_method,
+        "produce_candidate_value_method",
+        lambda **_: method_ref,
+    )
+    reloaded = {"value": method_record_wire}
+    monkeypatch.setattr(
+        gc,
+        "read_core_json_artifact",
+        lambda _store, _ref: SimpleNamespace(value=reloaded["value"]),
+    )
+
+    value = port(
+        candidate=candidate,
+        simulation=simulation,
+        problem=problem,
+        cycle_index=2,
+    )
+    assert value.selected_method_fqn == method_record.selected_method_fqn == method_fqn
+    assert value.candidate_value_method_ref == method_ref
+    assert value.candidate_value_method_local_refusal == "method_estimand_binding_mismatch"
+    assert value._candidate_local_failure_issuer is gc._N8_CANDIDATE_LOCAL_FAILURE_ISSUER
+
+    problem_ref = cycle_job_design_problem_ref(problem)
+    attempt_fields = {
+        "candidate_id": candidate_id,
+        "candidate_content_hash": candidate_hash,
+        "cycle_index": 2,
+        "problem_ref": problem_ref,
+        "failure_stage": "n8",
+        "simulation": simulation,
+        "value": value,
+    }
+    attempt = CandidateEvaluationAttempt(
+        **attempt_fields,
+        attempt_ref=_candidate_evaluation_attempt_ref(**attempt_fields),
+    )
+    history = GenerationCycleContextHistoryProjection(
+        status="resolved",
+        bindings=(
+            GenerationCycleContextHistoryBinding(
+                cycle_index=2,
+                problem=problem,
+                context_job_ref=context_ref,
+                context=None,
+            ),
+        ),
+        issues=(),
+    )
+    rows, limitation = _candidate_evaluation_attempt_projection(
+        node_ref="problem://attempt",
+        cycle_run=SimpleNamespace(
+            candidate_summaries=(SimpleNamespace(evaluation_attempt=attempt),)
+        ),
+        context_history=history,
+    )
+    assert limitation is None and len(rows) == 1
+    assert rows[0].selected_method_fqn == method_fqn
+    assert rows[0].candidate_value_method_ref == method_ref
+
+    invalid_wire = dict(method_record_wire)
+    invalid_wire.pop("content_hash")
+    invalid_wire["selected_method_fqn"] = None
+    invalid_wire["content_hash"] = gy_content_hash(invalid_wire)
+    reloaded["value"] = invalid_wire
+    with pytest.raises(
+        ValueError,
+        match="candidate_value_method_local_refusal_binding_invalid",
+    ):
+        port(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+            cycle_index=2,
+        )
+
+
 def test_candidate_history_second_fold_invalidates_stale_current_view() -> None:
     from polisyos.core.contracts.runtime import (
         RunCandidateSimulationContinuationFronts,

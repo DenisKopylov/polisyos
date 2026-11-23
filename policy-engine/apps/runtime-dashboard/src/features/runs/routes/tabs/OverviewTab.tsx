@@ -722,6 +722,39 @@ function CandidateEvaluationAttemptHistory({
               attempt: row.attempt_ref,
             })}
           </p>
+          {row.selected_method_fqn ? (
+            <p
+              className="text-xs break-all"
+              data-testid="overview-candidate-attempt-selected-method-fqn"
+            >
+              {row.selected_method_fqn}
+            </p>
+          ) : null}
+          {row.candidate_value_method_ref ? (
+            <p
+              className="text-xs break-all"
+              data-testid="overview-candidate-attempt-value-method-ref"
+            >
+              <Link
+                className="text-accent underline"
+                to={buildArtifactHref(
+                  row.candidate_value_method_ref.artifact_id,
+                  {
+                    tab: "content",
+                    artifactRef: row.candidate_value_method_ref,
+                  },
+                )}
+              >
+                {row.candidate_value_method_ref.kind}:{" "}
+                {row.candidate_value_method_ref.artifact_id}
+              </Link>
+            </p>
+          ) : null}
+          {row.candidate_value_method_local_refusal ? (
+            <p data-testid="overview-candidate-attempt-value-method-local-refusal">
+              {row.candidate_value_method_local_refusal}
+            </p>
+          ) : null}
           {Array.from(
             new Set([
               ...row.simulation_authority_blockers,

@@ -79,6 +79,14 @@ class CandidateValueMethodRecord(BaseModel):
     failure_kind: Literal["input_refused", "environment_unavailable", "not_established"] | None = (
         None
     )
+    candidate_local_refusal: Literal["method_estimand_binding_mismatch"] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    candidate_local_selection_receipt: dict[str, JsonValue] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     selected_method_fqn: str | None = None
     run_basis_ref: ArtifactRef | None = None
     value_ref: ArtifactRef | None = None
@@ -101,6 +109,22 @@ class CandidateValueMethodRecord(BaseModel):
             raise ValueError("candidate_value_method_refused_has_output")
         if not self.limitation_codes:
             raise ValueError("candidate_value_method_limitation_missing")
+        if self.candidate_local_refusal is not None:
+            if (
+                self.status != "refused"
+                or self.failure_kind != "input_refused"
+                or self.candidate_local_refusal not in self.limitation_codes
+                or not self.selected_method_fqn
+                or self.candidate_local_selection_receipt is None
+            ):
+                raise ValueError("candidate_value_method_local_refusal_binding_invalid")
+            from polisyos.foundry.methods.selection import MethodSelectionReceipt
+
+            receipt = MethodSelectionReceipt.model_validate(self.candidate_local_selection_receipt)
+            if receipt.selected_method_fqn != self.selected_method_fqn:
+                raise ValueError("candidate_value_method_local_selection_receipt_mismatch")
+        elif self.candidate_local_selection_receipt is not None:
+            raise ValueError("candidate_value_method_local_selection_receipt_unscoped")
         if self.content_hash != gy_content_hash(
             self.model_dump(mode="json", exclude={"content_hash"})
         ):
@@ -344,6 +368,13 @@ def produce_candidate_value_method(
         "run_basis_ref": _selected_ref(basis).model_dump(mode="json") if completed else None,
         "value_ref": _selected_ref(value).model_dump(mode="json") if completed else None,
     }
+    if observation._candidate_method_local_refusal is not None:
+        payload["candidate_local_refusal"] = observation._candidate_method_local_refusal
+        if observation.method_selection_receipt is None:
+            raise ValueError("candidate_value_method_local_selection_receipt_missing")
+        payload["candidate_local_selection_receipt"] = (
+            observation.method_selection_receipt.model_dump(mode="json")
+        )
     record = CandidateValueMethodRecord.model_validate(
         {**payload, "content_hash": gy_content_hash(payload)}
     )

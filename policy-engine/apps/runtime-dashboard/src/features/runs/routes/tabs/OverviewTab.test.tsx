@@ -3321,6 +3321,81 @@ describe("recorded candidate local refusal surface", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("shows the local conditional method refusal and profile-bound method record", () => {
+    const projection = sameCandidateAcquisitionHistoryProjection();
+    const methodRef = {
+      artifact_id: "sha256:" + "8".repeat(64),
+      kind: "runtime.candidate_value_method",
+      media_type: "application/json",
+      manifest_profile_sha256: "sha256:" + "f".repeat(64),
+    };
+    Reflect.set(projection, "candidate_evaluation_attempts", [
+      {
+        node_ref: "design-problem://attempt",
+        candidate_id: "earlier-local-refusal",
+        candidate_content_hash: "sha256:" + "a".repeat(64),
+        cycle_index: 2,
+        problem_ref: "sha256:" + "b".repeat(64),
+        attempt_ref: "sha256:" + "c".repeat(64),
+        failure_stage: "n8",
+        simulation_status: "joint_simulated",
+        simulation_authority_blockers: [
+          "simulation_only_k_sim_not_world_evidence",
+        ],
+        value_status: "value_conditional",
+        value_decision_grade: "low",
+        value_authority_blockers: ["method_estimand_binding_mismatch"],
+        selected_method_fqn: "policyos.example.value_method",
+        candidate_value_method_ref: methodRef,
+        candidate_value_method_local_refusal:
+          "method_estimand_binding_mismatch",
+        simulation_result_ref: {
+          artifact_id: "sha256:" + "d".repeat(64),
+          kind: "polisyos.runtime.joint_simulation_result",
+          media_type: "application/json",
+        },
+      },
+    ]);
+    overviewState.run = parsedRun(projection);
+
+    renderWithProviders(<OverviewTab />);
+
+    const history = screen.getByTestId("overview-candidate-attempt-history");
+    expect(history).toHaveTextContent("joint_simulated");
+    expect(history).toHaveTextContent("value_conditional");
+    expect(
+      screen.getByTestId("overview-candidate-attempt-selected-method-fqn"),
+    ).toHaveTextContent("policyos.example.value_method");
+    expect(
+      screen.getByTestId(
+        "overview-candidate-attempt-value-method-local-refusal",
+      ),
+    ).toHaveTextContent("method_estimand_binding_mismatch");
+    const methodLink = screen.getByRole("link", {
+      name: "runtime.candidate_value_method: sha256:" + "8".repeat(64),
+    });
+    const methodHref = methodLink.getAttribute("href");
+    expect(methodHref).not.toBeNull();
+    const methodRefKey = new URL(
+      methodHref!,
+      window.location.origin,
+    ).searchParams.get("artifactRefKey");
+    expect(methodRefKey).not.toBeNull();
+    expect(JSON.parse(methodRefKey!)).toEqual([
+      methodRef.artifact_id,
+      methodRef.kind,
+      methodRef.media_type,
+      methodRef.manifest_profile_sha256,
+    ]);
+    expect(
+      screen.getByRole("link", {
+        name:
+          "polisyos.runtime.joint_simulation_result: sha256:" + "d".repeat(64),
+      }),
+    ).toBeVisible();
+    expect(history).not.toHaveTextContent("publication_ready");
+  });
+
   it("shows a missing canonical attempt-context history as a limitation", () => {
     const projection = sameCandidateAcquisitionHistoryProjection();
     Reflect.set(

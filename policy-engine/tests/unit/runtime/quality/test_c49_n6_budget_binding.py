@@ -106,12 +106,29 @@ async def test_actual_run_refuses_detached_budget_state_before_generation(tmp_pa
     assert calls == []
 
 
+# Keep the low proxy numeric; it does not stand in for an unknown value.
 @pytest.mark.asyncio
-@pytest.mark.parametrize("supply_port", [False, True])
+@pytest.mark.parametrize(
+    ("supply_port", "proxy_score", "voi_estimate", "expected_scheduler_reason"),
+    [
+        pytest.param(False, 0.9, 4.0, "advance_by_voi", id="default-port-high-score"),
+        pytest.param(True, 0.9, 4.0, "advance_by_voi", id="supplied-port-high-score"),
+        pytest.param(
+            False,
+            0.1,
+            0.8,
+            "advance_by_information_value",
+            id="default-port-low-score-positive-information",
+        ),
+    ],
+)
 async def test_real_n6_default_and_supplied_same_owner_stop_on_a_between_native_seeds(
     tmp_path,
     monkeypatch,
     supply_port,
+    proxy_score,
+    voi_estimate,
+    expected_scheduler_reason,
 ):
     store, _, ncm_ref = _runtime_ncm_fixture_store(tmp_path / "source")
     problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
@@ -136,8 +153,8 @@ async def test_real_n6_default_and_supplied_same_owner_stop_on_a_between_native_
                 surrogate_rankings=(
                     _Ranking(
                         candidate_id=candidate.candidate_id,
-                        score=0.9,
-                        voi_estimate=4.0,
+                        score=proxy_score,
+                        voi_estimate=voi_estimate,
                     ),
                 ),
             )
@@ -171,6 +188,23 @@ async def test_real_n6_default_and_supplied_same_owner_stop_on_a_between_native_
         authority_scope="contract_testing",
         _producer_budget_reconciler=owner,
     )
+    scheduled = []
+    schedule_candidate = controller._schedule_candidate_for_execution
+
+    def observe_schedule(**kwargs):
+        decision = schedule_candidate(**kwargs)
+        scheduled.append(
+            (
+                kwargs["candidate_id"],
+                kwargs["proxy_score"],
+                kwargs["voi_estimate"],
+                decision,
+                owner.last_checked.remaining_usd,
+            )
+        )
+        return decision
+
+    monkeypatch.setattr(controller, "_schedule_candidate_for_execution", observe_schedule)
     original = NCMEngineMethod.pure_step
     native_calls = []
 
@@ -189,6 +223,26 @@ async def test_real_n6_default_and_supplied_same_owner_stop_on_a_between_native_
             _charge_from_sync_boundary(middleware, binding, 0.2, "A before real N6")
             run = await controller.run(problem, budget_state=state, min_cycles=1, max_cycles=1)
             assert len(native_calls) == 1
+            assert scheduled
+            (
+                scheduled_candidate_id,
+                scheduled_proxy_score,
+                scheduled_voi_estimate,
+                initial_schedule,
+                initial_remaining_usd,
+            ) = scheduled[0]
+            assert scheduled_candidate_id == candidate.candidate_id
+            assert scheduled_proxy_score == proxy_score
+            assert scheduled_voi_estimate == voi_estimate
+            assert initial_schedule.candidate_id == candidate.candidate_id
+            assert initial_schedule.next_level == 3
+            assert initial_schedule.recommended_action == "advance"
+            assert initial_schedule.reason == expected_scheduler_reason
+            assert initial_schedule.economics.expected_improvement_per_usd == pytest.approx(
+                proxy_score / 0.5
+            )
+            assert initial_schedule.economics.estimated_cost_usd == 0.5
+            assert initial_remaining_usd == Decimal("9.8")
             assert controller._simulation_port._controller._producer_budget_observer is owner
             assert owner.last_checked.remaining_usd <= Decimal(0)
             refs = [

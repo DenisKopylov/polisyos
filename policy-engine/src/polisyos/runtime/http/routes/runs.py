@@ -5528,6 +5528,7 @@ def _generic_cycle_simulation_projection(
         derive_n4_candidate_child_problems,
     )
     from polisyos.runtime.quality.generation_cycle import (
+        PolicyGroundingPort,
         _consume_parent_joint_candidate_n8,
         _generation_source_run_id,
         _joint_simulation_port_outcome,
@@ -5709,6 +5710,22 @@ def _generic_cycle_simulation_projection(
                 source_ref=ref,
                 limitation_code="recursive_capacity_historical_verification_not_established",
             )
+    pending_limited_history = {
+        (node.node_ref, cycle.cycle_index)
+        for node in compiled.recursive_run.nodes
+        if isinstance(node, RecursiveCycleNode) and node.cycle_run is not None
+        for cycle in node.cycle_run.cycles
+        if cycle.terminal_kind == "grounded_partial_admissible"
+    }
+    limited_history_refusal = (
+        _generic_cycle_simulation_refusal(
+            run_id=run_id,
+            source_ref=selected_ref,
+            limitation_code="limited_research_outcome_replay_not_established",
+        )
+        if pending_limited_history
+        else None
+    )
     n6_history_fields = _generic_n6_cycle_history_fields(compiled.recursive_run)
     root_only = (
         compiled.generic_cycle_simulation_handoff is not None
@@ -5717,6 +5734,8 @@ def _generic_cycle_simulation_projection(
         and compiled.generic_n4_child_profile_status == "not_established"
         and compiled.n4_recursive_source_result_status == "generated"
     )
+    if limited_history_refusal is not None and not root_only:
+        return limited_history_refusal
     if compiled.generic_n4_child_profile_status != "resolved" and not root_only:
         if compiled.n4_credal_source_attempt_ref is not None:
             attempt_ref = compiled.n4_credal_source_attempt_ref
@@ -5918,6 +5937,8 @@ def _generic_cycle_simulation_projection(
         != compiled.n4_recursive_source_profile_selection_ref
         or compiled.n4_child_profile_status != "not_attempted"
     ):
+        if limited_history_refusal is not None:
+            return limited_history_refusal
         return RunGenericCycleSimulationProjection(
             schema_version="policyos.runtime.run_generic_cycle_simulation_projection.v3",
             run_id=run_id,
@@ -6099,6 +6120,8 @@ def _generic_cycle_simulation_projection(
             and str(exc) == "generation_source_native_history_owner_unavailable"
         ):
             _n4_source_replays[artifact_ref_identity_key(source_ref)] = None
+        if limited_history_refusal is not None:
+            return limited_history_refusal
         return RunGenericCycleSimulationProjection(
             schema_version="policyos.runtime.run_generic_cycle_simulation_projection.v3",
             run_id=run_id,
@@ -6666,6 +6689,25 @@ def _generic_cycle_simulation_projection(
                         n8_limitation = "generic_n5_request_binding_not_established"
                 elif value_port.authority_blockers:
                     n8_limitation = value_port.authority_blockers[0]
+                history_key = (node_ref, cycle.cycle_index)
+                limited = value_port.limited_research_outcome
+                if (
+                    history_key in pending_limited_history
+                    and n8_resolved
+                    and limited is not None
+                    and limited.execution_ref == execution_ref
+                    and limited.matches_reopened(
+                        problem=history_binding.problem, join=join, replay=n5_replay
+                    )
+                    and PolicyGroundingPort()(
+                        candidate=source_candidates[0],
+                        problem=history_binding.problem,
+                        cycle_index=cycle.cycle_index,
+                        generation_result=cycle_source.generation_result,
+                    )
+                    == cycle.grounding
+                ):
+                    pending_limited_history.remove(history_key)
                 from polisyos.runtime.quality.candidate_value_method import (
                     project_candidate_value_method,
                 )
@@ -6905,6 +6947,8 @@ def _generic_cycle_simulation_projection(
                 "joint_parent_observations": (parent_row,),
             }
 
+    if pending_limited_history and limited_history_refusal is not None:
+        return limited_history_refusal
     return RunGenericCycleSimulationProjection(
         schema_version=(
             "policyos.runtime.run_generic_cycle_simulation_projection.v5"

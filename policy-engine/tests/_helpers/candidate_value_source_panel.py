@@ -18,14 +18,16 @@ def build_candidate_value_source_panel(
     *,
     store: ArtifactStore,
     target_variable: str = "cells.distress_score",
+    one_arm_control: bool = False,
 ) -> SimpleNamespace:
     """Build actual active source projections and a candidate AIPW request.
 
-    The synthetic panel has 200 rows, four balanced treatment/covariate cells,
-    ``usd`` outcome values within support ``[0, 16]``, and an exact fixture ATE
-    of ``2``. The unit label is the canonical slot unit id. Active-source
-    timestamps remain unestablished; the fixture grants no treatment-assignment,
-    source-time, or production authority.
+    The positive panel has 200 rows, four balanced treatment/covariate cells,
+    ``usd`` outcomes within support ``[0, 16]``, and an exact fixture ATE of
+    ``2``. The negative control retains the same denominator and covariate
+    support while assigning treatment zero to every row, so an ATE is not
+    identified. Active-source timestamps remain unestablished; neither panel
+    grants treatment-assignment, source-time, or production authority.
 
     Args:
         tmp_path: Test-owned parent for the source and companion artifacts.
@@ -55,6 +57,8 @@ def build_candidate_value_source_panel(
 
     if not isinstance(target_variable, str) or not target_variable.strip():
         raise ValueError("candidate_value_source_panel_treatment_variable_missing")
+    if type(one_arm_control) is not bool:
+        raise TypeError("candidate_value_source_panel_one_arm_control_invalid")
 
     source_root = tmp_path / "native-source"
     native_repo_root = source_root / "authority" / "repo"
@@ -104,9 +108,11 @@ def build_candidate_value_source_panel(
     )
 
     source_rows: list[dict[str, object]] = []
+    treatment_values = (0,) if one_arm_control else (0, 1)
+    rows_per_cell = 100 if one_arm_control else 50
     for covariate in (0, 1):
-        for treatment in (0, 1):
-            for _ in range(50):
+        for treatment in treatment_values:
+            for _ in range(rows_per_cell):
                 index = len(source_rows)
                 outcome = 10 + 3 * covariate + treatment * (1 + 2 * covariate)
                 source_rows.append(
@@ -126,7 +132,11 @@ def build_candidate_value_source_panel(
     cell_counts = Counter(
         (int(row["treatment"]), int(row["baseline_covariate"])) for row in source_rows
     )
-    expected_cells = {(treatment, covariate): 50 for treatment in (0, 1) for covariate in (0, 1)}
+    expected_cells = (
+        {(0, covariate): 100 for covariate in (0, 1)}
+        if one_arm_control
+        else {(treatment, covariate): 50 for treatment in (0, 1) for covariate in (0, 1)}
+    )
     if len(source_rows) != 200 or cell_counts != expected_cells:
         raise AssertionError("candidate_value_source_panel_denominator_mismatch")
 
@@ -259,20 +269,26 @@ def build_candidate_value_source_panel(
             ),
             cell_counts[(treatment, covariate)],
         )
-        for treatment in (0, 1)
-        for covariate in (0, 1)
+        for treatment, covariate in cell_counts
     }
-    exact_ate = (
-        sum(
-            (cell_means[(1, covariate)] - cell_means[(0, covariate)] for covariate in (0, 1)),
-            Fraction(),
+    if one_arm_control:
+        exact_ate = None
+        treated_mean = Fraction()
+        control_mean = sum((cell_means[(0, covariate)] for covariate in (0, 1)), Fraction()) / 2
+        treatment_share = Fraction()
+        control_share = Fraction(1)
+    else:
+        exact_ate = (
+            sum(
+                (cell_means[(1, covariate)] - cell_means[(0, covariate)] for covariate in (0, 1)),
+                Fraction(),
+            )
+            / 2
         )
-        / 2
-    )
-    treated_mean = sum((cell_means[(1, covariate)] for covariate in (0, 1)), Fraction()) / 2
-    control_mean = sum((cell_means[(0, covariate)] for covariate in (0, 1)), Fraction()) / 2
-    treatment_share = Fraction(1, 2)
-    control_share = Fraction(1, 2)
+        treated_mean = sum((cell_means[(1, covariate)] for covariate in (0, 1)), Fraction()) / 2
+        control_mean = sum((cell_means[(0, covariate)] for covariate in (0, 1)), Fraction()) / 2
+        treatment_share = Fraction(1, 2)
+        control_share = Fraction(1, 2)
     support_lower = Fraction(0)
     support_upper = Fraction(16)
     manski_lower = (
@@ -287,7 +303,12 @@ def build_candidate_value_source_panel(
         - control_share * control_mean
         - treatment_share * support_lower
     )
-    if (exact_ate, manski_lower, manski_upper) != (Fraction(2), Fraction(-7), Fraction(9)):
+    expected_oracle = (
+        (None, Fraction(-23, 2), Fraction(9, 2))
+        if one_arm_control
+        else (Fraction(2), Fraction(-7), Fraction(9))
+    )
+    if (exact_ate, manski_lower, manski_upper) != expected_oracle:
         raise AssertionError("candidate_value_source_panel_oracle_mismatch")
 
     return SimpleNamespace(
@@ -297,7 +318,7 @@ def build_candidate_value_source_panel(
         request=request,
         source_rows=tuple(source_rows),
         cell_counts=dict(cell_counts),
-        expected_ate=2.0,
-        expected_bounds=(-7.0, 9.0),
+        expected_ate=float(exact_ate) if exact_ate is not None else None,
+        expected_bounds=(float(manski_lower), float(manski_upper)),
         outcome_support=(0.0, 16.0),
     )

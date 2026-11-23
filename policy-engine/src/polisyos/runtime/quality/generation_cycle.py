@@ -300,6 +300,10 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     require_prepared_joint_simulation_configuration,
     verify_simulation_receipt,
 )
+from polisyos.runtime.quality.limited_research_outcome import (
+    LimitedResearchOutcome,
+    issue_limited_research_outcome,
+)
 
 if TYPE_CHECKING:
     from polisyos.pdc import SubstrateLayer
@@ -2699,6 +2703,9 @@ class ValuePortObservation(_StrictModel):
     candidate_value_method_limitation_code: str | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    limited_research_outcome: LimitedResearchOutcome | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     status: ValuePortStatus = "value_pending_n8"
     candidate_id: str | None = Field(default=None, min_length=1)
     value_ref: str | None = None
@@ -2739,6 +2746,14 @@ class ValuePortObservation(_StrictModel):
 
     @model_validator(mode="after")
     def _verify_value_authority_shape(self) -> ValuePortObservation:
+        limited = self.limited_research_outcome
+        if limited is not None and (
+            self.status != "value_conditional"
+            or limited.candidate_id != self.candidate_id
+            or str(limited.result_ref.artifact_id) != self.value_ref
+            or limited.world_model_record_content_hash != self.world_model_record_content_hash
+        ):
+            raise ValueError("limited_research_outcome_value_binding_invalid")
         method_ref = self.candidate_value_method_ref
         if method_ref is not None and (
             self.status != "value_conditional"
@@ -10454,11 +10469,24 @@ def _conditional_simulation_value_observation(
                 world_model_record_content_hash=world_hash,
             )
     blockers.update(persisted_blockers)
+    authority_blockers = tuple(sorted(blockers))
+    limited = None
+    if cycle_index is not None and generic_refusal is None and replay is not None:
+        limited = issue_limited_research_outcome(
+            problem=problem,
+            candidate_atom_hash=_candidate_content_hash(candidate),
+            cycle_index=cycle_index,
+            simulation=simulation,
+            handoff=generic_handoff,
+            verified_replay=replay,
+            authority_blockers=authority_blockers,
+        )
     return ValuePortObservation(
         status="value_conditional",
         candidate_id=candidate_id,
         value_ref=str(simulation.simulation_result_ref.artifact_id),
-        authority_blockers=tuple(sorted(blockers)),
+        authority_blockers=authority_blockers,
+        limited_research_outcome=limited,
         reason=(
             "N8 consumed a content-bound numerical N5 result for simulation-only "
             "analysis; K_sim is not world evidence or promotion authority."
@@ -12638,6 +12666,17 @@ class GenerationCycleController:
             promotion = PromotionPortObservation(
                 status="not_promoted",
                 reason="candidate_source_reentry_authority_not_established",
+            )
+        elif (
+            self._generic_cycle_simulation_handoff is not None
+            and cycles
+            and cycles[-1].terminal_kind == SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE.value
+            and cycles[-1].voi_decision.next_action == "stop"
+            and cycles[-1].value_port.limited_research_outcome is not None
+        ):
+            promotion = PromotionPortObservation(
+                status="not_promoted",
+                reason="limited_research_outcome_candidate_only",
             )
         else:
             try:
@@ -17735,6 +17774,12 @@ class GenerationCycleController:
             grounding=grounding,
             proxy_score=proxy_score,
             value_port=value_port,
+            simulation=simulation,
+            design_problem_basis_ref=(
+                _problem_ref(problem) if value_port.limited_research_outcome is not None else None
+            ),
+            candidate_atom_hash=_candidate_content_hash(selected_candidate),
+            cycle_index=cycle.cycle_index,
         )
         counterexample = _counterexample_record(
             problem=problem,
@@ -21194,10 +21239,17 @@ class GenerationCycleController:
         candidate_id = _candidate_id(candidate)
         grounding = state["selected_grounding"]
         proxy_score, voi_estimate = state["rankings"].get(candidate_id, (None, 0.0))
+        value_port = state["value_port"]
         terminal_kind = _select_terminal_kind(
             grounding=grounding,
             proxy_score=proxy_score,
-            value_port=state["value_port"],
+            value_port=value_port,
+            simulation=state["simulation"],
+            design_problem_basis_ref=(
+                _problem_ref(problem) if value_port.limited_research_outcome is not None else None
+            ),
+            candidate_atom_hash=_candidate_content_hash(candidate),
+            cycle_index=cycle_index,
         )
         counterexample = _counterexample_record(
             problem=problem,
@@ -21342,6 +21394,10 @@ class GenerationCycleController:
         elif (
             self._generic_cycle_simulation_handoff is not None
             and not preserve_requirement_escalation
+            and not (
+                terminal_kind == SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE.value
+                and next_action.next_action == "stop"
+            )
         ):
             generic_reason = (
                 "generic_cycle_simulation_candidate_only"
@@ -22302,6 +22358,11 @@ def _validate_generation_cycle_run(
             grounding=cycle.grounding,
             proxy_score=0.0,
             value_port=cycle.value_port,
+            simulation=cycle.simulation,
+            design_problem_basis_ref=_cycle_basis_ref(cycle),
+            candidate_atom_hash=cycle.selected_candidate_content_hash,
+            cycle_index=cycle.cycle_index,
+            historical_projection=True,
         )
         if cycle.terminal_kind != expected_terminal_kind:
             issues.append(
@@ -26302,6 +26363,11 @@ def _select_terminal_kind(
     grounding: CandidateGroundingObservation,
     proxy_score: float | None,
     value_port: ValuePortObservation,
+    simulation: SimulationPortObservation | None = None,
+    design_problem_basis_ref: str | None = None,
+    candidate_atom_hash: str | None = None,
+    cycle_index: int | None = None,
+    historical_projection: bool = False,
 ) -> str:
     del proxy_score
     if grounding.acquisition_requirement is not None:
@@ -26325,6 +26391,29 @@ def _select_terminal_kind(
         return SearchTerminalKind.BUDGET_EXHAUSTED.value
     if value_issue and value_issue.startswith("acquire_data:"):
         return SearchTerminalKind.ACQUISITION_REQUIRED.value
+    limited = value_port.limited_research_outcome
+    if (
+        limited is not None
+        and simulation is not None
+        and design_problem_basis_ref is not None
+        and candidate_atom_hash is not None
+        and cycle_index is not None
+        and grounding.status == "grounded_shadow"
+        and grounding.grounding_source == "cgf_firewall"
+        and grounding.grounding_disposition == "shadow_bound"
+        and grounding.report_ref is not None
+        and grounding.cgf_certificate_refs
+        and grounding.candidate_id == limited.candidate_id
+        and limited.matches_cycle(
+            design_problem_basis_ref=design_problem_basis_ref,
+            candidate_atom_hash=candidate_atom_hash,
+            cycle_index=cycle_index,
+            simulation=simulation,
+            value=value_port,
+            historical_projection=historical_projection,
+        )
+    ):
+        return SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE.value
     if value_issue:
         return SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED.value
     if grounding.current_valid:

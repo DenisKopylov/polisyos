@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import time
 from collections.abc import Mapping
+from contextlib import ExitStack, contextmanager
 from typing import TYPE_CHECKING, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, ValidationError, model_validator
@@ -26,9 +27,11 @@ from polisyos.core.contracts import DataTrust, RunCandidateValueMethodProjection
 from polisyos.pdc import gy_content_hash
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from pathlib import Path
 
     from polisyos.core.artifacts import ArtifactStore
+    from polisyos.foundry.methods import FoundryExtensionRegistryReport, MethodRegistry
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.generation_cycle import (
@@ -46,6 +49,7 @@ if TYPE_CHECKING:
 
 _REQUEST_KIND = "runtime.value_owner_source_projection_request"
 _RESULT_KIND = "runtime.candidate_value_method"
+_CONTROLLED_BUILTINS_LIMITATION = "value_method_discovery_scoped_to_controlled_builtins"
 
 
 class CandidateValueMethodImplementationError(Exception):
@@ -238,6 +242,27 @@ def _gateway(
     )
 
 
+@contextmanager
+def _candidate_method_discovery(
+    scope: Literal["controlled_builtins"] | None,
+) -> Iterator[tuple[MethodRegistry, FoundryExtensionRegistryReport] | None]:
+    """Open only the builtin registry explicitly selected by the generic profile."""
+    if scope is None:
+        yield None
+        return
+    from polisyos.foundry.methods import (
+        UnboundFoundryDiscoveryInputError,
+        controlled_builtin_foundry_method_registry_scope,
+    )
+
+    with ExitStack() as stack:
+        try:
+            discovery = stack.enter_context(controlled_builtin_foundry_method_registry_scope())
+        except UnboundFoundryDiscoveryInputError as exc:
+            raise ValueError("candidate_value_method_controlled_discovery_not_established") from exc
+        yield discovery
+
+
 def produce_candidate_value_method(
     *,
     port: _DefaultSimulationBoundFoundryValuePort,
@@ -297,28 +322,35 @@ def produce_candidate_value_method(
     )
     if refusal is not None:
         raise ValueError("candidate_value_method_n5_execution_not_established:" + refusal)
-    consumer = FoundryValuePort(
-        owner_gateway=_gateway(port=port, request=request),
-        artifact_store=store,
-        repo_root=port.repo_root,
-        cycle_substrate_context=port.cycle_substrate_context,
-        catalog_serving_source=port.catalog_serving_source,
-        **{
-            key: value
-            for key, value in port._selection_configuration().items()
-            if key
-            not in {"cycle_substrate_context", "catalog_serving_source", "requested_method_fqn"}
-        },
-        requested_method_fqn=request.selected_method_fqn,
-    )
-    observation = consumer._evaluate_source_rows(
-        candidate=candidate,
-        problem=problem,
-        world_record=world,
-        mode="simulate_only",
-        started=time.monotonic(),
-        candidate_id=_candidate_id(candidate),
-    )
+    with _candidate_method_discovery(profile.candidate_value_method_discovery) as discovery:
+        registry, report = discovery if discovery is not None else (None, None)
+        consumer = FoundryValuePort(
+            owner_gateway=_gateway(port=port, request=request),
+            artifact_store=store,
+            repo_root=port.repo_root,
+            cycle_substrate_context=port.cycle_substrate_context,
+            catalog_serving_source=port.catalog_serving_source,
+            **{
+                key: value
+                for key, value in port._selection_configuration().items()
+                if key
+                not in {"cycle_substrate_context", "catalog_serving_source", "requested_method_fqn"}
+            },
+            requested_method_fqn=request.selected_method_fqn,
+            method_registry=registry,
+            method_registry_report=report,
+        )
+        observation = consumer._evaluate_source_rows(
+            candidate=candidate,
+            problem=problem,
+            world_record=world,
+            mode="simulate_only",
+            started=time.monotonic(),
+            candidate_id=_candidate_id(candidate),
+        )
+    discovery_limitations = observation._candidate_method_scope_limitations
+    if discovery is not None:
+        discovery_limitations = (*discovery_limitations, _CONTROLLED_BUILTINS_LIMITATION)
     basis = observation._candidate_method_run_basis_ref
     value = observation._candidate_method_value_ref
     completed = basis is not None and value is not None
@@ -346,7 +378,7 @@ def produce_candidate_value_method(
             dict.fromkeys(
                 (
                     *observation.authority_blockers,
-                    *observation._candidate_method_scope_limitations,
+                    *discovery_limitations,
                     *(
                         ("outcome_query_coordinates_proposed_unverified",)
                         if problem.outcome_of_interest.query_coordinate_status is not None
@@ -362,7 +394,7 @@ def produce_candidate_value_method(
             if problem.outcome_of_interest.query_coordinate_status is not None
             else ""
         ),
-        "discovery_limitations": observation._candidate_method_scope_limitations,
+        "discovery_limitations": discovery_limitations,
         "failure_kind": observation._candidate_method_failure_kind,
         "selected_method_fqn": observation.selected_method_fqn,
         "run_basis_ref": _selected_ref(basis).model_dump(mode="json") if completed else None,
@@ -415,7 +447,6 @@ def project_candidate_value_method(
             status="not_established",
             limitation_codes=(limitation_code,),
         )
-    from contextlib import ExitStack
     from types import SimpleNamespace
 
     from polisyos.foundry.methods import (
@@ -462,6 +493,9 @@ def project_candidate_value_method(
             or record.n5_execution_ref != simulation.generic_n5_execution_ref
         ):
             raise ValueError("candidate_value_method_source_binding_mismatch")
+        scope = profile.candidate_value_method_discovery
+        if (scope is not None) != (_CONTROLLED_BUILTINS_LIMITATION in record.discovery_limitations):
+            raise ValueError("candidate_value_method_discovery_scope_mismatch")
         from polisyos.runtime.quality.generic_simulation_admission import (
             GenericCycleSimulationAdmissionOwner,
         )
@@ -539,32 +573,36 @@ def project_candidate_value_method(
         if gy_content_hash(selection_inputs) != gy_content_hash(record.selection_inputs):
             raise ValueError("candidate_value_method_selection_configuration_mismatch")
         with ExitStack() as stack:
-            registry = stack.enter_context(registry_scope())
-            try:
-                report = bootstrap_foundry_method_registry(
-                    registry,
-                    include_builtins=True,
-                    include_entry_points=True,
-                    include_dev_scan=False,
-                    require_bound_discovery_manifest=True,
-                )
-            except UnboundFoundryDiscoveryInputError:
-                if (
-                    "value_method_entrypoint_scope_not_established"
-                    not in record.discovery_limitations
-                ):
-                    raise ValueError(
-                        "candidate_value_method_discovery_scope_limitation_missing"
-                    ) from None
-                stack.close()
+            discovery = stack.enter_context(_candidate_method_discovery(scope))
+            if discovery is not None:
+                registry, report = discovery
+            else:
                 registry = stack.enter_context(registry_scope())
-                report = bootstrap_foundry_method_registry(
-                    registry,
-                    include_builtins=True,
-                    include_entry_points=False,
-                    include_dev_scan=False,
-                    require_bound_discovery_manifest=True,
-                )
+                try:
+                    report = bootstrap_foundry_method_registry(
+                        registry,
+                        include_builtins=True,
+                        include_entry_points=True,
+                        include_dev_scan=False,
+                        require_bound_discovery_manifest=True,
+                    )
+                except UnboundFoundryDiscoveryInputError:
+                    if (
+                        "value_method_entrypoint_scope_not_established"
+                        not in record.discovery_limitations
+                    ):
+                        raise ValueError(
+                            "candidate_value_method_discovery_scope_limitation_missing"
+                        ) from None
+                    stack.close()
+                    registry = stack.enter_context(registry_scope())
+                    report = bootstrap_foundry_method_registry(
+                        registry,
+                        include_builtins=True,
+                        include_entry_points=False,
+                        include_dev_scan=False,
+                        require_bound_discovery_manifest=True,
+                    )
             if not report.success:
                 raise ValueError("candidate_value_method_registry_unavailable")
             stack.enter_context(registry.snapshot_scope())

@@ -484,6 +484,9 @@ class GenericCycleSimulationProfileV1(_StrictModel):
     candidate_value_source_request_ref: ArtifactRef | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    candidate_value_method_discovery: Literal["controlled_builtins"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     context_inputs: CandidateSimulationContextInputs
     n5: _GenericCycleN5RequestProfile
     limitations: tuple[
@@ -554,6 +557,8 @@ class GenericCycleSimulationProfileV1(_StrictModel):
             or request_ref.manifest_profile_sha256 is None
         ):
             raise ValueError("generic_cycle_candidate_value_source_request_ref_invalid")
+        if self.candidate_value_method_discovery is not None and request_ref is None:
+            raise ValueError("generic_cycle_candidate_value_method_discovery_requires_source")
         # An exact manifest selector is an address, not a source-codec claim.
         # The admission owner verifies the actual default NCM codec on read;
         # declaration-sidecar codecs still require their separate owner context.
@@ -1658,6 +1663,7 @@ class GenericN5ResolvedResult:
     result: JointSimulationResult
     request: JointSimulationRequest
     initial_method_input: GenericN5InitialMethodInputRequest | None = None
+    input_record: GenericCycleSimulationN5InputV1 | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -4424,6 +4430,7 @@ class GenericCycleSimulationAdmissionOwner:
                         result=result,
                         request=result_request,
                         initial_method_input=initial_method_input,
+                        input_record=input_record,
                     )
             if (
                 type(record) is GenericCycleSimulationN5ExecutionV4

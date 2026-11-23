@@ -12,6 +12,7 @@ from polisyos.runtime.http.errors import RuntimeDependencyError
 from polisyos.runtime.quality import generation_cycle as gc
 from polisyos.runtime.quality.candidate_value_method import (
     CandidateValueMethodImplementationError,
+    _candidate_method_discovery,
     project_candidate_value_method,
 )
 from polisyos.runtime.quality.generation_cycle import (
@@ -51,6 +52,35 @@ def _validation_error_with_assertion_cause() -> ValueError:
     failure = ValueError("validation wrapper")
     failure.__cause__ = cause
     return failure
+
+
+def test_candidate_method_discovery_requires_explicit_controlled_scope() -> None:
+    """The explicit scope uses the repeatable builtin denominator, independent of plugins."""
+    from polisyos.foundry.methods.catalog.causal.treatment_effects import (
+        AIPWEstimator,
+        TMLEEstimator,
+    )
+
+    with _candidate_method_discovery(None) as absent:
+        assert absent is None
+
+    with _candidate_method_discovery("controlled_builtins") as first:
+        assert first is not None
+        registry, report = first
+        assert report.success
+        assert report.discovery_manifest is not None and report.discovery_manifest.is_bound
+        assert report.discovery_manifest.entry_point_groups == ()
+        assert registry.get(AIPWEstimator.signature.fqn) is AIPWEstimator
+        assert registry.get(TMLEEstimator.signature.fqn) is TMLEEstimator
+        assert set(report.registry_fqns) == {signature.fqn for signature in registry.list_all()}
+
+    with _candidate_method_discovery("controlled_builtins") as fresh:
+        assert fresh is not None
+        fresh_registry, fresh_report = fresh
+        assert fresh_registry is not registry
+        assert fresh_report.discovery_manifest is not None
+        assert fresh_report.discovery_manifest.manifest_id == report.discovery_manifest.manifest_id
+        assert fresh_report.registry_binding_sha256 == report.registry_binding_sha256
 
 
 @pytest.mark.parametrize(

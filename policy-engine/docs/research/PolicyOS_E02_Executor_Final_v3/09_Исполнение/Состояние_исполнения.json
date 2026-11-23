@@ -10854,8 +10854,8 @@
             "packets_assessed": 11,
             "requirements_assessed": 66,
             "status_counts": {
-              "CONFIRMED_LOCAL_PROFILE": 57,
-              "PARTIAL": 7,
+              "CONFIRMED_LOCAL_PROFILE": 60,
+              "PARTIAL": 4,
               "BLOCKED_EXTERNAL_INPUT": 2
             },
             "scope": "Requirement-level retained evidence for named local profiles. Original shared scenarios, independent G and the 300k operating profile keep their own acceptance.",
@@ -20065,6 +20065,13 @@
           "sha256": "8a8d3a02d25203ad3097a2b5700a4ec3126828fad1a0fa5de4f493568884ddb8",
           "verified_boundary": "Nine scoped unit/projection selectors and one exact wrapper selected-FQN case pass. Typed AIPW local refusal checks both treatment arms and pure selected method parameters; markerless or unsupported shared input refuses the sibling. The wrapper verifies stored method/N5 lineage and sends FQN, method ref and preserved N5 to the actual route adapter. Legacy refusal wire remains. 147 Dashboard tests, 63 SDK tests, their types, runtime contract drift and normal hooks pass. Actual served N5-to-N8-to-sibling, preserved spend and mounted HTTP are still missing."
         },
+        "acq01_verified_closed_source_collection_r1": {
+          "source_commit": "c6c9f3d2f30cc8ed1b6c8c314180899b6d800d20",
+          "source_tree": "07841a7c624e3e4f1879981375f96a304d289d7a",
+          "output": "Primary:policy-engine/_cache/e02/acq01-verified-input-collection-r1.bmce4idy/junit.xml",
+          "sha256": "8fdeee91d4758f052900822cee36019fa6b96763a83182ccf614ee09b00a0b9d",
+          "verified_boundary": "Exact stock verified-collection test 1/1 passes. Actual Catalog passport and selected synthetic observation after one controlled fetch yield two pending nodes when empty, one when partial, and inputs_complete/pending_actions empty when both role facts reopen. The target remains unsatisfied and semantic admissibility/currentness not_established. A fresh process replays the saved complete collection. Read-loss injection refuses collection/replay and restoration recovers it. No further transport, no N5 in parent, child uses only read-only CAS. Independent review confirms the bounded no-additional-acquisition discriminator. Full Python overlay stable, 1,819 loaded origins with no foreign, 38.315s/3,168,813,056B. No source independence or broader no-data claim."
+        },
         "acq01_n7_two_suppliers_same_leaf_r2": {
           "source_commit": "511eecf2f1c2bb9e26f6f23f234c2b546850ebc8",
           "source_tree": "2fca4cd92847609146963f2e855b0641f4b37273",
@@ -20099,6 +20106,13 @@
           "output": "Primary:policy-engine/_cache/e02/cyc04-bound-discovery-served-positive-r3.H9n3Cm/effect-census.json",
           "sha256": "2d78b6f36c5d7aa0f9df4997a3ef62a7416b458e9d788c495349d0dcecc49cb2",
           "verified_boundary": "The corrected stock JUnit passes 1/1. One completed job has one cycle and three original candidates. Two physical N5 calls, one replication each, retain first government.balance at 0.25 and second cells.distress_score at 0.5. The actual AIPW owner emits the first local mismatch and returns 1.9999943737942087 for the second. Six real GETs show the numerical and method receipt removals and exact restoration. Two standard units complete, the protected unit remains, and no external supplier or reader work occurs. The shared provenance wrapper exits 1 due to one concurrent additive acquisition_planner.py delta. Exact preimage/observed source copies and the two origin sets are preserved separately."
+        },
+        "cyc05_03_actual_bounded_research_stop_refinement_conflict_r4": {
+          "source_commit": "c6c9f3d2f30cc8ed1b6c8c314180899b6d800d20",
+          "source_tree": "07841a7c624e3e4f1879981375f96a304d289d7a",
+          "output": "Primary:policy-engine/_cache/e02/cyc05-03-stock-physical-r4-20261123-2xo5RX0p/budget/result.json",
+          "sha256": "4884b65d70bcfedc21eea4fb341f6ecac592262488a7f3770cdf0fdc79405c3a",
+          "verified_boundary": "On the named working overlay and exact test 8a32ecc0…, a stock paired NCM produces +0.25 with four standard completed invocation records and the protected unit unchanged. It persists grounded_partial_admissible with the verified conditional_model_outcome_difference.v1 and candidate-only simulation evidence. Fresh authenticated Run Details returns HTTP 200, but the real generic candidate-only branch overwrites the stock stop action and yields block_candidate and blocked_no_retry. The original deciding assertion fails, guard stays red, and mounted reader/restoration are not yet qualified for the corrected semantics. The retained executed artifacts and all work-operation IDs are the source for a no-N5 replay if supported."
         },
         "cyc05_03_limited_research_scalar_metric_r3": {
           "source_commit": "f78f9aadff3809a3bd2e086ff8feca84b39a0f69",
@@ -20508,12 +20522,89 @@
           "source_pin_sha256": "2c14c1f7a4125c0714827218cc8c956b5d211503ed8a23be64a4892ba5b8f463",
           "verified_boundary": "PASS, stable full Python source and exact original CAS (3905 files), SQL and Catalog; 1767 checkout module origins. CG1 certified-specialization; CG2 abstain on open admissibility_closed; CG3 rejects outcome_wish. Graph confirms tax_subsidy actuation consumes income and writes income and fiscal balance. The requested research ATE objective names government.balance; the retained proposal sets both action and outcome to agents.income. Component only, zero provider/worker/N5, with CG4/CG5 and method/N6 untouched. Group joined in 48.961s at 1651310592B RSS."
         },
+        "acq01_05_current_served_cpi_preflight_timing": {
+          "source_commit": "c6c9f3d2f30cc8ed1b6c8c314180899b6d800d20",
+          "source_tree": "07841a7c624e3e4f1879981375f96a304d289d7a",
+          "output": "Primary:policy-engine/_cache/e02/acq01-05-cpi-served-preflight-r1/result.json",
+          "sha256": "cbd20571d5080ad55405251400c54754be9ad43f197055f3551cb6d92d5f8c6a",
+          "verified_boundary": "Current stock owner preflight reopens the exact retained controlled-N4 CPI requirement, source profile and candidate_source_reentry_n5. Source owner passes at 3.879s; origin 8.658s, total probe 36.96s. No HTTP, worker or N5 and all original values/pins stay. The strict outer fixture status is ERROR because current SQLite initialization adds three empty model-input frontier tables to the private old clone. All 17 original business tables and CAS rows reconcile. Historical PA2 is not current and no effect is authorized. A fresh accepted numerical action and joint same-source controls remain open."
+        },
         "acq01_05_retained_cpi_r9_raw_cas_audit": {
           "source_commit": "f39e11f24cce6514cae6d2495a1dc43a32cd113f",
           "source_tree": "26e6f8cbd1f35342a36bdf9a6481b719a174aa7e",
           "output": "Primary:policy-engine/_cache/e02/acq01-05-cpi-r9-cas-audit-r1/report.json",
           "sha256": "96fe5ae59a2310b9193d662fa13d3b521ceca9181a0683a6c80bba65638a73f7",
           "verified_boundary": "Read-only reconciliation reopens exact 312-byte controlled CPI raw response, original evidence journal, selected source snapshot and N4/N5 through execution/result manifests. Two completed physical NCM calls have seeds 11 and 12, modeled value 456.5909729003906 and effect -0.5. R9 is an orphan failed run with candidate_experiment_terminal_identity_mismatch and canonical_loaded_runtime_mismatch. The R4 cold GET for the distinct R10 producer confirms its selected candidate-only result at different refs, and PP3b verifies prefetch-only refusals on a later source. A same-slice useful terminal and distinguishing aggregation/preparation evidence remain open."
+        },
+        "cyc03_05_v5_r10_cold_selected_history": {
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "source_tree": "93dd2fe60a0afcd4463e6b77a43a5ea53f691640",
+          "output": "Primary:policy-engine/_cache/e02/lane01-v5-run-details-r10-readonly-cross-r1/execution-r10/run-details-projection.sanitized.json",
+          "sha256": "7daec75630cb38b8e7f06a40fe2efb7276a67a993e074835cb56ad4bb39fe523",
+          "verified_boundary": "One fresh authenticated stock HTTP 200 returns the exact untruncated V5 candidate_reentry_completed selected numeric body from generation 1 with new_execution and original frontier. Comparison and currentness are not_established, with no observation admission or publication authority. Original budget path, inode and bytes are preserved through OS-protected real ledger lookup. Private SQL and all original CAS, Catalog and issuer inputs are unchanged. Zero provider, worker and N5. The harness retains exit 1 because it expected the former integrity refusal. Exact withdrawal/restoration and mounted reader remain separate."
+        },
+        "acq01_n7_two_suppliers_served_r1": {
+          "source_commit": "c6c9f3d2f30cc8ed1b6c8c314180899b6d800d20",
+          "source_tree": "07841a7c624e3e4f1879981375f96a304d289d7a",
+          "output": "Primary:policy-engine/_cache/e02/acq01-n7-or-served-r1.lu8v6djo/junit.xml",
+          "sha256": "804744e30ea6b4d9af8fd47678e3e9d912eed6baec1e2a062314cd4adc7cbee9",
+          "verified_boundary": "One exact served case passes without skips. Stock N7 persists two separate Catalog declarations for one GDP leaf/gap and a separate ratio leaf. Fresh app reconstructs the exact three unpriced current projections and three details. Removing the exact alternate blob refuses 409 and restoring it restores the same list. The selected bundle remains unsatisfied and historical absence, currentness and measurement admission remain not_established. Source job, action heads and ledger unchanged, zero fetch and N5. 7,391 stable Python files, 2,071 loaded modules, 39 named pins, no foreign origin. Working source overlay is in source-census.json with SHA-256 80e98e6306390f9af2689a7b56b34acdaca230968a2c1acd0d570f7e4d7b08ed. Supplier independence and purchase are separate."
+        },
+        "cyc03_05_v5_r11_mounted_overview_trilogy": {
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "source_tree": "93dd2fe60a0afcd4463e6b77a43a5ea53f691640",
+          "output": "Primary:policy-engine/_cache/e02/lane01-v5-run-details-r11-strict-trilogy-20261123/dashboard-live-restored/dashboard-run-details-observations.jsonl",
+          "sha256": "072448b1650d42cf4a8860693b65a091c223432e2546b13e8b9f97bf3d452584",
+          "verified_boundary": "The actual mounted Overview reads the stock signed Run Details. Positive and restored show V5 generation 1, selected frontier revision 1, new_execution, same declared candidate-only 0.177 level and +0.002 modeled change, comparison/currentness not_established. With only the exact selected result-profile manifest removed in a private clone, fresh mounted Overview retains the section and displays acquisition_action_history_integrity_not_established, with no selected V5 row or 0.177 level. Positive/restored API row and selected body digests match. The first shared app had an unrelated local 1.5s epoch CAS timeout and its UI did not qualify the negative. Separate fresh apps use the supported 10s CAS timeout and no classifier/auth change. Zero new worker, N5 or provider calls. Prior V2/V3 mounted history remains qualified on its own exact scope."
+        },
+        "cyc03_05_v5_r11_stock_withdraw_restore": {
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "source_tree": "93dd2fe60a0afcd4463e6b77a43a5ea53f691640",
+          "output": "Primary:policy-engine/_cache/e02/lane01-v5-run-details-r11-strict-trilogy-20261123/execution-r11/execution-status.json",
+          "sha256": "f5f9991b0c5cd1dea180bbdb5c19265d36aeb67848b2e59eb59cddfb1df815d9",
+          "verified_boundary": "Three stock signed fresh GETs pass. Positive/restored V5 generation-1 result row and full selected body hashes are identical. Withdrawing only the exact selected result profile view, with original base manifest and blob still present, returns HTTP 200 and an empty history with acquisition_action_history_integrity_not_established. Zero provider, worker, N5 and unchanged original source, SQL and OS-protected ledger. Quiescent pass at 117.3s. Positive actual mounted Overview is separately observed; withdrawal and restoration in the mounted UI remain pending."
+        },
+        "cyc05_03_r5_mounted_actual_fourth_stop": {
+          "source_commit": "c6c9f3d2f30cc8ed1b6c8c314180899b6d800d20",
+          "source_tree": "07841a7c624e3e4f1879981375f96a304d289d7a",
+          "output": "Primary:policy-engine/_cache/e02/cyc05-03-overview-r5-20261123-yZZNSRd4/live/stock-run-detail-reads.jsonl",
+          "sha256": "ea1ea1afbbfa4f813b3f3cd90cc6639e80a8e1f9bc083ee322091822ce66f29c",
+          "verified_boundary": "Actual Dashboard mounts the fresh stock authenticated R5 Run Details and shows completed / grounded_partial_admissible / refinement stop / search stopped, current valid false, only simulation_only_k_sim_not_world_evidence. The visible paired scalar employment_retention outcome and model effect are +0.25. Selected projection hash fa9b9b320f4092d288ad1ecab8ba1448429602e67180338261ac7b3206e23ae8 equals the direct fresh stock API preflight. No new N5 or worker. Outer mount wrapper exits 1 because it detected two incidental browser POST requests, both refused HTTP 405 before the application. Direct and mounted stock GET evidence, original input bytes and process quiescence are verified. Earlier actual frontier_stable, budget_exhausted and grounded_abstention terminal profiles are retained separately with fresh auth and sibling corruption refusals. This closes the original local semantic scope."
+        },
+        "cyc05_03_real_fourth_stop_r5": {
+          "source_commit": "c6c9f3d2f30cc8ed1b6c8c314180899b6d800d20",
+          "source_tree": "07841a7c624e3e4f1879981375f96a304d289d7a",
+          "output": "Primary:policy-engine/_cache/e02/cyc05-03-stock-physical-r5-20261123-F3xelWW9/budget/result.json",
+          "sha256": "c2a655cfeba6cb56fa5b4330fa8aeb8457a1b2d534a6d02b271c219c5e770a32",
+          "verified_boundary": "One stock persisted research case passes. Model-only paired .25 on seeds 11 and 12, four completed standard units, protected 1/1. Actual grounded_partial_admissible/stop/stopped/completed is persisted, N7 no source action and N9 not_promoted limited_research_outcome_candidate_only. Seven signed fresh-app reads include four independent refinement/iteration corruptions returning exact HTTP 400, actual selected comparator withdrawal returns typed 200 refusal, and restored exact projection. 68 named stable paths, 40.216s/2,050,932,736B, 0 additional N5 per reader. Fresh Runtime app and CAS store in same process. Mounted Overview remains open."
+        },
+        "gate_b_v25_configured_source_withdrawal_retained": {
+          "source_commit": "407c6f445b6bf9165b8ab213c470879fde651b69",
+          "test_sha256": "a8e486b2c8e9ff3fa8989294b962a0128a9a50ad5b5566d9ed4b0ab8274288d8",
+          "output": "Primary:policy-engine/_cache/e02/heldout-fresh-get-r1-20261114/result.json",
+          "sha256": "3562dcfc536eb6d3cc631879ca91f6fbedc0b279b19388e12aad412be222b78b",
+          "verified_boundary": "Independently reconciled Gate B V25 for configured local transport-reserve source: exact new current source re-request before awaiting a separate fresh approval, configured-entry-only withdrawal causing 409 before effects, immutable historical full result at 602.5 with one original N5 and exact ledger, fresh process and signature withdrawal/restoration with zero additional N5. The full retained producer command stays failed at the later obsolete projection field. This witness is scoped to current source requalification, fail-closed withdrawal and preserved history."
+        },
+        "native_r56_signed_r3_stock_stage_binding_refusal": {
+          "source_commit": "c6c9f3d2f30cc8ed1b6c8c314180899b6d800d20",
+          "source_tree": "07841a7c624e3e4f1879981375f96a304d289d7a",
+          "output": "Primary:policy-engine/_cache/e02/native-use-r56-actor-guard-20261123/execute-once-46c8ec56f464-r3/execution-result.json",
+          "sha256": "39cb102f3e6a969ec8725d00ad6ee9d9a5d4108dba9d9d44467c93224ccd2598",
+          "verified_boundary": "Real signed request reaches approved PA2 on the restored original paid journals, then queues exactly one job and dispatches attempt 1. Stage phase and semantic successor selection persist and ledger advances from 34 to 35 with only the new .50 reentry budget window. The real worker fails before Native N5 at generic_native_model_input_use_stage_binding_mismatch. Zero supplier calls or physical reservations. Original source journals, paid ledger and other original protected bytes remain unchanged. Private SQL has the exact new failed job and dead-letter record; its guard classifies this as protected_state_changed because success allowlist excludes DLQ. Strict guard exit1, 1076.987s/2,088,370,176B and all joined. No cold numeric read. Reconcile the exact failed stage predicate before any recovery."
+        },
+        "native_r56_paid_journal_restoration_and_stock_source_read": {
+          "source_commit": "c6c9f3d2f30cc8ed1b6c8c314180899b6d800d20",
+          "source_tree": "07841a7c624e3e4f1879981375f96a304d289d7a",
+          "output": "Primary:policy-engine/_cache/e02/native-use-r56-actor-guard-20261123/positive-source-owner-UG3seKS6/source-owner-result.json",
+          "sha256": "1150e8df29368ff96e8677ef2ec68301a21c35967fb50194cae3dde1574a8f32",
+          "verified_boundary": "The direct stock cause chain is live_source_execution_invalid through journal_event_ref_unresolved for the exact original R23 B journal moved during storage cleanup. Four retained files match all 4,452 bytes and all six signed event offsets/hashes, recorded in both the chosen paid source attempt and passport. Only that journal was restored at the old absolute path, SHA-256 62f8f681a36de273e8b5834565a3775fbc06ea46f6c23cab584181b99efda624. The A carrier remains intact on its original R4 path. The exact recheck returns one successful stock selection and one candidate-only source return, no effects and exact protected SQL/bytes. 201.785 seconds, guard PASS and joined. This establishes source custody before real PA2, worker or N5."
+        },
+        "native_r56_live_signed_decision_conflict_discriminator": {
+          "source_commit": "c6c9f3d2f30cc8ed1b6c8c314180899b6d800d20",
+          "source_tree": "07841a7c624e3e4f1879981375f96a304d289d7a",
+          "output": "Primary:policy-engine/_cache/e02/native-use-r56-actor-guard-20261123/positive-decision-UKWRzWV6/decision-result.json",
+          "sha256": "be43adfed53d718dd3a3fac5122a5a1caea1038a94e7725c7a144a250a74c15c",
+          "verified_boundary": "One actual stock signed decision request returns HTTP 409 conflict, with exact request-bound PA1 digest and no successful Native live source selection or source-preflight return. No PA2, DS9, job enqueue, worker, supplier source action or N5. The protected SQL, Catalog, original supplier and paid ledger bytes remain unchanged. The diagnostic guard passes as a measurement of refusal. The previous actual action harness stopped at the same phase without detailed HTTP capture and never executed. The exact nested owner reason remains open."
         },
         "native_r56_archived_cgf_n6_actuation_reconciled_r3": {
           "source_commit": "511eecf2f1c2bb9e26f6f23f234c2b546850ebc8",
@@ -36891,18 +36982,18 @@
           "binding_ids": [
             "E02-I01-B-B02"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
+            "acq01_verified_closed_source_collection_r1",
+            "acq01_n7_two_suppliers_served_r1",
             "acq01_n7_two_suppliers_same_leaf_r2",
             "acq01_domain_scope_r2",
             "governed_n7_same_cycle_reentry_r8",
             "requirement_selection_consumer_current"
           ],
-          "basis": "The actual N7 compiler and planner record typed scope and unresolved need. Empty or foreign inputs refuse, and the exact bridge points to the pending numerical port.",
-          "remaining_kinds": [
-            "verification_missing"
-          ],
-          "remaining": "Verify the joined N7 to resolver to executor path under the shared declared source and query, including complete bound inputs."
+          "basis": "Distinct actual GDP and Labor compiler scopes, exact raw override/unknown/refusal behavior, typed two-supplier same-leaf N7 planning and actual API refusal/restoration are verified. The actual configured source owner separately reopens a complete declared role denominator with no pending acquisition while the requested derivation remains unsatisfied. Empty, partial and unknown cases do not become no-need. Evidence establishes the original bounded compiler/resolver/acquisition scope. ACQ-01-06 distinct real numerical domain consumers remain separate.",
+          "remaining_kinds": [],
+          "remaining": ""
         },
         {
           "requirement_id": "REQ-ACQ-01-02",
@@ -36994,6 +37085,7 @@
           ],
           "status": "PARTIAL",
           "evidence_refs": [
+            "acq01_05_current_served_cpi_preflight_timing",
             "acq01_05_retained_cpi_r9_raw_cas_audit",
             "p06_transport_served_reconciliation",
             "gdp_producer_fresh_read_reconciliation",
@@ -37198,18 +37290,19 @@
             "E02-I01-B-B03",
             "E02-X02-B02"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
+            "cyc03_05_v5_r11_mounted_overview_trilogy",
+            "cyc03_05_v5_r11_stock_withdraw_restore",
+            "cyc03_05_v5_r10_cold_selected_history",
             "cyc03_05_v5_r9_cold_ledger_identity_conflict",
             "lane01_r33_composed_historical_reader",
             "r33_independent_fresh_reader_r6",
             "cyc03_05_overview_selected_n5_profile_links"
           ],
-          "basis": "Actual backend reads distinguish current C and retained original execution. An isolated Chromium test verifies the history presentation using injected discovery.",
-          "remaining_kinds": [
-            "verification_missing"
-          ],
-          "remaining": "Qualify the live coupled UI or export through the actual owner-joined route, including current occurrence and original computation provenance."
+          "basis": "Stock Run Details and actual mounted Overview qualify current and retained historical V2/V3 and candidate-only V5 with exact selected N5 artifact/body provenance. V5 strict positive, exact profile-view withdrawal, and restoration return equivalent API and visible behavior with zero new numerical or source work. Exact original ledger and business read custody are preserved. The first V5 mounted shared-app ancillary CAS timeout is retained separately.",
+          "remaining_kinds": [],
+          "remaining": ""
         },
         {
           "requirement_id": "REQ-CYC-03-06",
@@ -37517,19 +37610,20 @@
           "binding_ids": [
             "E02-I01-C-B02"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
+            "cyc05_03_r5_mounted_actual_fourth_stop",
+            "cyc05_03_real_fourth_stop_r5",
+            "cyc05_03_actual_bounded_research_stop_refinement_conflict_r4",
             "cyc05_03_limited_research_scalar_metric_r3",
             "cyc05_03_model_only_limited_research_component_r2",
             "cyc05_stop_dashboard_composed_r1",
             "frontier_current_r8",
             "cyc_05_03_fresh_actual_n6_stop_http"
           ],
-          "basis": "Real capacity interruption preserves completed result and unattempted frontier. Separately, actual three stock N6 terminal outcomes reopen in fresh Run Details, six independent field corruptions refuse and exact restoration matches. Dashboard component coverage remains scoped to injected rows and saved capacity wire.",
-          "remaining_kinds": [
-            "verification_missing"
-          ],
-          "remaining": "Verify genuine historical grounded_partial_admissible through a full owner-produced persisted cycle or an explicit verified bridge, with historical currentness limits. Mount the actual Dashboard against fresh authenticated responses for the four kinds and keep the sibling controls."
+          "basis": "All four actual N6 stop kinds are persisted and read through stock authenticated Run Details with separate refinement/iteration mutation refusals. R5 gives the verified paired candidate-only +0.25 and persists grounded_partial_admissible/stop/stopped with four standard completions and the protected unit intact. Exact selected comparator withdrawal/restoration and actual mounted Overview confirm the fourth distinct outcome with zero reader N5. Earlier R4 remains preserved with the pre-fix blocked refinement.",
+          "remaining_kinds": [],
+          "remaining": ""
         },
         {
           "requirement_id": "REQ-CYC-05-04",

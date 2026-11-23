@@ -20639,6 +20639,25 @@
           "guard_sha256": "3ee20bc179ad5667a1f973573d85a161ba7dc61fde90cf917c19e57cfcac3625",
           "verified_boundary": "Exact no-effect A+B owner probe on two requalification bookends and existing operation memo. Owner 148.962 seconds versus baseline 267.988; two full B reads 64.328 and 66.156 seconds, twelve action-outcome reads 112.226 inclusive seconds. Stock source paths resolve to the isolated checkout, checked SQL and paid input files remain stable, and the command joins PASS with zero queue, worker, supplier or N5 in 197.822 seconds at 1987133440 B. Real paid action still unverified."
         },
+        "native_r56_controlled_r5_first_http_observer_stop": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "source_branch": "codex/lane01-acq-owner-isolated-20261123",
+          "source_pin_sha256": "f60caa481c3b8a56959fee3b6b153af7b87b0306c9b833abd064d5653df0f786",
+          "output": "Primary:policy-engine/_cache/e02/native-use-r56-actor-guard-20261123/execute-once-native-paid-b-r5-controlled-exposure/execution-result.json",
+          "sha256": "a6d0dbd97dbb40c002d8daaf11e9a65c2204af0528a7f565afca76ab05dd20e6",
+          "guard_sha256": "82aefcd5241a6384567f952e1f49d173898dd0cfdc1b7a50844494e18b7c8cb6",
+          "verified_boundary": "First actual signed stock decision returns HTTP 200, with exact bound digest and one selected owner/source return. The diagnostic observer still expects the old return type and stops on the changed pair shape. No DS9, execute, queue, worker, provider or physical reservation, original archived sources intact. Group joins COMMAND_FAIL, 152.291 seconds, peak 1702608896 B."
+        },
+        "native_model_input_owner_worker_and_contract_publication": {
+          "source_commit": "6dce914c50e0f1b1d4bd73cecb5a7c30bcdb4ea4",
+          "source_tree": "7c43064ea1ff92b7951f32b884e417166c920a1a",
+          "output": "Primary:policy-engine/_cache/e02/native-main-scope-r1.m687SiOy/budget/result.json",
+          "sha256": "deaae6d029495936e0f3d884e97024cd9ae90c5c39e35993d163e5bec8beeb9d",
+          "junit_sha256": "8780a8cf13da0ed0438d5e834fc1a8823ca894e630977c71d32a914e37ebac5d",
+          "openapi_sha256": "55eaf6b5d49b4e108c485d6f1c1b19e98a96a0c0823df362021f0615cd84925c",
+          "verified_boundary": "Published main ref independently matches the composed commit. Ten affected source selectors pass in 28.459 seconds, peak 1519321088 B. Fresh stock OpenAPI export and supported client generation pass. Signed Native decision and execute request contract are generated. The selected-result GET response contract retains its shape. The paid-B physical result and cold read still require the deciding R6 run."
+        },
         "native_r56_exact_stage_ref_identity_component": {
           "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
           "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
@@ -20680,6 +20699,14 @@
           "sha256": "bc8e4d77ad9768ce86aac244e44314af42859e842df53d449de2556969d09d32",
           "verified_boundary": "One exact pre-effect test passes. Actual served Labor factory previously kept maximize on outcome although objective minimizes. Correct scoping of the test-only fixture owner passes both minimize declarations, then actual N7 resolves Labor unemployment for USA/2024/total labor force. No provider, worker or N5. New coherent actual materialization and numerical read remain missing, while old scoped results retain original declarations."
         },
+        "archived_labor_blocked_run_details_cold_read": {
+          "source_commit": "6dce914c50e0f1b1d4bd73cecb5a7c30bcdb4ea4",
+          "reader_overlay_sha256": "4480f84d2a70603fa3950dff17d34becb1dcbb0bcb67985749723c13dfe27dec",
+          "output": "Primary:policy-engine/_cache/e02/lane01-labor-r1-blocked-cold.ph6kYTJI/postflight-reconciliation.json",
+          "sha256": "7ed2d6e910bf932c0856d0937a43e4f40138260c1c2c4a59b179d7945fad46a9",
+          "guard_sha256": "31d86457702ca86a3011cdb86d440c109af0bb2f4a4bd5ed96b06309cc7f95d2",
+          "verified_boundary": "Three actual signed Run Details responses return 200 in a fresh process. The exact archived blocked V4 occurrence and old A are readable. Exact B result profile withdrawal produces an addressed limitation and restoration reproduces the candidate projection. The joined supervisor remains COMMAND_FAIL at raw clone sidecar reconciliation. Independent postflight finds byte-identical SQLite DB, unchanged rows in all 21 tables, empty WAL and transient shared memory, unchanged CAS/ledger and expected read audit. Zero new provider, worker or N5. No selected numerical frontier; Labor qualification and two-occurrence adverse scenario remain open."
+        },
         "acq01_04_isolated_two_actors_leased_route_r7": {
           "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
           "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
@@ -20688,6 +20715,15 @@
           "sha256": "ed978a60d5a316aae216c63d20bc4f65ffd7e87d896595ac53ab354d586b6ccc",
           "junit_sha256": "b5cb2181a0184a6c5f87b72d9385f715b5d4945be884462fdf7568d0ca6b7aba",
           "verified_boundary": "Two stock signed subjects; exact leased ordinary route reopened and reaches the later deliberate problem-scope refusal. Sibling route on same lease and absent ambiguous route refuse earlier. Native and legacy contracts pass in the same guarded group. 3 passed, 27 stable inputs, 56.125 seconds, peak 1631010816 B. No handler physical work, supplier call or frontier effect. The original shared-frontier race remains."
+        },
+        "acq01_04_registered_usd_offer_readiness_r11": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "source_branch": "codex/lane01-acq-owner-isolated-20261123",
+          "output": "policy-engine/_cache/e02/acq01-04-ordinary-frontier-stage-r11.6tW108bd/budget/result.json in the isolated ACQ owner checkout",
+          "sha256": "321a19ae6290012ade08fe8a12a6f7edeb4a443e676f42821de34eab3aba3a8a",
+          "input_pin_sha256": "72b3442576541fc87651ec6b5d8a7b5120350e30f5b27a18119aad62301ae26b",
+          "verified_boundary": "Stock selected compiler and reentry preflight qualify the two registered GDP USD suppliers under distinct offers for the exact model port, with the authentic retained baseline and frontier revision zero. No execute, worker, supplier, reservation, N5 or frontier advance. PASS 34.158 seconds, peak 1603616768 B. The actual two-actor stale-frontier effect and fresh result remain open."
         },
         "native_r56_complete_history_reuse_scope_r1": {
           "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",

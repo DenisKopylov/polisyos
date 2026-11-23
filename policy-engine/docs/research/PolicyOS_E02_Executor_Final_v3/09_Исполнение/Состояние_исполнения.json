@@ -20752,6 +20752,14 @@
           "command_log_sha256": "ff7609df9247b3665859e74bbbe92a3e83b39e6c3fe9f8f13ac6edb28c5108f3",
           "verified_boundary": "First R12 effect invocation joins COMMAND_FAIL in 38.097 seconds before a request. Initial app constructed under fixture tenant invokes global promotion ownership refusal. Original and run SQL match, no new ACQ job, lease, journal or frontier. Zero provider or N5. Preserve R12 and qualify corrected no-effect stock boot before retrying the race."
         },
+        "acq01_04_r13_no_effect_stock_startup": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "output": "policy-engine/_cache/e02/acq01-04-ordinary-frontier-n4-startup-r13.Pg6NUf5x/budget/result.json in the isolated ACQ owner checkout",
+          "sha256": "6484bae9dc74967a4cfe0748ed306ea46350f4d1cd9b9fa044566ecd418d07f0",
+          "startup_receipt_sha256": "4d10771d04bf0f2767f0606eee0406f1c3826197dc57a5962815fa190e4a645f",
+          "verified_boundary": "Corrected scope order reopens both stock authenticated routes before and after the exact N4 fixture setup. Scoped tenant registry and global verifier custody recomputed while original SQL stays byte-identical. Zero queue, worker, provider, reservation or N5. PASS 51.079 seconds, 1836810240 B, 59 stable material pins. Full race pending."
+        },
         "ordinary_signed_acquisition_routes_published": {
           "source_commit": "579e3e96e75a4734da3cc1aab815384ff5bb25f1",
           "source_tree": "a360cc2c57a77d63596d01ee12c9a90d1d0e51d1",
@@ -20786,6 +20794,14 @@
           "affected_guard_sha256": "fc16cc46279e1e188a331cb4b916c9d986526c514e536650e5756e776a7f5036",
           "affected_junit_sha256": "8a7efbd4b81231ab6c455881f5e745a8b89b2bde7bbdb8dccdf92bea2af28ccf",
           "verified_boundary": "Published composed method and limited research scope. Thirty-eight named owner cases pass on the staged working bytes. Five actual compiler/N4 preparation and N6 history tests pass on the published scope with physical work disabled. Earlier physical results retain their recorded profile and limitations. Combined archived reader and final API contract verification are pending."
+        },
+        "composed_cyc04_archived_api_cold_r4": {
+          "source_commit": "ec96dc6d7b2b1ee0cacdc1d156bd6f65ad927af3",
+          "source_tree": "f40aebea5b323dacf6f9df25eb3dcccd39d0b4e1",
+          "output": "Primary:policy-engine/_cache/e02/lane01-cyc04-cyc05-016e8ca9/retained-cold/r4/read/result.json",
+          "sha256": "5067adec504d798aaf6026f7b6881ce3a3a72324738a314fc999fd16e8f1fd7d",
+          "guard_sha256": "d36f6fdd6f27edd55d2eeff265eccc9a943e3705116605b653f92be3b919f6ad",
+          "verified_boundary": "Five actual stock GETs reopen first candidate-local refusal and exact selected N5/AIPW 1.9999943737942087. Selected execution and method removals independently degrade then restore exactly. Three ephemeral stock AIPW receipt verifications use the same 200 rows and seed, with zero new N5, worker, provider or reservation effects and identical clone/original SQL, quota and 1082 business CAS paths. Guard PASS 71.830 seconds, 1793835008 B. Earlier CYC04 shadow and overstrict fit-trap failures preserved."
         },
         "composed_cyc05_archived_api_cold_r2": {
           "source_commit": "ec96dc6d7b2b1ee0cacdc1d156bd6f65ad927af3",

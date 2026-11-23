@@ -18,6 +18,7 @@ from pydantic import ValidationError
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import (
     ArtifactID,
+    ArtifactIntegrityError,
     ArtifactOwnershipError,
     ArtifactRef,
     SelectedProfileVerificationReader,
@@ -227,12 +228,20 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.manifest import InputRef as CoreInputRef
     from polisyos.ir import InputRef as IRInputRef
     from polisyos.runtime.http.services.acquisition_action_service import AcquisitionActionService
+    from polisyos.runtime.http.services.control_plane_store import (
+        AcquisitionEvaluationFrontierKey,
+        AcquisitionEvaluationFrontierRecord,
+    )
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
-    from polisyos.runtime.quality.acquisition_evaluation import AcquisitionSelectedEvaluation
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        AcquisitionSelectedEvaluation,
+        CandidateExperimentTerminalHistory,
+    )
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationN5InputV5,
     )
     from polisyos.runtime.quality.generation_cycle import (
+        CandidateSourceReentryReceipt,
         GenerationCycleContextHistoryProjection,
         GenerationCycleRun,
     )
@@ -701,6 +710,239 @@ def _candidate_source_current_projection(
         )
 
 
+def _candidate_experiment_blocked_reentry_without_frontier(
+    verified: CandidateExperimentTerminalHistory,
+) -> CandidateSourceReentryReceipt | None:
+    """Select an owner-replayed reentry and a recorded evaluation refusal."""
+    from polisyos.runtime.quality.acquisition_evaluation import CandidateExperimentTerminalHistory
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentTerminalReceipt,
+    )
+
+    if type(verified) is not CandidateExperimentTerminalHistory:
+        return None
+    terminal = verified.terminal
+    decision = verified.decision
+    basis = verified.selected_basis
+    reentry = verified.reentry
+    observed = verified.reentry_evaluation
+    if (
+        type(terminal) is not AcquisitionCandidateExperimentTerminalReceipt
+        or terminal.terminal_outcome != "candidate_reentry_completed"
+        or terminal.selected_evaluation is not None
+        or terminal.candidate_reentry_ref is None
+        or terminal.selected_evaluation_witness_ref != terminal.candidate_reentry_ref
+        or verified.evaluation is not None
+        or verified.continuation is not None
+        or verified.frontier_before is not None
+        or verified.frontier_after is not None
+        or decision is None
+        or decision.expected_frontier_revision != 0
+        or decision.expected_frontier_ref is not None
+        or basis is None
+        or basis.basis_role != "blocked"
+        or basis.predicate_provenance != "not_established"
+        or not basis.reason_codes
+        or reentry is None
+        or reentry.new_cycle.simulation.status != "joint_simulated"
+        or observed is None
+        or any(
+            getattr(reentry, field) is None
+            or getattr(observed.selected, field) is None
+            or artifact_ref_identity_key(getattr(reentry, field))
+            != artifact_ref_identity_key(getattr(observed.selected, field))
+            for field in ("n4_source_ref", "n5_input_ref", "n5_execution_ref", "n5_result_ref")
+        )
+    ):
+        return None
+    return reentry
+
+
+def _candidate_source_current_projection_from_v5_history(
+    *, verified: Any, frontier_selection: str | None
+) -> RunCandidateSourceCurrentProjection:
+    """Project the latest owner-verified V5 effective run as candidate-only current data."""
+    from polisyos.core.artifacts import artifact_ref_identity_key
+    from polisyos.core.contracts.runtime import (
+        RunCandidateSimulationContinuationFronts,
+        RunCandidateSimulationCurrentOccurrence,
+    )
+    from polisyos.runtime.quality.acquisition_evaluation import CandidateExperimentTerminalHistory
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleRun,
+        _declared_candidate_source_current_occurrences,
+        _derive_candidate_source_fronts,
+        generation_cycle_run_content_hash,
+        validate_generation_cycle_run_history,
+    )
+
+    def unavailable(code: str) -> RunCandidateSourceCurrentProjection:
+        return RunCandidateSourceCurrentProjection(status="not_established", issues=(code,))
+
+    if type(verified) is not CandidateExperimentTerminalHistory:
+        return unavailable("candidate_source_current_v5_terminal_not_verified")
+    blocked_reentry = (
+        _candidate_experiment_blocked_reentry_without_frontier(verified)
+        if frontier_selection is None
+        else None
+    )
+    if frontier_selection != "selected" and blocked_reentry is None:
+        return unavailable("candidate_source_current_v5_frontier_not_selected")
+    terminal = verified.terminal
+    selected = terminal.selected_evaluation
+    evaluation = verified.evaluation
+    if blocked_reentry is None:
+        if (
+            terminal.terminal_outcome
+            not in {"candidate_reentry_completed", "candidate_evaluation_retained"}
+            or verified.selected_basis is None
+            or verified.selected_basis.basis_role != "evaluated"
+            or selected is None
+            or evaluation is None
+            or not verified.frontier_after
+        ):
+            return unavailable("candidate_source_current_v5_evaluation_not_established")
+        evaluated = evaluation.selected
+        if (
+            selected.candidate_id != evaluated.candidate_id
+            or selected.cycle_index != evaluated.cycle_index
+            or selected.candidate_content_hash != evaluated.candidate_content_hash
+            or any(
+                getattr(selected, field) is None
+                or getattr(evaluated, field) is None
+                or artifact_ref_identity_key(getattr(selected, field))
+                != artifact_ref_identity_key(getattr(evaluated, field))
+                for field in ("n5_input_ref", "n5_execution_ref", "n5_result_ref")
+            )
+        ):
+            return unavailable("candidate_source_current_v5_selected_result_mismatch")
+
+    origin = verified.origin
+    prior_run = origin.effective_generation_run
+    if type(prior_run) is not GenerationCycleRun:
+        return unavailable("candidate_source_current_v5_origin_run_not_established")
+    if terminal.terminal_outcome == "candidate_reentry_completed":
+        reentry = verified.reentry
+        if (
+            reentry is None
+            or verified.continuation is not None
+            or reentry.continued_generation_run is None
+            or reentry.run_id != origin.run_id
+            or reentry.source_generation_run_id != prior_run.run_id
+            or reentry.source_generation_run_content_hash
+            != generation_cycle_run_content_hash(prior_run)
+            or (
+                selected is not None
+                and (
+                    selected.candidate_id != reentry.new_cycle.selected_candidate_ref
+                    or selected.cycle_index != reentry.new_cycle.cycle_index
+                    or selected.candidate_content_hash
+                    != reentry.new_cycle.selected_candidate_content_hash
+                    or any(
+                        getattr(reentry, field) is None
+                        or artifact_ref_identity_key(getattr(reentry, field))
+                        != artifact_ref_identity_key(getattr(selected, field))
+                        for field in ("n5_input_ref", "n5_execution_ref", "n5_result_ref")
+                    )
+                )
+            )
+        ):
+            return unavailable("candidate_source_current_v5_reentry_binding_not_established")
+        run = reentry.continued_generation_run
+        selected_transition = reentry.basis_transition
+    else:
+        continuation = verified.continuation
+        if (
+            verified.reentry is not None
+            or continuation is None
+            or selected is None
+            or continuation.retained_evaluation.candidate_id != selected.candidate_id
+            or continuation.retained_evaluation.cycle_index != selected.cycle_index
+            or continuation.retained_evaluation.candidate_content_hash
+            != selected.candidate_content_hash
+            or any(
+                getattr(continuation.retained_evaluation, field) is None
+                or artifact_ref_identity_key(getattr(continuation.retained_evaluation, field))
+                != artifact_ref_identity_key(getattr(selected, field))
+                for field in ("n5_input_ref", "n5_execution_ref", "n5_result_ref")
+            )
+        ):
+            return unavailable("candidate_source_current_v5_retained_result_not_established")
+        run = prior_run
+        selected_transition = None
+
+    if (
+        type(run) is not GenerationCycleRun
+        or run.run_id != prior_run.run_id
+        or run.design_problem_ref != cycle_job_design_problem_ref(origin.design_problem_basis)
+        or not run.basis_transitions
+        or not run.cycles
+    ):
+        return unavailable("candidate_source_current_v5_effective_run_not_established")
+    transitions = run.basis_transitions
+    transition = transitions[-1]
+    if (
+        (selected_transition is not None and transition != selected_transition)
+        or transition.to_cycle_index != run.cycles[-1].cycle_index
+    ):
+        return unavailable("candidate_source_current_v5_basis_transition_mismatch")
+    history_issues = validate_generation_cycle_run_history(run.model_dump(mode="json"))
+    if history_issues:
+        codes = tuple(
+            str(issue["code"])
+            for issue in history_issues[:8]
+            if isinstance(issue, Mapping) and isinstance(issue.get("code"), str)
+        )
+        return RunCandidateSourceCurrentProjection(
+            status="not_established",
+            issues=codes or ("candidate_source_current_v5_generation_history_invalid",),
+        )
+    occurrences = _declared_candidate_source_current_occurrences(
+        run.candidate_summaries, transitions
+    )
+    fronts = _derive_candidate_source_fronts(run.candidate_summaries, transitions)
+    if fronts != run.fronts:
+        return unavailable("candidate_source_current_v5_fronts_mismatch")
+    return RunCandidateSourceCurrentProjection(
+        status="resolved",
+        generation_run_content_hash=generation_cycle_run_content_hash(run),
+        basis_cycle_index=transition.to_cycle_index,
+        basis_transition_content_hash=transition.content_hash,
+        occurrences=tuple(
+            RunCandidateSimulationCurrentOccurrence(
+                candidate_id=row.recorded.candidate_id,
+                cycle_index=row.recorded.cycle_index,
+                content_hash=row.recorded.content_hash,
+                source_content_hash=row.recorded.source_content_hash,
+                front=row.effective_front,
+                certified_by_n9=row.effective_certified_by_n9,
+                candidate_basis_cycle_index=transition.to_cycle_index,
+                candidate_basis_content_hash=transition.content_hash,
+                candidate_basis_status=row.basis_status,
+                candidate_basis_limitation_code=row.limitation_code,
+                historical_front=row.recorded.front,
+                historical_certified_by_n9=row.recorded.certified_by_n9,
+                historical_value_status=row.recorded.value_status,
+                historical_value_decision_grade=row.recorded.value_decision_grade,
+                historical_value_ref=row.recorded.value_ref,
+                historical_value_blockers=row.recorded.value_blockers,
+                value_status=row.effective_value_status,
+                value_decision_grade=row.effective_value_decision_grade,
+                value_ref=row.effective_value_ref,
+                value_blockers=row.effective_value_blockers,
+            )
+            for row in occurrences
+        ),
+        fronts=RunCandidateSimulationContinuationFronts(
+            decision_candidate_ids=fronts.decision.candidate_ids,
+            research_candidate_ids=fronts.research.candidate_ids,
+            quarantine_candidate_ids=fronts.quarantine.candidate_ids,
+            portfolio_candidate_ids=fronts.portfolio.candidate_ids,
+        ),
+    )
+
+
 def _candidate_history_reconcile_current_basis(
     current: RunCandidateSourceCurrentProjection | None,
     *,
@@ -723,6 +965,91 @@ def _candidate_history_reconcile_current_basis(
             issues=("candidate_source_current_between_read_snapshot_mismatch",),
         )
     return current
+
+
+def _candidate_reentry_history_v4_projection(
+    *,
+    terminal_ref: ArtifactRef,
+    route_id: str,
+    action_generation: int,
+    reentry_ref: ArtifactRef,
+    reentry: CandidateSourceReentryReceipt,
+    limitations: tuple[str, ...],
+) -> RunCandidateSimulationAcquisitionHistoryEntryV4:
+    """Project the exact reentry lineage independently of numerical selection."""
+    return RunCandidateSimulationAcquisitionHistoryEntryV4(
+        route_receipt_ref=terminal_ref,
+        reentry_receipt_ref=reentry_ref,
+        route_id=route_id,
+        action_generation=action_generation,
+        candidate_action_ref=reentry.candidate_action_ref,
+        candidate_source_ref=reentry.candidate_source_ref,
+        data_snapshot_ref=reentry.data_snapshot_ref,
+        world_model_ref=reentry.world_model_ref,
+        context_job_ref=reentry.context_job_ref,
+        model_declaration_ref=reentry.model_declaration_ref,
+        ncm_ref=reentry.ncm_ref,
+        n4_source_ref=reentry.n4_source_ref,
+        n5_input_ref=reentry.n5_input_ref,
+        n5_execution_ref=reentry.n5_execution_ref,
+        n5_result_ref=reentry.n5_result_ref,
+        simulation_status=reentry.new_cycle.simulation.status,
+        simulation_authority_blockers=reentry.new_cycle.simulation.authority_blockers,
+        source_cycle_index=reentry.source_cycle_index,
+        continued_cycle_index=reentry.new_cycle.cycle_index,
+        source_generation_run_content_hash=reentry.source_generation_run_content_hash,
+        continued_generation_run_content_hash=reentry.continued_generation_run_content_hash,
+        basis_transition_content_hash=reentry.basis_transition.content_hash,
+        limitations=limitations,
+    )
+
+
+def _candidate_experiment_blocked_history_projection(
+    *, verified: CandidateExperimentTerminalHistory, control_store: Any
+) -> (
+    tuple[
+        RunCandidateSimulationAcquisitionHistoryEntryV4,
+        AcquisitionEvaluationFrontierKey,
+        AcquisitionEvaluationFrontierRecord | None,
+    ]
+    | None
+):
+    """Serve a verified reentry without inventing a selected numerical frontier."""
+    from polisyos.runtime.http.services.control_plane_store import AcquisitionEvaluationFrontierKey
+
+    reentry = _candidate_experiment_blocked_reentry_without_frontier(verified)
+    decision = verified.decision
+    basis = verified.selected_basis
+    reentry_ref = verified.terminal.candidate_reentry_ref
+    if reentry is None or decision is None or basis is None or reentry_ref is None:
+        return None
+    key = AcquisitionEvaluationFrontierKey(
+        tenant_id=decision.tenant_id,
+        cell_id=decision.cell_id,
+        source_job_id=decision.source_job_id,
+        design_problem_ref=decision.design_problem_ref,
+        candidate_id=decision.candidate_id,
+    )
+    return (
+        _candidate_reentry_history_v4_projection(
+            terminal_ref=verified.terminal_ref,
+            route_id=verified.terminal.route_id,
+            action_generation=verified.terminal.action_generation,
+            reentry_ref=reentry_ref,
+            reentry=reentry,
+            limitations=tuple(
+                dict.fromkeys(
+                    (
+                        *reentry.limitations,
+                        "candidate_experiment_evaluation_blocked",
+                        *basis.reason_codes,
+                    )
+                )
+            ),
+        ),
+        key,
+        control_store.read_acquisition_evaluation_frontier(key),
+    )
 
 
 def _candidate_terminal_history_v5_projection(
@@ -769,29 +1096,15 @@ def _candidate_terminal_history_v5_projection(
     reentry = verified.reentry
     reentry_projection = None
     if reentry is not None:
-        reentry_projection = RunCandidateSimulationAcquisitionHistoryEntryV4(
-            route_receipt_ref=verified.terminal_ref,
-            reentry_receipt_ref=terminal.candidate_reentry_ref,
+        reentry_ref = terminal.candidate_reentry_ref
+        if reentry_ref is None:
+            raise ValueError("candidate_history_terminal_reentry_ref_missing")
+        reentry_projection = _candidate_reentry_history_v4_projection(
+            terminal_ref=verified.terminal_ref,
             route_id=terminal.route_id,
             action_generation=terminal.action_generation,
-            candidate_action_ref=reentry.candidate_action_ref,
-            candidate_source_ref=reentry.candidate_source_ref,
-            data_snapshot_ref=reentry.data_snapshot_ref,
-            world_model_ref=reentry.world_model_ref,
-            context_job_ref=reentry.context_job_ref,
-            model_declaration_ref=reentry.model_declaration_ref,
-            ncm_ref=reentry.ncm_ref,
-            n4_source_ref=reentry.n4_source_ref,
-            n5_input_ref=reentry.n5_input_ref,
-            n5_execution_ref=reentry.n5_execution_ref,
-            n5_result_ref=reentry.n5_result_ref,
-            simulation_status=reentry.new_cycle.simulation.status,
-            simulation_authority_blockers=reentry.new_cycle.simulation.authority_blockers,
-            source_cycle_index=reentry.source_cycle_index,
-            continued_cycle_index=reentry.new_cycle.cycle_index,
-            source_generation_run_content_hash=reentry.source_generation_run_content_hash,
-            continued_generation_run_content_hash=reentry.continued_generation_run_content_hash,
-            basis_transition_content_hash=reentry.basis_transition.content_hash,
+            reentry_ref=reentry_ref,
+            reentry=reentry,
             limitations=reentry.limitations,
         )
     cheap = None
@@ -1302,6 +1615,7 @@ def _candidate_acquisition_history_projection(
         tenant_id=tenant_id,
         cell_id=cell_id,
     )
+    route_current_projection = current_projection
 
     from polisyos.core.artifacts import (
         ArtifactID,
@@ -1323,6 +1637,7 @@ def _candidate_acquisition_history_projection(
     )
     from polisyos.runtime.quality.generation_cycle import (
         AcquisitionOverlayReentryReceipt,
+        GenerationCycleError,
         _current_candidate_summaries,
         validate_acquisition_overlay_continuation,
     )
@@ -1455,29 +1770,94 @@ def _candidate_acquisition_history_projection(
             raise ValueError("acquisition_reentry_n4_source_schema_mismatch")
         return input_record, source
 
+    history_entries: list[
+        RunCandidateSimulationAcquisitionHistoryEntry
+        | RunCandidateSimulationAcquisitionHistoryEntryV3
+        | RunCandidateSimulationAcquisitionHistoryEntryV4
+        | RunCandidateSimulationAcquisitionHistoryEntryV5
+        | RunNativeGenericAcquisitionHistoryEntryV1
+        | RunNativeGenericBlockedAcquisitionHistoryEntryV1
+    ] = []
+    matching_receipts: list[
+        tuple[
+            Any,
+            ArtifactRef,
+            AcquisitionRouteLoopReceipt
+            | AcquisitionCandidateRouteLoopReceipt
+            | AcquisitionCandidateExperimentTerminalReceipt
+            | AcquisitionCandidateExperimentTerminalReceiptV2
+            | RunCandidateSimulationAcquisitionHistoryEntryV3,
+            Any,
+        ]
+    ] = []
+    matching_incomplete = False
+    terminal_projection_unavailable = False
+    v5_route_ids: set[str] = set()
+    v5_current_by_head: dict[tuple[str, int, int], RunCandidateSourceCurrentProjection] = {}
+    v5_refusal_by_head: dict[tuple[str, int, int], str] = {}
+    latest_head_key_by_route: dict[str, tuple[str, int, int]] = {}
+
+    def _v5_head_key(head: Any) -> tuple[str, int, int]:
+        return (head.route_id, head.action_generation, head.head_generation)
+
+    def _v5_unavailable(code: str) -> RunCandidateSourceCurrentProjection:
+        return RunCandidateSourceCurrentProjection(status="not_established", issues=(code,))
+
+    def _retain_latest_v5_unavailability(head: Any, issue: str) -> bool:
+        """Keep prior verified rows while refusing only the selected V5 head."""
+        nonlocal terminal_projection_unavailable
+        key = _v5_head_key(head)
+        if (
+            head.route_id not in v5_route_ids
+            or latest_head_key_by_route.get(head.route_id) != key
+        ):
+            return False
+        terminal_projection_unavailable = True
+        v5_refusal_by_head[key] = issue
+        return True
+
+    for head in heads:
+        key = _v5_head_key(head)
+        previous_key = latest_head_key_by_route.get(head.route_id)
+        if previous_key is None or key[1:] > previous_key[1:]:
+            latest_head_key_by_route[head.route_id] = key
+
+    selected_profile_refusal_codes = {
+        "canon_profile_raw_manifest_invalid",
+        "canon_profile_invalid",
+        "canon_profile_incomplete",
+        "canon_profile_selected_manifest_changed",
+        "canon_profile_payload_bytes_invalid",
+        "canon_profile_payload_nonconformant",
+        "canon_profile_selected_payload_identity_mismatch",
+    }
+
+    def _retain_latest_v5_profile_refusal(head: Any, exc: CanonicalProfileRefusalError) -> bool:
+        """Preserve older V5 history while refusing a corrupt selected latest profile."""
+        key = _v5_head_key(head)
+        if (
+            head.route_id not in v5_route_ids
+            or latest_head_key_by_route.get(head.route_id) != key
+            or exc.code not in selected_profile_refusal_codes
+        ):
+            return False
+        return _retain_latest_v5_unavailability(
+            head,
+            "candidate_source_current_v5_latest_terminal_profile_refused:" + exc.code,
+        )
+
+    def _retain_latest_v5_result_absence(head: Any, exc: GenerationCycleError) -> bool:
+        """Keep the latest occurrence unavailable when its selected result is absent."""
+        return (
+            exc.code == "joint_simulation_result_unavailable"
+            and isinstance(exc.__cause__, FileNotFoundError)
+            and _retain_latest_v5_unavailability(
+                head,
+                "candidate_source_current_v5_selected_result_unavailable",
+            )
+        )
+
     try:
-        history_entries: list[
-            RunCandidateSimulationAcquisitionHistoryEntry
-            | RunCandidateSimulationAcquisitionHistoryEntryV3
-            | RunCandidateSimulationAcquisitionHistoryEntryV4
-            | RunCandidateSimulationAcquisitionHistoryEntryV5
-            | RunNativeGenericAcquisitionHistoryEntryV1
-            | RunNativeGenericBlockedAcquisitionHistoryEntryV1
-        ] = []
-        matching_receipts: list[
-            tuple[
-                Any,
-                ArtifactRef,
-                AcquisitionRouteLoopReceipt
-                | AcquisitionCandidateRouteLoopReceipt
-                | AcquisitionCandidateExperimentTerminalReceipt
-                | AcquisitionCandidateExperimentTerminalReceiptV2
-                | RunCandidateSimulationAcquisitionHistoryEntryV3,
-                Any,
-            ]
-        ] = []
-        matching_incomplete = False
-        terminal_projection_unavailable = False
         for head in heads:
             verified_source = None
             if (
@@ -1495,7 +1875,19 @@ def _candidate_acquisition_history_projection(
                     kind="runtime_quality.acquisition_route_loop_receipt",
                     profile=head.receipt_manifest_profile_sha256,
                 )
-                route_manifest = read_core_manifest_profile(store, route_receipt_ref)[0]
+                try:
+                    route_manifest = read_core_manifest_profile(store, route_receipt_ref)[0]
+                except CanonicalProfileRefusalError as exc:
+                    if _retain_latest_v5_profile_refusal(head, exc):
+                        continue
+                    raise
+                except FileNotFoundError:
+                    if _retain_latest_v5_unavailability(
+                        head,
+                        "candidate_source_current_v5_latest_terminal_not_established",
+                    ):
+                        continue
+                    raise
                 route_schema = route_manifest.artifact_schema
                 terminal_epochs = {
                     "polisyos.runtime.AcquisitionRouteLoopReceipt": (
@@ -1517,30 +1909,92 @@ def _candidate_acquisition_history_projection(
                     or route_schema.version not in terminal_epochs[route_schema.name]
                 ):
                     raise ValueError("acquisition_history_terminal_schema_unsupported")
-                route_payload, _route_bytes, route_report, route_receipt_ref = (
-                    _read_authority_payload(
-                        route_receipt_ref,
-                        expected_kind="runtime_quality.acquisition_route_loop_receipt",
-                        expected_schema=route_schema.name,
-                        expected_version=terminal_epochs[route_schema.name],
-                        expected_job_id=head.job_id,
-                    )
+                is_v5_experiment_terminal = (
+                    route_schema.name
+                    == "polisyos.runtime.AcquisitionCandidateExperimentTerminalReceipt"
                 )
+                if is_v5_experiment_terminal:
+                    v5_route_ids.add(head.route_id)
+                try:
+                    route_payload, _route_bytes, route_report, route_receipt_ref = (
+                        _read_authority_payload(
+                            route_receipt_ref,
+                            expected_kind="runtime_quality.acquisition_route_loop_receipt",
+                            expected_schema=route_schema.name,
+                            expected_version=terminal_epochs[route_schema.name],
+                            expected_job_id=head.job_id,
+                        )
+                    )
+                except CanonicalProfileRefusalError as exc:
+                    if _retain_latest_v5_profile_refusal(head, exc):
+                        continue
+                    raise
+                except FileNotFoundError:
+                    if _retain_latest_v5_unavailability(
+                        head,
+                        "candidate_source_current_v5_latest_terminal_not_established",
+                    ):
+                        continue
+                    raise
+                except ArtifactIntegrityError:
+                    if _retain_latest_v5_unavailability(
+                        head,
+                        "candidate_source_current_v5_latest_terminal_integrity_not_established",
+                    ):
+                        continue
+                    raise
+                except ValueError as exc:
+                    if str(exc) in {
+                        "acquisition_history_artifact_integrity_not_established",
+                        "acquisition_history_artifact_content_mismatch",
+                    } and _retain_latest_v5_unavailability(
+                        head,
+                        "candidate_source_current_v5_latest_terminal_integrity_not_established",
+                    ):
+                        continue
+                    raise
                 if (
                     route_schema.name
                     == "polisyos.runtime.AcquisitionCandidateExperimentTerminalReceipt"
                 ):
                     if head.receipt_manifest_profile_sha256 is None:
-                        raise ValueError("candidate_history_terminal_profile_missing")
+                        terminal_projection_unavailable = True
+                        v5_refusal_by_head[_v5_head_key(head)] = (
+                            "candidate_source_current_v5_latest_terminal_profile_missing"
+                        )
+                        continue
                     from polisyos.runtime.quality.acquisition_evaluation_history import (
                         verify_candidate_experiment_terminal_history,
                     )
 
-                    verified = verify_candidate_experiment_terminal_history(
-                        control_service=control_service,
-                        head=head,
-                        terminal_ref=route_receipt_ref,
-                    )
+                    try:
+                        verified = verify_candidate_experiment_terminal_history(
+                            control_service=control_service,
+                            head=head,
+                            terminal_ref=route_receipt_ref,
+                        )
+                    except CanonicalProfileRefusalError as exc:
+                        if _retain_latest_v5_profile_refusal(head, exc):
+                            continue
+                        raise
+                    except GenerationCycleError as exc:
+                        if _retain_latest_v5_result_absence(head, exc):
+                            continue
+                        raise
+                    except FileNotFoundError:
+                        if _retain_latest_v5_unavailability(
+                            head,
+                            "candidate_source_current_v5_latest_terminal_not_established",
+                        ):
+                            continue
+                        raise
+                    except ArtifactIntegrityError:
+                        if _retain_latest_v5_unavailability(
+                            head,
+                            "candidate_source_current_v5_latest_terminal_integrity_not_established",
+                        ):
+                            continue
+                        raise
                     if artifact_ref_identity_key(
                         verified.terminal.compiled_ref
                     ) != artifact_ref_identity_key(compiled_ref):
@@ -1549,6 +2003,9 @@ def _candidate_acquisition_history_projection(
                         # V5 has no blocked-terminal variant. Preserve verified
                         # earlier rows and report this surface gap explicitly.
                         terminal_projection_unavailable = True
+                        v5_refusal_by_head[_v5_head_key(head)] = (
+                            "candidate_source_current_v5_blocked_terminal"
+                        )
                         continue
                     matching_receipts.append((head, route_receipt_ref, verified.terminal, verified))
                     continue
@@ -1690,17 +2147,28 @@ def _candidate_acquisition_history_projection(
             matching_receipts.append((head, route_receipt_ref, route_receipt, verified_source))
 
         if not matching_receipts and not history_entries:
-            if terminal_projection_unavailable:
+            if terminal_projection_unavailable and not v5_route_ids:
                 return (
                     (),
                     "acquisition_action_history_terminal_projection_unavailable",
                     current_projection,
                 )
-            if matching_incomplete:
-                return (), "acquisition_action_history_incomplete", current_projection
-            return (), "acquisition_action_history_not_observed", current_projection
+            if not terminal_projection_unavailable:
+                if v5_route_ids:
+                    current_projection = _v5_unavailable(
+                        "candidate_source_current_v5_latest_terminal_not_established"
+                    )
+                return (
+                    (),
+                    "acquisition_action_history_incomplete"
+                    if matching_incomplete
+                    else "acquisition_action_history_not_observed",
+                    current_projection,
+                )
 
-        frontier_snapshots: dict[Any, Any] = {}
+        frontier_snapshots: dict[
+            AcquisitionEvaluationFrontierKey, AcquisitionEvaluationFrontierRecord | None
+        ] = {}
         for _head, route_receipt_ref, route_receipt, verified_source in matching_receipts:
             from polisyos.runtime.quality.acquisition_evaluation import (
                 CandidateEvaluationTerminalHistory,
@@ -1711,17 +2179,78 @@ def _candidate_acquisition_history_projection(
                 CandidateEvaluationTerminalHistory,
                 CandidateExperimentTerminalHistory,
             }:
-                entry, frontier = _candidate_terminal_history_v5_projection(
-                    verified=verified_source,
-                    store=store,
-                    control_store=control_store,
-                    tenant_id=tenant_id,
-                    cell_id=cell_id,
-                )
-                previous = frontier_snapshots.setdefault(frontier.key, frontier)
+                try:
+                    if (
+                        type(verified_source) is CandidateExperimentTerminalHistory
+                        and verified_source.frontier_after is None
+                    ):
+                        blocked = _candidate_experiment_blocked_history_projection(
+                            verified=verified_source, control_store=control_store
+                        )
+                        if blocked is None:
+                            terminal_projection_unavailable = True
+                            _retain_latest_v5_unavailability(
+                                _head,
+                                "candidate_source_current_v5_blocked_evaluation_not_established",
+                            )
+                            continue
+                        entry, frontier_key, frontier = blocked
+                        frontier_selection = None if frontier is None else "superseded"
+                    else:
+                        entry, frontier = _candidate_terminal_history_v5_projection(
+                            verified=verified_source,
+                            store=store,
+                            control_store=control_store,
+                            tenant_id=tenant_id,
+                            cell_id=cell_id,
+                        )
+                        frontier_key = frontier.key
+                        frontier_selection = entry.frontier_selection
+                except CanonicalProfileRefusalError as exc:
+                    if (
+                        type(verified_source) is CandidateExperimentTerminalHistory
+                        and _retain_latest_v5_profile_refusal(_head, exc)
+                    ):
+                        continue
+                    raise
+                except GenerationCycleError as exc:
+                    if type(verified_source) is CandidateExperimentTerminalHistory and (
+                        _retain_latest_v5_result_absence(_head, exc)
+                    ):
+                        continue
+                    raise
+                except FileNotFoundError:
+                    if (
+                        type(verified_source) is CandidateExperimentTerminalHistory
+                        and _retain_latest_v5_unavailability(
+                            _head,
+                            "candidate_source_current_v5_latest_terminal_not_established",
+                        )
+                    ):
+                        continue
+                    raise
+                except ArtifactIntegrityError:
+                    if (
+                        type(verified_source) is CandidateExperimentTerminalHistory
+                        and _retain_latest_v5_unavailability(
+                            _head,
+                            "candidate_source_current_v5_latest_terminal_integrity_not_established",
+                        )
+                    ):
+                        continue
+                    raise
+                previous = frontier_snapshots.setdefault(frontier_key, frontier)
                 if previous != frontier:
                     raise ValueError("candidate_history_frontier_changed_during_read")
                 history_entries.append(entry)
+                if type(verified_source) is CandidateExperimentTerminalHistory:
+                    v5_route_ids.add(_head.route_id)
+                    v5_current_by_head[_v5_head_key(_head)] = (
+                        _candidate_source_current_projection_from_v5_history(
+                            verified=verified_source,
+                            frontier_selection=frontier_selection,
+                        )
+                    )
                 continue
             if isinstance(route_receipt, RunCandidateSimulationAcquisitionHistoryEntryV3):
                 history_entries.append(route_receipt)
@@ -2404,6 +2933,14 @@ def _candidate_acquisition_history_projection(
                 )
             )
         if frontier_snapshots:
+            reopened_heads = list_heads(
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                run_id=source_run_id,
+                source_job_id=source_job_id,
+            )
+            if tuple(reopened_heads) != tuple(heads):
+                raise ValueError("candidate_history_action_head_set_changed_during_read")
             reopened_current = _candidate_source_current_projection(
                 control_service=control_service,
                 control_store=control_store,
@@ -2416,11 +2953,37 @@ def _candidate_acquisition_history_projection(
                 tenant_id=tenant_id,
                 cell_id=cell_id,
             )
-            if reopened_current != current_projection or any(
+            if reopened_current != route_current_projection or any(
                 control_store.read_acquisition_evaluation_frontier(key) != frontier
                 for key, frontier in frontier_snapshots.items()
             ):
                 raise ValueError("candidate_history_frontier_changed_during_read")
+        if v5_route_ids:
+            if len(v5_route_ids) != 1:
+                current_projection = _v5_unavailable(
+                    "candidate_source_current_v5_route_ambiguous"
+                )
+            else:
+                (route_id,) = tuple(v5_route_ids)
+                route_heads = tuple(head for head in heads if head.route_id == route_id)
+                if not route_heads:
+                    current_projection = _v5_unavailable(
+                        "candidate_source_current_v5_latest_head_not_observed"
+                    )
+                else:
+                    latest_head = max(
+                        route_heads,
+                        key=lambda head: (head.action_generation, head.head_generation),
+                    )
+                    latest_key = _v5_head_key(latest_head)
+                    current_projection = v5_current_by_head.get(latest_key) or _v5_unavailable(
+                        v5_refusal_by_head.get(
+                            latest_key,
+                            "candidate_source_current_v5_latest_terminal_not_established",
+                        )
+                    )
+            if current_projection.status != "resolved":
+                terminal_projection_unavailable = True
         return (
             tuple(history_entries),
             "acquisition_action_history_terminal_projection_unavailable"
@@ -2431,6 +2994,8 @@ def _candidate_acquisition_history_projection(
     except CanonicalProfileRefusalError:
         raise
     except Exception:
+        if v5_route_ids:
+            raise
         if current_projection is not None and current_projection.status == "resolved":
             current_projection = RunCandidateSourceCurrentProjection(
                 status="not_established",

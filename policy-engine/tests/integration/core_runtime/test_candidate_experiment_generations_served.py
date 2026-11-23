@@ -1281,6 +1281,217 @@ def _continue_genuine_candidate_experiment_generations(
                 assert c_preflight.transport_calls == []
                 assert c_preflight.execution_calls == []
                 assert c_preflight_n5 == []
+
+            def assert_fresh_effective_run_projection(
+                *,
+                client: object,
+                control: object,
+                history: object,
+                origin: object,
+                headers: object,
+            ) -> None:
+                assert history.reentry is not None
+                reentry = history.reentry
+                assert reentry.n5_result_ref is not None
+                source_job = control._control_store.get_job(origin.source_job_id)
+                assert source_job is not None
+                core_run_id = source_job.progress.get("core_run_id")
+                assert isinstance(core_run_id, str) and core_run_id
+                path = f"/api/v1/runs/{core_run_id}"
+                invocation_units_before = _standard_invocation_units(
+                    control=control, run_id=origin.run_id
+                )
+
+                def read_details() -> dict[str, object]:
+                    response = client.get(path, headers=headers)
+                    assert response.status_code == 200, response.text
+                    payload = response.json()
+                    assert isinstance(payload, dict)
+                    run_payload = payload.get("run")
+                    assert isinstance(run_payload, dict)
+                    candidate_payload = run_payload.get("candidate_simulation")
+                    assert isinstance(candidate_payload, dict)
+                    return candidate_payload
+
+                projected = read_details()
+                source_ref = projected["source_ref"]
+                assert projected["acquisition_history_limitation_code"] is None
+                history_rows = tuple(
+                    row
+                    for row in projected["acquisition_history"]
+                    if row.get("schema_version")
+                    == "policyos.runtime.run_candidate_simulation_acquisition_history.v5"
+                )
+                assert tuple(row["action_generation"] for row in history_rows) == (1, 2, 3, 4)
+                assert tuple(
+                    row["comparison_result"] for row in history_rows
+                ) == tuple(
+                    item.terminal_history.decision.comparison_result
+                    for item in (first, b2, b3, history)
+                )
+                first_result_ref = first.terminal_history.terminal.selected_evaluation.n5_result_ref
+                assert first_result_ref is not None
+                for row in history_rows[:3]:
+                    assert row["frontier_selection"] == "superseded"
+                    assert row["selected_evaluation"]["n5_result_ref"]["artifact_id"] == str(
+                        first_result_ref.artifact_id
+                    )
+                assert history_rows[0]["evaluation_provenance"] == "new_execution"
+                assert all(
+                    row["evaluation_provenance"] == "retained_prior"
+                    for row in history_rows[1:3]
+                )
+                latest = history_rows[-1]
+                assert latest["frontier_selection"] == "selected"
+                assert latest["evaluation_provenance"] == "new_execution"
+                assert latest["selected_n5_observation"]["simulation_result_ref"][
+                    "artifact_id"
+                ] == str(reentry.n5_result_ref.artifact_id)
+
+                current = projected["candidate_source_current_projection"]
+                assert current["status"] == "resolved"
+                assert current["generation_run_content_hash"] == (
+                    reentry.continued_generation_run_content_hash
+                )
+                assert current["basis_cycle_index"] == reentry.new_cycle.cycle_index
+                assert current["basis_transition_content_hash"] == (
+                    reentry.basis_transition.content_hash
+                )
+                assert current["authority_purpose"] == "candidate_observation_only"
+                assert current["currentness_status"] == "not_established"
+                assert current["publication_authority"] is False
+                assert current["certified_candidate_ids"] == []
+                assert current["fronts"]["decision_candidate_ids"] == []
+                assert all(not row["certified_by_n9"] for row in current["occurrences"])
+                selected_candidate_id = reentry.new_cycle.selected_candidate_ref
+                selected_occurrence = next(
+                    row
+                    for row in current["occurrences"]
+                    if row["candidate_id"] == selected_candidate_id
+                )
+                assert selected_occurrence["cycle_index"] == reentry.new_cycle.cycle_index
+                assert selected_occurrence["content_hash"] == (
+                    reentry.new_cycle.selected_candidate_content_hash
+                )
+                assert selected_occurrence["front"] != "decision"
+
+                latest_ref = history.terminal_ref
+                latest_artifact_id = str(latest_ref.artifact_id)
+                store = control._artifact_store
+                get_bytes = store.get_bytes
+
+                def withhold_latest_terminal(ref: object, *args: object, **kwargs: object) -> bytes:
+                    if str(getattr(ref, "artifact_id", ref)) == latest_artifact_id:
+                        raise FileNotFoundError("withheld latest V5 terminal proof")
+                    return get_bytes(ref, *args, **kwargs)
+
+                with monkeypatch.context() as withheld:
+                    withheld.setattr(store, "get_bytes", withhold_latest_terminal)
+                    refused = read_details()
+                assert refused["source_ref"] == source_ref
+                assert refused["acquisition_history_limitation_code"] == (
+                    "acquisition_action_history_terminal_projection_unavailable"
+                )
+                refused_history = tuple(
+                    row
+                    for row in refused["acquisition_history"]
+                    if row.get("schema_version")
+                    == "policyos.runtime.run_candidate_simulation_acquisition_history.v5"
+                )
+                assert tuple(row["action_generation"] for row in refused_history) == (1, 2, 3)
+                assert refused_history == history_rows[:3]
+                refused_current = refused["candidate_source_current_projection"]
+                assert refused_current["status"] == "not_established"
+                assert refused_current["occurrences"] == []
+                assert refused_current["fronts"] is None
+                assert refused_current["issues"]
+                assert read_details()["candidate_source_current_projection"] == current
+
+                raw_manifest_reader = store.get_raw_manifest_bytes
+                result_ref = reentry.n5_result_ref
+
+                def withhold_latest_result_profile(
+                    ref: object, *args: object, **kwargs: object
+                ) -> bytes:
+                    profile = getattr(ref, "manifest_profile_sha256", None) or kwargs.get(
+                        "manifest_profile_sha256"
+                    )
+                    if (
+                        str(getattr(ref, "artifact_id", ref)) == str(result_ref.artifact_id)
+                        and profile == result_ref.manifest_profile_sha256
+                    ):
+                        raise FileNotFoundError("withheld selected N5 result profile")
+                    return raw_manifest_reader(ref, *args, **kwargs)
+
+                with monkeypatch.context() as withheld_result:
+                    withheld_result.setattr(
+                        store, "get_raw_manifest_bytes", withhold_latest_result_profile
+                    )
+                    refused_result = read_details()
+                assert refused_result["source_ref"] == source_ref
+                assert refused_result["acquisition_history_limitation_code"] == (
+                    "acquisition_action_history_terminal_projection_unavailable"
+                )
+                assert tuple(refused_result["acquisition_history"]) == tuple(
+                    row
+                    for row in projected["acquisition_history"]
+                    if row["route_receipt_ref"] != latest["route_receipt_ref"]
+                )
+                refused_result_current = refused_result["candidate_source_current_projection"]
+                assert refused_result_current["status"] == "not_established"
+                assert refused_result_current["occurrences"] == []
+                assert refused_result_current["fronts"] is None
+                assert refused_result_current["issues"] == [
+                    "candidate_source_current_v5_selected_result_unavailable"
+                ]
+                assert read_details()["candidate_source_current_projection"] == current
+
+                def tamper_latest_profile(
+                    ref: object, *args: object, **kwargs: object
+                ) -> bytes:
+                    import json
+
+                    raw = raw_manifest_reader(ref, *args, **kwargs)
+                    if str(getattr(ref, "artifact_id", ref)) != latest_artifact_id:
+                        return raw
+                    manifest = json.loads(raw)
+                    assert isinstance(manifest, dict)
+                    canon = manifest.get("canon")
+                    assert isinstance(canon, dict)
+                    max_depth = canon.get("max_depth")
+                    assert type(max_depth) is int
+                    canon["max_depth"] = max_depth + 1
+                    return json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
+
+                with monkeypatch.context() as tampered_profile:
+                    tampered_profile.setattr(store, "get_raw_manifest_bytes", tamper_latest_profile)
+                    refused_profile = read_details()
+                assert refused_profile["source_ref"] == source_ref
+                assert refused_profile["acquisition_history_limitation_code"] == (
+                    "acquisition_action_history_terminal_projection_unavailable"
+                )
+                refused_profile_history = tuple(
+                    row
+                    for row in refused_profile["acquisition_history"]
+                    if row.get("schema_version")
+                    == "policyos.runtime.run_candidate_simulation_acquisition_history.v5"
+                )
+                assert refused_profile_history == history_rows[:3]
+                refused_profile_current = refused_profile[
+                    "candidate_source_current_projection"
+                ]
+                assert refused_profile_current["status"] == "not_established"
+                assert refused_profile_current["occurrences"] == []
+                assert refused_profile_current["fronts"] is None
+                assert refused_profile_current["issues"] == [
+                    "candidate_source_current_v5_latest_terminal_profile_refused:"
+                    "canon_profile_selected_manifest_changed"
+                ]
+                assert read_details()["candidate_source_current_projection"] == current
+                assert _standard_invocation_units(control=control, run_id=origin.run_id) == (
+                    invocation_units_before
+                )
+
             execution = run_candidate_experiment_served_execution(
                 values=action_values["values"],
                 origin=action_values["origin"],
@@ -1289,6 +1500,7 @@ def _continue_genuine_candidate_experiment_generations(
                 policy_owner=policy_owner,
                 monkeypatch=monkeypatch,
                 wdi_response_value=21.0,
+                fresh_reader_observer=assert_fresh_effective_run_projection,
             )
             assert_independently(
                 lambda: assert_exact_retry_and_fresh_get(
@@ -1315,6 +1527,15 @@ def _continue_genuine_candidate_experiment_generations(
     b2 = run_reuse(generation=2, predecessor=b1)
     assert_independently(lambda: assert_wrong_reuse_refused(predecessor=b2))
     b3 = run_reuse(generation=3, predecessor=b2)
+    initial_action_evaluation = b1.current_action.selected_evaluation
+    retained_action_evaluation = b3.current_action.selected_evaluation
+    assert initial_action_evaluation is not None
+    assert b3.current_action.evaluation_disposition == "retained"
+    assert retained_action_evaluation is not None
+    for field in ("n5_input_ref", "n5_execution_ref", "n5_result_ref"):
+        assert getattr(retained_action_evaluation, field) == getattr(
+            initial_action_evaluation, field
+        )
     _assert_genuine_ordered_history_replay(
         control=control,
         origin=origin,
@@ -1598,6 +1819,14 @@ def _continue_genuine_candidate_experiment_generations(
     assert changed_terminal.terminal_outcome == "candidate_reentry_completed"
     assert changed_terminal.current_continuation_ref is None
     assert changed_history.reentry is not None
+    retained_history_chain = changed_history.origin.candidate_terminal_history_chain
+    assert tuple(item.head.action_generation for item in retained_history_chain) == (1, 2, 3)
+    assert all(
+        item.terminal.selected_evaluation is not None
+        and item.terminal.selected_evaluation.n5_result_ref
+        == initial_selected_evaluation.n5_result_ref
+        for item in retained_history_chain
+    )
     transition = changed_history.reentry.basis_transition
     assert transition.to_cycle_index == transition.from_cycle_index + 1
     assert artifacts.artifact_ref_identity_key(

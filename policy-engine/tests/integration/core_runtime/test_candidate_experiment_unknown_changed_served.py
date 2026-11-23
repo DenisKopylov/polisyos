@@ -92,10 +92,15 @@ def test_changed_source_after_blocked_candidate_executes_new_n5(
     served_recorded_candidate_gateway: object,
 ) -> None:
     """B remains candidate-only while C uses a different selected world and N5."""
+    from polisyos.core.contracts.runtime import (
+        RunCandidateSimulationAcquisitionHistoryEntryV4,
+        RunDetailsResponse,
+    )
     from polisyos.runtime.quality.acquisition_evaluation_history import (
         verify_candidate_experiment_terminal_history,
     )
     from tests._helpers.candidate_experiment_served_execution import (
+        _standard_invocation_units,
         run_candidate_experiment_served_execution,
     )
     from tests.integration.core_runtime.test_candidate_experiment_generations_served import (
@@ -170,6 +175,60 @@ def test_changed_source_after_blocked_candidate_executes_new_n5(
             after_replay=execute_same,
         )
 
+        def assert_fresh_blocked_run_details(*, client, control, history, origin, headers):
+            job = control._control_store.get_job(origin.source_job_id)
+            assert job is not None
+            core_run_id = job.progress["core_run_id"]
+            units_before = _standard_invocation_units(control=control, run_id=origin.run_id)
+            with _forbid_retained_generation_n5() as n5_entries:
+                response = client.get(f"/api/v1/runs/{core_run_id}", headers=headers)
+            assert n5_entries == []
+            assert _standard_invocation_units(control=control, run_id=origin.run_id) == units_before
+            assert response.status_code == 200, response.text
+            run = RunDetailsResponse.model_validate_json(response.content).run
+            candidate = run.candidate_simulation
+            assert candidate is not None
+            assert candidate.acquisition_history_limitation_code == (
+                "acquisition_action_history_terminal_projection_unavailable"
+            )
+            assert len(candidate.acquisition_history) == 2
+            for row, recorded in zip(
+                candidate.acquisition_history, (first_history, history), strict=True
+            ):
+                assert type(row) is RunCandidateSimulationAcquisitionHistoryEntryV4
+                assert row.route_receipt_ref == recorded.terminal_ref
+                assert row.reentry_receipt_ref == recorded.terminal.candidate_reentry_ref
+                assert row.n4_source_ref == recorded.reentry.n4_source_ref
+                assert row.n5_input_ref == recorded.reentry.n5_input_ref
+                assert row.n5_execution_ref == recorded.reentry.n5_execution_ref
+                assert row.n5_result_ref == recorded.reentry.n5_result_ref
+                assert row.simulation_status == "joint_simulated"
+                assert "candidate_experiment_evaluation_blocked" in row.limitations
+                assert set(recorded.selected_basis.reason_codes) <= set(row.limitations)
+                assert row.publication_authority is False
+
+            earlier_simulation = first_history.origin.effective_source_cycle.simulation
+            prior_results = tuple(row.simulation_result_ref for row in candidate.n5_observations)
+            assert earlier_simulation.simulation_result_ref in prior_results
+            assert history.reentry.n5_result_ref not in prior_results
+            current = candidate.candidate_source_current_projection
+            assert current is not None and current.status == "resolved"
+            assert current.publication_authority is False
+            assert current.fronts is not None and not current.fronts.decision_candidate_ids
+            reentry = history.reentry
+            assert (
+                current.generation_run_content_hash == reentry.continued_generation_run_content_hash
+            )
+            assert current.basis_transition_content_hash == reentry.basis_transition.content_hash
+            occurrence = next(
+                item
+                for item in current.occurrences
+                if item.candidate_id == reentry.new_cycle.selected_candidate_ref
+            )
+            assert occurrence.cycle_index == reentry.new_cycle.cycle_index
+            assert occurrence.content_hash == reentry.new_cycle.selected_candidate_content_hash
+            assert occurrence.certified_by_n9 is False
+
         def execute_changed(**action_values: object) -> None:
             changed = run_candidate_experiment_served_execution(
                 values=action_values["values"],
@@ -179,6 +238,7 @@ def test_changed_source_after_blocked_candidate_executes_new_n5(
                 policy_owner=first_values["policy_owner"],
                 monkeypatch=monkeypatch,
                 wdi_response_value=21.0,
+                fresh_reader_observer=assert_fresh_blocked_run_details,
             )
             changed_history = changed.terminal_history
             assert changed.standard_invocation_units_before == 4

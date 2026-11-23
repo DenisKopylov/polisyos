@@ -10854,8 +10854,8 @@
             "packets_assessed": 11,
             "requirements_assessed": 66,
             "status_counts": {
-              "CONFIRMED_LOCAL_PROFILE": 52,
-              "PARTIAL": 12,
+              "CONFIRMED_LOCAL_PROFILE": 54,
+              "PARTIAL": 10,
               "BLOCKED_EXTERNAL_INPUT": 2
             },
             "scope": "Requirement-level retained evidence for named local profiles. Original shared scenarios, independent G and the 300k operating profile keep their own acceptance.",
@@ -20145,6 +20145,84 @@
           "budget_result_sha256": "aa9cc698a354fe129778d5f198deb576f5bea147589cd7da7af9a100f6b6d482",
           "status": "DIAGNOSTIC_COMPLETE; strict no-repeat FAIL; acceptance not_established",
           "verified_boundary": "Fresh authorized HTTP 200 resolves only original cycle-0 blocked N5 and returns acquisition_action_history_integrity_not_established with absent action history. Cycle-1 R56 terminal and its budget stop reopen only in the independently pinned SQL/CAS. No selected new result. Original and clone business state/ledgers/journals are unchanged. Only three exact scoped read-audit writes on the private clone. Zero kernel or WDI calls, group quiescent, 50.889s, 1624195072B peak RSS, 5276635136B minimum disk."
+        },
+        "cyc_03_05_c0_dashboard_real_api_v2_v3": {
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "source_tree": "93dd2fe60a0afcd4463e6b77a43a5ea53f691640",
+          "published_product_equivalent": "41d3ac39e48b259eae4c216d5d4224d2e659573e",
+          "present": "CYC isolated checkout:policy-engine/_cache/e02/dashboard-c0-browser-r2/present/backend-evidence.json",
+          "present_sha256": "9e4c623ee9f516e95cfd4f9d5add9b98ca1192be79989b50ba67cd8357ae7618",
+          "withdrawn": "CYC isolated checkout:policy-engine/_cache/e02/dashboard-c0-browser-r3/missing-decision/backend-evidence.json",
+          "withdrawn_sha256": "2ac23dd060da50cc425fbd7dcab725fd1f9f1fd837e9bb58db7efc838a8b9f5b",
+          "restored": "CYC isolated checkout:policy-engine/_cache/e02/dashboard-c0-browser-r3/restored/backend-evidence.json",
+          "restored_sha256": "80012d8bb600971c4409c061ab3a38d4880564715e7474a230f6643c28eaa957",
+          "reconciliation": "CYC isolated checkout:policy-engine/_cache/e02/dashboard-c0-browser-r3/browser-trilogy-reconciliation.json",
+          "reconciliation_sha256": "beb89c7f1b22dea64b62eb813152478d07095b8b4fb03115635c29ce7eb605f8",
+          "verified_boundary": "Three fresh stock authenticated HTTP 200 bodies drive the actual browser. B is selected V2 new execution with +250e9 USD. G4 is V3 retained, with the same exact result and profile. Removing only G4 decision bytes hides both history links and shows the exact limitation. Restoring on the same copy brings back both links and numerical effect under a fresh Runtime and tab. Source archive, clone business bytes, physical work and frontier 1 reconcile. Only scoped read-audit writes; zero N5, supplier, worker. V5/other readers remain separate."
+        },
+        "acq_01_02_03_served_r1_bootstrap_failure": {
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "source_tree": "93dd2fe60a0afcd4463e6b77a43a5ea53f691640",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/acq01-served-basis-prepared-20261123-r1/budget/result.json",
+          "sha256": "895836d6348ace13aaabd5a5c27d47233ad113f51cba38ce08eb1e9a13825015",
+          "status": "COMMAND_FAIL before resolver/N5",
+          "verified_boundary": "Seed NL worker accepted and then fails on DuckDB FTS autoload: the clean environment omitted HOME. Five controlled synthetic responses and zero external calls. No deciding acquisition or N5 checks reached. Guard joins at 26.426s, 1826504704B RSS and 5096775680B minimum disk. Launch-preparation failure only."
+        },
+        "acq_01_02_03_served_r2_route_refusal": {
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "source_tree": "93dd2fe60a0afcd4463e6b77a43a5ea53f691640",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/acq01-served-basis-prepared-20261123-r2/budget/result.json",
+          "sha256": "38eb30ce1d997295062b63babf21a41f720da1a4ea6ed8c0f7c4d3ba239fc5c8",
+          "fts_preflight_sha256": "054cd02b27d7c8d6388c49d8b296908ca2a9c4c6cd6dfc6b691baf85845c3284",
+          "status": "COMMAND_FAIL at costed_route_not_unique",
+          "verified_boundary": "Existing local FTS loads under no-network preflight and its bytes remain unchanged. The real seed job then completes. Maintained selector stops at the stock resolver before selected report tamper controls or successor execution, 37.233s, 1939570688B peak RSS, joined. The actual seed has one joint-simulated cycle and zero costed routes, with neither routing report nor cost record. Its retained counterexample records n7_catalog_source_refused.catalog_source_registry_readmission_required. Exact source/registry readmission is the next no-effect discriminator."
+        },
+        "cyc_02_01_genuine_v1_old_producer_fresh_n8": {
+          "old_source_commit": "73d6d71d1bde2b85b7910ba8e1356b888389cfc0",
+          "old_source_tree": "82a79ddf26e4b18c6943dd7ef5b1e50a304d9aa5",
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "source_tree": "93dd2fe60a0afcd4463e6b77a43a5ea53f691640",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/lane01-cyc02-historical-producer-profile-r2/v1-r2/",
+          "producer_sha256": "9f1da6e9f086103e9e97d82eeba36fce41fc70f184f7ae10cb5488a50728dc16",
+          "reader_sha256": "512bfda8081d4622aedd7a8fcd00f6c86793bce61e4c7ed7bf773ef51510b085",
+          "verified_boundary": "Genuine original NCM V1 writer, four trajectories and joint firm_survival 11.0, selected d983a5ab / profile 15fe1be3. Different current process opens identical complete body/receipt/manifest fingerprint with value_conditional/simulate_only/low and no owner receipts. Physical wrong profile and foreign world fail separately. 17.586s and 12.477s, both groups PASS/joined. Historical V3 emitter not established."
+        },
+        "cyc_04_04_n6_proxy_focused_initial": {
+          "source_commit": "41d3ac39e48b259eae4c216d5d4224d2e659573e",
+          "owned_diff_sha256": "f220789addcb4503241b6513f51c6f8bccc21b7ae6451105284b8e7cc197e688",
+          "output": "Primary:policy-engine/_cache/e02/cyc04-n6-unknown-proxy.Jgqsgp/budget/result.json",
+          "sha256": "b2d3373158b51b5fa56be4b0ec2b531e375c078a63ecb91772a8fc74d19d1c7f",
+          "verified_boundary": "22 tests pass; two N7 variants fail before scheduling at selected_substrate_workspace_overlaps_source, a wrapper basetemp issue. Live stock missing/zero decision, report builder roundtrip, exact legacy schedule comparisons and retained checkpoint reads, information, reserve and timeout controls pass. Full same-action recovery publication not proved by helper controls. Guard 116.223s, 1928724480B, joined."
+        },
+        "cyc_04_04_n7_same_cycle_two_source_profiles": {
+          "source_commit": "41d3ac39e48b259eae4c216d5d4224d2e659573e",
+          "owned_diff_sha256": "f220789addcb4503241b6513f51c6f8bccc21b7ae6451105284b8e7cc197e688",
+          "output": "Primary:policy-engine/_cache/e02/cyc04-n6-unknown-proxy.Jgqsgp/n7/budget/result.json",
+          "sha256": "be58eb2d413b072467a3298512d498d676f5e9c0036426f4e067811bca9bacdb",
+          "junit_sha256": "4378456a29bc41b47b3828eb9fa94b1184c9ffbb3dd13c08b11e63a1b176e136",
+          "verified_boundary": "Actual stock same-cycle N7 ranked and controlled unranked-history inputs both PASS with distinct selected signals. All 12 source pins match the initial 22 passed cases before and after. The alternate same-volume temporary tree is outside source. 118.186s, 1947910144B, process quiet. The exact interrupted retained publication has separate unproved integration scope."
+        },
+        "lane01_native_blocked_and_c49_unit_composition": {
+          "source_commit": "41d3ac39e48b259eae4c216d5d4224d2e659573e",
+          "output": "Primary:policy-engine/_cache/e02/native-r56-blocked-history-unit-r1.note9_k8/",
+          "junit_sha256": "3369afd4c0ceec1e95b767c35f7019009e1f84834d87fb1d689ccbeae22e48c3",
+          "budget_sha256": "a5b8dbc7b337f76ff3bfc0b6e6864eae6c6f446929efea53563b4cc66af5ec7f",
+          "verified_boundary": "64 pytest checks PASS without skip, including three real C49 NCM budget cases and selected Native blocked DTO/route-helper removal controls. Pinned source bytes remain unchanged. The wrapper rejects one attempted DNS resolution prior to transmission and exits 1; no connect observed. Retain mixed evidence and process quiescence, 27.722s and 1854996480B. Fresh actual R56 app and UI are separately required."
+        },
+        "cyc_02_01_supported_v3_old_serializer_fresh_n8": {
+          "old_source_commit": "9dd15d1c1bc89d189a5c53c47e816ce48ab5b352",
+          "old_source_tree": "1955e110ad48276702acbcc061761268d3e41d50",
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "source_tree": "93dd2fe60a0afcd4463e6b77a43a5ea53f691640",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/lane01-cyc02-v3-historical-serializer-profile-r2/v3-r2/",
+          "producer_sha256": "ed608a23a84ae6ca8b0f70b881555d832dedc6dbe9e371aaa39851ad0e9813a3",
+          "reader_sha256": "97cca22da574199c4766ceee9c1c5b5f431ec702e60ad5f6b463c4dcb5d4f81a",
+          "verified_boundary": "Actual historical V4 controller then original typed V3 serializer over the same 4 real NCM trajectories/two replications. Fresh current N8 preserves original bytes, profile and appropriate limitations with no owner authority and no NCM call. Wrong profile, foreign WMR, unknown schema and required-field removal independently refuse. 18.140s and 12.959s, both actual guards PASS and quiescent. This is genuine supported historical wire and does not prove controller emission of V3."
+        },
+        "native_r56_blocked_history_surface_product": {
+          "source_commit": "f2256507bfe5b6373f9113fddadd4498539d17e6",
+          "source_tree": "f5edce8f360cd0ab43664fe180e0a1f3cf71d2bd",
+          "verified_boundary": "Separate typed selected budget-defer row, exact phase/head/event/activation and framed overlay with no result or authority; old V1 keeps exact wire. Independent Python and public-companion reviews, 64 scoped Python passes with separately recorded guard exit 1, 100 focused Dashboard checks and 63 SDK checks, type checks and Runtime API contract drift PASS. Verified real archived R56 GET, absence and restoration are still unrun on the new publication."
         },
         "sel01_r12_current_consumer_profile_attempt": {
           "source_commit": "0234a6ce0bd297226d3ed9e6d6f37661e23bd2be",
@@ -36939,19 +37017,19 @@
           "binding_ids": [
             "E02-I01-C-B01"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "lane01_current_cycle_owner_checks",
             "n5_budget_di_current",
             "cyc04_04_information_route_actual_ncm_budget",
-            "cyc04_04_simple_scheduler_missing_proxy"
+            "cyc04_04_simple_scheduler_missing_proxy",
+            "cyc_04_04_n6_proxy_focused_initial",
+            "cyc_04_04_n7_same_cycle_two_source_profiles",
+            "lane01_native_blocked_and_c49_unit_composition"
           ],
-          "basis": "The stock scheduler admits the same candidate by information at positive numeric proxy ratio 0.2 below threshold 1.0. The actual NCM run finishes one seed and refuses another after a separate controlled producer charge exhausts this run's ledger. NCM monetary cost remains not_established and the partial work is readable.",
-          "remaining_kinds": [
-            "bridge_missing",
-            "semantic_test_missing"
-          ],
-          "remaining": "Wire stock N6 missing proxy to the verified Simple scheduler and persisted audit instead of supplying a default numeric zero. Reverify affected Native and Candidate retained schedule readers on that composition. The Simple scheduler/report unknown-versus-zero and legacy DTO round-trip already qualify."
+          "basis": "The stock scheduler admits information at numeric proxy ratio 0.2 below threshold 1.0. Actual C49 NCM finishes one seed and refuses another after a real controlled producer charge exhausts the ledger. NCM monetary cost remains not_established. Actual N6 preserves absent proxy and distinguishes real zero with unchanged admission arithmetic. Reserve/timeout, retained Native/Candidate checkpoint readers and both actual N7 variants pass. Scope is these local profiles; interrupted same-action retained publication is separate.",
+          "remaining_kinds": [],
+          "remaining": null
         },
         {
           "requirement_id": "REQ-CYC-04-05",
@@ -37260,16 +37338,16 @@
             "B08"
           ],
           "binding_ids": [],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "cyc02_legacy_selected_reader_replay",
-            "cyc02_historical_producer_feasibility"
+            "cyc02_historical_producer_feasibility",
+            "cyc_02_01_genuine_v1_old_producer_fresh_n8",
+            "cyc_02_01_supported_v3_old_serializer_fresh_n8"
           ],
-          "basis": "Actual v2 producer replay and v3 wire-shape compatibility preserve the bounded legacy conditional read, comparison limitations and original bytes during the read.",
-          "remaining_kinds": [
-            "artifact_missing"
-          ],
-          "remaining": "An independently retained genuine v3 producer artifact was not found. The v3 resynchronization control proves reader compatibility only."
+          "basis": "V1 original old NCM and separate V2 genuine old writer/canonical read and test of the conditional V2 wire qualify their scopes. Actual historical 9dd NCM V4 and the same numbers authored as V3 by the historical typed validator, receipt and persister reopen in fresh current N8 as conditional with their own limitations and unchanged selected bytes. Wrong profile, foreign WMR, unknown and corrupt supported payloads refuse. The original requirement covers the supported wire. Historical controller emission of V3 is not established.",
+          "remaining_kinds": [],
+          "remaining": null
         },
         {
           "requirement_id": "REQ-CYC-02-02",

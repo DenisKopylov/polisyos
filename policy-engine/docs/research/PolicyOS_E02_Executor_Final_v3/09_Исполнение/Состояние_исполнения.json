@@ -10854,8 +10854,8 @@
             "packets_assessed": 11,
             "requirements_assessed": 66,
             "status_counts": {
-              "CONFIRMED_LOCAL_PROFILE": 55,
-              "PARTIAL": 9,
+              "CONFIRMED_LOCAL_PROFILE": 56,
+              "PARTIAL": 8,
               "BLOCKED_EXTERNAL_INPUT": 2
             },
             "scope": "Requirement-level retained evidence for named local profiles. Original shared scenarios, independent G and the 300k operating profile keep their own acceptance.",
@@ -20276,6 +20276,36 @@
           "status": "BOOTSTRAP PASS; HTTP 200 with history integrity limitation",
           "verified_boundary": "Scoped owner bootstrap passes and is cleared before the GET. A signed fresh reader sees the actual existing run, zero modern V5 rows and acquisition_action_history_integrity_not_established, with three clone-only read audits. The outer harness remains FAIL due a runs.view audit expectation against the actual scoped runs.review. This failure is distinct from the product history outcome. Original CAS/SQL/Catalog unchanged; no worker/provider/N5. Exact V5 owner refusal still to identify."
         },
+        "cyc_03_05_retained_r9_v5_cold_trace_r5": {
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "output": "Primary:policy-engine/_cache/e02/lane01-v5-run-details-r9-preflight-r5/execution-r5/",
+          "projection_sha256": "d25ba5f8fee3da38822b1d651a759e4a074d73fe8554cd9bb479d49ae44e2d83",
+          "trace_sha256": "6aa7fa3bd867c58166761150d5ce350de3b27ab43ca8732f64c6ce1c7757628b",
+          "guard_sha256": "f0cddc449776267b5479410200e26e50b4e32d49ff7205030d5de16bc22d8722",
+          "verified_boundary": "Fresh HTTP 200 again gives no V5 records. Scoped runs.review audit now passes. One stock projection invocation did not match the instrumented selector, which used the Scientist source run rather than the indexed Core run. No definitive inner refusal established. Original inputs unchanged, no new worker, provider or N5."
+        },
+        "cyc_03_05_retained_r9_v5_cold_trace_r6": {
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "output": "Primary:policy-engine/_cache/e02/lane01-v5-run-details-r9-preflight-r6/execution-r6/",
+          "trace_sha256": "3abd2d60704129f3c26b03160292319a1043c44ccfa5b74470ea704e5c7a8a83",
+          "projection_sha256": "8726992580634d98d76b4cbb85fa322dcb5bc900107c410ef3ac0a62decdd04f",
+          "guard_sha256": "e020b88eeac772fbc823ca5d0e99aaf1897314c488c48f49d3c332c49ec43a83",
+          "verified_boundary": "Exact indexed Core scoped trace matches its one call and catches the ValueError at acquisition_evaluation_history.py:1684, candidate_experiment_terminal_action_owner_not_composed. The specific mismatching identity predicate remains unknown. HTTP 200/zero V5 history; no producer effects; original and clone business state exact; scope audit valid. Group joins 26.929s / 1803517952B. R9 Gen2 DS9 refusal remains a separate event."
+        },
+        "cyc_03_05_retained_r9_v5_cold_trace_r7": {
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "output": "Primary:policy-engine/_cache/e02/lane01-v5-run-details-r9-preflight-r7/",
+          "execution_status_sha256": "3ce554b1186504224a580dd0ae51ed2d57ff115b7544a03181e3a7b999de9976",
+          "guard_sha256": "63f80c058d57d34ecb02a83a93ae12e23d838b8fdac8d1a135fdad8eaa75290b",
+          "verified_boundary": "Factory succeeds and original inputs remain exact. The harness passes the Core API run ID to the source owner; the immutable completed source job uses the distinct Scientist run ID. The resulting source_job_not_completed stops before owner composition and HTTP. R7 strict FAIL, 31.318s / 1808433152B RSS, group joined. R6 remains the latest actual GET."
+        },
+        "cyc_03_05_retained_r9_v5_cold_trace_r8": {
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "output": "Primary:policy-engine/_cache/e02/lane01-v5-run-details-r9-preflight-r8/",
+          "execution_status_sha256": "37e130e35f767b33b76aeec7c2b95659be0e556750b7ec5689930b700e92fd53",
+          "guard_sha256": "2684a74842b6d224851c34b331edb22684960fe98e6a372b271267c278918e78",
+          "verified_boundary": "After exact source-run versus Core-run correction, the completed source job resolves. The first artifact read in the owner pre-read refuses source_artifact_unverified. HTTP and retained owner composition are unentered. Original inputs unchanged on factory proof; strict FAIL, group joined in 19.143s with 1811628032B RSS. R6 remains the latest actual GET."
+        },
         "acq_01_served_gdp_retained_trial_r1": {
           "source_commit": "49cee621a8588fe43e0107b0acae25034fdb5668",
           "source_tree": "ef223b126533ab768bbd753a7f8b91dd985f8dd6",
@@ -20293,6 +20323,20 @@
           "sha256": "05fb794bf544fd89a33a3c4994bb53c68eb3ff24d87c9110b59e77c50a789039",
           "guard_sha256": "0647b9a444903099da2002e5c02c3370cbbeca416b6f9731cd3add6f56c8e983",
           "verified_boundary": "Original R1 permitted controlled gateway once before the later harness failure. On the exact same cut the stock resolver reopens both typed reports, separately refuses compiler and planner physical blob withdrawal with exact roles while inline report and manifests remain, and restores each. Fresh API HTTP 200 selects the same B result and profile with two GDP trajectories at 29548012454912 USD. Full business store and original archive unchanged, three read-audit entries in clone only, zero new worker/N4/N5/provider. 51.620s and 1982676992B RSS, group joined PASS. The original umbrella command remains FAIL and g3 remains unrun."
+        },
+        "acq_01_03_gdp_b_constituent_owner_read": {
+          "source_commit": "49cee621a8588fe43e0107b0acae25034fdb5668",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/acq01-gdp-b-constituent-owner-ro-20261123/execution/result.json",
+          "sha256": "b058c89a7393b2f8895b18538b9ab8b037d76a0385406ff4f2279e378c9447a8",
+          "guard_sha256": "0ac86d398a2aaf19341ad2028146008591795c96154957f3cae1823706e3f23d",
+          "verified_boundary": "Exact retained GDP B and WMR. Stock owners refuse non-target state, wrong rule path, bad baseline, and exact foreign NCM separately. Correct model attempt stops at genuine missing live lease. Original preserved, 1724 local imported origins, zero provider, worker, N4, N5, reservations or writes. Component PASS only on its read scope."
+        },
+        "acq_01_05_cpi_prefetch_year_unit": {
+          "source_base": "8c9faa172e5faf7373d5f9226080b10434050207",
+          "output": "Primary:policy-engine/_cache/e02/acq01-05-prefetch-owner-r1.PP3bXPUD/budget/command.log",
+          "sha256": "7b09468be9283ab3a65cac8a4b90221b8b42f13891ee3d6c30bcc87e970a061e",
+          "guard_sha256": "72ddbb9560a80fa544385ab978ff0dd25ea37a7498b83533f2479a9c70472c8a",
+          "verified_boundary": "Exact CPI singleton query and source profile. Year-only and unit-only differences refuse through stock owner, exact restoration after each; raw 2024 row is out of 2023 scope. Empty raw unit and profile-declared index preserved. No acquisition, source materialization or N5 in this verification. R4 returns retained effect -0.5 with exact N5 input ref 28dda475 but the R10 original CAS input/raw bytes are absent from the retained repro. Neither prefetch nor the compact R4 receipt exposes the actual preparation count or selected raw-to-input audit."
         },
         "cyc_04_03_real_n4_preflight_served_r1": {
           "source_commit": "8dd2e689fea31dcf16f1b43d8ce8009de72e043e",
@@ -20317,6 +20361,21 @@
           "one_arm_sha256": "6a227039317fd6c256705c3cc1931b6cf3a5a139192ea0f901fd623a53c62777",
           "verified_boundary": "Bound discovery plus real N4 preflight 2/2 no N5. Served R2 on a pinned working overlay has one completed Control job, two one-replication N5 calls in candidate order, two completed standard units and no protected spend. Both use the same per-cycle N4. First candidate's local AIPW refusal is persisted and served, second has completed estimate 1.9999943737942087. Strict run stops at a per-cycle/aggregate N4-ref comparison before the fresh reader. One-arm outer test remains FAIL: one N5, earlier shared manifest-route refusal, no local marker or retry. No method-arm preflight or expired budget/lease established by that cut."
         },
+        "cyc_04_03_bound_discovery_cold_reader_r3": {
+          "source_base": "8c9faa172e5faf7373d5f9226080b10434050207",
+          "output": "Primary:policy-engine/_cache/e02/cyc04-bound-discovery-retained-reader-r3/",
+          "http_body_sha256": "7770e65b0781ee29603833f846323d5f19efb22f558ff6cd057f45de2510822a",
+          "guard_sha256": "774ee247f4aa95e82bb83a36568daf1f6f9b7304c8636c8826a76ecaa447bd32",
+          "verified_boundary": "Fresh HTTP 200 verifies exact saved first refusal and selected sibling N5 with both income trajectories 0.5, zero worker/provider/new N5 and unchanged source and ledgers. Stored AIPW is withheld with selection-context hash mismatch. Independent harness CAS after app close then fails, so removals are unrun. Determine actual writer thread profile before another read. Guard joins 30.517s, 1848360960B peak RSS."
+        },
+        "cyc_04_03_bound_discovery_exact_cold_reader_r4": {
+          "source_base": "8c9faa172e5faf7373d5f9226080b10434050207",
+          "output": "Primary:policy-engine/_cache/e02/cyc04-bound-discovery-retained-reader-r4/result.json",
+          "sha256": "f9dabe79c12a0ce6cb09c99101337d2ace0c1089dc2dc35cdab6c038479e0850",
+          "guard_sha256": "bdf6cb5b57320665210e4a8df949720a04460e556fe7421061b7210c9936e41a",
+          "initial_http_sha256": "85be33c90f79eabc2add400639d1e7b6ec898a9f3a0d98829a3f4fad1c3d3942",
+          "verified_boundary": "R4 new process on exact five writer thread flags matches d148bce0 selected context. Six HTTP 200 stock GETs preserve exact first N8 refusal and both N5 joins, candidate-only selected income 0.5 and AIPW 1.9999943737942087 with exact interval and ID bounds. Remove N5 execution and method selection receipt independently. First hides numbers, second hides method only, restore exact output each. No new worker, provider, external network or N5, untouched source and SQL/quota. PASS 57.661s, 2043936768B. Joined positive and cold read qualify their local scope; global exhaustion after the first invocation remains open."
+        },
         "native_model_input_use_draft_no_effect": {
           "source_base": "985086f775aa56baf1f32abd5363ffea6cc8fd76",
           "controller_output": "Primary:policy-engine/_cache/e02/native-use-controller-focused-20261123/guard-r1/result.json",
@@ -20340,6 +20399,42 @@
           "scratch_openapi_sha256": "55eaf6b5d49b4e108c485d6f1c1b19e98a96a0c0823df362021f0615cd84925c",
           "scratch_openapi_output": "Primary:policy-engine/_cache/e02/native-use-openapi-read-draft.egyPjitF/",
           "verified_boundary": "Service R2 9/9 no effect before routing edits. R3 real compatible saved WMR proves rank while old advisory-field tamper assertion fails. R4 proves valid advisory change has no authority or decision effect, rejects canonically changed witnesses and separately changed CG3 and CG5, and joins. Registered draft 10/10 tests legacy/Native request binding, completion lease and GET refusal dispatch with zero producer effects; 25.881s, 1584513024B RSS. No actual Native action or kernel; live scope, V3 persistence/replay and API acceptance remain open."
+        },
+        "native_r56_current_paid_source_preflight_r1": {
+          "source_base": "8c9faa172e5faf7373d5f9226080b10434050207",
+          "output": "Primary:policy-engine/_cache/e02/native-r56-source-preflight-20261123/result-oxkSaKgb/result.json",
+          "sha256": "a6bb510b64f3b2a4e6721246d86c6fffb0a0340353d92b2edd199993aefbf54b",
+          "snapshot_sha256": "c1c0e6ca8fc6ba3207e3c460486fc2fee8e11c922fb6bb16ef36dcabd64df1db",
+          "guard_sha256": "e0d593a2ed7022dd8d89a978f730c84c576e6fcd17db07a30322afe2e5563399",
+          "post_join_stock_tree_sha256": "ba6de9794cfba93fcf523e7df3cf62b6632774fd04480f703802f81e9b40fa8c",
+          "verified_boundary": "Operated R56 g3 current source owner reaches selected-result checks with the original absolute Catalog and paid rev34. Immediate clone-tree fingerprint changes, strict source probe FAIL. Original fixture and financial/source journals exact; clone SQL and the ledgers/journals exact. Independent post-join complete census finds 4021 files identical. Immediate path delta unknown. No protected request, worker or kernel. 187.162 s, 1701527552 B RSS, process group joined. Capture provisional selection and exact transient paths before any claim of source or method readiness."
+        },
+        "native_r56_current_paid_source_preflight_r2": {
+          "source_base": "8c9faa172e5faf7373d5f9226080b10434050207",
+          "output": "Primary:policy-engine/_cache/e02/native-r56-source-preflight-20261123-r2/result-h0J9EoCT/",
+          "provisional_sha256": "7e78092257a712d086c87f32b79b6436e7232b1a187478d08d3d6778dceb75c4",
+          "snapshot_sha256": "b4510e7e7f85bd848e0aaab560e7788403e2885c982abeca9afa578884deced9",
+          "post_join_stock_tree_sha256": "4ec33a918859192b77c1bce1d8f7bc08b9088956837e29b5ad2870e7b61875b4",
+          "joined_source_evidence_sha256": "dc21a6dd0349ca9c518787e800b1c6c4539c26304d4db31767f5c85021d5f316",
+          "guard_sha256": "d1d561545796ad475e762c3e0c6e476d1d3e2e1a25092e546ef128023eba005c",
+          "request_sha256": "46c8ec56f464d70c6325723aeafadfdecf16896bedb4a7c1a7d23c4d2146d059",
+          "verified_boundary": "Stock owner returns current paid candidate-only A+B, exact B selection and WMR, one standard replication, configured 0.50 request/route and 5.0 global limits, zero provider and kernel. Sole in-process clone difference is disappearance of zero-byte control.sqlite3-wal. Original tree, both ledgers, SQL tables, and both supplier journals remain exact, full 4021-file stock comparison passes after join. Strict diagnostic process remains FAIL. Scope establishes source selection only; no real allocation, affordability, PA2, queue or current CGF."
+        },
+        "native_r56_paid_ab_cgf_component_r1_r2": {
+          "source_base": "8c9faa172e5faf7373d5f9226080b10434050207",
+          "output": "Primary:policy-engine/_cache/e02/native-r56-ab-cgf-component-20261123/",
+          "r1_guard_sha256": "72bb32619374d736e745debd577410fb866d19a5636e7cd458e44f6dd7650e98",
+          "r2_guard_sha256": "3a1731b73087188409bf3bbcda5d5f5458aab59417fad06d42e4bbc00f5cfa82",
+          "r2_command_log_sha256": "bade9dc6a4a379e1f9ef5c7bb7c894abcabaed3c304c2a4b74684b967b61523b",
+          "verified_boundary": "R1 stops because HOME was absent for the exact local DuckDB FTS. With the pinned local FTS, R2 observes CG1 certified-specialization, CG2 abstain/open admissibility_closed, and CG3 rejects outcome_wish from identical proposed agents.income target/outcome. The selected ProgramGraph has actual tax_subsidy actuation with income read and income/balance writes. R2 strict FAIL at source-stability check after concurrent ACQ changes; retained SQL copy digest matches. No approval, worker, provider or N5."
+        },
+        "native_r56_paid_ab_cgf_component_r3": {
+          "source_base": "8c9faa172e5faf7373d5f9226080b10434050207",
+          "output": "Primary:policy-engine/_cache/e02/native-r56-ab-cgf-component-20261123/run-9EZeasst/",
+          "guard_sha256": "25677a42216a3557519acb09bdec8373ac94d006aa559fc2213b0df88df95973",
+          "command_log_sha256": "2e158d406e3f296610b84e02373cf81e548ad8423f11d074a5c5d95d978382b2",
+          "source_pin_sha256": "2c14c1f7a4125c0714827218cc8c956b5d211503ed8a23be64a4892ba5b8f463",
+          "verified_boundary": "PASS, stable full Python source and exact original CAS (3905 files), SQL and Catalog; 1767 checkout module origins. CG1 certified-specialization; CG2 abstain on open admissibility_closed; CG3 rejects outcome_wish. Graph confirms tax_subsidy actuation consumes income and writes income and fiscal balance. The requested research ATE objective names government.balance; the retained proposal sets both action and outcome to agents.income. Component only, zero provider/worker/N5, with CG4/CG5 and method/N6 untouched. Group joined in 48.961s at 1651310592B RSS."
         },
         "sel01_r12_current_consumer_profile_attempt": {
           "source_commit": "0234a6ce0bd297226d3ed9e6d6f37661e23bd2be",
@@ -36726,17 +36821,15 @@
             "E02-I01-B-B02",
             "E02-X02-B02"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
-            "scientific_c_selected_read_reconciliation",
-            "gdp_producer_fresh_read_reconciliation",
-            "acq01_canonical_route_disposition"
+            "acq_01_served_gdp_retained_trial_r1",
+            "acq_01_02_gdp_r1_same_slice_join",
+            "acq_01_03_gdp_b_constituent_owner_read"
           ],
-          "basis": "Persisted source changes reach actual numerical computation in bounded C and GDP profiles. A fresh authenticated reader returns the exact selected C result at revision 4.",
-          "remaining_kinds": [
-            "semantic_test_missing"
-          ],
-          "remaining": "Qualify all four foreign constituent controls for state, path, baseline and NCM against the same declared changed-source profile."
+          "basis": "On the actual first selected GDP B attempt, the live owner had to pass four synchronous refusal controls before the observed selected N5 and terminal. Its foreign NCM was persisted before that N5. A separate historical stock owner read of exactly this selection independently refuses changed non-target state, foreign source path, baseline and foreign NCM. The earlier umbrella still fails at later generation-3 registry setup. The live refusal conclusion is reconciled from source order and persisted SQL/CAS.",
+          "remaining_kinds": [],
+          "remaining": ""
         },
         {
           "requirement_id": "REQ-ACQ-01-04",

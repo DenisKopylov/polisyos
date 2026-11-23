@@ -725,7 +725,6 @@ def _candidate_experiment_blocked_reentry_without_frontier(
     decision = verified.decision
     basis = verified.selected_basis
     reentry = verified.reentry
-    observed = verified.reentry_evaluation
     if (
         type(terminal) is not AcquisitionCandidateExperimentTerminalReceipt
         or terminal.terminal_outcome != "candidate_reentry_completed"
@@ -744,22 +743,215 @@ def _candidate_experiment_blocked_reentry_without_frontier(
         or basis.predicate_provenance != "not_established"
         or not basis.reason_codes
         or reentry is None
-        or reentry.new_cycle.simulation.status != "joint_simulated"
-        or observed is None
-        or any(
-            getattr(reentry, field) is None
-            or getattr(observed.selected, field) is None
-            or artifact_ref_identity_key(getattr(reentry, field))
-            != artifact_ref_identity_key(getattr(observed.selected, field))
-            for field in ("n4_source_ref", "n5_input_ref", "n5_execution_ref", "n5_result_ref")
-        )
     ):
         return None
     return reentry
 
 
+_PARTIAL_CANDIDATE_N5_PROOF_UNAVAILABLE = (
+    "candidate_source_current_v5_partial_n5_explanation_not_established"
+)
+
+
+def _require_historical_candidate_quota_stop(
+    *,
+    settlement_store: Any,
+    binding: Any,
+    policy: Any,
+    budget_owner: tuple[str, str, str],
+    budget_resource: tuple[int, int, str, int, int],
+    invocations: tuple[tuple[str, str, str], ...],
+    cut: int,
+) -> None:
+    """Require the original standard partition to be exhausted at this cut."""
+    from polisyos.scientist.orchestration.engine import (
+        BudgetLedgerInvocationProfile,
+        verify_completed_standard_invocations_historical,
+    )
+    from polisyos.scientist.orchestration.engine.producer_budget import _capacity_store_snapshot
+
+    observed = verify_completed_standard_invocations_historical(
+        settlement_store=settlement_store,
+        expected_run_binding=binding,
+        expected_policy=policy,
+        expected_settlement_owner=budget_owner,
+        expected_invocations=invocations,
+    )
+    profile = BudgetLedgerInvocationProfile.from_policy(binding, policy)
+    owner, resource, anchor, snapshot = _capacity_store_snapshot(
+        settlement_store, require_existing_lock=True
+    )
+    terminal_at_cut = {
+        row.operation_id
+        for row in snapshot.invocation_reservations.values()
+        if row.run_id == binding.run_id
+        and row.profile_digest == profile.profile_digest
+        and row.purpose == "standard"
+        and row.status in {"completed", "failed"}
+        and row.revision <= cut
+    }
+    if (
+        owner != budget_owner
+        or resource != budget_resource
+        or snapshot.revision != anchor[0]
+        or anchor[0] < cut
+        or snapshot.invocation_profiles.get(binding.run_id) != profile
+        or len(terminal_at_cut) != profile.total_units - profile.protected_units
+        or any(
+            row.operation_id not in terminal_at_cut
+            or snapshot.invocation_reservations.get(row.operation_id) != row
+            for row in observed
+        )
+    ):
+        raise ValueError("partial_candidate_quota_exhaustion_not_established")
+
+
+def _verify_historical_partial_candidate_n5(
+    *, verified: CandidateExperimentTerminalHistory, store: Any, settlement_store: Any
+) -> None:
+    """Reconcile the selected interrupted request with its original durable quota."""
+    from polisyos.core.artifacts.ownership import raise_artifact_read_access_error
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        rebuild_selected_candidate_n5_request,
+    )
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationN5InputV5
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleError,
+        load_joint_simulation_result,
+    )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.n5_candidate_content import read_candidate_n5_content_observation
+    from polisyos.scientist.orchestration.engine import (
+        ProducerBudgetObservation,
+        ProducerBudgetSourceError,
+    )
+
+    receipt = verified.reentry
+    window = verified.budget_window
+    interruption = "n5_invocation_quota_exhausted"
+    if (
+        receipt is None
+        or window is None
+        or receipt.new_cycle.simulation.status != "simulation_blocked"
+        or receipt.new_cycle.value_port.status != "value_blocked"
+        or interruption not in receipt.new_cycle.simulation.authority_blockers
+        or interruption not in receipt.new_cycle.value_port.authority_blockers
+        or verified.reentry_evaluation is not None
+        or receipt.n4_source_ref is None
+        or receipt.n5_input_ref is None
+        or receipt.n5_result_ref is None
+        or receipt.n5_execution_ref is not None
+        or window.scope.action_job_id != receipt.action_job_id
+        or window.scope.action_generation != receipt.action_generation
+        or window.scope.route_id != receipt.route_id
+    ):
+        raise GenerationCycleError(_PARTIAL_CANDIDATE_N5_PROOF_UNAVAILABLE)
+    binding = window.scope.run_binding
+    scope = {
+        "run_id": receipt.run_id,
+        "job_id": receipt.action_job_id,
+        "tenant_id": receipt.tenant_id,
+        "cell_id": receipt.cell_id,
+    }
+    if (binding.run_id, binding.control_job_id, binding.tenant_id, binding.cell_id) != (
+        receipt.run_id,
+        receipt.source_job_id,
+        receipt.tenant_id,
+        receipt.cell_id,
+    ):
+        raise GenerationCycleError(_PARTIAL_CANDIDATE_N5_PROOF_UNAVAILABLE)
+    try:
+        request = rebuild_selected_candidate_n5_request(
+            store=store, input_ref=receipt.n5_input_ref, **scope
+        )
+        result = load_joint_simulation_result(
+            receipt.n5_result_ref,
+            store=store,
+            expected_world_model_record_content_hash=receipt.scenario_world_model_content_hash,
+            expected_atom_ids=tuple(atom.intervention_id for atom in request.intervention_atoms),
+            expected_selected_outcomes=request.selected_outcomes,
+            expected_receipt_payload_hash=receipt.new_cycle.simulation.simulation_ref or "",
+        )
+        completion = read_candidate_n5_content_observation(
+            result, input_ref=receipt.n5_input_ref, expected_request=request
+        ).completion
+        work = result.physical_work_observations
+        refusal_basis = result.diagnostics.get("budget_interruption_basis")
+        if (
+            result.trajectories
+            or result.diagnostics.get("physical_work_capture_status") != "observed"
+            or not isinstance(refusal_basis, dict)
+            or refusal_basis.get("purpose") != "standard"
+            or completion.status != "not_established"
+            or completion.interruption_reason != interruption
+            or completion.failed_units
+            or not work
+            or len(work) != len(completion.completed_units)
+            or not set(completion.completed_units) < set(completion.planned_units)
+            or any(
+                row.status != "completed"
+                or row.budget_status != "current_owner_checked"
+                or row.invocation_quota_purpose != "standard"
+                or row.invocation_quota_status != "completed"
+                for row in work
+            )
+        ):
+            raise ValueError("partial_candidate_plan_not_established")
+
+        input_record = GenerationSourceRepository(store).resolve_candidate_simulation_v5(
+            ref=receipt.n5_input_ref, **{f"expected_{key}": value for key, value in scope.items()}
+        )
+        if (
+            type(input_record) is not CandidateSimulationN5InputV5
+            or input_record.n5.invocation_quota_policy is None
+            or input_record.n5.invocation_purpose != "standard"
+        ):
+            raise ValueError("partial_candidate_quota_profile_not_established")
+        policy = input_record.n5.invocation_quota_policy
+        raw_bases = result.diagnostics.get("producer_budget_observations")
+        if not isinstance(raw_bases, dict) or not raw_bases:
+            raise ValueError("partial_candidate_budget_cuts_not_established")
+        bases = {
+            digest: ProducerBudgetObservation.model_validate(raw)
+            for digest, raw in raw_bases.items()
+        }
+        budget_owner = next(iter(bases.values())).settlement_owner
+        if any(
+            basis.run_binding != binding
+            or basis.settlement_owner != budget_owner
+            or basis.source_basis_digest != digest
+            for digest, basis in bases.items()
+        ) or any(row.budget_source_basis_digest not in bases for row in work):
+            raise ValueError("partial_candidate_budget_cut_owner_mismatch")
+        # Later spending cannot explain a refusal at the producer's cut.
+        _require_historical_candidate_quota_stop(
+            settlement_store=settlement_store,
+            binding=binding,
+            policy=policy,
+            budget_owner=budget_owner,
+            budget_resource=window.resource_identity,
+            invocations=tuple(
+                (
+                    row.invocation_quota_operation_id,
+                    row.invocation_quota_request_digest,
+                    row.invocation_quota_profile_digest,
+                )
+                for row in work
+            ),
+            cut=max(basis.ledger_revision for basis in bases.values()),
+        )
+    except GenerationCycleError:
+        raise
+    except (ProducerBudgetSourceError, TypeError, ValueError) as exc:
+        raise_artifact_read_access_error(exc)
+        raise GenerationCycleError(_PARTIAL_CANDIDATE_N5_PROOF_UNAVAILABLE) from exc
+
+
 def _candidate_source_current_projection_from_v5_history(
-    *, verified: Any, frontier_selection: str | None
+    *,
+    verified: Any,
+    frontier_selection: str | None,
+    no_frontier_history: RunCandidateSimulationAcquisitionHistoryEntryV4 | None = None,
 ) -> RunCandidateSourceCurrentProjection:
     """Project the latest owner-verified V5 effective run as candidate-only current data."""
     from polisyos.core.artifacts import artifact_ref_identity_key
@@ -783,8 +975,11 @@ def _candidate_source_current_projection_from_v5_history(
     if type(verified) is not CandidateExperimentTerminalHistory:
         return unavailable("candidate_source_current_v5_terminal_not_verified")
     blocked_reentry = (
-        _candidate_experiment_blocked_reentry_without_frontier(verified)
+        verified.reentry
         if frontier_selection is None
+        and no_frontier_history is not None
+        and no_frontier_history.route_receipt_ref == verified.terminal_ref
+        and no_frontier_history.reentry_receipt_ref == verified.terminal.candidate_reentry_ref
         else None
     )
     if frontier_selection != "selected" and blocked_reentry is None:
@@ -1005,7 +1200,11 @@ def _candidate_reentry_history_v4_projection(
 
 
 def _candidate_experiment_blocked_history_projection(
-    *, verified: CandidateExperimentTerminalHistory, control_store: Any
+    *,
+    verified: CandidateExperimentTerminalHistory,
+    store: Any,
+    control_store: Any,
+    settlement_store: Any,
 ) -> (
     tuple[
         RunCandidateSimulationAcquisitionHistoryEntryV4,
@@ -1023,6 +1222,20 @@ def _candidate_experiment_blocked_history_projection(
     reentry_ref = verified.terminal.candidate_reentry_ref
     if reentry is None or decision is None or basis is None or reentry_ref is None:
         return None
+    if reentry.new_cycle.simulation.status == "simulation_blocked":
+        _verify_historical_partial_candidate_n5(
+            verified=verified, store=store, settlement_store=settlement_store
+        )
+    else:
+        observed = verified.reentry_evaluation
+        if reentry.new_cycle.simulation.status != "joint_simulated" or observed is None or any(
+            getattr(reentry, field) is None
+            or getattr(observed.selected, field) is None
+            or artifact_ref_identity_key(getattr(reentry, field))
+            != artifact_ref_identity_key(getattr(observed.selected, field))
+            for field in ("n4_source_ref", "n5_input_ref", "n5_execution_ref", "n5_result_ref")
+        ):
+            return None
     key = AcquisitionEvaluationFrontierKey(
         tenant_id=decision.tenant_id,
         cell_id=decision.cell_id,
@@ -2185,7 +2398,10 @@ def _candidate_acquisition_history_projection(
                         and verified_source.frontier_after is None
                     ):
                         blocked = _candidate_experiment_blocked_history_projection(
-                            verified=verified_source, control_store=control_store
+                            verified=verified_source,
+                            store=store,
+                            control_store=control_store,
+                            settlement_store=control_service._llm_producer_settlement_store,
                         )
                         if blocked is None:
                             terminal_projection_unavailable = True
@@ -2214,10 +2430,13 @@ def _candidate_acquisition_history_projection(
                         continue
                     raise
                 except GenerationCycleError as exc:
-                    if type(verified_source) is CandidateExperimentTerminalHistory and (
-                        _retain_latest_v5_result_absence(_head, exc)
-                    ):
-                        continue
+                    if type(verified_source) is CandidateExperimentTerminalHistory:
+                        if exc.code == _PARTIAL_CANDIDATE_N5_PROOF_UNAVAILABLE:
+                            terminal_projection_unavailable = True
+                            _retain_latest_v5_unavailability(_head, exc.code)
+                            continue
+                        if _retain_latest_v5_result_absence(_head, exc):
+                            continue
                     raise
                 except FileNotFoundError:
                     if (
@@ -2249,6 +2468,11 @@ def _candidate_acquisition_history_projection(
                         _candidate_source_current_projection_from_v5_history(
                             verified=verified_source,
                             frontier_selection=frontier_selection,
+                            no_frontier_history=(
+                                entry
+                                if type(entry) is RunCandidateSimulationAcquisitionHistoryEntryV4
+                                else None
+                            ),
                         )
                     )
                 continue

@@ -1304,6 +1304,7 @@ def test_real_local_replica_retains_exact_b_and_refuses_relabel_after_restart(
             )
             with pytest.raises(ValueError, match="controlled_replica_replay_mismatch"):
                 reopen(terminal.model_copy(update={"current_continuation_ref": foreign_ref}))
+            blob, _ = store._paths(binding.capture_ref.artifact_id)
 
         def current_projection() -> dict[str, Any]:
             result = oracle._fresh_projection(ctx)
@@ -1317,7 +1318,6 @@ def test_real_local_replica_retains_exact_b_and_refuses_relabel_after_restart(
             mode="json"
         )
         assert retained["evaluation_provenance"] == "retained_prior"
-        blob, _ = store._paths(binding.capture_ref.artifact_id)
         assert blob.is_relative_to(tmp_path) and blob.is_file() and not blob.is_symlink()
         parked = blob.with_name(blob.name + ".controlled-replica-removal")
         assert not parked.exists()

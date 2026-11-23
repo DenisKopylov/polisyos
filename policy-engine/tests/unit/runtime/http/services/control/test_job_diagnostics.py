@@ -7,8 +7,10 @@ the served model-input-use integration exercises those owners together.
 
 from __future__ import annotations
 
+import json
 from dataclasses import replace
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -18,7 +20,11 @@ import pytest
 from polisyos.runtime.http.services import control_plane_store as store_module
 from polisyos.runtime.http.services import model_input_successor_action as model_owner
 from polisyos.runtime.http.services.acquisition_action_service import AcquisitionActionService
-from polisyos.runtime.http.services.control.job_diagnostics import _ModelInputUseJobCompletion
+from polisyos.runtime.http.services.control.job_diagnostics import (
+    _closed_native_model_input_use_checkpoint,
+    _ModelInputUseJobCompletion,
+    _verify_native_model_input_use_completed_work,
+)
 from polisyos.runtime.http.services.control_plane_store import (
     ControlJobLeaseLostError,
     ControlPlaneStore,
@@ -27,6 +33,10 @@ from polisyos.runtime.quality.agent_action_authority import MODEL_INPUT_USE_ACTI
 from tests.unit.runtime.http.services.test_acquisition_action_service import (
     _install_model_input_completion_producer,
     _model_input_completion_case,
+)
+from tests.unit.runtime.http.services.test_acquisition_admission_bundle import (
+    _model_input_use_request,
+    _selected_ref,
 )
 from tests.unit.runtime.http.test_control_plane_store_evaluation_frontier import (
     _prepare_generic_comparison,
@@ -40,6 +50,23 @@ def _complete(case: SimpleNamespace) -> None:
         payload={"action_kind": MODEL_INPUT_USE_ACTION_KIND},
         execution_scope=admission.scope,
         capability_manifest_ref=admission.job.capability_manifest_ref,
+    )
+
+
+def _native_request() -> model_owner.NativeModelInputSuccessorActionRequest:
+    return model_owner.NativeModelInputSuccessorActionRequest.model_validate(
+        {
+            **_model_input_use_request().model_dump(mode="json"),
+            "native_use": {
+                "predecessor_terminal_ref": _selected_ref(
+                    "runtime_quality.acquisition_route_loop_receipt", 5
+                ),
+                "world_checkpoint_ref": _selected_ref(
+                    "runtime_quality.acquisition_candidate_world_checkpoint", 6
+                ),
+                "fresh_budget_usd": "0.50",
+            },
+        }
     )
 
 
@@ -360,3 +387,284 @@ def test_legacy_dictionary_completion_preserves_ordinary_handler_contract(
         case.database.get_generic_model_input_use(key=case.key, action_job_id=case.job.job_id)
         is None
     )
+
+
+def test_native_closed_checkpoint_reopens_terminal_outbox_and_original_lease(
+    tmp_path: Path,
+) -> None:
+    case = _model_input_completion_case(tmp_path)
+    checkpoint = model_owner.ModelInputUseActionCheckpoint(
+        phase_ref=case.checkpoint.phase_ref,
+        semantic_successor_ref=case.checkpoint.semantic_successor_ref,
+        execution_ref=case.checkpoint.execution_ref,
+        result_ref=case.checkpoint.result_ref,
+    )
+    payload = model_owner.model_input_use_terminal_progress(checkpoint)
+    with case.database.job_execution_fence(
+        job_id=case.job.job_id, worker_id=case.worker, attempt=case.attempt
+    ):
+        case.database.complete_job(
+            job_id=case.job.job_id,
+            run_id=case.job.run_id,
+            progress=payload,
+            expected_lease_owner=case.worker,
+            expected_attempt=case.attempt,
+        )
+
+    completed = case.database.get_job(case.job.job_id)
+    readback, terminal, started = _closed_native_model_input_use_checkpoint(
+        case.database, completed
+    )
+    assert readback == checkpoint
+    assert terminal.payload["lease_owner"] == case.worker
+    assert terminal.payload["attempt"] == case.attempt
+    assert started <= terminal.created_at
+    assert completed.lease_owner is None
+    outbox = case.database.get_job_completed_outbox_event(case.job.job_id)
+    assert (
+        case.database.get_generic_model_input_use(key=case.key, action_job_id=case.job.job_id)
+        is None
+    )
+
+    altered = json.loads(json.dumps(outbox.payload))
+    altered["progress"]["model_input_use"]["execution_ref"]["manifest_profile_sha256"] = (
+        "sha256:" + "0" * 64
+    )
+    case.database._execute(
+        "UPDATE control_outbox_events SET payload_json = ? WHERE event_id = ?",
+        (json.dumps(altered), outbox.event_id),
+    )
+    assert (
+        case.database.get_job(case.job.job_id).progress["model_input_use"]
+        == payload["model_input_use"]
+    )
+    with pytest.raises(
+        model_owner.ModelInputSuccessorActionError,
+        match="native_model_input_use_terminal_checkpoint_mismatch",
+    ):
+        _closed_native_model_input_use_checkpoint(case.database, completed)
+
+    case.database._execute(
+        "DELETE FROM control_outbox_events WHERE event_id = ?", (outbox.event_id,)
+    )
+    with pytest.raises(RuntimeError, match="control_job_completed_outbox_count_not_one"):
+        _closed_native_model_input_use_checkpoint(case.database, completed)
+
+
+def test_native_closed_result_reopens_the_same_window_and_one_durable_unit(tmp_path: Path) -> None:
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        PhysicalSimulationWorkObservation,
+        _physical_invocation_binding,
+    )
+    from polisyos.scientist.orchestration.engine import (
+        BudgetLimit,
+        BudgetMiddleware,
+        BudgetState,
+        ProducerBudgetObserver,
+    )
+    from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+    from tests.unit.scientist.orchestration.engine.test_producer_budget_c49 import _diagnostic_owner
+
+    ledger, settlement, binding, policy, _old_observer = _diagnostic_owner(
+        tmp_path, total=3, protected=1, purpose="standard"
+    )
+    phase_ref = _selected_ref("runtime.quality.model_input_use_action_phase", 8)
+    identity = model_owner.ModelInputSuccessorIdentity(
+        origin=SimpleNamespace(
+            source_payload_ref="sha256:" + "a" * 64,
+            n5_expectation=SimpleNamespace(profile_selection_ref="sha256:" + "b" * 64),
+        ),
+        request=_native_request(),
+        passport_ref=_selected_ref("epoch.acquisition_passport_snapshot", 4),
+        observation_content_sha256="sha256:" + "c" * 64,
+        route_id="sha256:" + "d" * 64,
+        job_id="model-input-use.current",
+    )
+    control = SimpleNamespace(
+        _llm_producer_settlement_store=settlement,
+        verify_acquisition_source_budget_owner=lambda *, closure: binding,
+        verify_candidate_unpriced_budget_scope=lambda *, closure: SimpleNamespace(
+            run_budget_usd=Decimal("1")
+        ),
+    )
+    window = model_owner._resolve_action_budget_window(
+        control, selection=identity, phase_ref=phase_ref, open_if_missing=True
+    )
+    observer = ProducerBudgetObserver(
+        settlement_store=settlement,
+        producer_run_binding=binding,
+        budget_state=BudgetState(
+            limits={"run": BudgetLimit(key="run", max_usd=window.effective_limit_usd)}
+        ),
+        invocation_selection_pending=True,
+        reentry_budget_scope=window.scope,
+    )
+    invocation_id, physical_spec, seed = "a" * 32, "b" * 64, 42
+    operation, digest = _physical_invocation_binding(invocation_id, physical_spec, seed)
+    started = datetime.now(UTC)
+    with observer.invocation_purpose_scope_from_selected_owner(policy, purpose="standard"):
+        basis = observer.admit()
+        reserved = observer.reserve_invocation(operation, digest)
+        observer.finish_invocation(operation, digest, "completed")
+    assert reserved is not None
+    finished = datetime.now(UTC)
+    work = PhysicalSimulationWorkObservation(
+        invocation_id=invocation_id,
+        event_id="e" * 32,
+        physical_spec_ref=physical_spec,
+        effective_seed=seed,
+        status="completed",
+        started_at=started,
+        completed_at=finished,
+        duration_seconds=(finished - started).total_seconds(),
+        budget_status="current_owner_checked",
+        budget_source_basis_digest=basis.source_basis_digest,
+        invocation_quota_operation_id=operation,
+        invocation_quota_request_digest=digest,
+        invocation_quota_profile_digest=reserved.profile_digest,
+        invocation_quota_purpose="standard",
+        invocation_quota_status="completed",
+    )
+    # This component supplies the result shape. The served read must exercise
+    # canonical ProgramGraph output and its numerical result owner together.
+    resolution = SimpleNamespace(
+        request=SimpleNamespace(replications=1, program_graph_comparator_profile=None),
+        result=SimpleNamespace(
+            physical_work_observations=(work,),
+            trajectories=(object(),),
+            receipt=SimpleNamespace(engine_kind="program_graph"),
+            diagnostics={
+                "physical_work_capture_status": "observed",
+                "producer_budget_observations": {
+                    basis.source_basis_digest: basis.model_dump(mode="json")
+                },
+            },
+        ),
+    )
+    source = tmp_path / "diagnostic-ledger.json"
+    before = source.read_bytes()
+    control._llm_producer_settlement_store = BudgetMiddleware(
+        BudgetState(), ledger=FileBudgetLedger(source)
+    )
+    selected = model_owner._resolve_action_budget_window(
+        control, selection=identity, phase_ref=phase_ref, open_if_missing=False
+    )
+    assert selected == window
+    _verify_native_model_input_use_completed_work(
+        control,
+        resolved=resolution,
+        input_record=SimpleNamespace(n5=SimpleNamespace(invocation_quota_policy=policy)),
+        window=selected,
+        started_at=started,
+        finished_at=finished,
+    )
+    assert source.read_bytes() == before
+    assert len(ledger.snapshot().invocation_reservations) == 1
+
+    moved = tmp_path / "same-bytes-different-owner.json"
+    moved.write_bytes(before)
+    control._llm_producer_settlement_store = BudgetMiddleware(
+        BudgetState(), ledger=FileBudgetLedger(moved)
+    )
+    with pytest.raises(ValueError, match="reentry_budget_window_conflict"):
+        model_owner._resolve_action_budget_window(
+            control, selection=identity, phase_ref=phase_ref, open_if_missing=False
+        )
+    assert moved.read_bytes() == before == source.read_bytes()
+
+
+@pytest.mark.parametrize(
+    ("fault", "reason", "expected_calls"),
+    [
+        (None, None, ["handler", "check-current"]),
+        (
+            "currentness",
+            "native_model_input_use_completion_authority_not_current",
+            ["handler", "check-current"],
+        ),
+        ("stage", "native_model_input_use_completion_checkpoint_mismatch", ["handler"]),
+        ("plain", "native_model_input_use_completion_owner_not_established", ["handler"]),
+        ("foreign", "model_input_use_completion_owner_not_established", []),
+    ],
+)
+def test_native_completion_uses_canonical_handler_stage_and_last_authority_check(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, fault, reason, expected_calls
+) -> None:
+    case = _model_input_completion_case(tmp_path)
+    calls = []
+    stage = model_owner.ModelInputUseActionCheckpoint(
+        phase_ref=case.checkpoint.phase_ref,
+        semantic_successor_ref=case.checkpoint.semantic_successor_ref,
+    )
+    checkpoint = model_owner.ModelInputUseActionCheckpoint(
+        phase_ref=stage.phase_ref,
+        semantic_successor_ref=stage.semantic_successor_ref,
+        execution_ref=case.checkpoint.execution_ref,
+        result_ref=case.checkpoint.result_ref,
+    )
+    finish = model_owner.model_input_use_terminal_progress(checkpoint)
+
+    def still_current() -> bool:
+        calls.append("check-current")
+        current = case.database.current_execution_job_admission()
+        assert current.job.job_id == case.job.job_id
+        assert current.job.lease_owner == case.worker
+        return fault != "currentness"
+
+    def result(*_args, **_kwargs):
+        calls.append("handler")
+        if fault == "plain":
+            return finish
+        return model_owner.NativeModelInputUseJobCompletion(
+            progress=finish,
+            checkpoint=checkpoint,
+            admission=case.database.current_execution_job_admission(),
+            currentness_resolver=still_current,
+        )
+
+    monkeypatch.setattr(AcquisitionActionService, "_handle_native_model_input_use_job", result)
+    if fault == "foreign":
+        monkeypatch.setattr(case.control, "_acquisition_job_handler", result)
+    monkeypatch.setattr(
+        type(case.control), "_emit_runtime_diagnostic_event", lambda *_a, **_k: None
+    )
+    with case.database.job_execution_fence(
+        job_id=case.job.job_id, worker_id=case.worker, attempt=case.attempt
+    ):
+        prepared = stage.model_dump(mode="json", exclude_none=True)
+        if fault == "stage":
+            prepared["phase_ref"]["manifest_profile_sha256"] = "sha256:" + "0" * 64
+        case.database.update_progress_state(
+            job_id=case.job.job_id, state="running", progress={"model_input_use": prepared}
+        )
+        admission = case.database.current_execution_job_admission()
+
+        def publish() -> None:
+            case.control._complete_acquisition_control_job(
+                job=admission.job,
+                payload={
+                    "action_kind": MODEL_INPUT_USE_ACTION_KIND,
+                    "request": _native_request().model_dump(mode="json"),
+                },
+                execution_scope=admission.scope,
+                capability_manifest_ref=admission.job.capability_manifest_ref,
+            )
+
+        if reason is None:
+            publish()
+        else:
+            with pytest.raises(ValueError, match=reason):
+                publish()
+    assert calls == expected_calls
+    if reason is None:
+        completed = case.database.get_job(case.job.job_id)
+        selected, terminal, _ = _closed_native_model_input_use_checkpoint(case.database, completed)
+        assert selected == checkpoint
+        assert terminal.payload["lease_owner"] == case.worker
+        assert terminal.payload["attempt"] == case.attempt
+        assert (
+            case.database.get_generic_model_input_use(key=case.key, action_job_id=case.job.job_id)
+            is None
+        )
+    else:
+        _assert_not_completed(case)

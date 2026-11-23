@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import replace
+from decimal import Decimal
 from hashlib import sha256
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
+from pydantic import ValidationError
 
 from polisyos.core import canon
 from polisyos.core.artifacts import ArtifactRef
@@ -35,7 +38,13 @@ from polisyos.runtime.http.services.acquisition_admission_bundle import (
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.http.services.model_input_successor_action import (
     MODEL_INPUT_USE_PERMISSION,
+    ModelInputSuccessorActionError,
     ModelInputSuccessorActionRequest,
+    ModelInputSuccessorExecutionRequest,
+    NativeModelInputSuccessorActionRequest,
+    _model_input_successor_ids,
+    _require_native_model_input_use_budget_limits,
+    unwrap_native_model_input_use_request,
 )
 from polisyos.runtime.quality.agent_action_authority import (
     ACQUISITION_ACTION_KIND,
@@ -52,6 +61,9 @@ from polisyos.runtime.quality.candidate_experiment_reuse import (
     CandidateExperimentReuseActionRequest,
 )
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+from polisyos.runtime.quality.model_input_successor_selection import (
+    ModelInputUseActionPhase,
+)
 from tests.integration.core_runtime import test_acquisition_admission_bundle as fixture
 
 
@@ -238,9 +250,8 @@ def _candidate_bound_proof(
     return proof, digest
 
 
-def test_model_input_use_permission_binds_the_selected_activation_profile() -> None:
-    """Exercise the actual route's frozen binding and its historical PA2 replay."""
-    request = ModelInputSuccessorActionRequest(
+def _model_input_use_request() -> ModelInputSuccessorActionRequest:
+    return ModelInputSuccessorActionRequest(
         compiled_ref=_selected_ref("runtime.compiled_recursive_generation_cycle", 1),
         blocked_execution_ref=_selected_ref(
             "runtime.quality.generic_cycle_simulation_n5_execution", 2
@@ -252,14 +263,36 @@ def test_model_input_use_permission_binds_the_selected_activation_profile() -> N
         observation_id="catalog-observation-selected",
         idempotency_key="one-use",
     )
+
+
+def _legacy_model_input_use_requirement() -> RouteAuthorizationRequirement:
+    current = _MODEL_INPUT_USE_MUTATION_AUTHZ.requirement
+    return replace(
+        current,
+        resource_binding=replace(
+            current.resource_binding,
+            selector_fields=tuple(ModelInputSuccessorActionRequest.model_fields),
+            omit_absent_selector_fields=(),
+        ),
+    )
+
+
+def test_model_input_use_permission_binds_the_selected_activation_profile() -> None:
+    """Exercise the actual route's frozen binding and its historical PA2 replay."""
+    request = _model_input_use_request()
     requirement = _MODEL_INPUT_USE_MUTATION_AUTHZ.requirement
     assert requirement.permission is MODEL_INPUT_USE_PERMISSION
     assert requirement.resource_binding.resource_kind == "runtime.evidence.model_input.use"
     proof, digest = _candidate_bound_proof(request, requirement)
-    snapshot, _, identity_ok, permission_ok = _consume_ds20_floor(proof, [])
+    legacy_proof, legacy_digest = _candidate_bound_proof(
+        request, _legacy_model_input_use_requirement()
+    )
+    assert digest == legacy_digest
+    snapshot, _, identity_ok, permission_ok = _consume_ds20_floor(legacy_proof, [])
     assert snapshot is not None and identity_ok and permission_ok
     body_hash = snapshot.body_sha256
     assert require_model_input_use_bound_permission(proof, request) == digest
+    assert require_model_input_use_bound_permission(legacy_proof, request) == digest
     assert (
         require_request_bound_action_snapshot(
             snapshot, action_kind=MODEL_INPUT_USE_ACTION_KIND, request=request
@@ -292,6 +325,157 @@ def test_model_input_use_permission_binds_the_selected_activation_profile() -> N
         AcquisitionAdmissionBundleBlocked, match="acquisition_resource_binding_invalid"
     ):
         require_model_input_use_bound_permission(fixture._proof(), request)
+
+
+def test_native_model_input_use_permission_binds_exact_allowance_and_phase() -> None:
+    request = _model_input_use_request()
+    direct_wire = request.model_dump(mode="json")
+    native_request = NativeModelInputSuccessorActionRequest.model_validate(
+        {
+            **direct_wire,
+            "native_use": {
+                "predecessor_terminal_ref": _selected_ref(
+                    "runtime_quality.acquisition_route_loop_receipt", 5
+                ).model_dump(mode="json"),
+                "world_checkpoint_ref": _selected_ref(
+                    "runtime_quality.acquisition_candidate_world_checkpoint", 6
+                ).model_dump(mode="json"),
+                "fresh_budget_usd": "0.50",
+            },
+        }
+    )
+    assert native_request.model_dump(mode="json", exclude={"native_use"}) == direct_wire
+    assert request.model_dump(mode="json") == direct_wire
+    assert native_request.native_use.fresh_budget_usd == Decimal("0.50")
+    assert native_request.model_dump(mode="json")["native_use"]["fresh_budget_usd"] == "0.50"
+    with pytest.raises(ValidationError, match="extra_forbidden"):
+        ModelInputSuccessorActionRequest.model_validate(native_request.model_dump(mode="json"))
+    direct_proof, direct_digest = _candidate_bound_proof(
+        request, _legacy_model_input_use_requirement()
+    )
+    direct_snapshot, _, identity_ok, permission_ok = _consume_ds20_floor(direct_proof, [])
+    assert direct_snapshot is not None and identity_ok and permission_ok
+    with pytest.raises(
+        AcquisitionAdmissionBundleBlocked, match="acquisition_resource_binding_invalid"
+    ):
+        require_model_input_use_bound_permission(direct_proof, native_request)
+    with pytest.raises(
+        AcquisitionAdmissionBundleBlocked, match="acquisition_resource_digest_mismatch"
+    ):
+        require_request_bound_action_snapshot(
+            direct_snapshot, action_kind=MODEL_INPUT_USE_ACTION_KIND, request=native_request
+        )
+    native_requirement = _MODEL_INPUT_USE_MUTATION_AUTHZ.requirement
+    native_proof, native_digest = _candidate_bound_proof(native_request, native_requirement)
+    snapshot, _, identity_ok, permission_ok = _consume_ds20_floor(native_proof, [])
+    assert snapshot is not None and identity_ok and permission_ok
+    assert native_digest != direct_digest
+    assert require_model_input_use_bound_permission(native_proof, native_request) == native_digest
+    decision_ref = "sha256:" + "b" * 64
+    for selected_request in (request, native_request):
+        wire = {
+            "request": selected_request.model_dump(mode="json"),
+            "decision_ref": decision_ref,
+        }
+        execution = ModelInputSuccessorExecutionRequest.model_validate(wire)
+        assert type(execution.request) is type(selected_request)
+        assert execution.model_dump(mode="json") == wire
+    assert (
+        require_request_bound_action_snapshot(
+            snapshot, action_kind=MODEL_INPUT_USE_ACTION_KIND, request=native_request
+        )
+        == native_digest
+    )
+    with pytest.raises(
+        AcquisitionAdmissionBundleBlocked, match="acquisition_resource_digest_mismatch"
+    ):
+        require_request_bound_action_snapshot(
+            snapshot, action_kind=MODEL_INPUT_USE_ACTION_KIND, request=request
+        )
+    unprofiled = native_request.model_dump(mode="json")
+    del unprofiled["native_use"]["world_checkpoint_ref"]["manifest_profile_sha256"]
+    with pytest.raises(
+        ValidationError, match="native_model_input_use_exact_selected_refs_required"
+    ):
+        NativeModelInputSuccessorActionRequest.model_validate(unprofiled)
+
+    wrong_amount = native_request.model_dump(mode="json")
+    wrong_amount["native_use"]["fresh_budget_usd"] = 0.50
+    with pytest.raises(ValidationError, match="native_model_input_use_budget_amount_invalid"):
+        NativeModelInputSuccessorActionRequest.model_validate(wrong_amount)
+    with pytest.raises(
+        ModelInputSuccessorActionError, match="native_model_input_use_budget_amount_refused"
+    ):
+        _require_native_model_input_use_budget_limits(
+            requested=Decimal("0.51"), configured=Decimal("0.50"), global_limit=Decimal("5")
+        )
+    with pytest.raises(
+        ModelInputSuccessorActionError, match="native_model_input_use_budget_amount_refused"
+    ):
+        _require_native_model_input_use_budget_limits(
+            requested=Decimal("0.50"), configured=Decimal("0.50"), global_limit=Decimal("0.49")
+        )
+    changed_amount = native_request.model_dump(mode="json")
+    changed_amount["native_use"]["fresh_budget_usd"] = "0.49"
+    reselected = NativeModelInputSuccessorActionRequest.model_validate(changed_amount)
+    with pytest.raises(
+        AcquisitionAdmissionBundleBlocked, match="acquisition_resource_binding_invalid"
+    ):
+        require_model_input_use_bound_permission(native_proof, reselected)
+    with pytest.raises(
+        AcquisitionAdmissionBundleBlocked, match="acquisition_resource_digest_mismatch"
+    ):
+        require_request_bound_action_snapshot(
+            snapshot, action_kind=MODEL_INPUT_USE_ACTION_KIND, request=reselected
+        )
+    origin = SimpleNamespace(
+        tenant_id="tenant-current",
+        cell_id="cell-current",
+        run_id="run-current",
+        source_job_id="source-original",
+    )
+    ids = _model_input_successor_ids(origin, native_request, "sha256:" + "a" * 64)
+    changed_ids = _model_input_successor_ids(origin, reselected, "sha256:" + "a" * 64)
+    assert changed_ids[0] != ids[0]
+    assert changed_ids[1] != ids[1]
+
+    phase = ModelInputUseActionPhase(
+        tenant_id="tenant-current",
+        cell_id="cell-current",
+        run_id="run-current",
+        source_job_id="source-original",
+        action_job_id="model-input-use.current",
+        route_id="sha256:" + "a" * 64,
+        action_payload_ref=_selected_ref("runtime.control_job_payload.acquisition", 7),
+        authority_decision_ref=_selected_ref("runtime_quality.agent_action_authority_decision", 8),
+    )
+    payload = {
+        "action_kind": MODEL_INPUT_USE_ACTION_KIND,
+        "job_id": phase.action_job_id,
+        "tenant_id": phase.tenant_id,
+        "cell_id": phase.cell_id,
+        "run_id": phase.run_id,
+        "route_id": phase.route_id,
+        "decision_ref": str(phase.authority_decision_ref.artifact_id),
+        "request": native_request.model_dump(mode="json"),
+    }
+    assert unwrap_native_model_input_use_request(payload, phase=phase) == native_request
+    persisted_payload = {key: value for key, value in payload.items() if key != "job_id"}
+    assert unwrap_native_model_input_use_request(persisted_payload, phase=phase) == native_request
+    with pytest.raises(
+        ModelInputSuccessorActionError, match="native_model_input_use_job_payload_scope_mismatch"
+    ):
+        unwrap_native_model_input_use_request(
+            {**payload, "decision_ref": "sha256:" + "f" * 64}, phase=phase
+        )
+    with pytest.raises(
+        ModelInputSuccessorActionError, match="native_model_input_use_job_payload_scope_mismatch"
+    ):
+        unwrap_native_model_input_use_request({**payload, "job_id": "other-job"}, phase=phase)
+    with pytest.raises(
+        ModelInputSuccessorActionError, match="native_model_input_use_job_payload_invalid"
+    ):
+        unwrap_native_model_input_use_request({**payload, "request": direct_wire}, phase=phase)
 
 
 def test_candidate_reuse_permission_replays_exact_predecessor_and_distinct_resource() -> None:

@@ -6909,6 +6909,7 @@ def _model_input_use_n5_successor_projection(
         GenericModelInputUseHistory,
         ModelInputSuccessorActionRequest,
         ModelInputUseActionCheckpoint,
+        NativeModelInputSuccessorActionRequest,
         resolve_model_input_successor_history,
         resolve_model_input_use_evaluation_history,
         verify_model_input_use_result,
@@ -6920,6 +6921,7 @@ def _model_input_use_n5_successor_projection(
     )
 
     is_current_use_v2 = False
+    native_mode = False
 
     def limited(
         code: str,
@@ -6992,7 +6994,18 @@ def _model_input_use_n5_successor_projection(
                 "model_input_use_action_payload_not_established",
                 action_status="not_established",
             )
-        request = ModelInputSuccessorActionRequest.model_validate(payload.get("request"))
+        raw_request = payload.get("request")
+        native_mode = type(raw_request) is dict and "native_use" in raw_request
+        request_type = (
+            NativeModelInputSuccessorActionRequest
+            if native_mode
+            else ModelInputSuccessorActionRequest
+        )
+        request = request_type.model_validate(raw_request)
+        if (native_mode and type(request) is not NativeModelInputSuccessorActionRequest) or (
+            not native_mode and type(request) is not ModelInputSuccessorActionRequest
+        ):
+            raise TypeError("model_input_use_action_request_mode_untyped")
     except KeyError:
         raise
     except ArtifactOwnershipError:
@@ -7000,7 +7013,13 @@ def _model_input_use_n5_successor_projection(
     except (CanonicalProfileRefusalError, OSError, RuntimeError, TypeError, ValueError) as exc:
         code = getattr(exc, "code", None)
         return limited(
-            code if isinstance(code, str) else "model_input_use_action_source_not_established",
+            code
+            if isinstance(code, str)
+            else (
+                "native_model_input_use_action_source_not_established"
+                if native_mode
+                else "model_input_use_action_source_not_established"
+            ),
             action_status="not_established",
         )
 
@@ -7012,6 +7031,43 @@ def _model_input_use_n5_successor_projection(
             "model_input_use_action_terminal_not_completed",
             action_status=action_status,
         )
+
+    if native_mode:
+        try:
+            from polisyos.runtime.http.services.control.job_diagnostics import (
+                read_completed_native_model_input_use_n5_result,
+            )
+
+            native_projection = read_completed_native_model_input_use_n5_result(
+                control_service,
+                action_service=action_service,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                run_id=run_id,
+                action_job_id=action_job_id,
+            )
+        except KeyError:
+            raise
+        except ArtifactOwnershipError:
+            raise
+        except PermissionError:
+            raise
+        except (CanonicalProfileRefusalError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            code = getattr(exc, "code", None)
+            return limited(
+                code if isinstance(code, str) else "native_model_input_use_result_not_established",
+                action_status="completed",
+            )
+        if (
+            type(native_projection) is not RunModelInputUseN5SuccessorProjection
+            or native_projection.run_id != run_id
+            or native_projection.action_job_id != action_job_id
+        ):
+            return limited(
+                "native_model_input_use_result_projection_binding_not_established",
+                action_status="completed",
+            )
+        return native_projection
 
     try:
         terminal = control_store.get_job_terminal_source_event_record(action_job_id)

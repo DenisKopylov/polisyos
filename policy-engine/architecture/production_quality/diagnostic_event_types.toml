@@ -138,6 +138,18 @@ allowed_event_sources = ["polisyos.runtime.acquisition_evaluation"]
 payload_ref_policy = "cas_required"
 
 [[event_types]]
+name = "polisyos.runtime.native.model_input_use_world_checkpoint.v1"
+category = "native_model_input_use_world_checkpoint"
+description = "A Native model-input use checkpoint recorded candidate-only world custody for one action. The receipt grants no source acquisition, numerical execution, or publication permission."
+owner = "team-runtime-quality"
+authority_role = "runtime_authority"
+phase_required = true
+producer_required = true
+serious_no_sampling = true
+allowed_event_sources = ["polisyos.runtime.quality.native_generic_context"]
+payload_ref_policy = "cas_required"
+
+[[event_types]]
 name = "polisyos.runtime.generic.initial_evaluation.v1"
 category = "generic_initial_evaluation"
 description = "An ordinary Generic initial candidate evaluation basis or decision was persisted under its exact source owner without current-use or publication authority."

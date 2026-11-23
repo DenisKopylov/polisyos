@@ -230,6 +230,7 @@ from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRoutePhaseReceipt,
     NativePaidInputAdmissionSelection,
     VerifiedCandidateExperimentOrigin,
+    _NativeRouteHistoryRead,
     parse_acquisition_route_loop_receipt,
 )
 from polisyos.runtime.quality.authority import GovernanceMetadata
@@ -321,6 +322,7 @@ from ..control_plane_store import (
     HumanDecisionWriteFence,
     PendingAcquisitionActionAuthorizationCAS,
     _PreparedAcquisitionActionHeadPublication,
+    _require_native_model_input_use_step_up_fresh,
 )
 from ..control_plane_store import (
     _completed_hte_source_invalidation_dedupe_key as _control_hte_invalidation_dedupe_key,
@@ -5272,14 +5274,40 @@ class AcquisitionRouteLoopAuthoritySink:
         candidate_history = None
         candidate_experiment_history = None
         if head.receipt_manifest_profile_sha256 is not None:
-            selected_ref = artifact_ref_for_manifest(
-                artifacts.resolve_manifest_by_profile(
-                    self._artifact_store, head.receipt_ref, head.receipt_manifest_profile_sha256
+            manifest = artifacts.resolve_manifest_by_profile(
+                self._artifact_store, head.receipt_ref, head.receipt_manifest_profile_sha256
+            )
+            selected_ref = artifact_ref_for_manifest(manifest)
+            schema = manifest.artifact_schema
+            # This manifest discriminator selects a reader only. The chain
+            # still checks the actual Native body, selected profile, and events.
+            native_route = (
+                schema is not None
+                and (
+                    (
+                        manifest.kind == "runtime_quality.acquisition_route_phase_receipt"
+                        and schema.name == "polisyos.runtime.AcquisitionRoutePhaseReceipt"
+                        and schema.version in {"1.3", "1.4"}
+                    )
+                    or (
+                        manifest.kind == "runtime_quality.acquisition_route_loop_receipt"
+                        and schema.name == "polisyos.runtime.AcquisitionRouteLoopReceipt"
+                        and schema.version == "1.2"
+                    )
                 )
+                and any(item.role == "native_leaf_cost_profile" for item in manifest.inputs)
             )
             owner = getattr(self._core_source_resolver, "__self__", None)
-            selected = self._read_verified_action_phase(head.receipt_ref, selected_ref=selected_ref)
-            if type(selected.receipt) is AcquisitionCandidateExperimentPhaseReceipt:
+            selected = (
+                None
+                if native_route
+                else self._read_verified_action_phase(head.receipt_ref, selected_ref=selected_ref)
+            )
+            if selected is None:
+                phase_chain = self._verified_action_phase_chain(
+                    head, selected_terminal_ref=selected_ref
+                )
+            elif type(selected.receipt) is AcquisitionCandidateExperimentPhaseReceipt:
                 phase_chain = self._verified_candidate_experiment_phase_chain(
                     head,
                     verified_origin=verified_origin,
@@ -10622,11 +10650,20 @@ class ControlPlaneService(
         return port.read_paid_native_action_attempt(closure, action_job_id=action_job_id)
 
     def native_derivation_prior_paid_input_admission(
-        self, *, closure: VerifiedAcquisitionRouteClosure
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        selected_history: _NativeRouteHistoryRead | None = None,
     ) -> NativePaidInputAdmissionSelection | None:
         """Select historical paid facts only through the actual installed owner."""
         port = self._native_world_bank_execution_owner()
-        return None if port is None else port.select_prior_paid_native_input_admission(closure)
+        if port is None:
+            if selected_history is not None:
+                raise ValueError("native_paid_input_admission_history_owner_missing")
+            return None
+        return port.select_prior_paid_native_input_admission(
+            closure, selected_history=selected_history
+        )
 
     def _native_world_bank_execution_owner(self) -> WorldBankWDIAcquisitionExecutionPort | None:
         from polisyos.runtime.http.services.acquisition_action_service import (
@@ -10927,9 +10964,20 @@ class ControlPlaneService(
         request_id: str | None = None,
         principal: RuntimePrincipal | None = None,
         prepared_acquisition_action_head: _PreparedAcquisitionActionHeadPublication | None = None,
+        native_step_up_expires_at: int | None = None,
     ) -> ControlJobRecord:
         """Persist one deterministic acquisition payload and queue it for the generic worker."""
+        from polisyos.runtime.quality.agent_action_authority import MODEL_INPUT_USE_ACTION_KIND
 
+        request_value = payload.get("request")
+        if (
+            payload.get("action_kind") == MODEL_INPUT_USE_ACTION_KIND
+            and type(request_value) is dict
+            and "native_use" in request_value
+        ):
+            _require_native_model_input_use_step_up_fresh(native_step_up_expires_at)
+        elif native_step_up_expires_at is not None:
+            raise ValueError("native_model_input_use_admission_scope_mismatch")
         existing = self._control_store.get_job(job_id)
         if existing is not None:
             if existing.kind != "acquisition" or existing.run_id != run_id:
@@ -10990,6 +11038,7 @@ class ControlPlaneService(
             policy=policy,
             request_id=request_id,
             prepared_acquisition_action_head=prepared_acquisition_action_head,
+            native_step_up_expires_at=native_step_up_expires_at,
         )
 
     @property

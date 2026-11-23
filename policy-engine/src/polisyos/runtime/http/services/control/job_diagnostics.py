@@ -57,16 +57,444 @@ from .job_attempt_publication import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.core.contracts.runtime import RunModelInputUseN5SuccessorProjection
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationN5InputV1,
+        GenericN5ResolvedResult,
+    )
+    from polisyos.scientist.orchestration.engine import BudgetLedgerReentryBudgetWindow
+
+    from ..acquisition_action_service import AcquisitionActionService
+    from ..control_plane_store import ControlPlaneStore, _ControlJobLifecycleSourceEventRecord
     from ..model_input_successor_action import (
         ModelInputUseActionCheckpoint,
         SelectedModelInputSuccessorAction,
     )
+    from .run_lifecycle import ControlPlaneService
 
 logger = common_logger.get_logger("polisyos.runtime.http.services.control.run_lifecycle")
 
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
 _CONTROL_JOB_EXECUTION_BINDING_KEY = "control_job_execution_binding"
 _OBSERVATIONAL_METHOD_INTENT_PAYLOAD_KEY = "observational_method_execution"
+
+
+def _closed_native_model_input_use_checkpoint(
+    job_store: ControlPlaneStore, job: ControlJobRecord
+) -> tuple[ModelInputUseActionCheckpoint, _ControlJobLifecycleSourceEventRecord, datetime]:
+    """Read the exact checkpoint selected by an immutable completion outbox."""
+    from ..control_plane_store import _json_values_equal_strict
+    from ..model_input_successor_action import (
+        ModelInputSuccessorActionError,
+        ModelInputUseActionCheckpoint,
+        model_input_use_terminal_progress,
+    )
+
+    terminal = job_store.get_job_terminal_source_event_record(job.job_id)
+    running = job_store._latest_control_job_lifecycle_event_record(
+        job_id=job.job_id, event_type="job_running"
+    )
+    outbox = job_store.get_job_completed_outbox_event(job.job_id)
+    lease_owner = terminal.payload.get("lease_owner")
+    if (
+        job.kind != "acquisition"
+        or job.state != "completed"
+        or job.finished_at is None
+        or job.lease_owner is not None
+        or job.lease_expires_at is not None
+        or terminal.event_type != "job_completed"
+        or terminal.job_id != job.job_id
+        or terminal.payload.get("state") != "completed"
+        or not isinstance(lease_owner, str)
+        or not lease_owner
+        or running.job_id != job.job_id
+        or running.payload.get("state") != "running"
+        or running.payload.get("lease_owner") != lease_owner
+        or any(
+            type(event.payload.get("attempt")) is not int or event.payload["attempt"] != job.attempt
+            for event in (running, terminal)
+        )
+        or running.event_id >= terminal.event_id
+        or running.created_at > terminal.created_at
+        or outbox is None
+        or outbox.topic != "control.job.completed"
+        or outbox.event_key != f"{job.job_id}:job_completed"
+        or (outbox.job_id, outbox.run_id) != (job.job_id, job.run_id)
+        or any(
+            not _json_values_equal_strict(outbox.payload.get(key), value)
+            for key, value in terminal.payload.items()
+        )
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_completion_not_established")
+    progress = outbox.payload.get("progress")
+    if type(progress) is not dict:
+        raise ModelInputSuccessorActionError("native_model_input_use_terminal_checkpoint_missing")
+    checkpoint = ModelInputUseActionCheckpoint.model_validate(progress.get("model_input_use"))
+    if (
+        checkpoint.schema_version is not None
+        or checkpoint.execution_ref is None
+        or checkpoint.result_ref is None
+        or any(
+            not _json_values_equal_strict(progress.get(key), value)
+            or not _json_values_equal_strict(job.progress.get(key), value)
+            for key, value in model_input_use_terminal_progress(checkpoint).items()
+        )
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_terminal_checkpoint_mismatch")
+    return checkpoint, terminal, running.created_at
+
+
+def _verify_native_model_input_use_completed_work(
+    control: ControlPlaneService,
+    *,
+    resolved: GenericN5ResolvedResult,
+    input_record: GenericCycleSimulationN5InputV1,
+    window: BudgetLedgerReentryBudgetWindow,
+    started_at: datetime,
+    finished_at: datetime,
+) -> None:
+    """Reopen one completed standard unit from the original run's ledger."""
+    from polisyos.scientist.orchestration.engine import (
+        BudgetMiddleware,
+        ProducerBudgetObservation,
+        verify_completed_standard_invocations_historical,
+    )
+
+    from ..model_input_successor_action import ModelInputSuccessorActionError
+
+    result = resolved.result
+    ledger = control._llm_producer_settlement_store
+    work = result.physical_work_observations
+    bases = result.diagnostics.get("producer_budget_observations")
+    if (
+        len(work) != 1
+        or len(result.trajectories) == 0
+        or result.receipt.engine_kind != "program_graph"
+        or resolved.request.replications != 1
+        or resolved.request.program_graph_comparator_profile is not None
+        or result.diagnostics.get("physical_work_capture_status") != "observed"
+        or "physical_work_interruption" in result.diagnostics
+        or type(ledger) is not BudgetMiddleware
+        or type(bases) is not dict
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_physical_completion_missing")
+    (unit,) = work
+    basis = ProducerBudgetObservation.model_validate(bases.get(unit.budget_source_basis_digest))
+    operation_id = unit.invocation_quota_operation_id
+    request_digest = unit.invocation_quota_request_digest
+    profile_digest = unit.invocation_quota_profile_digest
+    if (
+        operation_id is None
+        or request_digest is None
+        or profile_digest is None
+        or unit.status != "completed"
+        or unit.budget_status != "current_owner_checked"
+        or unit.invocation_quota_purpose != "standard"
+        or unit.invocation_quota_status != "completed"
+        or not started_at <= unit.started_at <= unit.completed_at <= finished_at
+        or basis.source_basis_digest != unit.budget_source_basis_digest
+        or basis.run_binding != window.scope.run_binding
+        or basis.configured_limit_usd != window.effective_limit_usd
+        or basis.ledger_revision < window.revision
+        or basis.remaining_usd <= 0
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_physical_completion_mismatch")
+    (reservation,) = verify_completed_standard_invocations_historical(
+        settlement_store=ledger,
+        expected_run_binding=window.scope.run_binding,
+        expected_policy=input_record.n5.invocation_quota_policy,
+        expected_settlement_owner=basis.settlement_owner,
+        expected_invocations=((operation_id, request_digest, profile_digest),),
+    )
+    if reservation.revision <= window.revision:
+        raise ModelInputSuccessorActionError("native_model_input_use_physical_work_before_window")
+
+
+def read_completed_native_model_input_use_n5_result(
+    control_service: ControlPlaneService,
+    *,
+    action_service: AcquisitionActionService,
+    tenant_id: str,
+    cell_id: str,
+    run_id: str,
+    action_job_id: str,
+) -> RunModelInputUseN5SuccessorProjection:
+    """Read one terminal Native candidate result through its immutable owners."""
+    from polisyos.core.artifacts import artifact_ref_for_manifest, load_core_json_artifact
+    from polisyos.core.contracts.runtime import (
+        RunGenericCycleSimulationN5ResultBody,
+        RunModelInputUseBlockedSourceProjection,
+        RunModelInputUseN5SuccessorProjection,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceipt
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+    from polisyos.runtime.quality.generation_cycle import _joint_simulation_port_outcome
+    from polisyos.runtime.quality.generation_source import NATIVE_REQUALIFIED_SOURCE_SCHEMA
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5ProgramGraphRequestProfileV4,
+        GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationN5ExecutionV3,
+        GenericCycleSimulationN5InputV1,
+        GenericN5ExecutionJoinExpectation,
+        parse_generic_cycle_simulation_n5_execution,
+    )
+    from polisyos.runtime.quality.model_input_successor_selection import (
+        read_model_input_use_action_phase,
+    )
+    from polisyos.runtime.quality.native_generic_context import (
+        replay_native_model_input_use_world_selection,
+    )
+
+    from ..acquisition_action_service import AcquisitionActionService
+    from ..acquisition_n5_projection import (
+        n5_numerical_body_payload,
+        read_selected_n5_result_manifest,
+    )
+    from ..model_input_successor_action import (
+        ModelInputSuccessorActionError,
+        _expected_phase,
+        _read_checkpoint_selection,
+        _resolve_action_budget_window,
+        resolve_model_input_successor_history,
+        unwrap_native_model_input_use_request,
+    )
+    from .run_lifecycle import ControlPlaneService
+
+    if (
+        type(control_service) is not ControlPlaneService
+        or type(action_service) is not AcquisitionActionService
+        or action_service.control_service is not control_service
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_history_owner_missing")
+    database = control_service._control_store
+    store = control_service._artifact_store
+    job = database.get_job(action_job_id)
+    if (
+        type(job) is not ControlJobRecord
+        or job.job_id != action_job_id
+        or job.run_id != run_id
+        or job.kind != "acquisition"
+        or job.payload_ref is None
+    ):
+        raise KeyError(action_job_id)
+    scope = database.historical_completed_job_execution_scope(
+        job_id=action_job_id, expected_run_id=run_id
+    )
+    if (scope.tenant_id, scope.cell_id) != (tenant_id, cell_id):
+        raise KeyError(action_job_id)
+    checkpoint, terminal, started_at = _closed_native_model_input_use_checkpoint(database, job)
+    execution_ref, result_ref = checkpoint.execution_ref, checkpoint.result_ref
+    if execution_ref is None or result_ref is None:
+        raise ModelInputSuccessorActionError("native_model_input_use_terminal_checkpoint_missing")
+    phase = read_model_input_use_action_phase(store, checkpoint.phase_ref)
+    raw_payload = control_service._load_payload_ref(
+        job.payload_ref, kind="runtime.control_job_payload.acquisition"
+    )
+    request = unwrap_native_model_input_use_request(raw_payload, phase=phase)
+    identity = resolve_model_input_successor_history(
+        control_service,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        run_id=run_id,
+        request=request,
+        checkpoint=checkpoint,
+    )
+    if (identity.job_id, identity.route_id) != (action_job_id, phase.route_id):
+        raise ModelInputSuccessorActionError("native_model_input_use_history_identity_mismatch")
+    decision_ref = str(phase.authority_decision_ref.artifact_id)
+    action_service.require_model_input_use_decision_history(
+        identity=identity, decision_ref=decision_ref, execution_scope=scope
+    )
+    selected = _read_checkpoint_selection(
+        store,
+        selection=identity,
+        checkpoint=checkpoint,
+        phase=_expected_phase(
+            store, identity, action_payload_ref=job.payload_ref, authority_decision_ref=decision_ref
+        ),
+    )
+    if (
+        selected.schema_version != "polisyos.runtime.ModelInputSuccessorSelection@1.0"
+        or selected.action_attempt != job.attempt
+        or selected.action_worker_id != terminal.payload["lease_owner"]
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_history_worker_mismatch")
+
+    execution = parse_generic_cycle_simulation_n5_execution(
+        load_core_json_artifact(store, execution_ref)
+    )
+    if (
+        type(execution) is not GenericCycleSimulationN5ExecutionV3
+        or execution.status != "joint_simulated"
+        or execution.result_ref != result_ref
+        or execution_ref == request.blocked_execution_ref
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_execution_not_selected")
+    n5_input_ref = execution.input_ref
+    n5_input = GenericCycleSimulationN5InputV1.model_validate(
+        load_core_json_artifact(store, n5_input_ref)
+    )
+    world_ref = n5_input.native_world_checkpoint_ref
+    if world_ref is None:
+        raise ModelInputSuccessorActionError("native_model_input_use_world_checkpoint_missing")
+    owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=store)
+    owner.bind_native_world_history(
+        control_store=database, event_log=control_service._diagnostic_event_log
+    )
+    world = replay_native_model_input_use_world_selection(owner, checkpoint_ref=world_ref)
+    source = world.source_selection.historical_selection
+    origin = identity.origin
+    original = source.original_generic_input
+    n4_manifest = store.get_manifest(n5_input.n4_source_ref)
+    if (
+        world.phase != phase
+        or world.successor_selection != selected
+        or world.checkpoint.model_input_use_phase_ref != checkpoint.phase_ref
+        or world.checkpoint.model_input_successor_selection_ref != checkpoint.semantic_successor_ref
+        or world.checkpoint.predecessor_terminal_ref != request.native_use.predecessor_terminal_ref
+        or source.checkpoint_ref != request.native_use.world_checkpoint_ref
+        or source.original_generic_execution_ref != request.blocked_execution_ref
+        or source.original_generic_input_ref != n5_input.original_generic_input_ref
+        or n5_input.source_run_id != original.source_run_id
+        or n5_input.cycle_index != original.cycle_index
+        or n5_input.outcome_variable != original.outcome_variable
+        or type(n5_input.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
+        or n5_input.n5 != original.n5
+        or n5_input.n5.invocation_purpose != "standard"
+        or n4_manifest.artifact_schema is None
+        or n4_manifest.artifact_schema.name != NATIVE_REQUALIFIED_SOURCE_SCHEMA
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_history_selection_mismatch")
+
+    predecessor_ref = request.native_use.predecessor_terminal_ref
+    pending = source.pending_action_phase
+    old_head = database.get_acquisition_action_head_by_receipt(
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        run_id=run_id,
+        source_job_id=origin.source_job_id,
+        route_id=pending.route_id,
+        action_generation=pending.action_generation,
+        receipt_ref=str(predecessor_ref.artifact_id),
+    )
+    if (
+        old_head is None
+        or old_head.job_id != pending.job_id
+        or old_head.receipt_phase != "terminal"
+        or old_head.receipt_manifest_profile_sha256 != predecessor_ref.manifest_profile_sha256
+    ):
+        raise ModelInputSuccessorActionError(
+            "native_model_input_use_history_predecessor_not_selected"
+        )
+    prior = control_service.acquisition_route_sink.verify_action_head(old_head).latest_receipt
+    if (
+        type(prior) is not AcquisitionRouteLoopReceipt
+        or prior.schema_version != "AcquisitionRouteLoopReceipt@1.2"
+        or prior.terminal_outcome != "reentry_completed"
+        or prior.predecessor_receipt_ref != str(source.pending_action_phase_ref.artifact_id)
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_history_predecessor_mismatch")
+
+    outcome, resolved = owner.resolve_n5_execution_join_with_result(
+        execution_ref,
+        expected=GenericN5ExecutionJoinExpectation(
+            input_ref=n5_input_ref,
+            result_ref=result_ref,
+            status="joint_simulated",
+            model_input_obligation_set_ref=None,
+            n4_source_ref=n5_input.n4_source_ref,
+            context_job_ref=world.checkpoint.context_job_ref,
+            profile_ref=source.original_profile_ref,
+            child_family_ref=None,
+            child_set_ref=None,
+            profile_selection_ref=source.original_profile.profile_selection_ref,
+            profile=source.original_profile,
+            design_problem_ref=cycle_job_design_problem_ref(source.problem),
+            outcome_variable=original.outcome_variable,
+            cycle_index=original.cycle_index,
+            candidate_id=n5_input.candidate_id,
+            candidate_atom_hash=n5_input.candidate_atom_hash,
+            world_model_record_content_hash=source.world_model_record.content_hash,
+            job_id=action_job_id,
+            run_id=run_id,
+            source_run_id=original.source_run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        ),
+    )
+    if (
+        outcome.status != "resolved"
+        or outcome.execution != execution
+        or outcome.input_record != n5_input
+        or resolved is None
+        or _joint_simulation_port_outcome(resolved.result, request=resolved.request)[0]
+        != "joint_simulated"
+    ):
+        raise ModelInputSuccessorActionError(
+            outcome.code or "native_model_input_use_n5_result_not_verified"
+        )
+    window = _resolve_action_budget_window(
+        control_service, selection=identity, phase_ref=checkpoint.phase_ref, open_if_missing=False
+    )
+    if (
+        window.window_id != selected.reentry_budget_window_id
+        or window.record_digest != selected.reentry_budget_window_digest
+    ):
+        raise ModelInputSuccessorActionError(
+            "native_model_input_use_history_budget_window_mismatch"
+        )
+    _verify_native_model_input_use_completed_work(
+        control_service,
+        resolved=resolved,
+        input_record=n5_input,
+        window=window,
+        started_at=started_at,
+        finished_at=terminal.created_at,
+    )
+    manifest = read_selected_n5_result_manifest(
+        store, result_ref, tenant_id=tenant_id, cell_id=cell_id
+    )
+    limitations = resolved.result.verified_semantic_input_limitation_codes
+    if artifact_ref_for_manifest(manifest) != result_ref or limitations is None:
+        raise ModelInputSuccessorActionError(
+            "native_model_input_use_result_limitations_not_verified"
+        )
+    body = RunGenericCycleSimulationN5ResultBody.model_validate(
+        n5_numerical_body_payload(
+            ref=result_ref,
+            manifest=manifest,
+            result=resolved.result,
+            authority_purpose="cycle_input_candidate_only",
+            store=store,
+            request=resolved.request,
+        )
+    )
+    if database.get_job(action_job_id) != job or _closed_native_model_input_use_checkpoint(
+        database, job
+    ) != (checkpoint, terminal, started_at):
+        raise ModelInputSuccessorActionError("native_model_input_use_history_changed_during_read")
+    return RunModelInputUseN5SuccessorProjection(
+        run_id=run_id,
+        action_job_id=action_job_id,
+        action_status="completed",
+        result_status="resolved",
+        blocked_source=RunModelInputUseBlockedSourceProjection(
+            run_id=run_id,
+            source_job_id=origin.source_job_id,
+            design_problem_ref=origin.source_cycle.design_problem_ref,
+            cycle_index=origin.source_cycle.cycle_index,
+            candidate_id=origin.source_cycle.selected_candidate_ref,
+            candidate_content_hash=origin.source_cycle.selected_candidate_content_hash,
+            blocked_execution_ref=origin.n5_execution_ref,
+            model_input_obligation_set_ref=origin.routing_report.obligation_set_ref,
+            routing_report_ref=origin.routing_report_ref,
+        ),
+        semantic_successor_ref=checkpoint.semantic_successor_ref,
+        n5_execution_ref=execution_ref,
+        simulation_result_ref=result_ref,
+        result_body=body,
+        semantic_input_limitation_codes=limitations,
+    )
 
 
 class _ModelInputUseJobCompletion(dict[str, Any]):
@@ -787,6 +1215,7 @@ class ControlJobDiagnosticsMixin:
         request_id: str | None = None,
         pre_admission_attempt_id: str | None = None,
         prepared_acquisition_action_head: _PreparedAcquisitionActionHeadPublication | None = None,
+        native_step_up_expires_at: int | None = None,
     ) -> ControlJobRecord:
         started = time.perf_counter()
         execution_scope = self._execution_scope_for_policy(policy)
@@ -1092,6 +1521,7 @@ class ControlJobDiagnosticsMixin:
                         else None
                     ),
                     prepared_acquisition_action_head=prepared_acquisition_action_head,
+                    native_step_up_expires_at=native_step_up_expires_at,
                 )
             except Exception:
                 if prepared_acquisition_action_head is None:
@@ -1185,9 +1615,39 @@ class ControlJobDiagnosticsMixin:
         capability_manifest_ref: str,
     ) -> None:
         """Run the configured acquisition handler and publish its terminal event."""
+        from polisyos.runtime.quality.agent_action_authority import MODEL_INPUT_USE_ACTION_KIND
+
+        from ..control_plane_store import _json_values_equal_strict
+        from ..model_input_successor_action import (
+            ModelInputUseActionCheckpoint,
+            NativeModelInputUseJobCompletion,
+            model_input_use_terminal_progress,
+        )
+
         handler = self._acquisition_job_handler
         if handler is None:
             raise RuntimeError("acquisition_job_handler_missing")
+
+        def require_canonical_handler() -> None:
+            from ..acquisition_action_service import AcquisitionActionService
+
+            owner = getattr(handler, "__self__", None)
+            if (
+                type(handler) is not MethodType
+                or handler.__func__ is not AcquisitionActionService.handle_job
+                or type(owner) is not AcquisitionActionService
+                or owner.control_service is not self
+            ):
+                raise ValueError("model_input_use_completion_owner_not_established")
+
+        request = payload.get("request")
+        native = (
+            payload.get("action_kind") == MODEL_INPUT_USE_ACTION_KIND
+            and isinstance(request, Mapping)
+            and "native_use" in request
+        )
+        if native:
+            require_canonical_handler()
         result = handler(job, payload, execution_scope)
         if not isinstance(result, dict):
             raise TypeError("acquisition_job_completion_progress_untyped")
@@ -1202,21 +1662,49 @@ class ControlJobDiagnosticsMixin:
         } & progress.keys():
             raise ValueError("model_input_use_completion_projection_not_owner_produced")
         completion_options: dict[str, Any] = {}
-        if type(result) is _ModelInputUseJobCompletion:
-            from ..acquisition_action_service import AcquisitionActionService
-            from ..model_input_successor_action import (
-                model_input_use_terminal_progress,
-                prepare_model_input_use_frontier_completion,
-            )
-
-            handler_owner = getattr(handler, "__self__", None)
-            if (
-                type(handler) is not MethodType
-                or handler.__func__ is not AcquisitionActionService.handle_job
-                or type(handler_owner) is not AcquisitionActionService
-                or handler_owner.control_service is not self
+        if native or isinstance(result, NativeModelInputUseJobCompletion):
+            if not native or type(result) is not NativeModelInputUseJobCompletion:
+                raise ValueError("native_model_input_use_completion_owner_not_established")
+            if type(result.checkpoint) is not ModelInputUseActionCheckpoint or not callable(
+                result.currentness_resolver
             ):
-                raise ValueError("model_input_use_completion_owner_not_established")
+                raise TypeError("native_model_input_use_completion_inputs_untyped")
+            admission = self._control_store.current_execution_job_admission()
+            stage = ModelInputUseActionCheckpoint(
+                phase_ref=result.checkpoint.phase_ref,
+                semantic_successor_ref=result.checkpoint.semantic_successor_ref,
+            )
+            if (
+                not admission.same_execution_identity(result.admission)
+                or not admission.matches_job_record(job)
+                or admission.scope != execution_scope
+                or admission.scope.status != "established"
+                or admission.scope.actor_authenticated is not True
+                or not admission.scope.actor_subject
+                or admission.job.capability_manifest_ref != capability_manifest_ref
+                or result.checkpoint.schema_version is not None
+                or result.checkpoint.execution_ref is None
+                or result.checkpoint.result_ref is None
+                or not _json_values_equal_strict(
+                    admission.job.progress.get("model_input_use"),
+                    stage.model_dump(mode="json", exclude_none=True),
+                )
+                or any(
+                    not _json_values_equal_strict(progress.get(key), value)
+                    for key, value in model_input_use_terminal_progress(result.checkpoint).items()
+                )
+            ):
+                raise ValueError("native_model_input_use_completion_checkpoint_mismatch")
+            if result.currentness_resolver() is not True:
+                raise ValueError("native_model_input_use_completion_authority_not_current")
+            completion_options = {
+                "expected_lease_owner": job.lease_owner,
+                "expected_attempt": job.attempt,
+            }
+        elif type(result) is _ModelInputUseJobCompletion:
+            from ..model_input_successor_action import prepare_model_input_use_frontier_completion
+
+            require_canonical_handler()
             expected_progress = model_input_use_terminal_progress(result.checkpoint)
             if any(progress.get(key) != value for key, value in expected_progress.items()):
                 raise ValueError("model_input_use_completion_checkpoint_progress_mismatch")

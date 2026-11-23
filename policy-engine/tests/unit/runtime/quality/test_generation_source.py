@@ -191,6 +191,7 @@ def test_n4_source_canonical_identity_reaches_terminal_consumer(tmp_path):
     assert fresh_read.provenance.selected_manifest_profile_sha256 == actual_selected_profile
     assert "_generation_source_read_provenance" not in fresh.model_dump(mode="python")
     assert "selected_program_graph_linkage" not in fresh.model_dump(mode="python")
+    assert "native_retained_candidate_origin" not in fresh.model_dump(mode="python")
     assert fresh == type(fresh).model_validate(fresh.model_dump(mode="python"))
     with (
         patch.object(repository.store, "get_raw_manifest_bytes", return_value=b'{"canon":null}'),
@@ -1288,6 +1289,489 @@ def test_actual_source_roundtrip_and_repeat_identity(actual_n4_source, tmp_path)
         run_id=run_id, refs=refs, expected=(identity, identity)
     )
     assert receipt.status == "strangled", receipt.issues
+
+
+@pytest.mark.parametrize(
+    ("mutation", "reason"),
+    [
+        ("current_calls", "generation_source_retained_origin_binding_mismatch"),
+        ("unbound", "generation_source_retained_origin_binding_mismatch"),
+        ("scope_elevation", "generation_source_retained_scope_elevation_refused"),
+        ("trace_missing", "native_retained_candidate_grounding_trace_missing"),
+        ("shadow_hash", "native_retained_candidate_binding_mismatch"),
+        ("raw_hash", "native_retained_candidate_grounding_evidence_mismatch"),
+        ("cg1_id", "native_retained_candidate_grounding_evidence_mismatch"),
+        ("cg1_hash", "native_retained_candidate_grounding_evidence_mismatch"),
+        ("cg2_id", "native_retained_candidate_grounding_evidence_mismatch"),
+        ("cg2_hash", "native_retained_candidate_grounding_evidence_mismatch"),
+        ("selected_relation", "native_retained_candidate_grounding_evidence_mismatch"),
+        ("cg2_decision", "native_retained_candidate_grounding_evidence_mismatch"),
+    ],
+)
+def test_native_retained_source_refuses_false_positive_or_scope(
+    actual_n4_source, tmp_path, mutation, reason
+):
+    """Old calls, an absent bound candidate and testing scope cannot be restamped."""
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
+    from polisyos.runtime.quality.generation_source import (
+        GenerationSourceHandoff,
+        _source_content_hash,
+    )
+
+    problem, organ = actual_n4_source
+    assert organ.result.llm_calls
+    assert organ.cycle_substrate_context is not None
+    (candidate,) = organ.result.candidates
+    (candidate_source,) = organ.candidate_sources
+    repository = GenerationSourceRepository(FileSystemCAS(tmp_path / "cas"))
+    source_ref = repository.persist_ref(
+        run_id="original", cycle_index=0, problem=problem, organ=organ
+    )
+    original = repository.load(source_ref, run_id="original")
+
+    def selected(kind: str, name: str) -> ArtifactRef:
+        return ArtifactRef(
+            artifact_id=n4.gy_content_hash({"artifact": name}),
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256=n4.gy_content_hash({"profile": name}),
+        )
+
+    generic_input = selected("runtime.quality.generic_cycle_simulation_n5_input", "input")
+    checkpoint = selected("runtime_quality.acquisition_candidate_world_checkpoint", "world")
+    phase = selected("runtime.quality.model_input_use_action_phase", "phase")
+    selection = selected("runtime.quality.model_input_successor_selection", "selection")
+    fields = {
+        "schema_version": "policyos.runtime.n4_selected_program_graph_linkage.v2",
+        "authority_purpose": "candidate_linkage_only",
+        "profile_ref": selected(
+            "runtime.quality.generic_cycle_simulation_profile", "profile"
+        ).model_dump(mode="json"),
+        "profile_content_hash": n4.gy_content_hash({"profile": "content"}),
+        "profile_selection_ref": cycle_job_profile_selection_ref(problem),
+        "compile_report_ref": selected("compiler.compile_report", "compile").model_dump(
+            mode="json"
+        ),
+        "registry_bundle_ref": selected("core.registry_bundle", "registry").model_dump(mode="json"),
+        "original_profile_selection_ref": n4.gy_content_hash({"profile": "original"}),
+        "context_job_ref": selected(
+            "runtime.quality.cycle_substrate_context_job", "context"
+        ).model_dump(mode="json"),
+        "context_content_hash": organ.cycle_substrate_context.content_hash,
+        "native_world_checkpoint_ref": checkpoint.model_dump(mode="json"),
+        "original_generic_input_ref": generic_input.model_dump(mode="json"),
+    }
+    linkage = n4.N4SelectedProgramGraphLinkageV2.model_validate(
+        {**fields, "content_hash": n4.gy_content_hash(fields)}
+    )
+    old_source = selected("runtime.generation_source_handoff", "retained")
+    origin = n4.NativeRetainedCandidateOrigin(
+        original_generic_input_ref=generic_input,
+        original_generation_source_ref=old_source,
+        original_candidate_id=candidate.candidate_id,
+        original_candidate_atom_hash=candidate.atom.content_hash,
+        original_proposal_id=candidate_source.proposal_id,
+        original_execution_scope=original.execution_scope,
+        synthetic=original.synthetic,
+        native_world_checkpoint_ref=checkpoint,
+        model_input_use_phase_ref=phase,
+        model_input_successor_selection_ref=selection,
+    )
+    payload = original.model_dump(mode="python", exclude={"content_hash"})
+    payload.update(
+        schema_version="policyos.runtime.generation_source_handoff.v3",
+        selected_program_graph_linkage=linkage.model_dump(mode="python"),
+        native_retained_candidate_origin=origin.model_dump(mode="python"),
+    )
+    if mutation != "current_calls":
+        payload["generation_result"]["llm_calls"] = ()
+    if mutation == "unbound":
+        payload["generation_result"]["status"] = "generation_unavailable"
+        payload["generation_result"]["candidates"] = ()
+        payload["generation_result"]["grounding_dispositions"] = ()
+    if mutation == "scope_elevation":
+        payload["execution_scope"] = "production"
+        payload["native_retained_candidate_origin"]["original_execution_scope"] = "contract_testing"
+    disposition = payload["generation_result"]["grounding_dispositions"]
+    if mutation in {
+        "shadow_hash",
+        "raw_hash",
+        "cg1_id",
+        "cg1_hash",
+        "cg2_id",
+        "cg2_hash",
+        "selected_relation",
+        "cg2_decision",
+    }:
+        assert len(disposition) == 1
+        record = disposition[0]
+        if mutation == "shadow_hash":
+            record["shadow_atom_content_hash"] = "sha256:" + "f" * 64
+        elif mutation == "raw_hash":
+            record["raw_candidate_hash"] = "sha256:" + "f" * 64
+        elif mutation == "selected_relation":
+            record["selected_relation"] = (
+                "exact" if record["selected_relation"] != "exact" else "certified-specialization"
+            )
+        elif mutation == "cg2_decision":
+            record["cg2_decision"] = "different_decision"
+        else:
+            chain = record["certificate_chain"]
+            key = {
+                "cg1_id": "cg1_certificate_id",
+                "cg1_hash": "cg1_content_hash",
+                "cg2_id": "cg2_certificate_id",
+                "cg2_hash": "cg2_content_hash",
+            }[mutation]
+            chain[key] = (
+                "sha256:" + "f" * 64
+                if key.endswith("content_hash")
+                else str(chain[key]) + "-tampered"
+            )
+    payload["content_hash"] = _source_content_hash(payload)
+    with pytest.raises(ValidationError, match=reason):
+        GenerationSourceHandoff.model_validate(payload)
+
+
+def test_native_retained_grounding_trace_replays_real_cg3_cg4_cg5(actual_n4_source):
+    """Retained trace replay refuses removal or substitution of owned gate evidence."""
+    problem, organ = actual_n4_source
+    assert organ.trinity_bundle is not None
+    assert organ.cycle_substrate_context is not None
+    assert organ.credal_reference is not None
+    old_candidate = organ.result.candidates[0]
+    provenance = old_candidate.provenance
+    capture = n4._N4SourceCapture(require_native_retained_grounding_trace=True)
+    run_budget = n4.GroundingRunBudget(run_id="retained-trace-owner-replay")
+    candidates, dispositions = n4._content_bound_candidates(
+        design_problem=problem,
+        design_problem_ref=organ.result.design_problem_ref,
+        bundle=organ.trinity_bundle,
+        model_id=provenance.model_id,
+        draft_path=provenance.draft_generator_path,
+        formalizer_path=provenance.formalizer_generator_path,
+        critic_path=provenance.critic_generator_path,
+        critique_verdict=old_candidate.critique_verdict,
+        calls=organ.result.llm_calls,
+        repo_root=REPO_ROOT,
+        world_model_record_ref=organ.cycle_substrate_context.world_model_record.world_model_record_id,
+        reference=organ.credal_reference,
+        cycle_substrate_context=organ.cycle_substrate_context,
+        grounding_run_budget=run_budget,
+        source_capture=capture,
+    )
+    n4._require_one_native_retained_candidate(
+        candidates,
+        dispositions,
+        candidate_sources=capture.candidates,
+        bundle=organ.trinity_bundle,
+    )
+    (source,) = capture.candidates
+    (disposition,) = dispositions
+    trace = source.native_retained_grounding_trace
+    assert trace is not None
+    n4._verify_native_retained_grounding_trace(
+        source=source, disposition=disposition, reference=organ.credal_reference
+    )
+
+    # This descriptive scope is intentionally excluded from the CG1 digest.
+    # Recompute the owners to distinguish that metadata from gate evidence.
+    from polisyos.runtime.quality.grounding_active_controller import GroundingActiveController
+    from polisyos.runtime.quality.grounding_admission import GroundingAdmissionEngine
+
+    cg1 = source.grounding_relation_certificate
+    cg2 = source.grounding_decision_certificate
+    assert cg2.run_admission is not None
+    assert cg2.run_admission.run_id == run_budget.run_id
+    assert cg2.run_admission.charged_this_attempt == 0
+    assert trace.phrasing_run.cg2_certificate_id == cg2.certificate_id
+    assert trace.phrasing_run.cg3_certificate_id == trace.admission_certificate.certificate_id
+
+    # The ordinary diagnostic reruns the same proposal under its own (absent)
+    # CG2 run budget. Its valid artifacts do not belong to this Native chain.
+    foreign_run = n4.GroundingPhrasingDefenseEngine(organ.credal_reference).run_pipeline(
+        source.proposal, proposal_id=source.proposal_id
+    )
+    assert foreign_run.cg1_certificate_id == cg1.certificate_id
+    assert foreign_run.decisions.cg2_decision == trace.phrasing_run.decisions.cg2_decision
+    assert foreign_run.decisions.cg3_decision == trace.phrasing_run.decisions.cg3_decision
+    assert foreign_run.cg2_certificate_id != trace.phrasing_run.cg2_certificate_id
+    assert foreign_run.cg3_certificate_id != trace.phrasing_run.cg3_certificate_id
+
+    metadata_cg1 = cg1.model_copy(
+        update={"relation_confidence_scope": cg1.relation_confidence_scope + "_altered"}
+    )
+    assert n4.recompute_grounding_relation_content_hash(metadata_cg1) == cg1.content_hash
+    bind_gate = n4.GroundingBindGate(organ.credal_reference, run_budget=run_budget)
+    ordinary_cg2 = bind_gate.certificate_for(cg1)
+    metadata_cg2 = bind_gate.certificate_for(metadata_cg1)
+    assert ordinary_cg2 == metadata_cg2
+    assert metadata_cg2.production_promotable is False
+    ordinary_cg3 = GroundingAdmissionEngine(organ.credal_reference).decide(cg2, cg1_certificate=cg1)
+    metadata_cg3 = GroundingAdmissionEngine(organ.credal_reference).decide(
+        cg2, cg1_certificate=metadata_cg1
+    )
+    assert ordinary_cg3 == metadata_cg3 == trace.admission_certificate
+    metadata_cg5 = n4._cg5_action_certificate(
+        GroundingActiveController(organ.credal_reference),
+        proposal=source.proposal,
+        proposal_id=source.proposal_id,
+        cg1=metadata_cg1,
+        cg2=cg2,
+        cg3=metadata_cg3,
+        proxy_gap=None,
+        strict=True,
+    )
+    assert metadata_cg5 == trace.action_certificate
+    assert metadata_cg5 is None or metadata_cg5.production_authoritative is False
+    n4._verify_native_retained_grounding_trace(
+        source=source.model_copy(update={"grounding_relation_certificate": metadata_cg1}),
+        disposition=disposition,
+        reference=organ.credal_reference,
+    )
+
+    # A fresh CG3/CG5 response to a changed hashed CG1 body must not make its
+    # old CG1 identity true, even when the outer trace is made consistent.
+    changed_cg1 = cg1.model_copy(
+        update={"cross_modal_witnesses": {**cg1.cross_modal_witnesses, "test_tamper": True}}
+    )
+    assert n4.recompute_grounding_relation_content_hash(changed_cg1) != cg1.content_hash
+    changed_cg3 = GroundingAdmissionEngine(organ.credal_reference).decide(
+        cg2, cg1_certificate=changed_cg1
+    )
+    changed_cg5 = n4._cg5_action_certificate(
+        GroundingActiveController(organ.credal_reference),
+        proposal=source.proposal,
+        proposal_id=source.proposal_id,
+        cg1=changed_cg1,
+        cg2=cg2,
+        cg3=changed_cg3,
+        proxy_gap=None,
+        strict=True,
+    )
+    changed_run = trace.phrasing_run.model_copy(
+        update={
+            "cg3_certificate_id": changed_cg3.certificate_id,
+            "decisions": trace.phrasing_run.decisions.model_copy(
+                update={"cg3_decision": changed_cg3.decision}
+            ),
+            "evidence_signature": trace.phrasing_run.evidence_signature.model_copy(
+                update={"cg3_decision": changed_cg3.decision}
+            ),
+        }
+    )
+    changed_trace = trace.model_copy(
+        update={
+            "admission_certificate": changed_cg3,
+            "phrasing_run": changed_run,
+            "action_certificate": changed_cg5,
+        }
+    )
+    changed_source = source.model_copy(
+        update={
+            "grounding_relation_certificate": changed_cg1,
+            "native_retained_grounding_trace": changed_trace,
+        }
+    )
+    changed_disposition = disposition.model_copy(
+        update={
+            "cg3_decision": changed_cg3.decision,
+            "cg3_reason": changed_cg3.decisive_reason,
+            "certificate_chain": n4._grounding_certificate_chain(
+                cg1=changed_cg1,
+                cg2=cg2,
+                cg3=changed_cg3,
+                proxy_gap=None,
+                quarantine=None,
+                cg5=changed_cg5,
+            ),
+            "bridge_missing_records": n4._bridge_missing_records(
+                cg3=changed_cg3, proxy_gap=None, quarantine=None, cg5=changed_cg5
+            ),
+        }
+    )
+    with pytest.raises(
+        n4.DesignGenerationError, match="native_retained_candidate_cg1_binding_mismatch"
+    ):
+        n4._verify_native_retained_grounding_trace(
+            source=changed_source,
+            disposition=changed_disposition,
+            reference=organ.credal_reference,
+        )
+
+    # A self-consistent CG2 hash does not repair a foreign expected CG1 hash.
+    changed_cg2_payload = cg2.model_dump(mode="json")
+    changed_cg2_payload["cg1_expected_content_hash"] = "sha256:" + "f" * 64
+    changed_cg2_hash = n4.recompute_grounding_decision_content_hash(changed_cg2_payload)
+    changed_cg2_payload["content_hash"] = changed_cg2_hash
+    changed_cg2_payload["certificate_id"] = (
+        f"cg2_cert_{changed_cg2_hash.removeprefix('sha256:')[:16]}"
+    )
+    changed_cg2 = n4.GroundingDecisionCertificate.model_validate(changed_cg2_payload)
+    with pytest.raises(
+        n4.DesignGenerationError, match="native_retained_candidate_cg1_binding_mismatch"
+    ):
+        n4._require_native_retained_cg1_binding(cg1, changed_cg2)
+
+    changed_relation = (
+        "exact"
+        if trace.phrasing_run.evidence_signature.cg1_relation_class != "exact"
+        else "certified-specialization"
+    )
+    changed_run = trace.phrasing_run.model_copy(
+        update={
+            "evidence_signature": trace.phrasing_run.evidence_signature.model_copy(
+                update={"cg1_relation_class": changed_relation}
+            )
+        }
+    )
+    changed_admission = trace.admission_certificate.model_copy(
+        update={"decisive_reason": "foreign_decision"}
+    )
+    surface = trace.phrasing_run.surface_view
+    changed_surface_run = trace.phrasing_run.model_copy(
+        update={
+            "surface_view": surface.model_copy(
+                update={"rationale_present": not surface.rationale_present}
+            )
+        }
+    )
+    changed_chain = disposition.certificate_chain.model_copy(
+        update={"cg4_proxy_gap_risk_id": "foreign-risk"}
+    )
+    for changed_source, changed_disposition, code in (
+        (
+            source.model_copy(
+                update={
+                    "native_retained_grounding_trace": trace.model_copy(
+                        update={"phrasing_run": foreign_run}
+                    )
+                }
+            ),
+            disposition,
+            "native_retained_candidate_grounding_replay_mismatch",
+        ),
+        (
+            source.model_copy(
+                update={
+                    "native_retained_grounding_trace": trace.model_copy(
+                        update={"phrasing_run": changed_surface_run}
+                    )
+                }
+            ),
+            disposition,
+            "native_retained_candidate_grounding_replay_mismatch",
+        ),
+        (
+            source.model_copy(update={"native_retained_grounding_trace": None}),
+            disposition,
+            "native_retained_candidate_grounding_trace_missing",
+        ),
+        (
+            source.model_copy(
+                update={
+                    "native_retained_grounding_trace": trace.model_copy(
+                        update={"phrasing_run": changed_run}
+                    )
+                }
+            ),
+            disposition,
+            "native_retained_candidate_cg4_source_mismatch",
+        ),
+        (
+            source.model_copy(
+                update={
+                    "native_retained_grounding_trace": trace.model_copy(
+                        update={"admission_certificate": changed_admission}
+                    )
+                }
+            ),
+            disposition,
+            "native_retained_candidate_grounding_replay_mismatch",
+        ),
+        (
+            source,
+            disposition.model_copy(update={"certificate_chain": changed_chain}),
+            "native_retained_candidate_cg5_replay_mismatch",
+        ),
+    ):
+        with pytest.raises(n4.DesignGenerationError, match=code):
+            n4._verify_native_retained_grounding_trace(
+                source=changed_source,
+                disposition=changed_disposition,
+                reference=organ.credal_reference,
+            )
+    if trace.action_certificate is not None:
+        changed_action = trace.action_certificate.model_copy(
+            update={"content_hash": "sha256:" + "f" * 64}
+        )
+        changed_source = source.model_copy(
+            update={
+                "native_retained_grounding_trace": trace.model_copy(
+                    update={"action_certificate": changed_action}
+                )
+            }
+        )
+        with pytest.raises(
+            n4.DesignGenerationError, match="native_retained_candidate_cg5_replay_mismatch"
+        ):
+            n4._verify_native_retained_grounding_trace(
+                source=changed_source,
+                disposition=disposition,
+                reference=organ.credal_reference,
+            )
+
+
+def test_native_retained_rankings_replay_selected_l6_or_honest_absence(
+    actual_n4_source, monkeypatch
+):
+    """V3 reuses the canonical score and refuses forged signal fields."""
+    from polisyos.runtime.quality.intervention_substrate import InterventionSubstrateError
+
+    problem, organ = actual_n4_source
+    assert organ.cycle_substrate_context is not None
+    substrate = organ.cycle_substrate_context.intervention_substrate
+    assert substrate is not None
+    candidates = organ.result.candidates
+
+    selected = n4._rank_shadow_candidates_with_selected_substrate(
+        candidates, design_problem=problem, substrate=substrate
+    )
+    monkeypatch.setattr(n4, "load_l6_intervention_substrate", lambda _root: substrate)
+    assert selected == n4.rank_shadow_candidates_with_graph_causal_surrogate(
+        candidates, design_problem=problem, repo_root=REPO_ROOT
+    )
+
+    def unavailable(_root):
+        raise InterventionSubstrateError("selected_l6_unavailable")
+
+    monkeypatch.setattr(n4, "load_l6_intervention_substrate", unavailable)
+    absent = n4._rank_shadow_candidates_with_selected_substrate(
+        candidates, design_problem=problem, substrate=None
+    )
+    assert absent == n4.rank_shadow_candidates_with_graph_causal_surrogate(
+        candidates, design_problem=problem, repo_root=REPO_ROOT
+    )
+    assert all(row.trust_level == "proposal_only" for row in absent)
+    assert all(
+        not any(ref.startswith("observation_route:") for ref in row.feature_refs) for row in absent
+    )
+    honest = organ.result.model_copy(update={"surrogate_rankings": absent})
+    n4._require_native_retained_rankings(result=honest, design_problem=problem, substrate=None)
+    (row,) = absent
+    for update in (
+        {"score": 0.0 if row.score != 0.0 else 1.0},
+        {"voi_estimate": row.voi_estimate + 1.0},
+        {"feature_refs": (*row.feature_refs, "observation_family:foreign")},
+    ):
+        forged = honest.model_copy(update={"surrogate_rankings": (row.model_copy(update=update),)})
+        with pytest.raises(
+            n4.DesignGenerationError, match="native_retained_candidate_ranking_mismatch"
+        ):
+            n4._require_native_retained_rankings(
+                result=forged, design_problem=problem, substrate=None
+            )
 
 
 def _stub_repeated_occurrence_repository(monkeypatch, problem):

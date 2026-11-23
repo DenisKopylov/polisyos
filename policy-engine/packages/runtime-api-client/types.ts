@@ -14569,7 +14569,8 @@ export interface components {
         ModelInputSuccessorExecutionRequest: {
             /** Decision Ref */
             decision_ref: string;
-            request: components["schemas"]["ModelInputSuccessorActionRequest"];
+            /** Request */
+            request: components["schemas"]["NativeModelInputSuccessorActionRequest"] | components["schemas"]["ModelInputSuccessorActionRequest"];
         };
         /**
          * ModelProfileInfo
@@ -14902,6 +14903,16 @@ export interface components {
             source_surface: string;
         };
         /**
+         * NativeActiveInputUsePins
+         * @description Select the exact completed Native action and its recorded derived world.
+         */
+        NativeActiveInputUsePins: {
+            /** Fresh Budget Usd */
+            fresh_budget_usd: string;
+            predecessor_terminal_ref: components["schemas"]["ArtifactRef-Input"];
+            world_checkpoint_ref: components["schemas"]["ArtifactRef-Input"];
+        };
+        /**
          * NativeDerivationLeafRouteProjection
          * @description Read-only native leaf route whose supplier or owner quote is missing.
          */
@@ -14936,6 +14947,23 @@ export interface components {
             source_node_id: string;
             /** Tenant Id */
             tenant_id: string;
+        };
+        /**
+         * NativeModelInputSuccessorActionRequest
+         * @description Name a Native input use separately from a direct Catalog input use.
+         */
+        NativeModelInputSuccessorActionRequest: {
+            activation_receipt_ref: components["schemas"]["ArtifactRef-Input"];
+            blocked_execution_ref: components["schemas"]["ArtifactRef-Input"];
+            compiled_ref: components["schemas"]["ArtifactRef-Input"];
+            /** Human Decision Record Ref */
+            human_decision_record_ref?: string | null;
+            /** Idempotency Key */
+            idempotency_key: string;
+            native_use: components["schemas"]["NativeActiveInputUsePins"];
+            /** Observation Id */
+            observation_id: string;
+            routing_report_ref: components["schemas"]["ArtifactRef-Input"];
         };
         /**
          * NativeModelInputTargetProjection
@@ -34970,7 +34998,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ModelInputSuccessorActionRequest"];
+                "application/json": components["schemas"]["NativeModelInputSuccessorActionRequest"] | components["schemas"]["ModelInputSuccessorActionRequest"];
             };
         };
         responses: {

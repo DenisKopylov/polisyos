@@ -30988,7 +30988,15 @@
             "type": "string"
           },
           "request": {
-            "$ref": "#/components/schemas/ModelInputSuccessorActionRequest"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NativeModelInputSuccessorActionRequest"
+              },
+              {
+                "$ref": "#/components/schemas/ModelInputSuccessorActionRequest"
+              }
+            ],
+            "title": "Request"
           }
         },
         "required": [
@@ -31677,6 +31685,29 @@
         "title": "NLProvenance",
         "type": "object"
       },
+      "NativeActiveInputUsePins": {
+        "additionalProperties": false,
+        "description": "Select the exact completed Native action and its recorded derived world.",
+        "properties": {
+          "fresh_budget_usd": {
+            "title": "Fresh Budget Usd",
+            "type": "string"
+          },
+          "predecessor_terminal_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          },
+          "world_checkpoint_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          }
+        },
+        "required": [
+          "predecessor_terminal_ref",
+          "world_checkpoint_ref",
+          "fresh_budget_usd"
+        ],
+        "title": "NativeActiveInputUsePins",
+        "type": "object"
+      },
       "NativeDerivationLeafRouteProjection": {
         "additionalProperties": false,
         "description": "Read-only native leaf route whose supplier or owner quote is missing.",
@@ -31755,6 +31786,62 @@
           "reason_codes"
         ],
         "title": "NativeDerivationLeafRouteProjection",
+        "type": "object"
+      },
+      "NativeModelInputSuccessorActionRequest": {
+        "additionalProperties": false,
+        "description": "Name a Native input use separately from a direct Catalog input use.",
+        "properties": {
+          "activation_receipt_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          },
+          "blocked_execution_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          },
+          "compiled_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          },
+          "human_decision_record_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Human Decision Record Ref"
+          },
+          "idempotency_key": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "native_use": {
+            "$ref": "#/components/schemas/NativeActiveInputUsePins"
+          },
+          "observation_id": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Observation Id",
+            "type": "string"
+          },
+          "routing_report_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input"
+          }
+        },
+        "required": [
+          "compiled_ref",
+          "blocked_execution_ref",
+          "routing_report_ref",
+          "activation_receipt_ref",
+          "observation_id",
+          "idempotency_key",
+          "native_use"
+        ],
+        "title": "NativeModelInputSuccessorActionRequest",
         "type": "object"
       },
       "NativeModelInputTargetProjection": {
@@ -97555,7 +97642,15 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ModelInputSuccessorActionRequest"
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/NativeModelInputSuccessorActionRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ModelInputSuccessorActionRequest"
+                  }
+                ],
+                "title": "Body"
               }
             }
           },
@@ -97795,7 +97890,8 @@
             "activation_receipt_ref",
             "observation_id",
             "idempotency_key",
-            "human_decision_record_ref"
+            "human_decision_record_ref",
+            "native_use"
           ],
           "source": "request_composite"
         },

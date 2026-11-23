@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from decimal import Decimal, InvalidOperation
 from typing import TYPE_CHECKING, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.artifacts import (
     ArtifactID,
@@ -15,6 +16,7 @@ from polisyos.core.artifacts import (
     artifact_manifest_profile_sha256,
     matches_artifact_store_protocol,
     read_core_manifest_profile,
+    validate_core_model_json_artifact,
 )
 from polisyos.core.contracts import epoch as epoch_contract
 from polisyos.pdc import OperationClass, OperationContract, OperationInvocationRecord
@@ -27,6 +29,7 @@ from polisyos.runtime.http.permissions import (
 from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
 from polisyos.runtime.quality.agent_action_authority import (
     MODEL_INPUT_USE_ACTION_KIND,
+    AgentActionAuthorityGateway,
     AgentActionIntent,
     agent_action_content_hash,
 )
@@ -52,18 +55,29 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
     from polisyos.runtime.quality.acquisition_route_loop import VerifiedModelInputRoutingOrigin
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
-    from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+    from polisyos.runtime.quality.generation_cycle import (
+        JointSimulationPort,
+        SimulationPortObservation,
+    )
     from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleNativeWorldContextHandoffV1,
         GenericCycleSimulationN5ExecutionV5,
         GenericN5ResolvedResult,
     )
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationHorizonController,
     )
+    from polisyos.runtime.quality.native_generic_context import NativeModelInputUseSourceSelection
     from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
-    from polisyos.scientist.orchestration.engine import BudgetLedgerReentryBudgetWindow
+    from polisyos.scientist.orchestration.engine import (
+        BudgetLedgerReentryBudgetWindow,
+        BudgetState,
+        ProducerBudgetObserver,
+    )
 
+    from .acquisition_action_service import VerifiedModelInputUseWorker
     from .control import ControlPlaneService
     from .control_plane_store import (
         ControlJobExecutionAdmission,
@@ -130,6 +144,89 @@ class ModelInputSuccessorActionRequest(BaseModel):
         return self
 
 
+class NativeActiveInputUsePins(BaseModel):
+    """Select the exact completed Native action and its recorded derived world."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    predecessor_terminal_ref: ArtifactRef
+    world_checkpoint_ref: ArtifactRef
+    fresh_budget_usd: Decimal = Field(gt=0, allow_inf_nan=False)
+
+    @field_validator("fresh_budget_usd", mode="before", json_schema_input_type=str)
+    @classmethod
+    def _require_decimal_amount(cls, value: object) -> Decimal:
+        if type(value) is Decimal:
+            return value
+        if type(value) is str:
+            try:
+                amount = Decimal(value)
+            except InvalidOperation as exc:
+                raise ValueError("native_model_input_use_budget_amount_invalid") from exc
+            if str(amount) == value:
+                return amount
+        raise ValueError("native_model_input_use_budget_amount_invalid")
+
+    @model_validator(mode="after")
+    def _require_selected_native_refs(self) -> NativeActiveInputUsePins:
+        refs = (
+            (self.predecessor_terminal_ref, "runtime_quality.acquisition_route_loop_receipt"),
+            (self.world_checkpoint_ref, "runtime_quality.acquisition_candidate_world_checkpoint"),
+        )
+        if any(
+            ref.kind != kind
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            or set(type(ref).model_fields) != set(ArtifactRef.model_fields)
+            for ref, kind in refs
+        ):
+            raise ValueError("native_model_input_use_exact_selected_refs_required")
+        return self
+
+
+class NativeModelInputSuccessorActionRequest(ModelInputSuccessorActionRequest):
+    """Name a Native input use separately from a direct Catalog input use."""
+
+    native_use: NativeActiveInputUsePins
+
+
+def unwrap_native_model_input_use_request(
+    payload: dict[str, Any], *, phase: ModelInputUseActionPhase
+) -> NativeModelInputSuccessorActionRequest:
+    """Reopen the Native request selected by an already verified ModelInputUse phase.
+
+    The worker still owns the live lease, budget window and signed PA2 decision.
+    This join only constrains the selected Control payload to the phase.
+    """
+    from .control import ControlPlaneService
+    from .control.job_attempt_publication import _EXECUTION_INTENT_BINDING_KEY
+
+    if type(payload) is not dict or type(phase) is not ModelInputUseActionPhase:
+        raise ModelInputSuccessorActionError("native_model_input_use_job_payload_invalid")
+    try:
+        action = ControlPlaneService._job_payload_without_telemetry(payload)
+    except ValueError as exc:
+        raise ModelInputSuccessorActionError("native_model_input_use_job_payload_invalid") from exc
+    expected = {
+        "action_kind": MODEL_INPUT_USE_ACTION_KIND,
+        "tenant_id": phase.tenant_id,
+        "cell_id": phase.cell_id,
+        "run_id": phase.run_id,
+        "route_id": phase.route_id,
+        "decision_ref": str(phase.authority_decision_ref.artifact_id),
+    }
+    if (
+        set(action) - {*expected, "job_id", "request", _EXECUTION_INTENT_BINDING_KEY}
+        or action.get("job_id", phase.action_job_id) != phase.action_job_id
+        or any(action.get(key) != value for key, value in expected.items())
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_job_payload_scope_mismatch")
+    try:
+        return NativeModelInputSuccessorActionRequest.model_validate(action.get("request"))
+    except (TypeError, ValueError) as exc:
+        raise ModelInputSuccessorActionError("native_model_input_use_job_payload_invalid") from exc
+
+
 class ModelInputSuccessorDecisionResponse(BaseModel):
     """Persisted decision for one candidate-use job identity."""
 
@@ -148,7 +245,7 @@ class ModelInputSuccessorExecutionRequest(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    request: ModelInputSuccessorActionRequest
+    request: NativeModelInputSuccessorActionRequest | ModelInputSuccessorActionRequest
     decision_ref: str = Field(pattern=_SHA256_PATTERN)
 
 
@@ -272,6 +369,48 @@ class SelectedModelInputSuccessorAction(ModelInputSuccessorIdentity):
     catalog_source: CatalogServingSourcePaths
     catalog_authority: CanonicalAcquisitionAuthority
     passport: AdmissionPassport
+
+
+@dataclass(frozen=True, slots=True)
+class SelectedNativeModelInputSuccessorAction(SelectedModelInputSuccessorAction):
+    """The current paid Native leaf and the separately bounded request amount."""
+
+    request: NativeModelInputSuccessorActionRequest
+    growth_receipt_ref: ArtifactRef
+
+    @property
+    def fresh_budget_usd(self) -> Decimal:
+        """Return the exact requested allowance, independently bound by PA2."""
+        return self.request.native_use.fresh_budget_usd
+
+
+@dataclass(frozen=True, slots=True)
+class PreparedNativeModelInputUse:
+    """Carry the selected action and bounded budget to Native N5."""
+
+    checkpoint: ModelInputUseActionCheckpoint
+    window: BudgetLedgerReentryBudgetWindow
+    budget_state: BudgetState
+    budget_observer: ProducerBudgetObserver
+
+
+class NativeModelInputUseJobCompletion(dict[str, Any]):
+    """Carry a selected Native result to the fenced Control completion owner."""
+
+    __slots__ = ("admission", "checkpoint", "currentness_resolver")
+
+    def __init__(
+        self,
+        *,
+        progress: dict[str, Any],
+        checkpoint: ModelInputUseActionCheckpoint,
+        admission: ControlJobExecutionAdmission,
+        currentness_resolver: Callable[[], bool],
+    ) -> None:
+        super().__init__(progress)
+        self.checkpoint = checkpoint
+        self.admission = admission
+        self.currentness_resolver = currentness_resolver
 
 
 @dataclass(frozen=True, slots=True)
@@ -469,6 +608,184 @@ def resolve_model_input_successor_action(
         route_id=route_id,
         job_id=job_id,
     )
+
+
+def resolve_native_model_input_successor_action(
+    control: ControlPlaneService,
+    *,
+    bridge: AcquisitionWorldGrowthBridge | None,
+    tenant_id: str,
+    cell_id: str,
+    run_id: str,
+    request: NativeModelInputSuccessorActionRequest,
+) -> SelectedNativeModelInputSuccessorAction:
+    """Read one active paid leaf through the current Native owner and its Catalog."""
+    from polisyos.data_forge.read_api.catalog import CatalogAcquisitionOverlay
+    from polisyos.runtime.quality.acquisition_executor import (
+        AdmissionPassport,
+        resolve_activated_semantic_epoch_admission,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionRouteLoopReceipt,
+        AcquisitionRoutePhaseReceipt,
+    )
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthBridge,
+        AcquisitionWorldGrowthReceipt,
+    )
+    from polisyos.runtime.quality.substrate_registry import require_catalog_serving_source_unchanged
+
+    store = control._artifact_store
+    job_store = control._control_store
+    sink = control.acquisition_route_sink
+    if (
+        type(request) is not NativeModelInputSuccessorActionRequest
+        or type(bridge) is not AcquisitionWorldGrowthBridge
+        or bridge._source_control_service is not control
+        or bridge.artifact_store is not store
+        or bridge.control_store is not job_store
+        or bridge.event_log is not control._diagnostic_event_log
+        or bridge.action_head_sink is not sink
+        or not matches_artifact_store_protocol(store, CoreJSONArtifactStore)
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_source_owner_not_established")
+    source = control.catalog_serving_source
+    require_catalog_serving_source_unchanged(source)
+    origin = _resolve_model_input_successor_origin(
+        control, tenant_id=tenant_id, cell_id=cell_id, run_id=run_id, request=request
+    )
+    terminal_ref = request.native_use.predecessor_terminal_ref
+    terminal = validate_core_model_json_artifact(AcquisitionRouteLoopReceipt, store, terminal_ref)
+    if (
+        (terminal.tenant_id, terminal.cell_id, terminal.run_id, terminal.source_job_id)
+        != (tenant_id, cell_id, run_id, origin.source_job_id)
+        or terminal.compiled_ref != str(origin.compiled_ref.artifact_id)
+        or terminal.schema_version != "AcquisitionRouteLoopReceipt@1.2"
+        or terminal.terminal_outcome != "reentry_completed"
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_predecessor_scope_mismatch")
+    scope = {
+        "tenant_id": tenant_id,
+        "cell_id": cell_id,
+        "run_id": run_id,
+        "source_job_id": origin.source_job_id,
+        "route_id": terminal.route_id,
+    }
+    outcome = sink.current_action_outcome(**scope)
+    prior_job = job_store.get_job(terminal.job_id)
+    if (
+        outcome is None
+        or outcome.latest_receipt != terminal
+        or outcome.head.receipt_ref != str(terminal_ref.artifact_id)
+        or outcome.head.receipt_manifest_profile_sha256 != terminal_ref.manifest_profile_sha256
+        or outcome.head.receipt_phase != "terminal"
+        or prior_job is None
+        or prior_job.kind != "acquisition"
+        or prior_job.state != "completed"
+        or prior_job.run_id != run_id
+        or type(outcome.executing_phase) is not AcquisitionRoutePhaseReceipt
+        or outcome.executing_phase.prior_paid_input_admission is None
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_predecessor_not_current")
+    closure = AcquisitionRouteLoop(
+        control_store=job_store,
+        artifact_store=store,
+        event_log=control._diagnostic_event_log,
+        core_source_resolver=control.resolve_completed_control_job_core_run_source,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        action_outcome_reader=sink,
+    ).resolve_current_route(
+        run_id=run_id, route_id=terminal.route_id, action_job_id=terminal.job_id
+    )
+    paid = outcome.executing_phase.prior_paid_input_admission
+    growth_kind = "runtime_quality.acquisition_world_growth_receipt"
+    growth_refs = tuple(
+        ref for ref in terminal.owner_receipt_refs if store.get_manifest(ref).kind == growth_kind
+    )
+    if (
+        len(growth_refs) != 1
+        or closure.native_derivation_leaf_scope is None
+        or closure.prior_paid_input_admission != paid
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_paid_source_not_selected")
+    growth_ref = bridge._native_growth_owner_selector(closure, growth_refs[0], growth_kind)
+    if type(growth_ref) is not ArtifactRef:
+        raise ModelInputSuccessorActionError("native_model_input_use_growth_profile_not_selected")
+    growth = AcquisitionWorldGrowthReceipt.model_validate(bridge._read(growth_ref, growth_kind))
+    configured_route = bridge.selection(closure)
+    if (
+        growth.action_phase_ref != outcome.executing_phase_ref
+        or configured_route is None
+        or growth.selection != configured_route
+        or growth.activation.prepared_epoch_ref != paid.prepared_epoch_ref
+        or growth.activation.overlay_admission_receipt_ref != request.activation_receipt_ref
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_paid_activation_mismatch")
+    original_budget = control.verify_candidate_unpriced_budget_scope(closure=origin)
+    _require_native_model_input_use_budget_limits(
+        requested=request.native_use.fresh_budget_usd,
+        configured=configured_route.reentry_budget_usd,
+        global_limit=original_budget.run_budget_usd,
+    )
+
+    passport_ref = growth.activation.passport_ref
+    passport = AdmissionPassport.model_validate(
+        epoch_contract.load_verified_epoch_statement(
+            store=store, ref=passport_ref, expected_kind="epoch.acquisition_passport_snapshot"
+        )
+    )
+    overlay_path, _ = bridge._paths(growth.selection, create=False)
+    overlay = CatalogAcquisitionOverlay(bridge.authority.baseline_path, overlay_path)
+    try:
+        admitted = resolve_activated_semantic_epoch_admission(
+            receipt=growth.activation,
+            artifact_store=store,
+            overlay=overlay,
+            authority=bridge.authority,
+            epoch_deployment=bridge.epoch_deployment,
+        )
+        active = overlay.read_activated_semantic_epoch_observations(
+            receipt_ref=admitted.receipt_ref,
+            artifact_store=store,
+            passport=passport,
+            authority=bridge.authority,
+        )
+    finally:
+        overlay.close()
+    if (
+        len(active.observations) != 1
+        or admitted.admitted_observation_count
+        != growth.previously_active_observations + growth.admitted_observation_delta
+        or active.observations[0].observation.observation_id != request.observation_id
+        or active.passport_ref != passport_ref
+        or sink.current_action_outcome(**scope) != outcome
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_active_row_not_selected")
+    require_catalog_serving_source_unchanged(source)
+    (row,) = active.observations
+    route_id, job_id = _model_input_successor_ids(origin, request, row.row_content_sha256)
+    return SelectedNativeModelInputSuccessorAction(
+        origin=origin,
+        request=request,
+        catalog_source=source,
+        catalog_authority=bridge.authority,
+        passport_ref=passport_ref,
+        passport=passport,
+        observation_content_sha256=row.row_content_sha256,
+        route_id=route_id,
+        job_id=job_id,
+        growth_receipt_ref=growth_ref,
+    )
+
+
+def _require_native_model_input_use_budget_limits(
+    *, requested: Decimal, configured: Decimal, global_limit: Decimal | None
+) -> None:
+    if global_limit is None or global_limit <= 0:
+        raise ModelInputSuccessorActionError("native_model_input_use_budget_scope_not_established")
+    if requested > configured or requested > global_limit:
+        raise ModelInputSuccessorActionError("native_model_input_use_budget_amount_refused")
 
 
 def model_input_successor_action_tuple(
@@ -711,10 +1028,11 @@ def model_input_use_terminal_progress(checkpoint: ModelInputUseActionCheckpoint)
 def _resolve_action_budget_window(
     control: ControlPlaneService,
     *,
-    selection: SelectedModelInputSuccessorAction,
+    selection: ModelInputSuccessorIdentity,
     phase_ref: ArtifactRef,
     open_if_missing: bool,
 ) -> BudgetLedgerReentryBudgetWindow:
+    """Reconcile the exact action window against the signed request and source cap."""
     from polisyos.scientist.orchestration.engine import (
         BudgetLedgerReentryBudgetScope,
         BudgetMiddleware,
@@ -727,6 +1045,14 @@ def _resolve_action_budget_window(
     settlement_store = control._llm_producer_settlement_store
     if type(settlement_store) is not BudgetMiddleware or cap is None or cap <= 0:
         raise ModelInputSuccessorActionError("model_input_use_budget_scope_not_established")
+    request = selection.request
+    fresh_limit = (
+        request.native_use.fresh_budget_usd
+        if type(request) is NativeModelInputSuccessorActionRequest
+        else cap
+    )
+    if fresh_limit > cap:
+        raise ModelInputSuccessorActionError("native_model_input_use_budget_amount_refused")
     scope = BudgetLedgerReentryBudgetScope(
         run_binding=binding,
         action_job_id=selection.job_id,
@@ -739,12 +1065,12 @@ def _resolve_action_budget_window(
     window = settlement_store.resolve_reentry_budget_window_safe(scope)
     if window is None and open_if_missing:
         window = settlement_store.open_reentry_budget_window_safe(
-            scope, fresh_limit_usd=cap, global_limit_usd=cap
+            scope, fresh_limit_usd=fresh_limit, global_limit_usd=cap
         )
     if (
         window is None
         or window.scope != scope
-        or window.fresh_limit_usd != cap
+        or window.fresh_limit_usd != fresh_limit
         or window.global_limit_usd != cap
     ):
         raise ModelInputSuccessorActionError("model_input_use_budget_window_mismatch")
@@ -794,7 +1120,6 @@ def _materialize_semantic_successor(
     if foundry_ref is None or not worker_id:
         raise ModelInputSuccessorActionError("model_input_use_semantic_input_not_established")
     routing_use_decision_ref = None
-    selection_schema_version = "polisyos.runtime.ModelInputSuccessorSelection@1.0"
     if origin.routing_report.schema_version == MODEL_INPUT_ROUTING_REPORT_SCHEMA_VERSION_V2:
         if len(origin.routing_report.routes) != 1:
             raise ModelInputSuccessorActionError("model_input_use_single_resolved_route_required")
@@ -814,7 +1139,35 @@ def _materialize_semantic_successor(
             raise ModelInputSuccessorActionError(
                 "model_input_use_routing_decision_not_established"
             ) from exc
-        selection_schema_version = "polisyos.runtime.ModelInputSuccessorSelection@2.0"
+    return _persist_semantic_successor_selection(
+        store,
+        selection=selection,
+        admission=admission,
+        phase_ref=phase_ref,
+        phase=phase,
+        window=window,
+        foundry_ref=foundry_ref,
+        routing_use_decision_ref=routing_use_decision_ref,
+    )
+
+
+def _persist_semantic_successor_selection(
+    store: CoreJSONArtifactStore,
+    *,
+    selection: SelectedModelInputSuccessorAction,
+    admission: ControlJobExecutionAdmission,
+    phase_ref: ArtifactRef,
+    phase: ModelInputUseActionPhase,
+    window: BudgetLedgerReentryBudgetWindow,
+    foundry_ref: ArtifactRef,
+    routing_use_decision_ref: ArtifactRef | None = None,
+) -> ArtifactRef:
+    from polisyos.core.contracts.foundry import FoundryInputBindingsRef
+
+    origin = selection.origin
+    worker_id = admission.job.lease_owner
+    if worker_id is None:
+        raise ModelInputSuccessorActionError("model_input_use_worker_lease_owner_missing")
     return persist_model_input_successor_selection(
         store,
         ModelInputSuccessorSelection(
@@ -825,7 +1178,11 @@ def _materialize_semantic_successor(
             compiled_ref=origin.compiled_ref,
             blocked_execution_ref=origin.n5_execution_ref,
             routing_report_ref=origin.routing_report_ref,
-            schema_version=selection_schema_version,
+            schema_version=(
+                "polisyos.runtime.ModelInputSuccessorSelection@1.0"
+                if routing_use_decision_ref is None
+                else "polisyos.runtime.ModelInputSuccessorSelection@2.0"
+            ),
             routing_use_decision_ref=routing_use_decision_ref,
             activation_receipt_ref=selection.request.activation_receipt_ref,
             observation_id=selection.request.observation_id,
@@ -838,8 +1195,335 @@ def _materialize_semantic_successor(
             authority_decision_ref=phase.authority_decision_ref,
             reentry_budget_window_id=window.window_id,
             reentry_budget_window_digest=window.record_digest,
-            semantic_foundry_input_bindings_ref=foundry_ref,
+            semantic_foundry_input_bindings_ref=FoundryInputBindingsRef.model_validate(
+                foundry_ref.model_dump(mode="python")
+            ),
         ),
+    )
+
+
+def require_native_model_input_use_standard_profile(
+    source: NativeModelInputUseSourceSelection,
+    *,
+    selection: SelectedNativeModelInputSuccessorAction,
+) -> None:
+    """Require the selected one-unit ordinary ProgramGraph Native profile."""
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5ProgramGraphRequestProfileV4,
+    )
+
+    original_profile = source.historical_selection.original_profile
+    n5_profile = original_profile.n5
+    if (
+        type(n5_profile) is not GenericCycleN5ProgramGraphRequestProfileV4
+        or n5_profile.replications != 1
+        or n5_profile.invocation_purpose != "standard"
+        or original_profile.profile_selection_ref
+        != selection.origin.n5_expectation.profile_selection_ref
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_one_n5_not_established")
+
+
+def prepare_native_model_input_use_action(
+    control: ControlPlaneService,
+    *,
+    worker: VerifiedModelInputUseWorker,
+    currentness_resolver: Callable[[], bool],
+) -> PreparedNativeModelInputUse:
+    """Stage an authorized use of the complete retained Native input set."""
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationAdmissionOwner,
+    )
+    from polisyos.scientist.orchestration.engine import BudgetMiddleware, BudgetState
+
+    from .acquisition_action_service import VerifiedModelInputUseWorker
+    from .control.run_lifecycle import _build_control_nl_producer_budget_reconciler
+
+    store = control._artifact_store
+    job_store = control._control_store
+    admission = job_store.current_execution_job_admission()
+    owner = control._generic_cycle_simulation_admission_owner
+    if (
+        type(worker) is not VerifiedModelInputUseWorker
+        or type(worker.selection) is not SelectedNativeModelInputSuccessorAction
+        or type(worker.gateway) is not AgentActionAuthorityGateway
+        or worker.decision.decision.outcome != "allowed"
+        or not admission.same_execution_identity(worker.admission)
+        or admission.job.job_id != worker.selection.job_id
+        or admission.job.payload_ref is None
+        or not admission.job.lease_owner
+        or not matches_artifact_store_protocol(store, CoreJSONArtifactStore)
+        or type(owner) is not GenericCycleSimulationAdmissionOwner
+        or owner._native_world_action_owner is not control
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_worker_not_established")
+    selection = worker.selection
+    if _CHECKPOINT_KEY in admission.job.progress:
+        raise ModelInputSuccessorActionError("native_model_input_use_recovery_required")
+    source = owner.resolve_native_model_input_use_source_selection(
+        worker=worker, problem=selection.origin.design_problem_basis
+    )
+    require_native_model_input_use_standard_profile(source, selection=selection)
+    historical = source.historical_selection
+    if currentness_resolver() is not True:
+        raise ModelInputSuccessorActionError("native_model_input_use_action_scope_not_current")
+    operation, invocation, intent = model_input_successor_action_tuple(selection)
+    worker.gateway._verify_bound_effect_authorization(
+        operation=operation, invocation=invocation, intent=intent, persisted=worker.decision
+    )
+    phase = _expected_phase(
+        store,
+        selection,
+        action_payload_ref=admission.job.payload_ref,
+        authority_decision_ref=str(worker.decision.write_result.cas_ref.artifact_id),
+    )
+    phase_ref = persist_model_input_use_action_phase(store, phase)
+    window = _resolve_action_budget_window(
+        control, selection=selection, phase_ref=phase_ref, open_if_missing=True
+    )
+    settlement_store = control._llm_producer_settlement_store
+    if type(settlement_store) is not BudgetMiddleware:
+        raise ModelInputSuccessorActionError("native_model_input_use_budget_scope_not_established")
+    state = BudgetState.model_validate(
+        {"limits": {"run": {"key": "run", "max_usd": window.effective_limit_usd}}}
+    )
+    observer = _build_control_nl_producer_budget_reconciler(
+        settlement_store=settlement_store,
+        producer_run_binding=window.scope.run_binding,
+        budget_state=state,
+        reentry_budget_scope=window.scope,
+    )
+    successor_ref = _persist_semantic_successor_selection(
+        store,
+        selection=selection,
+        admission=admission,
+        phase_ref=phase_ref,
+        phase=phase,
+        window=window,
+        foundry_ref=historical.checkpoint.input_bindings_ref,
+    )
+    checkpoint = ModelInputUseActionCheckpoint(
+        phase_ref=phase_ref, semantic_successor_ref=successor_ref
+    )
+    current = job_store.current_execution_job_admission()
+    if (
+        not current.same_execution_identity(admission)
+        or _CHECKPOINT_KEY in current.job.progress
+        or currentness_resolver() is not True
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_action_scope_not_current")
+    job_store.update_progress_state(
+        job_id=selection.job_id,
+        state="running",
+        progress={
+            **current.job.progress,
+            _CHECKPOINT_KEY: checkpoint.model_dump(mode="json", exclude_none=True),
+        },
+        expected_lease_owner=admission.job.lease_owner,
+        expected_attempt=admission.attempt,
+    )
+    return PreparedNativeModelInputUse(
+        checkpoint=checkpoint,
+        window=window,
+        budget_state=state,
+        budget_observer=observer,
+    )
+
+
+def run_native_model_input_use_action(
+    control: ControlPlaneService,
+    *,
+    worker: VerifiedModelInputUseWorker,
+    currentness_resolver: Callable[[], bool],
+) -> NativeModelInputUseJobCompletion:
+    """Run one protected Native use and hand its selected result to Control."""
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleNativeWorldContextHandoffV1,
+        GenericCycleSimulationAdmissionOwner,
+    )
+    from polisyos.runtime.quality.substrate_registry import catalog_serving_source_scope
+    from polisyos.scientist.orchestration.engine import BudgetMiddleware
+
+    from .control_plane_store import _json_values_equal_strict
+
+    selection = worker.selection
+    owner = control._generic_cycle_simulation_admission_owner
+    budget_store = control._llm_producer_settlement_store
+    if (
+        type(selection) is not SelectedNativeModelInputSuccessorAction
+        or type(owner) is not GenericCycleSimulationAdmissionOwner
+        or type(budget_store) is not BudgetMiddleware
+        or selection.catalog_source is not control.catalog_serving_source
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_execution_owner_missing")
+    job_store = control._control_store
+    problem = selection.origin.design_problem_basis
+    catalog = selection.catalog_source
+    with catalog_serving_source_scope(catalog):
+        prepared = prepare_native_model_input_use_action(
+            control, worker=worker, currentness_resolver=currentness_resolver
+        )
+        stage = prepared.checkpoint.model_dump(mode="json", exclude_none=True)
+
+        def staged_action_is_current() -> bool:
+            window = budget_store.resolve_reentry_budget_window_safe(prepared.window.scope)
+            if window != prepared.window:
+                return False
+            admission = job_store.current_execution_job_admission()
+            return (
+                admission.same_execution_identity(worker.admission)
+                and _json_values_equal_strict(admission.job.progress.get(_CHECKPOINT_KEY), stage)
+            )
+
+        handoff = owner.admit_native_model_input_use_world_context(
+            problem=problem, repo_root=catalog.repo_root
+        )
+        if (
+            type(handoff) is not GenericCycleNativeWorldContextHandoffV1
+            or handoff.job_id != selection.job_id
+            or not staged_action_is_current()
+        ):
+            raise ModelInputSuccessorActionError("native_model_input_use_action_scope_not_current")
+        controller = GenerationCycleController(
+            repo_root=catalog.repo_root,
+            catalog_serving_source=catalog,
+            cycle_substrate_context=handoff.context,
+            generic_cycle_simulation_admission_owner=owner,
+            generic_cycle_simulation_handoff=handoff,
+            generic_cycle_simulation_currentness_resolver=staged_action_is_current,
+            promotion_runtime=control._promotion_runtime,
+            _producer_budget_reconciler=prepared.budget_observer,
+        )
+        observation = controller._run_retained_native_model_input_use_n5(
+            problem=problem,
+            budget_state=prepared.budget_state,
+            budget_window=prepared.window,
+        )
+        checkpoint = _select_native_model_input_use_result(
+            control, worker=worker, prepared=prepared, handoff=handoff, observation=observation
+        )
+
+    def completion_is_current() -> bool:
+        if not staged_action_is_current():
+            return False
+        with catalog_serving_source_scope(catalog):
+            current_handoff = owner.resolve_native_world_handoff(
+                handoff=handoff, problem=problem, context_owner=None, repo_root=catalog.repo_root
+            )
+        return (
+            current_handoff == handoff
+            and currentness_resolver() is True
+            and staged_action_is_current()
+        )
+
+    return NativeModelInputUseJobCompletion(
+        progress={
+            **job_store.current_execution_job_record().progress,
+            **model_input_use_terminal_progress(checkpoint),
+        },
+        checkpoint=checkpoint,
+        admission=worker.admission,
+        currentness_resolver=completion_is_current,
+    )
+
+
+def _select_native_model_input_use_result(
+    control: ControlPlaneService,
+    *,
+    worker: VerifiedModelInputUseWorker,
+    prepared: PreparedNativeModelInputUse,
+    handoff: GenericCycleNativeWorldContextHandoffV1,
+    observation: SimulationPortObservation,
+) -> ModelInputUseActionCheckpoint:
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.runtime.quality.generation_cycle import (
+        SimulationPortObservation,
+        load_joint_simulation_result,
+    )
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5ProgramGraphRequestProfileV4,
+        GenericCycleSimulationN5ExecutionV3,
+        GenericCycleSimulationN5InputV1,
+        GenericN5ResolvedResult,
+        parse_generic_cycle_simulation_n5_execution,
+    )
+
+    from .control.job_diagnostics import _verify_native_model_input_use_completed_work
+
+    if type(observation) is not SimulationPortObservation:
+        raise ModelInputSuccessorActionError("native_model_input_use_n5_result_untyped")
+    if observation.status != "joint_simulated":
+        raise ModelInputSuccessorActionError(
+            next(iter(observation.authority_blockers), "native_model_input_use_n5_result_blocked")
+        )
+    input_ref = observation.generic_n5_input_ref
+    execution_ref = observation.generic_n5_execution_ref
+    result_ref = observation.simulation_result_ref
+    binding = observation.generic_n5_request_binding
+    if (
+        input_ref is None
+        or execution_ref is None
+        or result_ref is None
+        or any(
+            ref.manifest_profile_sha256 is None for ref in (input_ref, execution_ref, result_ref)
+        )
+        or binding is None
+        or execution_ref == worker.selection.request.blocked_execution_ref
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_n5_result_not_selected")
+    store = control._artifact_store
+    execution = parse_generic_cycle_simulation_n5_execution(
+        load_core_json_artifact(store, execution_ref)
+    )
+    input_record = GenericCycleSimulationN5InputV1.model_validate(
+        load_core_json_artifact(store, input_ref)
+    )
+    if (
+        type(execution) is not GenericCycleSimulationN5ExecutionV3
+        or execution.status != "joint_simulated"
+        or execution.input_ref != input_ref
+        or execution.result_ref != result_ref
+        or execution.request_binding.request_content_hash != binding.request_content_hash
+        or execution.job_id != worker.selection.job_id
+        or input_record.job_id != execution.job_id
+        or input_record.native_world_checkpoint_ref != handoff.native_world_checkpoint_ref
+        or type(input_record.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_n5_result_scope_mismatch")
+
+    result = load_joint_simulation_result(
+        result_ref,
+        store=store,
+        expected_world_model_record_content_hash=handoff.context.world_model_record_content_hash,
+        expected_receipt_payload_hash=observation.simulation_ref or "",
+        expected_request=binding.request,
+    )
+    job = worker.admission.job
+    running = control._control_store._latest_control_job_lifecycle_event_record(
+        job_id=job.job_id, event_type="job_running"
+    )
+    if (
+        running.job_id != job.job_id
+        or running.payload.get("state") != "running"
+        or running.payload.get("lease_owner") != job.lease_owner
+        or type(running.payload.get("attempt")) is not int
+        or running.payload.get("attempt") != worker.admission.attempt
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_lease_not_current")
+    _verify_native_model_input_use_completed_work(
+        control,
+        resolved=GenericN5ResolvedResult(result=result, request=binding.request),
+        input_record=input_record,
+        window=prepared.window,
+        started_at=running.created_at,
+        finished_at=datetime.now(UTC),
+    )
+    return ModelInputUseActionCheckpoint(
+        phase_ref=prepared.checkpoint.phase_ref,
+        semantic_successor_ref=prepared.checkpoint.semantic_successor_ref,
+        execution_ref=execution_ref,
+        result_ref=result_ref,
     )
 
 
@@ -1188,6 +1872,8 @@ def run_model_input_use_action(
     may recover its unique durable output, but absence never permits a blind
     retry. Work lost before durable output remains recovery-required.
     """
+    if isinstance(selection, SelectedNativeModelInputSuccessorAction):
+        raise ModelInputSuccessorActionError("model_input_use_direct_selection_required")
     store = control._artifact_store
     job_store = control._control_store
     current = job_store.current_execution_job_admission()

@@ -1431,6 +1431,34 @@ class _ActionOutcomeReader(Protocol):
     ) -> int: ...
 
 
+@dataclass(frozen=True, slots=True)
+class _NativeRouteHistoryRead:
+    """The selected route's history already verified for one Native quote fold."""
+
+    reader: _ActionOutcomeReader
+    control_store: ControlPlaneStore
+    scope: tuple[str, str, str, str, str]
+    heads: tuple[AcquisitionActionHeadRecord, ...]
+    outcomes: tuple[_VerifiedActionOutcome, ...]
+
+    def outcomes_for(
+        self,
+        *,
+        reader: _ActionOutcomeReader,
+        control_store: ControlPlaneStore,
+        scope: tuple[str, str, str, str, str],
+        heads: tuple[AcquisitionActionHeadRecord, ...],
+    ) -> tuple[_VerifiedActionOutcome, ...]:
+        if (
+            reader is not self.reader
+            or control_store is not self.control_store
+            or scope != self.scope
+            or heads != self.heads
+        ):
+            raise ValueError("native_paid_input_admission_source_history_changed")
+        return self.outcomes
+
+
 @dataclass(frozen=True)
 class _CompletedNLOrigin:
     """Completed NL output joined to its job, terminal event, and Core manifest."""
@@ -3336,8 +3364,12 @@ class AcquisitionRouteLoop:
         return values
 
     def _native_cost_history(
-        self, origin: _VerifiedAcquisitionOrigin, *, action_job_id: str | None
-    ) -> tuple[tuple[ArtifactRef, ...], ArtifactRef | None]:
+        self,
+        origin: _VerifiedAcquisitionOrigin,
+        *,
+        action_job_id: str | None,
+        history_route_id: str | None,
+    ) -> tuple[tuple[ArtifactRef, ...], ArtifactRef | None, _NativeRouteHistoryRead | None]:
         """Select historical quotes and the action's recorded quote in one verified cut.
 
         These references locate past quotes. Paid status is established separately
@@ -3346,7 +3378,8 @@ class AcquisitionRouteLoop:
         """
         reader = self._action_outcome_reader
         if reader is None:
-            return (), None
+            return (), None, None
+        selected_history = None
         subject = {
             "tenant_id": self._tenant_id,
             "cell_id": self._cell_id,
@@ -3371,6 +3404,24 @@ class AcquisitionRouteLoop:
                 raise AcquisitionRouteClosureError(
                     "native_paid_input_history_not_verified"
                 ) from exc
+            if route_id == history_route_id:
+                if tuple(outcome.head for outcome in outcomes) != tuple(
+                    head for head in heads if head.route_id == route_id
+                ):
+                    raise AcquisitionRouteClosureError("native_paid_input_source_history_changed")
+                selected_history = _NativeRouteHistoryRead(
+                    reader=reader,
+                    control_store=self._control_store,
+                    scope=(
+                        self._tenant_id,
+                        self._cell_id,
+                        origin.job.run_id,
+                        origin.job.job_id,
+                        route_id,
+                    ),
+                    heads=heads,
+                    outcomes=outcomes,
+                )
             for outcome in outcomes:
                 receipt = outcome.latest_receipt
                 if recorded_head is not None and outcome.head == recorded_head:
@@ -3399,18 +3450,50 @@ class AcquisitionRouteLoop:
             raise AcquisitionRouteClosureError("native_paid_input_source_history_changed")
         if recorded_head is not None and not recorded_verified:
             raise AcquisitionRouteClosureError("native_action_recorded_profile_not_verified")
-        return tuple(refs[key] for key in sorted(refs)), recorded_ref
+        return tuple(refs[key] for key in sorted(refs)), recorded_ref, selected_history
+
+    def _native_route_history_has_late_owner(self) -> bool:
+        from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+        from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+
+        service = getattr(self._core_source_resolver, "__self__", None)
+        if (
+            type(service) is not ControlPlaneService
+            or service.acquisition_route_sink is not self._action_outcome_reader
+            or service._control_store is not self._control_store
+            or service._artifact_store is not self._artifact_store
+            or service._diagnostic_event_log is not self._event_log
+        ):
+            return False
+        port = service._native_world_bank_execution_owner()
+        bridge = None if port is None else port._world_growth_bridge
+        return (
+            type(bridge) is AcquisitionWorldGrowthBridge
+            and bridge.action_head_sink is self._action_outcome_reader
+            and bridge.control_store is self._control_store
+            and bridge.artifact_store is self._artifact_store
+            and bridge.event_log is self._event_log
+        )
 
     def _native_prior_paid_input_admission(
-        self, closure: VerifiedAcquisitionRouteClosure
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+        *,
+        selected_history: _NativeRouteHistoryRead | None = None,
     ) -> NativePaidInputAdmissionSelection | None:
         """Ask the installed native owner for independently replayed paid facts."""
         service = getattr(self._core_source_resolver, "__self__", None)
         getter = getattr(service, "native_derivation_prior_paid_input_admission", None)
         if not callable(getter):
+            if selected_history is not None:
+                raise AcquisitionRouteClosureError("native_paid_input_history_not_verified")
             return None
         try:
-            selected = getter(closure=closure)
+            selected = (
+                getter(closure=closure)
+                if selected_history is None
+                else getter(closure=closure, selected_history=selected_history)
+            )
         except (OSError, TypeError, ValueError) as exc:
             from polisyos.core.artifacts import raise_artifact_read_access_error
 
@@ -3496,8 +3579,13 @@ class AcquisitionRouteLoop:
             )
         bundle = _n7_load_derivation_bundle(self._artifact_store, bundle_ref)
         configured_profile_refs = self._native_leaf_cost_profile_refs(origin)
-        historical_profiles, recorded_profile_ref = self._native_cost_history(
-            origin, action_job_id=action_job_id
+        history_route_id = (
+            requested_route_id
+            if action_job_id is not None and self._native_route_history_has_late_owner()
+            else None
+        )
+        historical_profiles, recorded_profile_ref, selected_history = self._native_cost_history(
+            origin, action_job_id=action_job_id, history_route_id=history_route_id
         )
         configured_keys = {artifact_ref_identity_key(ref) for ref in configured_profile_refs}
         historical_keys = {artifact_ref_identity_key(ref) for ref in historical_profiles}
@@ -3643,6 +3731,19 @@ class AcquisitionRouteLoop:
                 current_choices: list[VerifiedAcquisitionRouteClosure] = []
                 paid_choices: list[VerifiedAcquisitionRouteClosure] = []
                 for profile_ref, cost_origin, cost_time, current_quote in quote_candidates:
+                    observed_history = (
+                        selected_history
+                        if selected_history is not None
+                        and history_route_id
+                        == self._acquisition_route_id(
+                            cost_origin,
+                            run_id=run_id,
+                            native_scope=scope,
+                            native_provider=provider_matches[0],
+                            owner_declared_profile_ref=profile_ref,
+                        )
+                        else None
+                    )
                     costed = self._resolve_current_route_from_origin(
                         cost_origin,
                         run_id=run_id,
@@ -3652,8 +3753,15 @@ class AcquisitionRouteLoop:
                         native_provider=provider_matches[0],
                         owner_declared_profile_ref=profile_ref,
                         native_cost_time=cost_time,
+                        native_history=observed_history,
                     )
-                    prior = self._native_prior_paid_input_admission(costed)
+                    prior = (
+                        self._native_prior_paid_input_admission(costed)
+                        if observed_history is None
+                        else self._native_prior_paid_input_admission(
+                            costed, selected_history=observed_history
+                        )
+                    )
                     if prior is not None:
                         if action_job_id != prior.original_action_job_id:
                             costed = costed.model_copy(update={"prior_paid_input_admission": prior})
@@ -3805,6 +3913,7 @@ class AcquisitionRouteLoop:
         native_provider: NativeDerivationLeafProviderSelection | None = None,
         owner_declared_profile_ref: ArtifactRef | None = None,
         native_cost_time: datetime | None = None,
+        native_history: _NativeRouteHistoryRead | None = None,
     ) -> VerifiedAcquisitionRouteClosure:
         """Compose the same current action fold with one verified planner selection."""
         job = origin.job
@@ -3877,6 +3986,7 @@ class AcquisitionRouteLoop:
             source_cycle=source_cycle,
             before_action_generation=before_action_generation,
             action_job_id=action_job_id,
+            native_history=native_history,
         )
         _resolve_source_cycle_problem_basis(
             generation_run=generation_run,
@@ -3929,6 +4039,7 @@ class AcquisitionRouteLoop:
         source_cycle: GenerationCycleRecord,
         before_action_generation: int | None,
         action_job_id: str | None,
+        native_history: _NativeRouteHistoryRead | None = None,
     ) -> tuple[
         GenerationCycleRun,
         GenerationCycleRecord,
@@ -3959,12 +4070,23 @@ class AcquisitionRouteLoop:
             outcomes: tuple[_VerifiedActionOutcome, ...] = ()
         else:
             try:
-                outcomes = reader.action_outcomes(
-                    tenant_id=self._tenant_id,
-                    cell_id=self._cell_id,
-                    run_id=run_id,
-                    source_job_id=source_job_id,
-                    route_id=route_id,
+                subject = {
+                    "tenant_id": self._tenant_id,
+                    "cell_id": self._cell_id,
+                    "run_id": run_id,
+                    "source_job_id": source_job_id,
+                }
+                outcomes = (
+                    reader.action_outcomes(**subject, route_id=route_id)
+                    if native_history is None
+                    else native_history.outcomes_for(
+                        reader=reader,
+                        control_store=self._control_store,
+                        scope=(self._tenant_id, self._cell_id, run_id, source_job_id, route_id),
+                        heads=self._control_store.list_acquisition_action_heads_for_source(
+                            **subject
+                        ),
+                    )
                 )
             except (AttributeError, TypeError, ValueError, OSError) as exc:
                 raise AcquisitionRouteClosureError(

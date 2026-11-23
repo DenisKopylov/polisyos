@@ -37,6 +37,7 @@ if TYPE_CHECKING:
         NativePaidInputAdmissionSelection,
         VerifiedAcquisitionRouteClosure,
         VerifiedCandidateExperimentOrigin,
+        _NativeRouteHistoryRead,
     )
     from polisyos.runtime.quality.acquisition_world_growth import (
         AcquisitionCandidateSourceRoute,
@@ -535,11 +536,20 @@ class WorldBankWDIAcquisitionExecutionPort:
         return bridge.read_paid_native_action_attempt(closure, action_job_id=action_job_id)
 
     def select_prior_paid_native_input_admission(
-        self, closure: VerifiedAcquisitionRouteClosure
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+        *,
+        selected_history: _NativeRouteHistoryRead | None = None,
     ) -> NativePaidInputAdmissionSelection | None:
         """Read the installed native owner's unique independently replayed purchase."""
         bridge = self._world_growth_bridge
-        return None if bridge is None else bridge.select_prior_paid_native_input_admission(closure)
+        if bridge is None:
+            if selected_history is not None:
+                raise ValueError("native_paid_input_admission_history_owner_missing")
+            return None
+        return bridge.select_prior_paid_native_input_admission(
+            closure, selected_history=selected_history
+        )
 
     def _require_native_quote_or_paid_attempt(
         self, closure: VerifiedAcquisitionRouteClosure, *, allow_paid: bool = True

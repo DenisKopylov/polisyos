@@ -1729,6 +1729,17 @@ def _require_candidate_experiment_step_up_fresh(step_up_expires_at: int | None) 
         raise ValueError("candidate_experiment_step_up_expired_before_admission")
 
 
+class _NativeModelInputUseStepUpExpiredError(ValueError):
+    """The exact holder proof cannot authorize this Native queue admission."""
+
+
+def _require_native_model_input_use_step_up_fresh(expires_at: int | None) -> None:
+    if type(expires_at) is not int or expires_at <= int(time.time()):
+        raise _NativeModelInputUseStepUpExpiredError(
+            "native_model_input_use_step_up_expired_before_admission"
+        )
+
+
 def _validate_pending_acquisition_action_authorization_cas(
     cas: PendingAcquisitionActionAuthorizationCAS,
 ) -> None:
@@ -4912,6 +4923,7 @@ class ControlPlaneStore:
         pre_admission_no_call_reason: NoCallReason | None = None,
         pre_admission_failure_code: str | None = None,
         prepared_acquisition_action_head: _PreparedAcquisitionActionHeadPublication | None = None,
+        native_step_up_expires_at: int | None = None,
     ) -> ControlJobRecord:
         """Publish one job and prepared admission diagnostics atomically with SQL only.
 
@@ -4926,6 +4938,18 @@ class ControlPlaneStore:
             raise ValueError("control_job_initial_failure_missing")
         if initial_state == "pending" and initial_error_message is not None:
             raise ValueError("control_job_pending_has_initial_failure")
+        if native_step_up_expires_at is not None:
+            job_prefix = "model-input-use."
+            if (
+                kind != "acquisition"
+                or initial_state != "pending"
+                or prepared_acquisition_action_head is not None
+                or not job_id.startswith(job_prefix)
+                or not _is_sha256_ref("sha256:" + job_id.removeprefix(job_prefix))
+                or not _is_sha256_ref(payload_ref)
+            ):
+                raise ValueError("native_model_input_use_admission_scope_mismatch")
+            _require_native_model_input_use_step_up_fresh(native_step_up_expires_at)
         if prepared_acquisition_action_head is not None:
             publication = prepared_acquisition_action_head
             if (
@@ -5120,7 +5144,16 @@ class ControlPlaneStore:
         )
         created_event_payload = dict(creation_event_payload or {})
         created_event_payload["state"] = initial_state
-        with self._job_transaction():
+
+        def require_live_native_step_up() -> None:
+            _require_native_model_input_use_step_up_fresh(native_step_up_expires_at)
+
+        commit_admission = (
+            require_live_native_step_up if native_step_up_expires_at is not None else None
+        )
+        with self._job_transaction(commit_admission=commit_admission):
+            if commit_admission is not None:
+                commit_admission()
             if prepared_acquisition_action_head is not None:
                 publication = prepared_acquisition_action_head
                 # This comparison and requested-head insertion share the job

@@ -60,12 +60,15 @@ from polisyos.runtime.quality.grounding_admission import (
 from polisyos.runtime.quality.grounding_bind import (
     GroundingBindGate,
     GroundingDecisionCertificate,
+    recompute_grounding_decision_content_hash,
+    recompute_grounding_relation_content_hash,
 )
 from polisyos.runtime.quality.grounding_disposition_vocab import (
     GroundingDispositionKind,
 )
 from polisyos.runtime.quality.grounding_phrasing_defense import (
     GroundingPhrasingDefenseEngine,
+    GroundingPhrasingPipelineRun,
     GroundingProxyGapRisk,
     QuarantineHandoffRecord,
 )
@@ -83,7 +86,9 @@ from polisyos.runtime.quality.intervention_atom_binding import (
 from polisyos.runtime.quality.intervention_substrate import (
     InterventionLeverRefusal,
     InterventionLeverResolution,
+    InterventionSubstrateBundle,
     InterventionSubstrateError,
+    ObservationMethodRoute,
     intervention_generation_registry_bundle,
     load_l6_intervention_substrate,
     production_composed_world_model_record,
@@ -130,6 +135,10 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleNativeWorldContextHandoffV1,
+        GenericCycleSimulationAdmissionOwner,
+    )
     from polisyos.runtime.quality.grounding_bind import GroundingRunBudget
     from polisyos.scientist.orchestration.engine import BudgetMiddleware
 
@@ -484,6 +493,58 @@ class N4SelectedProgramGraphLinkContext:
             raise ValueError("n4_selected_program_graph_registry_ref_mismatch")
 
 
+class NativeRetainedCandidateOrigin(_StrictModel):
+    """Historical N4 candidate used by one current Native model-input action.
+
+    This record is a locator for owner replay, not a permission or a new model
+    call. The source repository reopens every selected artifact and verifies the
+    historical producer facts against the candidate and the current action.
+    """
+
+    schema_version: Literal["policyos.runtime.native_retained_candidate_origin.v1"] = (
+        "policyos.runtime.native_retained_candidate_origin.v1"
+    )
+    authority_purpose: Literal["candidate_requalification_only"] = "candidate_requalification_only"
+    generation_basis: Literal["retained_historical_candidate"] = "retained_historical_candidate"
+    preflight_basis: Literal["historical_generation_only"] = "historical_generation_only"
+    original_generic_input_ref: ArtifactRef
+    original_generation_source_ref: ArtifactRef
+    original_candidate_id: str = Field(pattern=r"^candidate_[a-f0-9]{16}$")
+    original_candidate_atom_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    original_proposal_id: str = Field(min_length=1)
+    original_execution_scope: Literal["production", "contract_testing"]
+    synthetic: bool | None
+    native_world_checkpoint_ref: ArtifactRef
+    model_input_use_phase_ref: ArtifactRef
+    model_input_successor_selection_ref: ArtifactRef
+
+    @model_validator(mode="after")
+    def _validate_selected_refs(self) -> NativeRetainedCandidateOrigin:
+        for ref, kind in (
+            (self.original_generic_input_ref, "runtime.quality.generic_cycle_simulation_n5_input"),
+            (self.original_generation_source_ref, "runtime.generation_source_handoff"),
+            (
+                self.native_world_checkpoint_ref,
+                "runtime_quality.acquisition_candidate_world_checkpoint",
+            ),
+            (self.model_input_use_phase_ref, "runtime.quality.model_input_use_action_phase"),
+            (
+                self.model_input_successor_selection_ref,
+                "runtime.quality.model_input_successor_selection",
+            ),
+        ):
+            if (
+                type(ref) is not ArtifactRef
+                or ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("native_retained_candidate_origin_selected_ref_invalid")
+        if self.synthetic is not None and self.synthetic is not True:
+            raise ValueError("native_retained_candidate_origin_synthetic_invalid")
+        return self
+
+
 @dataclass(frozen=True)
 class N4CandidateScenarioProposalRun:
     """Ephemeral proposal plus typed L2 limitation for the served candidate lane."""
@@ -721,6 +782,159 @@ class GroundingDispositionRecord(_StrictModel):
         ):
             raise ValueError("non_binding_disposition_carried_shadow_atom")
         return self
+
+
+class NativeRetainedCandidateGroundingRefusalError(DesignGenerationError):
+    """Retain the actual CGF disposition when a Native proposal is not bound."""
+
+    def __init__(self, disposition: GroundingDispositionRecord) -> None:
+        if type(disposition) is not GroundingDispositionRecord or (
+            disposition.disposition == "shadow_bound"
+        ):
+            raise ValueError("native_retained_candidate_refusal_disposition_invalid")
+        self.disposition = disposition
+        super().__init__("native_retained_candidate_grounding_not_bound", disposition.disposition)
+
+
+def _require_one_native_retained_candidate(
+    candidates: Sequence[ShadowGeneratedCandidate],
+    dispositions: Sequence[GroundingDispositionRecord],
+    *,
+    candidate_sources: Sequence[GenerationCandidateSource] = (),
+    bundle: TrinityBundle | None = None,
+) -> None:
+    """Refuse unbound CGF outcomes without manufacturing a selected atom."""
+    if len(dispositions) != 1:
+        raise DesignGenerationError("native_retained_candidate_disposition_denominator_invalid")
+    disposition = dispositions[0]
+    if not candidates and disposition.disposition != "shadow_bound":
+        raise NativeRetainedCandidateGroundingRefusalError(disposition)
+    if (
+        len(candidates) != 1
+        or disposition.disposition != "shadow_bound"
+        or disposition.candidate_id != candidates[0].candidate_id
+        or disposition.shadow_atom_content_hash != candidates[0].atom.content_hash
+    ):
+        raise DesignGenerationError("native_retained_candidate_binding_mismatch")
+    if len(candidate_sources) != 1 or bundle is None or len(bundle.policy_spec.interventions) != 1:
+        raise DesignGenerationError("native_retained_candidate_source_denominator_invalid")
+    candidate = candidates[0]
+    source = candidate_sources[0]
+    intervention = bundle.policy_spec.interventions[0]
+    cg1 = source.grounding_relation_certificate
+    cg2 = source.grounding_decision_certificate
+    _require_native_retained_cg1_binding(cg1, cg2)
+    chain = disposition.certificate_chain
+    if (
+        source.candidate_id != candidate.candidate_id
+        or source.proposal_id != disposition.proposal_id
+        or source.intervention_id != candidate.atom.intervention_id
+        or source.intervention_id != intervention.intervention_id
+        or disposition.raw_candidate_hash != gy_content_hash(intervention.model_dump(mode="json"))
+        or disposition.selected_relation != cg1.selected_relation
+        or disposition.identified_atom_id != _selected_atom_id_from_cg1(cg1)
+        or disposition.cg2_decision != cg2.decision
+        or disposition.cg2_reason != cg2.decisive_reason
+        or chain.cg1_certificate_id != cg1.certificate_id
+        or chain.cg1_content_hash != cg1.content_hash
+        or chain.cg2_certificate_id != cg2.certificate_id
+        or chain.cg2_content_hash != cg2.content_hash
+    ):
+        raise DesignGenerationError("native_retained_candidate_grounding_evidence_mismatch")
+
+
+def _require_native_retained_cg1_binding(
+    cg1: GroundingRelationCertificate,
+    cg2: GroundingDecisionCertificate,
+) -> None:
+    """Recompute both identities and their actual CG1-to-CG2 content binding."""
+    cg1_hash = recompute_grounding_relation_content_hash(cg1)
+    cg2_hash = recompute_grounding_decision_content_hash(cg2)
+    if (
+        cg1.content_hash != cg1_hash
+        or cg1.certificate_id != f"cg1_cert_{cg1_hash.removeprefix('sha256:')[:16]}"
+        or cg2.content_hash != cg2_hash
+        or cg2.certificate_id != f"cg2_cert_{cg2_hash.removeprefix('sha256:')[:16]}"
+        or cg2.cg1_certificate_id != cg1.certificate_id
+        or cg2.cg1_content_hash != cg1_hash
+        or cg2.cg1_expected_content_hash != cg1_hash
+        or not cg2.revalidation.content_hash_valid
+        or cg2.revalidation.expected_content_hash != cg1_hash
+    ):
+        raise DesignGenerationError("native_retained_candidate_cg1_binding_mismatch")
+
+
+def _verify_native_retained_grounding_trace(
+    *,
+    source: GenerationCandidateSource,
+    disposition: GroundingDispositionRecord,
+    reference: CredalReference,
+) -> None:
+    """Reconcile CG3--CG5 without a separate CG1 pipeline invocation."""
+    trace = source.native_retained_grounding_trace
+    if trace is None:
+        raise DesignGenerationError("native_retained_candidate_grounding_trace_missing")
+    cg1 = source.grounding_relation_certificate
+    cg2 = source.grounding_decision_certificate
+    _require_native_retained_cg1_binding(cg1, cg2)
+    run = trace.phrasing_run
+    if (
+        cg1.selected_relation not in {"exact", "certified-specialization"}
+        or run.proposal_id != source.proposal_id
+        or run.cg1_certificate_id != cg1.certificate_id
+        or run.surface_view.proposal_id != source.proposal_id
+        or run.surface_view.raw_text_hash != cg1.raw_text_hash
+        or run.decisions.cg1_relation != cg1.selected_relation
+        or run.evidence_signature.cg1_relation_class != cg1.selected_relation
+    ):
+        raise DesignGenerationError("native_retained_candidate_cg4_source_mismatch")
+    try:
+        admission_owner = GroundingAdmissionEngine(reference)
+        cg3 = admission_owner.decide(cg2, cg1_certificate=cg1)
+        phrasing_owner = GroundingPhrasingDefenseEngine(reference)
+        projected_run = phrasing_owner._project_owned_pipeline(
+            source.proposal, cg1=cg1, cg2=cg2, cg3=cg3
+        )
+        risk = phrasing_owner.detect_proxy_gap(projected_run)
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise DesignGenerationError(
+            "native_retained_candidate_grounding_replay_unavailable"
+        ) from exc
+    if (
+        cg3 != trace.admission_certificate
+        or disposition.cg3_decision != cg3.decision
+        or disposition.cg3_reason != cg3.decisive_reason
+        or run != projected_run
+        or risk is not None
+        or trace.proxy_gap_risk is not None
+        or trace.quarantine_handoff is not None
+    ):
+        raise DesignGenerationError("native_retained_candidate_grounding_replay_mismatch")
+    action = _cg5_action_certificate(
+        GroundingActiveController(reference),
+        proposal=source.proposal,
+        proposal_id=source.proposal_id,
+        cg1=cg1,
+        cg2=cg2,
+        cg3=cg3,
+        proxy_gap=risk,
+        strict=True,
+    )
+    if (
+        action != trace.action_certificate
+        or disposition.certificate_chain
+        != _grounding_certificate_chain(
+            cg1=cg1,
+            cg2=cg2,
+            cg3=cg3,
+            proxy_gap=risk,
+            quarantine=None,
+            cg5=action,
+        )
+        or disposition.bridge_missing_records
+        != _bridge_missing_records(cg3=cg3, proxy_gap=risk, quarantine=None, cg5=action)
+    ):
+        raise DesignGenerationError("native_retained_candidate_cg5_replay_mismatch")
 
 
 class GroundingDispositionSummary(_StrictModel):
@@ -1402,6 +1616,20 @@ class DesignGenerationOrganRun:
     credal_reference: CredalReference | None = None
     candidate_sources: tuple[GenerationCandidateSource, ...] = ()
     selected_program_graph_linkage: N4SelectedProgramGraphLinkage | None = None
+    native_retained_candidate_origin: NativeRetainedCandidateOrigin | None = None
+
+
+class NativeRetainedGroundingTrace(_StrictModel):
+    """Actual CG3--CG5 outputs for a requalified Native candidate."""
+
+    phrasing_verification_basis: Literal["no_gap_from_reconciled_exact_relation"] = (
+        "no_gap_from_reconciled_exact_relation"
+    )
+    admission_certificate: GroundingAdmissionCertificate
+    phrasing_run: GroundingPhrasingPipelineRun
+    proxy_gap_risk: GroundingProxyGapRisk | None
+    quarantine_handoff: QuarantineHandoffRecord | None
+    action_certificate: GroundingActionCertificate | None
 
 
 class GenerationCandidateSource(_StrictModel):
@@ -1413,6 +1641,10 @@ class GenerationCandidateSource(_StrictModel):
     proposal: dict[str, Any]
     grounding_relation_certificate: GroundingRelationCertificate
     grounding_decision_certificate: GroundingDecisionCertificate
+    native_retained_grounding_trace: NativeRetainedGroundingTrace | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
 
 
 @dataclass
@@ -1420,6 +1652,7 @@ class _N4SourceCapture:
     reference: CredalReference | None = None
     context: CycleSubstrateContext | None = None
     candidates: list[GenerationCandidateSource] = field(default_factory=list)
+    require_native_retained_grounding_trace: bool = False
 
 
 async def preflight_model_profile(client: object, *, model_id: str) -> ModelProfilePreflight:
@@ -1780,6 +2013,131 @@ def ground_existing_candidate_scenario_proposal(
         cycle_substrate_context=checked_context,
         credal_reference=capture.reference,
         candidate_sources=tuple(capture.candidates),
+    )
+
+
+def requalify_retained_native_candidate(
+    *,
+    owner: GenericCycleSimulationAdmissionOwner,
+    handoff: GenericCycleNativeWorldContextHandoffV1,
+    problem: DesignProblem,
+    repo_root: Path,
+    grounding_run_budget: GroundingRunBudget | None = None,
+) -> DesignGenerationOrganRun:
+    """Ground an owner-selected historical proposal in the current Native world.
+
+    The current action owner supplies the actual selected graph and validates
+    its live lease. The original source owner separately reopens the historical
+    model output and its candidate. No LLM call or authority is created here;
+    the caller must recheck current ownership before persisting or running N5.
+    """
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleNativeWorldContextHandoffV1,
+        GenericCycleSimulationAdmissionOwner,
+    )
+    from polisyos.runtime.quality.native_generic_context import (
+        resolve_native_selected_program_graph_linkage,
+    )
+
+    if (
+        type(owner) is not GenericCycleSimulationAdmissionOwner
+        or type(handoff) is not GenericCycleNativeWorldContextHandoffV1
+    ):
+        raise DesignGenerationError("native_retained_candidate_owner_untyped")
+    root = repo_root.resolve()
+    selected = resolve_native_selected_program_graph_linkage(
+        owner, handoff=handoff, problem=problem, repo_root=root
+    )
+    if not selected.compiled_singleton:
+        raise DesignGenerationError("native_retained_candidate_singleton_not_established")
+    linkage = N4SelectedProgramGraphLinkageV2.from_native_selected_owner(selected)
+    repository = GenerationSourceRepository(owner.store, native_world_owner=owner)
+    origin, original, old_candidate = repository._resolve_native_retained_candidate(
+        linkage,
+        job_id=handoff.job_id,
+        run_id=handoff.run_id,
+        tenant_id=handoff.tenant_id,
+        cell_id=handoff.cell_id,
+    )
+    if original.problem != problem or original.trinity_bundle is None:
+        raise DesignGenerationError("native_retained_candidate_problem_mismatch")
+    context = selected.context
+    try:
+        reference = build_credal_reference(root, world_model_record=context.world_model_record)
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise DesignGenerationError(
+            "native_retained_candidate_credal_reference_unavailable",
+            str(getattr(exc, "code", None) or type(exc).__name__),
+        ) from exc
+    link_context = N4SelectedProgramGraphLinkContext(
+        linkage=linkage,
+        registry_content=selected.registry_bundle_content,
+        compiled_singleton=selected.compiled_singleton,
+    )
+    capture = _N4SourceCapture(require_native_retained_grounding_trace=True)
+    provenance = old_candidate.provenance
+    candidates, dispositions = _content_bound_candidates(
+        design_problem=problem,
+        design_problem_ref=original.generation_result.design_problem_ref,
+        bundle=original.trinity_bundle,
+        model_id=provenance.model_id,
+        draft_path=provenance.draft_generator_path,
+        formalizer_path=provenance.formalizer_generator_path,
+        critic_path=provenance.critic_generator_path,
+        critique_verdict=old_candidate.critique_verdict,
+        calls=original.generation_result.llm_calls,
+        repo_root=root,
+        world_model_record_ref=context.world_model_record.world_model_record_id,
+        reference=reference,
+        cycle_substrate_context=context,
+        selected_program_graph_link_context=link_context,
+        grounding_run_budget=grounding_run_budget,
+        source_capture=capture,
+    )
+    _require_one_native_retained_candidate(
+        candidates,
+        dispositions,
+        candidate_sources=capture.candidates,
+        bundle=original.trinity_bundle,
+    )
+    diversity = measure_generation_diversity(candidates, min_required=1, dispositions=dispositions)
+    if not diversity.diverse_enough:
+        raise DesignGenerationError("native_retained_candidate_diversity_not_established")
+    rankings = _rank_shadow_candidates_with_selected_substrate(
+        candidates,
+        design_problem=problem,
+        substrate=context.intervention_substrate,
+    )
+    result = GenerationUnderAResult(
+        status="generated",
+        design_problem_ref=original.generation_result.design_problem_ref,
+        model_id=original.generation_result.model_id,
+        preflight=original.generation_result.preflight,
+        candidates=tuple(candidates),
+        grounding_dispositions=tuple(dispositions),
+        grounding_disposition_summary=_grounding_disposition_summary(dispositions),
+        diversity_report=diversity,
+        surrogate_rankings=tuple(rankings),
+        llm_calls=(),
+        firewall_evidence=default_firewall_evidence(),
+        strangle_receipts=design_generation_strangle_receipts(root),
+    )
+    if (
+        resolve_native_selected_program_graph_linkage(
+            owner, handoff=handoff, problem=problem, repo_root=root
+        )
+        != selected
+    ):
+        raise DesignGenerationError("native_retained_candidate_current_selection_changed")
+    return DesignGenerationOrganRun(
+        result=result,
+        trinity_bundle=original.trinity_bundle,
+        cycle_substrate_context=capture.context,
+        credal_reference=capture.reference,
+        candidate_sources=tuple(capture.candidates),
+        selected_program_graph_linkage=linkage,
+        native_retained_candidate_origin=origin,
     )
 
 
@@ -3056,12 +3414,64 @@ def rank_shadow_candidates_with_graph_causal_surrogate(
     try:
         substrate = load_l6_intervention_substrate(repo_root.resolve())
         routes = resolve_observation_manifest_routes(substrate)
+    except (InterventionSubstrateError, OSError, ValueError):
+        routes = None
+    return _rank_shadow_candidates_from_routes(
+        candidates, design_problem=design_problem, routes=routes
+    )
+
+
+def _rank_shadow_candidates_with_selected_substrate(
+    candidates: Sequence[ShadowGeneratedCandidate],
+    *,
+    design_problem: DesignProblem,
+    substrate: InterventionSubstrateBundle | None,
+) -> tuple[SurrogateRanking, ...]:
+    """Rank only from a selected context's L6, retaining the no-L6 fallback."""
+
+    if substrate is None:
+        routes = None
+    elif type(substrate) is not InterventionSubstrateBundle:
+        raise DesignGenerationError("native_retained_candidate_l6_untyped")
+    else:
+        try:
+            routes = resolve_observation_manifest_routes(substrate)
+        except (InterventionSubstrateError, OSError, ValueError):
+            routes = None
+    return _rank_shadow_candidates_from_routes(
+        candidates, design_problem=design_problem, routes=routes
+    )
+
+
+def _require_native_retained_rankings(
+    *,
+    result: GenerationUnderAResult,
+    design_problem: DesignProblem,
+    substrate: InterventionSubstrateBundle | None,
+) -> None:
+    """Recompute the full Native search signal from its selected L6 basis."""
+    expected = _rank_shadow_candidates_with_selected_substrate(
+        result.candidates, design_problem=design_problem, substrate=substrate
+    )
+    if result.surrogate_rankings != expected:
+        raise DesignGenerationError("native_retained_candidate_ranking_mismatch")
+
+
+def _rank_shadow_candidates_from_routes(
+    candidates: Sequence[ShadowGeneratedCandidate],
+    *,
+    design_problem: DesignProblem,
+    routes: Sequence[ObservationMethodRoute] | None,
+) -> tuple[SurrogateRanking, ...]:
+    """Apply the canonical search-only arithmetic to the observed route basis."""
+
+    if routes is not None:
         routed_families = tuple(row.family for row in routes if row.status == "routed")
         route_refs = tuple(f"observation_route:{row.family}:{row.content_hash}" for row in routes)
         trust: SurrogateTrustLevel = (
             "search_guiding" if len(routed_families) == len(routes) else "proposal_only"
         )
-    except (InterventionSubstrateError, OSError, ValueError):
+    else:
         routed_families = ()
         route_refs = ()
         trust = "proposal_only"
@@ -4016,6 +4426,9 @@ def _content_bound_candidates(
     raw_responses = tuple(call.raw_llm_response for call in calls if call.raw_llm_response)
     candidates: list[ShadowGeneratedCandidate] = []
     dispositions: list[GroundingDispositionRecord] = []
+    strict_trace = bool(
+        source_capture is not None and source_capture.require_native_retained_grounding_trace
+    )
     for index, intervention in enumerate(bundle.policy_spec.interventions):
         proposal_id = f"gy_n4.{intervention.intervention_id}"
         proposal = _grounding_proposal_for_intervention(
@@ -4026,10 +4439,13 @@ def _content_bound_candidates(
         cg1 = relation_engine.certificate_for(proposal, proposal_id=proposal_id)
         cg2 = bind_gate.certificate_for(cg1)
         cg3 = admission_engine.decide(cg2, cg1_certificate=cg1)
+        phrasing_runs: list[GroundingPhrasingPipelineRun] = []
         proxy_gap, quarantine = _cg4_proxy_gap_records(
             phrasing_engine,
             proposal,
             proposal_id=proposal_id,
+            run_capture=phrasing_runs if strict_trace else None,
+            primary_certificates=(cg1, cg2, cg3) if strict_trace else None,
         )
         cg5 = _cg5_action_certificate(
             active_controller,
@@ -4039,6 +4455,7 @@ def _content_bound_candidates(
             cg2=cg2,
             cg3=cg3,
             proxy_gap=proxy_gap,
+            strict=strict_trace,
         )
         legacy_disposition, legacy_issues = _legacy_linker_disposition(
             legacy,
@@ -4205,6 +4622,17 @@ def _content_bound_candidates(
                         proposal=proposal,
                         grounding_relation_certificate=cg1,
                         grounding_decision_certificate=cg2,
+                        native_retained_grounding_trace=(
+                            NativeRetainedGroundingTrace(
+                                admission_certificate=cg3,
+                                phrasing_run=phrasing_runs[0],
+                                proxy_gap_risk=proxy_gap,
+                                quarantine_handoff=quarantine,
+                                action_certificate=cg5,
+                            )
+                            if strict_trace
+                            else None
+                        ),
                     )
                 )
             dispositions.append(
@@ -5306,12 +5734,25 @@ def _cg4_proxy_gap_records(
     proposal: Mapping[str, Any],
     *,
     proposal_id: str,
+    run_capture: list[GroundingPhrasingPipelineRun] | None = None,
+    primary_certificates: tuple[
+        GroundingRelationCertificate, GroundingDecisionCertificate, GroundingAdmissionCertificate
+    ]
+    | None = None,
 ) -> tuple[GroundingProxyGapRisk | None, QuarantineHandoffRecord | None]:
     try:
-        run = phrasing_engine.run_pipeline(proposal, proposal_id=proposal_id)
+        if primary_certificates is None:
+            run = phrasing_engine.run_pipeline(proposal, proposal_id=proposal_id)
+        else:
+            cg1, cg2, cg3 = primary_certificates
+            run = phrasing_engine._project_owned_pipeline(proposal, cg1=cg1, cg2=cg2, cg3=cg3)
         risk = phrasing_engine.detect_proxy_gap(run)
-    except (RuntimeError, ValueError):
+    except (RuntimeError, ValueError) as exc:
+        if run_capture is not None:
+            raise DesignGenerationError("native_retained_candidate_cg4_unavailable") from exc
         return None, None
+    if run_capture is not None:
+        run_capture.append(run)
     if risk is None:
         return None, None
     return risk, phrasing_engine.quarantine_handoff(risk)
@@ -5326,6 +5767,7 @@ def _cg5_action_certificate(
     cg2: GroundingDecisionCertificate,
     cg3: GroundingAdmissionCertificate,
     proxy_gap: GroundingProxyGapRisk | None,
+    strict: bool = False,
 ) -> GroundingActionCertificate | None:
     if (
         cg2.decision == "bind"
@@ -5345,7 +5787,9 @@ def _cg5_action_certificate(
                 proxy_gap_risk=proxy_gap,
             )
         )
-    except (RuntimeError, ValueError):
+    except (RuntimeError, ValueError) as exc:
+        if strict:
+            raise DesignGenerationError("native_retained_candidate_cg5_unavailable") from exc
         return None
 
 

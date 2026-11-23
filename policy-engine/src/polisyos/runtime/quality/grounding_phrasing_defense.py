@@ -25,11 +25,15 @@ from polisyos.runtime.quality.grounding_bind import GroundingBindGate
 from polisyos.runtime.quality.grounding_relation import (
     GroundingEnginePolicy,
     GroundingRelationEngine,
+    _proposal_signature_payload,
     parse_n4_proposal,
 )
 
 if TYPE_CHECKING:
     from polisyos.runtime.quality.credal_reference import CredalReference
+    from polisyos.runtime.quality.grounding_admission import GroundingAdmissionCertificate
+    from polisyos.runtime.quality.grounding_bind import GroundingDecisionCertificate
+    from polisyos.runtime.quality.grounding_relation import GroundingRelationCertificate
 
 GROUNDING_PHRASING_DEFENSE_SCHEMA_VERSION = (
     "policyos.runtime.grounding_phrasing_defense_certificate.v1"
@@ -713,6 +717,43 @@ class GroundingPhrasingDefenseEngine:
         cg1 = relation_engine.certificate_for(proposal, proposal_id=proposal_id)
         cg2 = GroundingBindGate(self.reference).certificate_for(cg1)
         cg3 = GroundingAdmissionEngine(self.reference).decide(cg2, cg1_certificate=cg1)
+        run = self._project_pipeline(proposal, cg1=cg1, cg2=cg2, cg3=cg3)
+        self._pipeline_run_cache[cache_key] = run
+        return run
+
+    def _project_owned_pipeline(
+        self,
+        proposal: Mapping[str, Any] | str,
+        *,
+        cg1: GroundingRelationCertificate,
+        cg2: GroundingDecisionCertificate,
+        cg3: GroundingAdmissionCertificate,
+    ) -> GroundingPhrasingPipelineRun:
+        """Use the primary verified certificates for this exact proposal and reference."""
+        parsed = parse_n4_proposal(proposal, proposal_id=cg1.proposal_id, reference=self.reference)
+        if (
+            parsed.raw_text_hash != cg1.raw_text_hash
+            or _proposal_signature_payload(parsed) != cg1.proposal_signature
+            or cg2.cg1_certificate_id != cg1.certificate_id
+            or cg2.cg1_content_hash != cg1.content_hash
+            or cg3.cg1_certificate_id != cg1.certificate_id
+            or cg3.cg1_content_hash != cg1.content_hash
+            or cg3.cg2_certificate_id != cg2.certificate_id
+            or cg3.cg2_content_hash != cg2.content_hash
+            or cg2.reference_hash != self.reference.reference_hash
+            or cg3.reference_hash != self.reference.reference_hash
+        ):
+            raise ValueError("grounding_phrasing_pipeline_certificate_mismatch")
+        return self._project_pipeline(proposal, cg1=cg1, cg2=cg2, cg3=cg3)
+
+    def _project_pipeline(
+        self,
+        proposal: Mapping[str, Any] | str,
+        *,
+        cg1: GroundingRelationCertificate,
+        cg2: GroundingDecisionCertificate,
+        cg3: GroundingAdmissionCertificate,
+    ) -> GroundingPhrasingPipelineRun:
         surface_view = _surface_view(
             proposal,
             cg1_certificate=cg1,
@@ -727,7 +768,7 @@ class GroundingPhrasingDefenseEngine:
             cg2_rank=_cg2_rank(cg2.decision),
             cg3_rank=_cg3_rank(cg3.decision),
         )
-        run = GroundingPhrasingPipelineRun(
+        return GroundingPhrasingPipelineRun(
             proposal_id=cg1.proposal_id,
             surface_view=surface_view,
             evidence_signature=evidence_signature,
@@ -736,8 +777,6 @@ class GroundingPhrasingDefenseEngine:
             cg2_certificate_id=cg2.certificate_id,
             cg3_certificate_id=cg3.certificate_id,
         )
-        self._pipeline_run_cache[cache_key] = run
-        return run
 
     def _relation_engine(self, *, bounded: bool) -> GroundingRelationEngine:
         if bounded:

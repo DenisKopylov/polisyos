@@ -75,18 +75,27 @@ from polisyos.runtime.quality.native_settled_draft import (
 
 from .control.job_diagnostics import _ModelInputUseJobCompletion
 from .control.run_lifecycle import ControlPlaneService
-from .control_plane_store import _require_candidate_experiment_step_up_fresh
+from .control_plane_store import (
+    _NativeModelInputUseStepUpExpiredError,
+    _require_candidate_experiment_step_up_fresh,
+)
 from .human_decisions import HumanDecisionService
 from .model_input_successor_action import (
     ModelInputSuccessorActionRequest,
     ModelInputSuccessorDecisionResponse,
     ModelInputSuccessorExecutionRequest,
     ModelInputUseActionCheckpoint,
+    NativeModelInputSuccessorActionRequest,
+    NativeModelInputUseJobCompletion,
     SelectedModelInputSuccessorAction,
+    SelectedNativeModelInputSuccessorAction,
     model_input_successor_action_tuple,
     model_input_use_terminal_progress,
+    require_native_model_input_use_standard_profile,
     resolve_model_input_successor_action,
+    resolve_native_model_input_successor_action,
     run_model_input_use_action,
+    run_native_model_input_use_action,
 )
 
 if TYPE_CHECKING:
@@ -1873,6 +1882,9 @@ class AcquisitionActionService:
         """Run only with the tenant/cell admission attached to the live job lease."""
 
         if payload.get("action_kind") == MODEL_INPUT_USE_ACTION_KIND:
+            raw_request = payload.get("request")
+            if type(raw_request) is dict and "native_use" in raw_request:
+                return self._handle_native_model_input_use_job(job, payload, execution_scope)
             return self._handle_model_input_use_job(job, payload, execution_scope)
         if payload.get("action_kind") == CANDIDATE_EXPERIMENT_ACTION_KIND:
             return self._handle_candidate_experiment_job(job, payload, execution_scope)
@@ -4082,6 +4094,7 @@ class AcquisitionActionService:
             receipt_phase="terminal" if completed else "requested",
         )
 
+    @_receipt_verification_scoped
     def request_model_input_use_decision(
         self,
         *,
@@ -4130,6 +4143,7 @@ class AcquisitionActionService:
     def _model_input_use_effect_requires_worker(_invocation: OperationInvocationRecord) -> object:
         raise AcquisitionActionServiceError("model_input_use_running_lease_not_established")
 
+    @_receipt_verification_scoped
     def execute_model_input_use(
         self,
         *,
@@ -4139,12 +4153,11 @@ class AcquisitionActionService:
         request: ModelInputSuccessorExecutionRequest,
         request_id: str | None,
         principal: RuntimePrincipal,
+        native_step_up_expires_at: int | None = None,
     ) -> AcquisitionExecutionResponse:
         """Queue one exact PA2-approved use through the normal Control worker."""
         from polisyos.runtime.quality.generation_cycle import JointSimulationPort
 
-        if not callable(getattr(JointSimulationPort, "run_semantic_successor", None)):
-            raise AcquisitionActionServiceError("model_input_use_successor_owner_unavailable")
         if (
             type(request) is not ModelInputSuccessorExecutionRequest
             or principal.authenticated is not True
@@ -4152,6 +4165,10 @@ class AcquisitionActionService:
             or principal.cell_id != cell_id
         ):
             raise AcquisitionActionServiceError("model_input_use_source_scope_refused")
+        if type(request.request) is not NativeModelInputSuccessorActionRequest and not callable(
+            getattr(JointSimulationPort, "run_semantic_successor", None)
+        ):
+            raise AcquisitionActionServiceError("model_input_use_successor_owner_unavailable")
         selection = self._resolve_model_input_use(
             tenant_id=tenant_id, cell_id=cell_id, run_id=run_id, request=request.request
         )
@@ -4189,8 +4206,13 @@ class AcquisitionActionService:
                 payload=payload,
                 request_id=request_id,
                 principal=principal,
+                native_step_up_expires_at=native_step_up_expires_at,
             )
             self._require_model_input_use_enqueued_payload(job, payload)
+        except _NativeModelInputUseStepUpExpiredError as exc:
+            raise AcquisitionActionServiceError(
+                "native_model_input_use_step_up_expired_before_admission"
+            ) from exc
         except AcquisitionActionServiceError:
             raise
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
@@ -4275,6 +4297,52 @@ class AcquisitionActionService:
             authority_decision_ref=str(worker.decision.write_result.cas_ref.artifact_id),
             currentness_resolver=require_current_action,
         )
+
+    @_receipt_verification_worker_scoped
+    def _handle_native_model_input_use_job(
+        self,
+        job: ControlJobRecord,
+        payload: dict[str, Any],
+        execution_scope: ControlJobExecutionScope,
+    ) -> NativeModelInputUseJobCompletion:
+        """Run an admitted Native use under the same protected BIND operation."""
+
+        def require_current_action() -> bool:
+            replayed = self._require_model_input_use_worker(
+                job, payload, execution_scope, effect_handler=effect, native_use=True
+            )
+            if (
+                not replayed.admission.same_execution_identity(worker.admission)
+                or replayed.selection != worker.selection
+                or replayed.decision.durable_event_id != worker.decision.durable_event_id
+                or replayed.decision.decision != worker.decision.decision
+            ):
+                return False
+            replayed.gateway._verify_bound_effect_authorization(
+                operation=operation,
+                invocation=invocation,
+                intent=intent,
+                persisted=replayed.decision,
+            )
+            return True
+
+        def effect(_invocation: OperationInvocationRecord) -> NativeModelInputUseJobCompletion:
+            return run_native_model_input_use_action(
+                self.control_service,
+                worker=worker,
+                currentness_resolver=require_current_action,
+            )
+
+        worker = self._require_model_input_use_worker(
+            job, payload, execution_scope, effect_handler=effect, native_use=True
+        )
+        operation, invocation, intent = model_input_successor_action_tuple(worker.selection)
+        completed = worker.gateway.execute_bound_effect(
+            operation=operation, invocation=invocation, intent=intent, persisted=worker.decision
+        )
+        if type(completed) is not NativeModelInputUseJobCompletion:
+            raise AcquisitionActionServiceError("native_model_input_use_result_not_established")
+        return completed
 
     @_receipt_verification_worker_scoped
     def _handle_candidate_experiment_reuse_job(
@@ -4687,6 +4755,10 @@ class AcquisitionActionService:
         request: ModelInputSuccessorActionRequest,
     ) -> SelectedModelInputSuccessorAction:
         try:
+            if type(request) is NativeModelInputSuccessorActionRequest:
+                return self._preflight_native_model_input_use(
+                    tenant_id=tenant_id, cell_id=cell_id, run_id=run_id, request=request
+                )
             return resolve_model_input_successor_action(
                 self.control_service,
                 tenant_id=tenant_id,
@@ -4706,6 +4778,50 @@ class AcquisitionActionService:
                 code if isinstance(code, str) else "model_input_use_source_not_established"
             ) from exc
 
+    def _preflight_native_model_input_use(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        request: NativeModelInputSuccessorActionRequest,
+    ) -> SelectedNativeModelInputSuccessorAction:
+        from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationAdmissionOwner,
+        )
+        from polisyos.runtime.quality.native_generic_context import (
+            preflight_native_model_input_use_source_selection,
+        )
+        from polisyos.runtime.quality.substrate_registry import run_catalog_source_call
+        from polisyos.scientist.orchestration.engine import BudgetMiddleware
+
+        control = self.control_service
+        owner = control._generic_cycle_simulation_admission_owner
+        if (
+            type(owner) is not GenericCycleSimulationAdmissionOwner
+            or owner._native_world_action_owner is not control
+            or type(control._llm_producer_settlement_store) is not BudgetMiddleware
+            or not callable(
+                getattr(GenerationCycleController, "_run_retained_native_model_input_use_n5", None)
+            )
+        ):
+            raise AcquisitionActionServiceError("native_model_input_use_execution_owner_missing")
+        catalog_source = control.catalog_serving_source
+        selection, source = run_catalog_source_call(
+            catalog_source,
+            preflight_native_model_input_use_source_selection,
+            owner,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            run_id=run_id,
+            request=request,
+        )
+        if selection.catalog_source is not catalog_source:
+            raise AcquisitionActionServiceError("generic_native_model_input_use_current_b_changed")
+        require_native_model_input_use_standard_profile(source, selection=selection)
+        return selection
+
     def _require_model_input_use_authority_provider(self) -> ProductionAcquisitionAuthorityProvider:
         from .acquisition_authority_provider import ProductionAcquisitionAuthorityProvider
 
@@ -4713,6 +4829,49 @@ class AcquisitionActionService:
         if type(provider) is not ProductionAcquisitionAuthorityProvider:
             raise AcquisitionActionServiceError("model_input_use_authority_producer_missing")
         return provider
+
+    def _resolve_native_model_input_use(
+        self,
+        *,
+        tenant_id: str,
+        cell_id: str,
+        run_id: str,
+        request: NativeModelInputSuccessorActionRequest,
+    ) -> SelectedNativeModelInputSuccessorAction:
+        from polisyos.runtime.quality.substrate_registry import run_catalog_source_call
+
+        from .acquisition_surface_execution import WorldBankWDIAcquisitionExecutionPort
+
+        port = self._production_execution_port
+        if (
+            type(port) is not WorldBankWDIAcquisitionExecutionPort
+            or self._execution_port is not port
+        ):
+            raise AcquisitionActionServiceError("native_model_input_use_execution_owner_missing")
+        control = self.control_service
+        try:
+            return run_catalog_source_call(
+                control.catalog_serving_source,
+                lambda: resolve_native_model_input_successor_action(
+                    control,
+                    bridge=port._world_growth_bridge,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    run_id=run_id,
+                    request=request,
+                ),
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            try:
+                artifacts.raise_artifact_read_access_error(exc)
+            except artifacts.ArtifactOwnershipError as denied:
+                raise AcquisitionActionServiceError(
+                    "model_input_use_source_scope_refused"
+                ) from denied
+            code = getattr(exc, "code", None)
+            raise AcquisitionActionServiceError(
+                code if isinstance(code, str) else "native_model_input_use_source_not_established"
+            ) from exc
 
     def require_model_input_use_decision_history(
         self,
@@ -4770,6 +4929,7 @@ class AcquisitionActionService:
         execution_scope: ControlJobExecutionScope,
         *,
         effect_handler: Callable[[OperationInvocationRecord], object],
+        native_use: bool = False,
     ) -> VerifiedModelInputUseWorker:
         """Reopen the current exact job envelope, activation, and PA2 allow."""
         from .control.job_attempt_publication import _EXECUTION_INTENT_BINDING_KEY
@@ -4790,10 +4950,32 @@ class AcquisitionActionService:
         ):
             raise AcquisitionActionServiceError("model_input_use_running_lease_not_established")
         try:
+            if native_use:
+                if job.payload_ref is None:
+                    raise ValueError("native model input use requires its exact leased payload")
+                persisted_payload = self.control_service._load_payload_ref(
+                    job.payload_ref, kind="runtime.control_job_payload.acquisition"
+                )
+                if (
+                    persisted_payload.get("job_id", job.job_id) != job.job_id
+                    or {**persisted_payload, "job_id": job.job_id} != payload
+                ):
+                    raise ValueError("native model input use requires its exact leased payload")
             payload = ControlPlaneService._job_payload_without_telemetry(payload)
-            request = ModelInputSuccessorActionRequest.model_validate(payload.get("request"))
+            request_model = (
+                NativeModelInputSuccessorActionRequest
+                if native_use
+                else ModelInputSuccessorActionRequest
+            )
+            request = request_model.model_validate(payload.get("request"))
+            if type(request) is not request_model:
+                raise ValueError("model input use request type differs from worker mode")
         except (TypeError, ValueError) as exc:
-            raise AcquisitionActionServiceError("model_input_use_job_payload_invalid") from exc
+            raise AcquisitionActionServiceError(
+                "native_model_input_use_job_payload_invalid"
+                if native_use
+                else "model_input_use_job_payload_invalid"
+            ) from exc
         decision_ref = payload.get("decision_ref")
         if (
             set(payload)
@@ -4816,12 +4998,21 @@ class AcquisitionActionService:
             or not isinstance(decision_ref, str)
         ):
             raise AcquisitionActionServiceError("model_input_use_job_payload_scope_mismatch")
-        selection = self._resolve_model_input_use(
-            tenant_id=execution_scope.tenant_id,
-            cell_id=execution_scope.cell_id,
-            run_id=job.run_id,
-            request=request,
-        )
+        selection: SelectedModelInputSuccessorAction
+        if type(request) is NativeModelInputSuccessorActionRequest:
+            selection = self._resolve_native_model_input_use(
+                tenant_id=execution_scope.tenant_id,
+                cell_id=execution_scope.cell_id,
+                run_id=job.run_id,
+                request=request,
+            )
+        else:
+            selection = self._resolve_model_input_use(
+                tenant_id=execution_scope.tenant_id,
+                cell_id=execution_scope.cell_id,
+                run_id=job.run_id,
+                request=request,
+            )
         if selection.job_id != job.job_id or selection.route_id != payload.get("route_id"):
             raise AcquisitionActionServiceError("model_input_use_job_identity_mismatch")
         gateway, decision = self._load_model_input_use_decision(

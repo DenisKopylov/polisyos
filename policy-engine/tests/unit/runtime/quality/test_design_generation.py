@@ -4769,3 +4769,55 @@ def test_declared_outcome_unit_requires_exact_world_owner_and_keeps_unknown_unbo
     )
     with pytest.raises(DesignGenerationError, match="n4_outcome_measurement_unit_mismatch"):
         dg._declared_outcome_unit_from_world(wrong, world)
+
+
+def test_native_retained_candidate_refuses_unowned_input_before_grounding(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A request-shaped object cannot supply an action owner or reach CGF."""
+
+    def unexpected_grounding(*_args: object, **_kwargs: object) -> None:
+        pytest.fail("unowned candidate reached the credal-reference owner")
+
+    monkeypatch.setattr(dg, "build_credal_reference", unexpected_grounding)
+    with pytest.raises(DesignGenerationError, match="native_retained_candidate_owner_untyped"):
+        dg.requalify_retained_native_candidate(
+            owner=object(),
+            handoff=object(),
+            problem=_test_design_problem(),
+            repo_root=tmp_path,
+        )
+
+
+@pytest.mark.parametrize("kind", ["unknown_blocked", "non_binding_abstain"])
+def test_native_retained_candidate_returns_real_unbound_disposition(kind: str) -> None:
+    """Neither abstention nor an unknown grounding can issue a selected candidate."""
+    disposition = dg.GroundingDispositionRecord(
+        proposal_id="gy_n4.retained",
+        raw_candidate_hash="sha256:" + "1" * 64,
+        disposition=kind,
+        selected_relation="unknown",
+        legacy_exact_match="would_reject",
+        certificate_chain=dg.GroundingCertificateChain(
+            cg1_certificate_id="cg1-retained",
+            cg1_content_hash="sha256:" + "2" * 64,
+        ),
+    )
+    with pytest.raises(dg.NativeRetainedCandidateGroundingRefusalError) as refusal:
+        dg._require_one_native_retained_candidate((), (disposition,))
+    assert refusal.value.code == "native_retained_candidate_grounding_not_bound"
+    assert refusal.value.disposition == disposition
+    assert refusal.value.disposition.status == "candidate_unverified"
+
+
+def test_native_retained_cg4_failure_is_not_reported_as_no_risk() -> None:
+    """The old path stays compatible; retained Native must record real CG4 output."""
+
+    class UnavailablePhrasingOwner:
+        def run_pipeline(self, *_args: object, **_kwargs: object) -> object:
+            raise ValueError("owner_unavailable")
+
+    owner = UnavailablePhrasingOwner()
+    assert dg._cg4_proxy_gap_records(owner, {}, proposal_id="retained") == (None, None)
+    with pytest.raises(DesignGenerationError, match="native_retained_candidate_cg4_unavailable"):
+        dg._cg4_proxy_gap_records(owner, {}, proposal_id="retained", run_capture=[])

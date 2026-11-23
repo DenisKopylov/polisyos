@@ -72,7 +72,10 @@ from .acquisition_action_service import (
     CandidateExperimentTerminalCustodyRequest,
     CandidateModelRevisionTerminalCustodyRequest,
 )
-from .model_input_successor_action import ModelInputSuccessorActionRequest
+from .model_input_successor_action import (
+    ModelInputSuccessorActionRequest,
+    NativeModelInputSuccessorActionRequest,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -483,7 +486,7 @@ def _recompute_resource_digest(
     request: _ActionRequest | None,
 ) -> str:
     """Recompute only the request schema canonically bound to this action kind."""
-    selected = _REQUEST_BINDING_BY_KIND.get(action_kind)
+    selected = _acquisition_request_binding(action_kind, request)
     if selected is None:
         raise AcquisitionAdmissionBundleBlocked("acquisition_action_tuple_invalid")
     return _recompute_bound_acquisition_request(
@@ -492,6 +495,19 @@ def _recompute_resource_digest(
         selected=selected,
         allow_legacy_acquisition=action_kind == ACQUISITION_ACTION_KIND,
     )
+
+
+def _acquisition_request_binding(
+    action_kind: str, request: _ActionRequest | None
+) -> _AcquisitionRequestBinding | None:
+    selected = _REQUEST_BINDING_BY_KIND.get(action_kind)
+    if (
+        selected is not None
+        and action_kind == MODEL_INPUT_USE_ACTION_KIND
+        and type(request) is NativeModelInputSuccessorActionRequest
+    ):
+        return NativeModelInputSuccessorActionRequest, selected[1], selected[2]
+    return selected
 
 
 def _recompute_bound_acquisition_request(
@@ -532,8 +548,23 @@ def _recompute_bound_acquisition_request(
         and binding.selector_fields == legacy_fields
         and not binding.omit_absent_selector_fields
     )
-    binding_fields_match = legacy_binding or (
-        binding.selector_fields == request_fields and binding.omit_absent_selector_fields == omitted
+    exact_binding = binding.required_selector_fields == required_request_fields and (
+        legacy_binding
+        or (
+            binding.selector_fields == request_fields
+            and binding.omit_absent_selector_fields == omitted
+        )
+    )
+    model_input_variants_binding = (
+        request_model in {ModelInputSuccessorActionRequest, NativeModelInputSuccessorActionRequest}
+        and binding.selector_fields == tuple(NativeModelInputSuccessorActionRequest.model_fields)
+        and binding.required_selector_fields
+        == tuple(
+            name
+            for name, field in ModelInputSuccessorActionRequest.model_fields.items()
+            if field.is_required()
+        )
+        and binding.omit_absent_selector_fields == ("native_use",)
     )
     effective_fields = (
         tuple(name for name, _value in expected_selectors)
@@ -547,8 +578,7 @@ def _recompute_bound_acquisition_request(
         or requirement.permission is not permission
         or binding.source is not ResourceBindingSource.REQUEST_COMPOSITE
         or binding.resource_kind != resource_kind
-        or not binding_fields_match
-        or binding.required_selector_fields != required_request_fields
+        or not (exact_binding or model_input_variants_binding)
         or binding.required_selector_alternatives
         or selector_names != tuple(sorted(effective_fields))
         or (expected_selectors is not None and resource.canonical_selectors != expected_selectors)
@@ -661,7 +691,7 @@ def require_request_bound_action_snapshot(
     request: _ActionRequest | None,
 ) -> str:
     """Reconcile a signed permission snapshot with an independently selected DTO."""
-    selected = _REQUEST_BINDING_BY_KIND.get(action_kind)
+    selected = _acquisition_request_binding(action_kind, request)
     if selected is None or request is None or type(snapshot) is not AgentActionPermissionSnapshot:
         raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
     request_model, resource_kind, permission = selected
@@ -734,7 +764,7 @@ def _request_resource_digest(
     tenant_id: str | None,
 ) -> str:
     """Hash one closed action-kind/request-model pair using authorization encoding."""
-    selected = _REQUEST_BINDING_BY_KIND.get(action_kind)
+    selected = _acquisition_request_binding(action_kind, request)
     if selected is None or type(request) is not selected[0]:
         raise AcquisitionAdmissionBundleBlocked("acquisition_action_tuple_invalid")
     _, resource_kind, permission = selected

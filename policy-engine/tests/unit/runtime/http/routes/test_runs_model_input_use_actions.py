@@ -28,6 +28,8 @@ from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneSer
 from polisyos.runtime.http.services.model_input_successor_action import (
     ModelInputSuccessorActionRequest,
     ModelInputUseActionCheckpoint,
+    NativeActiveInputUsePins,
+    NativeModelInputSuccessorActionRequest,
 )
 from polisyos.runtime.quality.agent_action_authority import MODEL_INPUT_USE_ACTION_KIND
 from polisyos.runtime.quality.model_input_successor_selection import (
@@ -168,8 +170,9 @@ def _action(
     scope: dict[str, object] | None = None,
     phase_updates: dict[str, Any] | None = None,
     compiled_ref: ArtifactRef | None = None,
+    native_use: NativeActiveInputUsePins | None = None,
 ) -> Any:
-    request = ModelInputSuccessorActionRequest(
+    direct_request = ModelInputSuccessorActionRequest(
         compiled_ref=case.compiled_ref if compiled_ref is None else compiled_ref,
         blocked_execution_ref=_put(
             case.store, "runtime.quality.generic_cycle_simulation_n5_execution", "blocked"
@@ -180,6 +183,13 @@ def _action(
         ),
         observation_id="fixture-observation",
         idempotency_key=job_id,
+    )
+    request = (
+        NativeModelInputSuccessorActionRequest(
+            **direct_request.model_dump(mode="python"), native_use=native_use
+        )
+        if native_use is not None
+        else direct_request
     )
     decision_ref = _put(case.store, "runtime_quality.agent_action_authority_decision", job_id)
     route_id = "sha256:" + "a" * 64
@@ -232,6 +242,21 @@ def _discover(case: SimpleNamespace) -> Any:
     return runs._model_input_use_actions_for_indexed_run(
         case.run, store=case.store, control_service=case.control
     )
+
+
+def _native_action(case: SimpleNamespace, job_id: str) -> Any:
+    native_use = NativeActiveInputUsePins(
+        predecessor_terminal_ref=_put(
+            case.store, "runtime_quality.acquisition_route_loop_receipt", f"{job_id}-predecessor"
+        ),
+        world_checkpoint_ref=_put(
+            case.store,
+            "runtime_quality.acquisition_candidate_world_checkpoint",
+            f"{job_id}-world-checkpoint",
+        ),
+        fresh_budget_usd="1",
+    )
+    return _action(case, job_id, native_use=native_use)
 
 
 def test_real_phase_and_job_discovery_preserves_control_alias_and_stable_history(
@@ -465,3 +490,529 @@ def test_unavailable_or_unowned_source_keeps_existing_wire_absence(
         )
         is None
     )
+
+
+def test_native_completed_result_dispatch_preserves_profile_refusal_without_history_fallback(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.runtime.http.services import model_input_successor_action
+    from polisyos.runtime.http.services.control import job_diagnostics
+
+    case = _case(tmp_path, monkeypatch)
+    job = _native_action(case, "native-action")
+    action_service = object()
+    native_calls: list[tuple[Any, dict[str, Any]]] = []
+
+    def refuse_selected_native_result(control_service: Any, **kwargs: Any) -> Any:
+        native_calls.append((control_service, kwargs))
+        raise CanonicalProfileRefusalError("canon_profile_selected_payload_identity_mismatch")
+
+    def forbid_generic_history(*_args: Any, **_kwargs: Any) -> Any:
+        pytest.fail("Native integrity refusal must not fall back to direct-use history")
+
+    monkeypatch.setattr(
+        job_diagnostics,
+        "read_completed_native_model_input_use_n5_result",
+        refuse_selected_native_result,
+    )
+    monkeypatch.setattr(
+        model_input_successor_action,
+        "resolve_model_input_successor_history",
+        forbid_generic_history,
+    )
+
+    projection = runs._model_input_use_n5_successor_projection(
+        run_id="logical-run",
+        action_job_id=job.job_id,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        store=case.store,
+        control_service=case.control,
+        action_service=action_service,
+    )
+
+    assert projection.schema_version == (
+        "policyos.runtime.run_model_input_use_n5_successor_projection.v1"
+    )
+    assert projection.result_status == "not_established"
+    assert projection.limitation_code == "canon_profile_selected_payload_identity_mismatch"
+    assert native_calls == [
+        (
+            case.control,
+            {
+                "action_service": action_service,
+                "tenant_id": "tenant-a",
+                "cell_id": "cell-a",
+                "run_id": "logical-run",
+                "action_job_id": job.job_id,
+            },
+        )
+    ]
+
+
+def test_direct_model_input_request_does_not_dispatch_to_native_result_reader(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from polisyos.runtime.http.services.control import job_diagnostics
+
+    case = _case(tmp_path, monkeypatch)
+    job = _action(case, "direct-action")
+
+    def forbid_native_reader(*_args: Any, **_kwargs: Any) -> Any:
+        pytest.fail("Direct-use request must not dispatch to the Native result reader")
+
+    monkeypatch.setattr(
+        job_diagnostics,
+        "read_completed_native_model_input_use_n5_result",
+        forbid_native_reader,
+    )
+
+    projection = runs._model_input_use_n5_successor_projection(
+        run_id="logical-run",
+        action_job_id=job.job_id,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        store=case.store,
+        control_service=case.control,
+    )
+
+    assert projection.result_status == "not_established"
+    assert projection.limitation_code == "model_input_use_action_terminal_checkpoint_not_established"
+
+
+def test_native_result_without_exact_action_owner_is_limited_without_history_fallback(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from polisyos.runtime.http.services import model_input_successor_action
+
+    case = _case(tmp_path, monkeypatch)
+    job = _native_action(case, "native-action-without-owner")
+
+    def forbid_generic_history(*_args: Any, **_kwargs: Any) -> Any:
+        pytest.fail("Missing Native owner must not fall back to direct-use history")
+
+    monkeypatch.setattr(
+        model_input_successor_action,
+        "resolve_model_input_successor_history",
+        forbid_generic_history,
+    )
+
+    projection = runs._model_input_use_n5_successor_projection(
+        run_id="logical-run",
+        action_job_id=job.job_id,
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        store=case.store,
+        control_service=case.control,
+        action_service=None,
+    )
+
+    assert projection.result_status == "not_established"
+    assert projection.limitation_code == "native_model_input_use_history_owner_missing"
+
+
+def test_native_model_input_use_expiry_at_sql_commit_rolls_back_queue(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Expire a genuine queue publication after its SQL event and before commit."""
+    from polisyos.runtime.http.execution_policy import RuntimePrincipal
+    from polisyos.runtime.http.services import control_plane_store
+    from polisyos.runtime.http.services.control_plane_store import ControlJobRecord
+
+    case = _case(tmp_path, monkeypatch)
+    retained = _native_action(case, "native-predecessor")
+    payload = case.control._load_payload_ref(
+        retained.payload_ref, kind="runtime.control_job_payload.acquisition"
+    )
+    assert isinstance(payload, dict)
+    principal = RuntimePrincipal(
+        subject="tester",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        roles=frozenset({"operator"}),
+        authenticated=True,
+    )
+    job_id = "model-input-use." + "d" * 64
+    deadline = 2_000_000_000
+    now = deadline - 1
+    monkeypatch.setattr(control_plane_store, "time", SimpleNamespace(time=lambda: now))
+    store = case.database._target
+    assert type(store) is control_plane_store.ControlPlaneStore
+    emit = store._emit_job_outbox_event
+    provisional = []
+
+    def expire_after_publication(
+        *, record: ControlJobRecord, event_type: str, payload: dict[str, Any]
+    ) -> None:
+        nonlocal now
+        emit(record=record, event_type=event_type, payload=payload)
+        event = store.get_job_created_outbox_event(job_id)
+        assert event is not None and event.job_id == job_id
+        assert store.list_job_state_transitions(job_id) == ["pending"]
+        provisional.append(event.event_id)
+        now = deadline
+
+    def queue(expires_at: int | None) -> ControlJobRecord:
+        return case.control.enqueue_acquisition_job(
+            job_id=job_id,
+            run_id="logical-run",
+            payload=payload,
+            principal=principal,
+            native_step_up_expires_at=expires_at,
+        )
+
+    with monkeypatch.context() as admission:
+        admission.setattr(store, "_emit_job_outbox_event", expire_after_publication)
+        with pytest.raises(
+            control_plane_store._NativeModelInputUseStepUpExpiredError,
+            match="native_model_input_use_step_up_expired_before_admission",
+        ):
+            queue(deadline)
+    assert len(provisional) == 1
+    assert case.database.get_job(job_id) is None
+    assert case.database.list_job_state_transitions(job_id) == []
+    assert case.database.get_outbox_event(provisional[0]) is None
+    assert case.database.lease_next_job(worker_id="worker-after-expiry", lease_seconds=30) is None
+    assert case.database.get_job(retained.job_id) == retained
+
+    with pytest.raises(control_plane_store._NativeModelInputUseStepUpExpiredError):
+        queue(None)
+    fresh = queue(deadline + 1)
+    assert (fresh.job_id, fresh.state, fresh.attempt, fresh.lease_owner) == (
+        job_id,
+        "pending",
+        0,
+        None,
+    )
+    assert case.database.list_job_state_transitions(job_id) == ["pending"]
+    event = case.database.get_job_created_outbox_event(job_id)
+    assert event is not None and event.payload["state"] == "pending"
+    stored = case.control._load_payload_ref(
+        fresh.payload_ref, kind="runtime.control_job_payload.acquisition"
+    )
+    assert stored["request"] == payload["request"]
+    assert stored["decision_ref"] == payload["decision_ref"]
+    assert queue(deadline + 1) == fresh
+    assert case.database.get_job_created_outbox_event(job_id) == event
+
+
+def test_native_stage_matches_exact_bindings_across_reference_types(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Reopen the persisted selector under base-ref history and reject another view."""
+    from dataclasses import replace
+
+    from polisyos.core.contracts import FoundryInputBindingsRef
+    from polisyos.runtime.http.services import model_input_successor_action
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        VerifiedModelInputUseWorker,
+    )
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextOwnerError
+    from polisyos.runtime.quality.model_input_successor_selection import (
+        ModelInputSuccessorSelection,
+        persist_model_input_successor_selection,
+        read_model_input_use_action_phase,
+    )
+    from polisyos.runtime.quality.native_generic_context import _read_model_input_use_stage
+
+    case = _case(tmp_path, monkeypatch)
+    job = _native_action(case, "native-stage-bindings")
+    stage = ModelInputUseActionCheckpoint.model_validate(job.progress["model_input_use"])
+    phase = read_model_input_use_action_phase(case.store, stage.phase_ref)
+    payload = json.loads(case.store.get_bytes(phase.action_payload_ref))
+    request = NativeModelInputSuccessorActionRequest.model_validate(payload["request"])
+    bindings = _put(case.store, "foundry.input_bindings", "exact-method-bindings")
+    input_ref = FoundryInputBindingsRef.model_validate(bindings.model_dump(mode="python"))
+    assert type(bindings) is ArtifactRef
+    assert type(input_ref) is FoundryInputBindingsRef
+    assert input_ref.model_dump(mode="python") == bindings.model_dump(mode="python")
+    observation_hash = "sha256:" + "b" * 64
+    window = SimpleNamespace(window_id="1" * 64, record_digest="2" * 64)
+    selector = ModelInputSuccessorSelection(
+        tenant_id=phase.tenant_id,
+        cell_id=phase.cell_id,
+        run_id=phase.run_id,
+        source_job_id=phase.source_job_id,
+        compiled_ref=request.compiled_ref,
+        blocked_execution_ref=request.blocked_execution_ref,
+        routing_report_ref=request.routing_report_ref,
+        activation_receipt_ref=request.activation_receipt_ref,
+        observation_id=request.observation_id,
+        observation_content_sha256=observation_hash,
+        route_id=phase.route_id,
+        action_job_id=phase.action_job_id,
+        action_worker_id="fixture-stage-worker",
+        action_attempt=job.attempt,
+        action_phase_ref=stage.phase_ref,
+        authority_decision_ref=phase.authority_decision_ref,
+        reentry_budget_window_id=window.window_id,
+        reentry_budget_window_digest=window.record_digest,
+        semantic_foundry_input_bindings_ref=input_ref,
+    )
+    selected_stage = stage.model_copy(
+        update={
+            "semantic_successor_ref": persist_model_input_successor_selection(case.store, selector)
+        }
+    )
+    leased_job = replace(
+        job,
+        state="running",
+        lease_owner=selector.action_worker_id,
+        progress={"model_input_use": selected_stage.model_dump(mode="json")},
+    )
+    # The action and budget owners are upstream of this selected CAS read.
+    worker = VerifiedModelInputUseWorker(
+        selection=SimpleNamespace(
+            tenant_id=phase.tenant_id,
+            cell_id=phase.cell_id,
+            route_id=phase.route_id,
+            origin=SimpleNamespace(compiled_ref=request.compiled_ref),
+            request=request,
+            observation_content_sha256=observation_hash,
+        ),
+        admission=None,
+        gateway=None,
+        decision=None,
+    )
+    monkeypatch.setattr(
+        model_input_successor_action, "_resolve_action_budget_window", lambda *a, **kw: window
+    )
+    owner = SimpleNamespace(store=case.store, _native_world_action_owner=case.control)
+
+    def read_stage(
+        history_ref: ArtifactRef,
+    ) -> tuple[ModelInputUseActionPhase, ModelInputSuccessorSelection]:
+        return _read_model_input_use_stage(
+            owner,
+            worker=worker,
+            job=leased_job,
+            payload=payload,
+            history=SimpleNamespace(checkpoint=SimpleNamespace(input_bindings_ref=history_ref)),
+        )
+
+    assert read_stage(bindings) == (phase, selector)
+    foreign_profile = case.store.put_json(
+        {"fixture": "exact-method-bindings"},
+        ArtifactWriteOptions(
+            kind="foundry.input_bindings",
+            media_type="application/json",
+            schema=SchemaInfo(name="fixture.other_foundry_input_view", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    assert foreign_profile.artifact_id == bindings.artifact_id
+    assert foreign_profile.manifest_profile_sha256 != bindings.manifest_profile_sha256
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="generic_native_model_input_use_stage_binding_mismatch",
+    ):
+        read_stage(foreign_profile)
+
+
+@pytest.mark.parametrize("owner_stops", [False, True], ids=["new-progress", "lost-lease"])
+def test_native_source_bracket_reopens_actual_worker_after_authority_read(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, owner_stops: bool
+) -> None:
+    """The closing worker read uses actual SQL, independently of source replay."""
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        VerifiedModelInputUseWorker,
+    )
+    from polisyos.runtime.http.services.control_plane_store import ControlJobLeaseLostError
+    from polisyos.runtime.quality import native_generic_context
+
+    case = _case(tmp_path, monkeypatch)
+    stored = _put(case.store, "runtime.control_job_payload.acquisition", "native-bracket")
+    job = _job(
+        case,
+        job_id="native-source-bracket",
+        kind="acquisition",
+        run_id="logical-run",
+        payload_ref=str(stored.artifact_id),
+    )
+    leased = case.database.lease_next_job(worker_id="bracket-worker", lease_seconds=60)
+    assert leased is not None and leased.job_id == job.job_id
+    received = {"job_id": job.job_id}
+    scope = object()
+    problem = object()
+    bridge = object()
+    fact = object()
+    active = True
+
+    with case.database.job_execution_fence(
+        job_id=job.job_id,
+        worker_id="bracket-worker",
+        attempt=leased.attempt,
+        still_active=lambda: active,
+    ):
+        admission = case.database.current_execution_job_admission()
+        worker = VerifiedModelInputUseWorker(
+            selection=object(), admission=admission, gateway=None, decision=None
+        )
+        action = SimpleNamespace(control_service=case.control)
+        observed = []
+
+        def reopen_worker(owner, *, expected_worker):
+            nonlocal active
+            assert owner is scope
+            observed.append(expected_worker)
+            if len(observed) == 2:
+                if owner_stops:
+                    active = False
+                else:
+                    case.database.update_progress_state(
+                        job_id=job.job_id,
+                        state="running",
+                        progress={"model_input_use": {"phase": "changed-after-read"}},
+                        expected_lease_owner="bracket-worker",
+                        expected_attempt=leased.attempt,
+                    )
+            # Isolate the upstream B/PA2 replay. This record deliberately
+            # carries the earlier progress from the same admitted lease.
+            return action, worker, admission.job, received
+
+        def reopen_source(owner, *, bridge, selected_b, problem):
+            assert owner is scope
+            assert selected_b is worker.selection
+            return fact
+
+        monkeypatch.setattr(
+            native_generic_context, "_fresh_native_model_input_use_worker", reopen_worker
+        )
+        monkeypatch.setattr(native_generic_context, "_current_bridge", lambda _owner: bridge)
+        monkeypatch.setattr(
+            native_generic_context, "_read_native_model_input_use_source_selection", reopen_source
+        )
+
+        def read():
+            return native_generic_context._read_current_native_model_input_use_sources(
+                scope, problem=problem
+            )
+
+        if owner_stops:
+            with pytest.raises(ControlJobLeaseLostError, match="no longer active"):
+                read()
+            assert "model_input_use" not in case.database.get_job(job.job_id).progress
+        else:
+            current_source, current_worker, current_job, current_payload = read()
+            assert current_source is fact and current_worker is worker
+            assert current_payload == received
+            assert "model_input_use" not in admission.job.progress
+            assert current_job.progress["model_input_use"] == {"phase": "changed-after-read"}
+        assert observed == [None, worker]
+
+
+def test_native_post_write_world_read_refuses_removed_selected_profile(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A produced world checkpoint still needs its exact selected profile at use."""
+    from polisyos.runtime.quality import native_generic_context
+    from polisyos.runtime.quality.diagnostic_events import (
+        DiagnosticEventContractError,
+        validate_diagnostic_event,
+    )
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleNativeWorldContextHandoffV1,
+        NativeModelInputUseWorldCheckpointV1,
+        NativeModelInputUseWorldSourceRowV1,
+    )
+    from polisyos.runtime.quality.model_input_successor_selection import (
+        MODEL_INPUT_SUCCESSOR_SELECTION_KIND,
+    )
+
+    case = _case(tmp_path, monkeypatch)
+    store = case.store
+
+    def ref(kind: str, label: str) -> ArtifactRef:
+        return _put(store, kind, label)
+
+    checkpoint = NativeModelInputUseWorldCheckpointV1(
+        predecessor_terminal_ref=ref("runtime_quality.acquisition_route_loop_receipt", "terminal"),
+        historical_native_world_checkpoint_ref=ref(
+            "runtime_quality.acquisition_candidate_world_checkpoint", "old-world"
+        ),
+        historical_native_action_job_id="native-prior",
+        native_input_collection_ref=ref(
+            "runtime_quality.native_derivation_input_checkpoint", "collection"
+        ),
+        native_input_bindings_ref=ref("foundry.input_bindings", "bindings"),
+        model_input_use_phase_ref=ref("runtime.quality.model_input_use_action_phase", "phase"),
+        model_input_successor_selection_ref=ref(MODEL_INPUT_SUCCESSOR_SELECTION_KIND, "selection"),
+        context_job_ref=ref("runtime.quality.cycle_substrate_context_job", "context"),
+        original_generic_input_ref=ref(
+            "runtime.quality.generic_cycle_simulation_n5_input", "input"
+        ),
+        original_profile_ref=ref("runtime.quality.generic_cycle_simulation_profile", "profile"),
+        world_model_ref=ref("runtime.quality.world_model_record", "world"),
+        source_job_id="source-nl",
+        action_job_id="native-use",
+        run_id="logical-run",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        route_id="sha256:" + "a" * 64,
+        current_profile_selection_ref="sha256:" + "b" * 64,
+        selected_b_source_node_id="B",
+        source_rows=(
+            NativeModelInputUseWorldSourceRowV1(
+                source_node_id="B",
+                occurrence_ref=ref("catalog.scoped_measurement_occurrence", "occurrence"),
+                source_receipt_ref=ref("epoch.activated_overlay_admission_receipt", "receipt"),
+                source_passport_ref=ref("epoch.acquisition_passport_snapshot", "passport"),
+                observation_id="fixture-b",
+                observation_content_sha256="sha256:" + "c" * 64,
+                canonical_value="1",
+                canonical_unit="dimensionless",
+            ),
+        ),
+    )
+    owner = SimpleNamespace(
+        store=store, _native_action_event_log=case.control._diagnostic_event_log
+    )
+    selected = native_generic_context._persist_use_checkpoint(owner, checkpoint)
+    assert native_generic_context._is_native_model_input_use_checkpoint(owner, selected)
+    assert selected.manifest_profile_sha256 is not None
+    manifest = store.get_manifest(selected)
+    inputs = checkpoint.lineage_inputs()
+    assert sorted(manifest.inputs, key=lambda item: item.role) == sorted(
+        inputs, key=lambda item: item.role
+    )
+    assert manifest.same_input_closure is not None
+    input_ids = tuple(sorted({str(item.artifact_id) for item in inputs}))
+    assert manifest.same_input_closure.evidence_input_refs == input_ids
+    (recorded,) = case.control._diagnostic_event_log.list_events(
+        event_id=native_generic_context._use_checkpoint_event_id(checkpoint), limit=2
+    )
+    event = recorded.event
+    assert event.event_type == "polisyos.runtime.native.model_input_use_world_checkpoint.v1"
+    assert event.event_source == "polisyos.runtime.quality.native_generic_context"
+    assert event.phase == "model_input_use_world_selection"
+    assert event.state_after == "cycle_input_candidate_only"
+    assert event.artifact_refs == (str(selected.artifact_id),)
+    assert event.input_refs == input_ids
+    for updates, code in (
+        (
+            {"event_source": "polisyos.runtime.quality.acquisition_route_loop"},
+            "diagnostic_event_source_not_allowed",
+        ),
+        ({"payload_ref": None}, "authority_cas_missing"),
+    ):
+        with pytest.raises(DiagnosticEventContractError) as refused:
+            validate_diagnostic_event(event.model_copy(update=updates))
+        assert refused.value.code == code
+    sidecar = store._manifest_path_for_ref(selected.artifact_id, selected.manifest_profile_sha256)
+    preserved = sidecar.read_bytes()
+    # This control stops at the exact selected CAS read. It does not claim
+    # that the fixture's stand-in source bodies can authorize the handoff.
+    handoff = GenericCycleNativeWorldContextHandoffV1.model_construct(
+        native_world_checkpoint_ref=selected
+    )
+    sidecar.unlink()
+    try:
+        assert store.has(selected.artifact_id)
+        with pytest.raises(FileNotFoundError):
+            native_generic_context.resolve_native_world_handoff(
+                owner, handoff=handoff, problem=object(), context_owner=None, repo_root=None
+            )
+    finally:
+        sidecar.write_bytes(preserved)
+    assert native_generic_context._is_native_model_input_use_checkpoint(owner, selected)

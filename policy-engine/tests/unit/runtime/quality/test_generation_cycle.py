@@ -208,6 +208,184 @@ def test_grounding_disposition_denominator_derives_from_canonical_type() -> None
     assert contract._denominators()["grounding_dispositions"] == sorted(denominator)
 
 
+def test_native_retained_model_input_use_requires_a_selected_current_action(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    controller = GenerationCycleController()
+
+    def unexpected_effect(*args: object, **kwargs: object) -> None:
+        pytest.fail("an unbound Native use reached generation or N5")
+
+    monkeypatch.setattr(controller, "_generate_node", unexpected_effect)
+    monkeypatch.setattr(controller, "_prepare_generic_cycle_simulation_n5_input", unexpected_effect)
+    monkeypatch.setattr(controller, "_run_generic_cycle_simulation_n5", unexpected_effect)
+
+    with pytest.raises(GenerationCycleError, match="native_model_input_use_owner_not_established"):
+        controller._run_retained_native_model_input_use_n5(
+            problem=_problem(), budget_state=_budget(), budget_window=None
+        )
+
+
+@pytest.mark.parametrize("refusal", ["borrowed_state", "different_window", "unbound_grounding"])
+def test_native_retained_model_input_use_refusal_never_dispatches_n5(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    refusal: str,
+) -> None:
+    """Exercise the controller's guarded seam, isolating the separate world reader."""
+    from decimal import Decimal
+
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.quality import design_generation as n4
+    from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5ProgramGraphRequestProfileV4,
+        GenericCycleNativeWorldContextHandoffV1,
+        GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationN5InputV1,
+        GenericCycleSimulationProfileV1,
+        NativeModelInputUseWorldCheckpointV1,
+    )
+    from polisyos.runtime.quality.model_input_successor_selection import (
+        ModelInputSuccessorSelection,
+    )
+    from polisyos.runtime.quality.native_generic_context import NativeModelInputUseWorldSelection
+    from polisyos.scientist.orchestration.engine import (
+        BudgetLedgerReentryBudgetScope,
+        ProducerBudgetObserver,
+    )
+    from tests.unit.scientist.orchestration.engine.test_producer_budget_c49 import _owner, _settle
+
+    middleware, binding, state = _owner(tmp_path)
+    _settle(middleware, binding, "historical-native-scope", "0")
+    scope = BudgetLedgerReentryBudgetScope(
+        run_binding=binding,
+        action_job_id="current-native-use",
+        route_id="sha256:" + "a" * 64,
+        action_generation=1,
+        action_phase_ref="sha256:" + "b" * 64,
+        source_payload_ref="sha256:" + "c" * 64,
+        profile_selection_ref="sha256:" + "d" * 64,
+    )
+    window = middleware.open_reentry_budget_window_safe(
+        scope, fresh_limit_usd=Decimal("1"), global_limit_usd=Decimal("1")
+    )
+    observer = ProducerBudgetObserver(
+        settlement_store=middleware,
+        producer_run_binding=binding,
+        budget_state=state,
+        reentry_budget_scope=scope,
+    )
+    problem = _problem()
+    controller = GenerationCycleController(repo_root=tmp_path, _producer_budget_reconciler=observer)
+    store = FileSystemCAS(tmp_path / "artifacts")
+    owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=store)
+    control_store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite")
+    owner.bind_native_world_history(
+        control_store=control_store,
+        event_log=RuntimeDiagnosticEventLog(store=control_store, artifact_store=store),
+    )
+    world_ref = store.put_json(
+        {"fixture": "world reader stand-in"},
+        ArtifactWriteOptions(
+            kind=NativeModelInputUseWorldCheckpointV1.ARTIFACT_KIND,
+            media_type="application/json",
+        ),
+        return_selected_profile=True,
+    )
+    profile = GenericCycleSimulationProfileV1.model_construct(
+        profile_selection_ref=scope.profile_selection_ref,
+        n5=GenericCycleN5ProgramGraphRequestProfileV4.model_construct(replications=1),
+    )
+    original = GenericCycleSimulationN5InputV1.model_construct(
+        profile=profile,
+        n5=profile.n5,
+        job_id=binding.control_job_id,
+        source_run_id="historical-source",
+        cycle_index=1,
+    )
+    phase_ref = ArtifactRef(
+        artifact_id=scope.action_phase_ref,
+        kind="runtime.quality.model_input_use_action_phase",
+        media_type="application/json",
+    )
+    handoff = GenericCycleNativeWorldContextHandoffV1.model_construct(
+        native_world_checkpoint_ref=world_ref, job_id=scope.action_job_id, profile=profile
+    )
+    world = NativeModelInputUseWorldSelection(
+        checkpoint_ref=world_ref,
+        checkpoint=NativeModelInputUseWorldCheckpointV1.model_construct(
+            action_job_id=scope.action_job_id,
+            route_id=scope.route_id,
+            model_input_use_phase_ref=phase_ref,
+        ),
+        source_selection=SimpleNamespace(
+            historical_selection=SimpleNamespace(original_generic_input=original)
+        ),
+        phase=None,
+        successor_selection=ModelInputSuccessorSelection.model_construct(
+            reentry_budget_window_id=window.window_id,
+            reentry_budget_window_digest=(
+                "0" * 64 if refusal == "different_window" else window.record_digest
+            ),
+        ),
+        context=None,
+    )
+    monkeypatch.setattr(controller, "_artifact_store", store)
+    monkeypatch.setattr(controller, "_generic_cycle_simulation_admission_owner", owner)
+    monkeypatch.setattr(controller, "_generic_cycle_simulation_handoff", handoff)
+    monkeypatch.setattr(
+        controller, "_generic_cycle_simulation_upstream_currentness_resolver", lambda: True
+    )
+    monkeypatch.setattr(owner, "resolve_native_world_handoff", lambda **_kwargs: handoff)
+    monkeypatch.setattr(owner, "resolve_native_model_input_use_world_selection", lambda _ref: world)
+
+    def unexpected_effect(*args: object, **kwargs: object) -> None:
+        pytest.fail("a refused Native use reached generation or N5")
+
+    monkeypatch.setattr(controller, "_generate_node", unexpected_effect)
+    monkeypatch.setattr(controller, "_prepare_generic_cycle_simulation_n5_input", unexpected_effect)
+    monkeypatch.setattr(controller, "_run_generic_cycle_simulation_n5", unexpected_effect)
+    disposition = n4.GroundingDispositionRecord(
+        proposal_id="gy_n4.retained",
+        raw_candidate_hash="sha256:" + "1" * 64,
+        disposition="unknown_blocked",
+        selected_relation="unknown",
+        legacy_exact_match="would_reject",
+        certificate_chain=n4.GroundingCertificateChain(
+            cg1_certificate_id="cg1-retained", cg1_content_hash="sha256:" + "2" * 64
+        ),
+    )
+
+    def refuse_requalification(**_kwargs: object) -> None:
+        if refusal != "unbound_grounding":
+            pytest.fail("requalification began before exact budget admission")
+        n4._require_one_native_retained_candidate((), (disposition,))
+
+    monkeypatch.setattr(n4, "requalify_retained_native_candidate", refuse_requalification)
+    ledger_before = middleware._ledger.snapshot()
+    if refusal == "unbound_grounding":
+        with pytest.raises(n4.NativeRetainedCandidateGroundingRefusalError) as raised:
+            controller._run_retained_native_model_input_use_n5(
+                problem=problem, budget_state=state, budget_window=window
+            )
+        assert raised.value.disposition == disposition
+    else:
+        expected = (
+            "n5_producer_budget_state_binding_mismatch"
+            if refusal == "borrowed_state"
+            else "native_model_input_use_selection_mismatch"
+        )
+        with pytest.raises(GenerationCycleError, match=expected):
+            controller._run_retained_native_model_input_use_n5(
+                problem=problem,
+                budget_state=state.model_copy() if refusal == "borrowed_state" else state,
+                budget_window=window,
+            )
+    assert middleware.resolve_reentry_budget_window_safe(scope) == window
+    assert middleware._ledger.snapshot() == ledger_before
+
+
 def test_owner_catalog_prerequisite_is_declared_not_ambient(
     tmp_path: Path,
 ) -> None:

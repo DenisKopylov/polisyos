@@ -45,6 +45,7 @@ from polisyos.runtime.quality.acquisition_route_loop import (
     NativePaidInputAdmissionSelection,
     VerifiedAcquisitionRouteClosure,
     VerifiedCandidateExperimentOrigin,
+    _NativeRouteHistoryRead,
 )
 from polisyos.runtime.quality.agent_action_authority import (
     agent_action_content_hash,
@@ -5755,7 +5756,10 @@ class AcquisitionWorldGrowthBridge:
             return tuple(dict.fromkeys(owner_refs))
 
     def _prior_paid_native_input_admissions(
-        self, closure: VerifiedAcquisitionRouteClosure
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+        *,
+        selected_history: _NativeRouteHistoryRead | None = None,
     ) -> tuple[tuple[NativePaidInputAdmissionSelection, AcquisitionWorldGrowthAttempt], ...]:
         """Select a unique original purchase from the complete verified history.
 
@@ -5770,8 +5774,12 @@ class AcquisitionWorldGrowthBridge:
             or provider is None
             or self.action_head_sink is None
             or self.control_store is None
-            or self.selection(closure) is None
         ):
+            if selected_history is not None:
+                raise ValueError("native_paid_input_admission_history_owner_missing")
+            return ()
+        configured = self.selection(closure)
+        if configured is None and selected_history is None:
             return ()
         subject = {
             "tenant_id": closure.tenant_id,
@@ -5781,11 +5789,28 @@ class AcquisitionWorldGrowthBridge:
         }
         heads = self.control_store.list_acquisition_action_heads_for_source(**subject)
         outcomes = self.action_head_sink.action_outcomes(**subject, route_id=closure.route_id)
+        if selected_history is not None and (
+            type(selected_history) is not _NativeRouteHistoryRead
+            or outcomes
+            != selected_history.outcomes_for(
+                reader=self.action_head_sink,
+                control_store=self.control_store,
+                scope=(
+                    closure.tenant_id,
+                    closure.cell_id,
+                    closure.run_id,
+                    closure.source_job_id,
+                    closure.route_id,
+                ),
+                heads=heads,
+            )
+        ):
+            raise ValueError("native_paid_input_admission_source_history_changed")
         candidates: dict[
             tuple[str, str, str, str | None],
             tuple[NativePaidInputAdmissionSelection, AcquisitionWorldGrowthAttempt],
         ] = {}
-        for outcome in outcomes:
+        for outcome in outcomes if configured is not None else ():
             phase = outcome.executing_phase
             terminal = outcome.latest_receipt
             if (
@@ -5849,10 +5874,13 @@ class AcquisitionWorldGrowthBridge:
         return tuple(candidates.values())
 
     def select_prior_paid_native_input_admission(
-        self, closure: VerifiedAcquisitionRouteClosure
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+        *,
+        selected_history: _NativeRouteHistoryRead | None = None,
     ) -> NativePaidInputAdmissionSelection | None:
         """Project the unique owner-replayed purchase, never a fresh action grant."""
-        rows = self._prior_paid_native_input_admissions(closure)
+        rows = self._prior_paid_native_input_admissions(closure, selected_history=selected_history)
         return rows[0][0] if rows else None
 
     def require_prior_paid_native_input_admission(
@@ -7181,9 +7209,22 @@ class AcquisitionWorldGrowthBridge:
         }
         if kind not in schema_names:
             raise ValueError("acquisition_world_growth_receipt_schema_contract_unregistered")
+        producer_component = "polisyos.runtime.acquisition_world_growth"
+        schema_name = schema_names[kind]
+        versions = schema_versions[kind]
+        if kind == _CANDIDATE_WORLD_CHECKPOINT_KIND:
+            selected_manifest = artifact_store.get_manifest(ref)
+            selected_schema = selected_manifest.artifact_schema
+            if selected_schema == artifacts.SchemaInfo(
+                name="polisyos.runtime.NativeModelInputUseWorldCheckpoint", version="1.0"
+            ):
+                # Same owner kind, deliberately distinct typed payload and producer.
+                # NativeDerivationWorldCheckpoint remains on its strict @1.2 reader.
+                schema_name = "polisyos.runtime.NativeModelInputUseWorldCheckpoint"
+                versions = ("1.0",)
+                producer_component = "polisyos.runtime.quality.native_generic_context"
         expected_schema = tuple(
-            artifacts.SchemaInfo(name=schema_names[kind], version=version)
-            for version in schema_versions[kind]
+            artifacts.SchemaInfo(name=schema_name, version=version) for version in versions
         )
         manifest = contracts.epoch._preflight_core_manifest_profile(
             store=artifact_store,
@@ -7200,15 +7241,10 @@ class AcquisitionWorldGrowthBridge:
         if (
             manifest.authority is None
             or manifest.producer is None
-            or manifest.producer.component != "polisyos.runtime.acquisition_world_growth"
-            or (kind in schema_names and schema is None)
-            or (
-                kind in schema_names
-                and schema is not None
-                and (
-                    schema.name != schema_names[kind] or schema.version not in schema_versions[kind]
-                )
-            )
+            or manifest.producer.component != producer_component
+            or schema is None
+            or schema.name != schema_name
+            or schema.version not in versions
         ):
             raise ValueError("acquisition_world_growth_receipt_unverified")
         payload = artifact_store.get_bytes(ref)
@@ -7226,7 +7262,13 @@ class AcquisitionWorldGrowthBridge:
         if (
             kind in (_GROWTH_KIND, _NO_GROWTH_KIND, _DEFERRAL_KIND)
             and schema is not None
-            and value.get("schema_version") != f"{schema_names[kind]}@{schema.version}"
+            and value.get("schema_version") != f"{schema_name}@{schema.version}"
+        ) or (
+            kind == _CANDIDATE_WORLD_CHECKPOINT_KIND
+            and schema is not None
+            and schema.name == "polisyos.runtime.NativeModelInputUseWorldCheckpoint"
+            and value.get("schema_version")
+            != "polisyos.runtime.NativeModelInputUseWorldCheckpoint@1.0"
         ):
             raise ValueError("acquisition_world_growth_receipt_schema_mismatch")
         return value

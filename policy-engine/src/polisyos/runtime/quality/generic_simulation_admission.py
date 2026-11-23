@@ -14,7 +14,7 @@ from dataclasses import dataclass, fields, is_dataclass
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
-from typing import TYPE_CHECKING, Literal, TypeGuard
+from typing import TYPE_CHECKING, ClassVar, Literal, TypeGuard
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -77,6 +77,9 @@ if TYPE_CHECKING:
     from polisyos.core.registry import RegistryBundleContent
     from polisyos.ir import ModelSpec, RegistryBundle, TrinityBundle
     from polisyos.runtime.http.resilience import _BlockingDependencyWaitTimeoutError
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        VerifiedModelInputUseWorker,
+    )
     from polisyos.runtime.quality.generation_cycle import (
         JointSimulationPort,
         JointSimulationResult,
@@ -85,6 +88,10 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.model_input_requirements import (
         ProgramGraphInputPreflight,
         SelectedProgramGraphInputBasis,
+    )
+    from polisyos.runtime.quality.native_generic_context import (
+        NativeModelInputUseSourceSelection,
+        NativeModelInputUseWorldSelection,
     )
 
 _HASH_PATTERN = r"^sha256:[0-9a-f]{64}$"
@@ -823,6 +830,152 @@ class GenericCycleNativeWorldContextHandoffV1(_StrictModel):
         ):
             raise ValueError("generic_native_world_handoff_subject_invalid")
         return self
+
+
+class NativeModelInputUseWorldSourceRowV1(_StrictModel):
+    """Exact previously selected Native source row reopened for a current use."""
+
+    source_node_id: str = Field(min_length=1, strict=True)
+    occurrence_ref: ArtifactRef
+    source_receipt_ref: ArtifactRef
+    source_passport_ref: ArtifactRef
+    observation_id: str = Field(min_length=1, strict=True)
+    observation_content_sha256: str = Field(pattern=_HASH_PATTERN, strict=True)
+    canonical_value: str = Field(min_length=1, strict=True)
+    canonical_unit: str = Field(min_length=1, strict=True)
+
+    @model_validator(mode="after")
+    def _selected_source_refs(self) -> NativeModelInputUseWorldSourceRowV1:
+        refs = (
+            (self.occurrence_ref, "catalog.scoped_measurement_occurrence"),
+            (self.source_receipt_ref, "epoch.activated_overlay_admission_receipt"),
+            (self.source_passport_ref, "epoch.acquisition_passport_snapshot"),
+        )
+        if any(
+            type(ref) is not ArtifactRef
+            or ref.kind != kind
+            or ref.manifest_profile_sha256 is None
+            for ref, kind in refs
+        ):
+            raise ValueError("native_model_input_use_world_source_ref_invalid")
+        return self
+
+
+class NativeModelInputUseWorldCheckpointV1(_StrictModel):
+    """Persist a current action's read-only selection over a historical Native world.
+
+    This is a candidate-use bridge. It does not describe world growth, issue an
+    acquisition permission, or establish timeless currentness. The previous
+    Native checkpoint remains historical source evidence; the ModelInputUse
+    phase and selected Catalog input bind the new current action.
+    """
+
+    ARTIFACT_KIND: ClassVar[str] = "runtime_quality.acquisition_candidate_world_checkpoint"
+    ARTIFACT_MEDIA_TYPE: ClassVar[str] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = (
+        "polisyos.runtime.NativeModelInputUseWorldCheckpoint"
+    )
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+    schema_version: Literal["polisyos.runtime.NativeModelInputUseWorldCheckpoint@1.0"] = (
+        "polisyos.runtime.NativeModelInputUseWorldCheckpoint@1.0"
+    )
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+    currentness_status: Literal["not_established"] = "not_established"
+    predecessor_terminal_ref: ArtifactRef
+    historical_native_world_checkpoint_ref: ArtifactRef
+    historical_native_action_job_id: str = Field(min_length=1, strict=True)
+    native_input_collection_ref: ArtifactRef
+    native_input_bindings_ref: ArtifactRef
+    model_input_use_phase_ref: ArtifactRef
+    model_input_successor_selection_ref: ArtifactRef
+    context_job_ref: ArtifactRef
+    original_generic_input_ref: ArtifactRef
+    original_profile_ref: ArtifactRef
+    world_model_ref: ArtifactRef
+    source_job_id: str = Field(min_length=1, strict=True)
+    action_job_id: str = Field(min_length=1, strict=True)
+    run_id: str = Field(min_length=1, strict=True)
+    tenant_id: str = Field(min_length=1, strict=True)
+    cell_id: str = Field(min_length=1, strict=True)
+    route_id: str = Field(pattern=_HASH_PATTERN, strict=True)
+    current_profile_selection_ref: str = Field(pattern=_HASH_PATTERN, strict=True)
+    selected_b_source_node_id: str = Field(min_length=1, strict=True)
+    source_rows: tuple[NativeModelInputUseWorldSourceRowV1, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _bind_native_input_use(self) -> NativeModelInputUseWorldCheckpointV1:
+        refs = (
+            (
+                self.predecessor_terminal_ref,
+                "runtime_quality.acquisition_route_loop_receipt",
+            ),
+            (
+                self.historical_native_world_checkpoint_ref,
+                "runtime_quality.acquisition_candidate_world_checkpoint",
+            ),
+            (
+                self.native_input_collection_ref,
+                "runtime_quality.native_derivation_input_checkpoint",
+            ),
+            (self.native_input_bindings_ref, "foundry.input_bindings"),
+            (
+                self.model_input_use_phase_ref,
+                "runtime.quality.model_input_use_action_phase",
+            ),
+            (self.model_input_successor_selection_ref, MODEL_INPUT_SUCCESSOR_SELECTION_KIND),
+            (self.context_job_ref, "runtime.quality.cycle_substrate_context_job"),
+            (self.original_generic_input_ref, _N5_INPUT_KIND),
+            (self.original_profile_ref, _PROFILE_KIND),
+            (self.world_model_ref, "runtime.quality.world_model_record"),
+        )
+        if any(
+            type(ref) is not ArtifactRef
+            or ref.kind != kind
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            for ref, kind in refs
+        ):
+            raise ValueError("native_model_input_use_world_selected_ref_invalid")
+        if len(
+            {self.source_job_id, self.historical_native_action_job_id, self.action_job_id}
+        ) != 3:
+            raise ValueError("native_model_input_use_world_action_scope_invalid")
+        source_nodes = tuple(row.source_node_id for row in self.source_rows)
+        occurrence_refs = tuple(
+            artifacts.artifact_ref_identity_key(row.occurrence_ref) for row in self.source_rows
+        )
+        if (
+            source_nodes != tuple(sorted(set(source_nodes)))
+            or len(set(occurrence_refs)) != len(occurrence_refs)
+            or self.selected_b_source_node_id not in source_nodes
+        ):
+            raise ValueError("native_model_input_use_world_source_rows_ambiguous")
+        return self
+
+    def lineage_inputs(self) -> tuple[artifacts.InputRef, ...]:
+        """Return exact history, selected-phase, profile, and A+B source edges."""
+        rows = [
+            ("predecessor_terminal", self.predecessor_terminal_ref),
+            ("historical_native_world_checkpoint", self.historical_native_world_checkpoint_ref),
+            ("native_input_collection", self.native_input_collection_ref),
+            ("native_input_bindings", self.native_input_bindings_ref),
+            ("model_input_use_phase", self.model_input_use_phase_ref),
+            ("model_input_successor_selection", self.model_input_successor_selection_ref),
+            ("current_cycle_substrate_context", self.context_job_ref),
+            ("original_generic_input", self.original_generic_input_ref),
+            ("original_profile", self.original_profile_ref),
+            ("world_model", self.world_model_ref),
+        ]
+        for row in self.source_rows:
+            prefix = f"source.{row.source_node_id}"
+            rows.extend(
+                (
+                    (f"{prefix}.occurrence", row.occurrence_ref),
+                    (f"{prefix}.receipt", row.source_receipt_ref),
+                    (f"{prefix}.passport", row.source_passport_ref),
+                )
+            )
+        return tuple(artifacts.input_ref_from_artifact_ref(ref, role=role) for role, ref in rows)
 
 
 GenericCycleSimulationContextOfferV1.model_rebuild()
@@ -1618,6 +1771,42 @@ class GenericCycleSimulationAdmissionOwner:
 
         return admit_native_world_context(
             self, checkpoint_ref=checkpoint_ref, problem=problem, repo_root=repo_root
+        )
+
+    def admit_native_model_input_use_world_context(
+        self, *, problem: DesignProblem, repo_root: Path | None = None
+    ) -> GenericCycleNativeWorldContextHandoffV1:
+        """Bind a current ModelInputUse lease to its selected historical Native world."""
+        from polisyos.runtime.quality.native_generic_context import (
+            admit_native_model_input_use_world_context,
+        )
+
+        return admit_native_model_input_use_world_context(
+            self, problem=problem, repo_root=repo_root
+        )
+
+    def resolve_native_model_input_use_source_selection(
+        self, *, worker: VerifiedModelInputUseWorker, problem: DesignProblem
+    ) -> NativeModelInputUseSourceSelection:
+        """Reopen the complete Native source denominator under a verified use worker."""
+        from polisyos.runtime.quality.native_generic_context import (
+            resolve_native_model_input_use_source_selection,
+        )
+
+        return resolve_native_model_input_use_source_selection(
+            self, worker=worker, problem=problem
+        )
+
+    def resolve_native_model_input_use_world_selection(
+        self, checkpoint_ref: ArtifactRef
+    ) -> NativeModelInputUseWorldSelection:
+        """Replay the typed Native-use checkpoint without asserting currentness."""
+        from polisyos.runtime.quality.native_generic_context import (
+            replay_native_model_input_use_world_selection,
+        )
+
+        return replay_native_model_input_use_world_selection(
+            self, checkpoint_ref=checkpoint_ref
         )
 
     def resolve_native_world_handoff(

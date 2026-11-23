@@ -273,3 +273,172 @@ def test_canonical_cost_producer_keeps_legacy_record_profile_free() -> None:
     assert record.schema_version == "AcquisitionCostBasisRecord@1.0"
     assert record.owner_declared_profile_ref is None
     assert "owner_declared_profile_ref" not in record.model_dump(mode="json")
+
+
+def test_native_route_history_reopens_selected_receipt_and_rejects_advanced_head(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The early fold never substitutes for a fresh, exact late history read."""
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        AcquisitionRouteLoopAuthoritySink,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionRoutePhaseReceipt,
+        NativeDerivationLeafProviderSelection,
+        VerifiedAcquisitionRouteClosure,
+        _NativeRouteHistoryRead,
+    )
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthBridge,
+        AcquisitionWorldGrowthConfig,
+    )
+    from tests._helpers.runtime_http import _build_control_service
+    from tests.unit.runtime.http.test_control_plane_store_evaluation_frontier import _create_job
+
+    store = FileSystemCAS(tmp_path / "cas")
+    scope, quote_ref = _profile_scope(store)
+    now = datetime(2026, 11, 14, 12, 0, tzinfo=UTC)
+    profile_ref = persist_native_derivation_leaf_cost_profile(
+        store, _profile(scope, quote_ref, now=now)
+    )
+    cost = produce_acquisition_cost_basis_record(
+        missing_distribution=scope.missing_distribution,
+        strategy=scope.strategy,
+        owner_declared_profile_ref=profile_ref,
+        store=store,
+        expected_scope=scope,
+        now=now,
+    )
+    assert isinstance(cost, AcquisitionCostBasisRecord)
+    provider = NativeDerivationLeafProviderSelection(
+        source_node_id=scope.source_node_id,
+        supplier_ref=scope.selected_supplier_ref,
+        authority_entry_id="acquisition-authority:sha256:" + "a" * 64,
+        connector_id="fixture.native",
+    )
+    phase = AcquisitionRoutePhaseReceipt(
+        schema_version="AcquisitionRoutePhaseReceipt@1.3",
+        receipt_id="native-selected.requested",
+        tenant_id=scope.tenant_id,
+        cell_id=scope.cell_id,
+        run_id=scope.run_id,
+        source_job_id=scope.source_job_id,
+        route_id="sha256:" + "1" * 64,
+        action_generation=1,
+        job_id="native-selected",
+        compiled_ref="sha256:" + "2" * 64,
+        planner_report_hash="sha256:" + "3" * 64,
+        cost_basis_hash=cost.record_content_hash,
+        decision_ref="sha256:" + "4" * 64,
+        coarse_phase="requested",
+        receipt_phase="requested",
+        recovery_state="none",
+        owner_declared_profile_ref=profile_ref,
+        native_leaf_provider_selection=provider,
+        generated_at=now,
+    )
+    service = _build_control_service(tmp_path / "runtime", artifact_store=store)
+    try:
+        control = service._control_store
+        _create_job(control, job_id=phase.job_id, kind="acquisition", run_id=phase.run_id)
+        sink = service.acquisition_route_sink
+        assert type(sink) is AcquisitionRouteLoopAuthoritySink
+        head = sink.persist_phase(phase)
+        subject = {
+            "tenant_id": phase.tenant_id,
+            "cell_id": phase.cell_id,
+            "run_id": phase.run_id,
+            "source_job_id": phase.source_job_id,
+        }
+        route = {**subject, "route_id": phase.route_id}
+        actual_reads = []
+        read_phase = sink._read_verified_action_phase
+
+        def observe_phase(receipt_ref, *, selected_ref=None):
+            actual_reads.append(receipt_ref)
+            return read_phase(receipt_ref, selected_ref=selected_ref)
+
+        with monkeypatch.context() as observe:
+            observe.setattr(
+                AcquisitionRouteLoopAuthoritySink,
+                "_read_verified_action_phase",
+                lambda _sink, *args, **kwargs: observe_phase(*args, **kwargs),
+            )
+            outcomes = sink.action_outcomes(**route)
+        assert actual_reads == [head.receipt_ref]
+        assert len(outcomes) == 1 and outcomes[0].latest_receipt == phase
+        history = _NativeRouteHistoryRead(
+            reader=sink,
+            control_store=control,
+            scope=(
+                phase.tenant_id,
+                phase.cell_id,
+                phase.run_id,
+                phase.source_job_id,
+                phase.route_id,
+            ),
+            heads=control.list_acquisition_action_heads_for_source(**subject),
+            outcomes=outcomes,
+        )
+        # No paid route is configured or exercised. The late read must still
+        # independently verify the selected history consumed by the early fold.
+        bridge = AcquisitionWorldGrowthBridge(
+            config=AcquisitionWorldGrowthConfig(),
+            repo_root=tmp_path,
+            runtime_root=tmp_path / "growth",
+            authority=None,
+            artifact_store=service._artifact_store,
+            event_log=service._diagnostic_event_log,
+            epoch_deployment=None,
+            control_store=control,
+            action_head_sink=sink,
+            source_control_service=service,
+        )
+        closure = VerifiedAcquisitionRouteClosure.model_construct(
+            **route,
+            native_derivation_leaf_scope=scope,
+            native_derivation_leaf_provider=provider,
+            design_problem_ref="sha256:" + "5" * 64,
+        )
+
+        def reopen():
+            return bridge.select_prior_paid_native_input_admission(
+                closure, selected_history=history
+            )
+
+        assert reopen() is None
+        selected = artifacts.ArtifactID.model_validate(head.receipt_ref)
+        assert head.receipt_manifest_profile_sha256 is not None
+        sidecar = store._manifest_path_for_ref(selected, head.receipt_manifest_profile_sha256)
+        original = sidecar.read_bytes()
+        sidecar.unlink()
+        try:
+            assert store.has(selected)
+            assert control.list_acquisition_action_heads_for_source(**subject) == history.heads
+            with pytest.raises(FileNotFoundError):
+                reopen()
+        finally:
+            sidecar.write_bytes(original)
+        assert reopen() is None
+
+        lease = control.lease_next_job(worker_id="fixture-native", lease_seconds=60)
+        assert lease is not None and lease.job_id == phase.job_id
+        with control.job_execution_fence(
+            job_id=lease.job_id, worker_id="fixture-native", attempt=lease.attempt
+        ):
+            advanced = sink.persist_phase(
+                phase.model_copy(
+                    update={
+                        "receipt_id": "native-selected.executing",
+                        "coarse_phase": "executing",
+                        "receipt_phase": "executing",
+                        "predecessor_receipt_ref": head.receipt_ref,
+                    }
+                )
+            )
+        assert advanced.head_generation == head.head_generation + 1
+        assert sink.action_outcomes(**route)[-1].head == advanced
+        with pytest.raises(ValueError, match="native_paid_input_admission_source_history_changed"):
+            reopen()
+    finally:
+        service.close()

@@ -1311,8 +1311,14 @@ export type N13bHistoryProjection =
 
 export type NLProvenance = RuntimeApiComponents["schemas"]["NLProvenance"];
 
+export type NativeActiveInputUsePins =
+  RuntimeApiComponents["schemas"]["NativeActiveInputUsePins"];
+
 export type NativeDerivationLeafRouteProjection =
   RuntimeApiComponents["schemas"]["NativeDerivationLeafRouteProjection"];
+
+export type NativeModelInputSuccessorActionRequest =
+  RuntimeApiComponents["schemas"]["NativeModelInputSuccessorActionRequest"];
 
 export type NativeModelInputTargetProjection =
   RuntimeApiComponents["schemas"]["NativeModelInputTargetProjection"];

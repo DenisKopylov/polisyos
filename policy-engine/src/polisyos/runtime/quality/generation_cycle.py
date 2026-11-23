@@ -375,6 +375,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
     from polisyos.scientist.orchestration.engine import (
         BudgetLedgerReentryBudgetScope,
+        BudgetLedgerReentryBudgetWindow,
         BudgetMiddleware,
     )
     from polisyos.scientist.orchestration.engine.budget import BudgetState
@@ -6767,12 +6768,34 @@ class JointSimulationPort:
                                 )
                             owner._resolve_current_input_profile(admitted_input)
                             return initial_method_input.preflight
-                        return self._preflight_selected_program_graph_inputs(
+                        preflight_result = self._preflight_selected_program_graph_inputs(
                             request=selected_request,
                             selected_plan=selected_plan,
                             candidate=candidate,
                             input_record=admitted_input,
                         )
+                        if admitted_input.native_world_checkpoint_ref is not None:
+                            from polisyos.runtime.quality.native_generic_context import (
+                                _is_native_model_input_use_checkpoint,
+                            )
+
+                            owner = self._generic_cycle_simulation_admission_owner
+                            if type(owner) is not GenericCycleSimulationAdmissionOwner:
+                                raise WorldModelRecordError(
+                                    "generic_cycle_simulation_admission_owner_missing"
+                                )
+                            # The owner reopens the selected source immediately
+                            # after plan preflight. Horizon reserves separately.
+                            if _is_native_model_input_use_checkpoint(
+                                owner, admitted_input.native_world_checkpoint_ref
+                            ) and (
+                                generic_cycle_simulation_currentness_resolver is None
+                                or generic_cycle_simulation_currentness_resolver() is not True
+                            ):
+                                raise WorldModelRecordError(
+                                    "generic_cycle_simulation_worker_lease_not_current"
+                                )
+                        return preflight_result
 
                     try:
                         if admitted_input_ref is not None and (
@@ -19919,6 +19942,179 @@ class GenerationCycleController:
             "value_port": value,
             "execution_schedule": schedule,
         }
+
+    def _run_retained_native_model_input_use_n5(
+        self,
+        *,
+        problem: DesignProblem,
+        budget_state: BudgetState,
+        budget_window: BudgetLedgerReentryBudgetWindow,
+    ) -> SimulationPortObservation:
+        """Use one owner-selected historical proposal in the current Native action."""
+        from polisyos.runtime.quality.design_generation import (
+            ShadowGeneratedCandidate,
+            requalify_retained_native_candidate,
+        )
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleN5ProgramGraphRequestProfileV4,
+        )
+        from polisyos.runtime.quality.native_generic_context import (
+            NativeModelInputUseWorldSelection,
+        )
+        from polisyos.scientist.orchestration.engine import BudgetLedgerReentryBudgetWindow
+
+        owner = self._generic_cycle_simulation_admission_owner
+        handoff = self._generic_cycle_simulation_handoff
+        observer = self._producer_budget_reconciler
+        root = self._repo_root
+        if (
+            type(self) is not GenerationCycleController
+            or type(owner) is not GenericCycleSimulationAdmissionOwner
+            or type(handoff) is not GenericCycleNativeWorldContextHandoffV1
+            or type(observer) is not ProducerBudgetObserver
+            or type(budget_window) is not BudgetLedgerReentryBudgetWindow
+            or type(self._grounding_port) is not PolicyGroundingPort
+            or type(self._simulation_port) is not JointSimulationPort
+            or self._authority_scope != "production"
+            or root is None
+            or self._source_run_id is not None
+        ):
+            raise GenerationCycleError("native_model_input_use_owner_not_established")
+        budget_issue = _canonical_n5_budget_binding_issue(
+            self._simulation_port, expected_observer=observer, budget_state=budget_state
+        )
+        if budget_issue is not None or observer.reentry_budget_window != budget_window:
+            raise GenerationCycleError(budget_issue or "native_model_input_use_budget_mismatch")
+
+        self._generic_cycle_simulation_current_problem = problem
+        self._require_current_generic_cycle_simulation_handoff()
+        selection = owner.resolve_native_model_input_use_world_selection(
+            handoff.native_world_checkpoint_ref
+        )
+        if type(selection) is not NativeModelInputUseWorldSelection:
+            raise GenerationCycleError("native_model_input_use_selection_not_established")
+        checkpoint = selection.checkpoint
+        successor = selection.successor_selection
+        original = selection.source_selection.historical_selection.original_generic_input
+        profile = handoff.profile.n5
+        if (
+            checkpoint.action_job_id != handoff.job_id
+            or budget_window.scope.action_job_id != handoff.job_id
+            or budget_window.scope.route_id != checkpoint.route_id
+            or budget_window.scope.action_phase_ref
+            != str(checkpoint.model_input_use_phase_ref.artifact_id)
+            or budget_window.scope.run_binding.control_job_id != original.job_id
+            or budget_window.scope.profile_selection_ref != original.profile.profile_selection_ref
+            or successor.reentry_budget_window_id != budget_window.window_id
+            or successor.reentry_budget_window_digest != budget_window.record_digest
+            or type(profile) is not GenericCycleN5ProgramGraphRequestProfileV4
+            or profile != original.n5
+            or profile.replications != 1
+        ):
+            raise GenerationCycleError("native_model_input_use_selection_mismatch")
+
+        # The new job is a distinct use of the historical subject. Its N4 and
+        # N5 records keep the original source-run/cycle coordinate, with the
+        # current job and world independently bound in their selected refs.
+        cycle_index = original.cycle_index
+        self._begin_source_run(original.source_run_id)
+        if self._source_repository is None or self._grounding_run_budget is None:
+            raise GenerationCycleError("native_model_input_use_source_owner_unavailable")
+        organ = requalify_retained_native_candidate(
+            owner=owner,
+            handoff=handoff,
+            problem=problem,
+            repo_root=root,
+            grounding_run_budget=self._grounding_run_budget,
+        )
+        candidates = organ.result.candidates
+        if len(candidates) != 1 or type(candidates[0]) is not ShadowGeneratedCandidate:
+            raise GenerationCycleError("native_model_input_use_candidate_not_established")
+        (candidate,) = candidates
+        retained = organ.native_retained_candidate_origin
+        if (
+            retained is None
+            or retained.native_world_checkpoint_ref != handoff.native_world_checkpoint_ref
+            or retained.original_generic_input_ref != handoff.original_generic_input_ref
+            or retained.model_input_use_phase_ref != checkpoint.model_input_use_phase_ref
+            or retained.model_input_successor_selection_ref
+            != checkpoint.model_input_successor_selection_ref
+            or organ.result.llm_calls
+        ):
+            raise GenerationCycleError("native_model_input_use_candidate_source_mismatch")
+        grounding = self._grounding_port(
+            candidate=candidate,
+            problem=problem,
+            cycle_index=cycle_index,
+            generation_result=organ.result,
+        )
+        if not _grounding_allows_joint_evaluation(grounding):
+            raise GenerationCycleError("native_model_input_use_n5_grounding_refused")
+        proxy_score, voi_estimate = _ranking_by_candidate(organ.result)[candidate.candidate_id]
+        # The retained-source writer independently reopens the current action
+        # both before its CAS write and in the readback path.
+        source_ref = self._source_repository.persist_ref(
+            run_id=original.source_run_id,
+            cycle_index=cycle_index,
+            problem=problem,
+            organ=organ,
+            execution_scope=self._authority_scope,
+            job_id=handoff.job_id,
+            expected_run_id=handoff.run_id,
+            tenant_id=handoff.tenant_id,
+            cell_id=handoff.cell_id,
+            context_job_ref=handoff.context_job_ref,
+            profile_ref=handoff.profile_ref,
+        )
+        self._remember_generic_n4_source(
+            source_ref=source_ref, cycle_index=cycle_index, generic_handoff=handoff
+        )
+
+        with _bind_selected_n5_invocation_policy(observer, n5_profile=profile):
+            decision = self._schedule_candidate_for_execution(
+                candidate_id=candidate.candidate_id,
+                proxy_score=proxy_score,
+                voi_estimate=voi_estimate,
+                budget_state=budget_state,
+            )
+            if not _scheduler_allows_candidate_n5(decision, configured=False):
+                raise GenerationCycleError(f"native_model_input_use_n5_{decision.reason}")
+            budget_view = observer.last_checked
+            quota = observer.invocation_quota_profile
+            capacity = observer.observe_standard_invocation_capacity()
+            if (
+                budget_view is None
+                or budget_view.run_binding != budget_window.scope.run_binding
+                or budget_view.configured_limit_usd != budget_window.effective_limit_usd
+                or budget_view.remaining_usd <= 0
+                or quota is None
+                or capacity.run_binding != budget_window.scope.run_binding
+                or capacity.profile_digest != quota.profile_digest
+                or capacity.status != "available"
+                or capacity.predicate_basis != "independently_reconciled"
+                or capacity.standard_remaining_units is None
+                or capacity.standard_remaining_units < 1
+            ):
+                raise GenerationCycleError("native_model_input_use_n5_capacity_unavailable")
+
+        input_ref, _input = self._prepare_generic_cycle_simulation_n5_input(
+            candidate=candidate, problem=problem, cycle_index=cycle_index
+        )
+        observation = self._run_generic_cycle_simulation_n5(
+            candidate=candidate,
+            problem=problem,
+            cycle_index=cycle_index,
+            prepared_input_ref=input_ref,
+        )
+        if observation.status == "joint_simulated" and (
+            observation.generic_n5_input_ref != input_ref
+            or observation.generic_n5_execution_ref is None
+            or observation.simulation_result_ref is None
+        ):
+            raise GenerationCycleError("native_model_input_use_n5_result_not_established")
+        # The result is candidate evidence. Only the action owner can select
+        # it after rechecking the live lease and exact staged action.
+        return observation
 
     def _prepare_generic_cycle_simulation_n5_input(
         self,

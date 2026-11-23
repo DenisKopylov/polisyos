@@ -53,6 +53,7 @@ from polisyos.runtime.http.services.model_input_successor_action import (
     ModelInputSuccessorActionRequest,
     ModelInputSuccessorDecisionResponse,
     ModelInputSuccessorExecutionRequest,
+    NativeModelInputSuccessorActionRequest,
 )
 from polisyos.runtime.http.step_up import (
     StepUpAssertionVerification,
@@ -192,12 +193,13 @@ _MODEL_INPUT_USE_MUTATION_AUTHZ = require_action_permission(
     ResourceBindingSpec(
         source=ResourceBindingSource.REQUEST_COMPOSITE,
         resource_kind=MODEL_INPUT_USE_RESOURCE_KIND,
-        selector_fields=tuple(ModelInputSuccessorActionRequest.model_fields),
+        selector_fields=tuple(NativeModelInputSuccessorActionRequest.model_fields),
         required_selector_fields=tuple(
             name
             for name, field in ModelInputSuccessorActionRequest.model_fields.items()
             if field.is_required()
         ),
+        omit_absent_selector_fields=("native_use",),
     ),
 )
 _MODEL_INPUT_USE_EXECUTION_AUTHZ = require_action_permission(
@@ -317,6 +319,11 @@ def _raise_service_error(exc: AcquisitionActionServiceError) -> None:
     if code == "candidate_experiment_step_up_expired_before_admission":
         raise forbidden(
             "Step-up expired before candidate experiment admission. Use a fresh assertion.",
+            code=code,
+        ) from exc
+    if code == "native_model_input_use_step_up_expired_before_admission":
+        raise forbidden(
+            "Step-up expired before Native model-input use admission. Use a fresh assertion.",
             code=code,
         ) from exc
     if code in {
@@ -726,7 +733,7 @@ def request_run_candidate_acquisition_experiment_reuse_decision(
 )
 def request_run_model_input_use_decision(
     run_id: str,
-    body: ModelInputSuccessorActionRequest,
+    body: NativeModelInputSuccessorActionRequest | ModelInputSuccessorActionRequest,
     request: Request,
     service: _Service,
 ) -> ModelInputSuccessorDecisionResponse:
@@ -757,21 +764,33 @@ def request_run_model_input_use_decision(
     "/{run_id}/model-input-use/execute",
     response_model=AcquisitionExecutionResponse,
     operation_id="execute_run_model_input_use",
-    dependencies=[Depends(_MODEL_INPUT_USE_EXECUTION_AUTHZ), Depends(_MUTATION_STEP_UP)],
+    dependencies=[Depends(_MODEL_INPUT_USE_EXECUTION_AUTHZ)],
 )
 def execute_run_model_input_use(
     run_id: str,
     body: ModelInputSuccessorExecutionRequest,
     request: Request,
     service: _Service,
+    step_up: Annotated[StepUpAssertionVerification, Depends(_MUTATION_STEP_UP)],
 ) -> AcquisitionExecutionResponse:
     """Queue one exact approved use of an active candidate model input."""
     tenant_id, cell_id, principal = _scope(request)
     set_authz_resource(request, tenant_id=tenant_id, kind=MODEL_INPUT_USE_RESOURCE_KIND)
-    if type(_MODEL_INPUT_USE_EXECUTION_AUTHZ(request)) is not BoundActionPermissionVerification:
+    proof = _MODEL_INPUT_USE_EXECUTION_AUTHZ(request)
+    if type(proof) is not BoundActionPermissionVerification:
         raise forbidden(
             "Candidate model-input use lacks its frozen request binding",
             code="authorization_binding_context_missing",
+        )
+    native_step_up_expires_at = None
+    if type(body.request) is NativeModelInputSuccessorActionRequest:
+        native_step_up_expires_at = _require_live_user_approval(
+            request,
+            principal=principal,
+            bound_permission=proof,
+            step_up=step_up,
+            refusal_code="authorization_binding_context_missing",
+            refusal_message="Native model-input use lacks its exact holder approval",
         )
     try:
         return service.execute_model_input_use(
@@ -781,6 +800,7 @@ def execute_run_model_input_use(
             request=body,
             request_id=ensure_request_id(request),
             principal=principal,
+            native_step_up_expires_at=native_step_up_expires_at,
         )
     except AcquisitionActionServiceError as exc:
         _raise_service_error(exc)

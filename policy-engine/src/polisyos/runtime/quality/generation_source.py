@@ -68,6 +68,7 @@ if TYPE_CHECKING:
 
 SOURCE_SCHEMA = "policyos.runtime.generation_source_handoff.v1"
 NATIVE_SOURCE_SCHEMA = "policyos.runtime.generation_source_handoff.v2"
+NATIVE_REQUALIFIED_SOURCE_SCHEMA = "policyos.runtime.generation_source_handoff.v3"
 SOURCE_KIND = "runtime.generation_source_handoff"
 SOURCE_RULE = "policyos.runtime.generation_source_preservation.v1"
 CREDAL_SOURCE_ATTEMPT_SCHEMA = "policyos.runtime.quality.candidate_credal_source_attempt.v1"
@@ -746,6 +747,10 @@ def _organ_source_payload(organ: n4.DesignGenerationOrganRun) -> dict[str, Any]:
         payload["selected_program_graph_linkage"] = organ.selected_program_graph_linkage.model_dump(
             mode="python"
         )
+    if organ.native_retained_candidate_origin is not None:
+        payload["native_retained_candidate_origin"] = (
+            organ.native_retained_candidate_origin.model_dump(mode="python")
+        )
     return payload
 
 
@@ -797,6 +802,7 @@ class GenerationSourceHandoff(_StrictModel):
     schema_version: Literal[
         "policyos.runtime.generation_source_handoff.v1",
         "policyos.runtime.generation_source_handoff.v2",
+        "policyos.runtime.generation_source_handoff.v3",
     ] = SOURCE_SCHEMA
     authority_purpose: Literal["candidate_source_custody"] = "candidate_source_custody"
     synthetic: bool | None
@@ -810,6 +816,10 @@ class GenerationSourceHandoff(_StrictModel):
     credal_reference_payload: dict[str, Any] | None
     candidate_sources: tuple[n4.GenerationCandidateSource, ...]
     selected_program_graph_linkage: n4.N4SelectedProgramGraphLinkage | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
+    native_retained_candidate_origin: n4.NativeRetainedCandidateOrigin | None = Field(
         default=None,
         exclude_if=lambda value: value is None,
     )
@@ -828,8 +838,39 @@ class GenerationSourceHandoff(_StrictModel):
         if self.content_hash != _source_content_hash(payload):
             raise ValueError("generation_source_content_hash_mismatch")
         native = type(self.selected_program_graph_linkage) is n4.N4SelectedProgramGraphLinkageV2
-        if native != (self.schema_version == NATIVE_SOURCE_SCHEMA):
+        if native != (
+            self.schema_version in (NATIVE_SOURCE_SCHEMA, NATIVE_REQUALIFIED_SOURCE_SCHEMA)
+        ):
             raise ValueError("generation_source_native_linkage_version_mismatch")
+        retained = self.native_retained_candidate_origin
+        if (retained is not None) != (self.schema_version == NATIVE_REQUALIFIED_SOURCE_SCHEMA):
+            raise ValueError("generation_source_retained_origin_version_mismatch")
+        if retained is not None:
+            linkage = self.selected_program_graph_linkage
+            if (
+                type(linkage) is not n4.N4SelectedProgramGraphLinkageV2
+                or retained.original_generic_input_ref != linkage.original_generic_input_ref
+                or retained.native_world_checkpoint_ref != linkage.native_world_checkpoint_ref
+                or self.generation_result.llm_calls
+                or self.generation_result.status != "generated"
+                or len(self.generation_result.candidates) != 1
+                or len(self.generation_result.grounding_dispositions) != 1
+                or self.generation_result.grounding_dispositions[0].disposition != "shadow_bound"
+            ):
+                raise ValueError("generation_source_retained_origin_binding_mismatch")
+            if (
+                retained.original_execution_scope == "contract_testing"
+                and self.execution_scope != "contract_testing"
+            ):
+                raise ValueError("generation_source_retained_scope_elevation_refused")
+            n4._require_one_native_retained_candidate(
+                self.generation_result.candidates,
+                self.generation_result.grounding_dispositions,
+                candidate_sources=self.candidate_sources,
+                bundle=self.trinity_bundle,
+            )
+            if self.candidate_sources[0].native_retained_grounding_trace is None:
+                raise ValueError("native_retained_candidate_grounding_trace_missing")
         if native and (
             self.cycle_substrate_context is None
             or self.selected_program_graph_linkage.context_content_hash
@@ -1028,7 +1069,7 @@ def _native_generation_source_inputs(
         or n4_child_profile_family_ref is not None
     ):
         raise ValueError("generation_source_native_owner_inputs_mismatch")
-    return (
+    inputs = (
         input_ref_from_artifact_ref(
             linkage.native_world_checkpoint_ref, role="native_world_checkpoint"
         ),
@@ -1036,6 +1077,21 @@ def _native_generation_source_inputs(
             linkage.original_generic_input_ref, role="original_generic_input"
         ),
     )
+    retained = source.native_retained_candidate_origin
+    if retained is not None:
+        inputs += (
+            input_ref_from_artifact_ref(
+                retained.original_generation_source_ref, role="retained_generation_source"
+            ),
+            input_ref_from_artifact_ref(
+                retained.model_input_use_phase_ref, role="model_input_use_phase"
+            ),
+            input_ref_from_artifact_ref(
+                retained.model_input_successor_selection_ref,
+                role="model_input_successor_selection",
+            ),
+        )
+    return inputs
 
 
 class CandidateCredalSourceAttemptV1(_StrictModel):
@@ -1655,6 +1711,273 @@ class GenerationSourceRepository:
         if self._native_world_owner is not None and self._native_world_owner is not owner:
             raise ValueError("generation_source_native_history_owner_already_bound")
         self._native_world_owner = owner
+
+    def _resolve_native_retained_candidate(
+        self,
+        linkage: n4.N4SelectedProgramGraphLinkageV2,
+        *,
+        job_id: str,
+        run_id: str,
+        tenant_id: str,
+        cell_id: str,
+    ) -> tuple[
+        n4.NativeRetainedCandidateOrigin, GenerationSourceHandoff, n4.ShadowGeneratedCandidate
+    ]:
+        """Replay the selected historical candidate without granting current use."""
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleSimulationN5InputV1,
+        )
+        from polisyos.runtime.quality.native_generic_context import (
+            NativeModelInputUseWorldSelection,
+        )
+
+        owner = self._native_world_owner
+        if owner is None or type(linkage) is not n4.N4SelectedProgramGraphLinkageV2:
+            raise ValueError("native_retained_candidate_history_owner_unavailable")
+        selection = owner.resolve_native_model_input_use_world_selection(
+            linkage.native_world_checkpoint_ref
+        )
+        if type(selection) is not NativeModelInputUseWorldSelection:
+            raise ValueError("native_retained_candidate_selection_untyped")
+        checkpoint = selection.checkpoint
+        if (
+            checkpoint.action_job_id != job_id
+            or checkpoint.run_id != run_id
+            or checkpoint.tenant_id != tenant_id
+            or checkpoint.cell_id != cell_id
+            or checkpoint.original_generic_input_ref != linkage.original_generic_input_ref
+            or checkpoint.original_profile_ref != linkage.profile_ref
+            or checkpoint.current_profile_selection_ref != linkage.profile_selection_ref
+            or checkpoint.context_job_ref != linkage.context_job_ref
+        ):
+            raise ValueError("native_retained_candidate_selection_scope_mismatch")
+        original = GenericCycleSimulationN5InputV1.model_validate(
+            read_core_json_artifact(self.store, linkage.original_generic_input_ref).value
+        )
+        original = owner.resolve_n5_input(linkage.original_generic_input_ref, expected=original)
+        if (
+            original.schema_version != "policyos.runtime.generic_cycle_simulation_n5_input.v1"
+            or original.profile_ref != checkpoint.original_profile_ref
+            or original.job_id != checkpoint.source_job_id
+            or original.run_id != run_id
+            or original.tenant_id != tenant_id
+            or original.cell_id != cell_id
+            or original.child_selection is not None
+            or original.n4_child_profile_family_ref is not None
+            or original.n4_child_profile_set_ref is not None
+        ):
+            raise ValueError("native_retained_candidate_original_input_mismatch")
+        source, candidate, _context, _port = owner._replay_n5_input_sources(original)
+        if (
+            type(source) is not GenerationSourceHandoff
+            or type(candidate) is not n4.ShadowGeneratedCandidate
+            or source.schema_version != SOURCE_SCHEMA
+            or source.cycle_index != original.cycle_index
+            or source.generation_result.status != "generated"
+            or source.generation_result.preflight.status != "supported"
+            or source.trinity_bundle is None
+            or len(source.trinity_bundle.policy_spec.interventions) != 1
+            or source.problem != selection.source_selection.historical_selection.problem
+        ):
+            raise ValueError("native_retained_candidate_original_source_invalid")
+        members = tuple(
+            member
+            for member in source.candidate_sources
+            if member.candidate_id == candidate.candidate_id
+            and member.intervention_id == candidate.atom.intervention_id
+        )
+        calls = source.generation_result.llm_calls
+        provenance = candidate.provenance
+        successful_calls = tuple(call for call in calls if call.status == "success")
+        if (
+            len(members) != 1
+            or source.trinity_bundle.policy_spec.interventions[0].intervention_id
+            != members[0].intervention_id
+            or candidate.candidate_id != original.candidate_id
+            or candidate.atom.content_hash != original.candidate_atom_hash
+            or provenance.model_id != source.generation_result.model_id
+            or source.generation_result.preflight.model_id != source.generation_result.model_id
+            or provenance.draft_generator_path != "model_generated"
+            or provenance.formalizer_generator_path != "model_generated"
+            or provenance.critic_generator_path != "model_generated"
+            or provenance.prompt_hashes != tuple(call.prompt_hash for call in calls)
+            or provenance.raw_llm_responses
+            != tuple(call.raw_llm_response for call in calls if call.raw_llm_response)
+            or not {"draft", "formalizer", "critic"}.issubset(
+                {call.role_hint for call in successful_calls if call.raw_llm_response}
+            )
+            or any(
+                call.parsed_json != n4._try_parse_json(call.raw_llm_response)
+                for call in successful_calls
+            )
+            or n4.trinity_bundle_formalizer_generator_path(
+                source.trinity_bundle, recorded_calls=calls
+            )
+            != "model_generated"
+        ):
+            raise ValueError("native_retained_candidate_producer_provenance_mismatch")
+        origin = n4.NativeRetainedCandidateOrigin(
+            original_generic_input_ref=linkage.original_generic_input_ref,
+            original_generation_source_ref=original.n4_source_ref,
+            original_candidate_id=candidate.candidate_id,
+            original_candidate_atom_hash=candidate.atom.content_hash,
+            original_proposal_id=members[0].proposal_id,
+            original_execution_scope=source.execution_scope,
+            synthetic=source.synthetic,
+            native_world_checkpoint_ref=linkage.native_world_checkpoint_ref,
+            model_input_use_phase_ref=checkpoint.model_input_use_phase_ref,
+            model_input_successor_selection_ref=checkpoint.model_input_successor_selection_ref,
+        )
+        return origin, source, candidate
+
+    def _verify_native_retained_candidate(
+        self,
+        source: GenerationSourceHandoff,
+        *,
+        job_id: str | None,
+        run_id: str,
+        tenant_id: str | None,
+        cell_id: str | None,
+    ) -> None:
+        """Verify V3 origin and historical model facts against the owned source."""
+        retained = source.native_retained_candidate_origin
+        if retained is None:
+            return
+        linkage = source.selected_program_graph_linkage
+        if type(linkage) is not n4.N4SelectedProgramGraphLinkageV2 or not all(
+            isinstance(value, str) and value.strip() for value in (job_id, tenant_id, cell_id)
+        ):
+            raise ValueError("native_retained_candidate_replay_scope_missing")
+        expected, original, old_candidate = self._resolve_native_retained_candidate(
+            linkage,
+            job_id=str(job_id),
+            run_id=run_id,
+            tenant_id=str(tenant_id),
+            cell_id=str(cell_id),
+        )
+        if (
+            retained != expected
+            or source.problem != original.problem
+            or source.trinity_bundle != original.trinity_bundle
+            or source.generation_result.model_id != original.generation_result.model_id
+            or source.generation_result.preflight != original.generation_result.preflight
+            or source.generation_result.llm_calls
+            or source.generation_result.effective_runtime_config is not None
+            or len(source.generation_result.grounding_dispositions) != 1
+            or source.generation_result.grounding_dispositions[0].proposal_id
+            != retained.original_proposal_id
+            or len(source.generation_result.candidates) != 1
+        ):
+            raise ValueError("native_retained_candidate_source_mismatch")
+        (candidate,) = source.generation_result.candidates
+        old_provenance = old_candidate.provenance
+        provenance = candidate.provenance
+        if (
+            candidate.atom.intervention_id != old_candidate.atom.intervention_id
+            or candidate.critique_verdict != old_candidate.critique_verdict
+            or provenance.model_id != old_provenance.model_id
+            or provenance.generator_path != old_provenance.generator_path
+            or provenance.draft_generator_path != old_provenance.draft_generator_path
+            or provenance.formalizer_generator_path != old_provenance.formalizer_generator_path
+            or provenance.critic_generator_path != old_provenance.critic_generator_path
+            or provenance.prompt_hashes != old_provenance.prompt_hashes
+            or provenance.raw_llm_responses != old_provenance.raw_llm_responses
+            or provenance.trinity_bundle_ref != old_provenance.trinity_bundle_ref
+            or len(source.candidate_sources) != 1
+            or source.candidate_sources[0].proposal_id != retained.original_proposal_id
+        ):
+            raise ValueError("native_retained_candidate_new_provenance_mismatch")
+        reference = source.reference()
+        if reference is None:
+            raise ValueError("native_retained_candidate_reference_missing")
+        context = source.cycle_substrate_context
+        if context is None:
+            raise ValueError("native_retained_candidate_context_missing")
+        n4._require_native_retained_rankings(
+            result=source.generation_result,
+            design_problem=source.problem,
+            substrate=context.intervention_substrate,
+        )
+        n4._verify_native_retained_grounding_trace(
+            source=source.candidate_sources[0],
+            disposition=source.generation_result.grounding_dispositions[0],
+            reference=reference,
+        )
+
+    def _verify_current_native_retained_candidate(
+        self,
+        source: GenerationSourceHandoff,
+        *,
+        job_id: str | None,
+        run_id: str,
+        tenant_id: str | None,
+        cell_id: str | None,
+    ) -> None:
+        """Require the actual live action before and after writing a V3 source."""
+        retained = source.native_retained_candidate_origin
+        if retained is None:
+            return
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleNativeWorldContextHandoffV1,
+        )
+        from polisyos.runtime.quality.native_generic_context import (
+            NativeModelInputUseWorldSelection,
+            resolve_native_selected_program_graph_linkage,
+        )
+
+        owner = self._native_world_owner
+        linkage = source.selected_program_graph_linkage
+        if (
+            owner is None
+            or type(linkage) is not n4.N4SelectedProgramGraphLinkageV2
+            or source.cycle_substrate_context is None
+        ):
+            raise ValueError("native_retained_candidate_current_owner_unavailable")
+        selection = owner.resolve_native_model_input_use_world_selection(
+            linkage.native_world_checkpoint_ref
+        )
+        if type(selection) is not NativeModelInputUseWorldSelection:
+            raise ValueError("native_retained_candidate_selection_untyped")
+        checkpoint = selection.checkpoint
+        if (
+            checkpoint.action_job_id,
+            checkpoint.run_id,
+            checkpoint.tenant_id,
+            checkpoint.cell_id,
+        ) != (
+            job_id,
+            run_id,
+            tenant_id,
+            cell_id,
+        ):
+            raise ValueError("native_retained_candidate_current_scope_mismatch")
+        if (
+            checkpoint.context_job_ref != linkage.context_job_ref
+            or selection.context != source.cycle_substrate_context
+        ):
+            raise ValueError("native_retained_candidate_current_context_mismatch")
+        handoff = GenericCycleNativeWorldContextHandoffV1(
+            context=source.cycle_substrate_context,
+            context_job_ref=linkage.context_job_ref,
+            profile=selection.source_selection.historical_selection.original_profile,
+            profile_ref=linkage.profile_ref,
+            native_world_checkpoint_ref=linkage.native_world_checkpoint_ref,
+            original_generic_input_ref=linkage.original_generic_input_ref,
+            current_profile_selection_ref=linkage.profile_selection_ref,
+            source_job_id=checkpoint.source_job_id,
+            job_id=checkpoint.action_job_id,
+            run_id=checkpoint.run_id,
+            tenant_id=checkpoint.tenant_id,
+            cell_id=checkpoint.cell_id,
+        )
+        selected = resolve_native_selected_program_graph_linkage(
+            owner, handoff=handoff, problem=source.problem
+        )
+        if (
+            not selected.compiled_singleton
+            or n4.N4SelectedProgramGraphLinkageV2.from_native_selected_owner(selected) != linkage
+        ):
+            raise ValueError("native_retained_candidate_current_linkage_changed")
 
     def _writer(self) -> artifacts.ArtifactStore:
         """Require the real supplied owner to expose the complete writer port."""
@@ -4779,7 +5102,11 @@ class GenerationSourceRepository:
             "execution_scope": execution_scope,
             **_organ_source_payload(organ),
         }
-        if type(organ.selected_program_graph_linkage) is n4.N4SelectedProgramGraphLinkageV2:
+        if organ.native_retained_candidate_origin is not None:
+            if expected_run_id is None or not all(value is not None for value in scope):
+                raise ValueError("native_retained_candidate_current_scope_missing")
+            payload["schema_version"] = NATIVE_REQUALIFIED_SOURCE_SCHEMA
+        elif type(organ.selected_program_graph_linkage) is n4.N4SelectedProgramGraphLinkageV2:
             payload["schema_version"] = NATIVE_SOURCE_SCHEMA
         draft = GenerationSourceHandoff.model_construct(
             **payload,
@@ -4800,6 +5127,13 @@ class GenerationSourceRepository:
                 tenant_id=tenant_id,
                 cell_id=cell_id,
             )
+        self._verify_native_retained_candidate(
+            artifact,
+            job_id=job_id,
+            run_id=expected_run_id or run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
         body = canon.to_canonical_bytes(artifact, _SOURCE_CANON)
         generic_source_inputs = ()
         if context_job_ref is not None and profile_ref is not None:
@@ -4834,7 +5168,13 @@ class GenerationSourceRepository:
             options = _candidate_simulation_write_options(
                 kind=SOURCE_KIND,
                 schema_name=artifact.schema_version,
-                schema_version="2.0" if artifact.schema_version == NATIVE_SOURCE_SCHEMA else "1.0",
+                schema_version=(
+                    "3.0"
+                    if artifact.schema_version == NATIVE_REQUALIFIED_SOURCE_SCHEMA
+                    else "2.0"
+                    if artifact.schema_version == NATIVE_SOURCE_SCHEMA
+                    else "1.0"
+                ),
                 job_id=job_id,
                 run_id=expected_run_id or run_id,
                 tenant_id=tenant_id,
@@ -4842,10 +5182,24 @@ class GenerationSourceRepository:
                 source_ref=artifact.content_hash,
                 input_refs=generic_source_inputs,
             )
+        self._verify_current_native_retained_candidate(
+            artifact,
+            job_id=job_id,
+            run_id=expected_run_id or run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
         ref = self._writer().put_bytes(
             body,
             options,
             return_selected_profile=bool(generic_source_inputs),
+        )
+        self._verify_current_native_retained_candidate(
+            artifact,
+            job_id=job_id,
+            run_id=expected_run_id or run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
         )
         if generic_source_inputs and ref.manifest_profile_sha256 is None:
             raise ValueError("generation_source_generic_selected_profile_not_returned")
@@ -4927,6 +5281,8 @@ class GenerationSourceRepository:
         artifact = _mark_canonical_profile_read(artifact, profile_read, ref)
         if artifact.run_id != run_id:
             raise ValueError("generation_source_run_mismatch")
+        if artifact.native_retained_candidate_origin is not None and expected_run_id is None:
+            raise ValueError("native_retained_candidate_current_scope_missing")
         generic_source_inputs = ()
         if context_job_ref is not None and profile_ref is not None:
             generic_source_inputs = (
@@ -4960,7 +5316,13 @@ class GenerationSourceRepository:
             owner_options = _candidate_simulation_write_options(
                 kind=SOURCE_KIND,
                 schema_name=artifact.schema_version,
-                schema_version="2.0" if artifact.schema_version == NATIVE_SOURCE_SCHEMA else "1.0",
+                schema_version=(
+                    "3.0"
+                    if artifact.schema_version == NATIVE_REQUALIFIED_SOURCE_SCHEMA
+                    else "2.0"
+                    if artifact.schema_version == NATIVE_SOURCE_SCHEMA
+                    else "1.0"
+                ),
                 job_id=expected_job_id,
                 run_id=expected_run_id or run_id,
                 tenant_id=expected_tenant_id,
@@ -4980,6 +5342,13 @@ class GenerationSourceRepository:
                 tenant_id=expected_tenant_id,
                 cell_id=expected_cell_id,
             )
+        self._verify_native_retained_candidate(
+            artifact,
+            job_id=expected_job_id,
+            run_id=expected_run_id or run_id,
+            tenant_id=expected_tenant_id,
+            cell_id=expected_cell_id,
+        )
         return artifact
 
     def persist_candidate_credal_source_attempt(

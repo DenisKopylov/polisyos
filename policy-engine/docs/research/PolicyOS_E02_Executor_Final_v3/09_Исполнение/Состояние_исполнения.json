@@ -10854,8 +10854,8 @@
             "packets_assessed": 11,
             "requirements_assessed": 66,
             "status_counts": {
-              "CONFIRMED_LOCAL_PROFILE": 56,
-              "PARTIAL": 8,
+              "CONFIRMED_LOCAL_PROFILE": 57,
+              "PARTIAL": 7,
               "BLOCKED_EXTERNAL_INPUT": 2
             },
             "scope": "Requirement-level retained evidence for named local profiles. Original shared scenarios, independent G and the 300k operating profile keep their own acceptance.",
@@ -20044,6 +20044,13 @@
           "sha256": "6a7acdcde69bfc96e7699d2713764d216102a3d364647fd514d1120131ad03bb",
           "verified_boundary": "Three new controls pass. The Simple scheduler distinguishes truly absent proxy from supplied numeric zero under identical positive information and budget, closes the null/refusal shape, persists and reopens the heuristic VOI audit, and preserves exact legacy nested canonical bytes and digest. Full wave 20 passed, one failed, zero skips. The strict 19c7 preimage replay loads original scheduler and test, verifies 885 source origins and reproduces the same legacy_evaluation_subject_unbound before scheduling. Independent review limits proof to Simple/audit; stock N6 wiring and affected retained consumer replay pending."
         },
+        "cyc03_05_v5_r9_cold_ledger_identity_conflict": {
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "source_tree": "93dd2fe60a0afcd4463e6b77a43a5ea53f691640",
+          "output": "Primary:policy-engine/_cache/e02/lane01-v5-run-details-r9-preflight-r9/execution-r9/history-resolution-trace.sanitized.json",
+          "sha256": "9ec4412ddf6c335ae7000b965213d4c8a5b530a70afea0ebdf84847d6752028e",
+          "verified_boundary": "A fresh stock authenticated GET returns HTTP 200 after separate exact Scientist/Core run identity, scoped source read and canonical composition, but with zero V5 rows and acquisition_action_history_integrity_not_established. Strict read fails with reentry_budget_window_conflict. Terminal, action, source payload, window and ledger bytes match. The COW fixture replaces parent directory and lock inodes bound by the original settlement window. Original artifacts, SQLite and Catalog are unchanged. Three authorized access/data audit events append to the clone. Effect guards see no WDI, LLM, worker or external transport. The N5 counter did not persist on this failed read. Actual V5 history, removal/restoration and mounted view remain open."
+        },
         "cyc03_05_overview_selected_n5_profile_links": {
           "source_commit": "ce28cd2fa517db565ffd97595c828685318827d0",
           "source_tree": "35f22a80b8fea4920c6d2db3875a9a80d7c5e362",
@@ -20057,6 +20064,41 @@
           "output": "CYC isolated checkout:policy-engine/_cache/e02/cyc0403-fqn-wrapper-r1-20261123/result.json",
           "sha256": "8a8d3a02d25203ad3097a2b5700a4ec3126828fad1a0fa5de4f493568884ddb8",
           "verified_boundary": "Nine scoped unit/projection selectors and one exact wrapper selected-FQN case pass. Typed AIPW local refusal checks both treatment arms and pure selected method parameters; markerless or unsupported shared input refuses the sibling. The wrapper verifies stored method/N5 lineage and sends FQN, method ref and preserved N5 to the actual route adapter. Legacy refusal wire remains. 147 Dashboard tests, 63 SDK tests, their types, runtime contract drift and normal hooks pass. Actual served N5-to-N8-to-sibling, preserved spend and mounted HTTP are still missing."
+        },
+        "acq01_domain_scope_r2": {
+          "source_commit": "f78f9aadff3809a3bd2e086ff8feca84b39a0f69",
+          "source_tree": "d35e8bb3bede23f99d24780d6bd331add9d7d870",
+          "output": "Primary:policy-engine/_cache/e02/acq01-domain-scope-r2.i8a3k1bm/junit.xml",
+          "sha256": "baad5f01c93d8ecc9254551b5801c5b3e4b5b512a7b85aa69f476e3a69f40d65",
+          "verified_boundary": "Five controls pass without skips on mirror SHA-256 6f0a4e76a7994b948cfa83cc5129c208f300efb9569e90fc628e36f347208544. The actual compiler and registered resolver distinguish Labor and GDP, typed scope and direction, raw-input substitution, missing resolver, and stale-source refusal with restoration. 1,772 exact origins, 19 stable pins and no worker, provider or N5. Independent delta review confirms the corrected missing-resolver oracle. Live N7 alternatives and established no-need/no-gain remain open."
+        },
+        "cyc04_03_stock_exhausted_after_first_n5_r1": {
+          "source_commit": "427c8a5cb41960ec02aaa337794cfedf79d7be01",
+          "source_tree": "0f1426626ce3eb9e4639a00aab8c2b84a0380f74",
+          "output": "Primary:policy-engine/_cache/e02/cyc04-exhausted-stock-r1.KqHg82/effect-census.json",
+          "sha256": "e5ad53048dbcdb334680296a9010fb61b84fa676a4b783e7912d16fc2b09dda6",
+          "verified_boundary": "The exact stock selector passes 1/1 in inner JUnit. One actual government.balance N5 gives 0.25. The AIPW owner records its candidate-local mismatch. The second cells.distress_score attempt persists n5_invocation_quota_exhausted without an N5 body. Exactly one standard completion, protected capacity 1, two successful stock GETs and no external provider. The provenance wrapper exits 1 after omitting the already-present untracked limited_research_outcome.py. An independently reopened preserved source copy matches observed SHA-256 babbf73cd11d27befc50b940f98a40c7b34c272e9068364fab0bcbc416c8e8f8. All other origins and named pins match. The wrapper result remains failed."
+        },
+        "cyc05_03_model_only_limited_research_component_r2": {
+          "source_commit": "f78f9aadff3809a3bd2e086ff8feca84b39a0f69",
+          "source_tree": "d35e8bb3bede23f99d24780d6bd331add9d7d870",
+          "output": "Primary:policy-engine/_cache/e02/cyc05-03-limited-research-unit-r2-20261123-0C4e2s48/budget/result.json",
+          "sha256": "8bedb94a1087d908f8a78f11553a9824799d925b7a26f2c56e2fe4e74ed22975",
+          "verified_boundary": "Six component checks use the retained NCM result 41e0a637… and its actual matched-seed model-only contrast. Both seed effects are +2. The owner preserves simulation_only_k_sim_not_world_evidence and refuses unsupported estimands, wrong direction, scope or unit, and a persisted projection without the selected owner. R1 retains its wrong level assertion. The fourth N6 stop producer and mounted consumer remain open."
+        },
+        "cyc04_03_stock_positive_r3": {
+          "source_commit": "f78f9aadff3809a3bd2e086ff8feca84b39a0f69",
+          "source_tree": "d35e8bb3bede23f99d24780d6bd331add9d7d870",
+          "output": "Primary:policy-engine/_cache/e02/cyc04-bound-discovery-served-positive-r3.H9n3Cm/effect-census.json",
+          "sha256": "2d78b6f36c5d7aa0f9df4997a3ef62a7416b458e9d788c495349d0dcecc49cb2",
+          "verified_boundary": "The corrected stock JUnit passes 1/1. One completed job has one cycle and three original candidates. Two physical N5 calls, one replication each, retain first government.balance at 0.25 and second cells.distress_score at 0.5. The actual AIPW owner emits the first local mismatch and returns 1.9999943737942087 for the second. Six real GETs show the numerical and method receipt removals and exact restoration. Two standard units complete, the protected unit remains, and no external supplier or reader work occurs. The shared provenance wrapper exits 1 due to one concurrent additive acquisition_planner.py delta. Exact preimage/observed source copies and the two origin sets are preserved separately."
+        },
+        "cyc05_03_limited_research_scalar_metric_r3": {
+          "source_commit": "f78f9aadff3809a3bd2e086ff8feca84b39a0f69",
+          "source_tree": "d35e8bb3bede23f99d24780d6bd331add9d7d870",
+          "output": "Primary:policy-engine/_cache/e02/cyc05-03-limited-research-unit-r3-20261123-r4gTB5iH/budget/result.json",
+          "sha256": "29ddac6883b1079ec4e4fbae6dd1c7283cec7c77855046417ab5a32a64d1bb81",
+          "verified_boundary": "Six passed. Reusing the genuine model result with both equal foreign metric labels firm_survival_lower_quartile now refuses. The stock scalar closure requires the requested metric to name the selected scalar when no owner-backed metric reduction is available. Independent delta review accepts the exact helper and test. The fourth stock N6 producer and mounted consumer remain open."
         },
         "cyc03_controlled_replica_fresh_api_removal_restoration": {
           "source_commit": "b30c1a1b27d749b1623d907aa09e4aba57dbec52",
@@ -36802,6 +36844,7 @@
           ],
           "status": "PARTIAL",
           "evidence_refs": [
+            "acq01_domain_scope_r2",
             "governed_n7_same_cycle_reentry_r8",
             "requirement_selection_consumer_current"
           ],
@@ -37105,6 +37148,7 @@
           ],
           "status": "PARTIAL",
           "evidence_refs": [
+            "cyc03_05_v5_r9_cold_ledger_identity_conflict",
             "lane01_r33_composed_historical_reader",
             "r33_independent_fresh_reader_r6",
             "cyc03_05_overview_selected_n5_profile_links"
@@ -37232,17 +37276,17 @@
             "E02-I01-C-B01",
             "E02-X01-B02"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
+            "cyc04_03_stock_positive_r3",
+            "cyc04_03_stock_exhausted_after_first_n5_r1",
             "cyc04_full_served_r7",
             "cyc04_grounded_fallback_current",
             "cyc04_03_candidate_local_aipw_projection"
           ],
-          "basis": "Actual candidate-local N5 refusal falls through once to an already grounded sibling. The narrow AIPW path now classifies a verified local estimand treatment divergence after shared source admission and preserves selected method, its typed refusal and first N5 through the tested wrapper and route adapter. Existing shared/markerless stops remain.",
-          "remaining_kinds": [
-            "semantic_test_missing"
-          ],
-          "remaining": "Run one actual N5-to-N8 owner-backed AIPW profile with genuine local divergence, suitable already-generated sibling and no redraft. Preserve the exact first completed numerical result and physical spend, show both through fresh HTTP, and pair a real shared malformed/stale source or budget refusal that permits no sibling work. The current wrapper, wire and route tests do not execute this numerical chain. N5-local fallback remains independently demonstrated."
+          "basis": "The stock candidate-local N5 and N8 fallback controls preserve first work and exact provenance, execute the already-generated suitable sibling once, and stop on shared denial or standard exhaustion. Corrected positive R3 and exhaustion R1 pass their inner JUnit assertions. Cold R4 verifies the exact retained values, typed refusal and two independent removal/restoration controls without N5. Independent source review reconciles both wrapper failures with the named unaffected executions. Strict all-origin wrapper results remain failed. Qualification is scoped to the original local semantic profile.",
+          "remaining_kinds": [],
+          "remaining": ""
         },
         {
           "requirement_id": "REQ-CYC-04-04",
@@ -37423,6 +37467,8 @@
           ],
           "status": "PARTIAL",
           "evidence_refs": [
+            "cyc05_03_limited_research_scalar_metric_r3",
+            "cyc05_03_model_only_limited_research_component_r2",
             "cyc05_stop_dashboard_composed_r1",
             "frontier_current_r8",
             "cyc_05_03_fresh_actual_n6_stop_http"

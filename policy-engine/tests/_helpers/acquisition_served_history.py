@@ -46,7 +46,10 @@ if TYPE_CHECKING:
         AcquisitionRouteMutationRequest,
     )
     from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
-    from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionRouteLoopReceiptV2,
+        VerifiedAcquisitionRouteClosure,
+    )
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateScenarioSetToRule,
         CandidateSimulationScenarioProfile,
@@ -300,6 +303,28 @@ def _read_owned_terminal(store, ref):
         assert version in {"1.0", "2.0"}
         model = AcquisitionRouteLoopReceiptV2 if version == "2.0" else AcquisitionRouteLoopReceipt
         return model.model_validate(canon.from_canonical_bytes(store.get_bytes(ref)))
+
+
+def _assert_completed_acquisition_readback(
+    control: ControlPlaneService,
+    receipt: AcquisitionRouteLoopReceipt | AcquisitionRouteLoopReceiptV2,
+    *,
+    terminal_ref: str,
+    growth_refs: tuple[str, ...],
+) -> None:
+    """Verify the current durable selection after its job's lease has closed."""
+    selected = _within_fixture_owner(
+        control.acquisition_route_sink.current_action_outcome,
+        tenant_id=receipt.tenant_id,
+        cell_id=receipt.cell_id,
+        run_id=receipt.run_id,
+        source_job_id=receipt.source_job_id,
+        route_id=receipt.route_id,
+    )
+    assert selected is not None and selected.head.receipt_ref == terminal_ref
+    assert selected.latest_receipt == receipt
+    assert selected.selection_phase is not None
+    assert selected.selection_phase.owner_receipt_refs == growth_refs
 
 
 def _served_wdi_candidate_profile(
@@ -3062,19 +3087,14 @@ def _produce_served_acquisition_history(
             assert fresh_closure.route_source_cycle == closure.source_cycle
             assert fresh_closure.route_id == closure.route_id
             assert fresh_closure.source_cycle.cycle_index == cycle.cycle_index
-            # Replaying the same growth receipt still resolves its existing
-            # pointer; this is distinct from advancing to a new growth ref.
-            replayed_reentry_ref = _within_fixture_owner(
-                cases[-1].bridge.resume,
-                closure,
-                (growth_refs[0],),
+            # This job has already finished. Reopen its terminal and growth
+            # through their history owner before preparing a successor.
+            _assert_completed_acquisition_readback(
+                control,
+                receipt,
+                terminal_ref=result["terminal_receipt_ref"],
+                growth_refs=tuple(growth_refs),
             )
-            assert replayed_reentry_ref == reentry_ref
-            # This fixture has no independently admitted second observation.
-            # The latest source is selected, but absence of a new growth owner
-            # remains a typed refusal rather than replaying the prior receipt.
-            with pytest.raises(ValueError, match="acquisition_live_evidence_not_admitted"):
-                _within_fixture_owner(cases[-1].bridge.resume, fresh_closure, ())
 
             if sequential_oracle is not None:
                 sequential_oracle.run(

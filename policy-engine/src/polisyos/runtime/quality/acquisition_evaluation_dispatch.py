@@ -787,7 +787,8 @@ def dispatch_candidate_experiment_reuse(
         admission=admission,
         native_context=native_context,
     )
-    with catalog_serving_source_scope(service.catalog_serving_source):
+    catalog_source = service.catalog_serving_source
+    with catalog_serving_source_scope(catalog_source):
         owner._require_live_pa2()
         occurrence_ref = persist_candidate_experiment_reuse_occurrence(
             bridge.artifact_store,
@@ -870,11 +871,11 @@ def dispatch_candidate_experiment_reuse(
                 currentness_resolver=retained.currentness_resolver,
             )
             controller = GenerationCycleController(
-                repo_root=bridge.repo_root,
+                repo_root=catalog_source.repo_root,
                 model_id=models[0],
                 promotion_runtime=bridge.promotion_runtime,
                 artifact_store=bridge.artifact_store,
-                catalog_serving_source=service.catalog_serving_source,
+                catalog_serving_source=catalog_source,
                 capability_resolver=service._registry_providers.capability_resolver,
                 cycle_substrate_context=prior.handoff.context,
                 candidate_simulation_handoff=prior.handoff,
@@ -6777,14 +6778,15 @@ def dispatch_candidate_experiment_evaluation(
         models = payload.get("llm_models")
         if not isinstance(models, list) or not models or not isinstance(models[0], str):
             raise ValueError("candidate_experiment_retained_model_not_configured")
-        with catalog_serving_source_scope(service.catalog_serving_source):
+        catalog_source = service.catalog_serving_source
+        with catalog_serving_source_scope(catalog_source):
             evaluation_owner.revalidate()
             controller = GenerationCycleController(
-                repo_root=bridge.repo_root,
+                repo_root=catalog_source.repo_root,
                 model_id=models[0],
                 promotion_runtime=bridge.promotion_runtime,
                 artifact_store=bridge.artifact_store,
-                catalog_serving_source=service.catalog_serving_source,
+                catalog_serving_source=catalog_source,
                 capability_resolver=service._registry_providers.capability_resolver,
                 cycle_substrate_context=prior.handoff.context,
                 candidate_simulation_handoff=prior.handoff,
@@ -7325,7 +7327,8 @@ def _current_cheap_continuation(owner: AcquisitionEvaluationCurrentOwner) -> obj
     service = bridge._source_control_service
     if prior is None or type(service) is not ControlPlaneService:
         raise ValueError("acquisition_retained_current_owner_not_composed")
-    with catalog_serving_source_scope(service.catalog_serving_source):
+    catalog_source = service.catalog_serving_source
+    with catalog_serving_source_scope(catalog_source):
         selection = owner.revalidate()
         closure = selection.closure
         payload = load_core_json_artifact(bridge.artifact_store, closure.source_payload_ref)
@@ -7333,11 +7336,11 @@ def _current_cheap_continuation(owner: AcquisitionEvaluationCurrentOwner) -> obj
         if not isinstance(models, list) or not models or not isinstance(models[0], str):
             raise ValueError("acquisition_retained_current_model_unconfigured")
         controller = GenerationCycleController(
-            repo_root=bridge.repo_root,
+            repo_root=catalog_source.repo_root,
             model_id=models[0],
             promotion_runtime=bridge.promotion_runtime,
             artifact_store=bridge.artifact_store,
-            catalog_serving_source=service.catalog_serving_source,
+            catalog_serving_source=catalog_source,
             capability_resolver=service._registry_providers.capability_resolver,
             cycle_substrate_context=prior.handoff.context,
             candidate_simulation_handoff=prior.handoff,
@@ -7401,14 +7404,15 @@ def _dispatch_candidate_retained_continuation(
     models = payload.get("llm_models")
     if not isinstance(models, list) or not models or not isinstance(models[0], str):
         raise ValueError("candidate_retained_current_model_unconfigured")
-    with catalog_serving_source_scope(service.catalog_serving_source):
+    catalog_source = service.catalog_serving_source
+    with catalog_serving_source_scope(catalog_source):
         owner.revalidate()
         controller = GenerationCycleController(
-            repo_root=bridge.repo_root,
+            repo_root=catalog_source.repo_root,
             model_id=models[0],
             promotion_runtime=bridge.promotion_runtime,
             artifact_store=bridge.artifact_store,
-            catalog_serving_source=service.catalog_serving_source,
+            catalog_serving_source=catalog_source,
             capability_resolver=service._registry_providers.capability_resolver,
             cycle_substrate_context=owner.prior.handoff.context,
             candidate_simulation_handoff=owner.prior.handoff,

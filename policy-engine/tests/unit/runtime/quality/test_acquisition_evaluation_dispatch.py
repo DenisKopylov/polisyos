@@ -11,7 +11,7 @@ import pytest
 from polisyos.core import artifacts
 from polisyos.runtime.quality import acquisition_evaluation_dispatch as dispatch
 from polisyos.runtime.quality.acquisition_evaluation import AcquisitionEvaluationBasis
-from polisyos.runtime.quality.generation_cycle import GenerationCycleRun
+from polisyos.runtime.quality.generation_cycle import GenerationCycleController, GenerationCycleRun
 from polisyos.runtime.quality.generation_source import GenerationSourceRepository
 from polisyos.runtime.quality.substrate_registry import current_catalog_serving_source
 from tests._helpers.runtime_http import _build_control_service
@@ -29,6 +29,9 @@ def test_ordinary_retention_composes_current_owner_and_reopens_source(
     repo_root = Path(__file__).resolve().parents[4]
     service = _build_control_service(tmp_path, artifact_store=store, repo_root=repo_root)
     catalog = service.catalog_serving_source
+    acquisition_root = tmp_path / "wdi" / "repo"
+    acquisition_root.mkdir(parents=True)
+    assert acquisition_root != catalog.repo_root
 
     def save(value: dict[str, object], kind: str) -> artifacts.ArtifactRef:
         return store.put_json(
@@ -76,7 +79,7 @@ def test_ordinary_retention_composes_current_owner_and_reopens_source(
     bridge = SimpleNamespace(
         artifact_store=store,
         event_log=service._diagnostic_event_log,
-        repo_root=repo_root,
+        repo_root=acquisition_root,
         promotion_runtime=service._promotion_runtime,
         _source_control_service=service,
     )
@@ -97,6 +100,14 @@ def test_ordinary_retention_composes_current_owner_and_reopens_source(
         return basis.model_copy(update=payload)
 
     monkeypatch.setattr(dispatch, "read_acquisition_basis_or_decision_artifact", read_basis)
+    begin = GenerationCycleController._begin_source_run
+
+    def observe_begin(controller: GenerationCycleController, run_id: str) -> None:
+        assert controller._repo_root == catalog.repo_root
+        assert current_catalog_serving_source() is catalog
+        begin(controller, run_id)
+
+    monkeypatch.setattr(GenerationCycleController, "_begin_source_run", observe_begin)
     reopened = []
     real_source_read = GenerationSourceRepository.load_candidate_scenario_source_in_owner_scope
 

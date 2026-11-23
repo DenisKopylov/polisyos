@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from decimal import Decimal
+from types import SimpleNamespace
 
 from polisyos.scientist.methods.search.funnel.types import CheapSignalVector, FunnelStageResult
 from polisyos.scientist.methods.search.pareto_registry import (
@@ -96,6 +97,41 @@ def test_voi_prioritizes_higher_roi_ticket_first() -> None:
     )
     assert decisions[0].candidate_id == "a"
     assert decisions[0].recommended_action == "advance"
+
+
+def test_voi_information_advance_distinguishes_missing_proxy_from_known_zero() -> None:
+    scheduler = SimpleVOIScheduler(stage_costs={3: Decimal("0.5")})
+    available_budget = _budget()
+    missing_ticket = SimpleNamespace(
+        candidate_hash="informative",
+        next_level=3,
+        last_result=SimpleNamespace(cheap_signal=SimpleNamespace(expected_information_gain=0.8)),
+    )
+    zero_ticket = _ticket(
+        candidate_hash="informative",
+        next_level=3,
+        expected_value_proxy=0.0,
+        expected_information_gain=0.8,
+    )
+
+    missing, zero = scheduler.prioritize([missing_ticket, zero_ticket], available_budget)
+
+    assert missing.candidate_id == zero.candidate_id == "informative"
+    assert missing.recommended_action == zero.recommended_action == "advance"
+    assert missing.reason == zero.reason == "advance_by_information_value"
+    assert missing.priority == zero.priority
+    assert missing.economics.estimated_cost_usd == zero.economics.estimated_cost_usd == 0.5
+    assert missing.economics.expected_improvement_per_usd is None
+    assert missing.economics.value_proxy_basis == "not_established"
+    assert "objective_value" not in missing.economics.predicted_metric_vector
+    assert zero.economics.expected_improvement_per_usd == 0.0
+    assert zero.economics.value_proxy_basis == "supplied_numeric_proxy"
+    assert zero.economics.predicted_metric_vector["objective_value"] == 0.0
+    assert available_budget.spent == {}
+
+    exhausted = scheduler.prioritize([missing_ticket, zero_ticket], _budget("0.0"))
+    assert {decision.recommended_action for decision in exhausted} == {"defer"}
+    assert {decision.reason for decision in exhausted} == {"budget_exhausted_for_next_level"}
 
 
 def test_voi_defers_when_budget_is_insufficient() -> None:

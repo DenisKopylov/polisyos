@@ -87,7 +87,12 @@ class ComputeEconomicsDecision(BaseModel):
 
     candidate_id: str = Field(min_length=1)
     recommended_action: Literal["advance", "defer", "reject", "retry_cheaper"]
-    expected_improvement_per_usd: float
+    expected_improvement_per_usd: float | None
+    value_proxy_basis: Literal["supplied_numeric_proxy", "not_established"] | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        description="Basis of the objective proxy used in the improvement ratio.",
+    )
     expected_falsification_value: float
     expected_governance_value: float
     timeout_risk: float = Field(ge=0.0, le=1.0)
@@ -103,6 +108,15 @@ class ComputeEconomicsDecision(BaseModel):
     exploration_bonus: float = 0.0
     reserved_calibration_budget_usd: float = Field(default=0.0, ge=0.0)
     scheduler_mode: str = Field(default="simple", min_length=1)
+
+    @model_validator(mode="after")
+    def _value_proxy_matches_improvement(self) -> ComputeEconomicsDecision:
+        proxy_missing = self.value_proxy_basis == "not_established"
+        if (self.expected_improvement_per_usd is None) != proxy_missing or (
+            proxy_missing and "objective_value" in self.predicted_metric_vector
+        ):
+            raise ValueError("value proxy basis does not match the recorded improvement")
+        return self
 
 
 class SchedulingDecision(BaseModel):
@@ -804,25 +818,31 @@ class SimpleVOIScheduler:
         inputs = self._heuristic_inputs(ticket, frontier)
         estimated_cost = self._estimated_cost_decimal(inputs["next_level"])
         estimated_cost_float = max(float(estimated_cost), 0.0)
-        expected_improvement_per_usd = (
+        value_proxy_available = inputs["value_proxy_available"]
+        gate_ratio = (
             inputs["expected_value_proxy"] / estimated_cost_float
             if estimated_cost_float > 0.0
             else 0.0
         )
         exploration_bonus = exploration_weight * inputs["expected_information_gain"]
         reserved_calibration_budget_usd = self._reserved_calibration_budget_usd(budget_remaining)
-        priority = ((1.0 - exploration_weight) * expected_improvement_per_usd) + exploration_bonus
+        priority = ((1.0 - exploration_weight) * gate_ratio) + exploration_bonus
         economics = ComputeEconomicsDecision(
             candidate_id=inputs["candidate_id"],
             recommended_action="advance",
-            expected_improvement_per_usd=expected_improvement_per_usd,
+            expected_improvement_per_usd=gate_ratio if value_proxy_available else None,
+            value_proxy_basis=(
+                "supplied_numeric_proxy" if value_proxy_available else "not_established"
+            ),
             expected_falsification_value=inputs["expected_information_gain"],
             expected_governance_value=inputs["governance_value"],
             timeout_risk=inputs["timeout_risk"],
             replay_cost_usd=float(estimated_cost),
             calibration_debt=0.0,
             current_pareto_position=inputs["pareto_position"],
-            predicted_metric_vector={"objective_value": inputs["expected_value_proxy"]},
+            predicted_metric_vector=(
+                {"objective_value": inputs["expected_value_proxy"]} if value_proxy_available else {}
+            ),
             promotion_likelihood=inputs["governance_value"],
             estimated_wall_seconds=0.0,
             estimated_cost_usd=float(estimated_cost),
@@ -837,7 +857,7 @@ class SimpleVOIScheduler:
             budget_remaining=budget_remaining,
             estimated_cost=estimated_cost,
             timeout_risk=inputs["timeout_risk"],
-            expected_improvement_per_usd=expected_improvement_per_usd,
+            expected_improvement_per_usd=gate_ratio,
             expected_information_gain=inputs["expected_information_gain"],
             is_sentinel=inputs["is_sentinel"],
             reserved_calibration_budget_usd=reserved_calibration_budget_usd,
@@ -864,7 +884,7 @@ class SimpleVOIScheduler:
         next_level = getattr(ticket, "next_level", None)
         last_result = self._last_result(ticket)
         cheap_signal = getattr(last_result, "cheap_signal", None)
-        expected_value_proxy = float(getattr(cheap_signal, "expected_value_proxy", 0.0))
+        supplied_value_proxy = getattr(cheap_signal, "expected_value_proxy", None)
         expected_information_gain = float(getattr(cheap_signal, "expected_information_gain", 0.0))
         pareto_position = frontier.position_for(candidate_id)
         governance_value = {
@@ -877,7 +897,10 @@ class SimpleVOIScheduler:
         return {
             "candidate_id": candidate_id,
             "next_level": next_level,
-            "expected_value_proxy": expected_value_proxy,
+            "expected_value_proxy": (
+                0.0 if supplied_value_proxy is None else float(supplied_value_proxy)
+            ),
+            "value_proxy_available": supplied_value_proxy is not None,
             "expected_information_gain": expected_information_gain,
             "timeout_risk": self._timeout_risk(last_result),
             "pareto_position": pareto_position,
@@ -1557,8 +1580,11 @@ def _feature_vector(
     frontier_position: str,
     stage_level: int,
 ) -> dict[str, float]:
+    supplied_value_proxy = getattr(cheap_signal, "expected_value_proxy", None)
     return {
-        "expected_value_proxy": float(getattr(cheap_signal, "expected_value_proxy", 0.0)),
+        "expected_value_proxy": (
+            0.0 if supplied_value_proxy is None else float(supplied_value_proxy)
+        ),
         "expected_information_gain": float(getattr(cheap_signal, "expected_information_gain", 0.0)),
         "structural_validity": float(getattr(cheap_signal, "structural_validity", 0.5)),
         "causal_identifiability": float(getattr(cheap_signal, "causal_identifiability", 0.5)),
@@ -1690,8 +1716,12 @@ def scheduling_decision_to_voi_record(
 
     economics = decision.economics
     expected_cost = max(economics.estimated_cost_usd, economics.replay_cost_usd, 0.0)
+    improvement_ratio = economics.expected_improvement_per_usd
+    proxy_contribution = (
+        improvement_ratio * max(expected_cost, 1e-9) if improvement_ratio is not None else 0.0
+    )
     expected_value = (
-        economics.expected_improvement_per_usd * max(expected_cost, 1e-9)
+        proxy_contribution
         + economics.expected_falsification_value
         + economics.expected_governance_value
         + economics.exploration_bonus
@@ -1700,6 +1730,28 @@ def scheduling_decision_to_voi_record(
     )
     if decision.recommended_action in {"reject", "defer"}:
         expected_value = min(expected_value, 0.0)
+    explanation = (
+        f"{decision.reason}: {decision.recommended_action} candidate "
+        f"{decision.candidate_id} with priority {decision.priority:.6f}."
+    )
+    metadata = {
+        "candidate_id": decision.candidate_id,
+        "priority": decision.priority,
+        "next_level": decision.next_level,
+        "current_pareto_position": economics.current_pareto_position,
+        "promotion_likelihood": economics.promotion_likelihood,
+        "scheduler_mode": economics.scheduler_mode,
+        "timeout_risk": economics.timeout_risk,
+        "estimated_wall_seconds": economics.estimated_wall_seconds,
+    }
+    if economics.value_proxy_basis is not None:
+        metadata["value_proxy_basis"] = economics.value_proxy_basis
+    if economics.value_proxy_basis == "not_established":
+        metadata["expected_value_basis"] = "heuristic_available_signals"
+        explanation += (
+            " Expected value is a heuristic over available scheduling signals. "
+            "The objective proxy is unavailable."
+        )
     return VOIDecisionRecord(
         decision_id=stable_voi_decision_id(
             run_id=run_id,
@@ -1716,21 +1768,9 @@ def scheduling_decision_to_voi_record(
             economics.expected_falsification_value + economics.expected_governance_value,
             0.0,
         ),
-        explanation=(
-            f"{decision.reason}: {decision.recommended_action} candidate "
-            f"{decision.candidate_id} with priority {decision.priority:.6f}."
-        ),
+        explanation=explanation,
         input_refs=list(input_refs),
-        metadata={
-            "candidate_id": decision.candidate_id,
-            "priority": decision.priority,
-            "next_level": decision.next_level,
-            "current_pareto_position": economics.current_pareto_position,
-            "promotion_likelihood": economics.promotion_likelihood,
-            "scheduler_mode": economics.scheduler_mode,
-            "timeout_risk": economics.timeout_risk,
-            "estimated_wall_seconds": economics.estimated_wall_seconds,
-        },
+        metadata=metadata,
     )
 
 

@@ -19704,6 +19704,13 @@
           "status": "INTERRUPTED",
           "verified_boundary": "Exact source and pre-effect retained cut confirmed. The one-use supervised launcher started on 22 November at about 18:15 Kyiv time. The protected action returned HTTP 200 accepted, the independent observer confirmed fresh samples for both boundaries and the retained job entered attempt 6. The one-use settled-draft-resume fence was written at 20:00:07 Kyiv. At the 20:45 observation the active lease remains, both supplier journals and original ledger revision 18 are byte-identical, and kernel count is zero. RSS and host charge caps are 8 GiB, disk floor is 3 GiB, whole run wall is 21600 s and actual inner re-entry bound is 14400 s. The numerical terminal and fresh API verdicts are pending."
         },
+        "native_r55_same_file_poststop_settlement_map": {
+          "source_commit": "2c799026f3a4f498b723e58b295d7bf10c9837a5",
+          "output": "Primary:policy-engine/_cache/e02/native-r55-poststop-readonly-20261123/request-settlement-census.json",
+          "sha256": "6abe9e1aff90ca1e44744947e75ec32ee72577e72bb3318279668d73895fbfde",
+          "instrument_sha256": "0f6eaa0eea101326c012539b29b4cd5b0bc87db148ff3405635c4bc5155fe802",
+          "verified_boundary": "The complete selected window mutates ledger 16 through 30 with all prior pinned rows retained. Reconstructs six exact request digests from controlled wire, with source tenant/cell and stage ordinal. Each digest identifies one distinct committed event and one exact spend despite equal response bodies. Both WDI journals stay identical and no invocation/compute reservation exists. A separate same-file SQLite/CAS census finds expired attempt 6 and no selected prepared/claim/completion checkpoint across 1452 manifests and the diagnostic stream. This is a cut and request-to-settlement mapping. New authority, prepared work and fresh HTTP remain open."
+        },
         "cyc03_r3_ordinary_prior_owner_order": {
           "source_commit": "2c799026f3a4f498b723e58b295d7bf10c9837a5",
           "output": "Primary:policy-engine/_cache/e02/lane01-cyc03-03-coefficient-next-tnuiZQ/budget/command.log",
@@ -19842,6 +19849,99 @@
           "status": "DRAFT",
           "verified_boundary": "16 cases across the controlled capture and legacy history modules. The locally selected captures have independent members and times, counts 2 and 3 and equal scalar 8. Fresh CAS reopen, reused first capture under later passport, altered capture identity, missing proof/blob and wrong profile are distinguishing cases. Actual source/admission/retention and fresh HTTP remain unrun after draft wiring. Independent review of that later selected-capture delta and three Ruff findings are pending. No matrix status promotion."
         },
+        "cyc03_controlled_replica_delivery_preflight": {
+          "source_commit": "672d863facbba5bf4b759c9a7b2f98a2e85660d6",
+          "source_tree": "340d87e3a9779b49fa629d0f6ebf171a20fbebef",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/cyc-owner-order/controlled-replica-preflight-r1/pytest.xml",
+          "sha256": "ee9f31e1fe3d35e639cf539b663ee86f46a8d9cc55d30f93ab0eec606b1530f3",
+          "verified_boundary": "17 focused cases pass, including actual controlled Fabric deliveries with equal aggregate and different full sample carriers, signed source activation and fresh file-store passport replay. Old sample bytes under a new bounded profile, earlier actual raw delivery under the next passport, and absent or repeated case-insensitive keys in the stored mapping refuse. Independent source review includes interrupted growth and already-selected history. Full retained-B and fresh HTTP without follow-on N5 remains unrun."
+        },
+        "cyc03_controlled_replica_full": {
+          "source_commit": "635dfbe95aff8a09703bdcfe3aa237237f5868ec",
+          "source_tree": "1297619c5873d071b44a2cd13ec9052f8d278d84",
+          "output": "Primary:policy-engine/_cache/e02/lane01-cyc03-controlled-replica-20261123.35gh4R/",
+          "sha256": "90e8fe74ab2a86e84130af6dff79768d5bcf6612db9df1b37fc12b0ab8d0c968",
+          "status": "COMMAND_FAIL_AFTER_RETAINED_B",
+          "verified_boundary": "Retained B completed at generation 2 head 5, result ddb0db4b and frontier 1 d3454d47, both trajectory deltas +250 billion and physical seeds 17/18. A and G1/G2 completed; one WDI transport with first controlled sample and no G3/G4 job or head. Fixture invokes stock resume outside the completed worker lease and is fenced before the second sample. Supervisor joins quiescent at 454.860 s, 2325413888 B peak sampled RSS and 6259089408 B minimum free disk. Preserve original bytes and restore the observed producer image before reconciling B. Second capture, relabel refusal and cold HTTP still pending."
+        },
+        "cyc03_replica_retained_b_stock_reader": {
+          "source_commit": "635dfbe95aff8a09703bdcfe3aa237237f5868ec",
+          "source_tree": "1297619c5873d071b44a2cd13ec9052f8d278d84",
+          "output": "Primary:policy-engine/_cache/e02/lane01-cyc03-controlled-replica-20261123.35gh4R/B-stock-reader/retained-B.json",
+          "sha256": "2b1714d584d06a06dac0854507a3d90662c077769cbaaaff61fdfd368c5eb1ad",
+          "verified_boundary": "Historical stock owner validates exact B, activated passport and first actual sample. Clone and original evidence unchanged, zero effects. Live production image, actual callable, declaration and ordered sys.path match. Stock current comparator refuses a fresh loaded-module census marked not_established before provider reobservation. Supervisor pass verifies only this scoped historical read and refusal at 29.023 s and 1802354688 B peak sampled RSS."
+        },
+        "cyc03_replica_retained_b_stock_reader_r2": {
+          "source_commit": "635dfbe95aff8a09703bdcfe3aa237237f5868ec",
+          "source_tree": "1297619c5873d071b44a2cd13ec9052f8d278d84",
+          "output": "Primary:policy-engine/_cache/e02/lane01-cyc03-controlled-replica-20261123.35gh4R/B-stock-reader-r2/retained-B.json",
+          "sha256": "4f83bccb18533c61a41484784048d0aaaff17f30dcdb7d5c5bedb429eedd60ff",
+          "verified_boundary": "Actual file-backed harness origins lie under the exact retained import roots. Stock current comparator recomputes B with 6536 matched provider identities and no changed or missing identities. Its current loaded-module census is separate. Original and clone evidence unchanged, zero effects, 26.442 s and 1803796480 B peak sampled RSS. G3/G4, negative and separate API remain pending."
+        },
+        "cyc03_replica_retained_b_successor": {
+          "source_commit": "635dfbe95aff8a09703bdcfe3aa237237f5868ec",
+          "source_tree": "1297619c5873d071b44a2cd13ec9052f8d278d84",
+          "output": "Primary:policy-engine/_cache/e02/lane01-cyc03-controlled-replica-20261123.35gh4R/B-controlled-successor/checked-route-r1/route-check.json",
+          "sha256": "7caa3fc5bd4c2209bf3c51b7b380386135c34b2b9c937b95cfb2180c078e1684",
+          "status": "COMMAND_FAIL_AFTER_CAPTURE_BEFORE_DISPATCH",
+          "verified_boundary": "Stock current comparator and actual fixture actor route readiness pass under 36.528 s and 1821999104 B peak RSS. Staged mutable state and original archive compare unchanged at that boundary. The distinct successor journal has the exact original prefix. The first guarded continuation writes its marker and one capture, then its fixture N4 observation rejects the controlled port wrapper at app startup. Supervisor joins quiescent at 33.343 s and 1835188224 B peak RSS, receipt budget-execute-successor-r1/result.json. Reconcile exact saved capture and prove bound-port startup before recovery; no G3/G4 qualification or cold API yet."
+        },
+        "cyc03_replica_retained_b_port_recovery": {
+          "source_commit": "635dfbe95aff8a09703bdcfe3aa237237f5868ec",
+          "source_tree": "1297619c5873d071b44a2cd13ec9052f8d278d84",
+          "output": "Primary:policy-engine/_cache/e02/lane01-cyc03-controlled-replica-20261123.35gh4R/budget-port-recover-once-r1/result.json",
+          "sha256": "3749910bd4b35171d81e4bb0e3d89beb3a94ed499de353945417780e9767312d",
+          "verified_boundary": "One recovery reuses the exact saved second capture. Actual G3 selected quarantine d0036cdb and one controlled delivery with zero N5. The first delivered sample presented as the later capture refuses. G4 reaches the equivalent-basis branch then fails generation_cycle_candidate_handoff_currentness_missing; ordinary cheap retention omits the required actor-bound currentness resolver at construction. Supervisor joined quiescent at 157.044s and 1876967424B peak RSS. G4 head 3 remains outcome_selected with active epoch 2 and prospective basis 70a0ba24, whose effective numerical bytes equal B. No G4 decision, re-entry or terminal; original frontier 1 remains selected. Stock current owner/source repository composition and fresh G4 API remain open."
+        },
+        "sim02_retained_interruption_current_projection": {
+          "source_commit": "635dfbe95aff8a09703bdcfe3aa237237f5868ec",
+          "source_tree": "1297619c5873d071b44a2cd13ec9052f8d278d84",
+          "output": "Primary:policy-engine/_cache/e02/lane01-sim02-retained-interruption-current-r1/result.json",
+          "sha256": "3887386a29864a0137636ae54b8a7de3120e96933b55319ebe864afb70e3dbb0",
+          "verified_boundary": "Output locator is the original four-case producer receipt. Current independent read-only probe opens its two saved exact CAS results in 12.87 s at 1306001408 B max RSS, zero N5. Both retain finite firm_survival=3.0 and precise distinct missing-envelope slot and non-finite outcome name. The stock HTTP body builder retains the finite trajectory, while the enclosing status is generic and N8 withholds candidate use. No authenticated GET on these unbound CAS fixtures."
+        },
+        "native_r56_interrupted_recovery_local_source": {
+          "source_commit": "fdd46d187d0c2bd633e28f3297faaf0b75d00093",
+          "source_tree": "ecadbfab1b42a8228935c1f5a954cc65b42a18de",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/native-final-stage-20261123.G5TRMV/junit.xml",
+          "sha256": "3a3d202f90fd1cb29edee10827d745d3b8163e392252b37f059e5f49b61da173",
+          "verified_boundary": "73 final affected tests exit 0. Scoped independent GO for exact managed N4 and for SQLite plus CAS/ledger preflight. The ordinary SDK and dashboard types and Runtime contract drift checks are green, with 63 SDK tests. The earlier 194-test composition JUnit is complete and passing despite a shell-footer return error. Actual R55 no-effect preflight, new protected authorization, worker, numerical effect and cold API remain separate."
+        },
+        "native_r56_r55_retained_pure_admission": {
+          "source_commit": "fdd46d187d0c2bd633e28f3297faaf0b75d00093",
+          "source_tree": "ecadbfab1b42a8228935c1f5a954cc65b42a18de",
+          "output": "Primary:policy-engine/_cache/e02/native-r56-admission-builder-20261123/r56-no-effect-result.json",
+          "sha256": "d997759f2bbc727c568198a99aa5922fe3a428c45346e1aa459c82ebe013df5e",
+          "verified_boundary": "Real v3 DTO and product verifier accept exact draft and six paid N4 settlements at retained rev30 and select the two ordinal-0 responses. In-memory response mutation and missing paid occurrence refuse. Wrong loaded source origins and hashes refuse. Candidate body stays in memory, digest 2337d43691eb613d8355c372d0f16e0bdf845dd31fdd213e3747b4be8943ca7e, 3144 bytes. Historical inputs unchanged; no POST, grant, worker, provider, N5 or reservation. Binding on the published primary release and authorized lease-7 execution remain open."
+        },
+        "native_r56_verified_progress_entry_composed": {
+          "source_commit": "e0424ea8ea2e160be60a1e79865a1052c782daae",
+          "source_tree": "a582aa5cf6715d66a90e607161f5e7f4c862c55b",
+          "output": "Primary:policy-engine/_cache/e02/lane01-native-composed-entry-20261123.Ly9Qwn/junit.xml",
+          "sha256": "f92b044df05c69ac0cadf6787cfadf8e3ce07106ac485f4959bf62abdd9add33",
+          "verified_boundary": "71/71 focused cycle, Native progress/transition and SQLite custody cases pass on composed main, 42.990 s, zero skips. The one-call orchestration regression observes two progress reads on the preimage. The current internal handoff reuses exactly one verified read without waiving its two-sided freshness, the completed replay check or later prepare/claim fences. Independent review passes. This establishes reduced repeated work without a new R56 resource or numerical claim."
+        },
+        "sel01_r12_current_consumer_profile_attempt": {
+          "source_commit": "0234a6ce0bd297226d3ed9e6d6f37661e23bd2be",
+          "source_tree": "6bf7d48e21fbc20545a220f0c5c6213926e04bc4",
+          "output": "Primary:policy-engine/_cache/e02/sel-01-05-current-reader-r1-20261123/budget-run4/result.json",
+          "sha256": "479887979496dac2658f0ebd2415229dbd83de3e83189d2e188cce04ce9e53aa",
+          "verified_boundary": "Exact Core run GET fails before method projection with baseline_catalog_contract_incomplete. A direct read proves all five expected tables in the actual retained R12 Catalog. The app profile omitted the explicit archived serving selection, leaving the resolved Catalog at refusal unqualified. Original archive preserved, no N5, POST or worker. Current retirement/removal/restoration and current method value remain unverified."
+        },
+        "sel01_r12_exact_catalog_current_consumer": {
+          "source_commit": "635dfbe95aff8a09703bdcfe3aa237237f5868ec",
+          "source_tree": "1297619c5873d071b44a2cd13ec9052f8d278d84",
+          "output": "Primary:policy-engine/_cache/e02/sel-01-05-current-reader-corrected-r2-20261123/core-run-reader-r3/budget-final2/result.json",
+          "sha256": "599fa2335aea739c1f567b9e1071846b19123101b04fecccc0664e16f59f808e",
+          "verified_boundary": "Corrected fresh GET uses the exact SQL Core run locator and original Catalog with explicit preflight_core serving selection. HTTP 200 selects retained method record 9bcb9895, with point/interval withheld and value_method_selection_context_hash_mismatch. The command asserts old positive and records command failure after 24.624s, peak 1877475328B. Zero outbound HTTP, POST, worker and N5. Prior display alias fails before projection. Historical local qualification remains scoped to its original source and context."
+        },
+        "sel01_r12_matched_profile_current_api": {
+          "source_commit": "635dfbe95aff8a09703bdcfe3aa237237f5868ec",
+          "source_tree": "1297619c5873d071b44a2cd13ec9052f8d278d84",
+          "output": "Primary:policy-engine/_cache/e02/sel-01-05-current-reader-corrected-r2-20261123/core-run-reader-r4/budget/result.json",
+          "sha256": "392029a4b924d80034f3e3ae012cddfa0e4972065436052759bc6bfeb8962a04",
+          "verified_boundary": "One fresh authorized HTTP 200 with the exact R12 Catalog, Core locator and all seven archived thread limits. The expected selection context and record 9bcb9895 reopen with point 1.9999943737942087, CI [1.870025382888066,2.1200282863970856], outer [-7,9], and retained N5 effect [0.5]. Candidate-only. Zero N5, POST, outbound HTTP and worker. Original and clone evidence unchanged; 23.318s, peak 1910259712B, min disk 6435684352B, quiescent. Prior same-record mismatch came from omitted profile settings; source hash owners were unchanged."
+        },
         "lane01_verified_slice_on_main_20261123": {
           "source_commit": "d2e909fbf9541981aa525fd37bf3bcd8f28d2fe0",
           "source_tree": "9a001a02be842249a6b4a19c422d44fce8e78fde",
@@ -19857,7 +19957,7 @@
           "retained_store": "Primary:policy-engine/_cache/e02/gate-a-heldout-r1-20261114/tmp/test_transport_reserve_metadat0/",
           "result_ref": "sha256:5a6b5364ebe317afe2127b1a496d5117a7a54f4188b9352de2088860c01c5566",
           "result_profile": "sha256:77cbdc7dfb84038f9e2ceee80429576b27e2786eb0b7544c5600d0d0b54b8636",
-          "verified_boundary": "The live paths for the exact held-out SQL, CAS and historical API receipt remain available. The retained reader records HTTP 200 with value 602.5, candidate permission ceiling, same ledger and zero N5. Decision-signature removal withholds the result and restoring it reopens the original. This proves ownership of the numerical input to the open discriminator. A census of 21 SQL tables and 471 CAS manifests finds no Claim Ledger, decision packet or selected Claim head. The retained cut has only the numerical half. Claim-use admission, public owner and paired export remain open."
+          "verified_boundary": "The live paths for the exact held-out SQL, CAS and historical API receipt remain available. The retained reader records HTTP 200 with value 602.5, candidate permission ceiling, same ledger and zero N5. Decision-signature removal withholds the result and restoring it reopens the original. A census of 21 SQL tables and 471 CAS manifests finds no Claim Ledger, decision packet or selected Claim head. Claim owner intake can prepare and finalize a packet-bound root. Under the retained mandate only the candidate control is qualified. An appointed owner's verified intake would need to bind the exact N5 result/profile, claim, claim-use purpose, audience, currentness and independent verifier before a governed paired export."
         },
         "gate_b_v24_public_summary_escape": {
           "source_commit": "2c799026f3a4f498b723e58b295d7bf10c9837a5",

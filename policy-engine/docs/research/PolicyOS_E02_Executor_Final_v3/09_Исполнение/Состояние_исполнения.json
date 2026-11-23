@@ -10854,8 +10854,8 @@
             "packets_assessed": 11,
             "requirements_assessed": 66,
             "status_counts": {
-              "CONFIRMED_LOCAL_PROFILE": 54,
-              "PARTIAL": 10,
+              "CONFIRMED_LOCAL_PROFILE": 55,
+              "PARTIAL": 9,
               "BLOCKED_EXTERNAL_INPUT": 2
             },
             "scope": "Requirement-level retained evidence for named local profiles. Original shared scenarios, independent G and the 300k operating profile keep their own acceptance.",
@@ -20276,6 +20276,14 @@
           "status": "COMMAND_FAIL after actual first GDP B",
           "verified_boundary": "Three stock jobs complete; g1 quarantined_no_growth and g2 reentry_completed. Exact selected g2 numeric GDP moves from input 29298012454912 to output 29548012454912, tax target remains bound at 0.5/set_to 0. One controlled WDI request/transport/raw/terminal. Whole test fails on registry read through closed historical bridge after the B assertions. No g3. Preserve exact retained R1, no numerical replay for a fresh reader and removal check. 489.945s, 2636972032B RSS, 4394831872B minimum disk, joined."
         },
+        "acq_01_02_gdp_r1_same_slice_join": {
+          "source_commit": "49cee621a8588fe43e0107b0acae25034fdb5668",
+          "source_tree": "ef223b126533ab768bbd753a7f8b91dd985f8dd6",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/acq01-gdp-r1-same-slice-proof-20261123/execution/report.json",
+          "sha256": "05fb794bf544fd89a33a3c4994bb53c68eb3ff24d87c9110b59e77c50a789039",
+          "guard_sha256": "0647b9a444903099da2002e5c02c3370cbbeca416b6f9731cd3add6f56c8e983",
+          "verified_boundary": "Original R1 permitted controlled gateway once before the later harness failure. On the exact same cut the stock resolver reopens both typed reports, separately refuses compiler and planner physical blob withdrawal with exact roles while inline report and manifests remain, and restores each. Fresh API HTTP 200 selects the same B result and profile with two GDP trajectories at 29548012454912 USD. Full business store and original archive unchanged, three read-audit entries in clone only, zero new worker/N4/N5/provider. 51.620s and 1982676992B RSS, group joined PASS. The original umbrella command remains FAIL and g3 remains unrun."
+        },
         "cyc_04_03_real_n4_preflight_served_r1": {
           "source_commit": "8dd2e689fea31dcf16f1b43d8ce8009de72e043e",
           "source_tree": "c5b8fdf7657541c620c46edd23675b034d86145f",
@@ -20297,6 +20305,18 @@
           "cgf_output": "Primary:policy-engine/_cache/e02/native-retained-cgf-rank-focused-20261123/guard/result.json",
           "cgf_sha256": "c14dc1cb751a5c502193e515a6fc0bbcb14dd577093492afe096514a5dbf7b71",
           "verified_boundary": "Working draft controller 4/4 no-effect refusals pass. Initial composed service passes Native/direct PA2 checks but four completion fixtures patch the old handler. Initial CGF/rank fixtures stop before selectors at the unbound historical tax slot. No provider or physical N5. Positive protected route, exact current A+B, one N5 and fresh API remain open."
+        },
+        "native_model_input_use_draft_corrected_components": {
+          "source_base": "85f03f654dc37358cbaa62968284178f63e5d5ac",
+          "service_output": "Primary:policy-engine/_cache/e02/native-use-http-composed-noeffect-r2-20261123.hat13hrs/result.json",
+          "service_sha256": "3cb22b7fb9a31f3fd92fc42065e187aab6783d02366e7b317ec74dc01ebb93dd",
+          "rank_output": "Primary:policy-engine/_cache/e02/native-retained-cgf-rank-focused-20261123-r3/guard/result.json",
+          "rank_sha256": "3e705a8eec44ff8f2f94f2bc19ea95a653df6a6c8f5114170d1989024dee26d9",
+          "cgf_output": "Primary:policy-engine/_cache/e02/native-retained-cgf-rank-focused-20261123-r4/guard/result.json",
+          "cgf_sha256": "3a6d16bb0fe320fdffe56b5980e7b7e34938c3640985b6654365baee614b923f",
+          "registered_output": "Primary:policy-engine/_cache/e02/native-use-http-registered-noeffect-20261123.p3wf9c3e/result.json",
+          "registered_sha256": "45a713f6e4f67cc399c369a2eff3aa2cbcee0a5e626a5cefa912278db800f50e",
+          "verified_boundary": "Service R2 9/9 no effect before routing edits. R3 real compatible saved WMR proves rank while old advisory-field tamper assertion fails. R4 proves valid advisory change has no authority or decision effect, rejects canonically changed witnesses and separately changed CG3 and CG5, and joins. Registered draft 10/10 tests legacy/Native request binding, completion lease and GET refusal dispatch with zero producer effects; 25.881s, 1584513024B RSS. No actual Native action or kernel; live scope, V3 persistence/replay and API acceptance remain open."
         },
         "sel01_r12_current_consumer_profile_attempt": {
           "source_commit": "0234a6ce0bd297226d3ed9e6d6f37661e23bd2be",
@@ -36656,20 +36676,19 @@
             "E02-I01-B-B02",
             "E02-X02-B01"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "acq01_current",
             "acq01_pending_macro_preflight_current",
             "governed_n7_same_cycle_reentry_r8",
             "acq01_02_selected_report_readback_roles",
             "acq01_02_retained_exact_role_refusals",
-            "acq01_02_03_served_fixture_setup"
+            "acq_01_served_gdp_retained_trial_r1",
+            "acq_01_02_gdp_r1_same_slice_join"
           ],
-          "basis": "Live N7 report and planner authority, scoped lease and pending path are preserved. Existing ACQ route failures remain recorded.",
-          "remaining_kinds": [
-            "verification_missing"
-          ],
-          "remaining": "The repaired stock retained resolver qualifies both role-specific physical/read faults, refusal before effects, and exact restoration. Complete the maintained served permitted-gateway positive with its selected compiler/planner refs on the affected composition."
+          "basis": "Actual R1 permitted gateway admits B with exact compiler/planner refs and saved numerical result. The same qualified source/case is reopened by the stock consumer, which independently refuses both physical payload removals with exact role codes and restores them. Fresh API returns selected B with no new effects.",
+          "remaining_kinds": [],
+          "remaining": ""
         },
         {
           "requirement_id": "REQ-ACQ-01-03",

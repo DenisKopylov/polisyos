@@ -20741,6 +20741,25 @@
           "junit_sha256": "3b0a89cde3248f9d0f5040402e724417d09c9aff9688ecd24afd02c483772435",
           "verified_boundary": "Four focused checks pass in 31.511 seconds at 1396129792 B on the working source. Relevant reader functions match the selective published stage. The two full revised integration mirrors remain unrun. No numerical replay or genuine two-occurrence adverse case in this wave."
         },
+        "controlled_discovery_limited_research_composition": {
+          "source_commit": "ec96dc6d7b2b1ee0cacdc1d156bd6f65ad927af3",
+          "source_tree": "f40aebea5b323dacf6f9df25eb3dcccd39d0b4e1",
+          "output": "Primary:policy-engine/_cache/e02/cyc04-cyc05-composed-r1.LHAxkmNU/budget/result.json",
+          "sha256": "6028f141fbe7633820c821f82449f71821144496b0c70a1c917eb15cd4290e47",
+          "junit_sha256": "9df1cd84a62cd2510759eba620a778e0d7535c475a7e5bead845f63119c34634",
+          "affected_output": "Primary:policy-engine/_cache/e02/cyc04-cyc05-affected-r2.NEDUwF1V/budget/result.json",
+          "affected_guard_sha256": "fc16cc46279e1e188a331cb4b916c9d986526c514e536650e5756e776a7f5036",
+          "affected_junit_sha256": "8a7efbd4b81231ab6c455881f5e745a8b89b2bde7bbdb8dccdf92bea2af28ccf",
+          "verified_boundary": "Published composed method and limited research scope. Thirty-eight named owner cases pass on the staged working bytes. Five actual compiler/N4 preparation and N6 history tests pass on the published scope with physical work disabled. Earlier physical results retain their recorded profile and limitations. Combined archived reader and final API contract verification are pending."
+        },
+        "gate_b_v16_core_certified_predecessor_kind": {
+          "source_commit": "79cab53249bb0358836389b0337a2de21c868207",
+          "source_tree": "7af51fa9d600daf720ee8647c6dda1ff83f2fbc8",
+          "output": "Primary:policy-engine/_cache/e02/gate-b-v16-core-r1.c6jBZDFZ/budget/result.json",
+          "sha256": "d53fe0afe8fa280316f6189ef00f520199e856d7f4f99080903b015b642aab24",
+          "junit_sha256": "1a4e6dda2c021d7bf4061e1efe607a3f312e0abee40448a2faaf1666b6d4bb9a",
+          "verified_boundary": "The exact registered family ABI accepts the selected certified intermediate for its declared role. Actual Core composition refuses independently stored observed input with the same number and semantics. Output remains unscored candidate. Twenty-three exact owner and composition tests pass in 28.315 seconds. The N7 to Foundry/API bridge, semantic multi-edge scope and inverse controls remain open."
+        },
         "native_r56_complete_history_reuse_scope_r1": {
           "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
           "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",

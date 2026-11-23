@@ -756,6 +756,7 @@ def make_wdi_port_case(
             ),
             tmp_path / "institution",
             custodian=custodian,
+            prior_config=appointments[-1].config if appointments else None,
         )
         bridge.epoch_deployment = native.deployment
         appointments.append(native)

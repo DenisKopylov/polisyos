@@ -36,12 +36,14 @@ def test_native_epoch_fixture_custody_reuses_only_the_exact_signed_context(
         scenario,
         tmp_path / "policy-repeat",
         custodian=custodian,
+        prior_config=first.config,
     )
     repeated_evidence = semantic_epoch_native.FileSystemSignedArtifactEvidenceRepository(
         scenario.store
     ).read_exact(evidence_record_ref=repeated.signed.evidence.evidence_record_ref)
 
     assert repeated.signed.artifact_ref == first.signed.artifact_ref
+    assert repeated.config == first.config
     assert repeated.signed.evidence.evidence_record_ref == first.signed.evidence.evidence_record_ref
     assert repeated_evidence.persisted.record_bytes == original_evidence.persisted.record_bytes
     assert repeated_evidence.detached_signature_bytes == original_signature_bytes

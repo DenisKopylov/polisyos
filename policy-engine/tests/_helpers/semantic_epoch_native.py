@@ -305,9 +305,18 @@ def sign_native_epoch_scenario(
     *,
     custodian: NativeEpochFixtureCustodian | None = None,
     prior_admission_refs: tuple[artifacts.ArtifactRef, ...] = (),
+    prior_config: EpochDeploymentConfig | None = None,
 ) -> SimpleNamespace:
     """Bind a separately signed native policy to an actual prepared epoch basis."""
     store = scenario.store
+    previous = prior_config or EpochDeploymentConfig(
+        evidence_cas_root=store.root, native_epoch_history_root=scenario.history._root
+    )
+    if (
+        previous.evidence_cas_root != store.root
+        or previous.native_epoch_history_root != scenario.history._root
+    ):
+        raise ValueError("native epoch fixture trust belongs to different owner roots")
     manifest_ref = scenario.prepared.stamp.semantic_manifest_ref
     raw = store.get_bytes(manifest_ref.artifact_id)
     manifest = security.parse_canonical_statement(raw, epoch.SemanticEpochManifest)
@@ -417,23 +426,29 @@ def sign_native_epoch_scenario(
     )
     admission_refs: list[artifacts.ArtifactRef] = []
     seen_admission_ref_keys: set[tuple[str, str, str, str | None]] = set()
-    for admission_ref in (*prior_admission_refs, signed.evidence.evidence_record_ref):
+    for admission_ref in (
+        *previous.predicate_policy_admission_refs,
+        *prior_admission_refs,
+        signed.evidence.evidence_record_ref,
+    ):
         admission_ref_key = artifacts.artifact_ref_identity_key(admission_ref)
         if admission_ref_key in seen_admission_ref_keys:
             continue
         seen_admission_ref_keys.add(admission_ref_key)
         admission_refs.append(admission_ref)
-    config = EpochDeploymentConfig(
-        evidence_cas_root=store.root,
-        native_epoch_history_root=scenario.history._root,
-        trusted_issuers=(
-            EpochTrustedIssuerConfig(
-                identity=custodian.issuer_identity,
-                public_key_path=custodian.public_key_path,
-                roles=custodian.issuer_roles,
-            ),
-        ),
-        predicate_policy_admission_refs=tuple(admission_refs),
+    issuer = EpochTrustedIssuerConfig(
+        identity=custodian.issuer_identity,
+        public_key_path=custodian.public_key_path,
+        roles=custodian.issuer_roles,
+    )
+    issuers = previous.trusted_issuers
+    if issuer not in issuers:
+        issuers = (*issuers, issuer)
+    config = previous.model_copy(
+        update={
+            "trusted_issuers": issuers,
+            "predicate_policy_admission_refs": tuple(admission_refs),
+        },
     )
     deployment = build_semantic_epoch_native_deployment(config)
     owner = deployment._state().chronology_policy_owner

@@ -256,29 +256,145 @@ def _problem(
     )
 
 
-def test_n7_caller_specs_and_runtime_hints_are_unbound_not_compiler_basis() -> None:
-    hinted = ({"source": "runtime-hint"},)
-    alias = ({"source": "compiled-alias"},)
-    explicit = ({"source": "explicit"},)
-    controller = GenerationCycleController()
-    problem = _problem(runtime_hints={"n7_data_requirement_specs": hinted})
-
-    basis = controller._n7_data_requirement_basis_with_report(
-        problem,
-        acquisition_request={
-            "data_requirement_specs": explicit,
-            "compiled_requirement_specs": alias,
-        },
+@pytest.mark.asyncio
+async def test_n7_caller_specs_and_runtime_hints_are_unbound_not_compiler_basis(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Persist each caller-spec refusal against the same selected compiler report."""
+    from polisyos.runtime.quality.acquisition_planner import (
+        load_acquisition_planner_report,
+        validate_persisted_data_requirement_compilation_report,
+    )
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _CgfGenerationPort,
+        _DataGapValuePort,
     )
 
-    assert basis.specs == tuple(basis.compilation_report.specs)
-    assert explicit not in basis.specs
-    assert alias not in basis.specs
-    assert basis.unbound_input_fields == (
+    def unexpected_effect(*_args: object, **_kwargs: object) -> None:
+        pytest.fail("the requirement planning check must not execute acquisition or N5")
+
+    monkeypatch.setattr(generation_cycle_module, "run_acquisition_closed_loop", unexpected_effect)
+    monkeypatch.setattr(n5_horizon.JointSimulationHorizonController, "run", unexpected_effect)
+
+    async def produce_cycle(
+        problem: DesignProblem,
+    ) -> generation_cycle_module.GenerationCycleRecord:
+        producer = GenerationCycleController(
+            generation_port=_CgfGenerationPort(),
+            value_port=_DataGapValuePort(),
+        )
+        run = await producer.run(
+            problem,
+            budget_state=BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5"))}),
+            max_cycles=1,
+        )
+        (cycle,) = run.cycles
+        assert cycle.terminal_kind == "acquisition_required"
+        assert cycle.value_port.acquisition_requirement is not None
+        return cycle
+
+    store = FileSystemCAS(tmp_path / "requirements-cas")
+    planner = GenerationCycleController(
+        repo_root=tmp_path,
+        artifact_store=store,
+        authority_scope="contract_testing",
+        measurement_root_execution_binding=_contract_testing_measurement_root_binding(tmp_path),
+    )
+    problem = _problem(
+        runtime_hints={
+            "n7_world_snapshot": {"world_ref": "fixture://acq-01/spec-ingress"},
+        },
+    )
+    cycle = await produce_cycle(problem)
+    source_gap = cycle.value_port.acquisition_requirement
+    assert source_gap is not None
+    planned = planner._plan_n7_requirement_gap_if_requested(problem, cycle=cycle)
+    assert planned is not None
+    assert planned.basis.unbound_input_fields == ()
+    assert planned.basis.routing_limitation_code is None
+    assert planned.basis.routed_source_gap == source_gap
+    assert planned.report.status != "blocked"
+    (selected_spec,) = planned.basis.specs
+    assert isinstance(selected_spec, DataRequirementSpec)
+    (record,) = planned.report.acquisition_records
+    assert record.compiled_requirement_ref == selected_spec.requirement_id
+    assert source_gap.requirement_gap_id in record.scenario_requirement_refs
+    assert selected_spec.required_data_families == ("firm_survival",)
+    compiler_binding = planned.report.requirement_basis_binding
+    assert compiler_binding is not None
+
+    reader = FileSystemCAS.open_existing_read_only(store.root)
+    assert load_acquisition_planner_report(reader, planned.report_ref) == planned.report
+    assert (
+        validate_persisted_data_requirement_compilation_report(
+            reader,
+            compiler_binding,
+            expected_report=planned.basis.compilation_report,
+            require_selected_writer_profile=True,
+        )
+        == ()
+    )
+    supplied_spec = selected_spec.model_copy(
+        update={
+            "requirement_id": "data-requirement:caller-substitute",
+            "required_data_families": ("caller_substitute",),
+        }
+    ).model_dump(mode="json")
+
+    for input_path in (
         "acquisition_request.data_requirement_specs",
         "acquisition_request.compiled_requirement_specs",
         "runtime_hints.n7_data_requirement_specs",
-    )
+    ):
+        namespace, field = input_path.split(".")
+        if namespace == "runtime_hints":
+            supplied_problem = problem.model_copy(
+                update={"runtime_hints": {**problem.runtime_hints, field: [supplied_spec]}}
+            )
+            # Rebuild the selected cycle for the new problem hash so the
+            # refusal isolates the raw hint from a foreign-subject refusal.
+            supplied_cycle = await produce_cycle(supplied_problem)
+        else:
+            supplied_problem = problem
+            strategy_payload = cycle.revision_request.strategy_payload
+            supplied_request = {**strategy_payload["acquisition_request"], field: [supplied_spec]}
+            supplied_cycle = cycle.model_copy(
+                update={
+                    "revision_request": cycle.revision_request.model_copy(
+                        update={
+                            "strategy_payload": {
+                                **strategy_payload,
+                                "acquisition_request": supplied_request,
+                            }
+                        }
+                    )
+                }
+            )
+
+        refused = planner._plan_n7_requirement_gap_if_requested(
+            supplied_problem, cycle=supplied_cycle
+        )
+        assert refused is not None
+        assert refused.basis.unbound_input_fields == (input_path,)
+        assert refused.basis.routed_source_gap == supplied_cycle.value_port.acquisition_requirement
+        assert refused.basis.routed_compiler_gaps == ()
+        assert refused.basis.specs == planned.basis.specs
+        assert refused.basis.capability_resolutions == planned.basis.capability_resolutions
+        assert refused.basis.compilation_report == planned.basis.compilation_report
+        assert refused.report.requirement_basis_binding == compiler_binding
+        persisted = load_acquisition_planner_report(reader, refused.report_ref)
+        assert persisted == refused.report
+        assert persisted.status == "blocked"
+        assert persisted.basis_limitation_code == "unbound_requirement_input_refused"
+        assert persisted.acquisition_records == ()
+        assert refused.cost_basis is None
+        assert (
+            planner._run_n7_acquisition_if_requested(
+                supplied_problem, cycle=supplied_cycle, planned_route=refused
+            )
+            is None
+        )
 
 
 def test_n7_without_cycle_bound_source_gap_never_calls_owner_gateway(

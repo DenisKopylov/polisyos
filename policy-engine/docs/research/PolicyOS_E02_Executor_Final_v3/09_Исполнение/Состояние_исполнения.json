@@ -20649,6 +20649,25 @@
           "guard_sha256": "82aefcd5241a6384567f952e1f49d173898dd0cfdc1b7a50844494e18b7c8cb6",
           "verified_boundary": "First actual signed stock decision returns HTTP 200, with exact bound digest and one selected owner/source return. The diagnostic observer still expects the old return type and stops on the changed pair shape. No DS9, execute, queue, worker, provider or physical reservation, original archived sources intact. Group joins COMMAND_FAIL, 152.291 seconds, peak 1702608896 B."
         },
+        "native_r56_controlled_r6_wall_at_retained_n4": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "source_pin_sha256": "f60caa481c3b8a56959fee3b6b153af7b87b0306c9b833abd064d5653df0f786",
+          "output": "Primary:policy-engine/_cache/e02/native-use-r56-actor-guard-20261123/execute-once-native-paid-b-r6-controlled-exposure/execution-budget/result.json",
+          "sha256": "80b0a0f18c2868be90b236c65e833e3adcb65ef757bef42f470ea4f537bbd796",
+          "stages_sha256": "d0951fb86a6b9bfbe21ea4a6461d1e681859ec7df6cde7f5e332f7ba94f5a2ea",
+          "unchanged_source_journals_sha256": "a7d916090c9848aeb6b780ec1cd4456f572117a6b92ea8b908934ced706b52e0",
+          "ledger_sha256": "787629b0bb54dad7e433c3f2fca45589dc43f03d72241b99cad78ba40398d2a3",
+          "verified_boundary": "Controlled extended signed fixture: stock execute HTTP 200, exactly one job at attempt 1, selected A+B checkpoint, preserved retained-candidate N4 source. Controller entry is 928.821 seconds after DS9 commit. Group joins RESOURCE_ABORT by wall at 3900.145 seconds and 1952448512 B peak. Two-reference progress persists, job has no terminal, ledger revision 36 has zero physical reservations and 15 unchanged spend receipts, and the two paid source journals and isolate source pin match. No new N5 input, selected numerical result or cold read. Stock stage disallows blind redispatch."
+        },
+        "native_adjacent_current_proof_reuse_component": {
+          "source_commit": "b9a7a4615020135b77fd117f1e87fc4aef83c04a",
+          "source_tree": "29afd150208e421df51f9745ca9dbd3b854708f5",
+          "output": "Primary:policy-engine/_cache/e02/native-adjacent-replay-main-r1.Yd4DaVf4/budget/result.json",
+          "sha256": "5d6aa4e62c64c77660940db05f6a972c9b04ca830a1393468e616e1ab058ce73",
+          "junit_sha256": "3aa6d8a277fdaca75255db7eda36fec1dd73b1db65383c133753f29120a4422e",
+          "verified_boundary": "Same-call proof avoids one repeated full history owner read. Two exact checkpoint/event and live source/authority/lease rereads remain. Both compare exact phase and successor view, last SQL comparison binds exact nested progress. A real same-body alternate CAS view decodes alone and is refused under the selected checkpoint. Six no-effect selectors pass in 28.332 seconds. Exact paid-source wall-time improvement and ordinary 900-second profile remain unmeasured."
+        },
         "native_model_input_owner_worker_and_contract_publication": {
           "source_commit": "6dce914c50e0f1b1d4bd73cecb5a7c30bcdb4ea4",
           "source_tree": "7c43064ea1ff92b7951f32b884e417166c920a1a",
@@ -20725,6 +20744,14 @@
           "input_pin_sha256": "72b3442576541fc87651ec6b5d8a7b5120350e30f5b27a18119aad62301ae26b",
           "verified_boundary": "Stock selected compiler and reentry preflight qualify the two registered GDP USD suppliers under distinct offers for the exact model port, with the authentic retained baseline and frontier revision zero. No execute, worker, supplier, reservation, N5 or frontier advance. PASS 34.158 seconds, peak 1603616768 B. The actual two-actor stale-frontier effect and fresh result remain open."
         },
+        "acq01_04_r12_bootstrap_owner_scope_refusal": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "output": "policy-engine/_cache/e02/acq01-04-ordinary-frontier-race-r12.CY2JhI5v/budget/result.json in the isolated ACQ owner checkout",
+          "sha256": "2344e781d572843dd6d1948f895ebeaeace85571f7953041570dcf5aadc4a727",
+          "command_log_sha256": "ff7609df9247b3665859e74bbbe92a3e83b39e6c3fe9f8f13ac6edb28c5108f3",
+          "verified_boundary": "First R12 effect invocation joins COMMAND_FAIL in 38.097 seconds before a request. Initial app constructed under fixture tenant invokes global promotion ownership refusal. Original and run SQL match, no new ACQ job, lease, journal or frontier. Zero provider or N5. Preserve R12 and qualify corrected no-effect stock boot before retrying the race."
+        },
         "ordinary_signed_acquisition_routes_published": {
           "source_commit": "579e3e96e75a4734da3cc1aab815384ff5bb25f1",
           "source_tree": "a360cc2c57a77d63596d01ee12c9a90d1d0e51d1",
@@ -20741,6 +20768,14 @@
           "junit_sha256": "3b0a89cde3248f9d0f5040402e724417d09c9aff9688ecd24afd02c483772435",
           "verified_boundary": "Four focused checks pass in 31.511 seconds at 1396129792 B on the working source. Relevant reader functions match the selective published stage. The two full revised integration mirrors remain unrun. No numerical replay or genuine two-occurrence adverse case in this wave."
         },
+        "cyc0304_partial_n5_selected_history_component": {
+          "source_commit": "080a4c57781fd0cf421bd2f9ea6a62c4c89358e5",
+          "source_tree": "46ab2a66317e02587a4c4a82c577f40d1a6e38f9",
+          "output": "Primary:policy-engine/_cache/e02/cyc03-04-partial-component-r1.yY8AqvZk/budget/result.json",
+          "sha256": "439073d8281c9d7680fd9a1cd260506dc4cb1301bb711f7fcec914207e08109b",
+          "junit_sha256": "7dcc0c162b18a46c3bbc92d964e19a34a6d7d8f34c9f8094fdf3c1a217f1f0ef",
+          "verified_boundary": "Five focused checks pass in 37.703 seconds at 1489141760 B. Read blocked partial proof from the selected request, exact physical reservation and original resource-bound ledger at the producer quota cut. Full reservation substitution, missing ledger, V5 history and the old success sibling are covered. Actual same-candidate A to blocked B with fresh authenticated Run Details remains open."
+        },
         "controlled_discovery_limited_research_composition": {
           "source_commit": "ec96dc6d7b2b1ee0cacdc1d156bd6f65ad927af3",
           "source_tree": "f40aebea5b323dacf6f9df25eb3dcccd39d0b4e1",
@@ -20751,6 +20786,14 @@
           "affected_guard_sha256": "fc16cc46279e1e188a331cb4b916c9d986526c514e536650e5756e776a7f5036",
           "affected_junit_sha256": "8a7efbd4b81231ab6c455881f5e745a8b89b2bde7bbdb8dccdf92bea2af28ccf",
           "verified_boundary": "Published composed method and limited research scope. Thirty-eight named owner cases pass on the staged working bytes. Five actual compiler/N4 preparation and N6 history tests pass on the published scope with physical work disabled. Earlier physical results retain their recorded profile and limitations. Combined archived reader and final API contract verification are pending."
+        },
+        "composed_cyc05_archived_api_cold_r2": {
+          "source_commit": "ec96dc6d7b2b1ee0cacdc1d156bd6f65ad927af3",
+          "source_tree": "f40aebea5b323dacf6f9df25eb3dcccd39d0b4e1",
+          "output": "Primary:policy-engine/_cache/e02/lane01-cyc04-cyc05-016e8ca9/retained-cold/r2/read/b/result.json",
+          "sha256": "3ce04e288a598d7378f38f44f415f83ace401d8d33aa2c65b6711bb2f52a7f00",
+          "aggregate_guard_sha256": "49137ecc9d91f1b6e889ef3cdb41dab05972372b8dc2ce4f4597a7521d30eadb",
+          "verified_boundary": "Exact published-source CYC-05 B fresh process returns the original +0.25, four distinguished rejections and complete comparator withdrawal/restoration in seven signed GETs. Original stores and four completed standard plus one protected unit remain unchanged, zero new effects. The aggregate guard stays COMMAND_FAIL solely on the separate CYC-04 A missing L6 control data. Retain both children and the earlier missing registry failure."
         },
         "gate_b_v16_core_certified_predecessor_kind": {
           "source_commit": "79cab53249bb0358836389b0337a2de21c868207",

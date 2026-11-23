@@ -19,6 +19,7 @@ from polisyos.core.artifacts import (
     ArtifactRef,
     ArtifactTenantContextInfo,
     ArtifactWriteOptions,
+    EnvInfo,
     FileSystemCAS,
     SchemaInfo,
 )
@@ -700,7 +701,7 @@ def test_native_model_input_use_expiry_at_sql_commit_rolls_back_queue(
 def test_native_stage_matches_exact_bindings_across_reference_types(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """Reopen the persisted selector under base-ref history and reject another view."""
+    """Reopen the persisted selector with exact bindings and a sealed stage view."""
     from dataclasses import replace
 
     from polisyos.core.contracts import FoundryInputBindingsRef
@@ -708,7 +709,11 @@ def test_native_stage_matches_exact_bindings_across_reference_types(
     from polisyos.runtime.http.services.acquisition_action_service import (
         VerifiedModelInputUseWorker,
     )
+    from polisyos.runtime.http.services.control_plane_store import ControlJobRecord
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextOwnerError
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        NativeModelInputUseWorldCheckpointV1,
+    )
     from polisyos.runtime.quality.model_input_successor_selection import (
         ModelInputSuccessorSelection,
         persist_model_input_successor_selection,
@@ -782,13 +787,17 @@ def test_native_stage_matches_exact_bindings_across_reference_types(
 
     def read_stage(
         history_ref: ArtifactRef,
+        *,
+        current_job: ControlJobRecord = leased_job,
+        expected_world_checkpoint: NativeModelInputUseWorldCheckpointV1 | None = None,
     ) -> tuple[ModelInputUseActionPhase, ModelInputSuccessorSelection]:
         return _read_model_input_use_stage(
             owner,
             worker=worker,
-            job=leased_job,
+            job=current_job,
             payload=payload,
             history=SimpleNamespace(checkpoint=SimpleNamespace(input_bindings_ref=history_ref)),
+            expected_world_checkpoint=expected_world_checkpoint,
         )
 
     assert read_stage(bindings) == (phase, selector)
@@ -808,6 +817,46 @@ def test_native_stage_matches_exact_bindings_across_reference_types(
         match="generic_native_model_input_use_stage_binding_mismatch",
     ):
         read_stage(foreign_profile)
+
+    # Only these independently verified world-checkpoint refs reach the stage reader.
+    expected_world = NativeModelInputUseWorldCheckpointV1.model_construct(
+        model_input_use_phase_ref=selected_stage.phase_ref,
+        model_input_successor_selection_ref=selected_stage.semantic_successor_ref,
+    )
+    assert read_stage(bindings, expected_world_checkpoint=expected_world) == (phase, selector)
+
+    manifest = case.store.get_manifest(selected_stage.semantic_successor_ref)
+    alternate_view = case.store.put_json(
+        selector,
+        ArtifactWriteOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            producer=manifest.producer,
+            env=EnvInfo(python="3.14", platform="alternate-stage-view", deps_lock_hash="fixture"),
+            inputs=manifest.inputs,
+            canon=manifest.canon,
+            tenant_context=manifest.tenant_context,
+        ),
+        return_selected_profile=True,
+    )
+    assert alternate_view.artifact_id == selected_stage.semantic_successor_ref.artifact_id
+    assert (
+        alternate_view.manifest_profile_sha256
+        != selected_stage.semantic_successor_ref.manifest_profile_sha256
+    )
+    alternate_stage = selected_stage.model_copy(update={"semantic_successor_ref": alternate_view})
+    substituted_job = replace(
+        leased_job, progress={"model_input_use": alternate_stage.model_dump(mode="json")}
+    )
+    assert read_stage(bindings, current_job=substituted_job) == (phase, selector)
+    with pytest.raises(
+        CycleSubstrateContextOwnerError, match="generic_native_model_input_use_stage_not_replayed"
+    ) as refused:
+        read_stage(bindings, current_job=substituted_job, expected_world_checkpoint=expected_world)
+    assert str(refused.value.__cause__) == (
+        "generic_native_model_input_use_stage_selected_view_changed"
+    )
 
 
 @pytest.mark.parametrize("owner_stops", [False, True], ids=["new-progress", "lost-lease"])

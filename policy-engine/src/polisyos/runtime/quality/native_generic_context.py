@@ -740,8 +740,9 @@ def _read_model_input_use_stage(
     job: object,
     payload: dict[str, object],
     history: NativeDerivedWorldSelection,
+    expected_world_checkpoint: NativeModelInputUseWorldCheckpointV1 | None = None,
 ) -> tuple[ModelInputUseActionPhase, ModelInputSuccessorSelection]:
-    """Reopen the actual current phase and V1 B selector from job progress."""
+    """Reopen the current phase and B selector, preserving any sealed selection."""
     from polisyos.core.artifacts import artifact_ref_for_manifest
     from polisyos.runtime.http.services.acquisition_action_service import (
         VerifiedModelInputUseWorker,
@@ -770,6 +771,14 @@ def _read_model_input_use_stage(
         raise _error("generic_native_model_input_use_stage_not_selected")
     try:
         stage = ModelInputUseActionCheckpoint.model_validate(raw_checkpoint)
+        if expected_world_checkpoint is not None and (
+            not _same_ref(stage.phase_ref, expected_world_checkpoint.model_input_use_phase_ref)
+            or not _same_ref(
+                stage.semantic_successor_ref,
+                expected_world_checkpoint.model_input_successor_selection_ref,
+            )
+        ):
+            raise ValueError("generic_native_model_input_use_stage_selected_view_changed")
         phase = read_model_input_use_action_phase(owner.store, stage.phase_ref)
         selection = read_model_input_successor_selection(owner.store, stage.semantic_successor_ref)
         request = unwrap_native_model_input_use_request(payload, phase=phase)
@@ -958,6 +967,45 @@ def _persist_use_checkpoint(
     return selected_ref
 
 
+def _read_verified_native_model_input_use_checkpoint(
+    owner: GenericCycleSimulationAdmissionOwner,
+    checkpoint_ref: artifacts.ArtifactRef,
+) -> NativeModelInputUseWorldCheckpointV1:
+    """Reopen the selected checkpoint profile, lineage, and durable producer event."""
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+    from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        NativeModelInputUseWorldCheckpointV1,
+    )
+
+    event_log = owner._native_action_event_log
+    if event_log is None:
+        raise ValueError("generic_native_model_input_use_checkpoint_unselected")
+    checkpoint = NativeModelInputUseWorldCheckpointV1.model_validate(
+        load_core_json_artifact(owner.store, checkpoint_ref)
+    )
+    AcquisitionWorldGrowthBridge.read_verified_artifact(
+        owner.store,
+        event_log,
+        checkpoint_ref,
+        checkpoint_ref.kind,
+        expected_inputs=checkpoint.lineage_inputs(),
+    )
+    report = reconcile_authority_ref(
+        artifact_store=owner.store,
+        event_log=event_log,
+        cas_ref=checkpoint_ref,
+        expected_tenant_id=checkpoint.tenant_id,
+        expected_cell_id=checkpoint.cell_id,
+        expected_run_id=checkpoint.run_id,
+        expected_job_id=checkpoint.action_job_id,
+    )
+    if report.durable_event_id != _use_checkpoint_event_id(checkpoint):
+        raise ValueError("generic_native_model_input_use_checkpoint_event_mismatch")
+    return checkpoint
+
+
 def replay_native_model_input_use_world_selection(
     owner: GenericCycleSimulationAdmissionOwner,
     *,
@@ -971,7 +1019,6 @@ def replay_native_model_input_use_world_selection(
     )
     from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceipt
     from polisyos.runtime.quality.acquisition_world_growth import (
-        AcquisitionWorldGrowthBridge,
         replay_native_derivation_input_collection,
     )
     from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
@@ -994,27 +1041,7 @@ def replay_native_model_input_use_world_selection(
     ):
         raise _error("generic_native_model_input_use_checkpoint_unselected")
     try:
-        checkpoint = NativeModelInputUseWorldCheckpointV1.model_validate(
-            load_core_json_artifact(owner.store, checkpoint_ref)
-        )
-        AcquisitionWorldGrowthBridge.read_verified_artifact(
-            owner.store,
-            owner._native_action_event_log,
-            checkpoint_ref,
-            checkpoint_ref.kind,
-            expected_inputs=checkpoint.lineage_inputs(),
-        )
-        report = reconcile_authority_ref(
-            artifact_store=owner.store,
-            event_log=owner._native_action_event_log,
-            cas_ref=checkpoint_ref,
-            expected_tenant_id=checkpoint.tenant_id,
-            expected_cell_id=checkpoint.cell_id,
-            expected_run_id=checkpoint.run_id,
-            expected_job_id=checkpoint.action_job_id,
-        )
-        if report.durable_event_id != _use_checkpoint_event_id(checkpoint):
-            raise ValueError("generic_native_model_input_use_checkpoint_event_mismatch")
+        checkpoint = _read_verified_native_model_input_use_checkpoint(owner, checkpoint_ref)
         history = _recorded_selection(owner, checkpoint.historical_native_world_checkpoint_ref)
         terminal = AcquisitionRouteLoopReceipt.model_validate(
             load_core_json_artifact(owner.store, checkpoint.predecessor_terminal_ref)
@@ -1467,11 +1494,33 @@ def _resolve_current_native_model_input_use_selection(
     repo_root: Path | None,
     expected_bridge: AcquisitionWorldGrowthBridge | None,
 ) -> NativeModelInputUseWorldSelection:
-    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
-
     selection = replay_native_model_input_use_world_selection(
         owner, checkpoint_ref=handoff.native_world_checkpoint_ref
     )
+    return _reconcile_current_native_model_input_use_selection(
+        owner,
+        selection=selection,
+        handoff=handoff,
+        problem=problem,
+        context_owner=context_owner,
+        repo_root=repo_root,
+        expected_bridge=expected_bridge,
+    )
+
+
+def _reconcile_current_native_model_input_use_selection(
+    owner: GenericCycleSimulationAdmissionOwner,
+    *,
+    selection: NativeModelInputUseWorldSelection,
+    handoff: GenericCycleNativeWorldContextHandoffV1,
+    problem: DesignProblem,
+    context_owner: CycleSubstrateContextArtifactOwner | None,
+    repo_root: Path | None,
+    expected_bridge: AcquisitionWorldGrowthBridge | None,
+) -> NativeModelInputUseWorldSelection:
+    """Verify the live action for the exact selection just replayed by the owner."""
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
+
     bridge = _current_bridge(owner)
     if expected_bridge is not None and bridge is not expected_bridge:
         raise _error("generic_native_world_bridge_owner_mismatch")
@@ -1481,7 +1530,12 @@ def _resolve_current_native_model_input_use_selection(
     )
     history = selection.source_selection.historical_selection
     phase, successor = _read_model_input_use_stage(
-        owner, worker=worker, job=job, payload=payload, history=history
+        owner,
+        worker=worker,
+        job=job,
+        payload=payload,
+        history=history,
+        expected_world_checkpoint=checkpoint,
     )
     if (
         not _use_handoff_matches_selection(handoff, selection, problem)
@@ -1519,14 +1573,21 @@ def _resolve_current_native_model_input_use_selection(
         _read_current_native_model_input_use_sources(owner, problem=problem, expected_worker=worker)
     )
     phase_after, successor_after = _read_model_input_use_stage(
-        owner, worker=worker_after, job=job_after, payload=payload_after, history=history
+        owner,
+        worker=worker_after,
+        job=job_after,
+        payload=payload_after,
+        history=history,
+        expected_world_checkpoint=checkpoint,
     )
+    final_admission = owner._native_action_control_store.current_execution_job_admission()
     if (
         phase_after != phase
         or successor_after != successor
         or not _native_use_source_selections_match(current_source, source_after)
-        or not owner._native_action_control_store.current_execution_job_admission()
-        .same_execution_identity(worker.admission)
+        or not final_admission.same_execution_identity(worker.admission)
+        or final_admission.job.progress.get("model_input_use")
+        != job_after.progress.get("model_input_use")
     ):
         raise _error("generic_native_model_input_use_handoff_changed_during_read")
     return selection
@@ -1841,8 +1902,17 @@ def _selection_for_input(
             raise _error("generic_native_model_input_use_n5_input_selection_mismatch")
         if current:
             handoff = _native_use_handoff(selected_use)
-            _resolve_current_native_model_input_use_selection(
+            try:
+                reopened_checkpoint = _read_verified_native_model_input_use_checkpoint(
+                    owner, handoff.native_world_checkpoint_ref
+                )
+                if reopened_checkpoint != use_checkpoint:
+                    raise ValueError("generic_native_model_input_use_checkpoint_changed")
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                raise _error("generic_native_model_input_use_checkpoint_history_not_replayed") from exc
+            _reconcile_current_native_model_input_use_selection(
                 owner,
+                selection=selected_use,
                 handoff=handoff,
                 problem=historical.problem,
                 context_owner=None,

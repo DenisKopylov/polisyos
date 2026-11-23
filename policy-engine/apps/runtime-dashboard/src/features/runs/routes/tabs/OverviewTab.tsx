@@ -491,6 +491,48 @@ type N5NumericalBody = Pick<
     >
   >;
 
+type SelectedN5ObservationArtifactReferences = {
+  n5_input_ref?: RunArtifactRef | null;
+  n5_execution_ref?: RunArtifactRef | null;
+  simulation_result_ref?: RunArtifactRef | null;
+};
+
+function SelectedN5ArtifactReferenceLinks({
+  observation,
+  testIdPrefix,
+}: {
+  observation: SelectedN5ObservationArtifactReferences;
+  testIdPrefix: string;
+}) {
+  const refs = [
+    observation.n5_input_ref,
+    observation.n5_execution_ref,
+    observation.simulation_result_ref,
+  ].filter((ref): ref is RunArtifactRef => ref != null);
+  if (refs.length !== 3) {
+    return null;
+  }
+  const labels = ["input", "execution", "result"] as const;
+  return (
+    <div className="space-y-1" data-testid={testIdPrefix + "-refs"}>
+      {refs.map((ref, index) => (
+        <p key={labels[index]}>
+          <Link
+            className="text-accent text-xs break-all underline"
+            to={buildArtifactHref(ref.artifact_id, {
+              tab: "content",
+              artifactRef: ref,
+            })}
+            data-testid={testIdPrefix + "-ref-" + labels[index]}
+          >
+            {ref.kind}: {ref.artifact_id}
+          </Link>
+        </p>
+      ))}
+    </div>
+  );
+}
+
 function N5NumericalResultBody({
   body,
   testIdPrefix,
@@ -1086,10 +1128,16 @@ function AcquisitionHistorySection({
                     </p>
                   ) : null}
                   {candidate.selected_n5_observation?.result_body ? (
-                    <N5NumericalResultBody
-                      body={candidate.selected_n5_observation.result_body}
-                      testIdPrefix="overview-candidate-v5-n5"
-                    />
+                    <>
+                      <SelectedN5ArtifactReferenceLinks
+                        observation={candidate.selected_n5_observation}
+                        testIdPrefix="overview-candidate-v5-n5"
+                      />
+                      <N5NumericalResultBody
+                        body={candidate.selected_n5_observation.result_body}
+                        testIdPrefix="overview-candidate-v5-n5"
+                      />
+                    </>
                   ) : null}
                   {[
                     candidate.candidate_action_ref,
@@ -1321,6 +1369,10 @@ function AcquisitionHistorySection({
                           },
                         )}
                       </p>
+                      <SelectedN5ArtifactReferenceLinks
+                        observation={numerical}
+                        testIdPrefix={testIdPrefix + "-retained-n5"}
+                      />
                       <N5NumericalResultBody
                         body={numerical.result_body}
                         testIdPrefix={testIdPrefix + "-retained-n5"}
@@ -1695,6 +1747,10 @@ function AcquisitionHistorySection({
                             },
                           )}
                         </p>
+                        <SelectedN5ArtifactReferenceLinks
+                          observation={numerical}
+                          testIdPrefix={testIdPrefix + "-selected-n5"}
+                        />
                         <N5NumericalResultBody
                           body={numerical.result_body}
                           testIdPrefix={testIdPrefix + "-selected-n5"}

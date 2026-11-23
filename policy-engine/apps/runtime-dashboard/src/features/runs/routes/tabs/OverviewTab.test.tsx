@@ -739,6 +739,29 @@ function selectedNumericalAcquisitionProjection() {
   };
 }
 
+function retainedNumericalAcquisitionHistoryEntry() {
+  const numerical =
+    selectedNumericalAcquisitionProjection().acquisition_history[0]!
+      .selected_n5_observation;
+  const retained = retainedAcquisitionHistoryFixture();
+  const evaluation = {
+    ...retained.retained_evaluation,
+    candidate_id: numerical.candidate_id,
+    cycle_index: numerical.cycle_index,
+    n4_source_ref: numerical.n4_source_ref,
+    context_job_ref: numerical.context_job_ref,
+    n5_input_ref: numerical.n5_input_ref,
+    n5_execution_ref: numerical.n5_execution_ref,
+    n5_result_ref: numerical.simulation_result_ref,
+  };
+  return {
+    ...retained,
+    retained_evaluation: evaluation,
+    selected_n5_observation: numerical,
+    current_cheap_consequences: currentCheapConsequencesFixture(evaluation),
+  };
+}
+
 function modelRevisedAcquisitionProjection() {
   const projection = selectedNumericalAcquisitionProjection();
   const entry = projection.acquisition_history[0]!;
@@ -2729,31 +2752,101 @@ describe("OverviewTab", () => {
     expect(result).not.toHaveTextContent("publication_ready");
   });
 
+  it("links exact-profile N5 refs for new and retained acquisition evaluations", () => {
+    const projection = selectedNumericalAcquisitionProjection();
+    const newExecution = projection.acquisition_history[0]!;
+    const retained = retainedNumericalAcquisitionHistoryEntry();
+    overviewState.run = parsedRun({
+      ...projection,
+      acquisition_history: [newExecution, retained],
+    });
+
+    renderWithProviders(<OverviewTab />);
+
+    const numericalProvenance = screen.getAllByTestId(
+      "overview-acquisition-numerical-provenance",
+    );
+    expect(numericalProvenance[0]!).toHaveTextContent("new_execution");
+    expect(numericalProvenance[1]!).toHaveTextContent("retained_prior");
+
+    const observations = [
+      {
+        prefix: "overview-acquisition-selected-n5",
+        observation: newExecution.selected_n5_observation,
+      },
+      {
+        prefix: "overview-acquisition-retained-n5",
+        observation: retained.selected_n5_observation,
+      },
+    ];
+    for (const { prefix, observation } of observations) {
+      const refs = [
+        observation.n5_input_ref,
+        observation.n5_execution_ref,
+        observation.simulation_result_ref,
+      ];
+      const labels = ["input", "execution", "result"] as const;
+      refs.forEach((ref, index) => {
+        expect(ref?.manifest_profile_sha256).toMatch(/^sha256:[0-9a-f]{64}$/);
+        const link = screen.getByTestId(`${prefix}-ref-${labels[index]}`);
+        const href = link.getAttribute("href");
+        expect(href).not.toBeNull();
+        const artifactRefKey = new URL(
+          href!,
+          window.location.origin,
+        ).searchParams.get("artifactRefKey");
+        expect(artifactRefKey).not.toBeNull();
+        expect(JSON.parse(artifactRefKey!)).toEqual([
+          ref!.artifact_id,
+          ref!.kind,
+          ref!.media_type,
+          ref!.manifest_profile_sha256,
+        ]);
+      });
+    }
+  });
+
+  it("rejects V2 selected N5 data when the paired input profile is absent", () => {
+    const projection = selectedNumericalAcquisitionProjection();
+    const entry = projection.acquisition_history[0]!;
+    const selectedInputRef = {
+      ...entry.continuation.selected_n5_input_ref,
+      manifest_profile_sha256: null,
+    };
+    Reflect.set(entry.continuation, "selected_n5_input_ref", selectedInputRef);
+    Reflect.set(entry.selected_n5_observation, "n5_input_ref", {
+      ...selectedInputRef,
+    });
+    const parsed = runDetailsSchema.safeParse({
+      meta: {
+        request_id: "req-overview",
+        generated_at: "2026-10-12T10:00:00Z",
+        source_kinds: ["core_run"],
+      },
+      run: {
+        run_id: "run-1",
+        source_kind: "core_run",
+        status: "failed",
+        candidate_simulation: projection,
+      },
+      temporal_scope: null,
+    });
+
+    if (parsed.success) {
+      throw new Error(
+        "Expected the stock run schema to refuse unprofiled N5 input",
+      );
+    }
+    const lineageIssue = parsed.error.issues.find(
+      (issue) =>
+        issue.message === "run_n5_candidate_result_body_lineage_invalid",
+    );
+    expect(lineageIssue?.path.at(-1)).toBe("selected_n5_observation");
+  });
+
   it("shows retained original numbers without attributing them to the new admitted source", () => {
     const projection = selectedNumericalAcquisitionProjection();
-    const numerical =
-      projection.acquisition_history[0]!.selected_n5_observation;
-    const retained = retainedAcquisitionHistoryFixture();
-    const selected = retained.retained_evaluation;
-    const history = {
-      ...retained,
-      retained_evaluation: {
-        ...selected,
-        candidate_id: numerical.candidate_id,
-        cycle_index: numerical.cycle_index,
-        n4_source_ref: numerical.n4_source_ref,
-        context_job_ref: numerical.context_job_ref,
-        n5_input_ref: numerical.n5_input_ref,
-        n5_execution_ref: numerical.n5_execution_ref,
-        n5_result_ref: numerical.simulation_result_ref,
-      },
-      selected_n5_observation: numerical,
-      current_cheap_consequences: currentCheapConsequencesFixture({
-        ...selected,
-        candidate_id: numerical.candidate_id,
-        cycle_index: numerical.cycle_index,
-      }),
-    };
+    const history = retainedNumericalAcquisitionHistoryEntry();
     overviewState.run = parsedRun({
       ...projection,
       acquisition_history: [history],
@@ -2780,6 +2873,29 @@ describe("OverviewTab", () => {
     expect(cheap).toHaveTextContent("current_source_invalidation");
     expect(cheap).toHaveTextContent("Next action: blocked");
     expect(cheap).toHaveTextContent("the numerical evaluation is retained");
+  });
+
+  it("withholds retained N5 numbers when a selected execution ref is removed", () => {
+    const projection = selectedNumericalAcquisitionProjection();
+    const retained = retainedNumericalAcquisitionHistoryEntry();
+    Reflect.set(retained.selected_n5_observation, "n5_execution_ref", null);
+    overviewState.run = parsedRun();
+    overviewState.run.candidate_simulation = {
+      ...projection,
+      acquisition_history: [retained],
+    };
+
+    renderWithProviders(<OverviewTab />);
+
+    expect(
+      screen.getByTestId("overview-acquisition-history-refused"),
+    ).toBeVisible();
+    expect(
+      screen.queryByTestId("overview-acquisition-retained-n5-result-body"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("overview-acquisition-retained-n5-ref-execution"),
+    ).not.toBeInTheDocument();
   });
 
   it("withholds retained history when cheap consequences name another candidate", () => {

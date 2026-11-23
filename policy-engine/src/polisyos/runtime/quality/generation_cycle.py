@@ -144,6 +144,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.native_source_reentry_history import (
         NativeSourceReentryCoordinator,
+        NativeSourceReentryProgress,
     )
 else:
     from polisyos.foundry.methods.selection import MethodSelectionReceipt
@@ -13002,39 +13003,37 @@ class GenerationCycleController:
             **value_port_kwargs,
         )
         next_cycle_index = source_cycle.cycle_index + 1
-        native_progress = (
-            native_reentry_coordinator.progress()
-            if native_reentry_coordinator is not None
-            else None
+        native_reentry = None
+        if native_reentry_coordinator is not None:
+            native_progress = native_reentry_coordinator.progress()
+            if native_progress.cycle_completed is not None:
+                self._ensure_selected_candidate_source_profile(problem)
+                self._restore_native_prepared_generation(
+                    {
+                        "problem": problem,
+                        "cycle_index": next_cycle_index,
+                        "native_reentry_coordinator": native_reentry_coordinator,
+                        "native_reentry_progress": native_progress,
+                    }
+                )
+                _, completed_cycle = native_progress.cycle_completed
+                validate_acquisition_overlay_continuation(original_run, completed_cycle.receipt)
+                native_reentry_coordinator._current()
+                return completed_cycle.receipt
+            # Carry the verified cut into this immediate cycle. Preparation and
+            # claims still verify their live action and selected checkpoint.
+            native_reentry = (native_reentry_coordinator, native_progress)
+        new_cycle, summaries = await self._run_cycle(
+            problem,
+            cycle_index=next_cycle_index,
+            budget_state=budget_state,
+            previous_cycle=source_cycle,
+            value_port_override=reentry_value_port if native_reentry is None else None,
+            stable_design_problem_ref=original_run.design_problem_ref,
+            candidate_scenario_origin_source_ref=origin_source_ref,
+            candidate_scenario_proposal_reissue=proposal_reissue,
+            native_reentry=native_reentry,
         )
-        if native_progress is not None and native_progress.cycle_completed is not None:
-            self._ensure_selected_candidate_source_profile(problem)
-            self._restore_native_prepared_generation(
-                {
-                    "problem": problem,
-                    "cycle_index": next_cycle_index,
-                    "native_reentry_coordinator": native_reentry_coordinator,
-                    "native_reentry_progress": native_progress,
-                }
-            )
-            _, completed_cycle = native_progress.cycle_completed
-            validate_acquisition_overlay_continuation(original_run, completed_cycle.receipt)
-            native_reentry_coordinator._current()
-            return completed_cycle.receipt
-        else:
-            new_cycle, summaries = await self._run_cycle(
-                problem,
-                cycle_index=next_cycle_index,
-                budget_state=budget_state,
-                previous_cycle=source_cycle,
-                value_port_override=None
-                if native_reentry_coordinator is not None
-                else reentry_value_port,
-                stable_design_problem_ref=original_run.design_problem_ref,
-                candidate_scenario_origin_source_ref=origin_source_ref,
-                candidate_scenario_proposal_reissue=proposal_reissue,
-                native_reentry_coordinator=native_reentry_coordinator,
-            )
         # Re-entry creates a new actual cycle. Resolve its current requirement
         # through the maintained compiler/planner, as the ordinary run loop does;
         # the historic route report must never stand in for this current gap.
@@ -13883,13 +13882,10 @@ class GenerationCycleController:
             Callable[[SimulationPortObservation, SchedulingDecision, int], None] | None
         ) = None,
         candidate_reentry_n5_resume: CandidateSourceReentryN5Checkpoint | None = None,
-        native_reentry_coordinator: NativeSourceReentryCoordinator | None = None,
+        native_reentry: tuple[NativeSourceReentryCoordinator, NativeSourceReentryProgress]
+        | None = None,
     ) -> tuple[GenerationCycleRecord, tuple[CandidateSummary, ...]]:
-        native_progress = (
-            native_reentry_coordinator.progress()
-            if native_reentry_coordinator is not None
-            else None
-        )
+        native_reentry_coordinator, native_progress = native_reentry or (None, None)
         partial_slot = _GenerationCycleN5PartialSlot()
         state: dict[str, Any] = {
             "_generation_cycle_n5_partial_slot": partial_slot,

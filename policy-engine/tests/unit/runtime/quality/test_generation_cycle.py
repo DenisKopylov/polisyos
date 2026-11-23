@@ -129,7 +129,6 @@ from polisyos.runtime.quality.substrate_registry import (
     default_substrate_catalog_paths,
 )
 from polisyos.runtime.quality.world_model_record import WorldModelRecordError
-from polisyos.scientist.orchestration.engine.budget import BudgetState
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 from tests._helpers.controlled_candidate_profile import (
     _AlwaysLowGrounding,
@@ -12251,9 +12250,11 @@ async def test_conflicting_n7_family_declaration_is_costed_refusal(
 
 @pytest.mark.asyncio
 @_requires_owner_catalog
+@pytest.mark.parametrize("native_reentry", [False, True], ids=["ordinary", "native"])
 async def test_active_overlay_reentry_is_exact_direct_and_read_only(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    native_reentry: bool,
 ) -> None:
     from polisyos.core.artifacts import load_core_json_artifact
     from polisyos.data_requirement import DataRequirementCompilationReport
@@ -12357,49 +12358,121 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
         passport=scenario.passport,
         authority=scenario.authority,
     )
-    calls: list[tuple[object, ...]] = []
+    progress_reads = []
+    current_checks = []
+    reentry_args: dict[str, Any] = {}
+    coordinator = progress = None
+    if native_reentry:
+        from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+        from polisyos.runtime.quality import acquisition_world_growth
+        from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoop
+        from polisyos.runtime.quality.generic_simulation_admission import (
+            GenericCycleNativeWorldContextHandoffV1,
+        )
+        from polisyos.runtime.quality.native_source_reentry_history import (
+            NativeSourceReentryCoordinator,
+            NativeSourceReentryProgress,
+        )
 
-    async def direct_cycle(
-        received_problem: DesignProblem,
-        *,
-        cycle_index: int,
-        budget_state: BudgetState,
-        previous_cycle: object,
-        value_port_override: object,
-        stable_design_problem_ref: str,
-        candidate_scenario_origin_source_ref: object | None,
-        candidate_scenario_proposal_reissue: object | None,
-        native_reentry_coordinator: object | None,
-    ) -> tuple[object, tuple[CandidateSummary, ...]]:
-        assert received_problem is problem
-        assert stable_design_problem_ref == source_run.design_problem_ref
-        assert candidate_scenario_origin_source_ref is None
-        assert candidate_scenario_proposal_reissue is None
-        assert native_reentry_coordinator is None
+        service = object.__new__(ControlPlaneService)
+        job = SimpleNamespace(
+            kind="acquisition", state="running", run_id=source_run.run_id, job_id="native-action"
+        )
+        scope = SimpleNamespace(status="established", tenant_id="tenant", cell_id="cell")
+        service._control_store = SimpleNamespace(
+            current_execution_job_admission=lambda: SimpleNamespace(job=job, scope=scope)
+        )
+        service._artifact_store = source_store
+        service._acquisition_route_sink = None
+        service._diagnostic_event_log = None
+        collection_ref = source_cycle.acquisition_routing_report_ref
+        closure = SimpleNamespace(
+            route_id="native-route",
+            generation_run=source_run,
+            source_cycle=source_cycle,
+            route_source_cycle=source_cycle,
+            design_problem_basis=problem,
+            cost_basis_record=source_cycle.acquisition_cost_basis_record,
+            planner_report=persisted_report,
+            native_derivation_leaf_scope=object(),
+        )
+        monkeypatch.setattr(
+            AcquisitionRouteLoop, "resolve_current_route", lambda *_args, **_kwargs: closure
+        )
+        monkeypatch.setattr(
+            acquisition_world_growth,
+            "verify_native_derivation_reentry_collection",
+            lambda *_args, **_kwargs: source_gap,
+        )
+        context = SimpleNamespace(world_model_record=source_cycle.simulation.world_model_record)
+        handoff = GenericCycleNativeWorldContextHandoffV1.model_construct(context=context)
+        controller._cycle_substrate_context = context
+        controller._generic_cycle_simulation_handoff = handoff
+        coordinator = object.__new__(NativeSourceReentryCoordinator)
+        coordinator.bridge = SimpleNamespace(_source_control_service=service)
+        coordinator.handoff = handoff
+        coordinator.collection_ref = collection_ref
+        progress = NativeSourceReentryProgress()
+
+        def read_progress(owner):
+            progress_reads.append(owner)
+            return progress
+
+        monkeypatch.setattr(NativeSourceReentryCoordinator, "progress", read_progress)
+        monkeypatch.setattr(
+            NativeSourceReentryCoordinator, "_current", lambda owner: current_checks.append(owner)
+        )
+        reentry_args = {
+            "source_control_service": service,
+            "action_route_id": closure.route_id,
+            "native_input_collection_ref": collection_ref,
+            "native_reentry_coordinator": coordinator,
+        }
+
+    cycles_started = []
+
+    class ReachedNativeCycleEngineError(Exception):
+        pass
+
+    async def direct_cycle(state: dict[str, Any]) -> dict[str, Any]:
+        cycle_index = state["cycle_index"]
+        assert state["problem"] is problem
+        assert state["stable_design_problem_ref"] == source_run.design_problem_ref
+        assert state["candidate_scenario_origin_source_ref"] is None
+        assert state["candidate_scenario_proposal_reissue"] is None
+        assert state["native_reentry_coordinator"] is coordinator
+        assert state["native_reentry_progress"] is progress
         assert cycle_index == source_cycle.cycle_index + 1
-        assert previous_cycle is source_cycle
+        assert state["previous_cycle"] is source_cycle
+        value_port_override = state["value_port_override"]
+        cycles_started.append(cycle_index)
+        if native_reentry:
+            assert value_port_override is None
+            assert current_checks == [coordinator]
+            assert progress_reads == [coordinator]
+            raise ReachedNativeCycleEngineError
         assert isinstance(
             value_port_override,
             generation_cycle_module._DefaultSimulationBoundFoundryValuePort,
         )
         assert isinstance(value_port_override.owner_gateway, RealValueOwnerGateway)
-        assert value_port_override.owner_gateway.catalog_overlay_path == (
-            scenario.overlay.overlay_path
+        assert (
+            value_port_override.owner_gateway.catalog_overlay_path == scenario.overlay.overlay_path
         )
-        calls.append((received_problem, previous_cycle, value_port_override))
-        return (
-            source_cycle.model_copy(update={"cycle_index": cycle_index}),
-            tuple(
+        return {
+            **state,
+            "cycle": source_cycle.model_copy(update={"cycle_index": cycle_index}),
+            "candidate_summaries": tuple(
                 row.model_copy(update={"cycle_index": cycle_index})
                 for row in source_run.candidate_summaries
             ),
-        )
+        }
 
     def forbidden(*args: Any, **kwargs: Any) -> Any:
         del args, kwargs
         raise AssertionError("legacy_or_world_write_reentry_path_called")
 
-    monkeypatch.setattr(controller, "_run_cycle", direct_cycle)
+    monkeypatch.setattr(controller._engine, "run_async", direct_cycle)
     monkeypatch.setattr(controller, "run", forbidden)
     monkeypatch.setattr(controller, "_reenter_cycle_after_n7_acquisition", forbidden)
     monkeypatch.setattr(controller, "_run_n7_acquisition_if_requested", forbidden)
@@ -12409,7 +12482,7 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
         hashlib.sha256(path.read_bytes()).digest() for path in selected_catalog_files
     )
 
-    receipt = await controller.reenter_after_active_acquisition_overlay(
+    reentry = controller.reenter_after_active_acquisition_overlay(
         original_run=source_run,
         source_cycle=source_cycle,
         problem=problem,
@@ -12418,10 +12491,19 @@ async def test_active_overlay_reentry_is_exact_direct_and_read_only(
         baseline_path=scenario.authority.baseline_path,
         overlay_path=scenario.overlay.overlay_path,
         budget_state=_budget(),
+        **reentry_args,
     )
 
+    if native_reentry:
+        with pytest.raises(ReachedNativeCycleEngineError):
+            await reentry
+        assert cycles_started == [source_cycle.cycle_index + 1]
+        return
+
+    receipt = await reentry
+    assert not progress_reads
     assert isinstance(receipt, AcquisitionOverlayReentryReceipt)
-    assert len(calls) == 1
+    assert cycles_started == [source_cycle.cycle_index + 1]
     assert receipt.source_run_id == source_run.run_id
     assert receipt.source_candidate_ref == source_cycle.selected_candidate_ref
     assert receipt.overlay_receipt_ref == str(activated.receipt_ref.artifact_id)

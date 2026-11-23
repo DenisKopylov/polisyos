@@ -72,6 +72,135 @@ def _options(*, kind: str, schema_name: str) -> ArtifactWriteOptions:
     )
 
 
+@pytest.mark.asyncio
+async def test_current_ordinary_offers_require_exact_selection_for_one_verified_origin(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Bind multiple Catalog offers without changing the completed N7 producer."""
+    from datetime import timedelta
+
+    from polisyos.core.artifacts import ArtifactRef, artifact_ref_for_manifest
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.services.acquisition_surface_execution import (
+        _constraints_from_live_variable_route,
+    )
+    from polisyos.runtime.quality import generation_cycle
+    from polisyos.runtime.quality.acquisition_planner import (
+        OrdinaryAcquisitionOffer,
+        OrdinaryAcquisitionOfferScope,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        OrdinaryAcquisitionOfferConfiguration,
+    )
+    from tests._helpers.acquisition_production import (
+        install_fixture_wdi_cost_basis,
+        persist_wdi_route,
+    )
+    from tests._helpers.runtime_http import _build_control_service
+    from tests.unit.runtime.quality.test_acquisition_planner_source_offers import (
+        _controlled_supplier_refs,
+    )
+    from tests.unit.runtime.quality.test_substrate_registry import _write_substrate_catalog_fixture
+
+    monkeypatch.setattr(generation_cycle, "_N7_SOURCE_SEMANTIC_EMISSION_ENABLED", True)
+    install_fixture_wdi_cost_basis(monkeypatch)
+    substrate = tmp_path / "substrate"
+    _write_substrate_catalog_fixture(substrate)
+    cas = FileSystemCAS(tmp_path / "cas")
+    control = _build_control_service(tmp_path / "control", artifact_store=cas)
+    try:
+        legacy, _ = await persist_wdi_route(control, generation_cycle_repo_root=substrate)
+        source_job = control._control_store.get_job(legacy.source_job_id)
+        gap = legacy.route_source_cycle.value_port.acquisition_requirement
+        plan_ref = legacy.route_source_cycle.acquisition_routing_report_ref
+        assert source_job is not None and gap is not None and plan_ref is not None
+        assert legacy.planner_record.compiled_requirement_ref is not None
+        constraints = _constraints_from_live_variable_route(legacy)
+        reader_args = {
+            "control_store": control._control_store,
+            "artifact_store": cas,
+            "event_log": control._diagnostic_event_log,
+            "core_source_resolver": control.resolve_completed_control_job_core_run_source,
+            "tenant_id": legacy.tenant_id,
+            "cell_id": legacy.cell_id,
+            "action_outcome_reader": control.acquisition_route_sink,
+        }
+        now = datetime.now(UTC)
+        with tenant_scope(None, tenant_id=legacy.tenant_id, cell_id=legacy.cell_id):
+            authority, (first_ref, second_ref, _, _) = _controlled_supplier_refs(
+                tmp_path / "offers", cas
+            )
+            scope = OrdinaryAcquisitionOfferScope(
+                tenant_id=legacy.tenant_id,
+                cell_id=legacy.cell_id,
+                run_id=legacy.run_id,
+                source_job_id=legacy.source_job_id,
+                design_problem_ref=legacy.design_problem_ref,
+                candidate_id=legacy.route_source_cycle.selected_candidate_ref,
+                compiled_ref=ArtifactRef.model_validate(
+                    source_job.progress["compiled_recursive_generation_cycle_artifact_ref"]
+                ),
+                scenario_id=legacy.design_problem.design_problem_id,
+                planner_report_ref=artifact_ref_for_manifest(cas.get_manifest(plan_ref)),
+                planner_record_id=legacy.planner_record.acquisition_id,
+                compiled_requirement_ref=legacy.planner_record.compiled_requirement_ref,
+                source_gap_id=gap.requirement_gap_id,
+                canonical_variable_id="government.balance",
+                canonical_unit="percent_gdp",
+                country_code=constraints.country_code,
+                year=constraints.start_year,
+            )
+            first, second = (
+                OrdinaryAcquisitionOffer(
+                    scope=scope,
+                    supplier_ref=ref,
+                    cost_basis_hash=legacy.cost_basis_hash,
+                    effective_at=now - timedelta(days=1),
+                    expires_at=now + timedelta(days=1),
+                )
+                for ref in (first_ref, second_ref)
+            )
+            declared = OrdinaryAcquisitionOfferConfiguration(
+                authority=authority,
+                canonical_unit="percent_gdp",
+                constraints=constraints,
+                offers=(first, second),
+            )
+            loop = AcquisitionRouteLoop(**reader_args, ordinary_offer_configuration=declared)
+            left, right = loop.resolve_current_ordinary_routes(run_id=legacy.run_id)
+            assert len({legacy.route_id, left.route_id, right.route_id}) == 3
+            assert (left.ordinary_offer, right.ordinary_offer) == (first, second)
+            assert left.source_cycle == right.source_cycle == legacy.source_cycle
+            assert left.cost_basis_record == right.cost_basis_record == legacy.cost_basis_record
+            assert "ordinary_offer" not in left.model_dump(mode="json")
+            assert (
+                loop.resolve_current_ordinary_route(run_id=legacy.run_id, route_id=right.route_id)
+                == right
+            )
+            with pytest.raises(
+                AcquisitionRouteClosureError, match="ordinary_acquisition_route_selection_required"
+            ):
+                loop.resolve_current_ordinary_route(run_id=legacy.run_id)
+            with pytest.raises(AcquisitionRouteClosureError, match="acquisition_route_not_current"):
+                loop.resolve_current_ordinary_route(run_id=legacy.run_id, route_id=legacy.route_id)
+
+            expired = first.model_copy(update={"expires_at": now})
+            one_current = AcquisitionRouteLoop(
+                **reader_args,
+                ordinary_offer_configuration=OrdinaryAcquisitionOfferConfiguration(
+                    authority=authority,
+                    canonical_unit="percent_gdp",
+                    constraints=constraints,
+                    offers=(expired, second),
+                ),
+            )
+            assert one_current.resolve_current_ordinary_routes(run_id=legacy.run_id) == (right,)
+            no_offer = AcquisitionRouteLoop(**reader_args)
+            assert no_offer.resolve_current_ordinary_routes(run_id=legacy.run_id) == (legacy,)
+    finally:
+        control.close()
+
+
 def test_source_planner_selector_accepts_only_one_generic_scenario_join() -> None:
     """Resolve the existing fallback join while retaining its refusal controls."""
     from polisyos.runtime.quality import generation_cycle

@@ -15,6 +15,7 @@ from polisyos.core import canon, contracts
 from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactRef,
+    artifact_ref_for_manifest,
     artifact_ref_identity_key,
     load_core_json_artifact,
 )
@@ -36,6 +37,8 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionPlannerReport,
     AcquisitionRequirementGap,
     NativeDerivationLeafCostProfileScope,
+    OrdinaryAcquisitionOffer,
+    OrdinaryAcquisitionOfferScope,
     _n7_candidate_n5_l1_planner_records_match,
     _n7_load_derivation_bundle,
     _n7_require_current_report_input_provenance,
@@ -44,6 +47,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     produce_acquisition_cost_basis_record,
     validate_persisted_acquisition_planner_report,
     validate_persisted_data_requirement_compilation_report,
+    verify_ordinary_acquisition_offers,
 )
 from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
     CandidateUnpricedPolicyScope,
@@ -71,6 +75,7 @@ from polisyos.runtime.quality.generation_cycle import (
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from polisyos.data_forge.read_api.catalog import CanonicalAcquisitionAuthority
     from polisyos.runtime.http.services.adapters.core_run import TerminalCoreRunSource
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
@@ -87,6 +92,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.acquisition_evaluation_history import (
         _CandidateExperimentHistoryPrefix,
     )
+    from polisyos.runtime.quality.acquisition_executor import LiveCatalogExecutionConstraints
     from polisyos.runtime.quality.acquisition_unpriced_candidate_policy import (
         CandidateUnpricedPolicyBinding,
     )
@@ -1286,6 +1292,10 @@ class VerifiedAcquisitionRouteClosure(BaseModel):
         default=None, exclude_if=lambda value: value is None
     )
 
+    # Kept on the internal closure. The action owner can bind this declaration
+    # in its persisted invocation without changing ordinary closure wire data.
+    ordinary_offer: OrdinaryAcquisitionOffer | None = Field(default=None, exclude=True, repr=False)
+
     # Transport only. The actual action fold replayed these selected receipts;
     # the production mutation bridge re-resolves that owner before using them.
     acquisition_basis_transitions: tuple[AcquisitionOverlayReentryReceipt, ...] = Field(
@@ -1300,6 +1310,8 @@ class VerifiedAcquisitionRouteClosure(BaseModel):
     def _native_leaf_cost_selection(self) -> VerifiedAcquisitionRouteClosure:
         scope = self.native_derivation_leaf_scope
         provider = self.native_derivation_leaf_provider
+        if self.ordinary_offer is not None and scope is not None:
+            raise ValueError("ordinary_acquisition_offer_native_route_overlap")
         if scope is None:
             if (
                 self.owner_declared_profile_ref is not None
@@ -1485,6 +1497,16 @@ class _VerifiedAcquisitionOrigin(_CompletedNLOrigin):
     source_requirement: AcquisitionRequirementGap | None
     configured_port_source: object | None
     cost: AcquisitionCostBasisRecord | None
+
+
+@dataclass(frozen=True, slots=True)
+class OrdinaryAcquisitionOfferConfiguration:
+    """Adopt Catalog offers and request coordinates for one ordinary N7 need."""
+
+    authority: CanonicalAcquisitionAuthority
+    canonical_unit: str
+    constraints: LiveCatalogExecutionConstraints
+    offers: tuple[OrdinaryAcquisitionOffer, ...]
 
 
 @dataclass(frozen=True)
@@ -2023,6 +2045,7 @@ class AcquisitionRouteLoop:
         tenant_id: str,
         cell_id: str,
         action_outcome_reader: _ActionOutcomeReader | None = None,
+        ordinary_offer_configuration: OrdinaryAcquisitionOfferConfiguration | None = None,
     ) -> None:
         if not tenant_id.strip() or not cell_id.strip():
             raise ValueError("acquisition route loop requires tenant and cell")
@@ -2036,6 +2059,7 @@ class AcquisitionRouteLoop:
         self._tenant_id = tenant_id
         self._cell_id = cell_id
         self._action_outcome_reader = action_outcome_reader
+        self._ordinary_offer_configuration = ordinary_offer_configuration
 
     def _resolve_completed_nl_origin(self, *, run_id: str) -> _CompletedNLOrigin:
         """Reopen the one completed NL output before applying any route policy."""
@@ -3859,13 +3883,372 @@ class AcquisitionRouteLoop:
     ) -> VerifiedAcquisitionRouteClosure:
         """Reopen the ordinary route for a known action or history reader."""
         origin = self._resolve_verified_origin(run_id=run_id)
+        configuration = self._ordinary_offer_configuration_for_origin(origin)
+        if configuration is None or not configuration.offers:
+            return self._resolve_current_route_from_origin(
+                origin,
+                run_id=run_id,
+                before_action_generation=before_action_generation,
+                action_job_id=action_job_id,
+                requested_route_id=route_id,
+            )
+        selections = self._current_ordinary_offer_selections(
+            origin, configuration=configuration, run_id=run_id
+        )
+        if route_id is not None:
+            selections = tuple(item for item in selections if item[0] == route_id)
+        if not selections:
+            raise AcquisitionRouteClosureError("acquisition_route_not_current")
+        if len(selections) != 1:
+            raise AcquisitionRouteClosureError("ordinary_acquisition_route_selection_required")
+        selected_route_id, offer = selections[0]
         return self._resolve_current_route_from_origin(
             origin,
             run_id=run_id,
             before_action_generation=before_action_generation,
             action_job_id=action_job_id,
-            requested_route_id=route_id,
+            requested_route_id=selected_route_id,
+            ordinary_offer=offer,
         )
+
+    def resolve_current_ordinary_routes(
+        self, *, run_id: str
+    ) -> tuple[VerifiedAcquisitionRouteClosure, ...]:
+        """Read ordinary routes with current offers through the original action fold."""
+        origin = self._resolve_verified_origin(run_id=run_id)
+        configuration = self._ordinary_offer_configuration_for_origin(origin)
+        if configuration is None or not configuration.offers:
+            return (self._resolve_current_route_from_origin(origin, run_id=run_id),)
+        return tuple(
+            self._resolve_current_route_from_origin(
+                origin, run_id=run_id, requested_route_id=route_id, ordinary_offer=offer
+            )
+            for route_id, offer in self._current_ordinary_offer_selections(
+                origin, configuration=configuration, run_id=run_id
+            )
+        )
+
+    def resolve_recorded_ordinary_route(
+        self, *, head: AcquisitionActionHeadRecord, include_action: bool = False
+    ) -> VerifiedAcquisitionRouteClosure:
+        """Reopen an ordinary action at its original signed offer acceptance time."""
+        from polisyos.core.artifacts import raise_artifact_read_access_error
+        from polisyos.pdc import OperationContract, OperationInvocationRecord
+        from polisyos.runtime.http.resource_binding import BindingAuthority
+        from polisyos.runtime.http.services.acquisition_action_service import (
+            AcquisitionActionService,
+            AcquisitionRouteMutationRequest,
+        )
+        from polisyos.runtime.http.services.acquisition_admission_bundle import (
+            _request_resource_digest,
+        )
+        from polisyos.runtime.http.services.control.run_lifecycle import (
+            AcquisitionRouteLoopAuthoritySink,
+        )
+        from polisyos.runtime.quality.agent_action_authority import (
+            ACQUISITION_ACTION_KIND,
+            AgentActionAuthorityDecision,
+            AgentActionIntent,
+        )
+
+        origin = self._resolve_verified_origin(run_id=head.run_id)
+        if (head.tenant_id, head.cell_id, head.source_job_id) != (
+            self._tenant_id,
+            self._cell_id,
+            origin.job.job_id,
+        ):
+            raise AcquisitionRouteClosureError("ordinary_acquisition_recorded_scope_mismatch")
+        cutoff = head.action_generation + int(include_action)
+        legacy_route_id = self._acquisition_route_id(
+            origin,
+            run_id=head.run_id,
+            native_scope=None,
+            native_provider=None,
+            owner_declared_profile_ref=None,
+        )
+        if head.route_id == legacy_route_id:
+            return self._resolve_current_route_from_origin(
+                origin,
+                run_id=head.run_id,
+                before_action_generation=cutoff,
+                requested_route_id=head.route_id,
+            )
+        service = getattr(self._core_source_resolver, "__self__", None)
+        handler = getattr(service, "_acquisition_job_handler", None)
+        action_service = getattr(handler, "__self__", None)
+        sink = self._action_outcome_reader
+        if (
+            type(action_service) is not AcquisitionActionService
+            or action_service.control_service is not service
+            or type(sink) is not AcquisitionRouteLoopAuthoritySink
+            or sink is not service.acquisition_route_sink
+        ):
+            raise AcquisitionRouteClosureError("ordinary_acquisition_recorded_owner_missing")
+        try:
+            snapshot = sink.verify_action_head(head)
+            job = self._control_store.get_job(head.job_id)
+            if (
+                snapshot.head != head
+                or job is None
+                or job.kind != "acquisition"
+                or job.run_id != head.run_id
+                or job.payload_ref is None
+            ):
+                raise ValueError("ordinary_acquisition_recorded_job_missing")
+            scope, _ = self._control_store._reconcile_control_job_creation_envelope(job)
+            created = self._control_store._get_job_created_source_event_record(job.job_id)
+            payload = service._load_payload_ref(
+                job.payload_ref, kind="runtime.control_job_payload.acquisition"
+            )
+            if (
+                scope.status != "established"
+                or not scope.actor_authenticated
+                or (scope.tenant_id, scope.cell_id) != (head.tenant_id, head.cell_id)
+                or created.created_at < job.created_at
+                or "action_kind" in payload
+                or (payload.get("tenant_id"), payload.get("cell_id"), payload.get("run_id"))
+                != (head.tenant_id, head.cell_id, head.run_id)
+                or payload.get("route_id") != head.route_id
+            ):
+                raise ValueError("ordinary_acquisition_recorded_job_scope_mismatch")
+            decision_ref = payload.get("decision_ref")
+            if not isinstance(decision_ref, str) or decision_ref != getattr(
+                snapshot.latest_receipt, "decision_ref", None
+            ):
+                raise ValueError("ordinary_acquisition_recorded_decision_mismatch")
+            request = AcquisitionRouteMutationRequest.model_validate(payload.get("request"))
+            invocation = OperationInvocationRecord.model_validate(payload.get("invocation"))
+            offer = AcquisitionActionService._read_job_ordinary_offer(payload, invocation)
+            if offer is None:
+                raise ValueError("ordinary_acquisition_recorded_offer_missing")
+            # The time below only prepares a candidate closure. The authority
+            # provider authenticates the same exact record before any return.
+            candidate = AgentActionAuthorityDecision.model_validate(
+                load_core_json_artifact(
+                    self._artifact_store, ArtifactID.model_validate(decision_ref)
+                )
+            )
+            configuration = self._ordinary_offer_configuration_for_origin(
+                origin, recorded_offer=offer
+            )
+            if configuration is None:
+                raise ValueError("ordinary_acquisition_recorded_catalog_missing")
+            (qualified,) = self._reopen_ordinary_offers(
+                origin, configuration=configuration, offers=(offer,), at=candidate.decided_at
+            )
+            closure = self._resolve_current_route_from_origin(
+                origin,
+                run_id=head.run_id,
+                before_action_generation=head.action_generation,
+                requested_route_id=head.route_id,
+                ordinary_offer=qualified,
+            )
+            operation = OperationContract.model_validate(payload.get("operation"))
+            intent = AgentActionIntent.model_validate(payload.get("intent"))
+            if (
+                request.custody_recovery is not None
+                or action_service._job_id(closure, request) != head.job_id
+                or request.route_projection_hash != closure.current_projection_hash
+                or request.planner_report_hash != agent_action_content_hash(closure.planner_report)
+                or request.replay_pins != action_service._pins(closure)
+                or (operation, invocation, intent) != action_service._action_tuple(closure, request)
+            ):
+                raise ValueError("ordinary_acquisition_recorded_invocation_changed")
+            provider = action_service._require_authority_provider()
+            history = provider.load_acquisition_decision_history(
+                closure=closure, request=request, job_id=job.job_id, decision_ref=decision_ref
+            )
+            decision = history.decision
+            proof = decision.permission_snapshot
+            if (
+                history.decision_ref != decision_ref
+                or not history.signer_identity
+                or not history.durable_event_id
+                or history.current_authority != "not_revalidated"
+                or decision != candidate
+                or decision.outcome != "allowed"
+                or decision.decided_at > created.created_at
+                or proof is None
+                or (proof.subject, proof.tenant_id) != (scope.actor_subject, scope.tenant_id)
+                or frozenset(proof.roles) != frozenset(scope.actor_roles)
+                or proof.resource_authority != BindingAuthority.REQUEST_BOUND.value
+                or proof.resource_kind
+                != f"runtime.evidence.acquisition.{BindingAuthority.REQUEST_BOUND.value}"
+            ):
+                raise ValueError("ordinary_acquisition_recorded_acceptance_unverified")
+            digest = _request_resource_digest(
+                action_kind=ACQUISITION_ACTION_KIND,
+                request=request,
+                body_sha256=proof.body_sha256,
+                query_sha256=proof.query_sha256,
+                authority=BindingAuthority.REQUEST_BOUND,
+                tenant_id=None,
+            )
+            if digest != proof.resource_digest:
+                raise ValueError("ordinary_acquisition_recorded_resource_mismatch")
+        except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise_artifact_read_access_error(exc)
+            raise AcquisitionRouteClosureError(
+                "ordinary_acquisition_recorded_offer_refused"
+            ) from exc
+        if not include_action:
+            return closure
+        return self._resolve_current_route_from_origin(
+            origin,
+            run_id=head.run_id,
+            before_action_generation=cutoff,
+            requested_route_id=head.route_id,
+            ordinary_offer=qualified,
+        )
+
+    def _ordinary_offer_configuration_for_origin(
+        self,
+        origin: _VerifiedAcquisitionOrigin,
+        *,
+        recorded_offer: OrdinaryAcquisitionOffer | None = None,
+    ) -> OrdinaryAcquisitionOfferConfiguration | None:
+        """Read opt-in declarations from the existing installed execution owner."""
+        if self._ordinary_offer_configuration is not None:
+            return self._ordinary_offer_configuration
+        service = getattr(self._core_source_resolver, "__self__", None)
+        installed_port = getattr(service, "_native_world_bank_execution_owner", None)
+        if not callable(installed_port):
+            return None
+        port = installed_port()
+        bridge = getattr(port, "_world_growth_bridge", None)
+        if bridge is None:
+            return None
+        from polisyos.runtime.http.services.acquisition_surface_execution import (
+            _constraints_from_live_variable_route,
+        )
+        from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+
+        if type(bridge) is not AcquisitionWorldGrowthBridge:
+            return None
+        subject = self._tenant_id, self._cell_id, origin.job.run_id
+        offers = tuple(
+            offer
+            for offer in bridge.config.ordinary_offers
+            if (offer.scope.tenant_id, offer.scope.cell_id, offer.scope.run_id) == subject
+        )
+        if recorded_offer is not None:
+            offers = (recorded_offer,)
+        if not offers:
+            return None
+        if (
+            bridge._source_control_service is not service
+            or bridge.artifact_store is not self._artifact_store
+            or bridge.control_store is not self._control_store
+        ):
+            raise AcquisitionRouteClosureError("ordinary_acquisition_offer_owner_mismatch")
+        expected_units = {offer.scope.canonical_unit for offer in offers}
+        if len(expected_units) != 1:
+            raise AcquisitionRouteClosureError("ordinary_acquisition_offer_unit_ambiguous")
+        return OrdinaryAcquisitionOfferConfiguration(
+            authority=bridge.authority,
+            canonical_unit=next(iter(expected_units)),
+            constraints=_constraints_from_live_variable_route(origin),
+            offers=offers,
+        )
+
+    def _current_ordinary_offer_selections(
+        self,
+        origin: _VerifiedAcquisitionOrigin,
+        *,
+        configuration: OrdinaryAcquisitionOfferConfiguration,
+        run_id: str,
+    ) -> tuple[tuple[str, OrdinaryAcquisitionOffer], ...]:
+        now = datetime.now(UTC)
+        active = tuple(
+            offer for offer in configuration.offers if offer.effective_at <= now < offer.expires_at
+        )
+        return tuple(
+            (
+                self._acquisition_route_id(
+                    origin,
+                    run_id=run_id,
+                    native_scope=None,
+                    native_provider=None,
+                    owner_declared_profile_ref=None,
+                    ordinary_offer=offer,
+                ),
+                offer,
+            )
+            for offer in self._reopen_ordinary_offers(
+                origin, configuration=configuration, offers=active, at=now
+            )
+        )
+
+    def _reopen_ordinary_offers(
+        self,
+        origin: _VerifiedAcquisitionOrigin,
+        *,
+        configuration: OrdinaryAcquisitionOfferConfiguration,
+        offers: tuple[OrdinaryAcquisitionOffer, ...],
+        at: datetime,
+    ) -> tuple[OrdinaryAcquisitionOffer, ...]:
+        """Bind offer times to an owner-reopened origin and the exact planner gap."""
+        from polisyos.core.artifacts import raise_artifact_read_access_error
+
+        if not offers:
+            return ()
+        gap = origin.source_requirement
+        record = origin.planner_record
+        jurisdiction_time = origin.design_problem_basis.jurisdiction_time
+        if (
+            gap is None
+            or record.compiled_requirement_ref is None
+            or origin.cost is None
+            or not jurisdiction_time.data_time.isascii()
+            or not jurisdiction_time.data_time.isdecimal()
+            or len(jurisdiction_time.data_time) != 4
+        ):
+            raise AcquisitionRouteClosureError("ordinary_acquisition_offer_source_not_established")
+        availability = gap.metadata.get("availability")
+        variable_id = availability.get("variable_id") if isinstance(availability, Mapping) else None
+        if not isinstance(variable_id, str) or not variable_id:
+            raise AcquisitionRouteClosureError(
+                "ordinary_acquisition_offer_variable_not_established"
+            )
+        try:
+            report_ref = origin.report_ref
+            if report_ref.manifest_profile_sha256 is None:
+                report_ref = artifact_ref_for_manifest(
+                    self._artifact_store.get_manifest(report_ref)
+                )
+            scope = OrdinaryAcquisitionOfferScope(
+                tenant_id=self._tenant_id,
+                cell_id=self._cell_id,
+                run_id=origin.job.run_id,
+                source_job_id=origin.job.job_id,
+                design_problem_ref=origin.compiled.design_problem_ref,
+                candidate_id=origin.source_cycle.selected_candidate_ref,
+                compiled_ref=origin.selected_compiled_ref,
+                scenario_id=origin.compiled.design_problem.design_problem_id,
+                planner_report_ref=report_ref,
+                planner_record_id=record.acquisition_id,
+                compiled_requirement_ref=record.compiled_requirement_ref,
+                source_gap_id=gap.requirement_gap_id,
+                canonical_variable_id=variable_id,
+                canonical_unit=configuration.canonical_unit,
+                country_code=jurisdiction_time.region,
+                year=int(jurisdiction_time.data_time),
+            )
+            qualified = verify_ordinary_acquisition_offers(
+                self._artifact_store,
+                authority=configuration.authority,
+                scope=scope,
+                planner_report=origin.report,
+                cost_basis=origin.cost,
+                constraints=configuration.constraints,
+                offers=offers,
+                now=at,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise_artifact_read_access_error(exc)
+            code = getattr(exc, "code", str(exc))
+            raise AcquisitionRouteClosureError(code) from exc
+        return tuple(item.declaration for item in qualified)
 
     def _acquisition_route_id(
         self,
@@ -3875,6 +4258,7 @@ class AcquisitionRouteLoop:
         native_scope: NativeDerivationLeafCostProfileScope | None,
         native_provider: NativeDerivationLeafProviderSelection | None,
         owner_declared_profile_ref: ArtifactRef | None,
+        ordinary_offer: OrdinaryAcquisitionOffer | None = None,
     ) -> str:
         """Hash the exact offer before resolving its action history."""
         if origin.cost is None:
@@ -3899,6 +4283,8 @@ class AcquisitionRouteLoop:
                 mode="json"
             )
             route_identity["owner_declared_profile_ref"] = selected_profile.model_dump(mode="json")
+        if ordinary_offer is not None:
+            route_identity["ordinary_acquisition_offer_hash"] = ordinary_offer.content_hash
         return _content_hash(route_identity)
 
     def _resolve_current_route_from_origin(
@@ -3913,6 +4299,7 @@ class AcquisitionRouteLoop:
         native_provider: NativeDerivationLeafProviderSelection | None = None,
         owner_declared_profile_ref: ArtifactRef | None = None,
         native_cost_time: datetime | None = None,
+        ordinary_offer: OrdinaryAcquisitionOffer | None = None,
         native_history: _NativeRouteHistoryRead | None = None,
     ) -> VerifiedAcquisitionRouteClosure:
         """Compose the same current action fold with one verified planner selection."""
@@ -3964,6 +4351,7 @@ class AcquisitionRouteLoop:
             native_scope=native_scope,
             native_provider=native_provider,
             owner_declared_profile_ref=owner_declared_profile_ref,
+            ordinary_offer=ordinary_offer,
         )
         if requested_route_id is not None and route_id != requested_route_id:
             raise AcquisitionRouteClosureError("acquisition_route_not_current")
@@ -4022,6 +4410,7 @@ class AcquisitionRouteLoop:
             owner_declared_profile_ref=owner_declared_profile_ref,
             native_derivation_leaf_scope=native_scope,
             native_derivation_leaf_provider=native_provider,
+            ordinary_offer=ordinary_offer,
         )
 
     def _latest_verified_source(

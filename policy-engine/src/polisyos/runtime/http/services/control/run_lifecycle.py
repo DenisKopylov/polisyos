@@ -2401,26 +2401,62 @@ class _AcquisitionRouteLoopArtifactStore(ArtifactStore, CoreJSONArtifactProfileR
     ) -> ArtifactRef: ...
 
 
-def _acquisition_route_event_id(receipt: object, event_suffix: str) -> str:
-    """Keep native leaf events unique while preserving every legacy event ID."""
+def _acquisition_route_event_id(
+    receipt: object, event_suffix: str, *, scoped_ordinary: bool = False
+) -> str:
+    """Name an acquisition event in its legacy, Native, or scoped ordinary namespace."""
     native = (
         type(receipt) in {AcquisitionRoutePhaseReceipt, AcquisitionRouteLoopReceipt}
         and receipt.owner_declared_profile_ref is not None
     )
+    if not native and not scoped_ordinary:
+        return f"evt_acquisition_{receipt.action_generation}_{event_suffix}"
+    identity = (
+        receipt.tenant_id,
+        receipt.cell_id,
+        receipt.run_id,
+        receipt.source_job_id,
+        receipt.route_id,
+        receipt.job_id,
+    )
     if native:
-        identity = "\0".join(
-            (
-                receipt.tenant_id,
-                receipt.cell_id,
-                receipt.run_id,
-                receipt.source_job_id,
-                receipt.route_id,
-                receipt.job_id,
-            )
-        )
-        digest = hashlib.sha256(identity.encode()).hexdigest()[:24]
-        return f"evt_acquisition_{receipt.action_generation}_native_{digest}_{event_suffix}"
-    return f"evt_acquisition_{receipt.action_generation}_{event_suffix}"
+        digest = hashlib.sha256("\0".join(identity).encode()).hexdigest()[:24]
+        namespace = f"native_{digest}"
+    else:
+        digest = hashlib.sha256(to_canonical_bytes(identity)).hexdigest()
+        namespace = f"ordinary_{digest}"
+    return f"evt_acquisition_{receipt.action_generation}_{namespace}_{event_suffix}"
+
+
+def _scoped_ordinary_acquisition_event_suffix(receipt: object) -> str | None:
+    """Select event kinds whose existing suffix carries no action identity."""
+    if (
+        type(receipt) is AcquisitionRoutePhaseReceipt
+        and receipt.receipt_phase != "outcome_selected"
+    ):
+        return receipt.receipt_phase
+    if type(receipt) is AcquisitionRouteLoopReceipt:
+        return "loop_terminal"
+    return None
+
+
+def _uses_scoped_ordinary_acquisition_events(root: VerifiedAcquisitionActionPhase) -> bool:
+    """Recover the namespace from the verified requested event of this action."""
+    requested = root.receipt
+    event_id = root.durable_event_id
+    if (
+        type(requested) is not AcquisitionRoutePhaseReceipt
+        or not event_id.startswith("evt_acquisition_")
+        or "_ordinary_" not in event_id
+    ):
+        return False
+    if (
+        requested.owner_declared_profile_ref is not None
+        or requested.receipt_phase != "requested"
+        or event_id != _acquisition_route_event_id(requested, "requested", scoped_ordinary=True)
+    ):
+        raise ValueError("ordinary_acquisition_requested_event_scope_mismatch")
+    return True
 
 
 def _native_acquisition_receipt_selected_inputs(
@@ -3425,10 +3461,22 @@ class AcquisitionRouteLoopAuthoritySink:
             raise ValueError("acquisition_action_phase_chain_generation_mismatch")
 
         identity = chain[0].receipt
+        scoped_ordinary = _uses_scoped_ordinary_acquisition_events(chain[0])
         seen_phases: set[str] = set()
         previous: VerifiedAcquisitionActionPhase | None = None
         for current in chain:
             receipt = current.receipt
+            suffix = _scoped_ordinary_acquisition_event_suffix(receipt)
+            event_id = current.durable_event_id
+            if suffix is not None and (
+                scoped_ordinary != ("_ordinary_" in event_id)
+                or (
+                    scoped_ordinary
+                    and event_id
+                    != _acquisition_route_event_id(receipt, suffix, scoped_ordinary=True)
+                )
+            ):
+                raise ValueError("ordinary_acquisition_phase_event_scope_mismatch")
             phase_name = (
                 "terminal"
                 if isinstance(
@@ -5816,10 +5864,19 @@ class AcquisitionRouteLoopAuthoritySink:
     def persist_phase(
         self,
         receipt: AcquisitionRoutePhaseReceipt,
+        *,
+        scoped_ordinary_request: bool = False,
     ) -> AcquisitionActionHeadRecord:
-        """Write, reconcile, read back, and then advance one exact phase head."""
+        """Write and reconcile an exact phase, optionally starting a scoped offered action.
 
+        An ordinary offer owner opts in only on the requested phase. Subsequent
+        phases inherit the namespace from the verified original requested event.
+        """
         typed = AcquisitionRoutePhaseReceipt.model_validate(receipt)
+        if scoped_ordinary_request and (
+            typed.receipt_phase != "requested" or typed.owner_declared_profile_ref is not None
+        ):
+            raise ValueError("ordinary_acquisition_event_scope_requires_requested_phase")
         return self._persist_receipt(
             typed,
             artifact_kind="runtime_quality.acquisition_route_phase_receipt",
@@ -5828,6 +5885,7 @@ class AcquisitionRouteLoopAuthoritySink:
             event_suffix=typed.receipt_phase,
             receipt_type=AcquisitionRoutePhaseReceipt,
             receipt_label="phase",
+            scoped_ordinary_request=scoped_ordinary_request,
         )
 
     def persist_experiment_phase(
@@ -6951,6 +7009,7 @@ class AcquisitionRouteLoopAuthoritySink:
         candidate_experiment_request: object | None = None,
         candidate_experiment_orphan_ref: ArtifactRef | None = None,
         pending_authorization_cas: PendingAcquisitionActionAuthorizationCAS | None = None,
+        scoped_ordinary_request: bool = False,
     ) -> AcquisitionActionHeadRecord | _PreparedAcquisitionActionHeadPublication:
         """Persist one strict receipt family before advancing its shared action head."""
 
@@ -7011,6 +7070,7 @@ class AcquisitionRouteLoopAuthoritySink:
             current is not None and typed.predecessor_receipt_ref != current.receipt_ref
         ):
             raise ValueError("acquisition_action_predecessor_conflict")
+        scoped_ordinary = scoped_ordinary_request
         if current is not None:
             if reuse_owner is not None:
                 prior_origin, _prior, _basis = reuse_owner.replay()
@@ -7032,6 +7092,7 @@ class AcquisitionRouteLoopAuthoritySink:
                 )
                 previous_chain = previous.phase_chain
                 previous_receipt = previous.latest_receipt
+            scoped_ordinary = _uses_scoped_ordinary_acquisition_events(previous_chain[0])
             if type(typed) in {
                 AcquisitionCandidateExperimentPhaseReceipt,
                 AcquisitionCandidateExperimentTerminalReceipt,
@@ -7168,7 +7229,14 @@ class AcquisitionRouteLoopAuthoritySink:
                 override_policy="no_override",
                 approval_policy="pa2_ds9_decision_required",
             ),
-            event_id=_acquisition_route_event_id(typed, event_suffix),
+            event_id=_acquisition_route_event_id(
+                typed,
+                event_suffix,
+                scoped_ordinary=(
+                    scoped_ordinary
+                    and _scoped_ordinary_acquisition_event_suffix(typed) == event_suffix
+                ),
+            ),
             event_source="polisyos.runtime.quality.acquisition_route_loop",
             event_type=event_type,
             event_subject=(

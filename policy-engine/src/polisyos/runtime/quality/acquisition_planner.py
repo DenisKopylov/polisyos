@@ -65,12 +65,17 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
     from polisyos.core.contracts.control import FetchPlan
     from polisyos.data_forge.read_api import academic
-    from polisyos.data_forge.read_api.catalog import CatalogRunProfile
+    from polisyos.data_forge.read_api.catalog import (
+        CanonicalAcquisitionAuthority,
+        CatalogRunProfile,
+        ResolvedAcquisitionAuthority,
+    )
     from polisyos.fabric.retrieval.service import (
         FetchCaptureLocatorView,
         FetchCapturePostflightView,
         FetchCapturePreflightView,
     )
+    from polisyos.runtime.quality.acquisition_executor import LiveCatalogExecutionConstraints
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.production_grounding_calibration import (
         ProductionCG2CalibrationSource,
@@ -447,6 +452,82 @@ class AcquisitionCostBasisRecord(BaseModel):
         if self.record_content_hash != _stable_content_hash(payload):
             raise ValueError("cost_basis_content_hash_mismatch")
         return self
+
+
+class OrdinaryAcquisitionOfferScope(BaseModel):
+    """Identity of the one costed N7 source requirement shared by its offers."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    tenant_id: str = Field(min_length=1, strict=True)
+    cell_id: str = Field(min_length=1, strict=True)
+    run_id: str = Field(min_length=1, strict=True)
+    source_job_id: str = Field(min_length=1, strict=True)
+    design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    candidate_id: str = Field(min_length=1, strict=True)
+    compiled_ref: artifacts.ArtifactRef
+    scenario_id: str = Field(min_length=1, strict=True)
+    planner_report_ref: artifacts.ArtifactRef
+    planner_record_id: str = Field(min_length=1, strict=True)
+    compiled_requirement_ref: str = Field(min_length=1, strict=True)
+    source_gap_id: str = Field(min_length=1, strict=True)
+    canonical_variable_id: str = Field(min_length=1, strict=True)
+    canonical_unit: str = Field(min_length=1, strict=True)
+    country_code: str = Field(pattern=r"^[A-Z]{3}$")
+    year: int = Field(ge=1960, le=2200, strict=True)
+
+    @model_validator(mode="after")
+    def _selected_owner_refs(self) -> Self:
+        if self.compiled_ref.kind != "runtime.compiled_recursive_generation_cycle" or any(
+            ref.media_type != "application/json" or ref.manifest_profile_sha256 is None
+            for ref in (self.compiled_ref, self.planner_report_ref)
+        ):
+            raise ValueError("ordinary_acquisition_offer_scope_ref_unselected")
+        return self
+
+
+class OrdinaryAcquisitionOffer(BaseModel):
+    """Deployment selection of a supplier at the owner's cost for one N7 requirement."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["polisyos.runtime.ordinary_acquisition_offer.v1"] = (
+        "polisyos.runtime.ordinary_acquisition_offer.v1"
+    )
+    scope: OrdinaryAcquisitionOfferScope
+    supplier_ref: artifacts.ArtifactRef
+    cost_basis_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    effective_at: datetime
+    expires_at: datetime
+
+    @model_validator(mode="after")
+    def _selected_supplier_and_window(self) -> Self:
+        if (
+            self.supplier_ref.kind != "catalog.acquisition_supplier_declaration"
+            or self.supplier_ref.media_type != "application/json"
+            or self.supplier_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("ordinary_acquisition_offer_supplier_ref_unselected")
+        if (
+            any(t.utcoffset() is None for t in (self.effective_at, self.expires_at))
+            or self.effective_at >= self.expires_at
+        ):
+            raise ValueError("ordinary_acquisition_offer_window_invalid")
+        return self
+
+    @property
+    def content_hash(self) -> str:
+        """Hash the complete scoped selection for the existing route identity."""
+        return _stable_content_hash(self.model_dump(mode="json"))
+
+
+@dataclass(frozen=True, slots=True)
+class VerifiedOrdinaryAcquisitionOffer:
+    """Owner-recomputed source and cost available for contextual route selection."""
+
+    declaration: OrdinaryAcquisitionOffer
+    source: ResolvedAcquisitionAuthority
+    cost_basis: AcquisitionCostBasisRecord
 
 
 _NATIVE_DERIVATION_LEAF_COST_PROFILE_KIND = "runtime.quality.native_derivation_leaf_cost_profile"
@@ -5152,6 +5233,149 @@ def produce_acquisition_cost_basis_record(
             "record_content_hash": _stable_content_hash(record_payload),
         }
     )
+
+
+def verify_ordinary_acquisition_offers(
+    store: ArtifactStore,
+    *,
+    authority: CanonicalAcquisitionAuthority,
+    scope: OrdinaryAcquisitionOfferScope,
+    planner_report: AcquisitionPlannerReport,
+    cost_basis: AcquisitionCostBasisRecord,
+    constraints: LiveCatalogExecutionConstraints,
+    offers: tuple[OrdinaryAcquisitionOffer, ...],
+    now: datetime,
+) -> tuple[VerifiedOrdinaryAcquisitionOffer, ...]:
+    """Reopen configured live supplier offers for one verified ordinary N7 route.
+
+    The calling route owner supplies the scope of its selected completed job,
+    compiler output and planner record. This check qualifies configuration for
+    that scope against the live Catalog owner and canonical cost schedule. A
+    qualifying offer still requires separate action permission and admission.
+
+    Args:
+        store: CAS holding the selected compiler, plan, and supplier artifacts.
+        authority: Canonical Catalog owner for current live registrations.
+        scope: Subject and need selected by the existing route owner.
+        planner_report: Reopened plan for the selected need.
+        cost_basis: Cost carried by the selected source cycle.
+        constraints: Actual bounded request scope from execution composition.
+        offers: Configured supplier selections, in deployment order.
+        now: Aware current time for cost and offer applicability.
+
+    Returns:
+        Qualifying offers with their recomputed source registration and cost.
+
+    Raises:
+        ValueError: Scope, price, currentness, or distinct source checks fail.
+        AcquisitionAuthorityError: The selected supplier cannot be reopened.
+        LiveAcquisitionExecutionError: The request exceeds the supplier's authority.
+    """
+    from polisyos.data_forge.read_api import catalog
+    from polisyos.runtime.quality.acquisition_executor import (
+        require_live_catalog_constraints_within_authority_scope,
+    )
+
+    if not offers:
+        return ()
+    if not isinstance(authority, catalog.CanonicalAcquisitionAuthority):
+        raise ValueError("ordinary_acquisition_offer_authority_unestablished")
+    if now.utcoffset() is None:
+        raise ValueError("ordinary_acquisition_offer_current_time_not_aware")
+    if (constraints.country_code, constraints.start_year, constraints.end_year) != (
+        scope.country_code,
+        scope.year,
+        scope.year,
+    ):
+        raise ValueError("ordinary_acquisition_offer_request_scope_mismatch")
+    scope_identity = scope.model_dump(mode="json")
+    if any(offer.scope.model_dump(mode="json") != scope_identity for offer in offers):
+        raise ValueError("ordinary_acquisition_offer_scope_mismatch")
+    manifest_ref = artifacts.artifact_ref_for_manifest(store.get_manifest(scope.compiled_ref))
+    if artifacts.artifact_ref_identity_key(manifest_ref) != artifacts.artifact_ref_identity_key(
+        scope.compiled_ref
+    ):
+        raise ValueError("ordinary_acquisition_offer_compiled_ref_mismatch")
+    if validate_persisted_acquisition_planner_report(
+        store,
+        scope.planner_report_ref,
+        planner_report,
+        expected_scenario_id=scope.scenario_id,
+        expected_compiled_requirement_ref=scope.compiled_requirement_ref,
+    ):
+        raise ValueError("ordinary_acquisition_offer_plan_not_revalidated")
+    selected = tuple(
+        record
+        for record in planner_report.acquisition_records
+        if record.acquisition_id == scope.planner_record_id
+        and record.compiled_requirement_ref == scope.compiled_requirement_ref
+        and scope.source_gap_id in record.scenario_requirement_refs
+    )
+    if len(selected) != 1:
+        raise ValueError("ordinary_acquisition_offer_need_not_selected")
+    (record,) = selected
+    if (
+        record.gap_type is not AcquisitionGapType.DATA_SNAPSHOT_RELEASE
+        or record.requirement_family != RequirementGapFamily.DATA
+        or record.requirement_schema_version != "policyos.runtime.l1_variable_availability_gap.v1"
+        or record.missing_requirement_fields
+        != (f"canonical_variable_observations:{scope.canonical_variable_id}",)
+        or record.recommended_strategy is not AcquisitionStrategy.PRODUCTION_SNAPSHOT_BUILD
+    ):
+        raise ValueError("ordinary_acquisition_offer_need_unsupported")
+    canonical_cost = produce_acquisition_cost_basis_record(
+        missing_distribution=scope.canonical_variable_id,
+        strategy=record.recommended_strategy,
+    )
+    if canonical_cost is None or canonical_cost != cost_basis or now < canonical_cost.effective_at:
+        raise ValueError("ordinary_acquisition_offer_cost_not_revalidated")
+
+    target_unit = catalog.normalize_acquisition_unit(scope.canonical_unit)
+    used_sources: set[tuple[str, str]] = set()
+    verified: list[VerifiedOrdinaryAcquisitionOffer] = []
+    for offer in offers:
+        if not offer.effective_at <= now < offer.expires_at:
+            raise ValueError("ordinary_acquisition_offer_not_current")
+        if offer.cost_basis_hash != canonical_cost.record_content_hash:
+            raise ValueError("ordinary_acquisition_offer_cost_mismatch")
+        declaration = catalog.load_acquisition_supplier_declaration(store, offer.supplier_ref)
+        source = authority.resolve(declaration.entry.entry_id)
+        registration = source.registration
+        if (
+            source.entry != declaration.entry
+            or registration.connector_id != declaration.connector_id
+            or source.authority_provision_id != declaration.authority_provision_id
+            or source.authority_provision_content_sha256
+            != declaration.authority_provision_content_sha256
+            or source.registry_content_sha256 != declaration.registry_content_sha256
+            or source.baseline_content_sha256 != declaration.baseline_content_sha256
+            or source.upstream_catalog_projection_sha256
+            != declaration.upstream_catalog_projection_sha256
+            or source.l5_trust.owner_content_sha256 != declaration.l5_owner_content_sha256
+            or (
+                declaration.source_unit_provision_ref is not None
+                and (
+                    declaration.source_unit_profile_id != registration.source_profile_id
+                    or declaration.source_unit_request_dataset_id != registration.request_dataset_id
+                )
+            )
+        ):
+            raise ValueError("ordinary_acquisition_offer_supplier_owner_changed")
+        if (
+            source.entry.source_lane != "live_fetch"
+            or source.entry.target_variable != scope.canonical_variable_id
+            or not target_unit
+            or catalog.normalize_acquisition_unit(source.entry.canonical_unit) != target_unit
+        ):
+            raise ValueError("ordinary_acquisition_offer_supplier_scope_mismatch")
+        require_live_catalog_constraints_within_authority_scope(source.entry, constraints)
+        # Content-addressed entries and prices can differ for the same fetch.
+        source_key = (registration.connector_id, registration.request_dataset_id)
+        if source_key in used_sources:
+            raise ValueError("ordinary_acquisition_offer_source_not_distinct")
+        used_sources.add(source_key)
+        verified.append(VerifiedOrdinaryAcquisitionOffer(offer, source, canonical_cost))
+    return tuple(verified)
 
 
 def _receipt_content_hash(receipt: AcquisitionReceipt) -> str:

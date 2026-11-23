@@ -21,6 +21,7 @@ from polisyos.core import artifacts
 from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.core.contracts import RunCandidateSimulationN5ResultBody
 from polisyos.pdc import OperationClass, OperationContract, OperationInvocationRecord
+from polisyos.runtime.quality.acquisition_planner import OrdinaryAcquisitionOffer
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionCandidateExperimentPhaseReceipt,
     AcquisitionCandidateExperimentTerminalReceipt,
@@ -1311,10 +1312,13 @@ class AcquisitionActionService:
                 for item in native_routes
             )
             return AcquisitionRouteListResponse(run_id=run_id, routes=routes)
-        closure = self._resolve(tenant_id=tenant_id, cell_id=cell_id, run_id=run_id)
+        try:
+            closures = loop.resolve_current_ordinary_routes(run_id=run_id)
+        except AcquisitionRouteClosureError as exc:
+            raise AcquisitionActionServiceError(exc.code) from exc
         return AcquisitionRouteListResponse(
             run_id=run_id,
-            routes=(self._projection(closure),),
+            routes=tuple(self._projection(closure) for closure in closures),
         )
 
     def get_route(
@@ -1520,6 +1524,12 @@ class AcquisitionActionService:
         except AgentActionAuthorityRefused as exc:
             raise AcquisitionActionServiceError("human_decision_required") from exc
         decision_ref = str(persisted.write_result.cas_ref.artifact_id)
+        if closure.ordinary_offer is not None and not (
+            closure.ordinary_offer.effective_at
+            <= persisted.decision.decided_at
+            < closure.ordinary_offer.expires_at
+        ):
+            raise AcquisitionActionServiceError("ordinary_acquisition_offer_expired_at_acceptance")
         requested = self._phase_receipt(
             action_generation=action_generation,
             closure=closure,
@@ -1529,9 +1539,13 @@ class AcquisitionActionService:
             predecessor_receipt_ref=None,
             owner_receipt_refs=(),
         )
-        head = self.control_service.acquisition_route_sink.get_head(requested)
+        sink = self.control_service.acquisition_route_sink
+        head = sink.get_head(requested)
         if head is None:
-            self.control_service.acquisition_route_sink.persist_phase(requested)
+            if closure.ordinary_offer is None:
+                sink.persist_phase(requested)
+            else:
+                sink.persist_phase(requested, scoped_ordinary_request=True)
         elif head.job_id != job_id or head.receipt_phase not in {
             "requested",
             "executing",
@@ -1553,6 +1567,11 @@ class AcquisitionActionService:
                 "operation": operation.model_dump(mode="json"),
                 "invocation": invocation.model_dump(mode="json"),
                 "intent": intent.model_dump(mode="json"),
+                **(
+                    {"ordinary_acquisition_offer": closure.ordinary_offer.model_dump(mode="json")}
+                    if closure.ordinary_offer is not None
+                    else {}
+                ),
             },
             request_id=request_id,
             principal=principal,
@@ -1949,6 +1968,8 @@ class AcquisitionActionService:
         expected_tuple = self._action_tuple(closure, request)
         if (operation, invocation, intent) != expected_tuple:
             raise AcquisitionActionServiceError("acquisition_job_action_binding_mismatch")
+        # The exact expected invocation already binds the current offer's digest.
+        self._read_job_ordinary_offer(payload, invocation)
         decision_ref = str(payload.get("decision_ref") or "")
         action_generation = self._action_generation(closure, job.job_id)
         seed = self._phase_receipt(
@@ -6521,6 +6542,28 @@ class AcquisitionActionService:
         )
 
     @staticmethod
+    def _read_job_ordinary_offer(
+        payload: dict[str, Any], invocation: OperationInvocationRecord
+    ) -> OrdinaryAcquisitionOffer | None:
+        """Reopen the job's exact offer bound by the invocation's signed digest."""
+        offer_key = "ordinary_acquisition_offer"
+        hash_key = "ordinary_acquisition_offer_hash"
+        if offer_key not in payload and hash_key not in invocation.parameters:
+            return None
+        wire = payload.get(offer_key)
+        try:
+            offer = OrdinaryAcquisitionOffer.model_validate(wire)
+        except ValueError as exc:
+            raise AcquisitionActionServiceError(
+                "acquisition_job_ordinary_offer_binding_mismatch"
+            ) from exc
+        if wire != offer.model_dump(mode="json") or invocation.parameters.get(hash_key) != (
+            offer.content_hash
+        ):
+            raise AcquisitionActionServiceError("acquisition_job_ordinary_offer_binding_mismatch")
+        return offer
+
+    @staticmethod
     def _action_tuple(
         closure: VerifiedAcquisitionRouteClosure,
         request: AcquisitionRouteMutationRequest,
@@ -6589,6 +6632,11 @@ class AcquisitionActionService:
                 "planner_report_hash": request.planner_report_hash,
                 "cost_basis_hash": closure.cost_basis_hash,
                 "compiled_ref": closure.compiled_ref,
+                **(
+                    {"ordinary_acquisition_offer_hash": closure.ordinary_offer.content_hash}
+                    if closure.ordinary_offer is not None
+                    else {}
+                ),
                 **(
                     {
                         "action_mode": "paid_input_admission_only",

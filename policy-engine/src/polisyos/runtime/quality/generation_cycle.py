@@ -12773,10 +12773,12 @@ class GenerationCycleController:
         """
 
         native_derivation = native_input_collection_ref is not None
-        if (action_route_id is None) != (native_input_collection_ref is None):
+        if native_derivation and action_route_id is None:
             raise GenerationCycleError("native_derivation_reentry_selection_incomplete")
         if native_derivation and source_control_service is None:
             raise GenerationCycleError("native_derivation_reentry_source_owner_required")
+        if action_route_id is not None and source_control_service is None:
+            raise GenerationCycleError("acquisition_reentry_route_owner_not_established")
         if original_run.basis_transitions:
             raise GenerationCycleError("acquisition_reentry_after_candidate_basis_not_established")
         problem_ref = _problem_ref(problem)
@@ -12812,6 +12814,43 @@ class GenerationCycleController:
                 or not admission.scope.cell_id
             ):
                 raise GenerationCycleError("acquisition_reentry_route_owner_not_established")
+            ordinary_offer = None
+            if action_route_id is not None and not native_derivation:
+                from polisyos.core.artifacts import raise_artifact_read_access_error
+                from polisyos.pdc import OperationInvocationRecord
+                from polisyos.runtime.http.services.acquisition_action_service import (
+                    AcquisitionActionService,
+                )
+
+                if current_action.payload_ref is None or not admission.scope.actor_authenticated:
+                    raise GenerationCycleError("acquisition_reentry_ordinary_route_not_admitted")
+                try:
+                    payload = source_control_service._load_payload_ref(
+                        current_action.payload_ref, kind="runtime.control_job_payload.acquisition"
+                    )
+                    identity = (
+                        admission.scope.tenant_id,
+                        admission.scope.cell_id,
+                        current_action.run_id,
+                    )
+                    if (
+                        "action_kind" in payload
+                        or (payload.get("tenant_id"), payload.get("cell_id"), payload.get("run_id"))
+                        != identity
+                        or payload.get("route_id") != action_route_id
+                    ):
+                        raise ValueError("ordinary_acquisition_job_route_scope_mismatch")
+                    invocation = OperationInvocationRecord.model_validate(payload.get("invocation"))
+                    ordinary_offer = AcquisitionActionService._read_job_ordinary_offer(
+                        payload, invocation
+                    )
+                    if ordinary_offer is None:
+                        raise ValueError("ordinary_acquisition_job_offer_missing")
+                except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                    raise_artifact_read_access_error(exc)
+                    raise GenerationCycleError(
+                        "acquisition_reentry_ordinary_route_not_admitted"
+                    ) from exc
             source_route_reader = AcquisitionRouteLoop(
                 control_store=source_control_service._control_store,
                 artifact_store=self._artifact_store,
@@ -12834,6 +12873,11 @@ class GenerationCycleController:
                 raise GenerationCycleError(
                     "acquisition_reentry_route_owner_not_established"
                 ) from exc
+            if ordinary_offer is not None and (
+                owned_route.ordinary_offer is None
+                or owned_route.ordinary_offer.content_hash != ordinary_offer.content_hash
+            ):
+                raise GenerationCycleError("acquisition_reentry_ordinary_route_not_admitted")
             expected_source_basis_ref = _problem_ref(actual_problem)
             if (
                 owned_route.generation_run != original_run

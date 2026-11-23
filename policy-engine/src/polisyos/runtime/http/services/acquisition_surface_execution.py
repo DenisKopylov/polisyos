@@ -218,10 +218,22 @@ def _resolve_world_bank_wdi_source_attempts(
     """Resolve exact provisioned source attempts before any route ID is needed."""
 
     variable_id = _require_live_variable_route(source, artifact_store=artifact_store)
+    from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
+
+    offer = source.ordinary_offer if type(source) is VerifiedAcquisitionRouteClosure else None
+    supplier = None
+    if offer is not None:
+        if artifact_store is None:
+            raise LiveAcquisitionExecutionError("ordinary_acquisition_offer_store_missing")
+        supplier = data_forge_read_api.catalog.load_acquisition_supplier_declaration(
+            artifact_store, offer.supplier_ref
+        )
     entries = tuple(
         entry
         for entry in registry.entries
-        if entry.source_lane == "live_fetch" and entry.target_variable == variable_id
+        if entry.source_lane == "live_fetch"
+        and entry.target_variable == variable_id
+        and (supplier is None or entry.entry_id == supplier.entry.entry_id)
     )
     if len(entries) != 1:
         code = (
@@ -240,6 +252,13 @@ def _resolve_world_bank_wdi_source_attempts(
         ) from exc
     if resolved.entry != entry:
         raise LiveAcquisitionExecutionError("live_route_authority_entry_drift", entry.entry_id)
+    if supplier is not None and (
+        resolved.entry != supplier.entry
+        or resolved.registration.connector_id != supplier.connector_id
+        or resolved.upstream_catalog_projection_sha256
+        != supplier.upstream_catalog_projection_sha256
+    ):
+        raise LiveAcquisitionExecutionError("ordinary_acquisition_offer_execution_scope_changed")
     if (
         resolved.registry_content_sha256 != registry.content_sha256
         or resolved.baseline_content_sha256 != registry.baseline_content_sha256

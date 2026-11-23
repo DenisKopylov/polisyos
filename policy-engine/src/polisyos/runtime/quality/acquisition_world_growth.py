@@ -34,6 +34,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionRequirementGap,
     N7DerivationBasis,
     NativeDerivationLeafCostProfileScope,
+    OrdinaryAcquisitionOffer,
 )
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteClosureError,
@@ -945,6 +946,9 @@ class AcquisitionWorldGrowthConfig(_Strict):
         default=(), exclude_if=lambda value: not value
     )
     native_derivation_planning_selections: tuple[NativeDerivationPlanningSelection, ...] = Field(
+        default=(), exclude_if=lambda value: not value
+    )
+    ordinary_offers: tuple[OrdinaryAcquisitionOffer, ...] = Field(
         default=(), exclude_if=lambda value: not value
     )
 
@@ -7973,8 +7977,12 @@ class AcquisitionWorldGrowthBridge:
                         overlay_path=overlay_path,
                         source_control_service=self._source_control_service,
                         **(
+                            {"action_route_id": closure.route_id}
+                            if native_collections or closure.ordinary_offer is not None
+                            else {}
+                        ),
+                        **(
                             {
-                                "action_route_id": closure.route_id,
                                 "native_input_collection_ref": native_collections[0],
                                 "native_reentry_coordinator": native_reentry_coordinator,
                             }

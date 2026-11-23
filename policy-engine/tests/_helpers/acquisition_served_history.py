@@ -1033,6 +1033,7 @@ def _appoint_served_acquisition_mandate(
     tmp_path: Path,
     signers: dict[str, artifacts.Ed25519Signer],
     identities: dict[str, str],
+    actor_subject: str = "acquisition-operator",
 ) -> tuple[dict[str, object], str]:
     """Persist a signed mandate and current-owner evidence for one exact action."""
     from polisyos.runtime.http.services.acquisition_action_service import AcquisitionActionService
@@ -1051,7 +1052,7 @@ def _appoint_served_acquisition_mandate(
     envelope = contract.action_envelopes[0].model_copy(
         update={
             "mandate_owner_ref": identities["owner"],
-            "authorized_subject": "acquisition-operator",
+            "authorized_subject": actor_subject,
             "authorized_runtime_roles": (PolicyOSRole.ANALYST,),
             "required_tenant_id": closure.tenant_id,
             "required_resource_digest": resource_digest,
@@ -1136,6 +1137,7 @@ def _approve_served_acquisition_request(
     cas_root: Path,
     submission_checkpoint: Path | None = None,
     authority_valid_until: datetime | None = None,
+    actor_subject: str = "acquisition-operator",
 ) -> tuple[authority.AgentActionAuthorityDecision, str]:
     """Obtain real DS9 approval after the exact PA2 source decision refuses."""
     from polisyos.runtime.quality.agent_action_authority import AgentActionAuthorityDecision
@@ -1150,6 +1152,7 @@ def _approve_served_acquisition_request(
         route_path + "/decision-request",
         request.model_dump(mode="json"),
         route=route_template + "/decision-request",
+        subject=actor_subject,
     )
     assert response.status_code == 200 and digest == resource_digest, response.text
     source_ref = response.json()["authority_decision_ref"]

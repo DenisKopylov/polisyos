@@ -3,6 +3,8 @@ from __future__ import annotations
 import asyncio
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
+from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
@@ -464,6 +466,506 @@ def test_execute_route_binds_current_tuple_and_persists_allowed_reservation(
     finally:
         port_patch.undo()
         trust.close()
+        trust.close()
+
+
+def test_configured_ordinary_offers_keep_signed_acceptance_after_expiry(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Accept two real offers through PA2, then reopen them as historical evidence."""
+    from polisyos.pdc import OperationInvocationRecord
+    from polisyos.runtime.http.services.acquisition_action_service import (
+        AcquisitionActionServiceError,
+    )
+    from polisyos.runtime.quality import acquisition_route_loop as route_owner
+    from polisyos.runtime.quality import generation_cycle
+    from polisyos.runtime.quality.acquisition_planner import (
+        OrdinaryAcquisitionOffer,
+        OrdinaryAcquisitionOfferScope,
+    )
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthBridge,
+        AcquisitionWorldGrowthConfig,
+        AcquisitionWorldGrowthRoute,
+    )
+    from polisyos.scientist import BudgetState
+    from tests._helpers.acquisition_epoch_production import production_admission_inputs
+    from tests.unit.runtime.quality.test_acquisition_planner_source_offers import (
+        _controlled_supplier_refs,
+    )
+    from tests.unit.runtime.quality.test_substrate_registry import _write_substrate_catalog_fixture
+
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+    monkeypatch.setenv("POLISYOS_METRICS_PORT", "0")
+    monkeypatch.setenv("POLISYOS_RUNTIME_CONTROL_STORE_TIMEOUT_SECONDS", "10")
+    monkeypatch.setattr(generation_cycle, "_N7_SOURCE_SEMANTIC_EMISSION_ENABLED", True)
+    install_fixture_wdi_cost_basis(monkeypatch)
+    substrate = tmp_path / "substrate"
+    _write_substrate_catalog_fixture(substrate)
+    trust = served_fixture._ExternalTrust(tmp_path)
+    subjects = ("acquisition-operator", "acquisition-operator-2")
+    trust.raw["service_principals"].append(
+        {**trust.raw["service_principals"][0], "subject": subjects[1]}
+    )
+    trust.tokens[subjects[1]] = trust.authorization_header(subjects[1]).removeprefix("Bearer ")
+    signers, identities = served_fixture._key_config(tmp_path, trust)
+    cas_root = tmp_path / "cas"
+    run_id = "run-ordinary-signed-offers"
+    tenant_id, cell_id = served_fixture.TENANT, served_fixture.CELL
+    route_template = "/api/v1/runs/{run_id}/acquisition-routes/{route_id}"
+    now = datetime.now(UTC)
+    expiry = now + timedelta(hours=1)
+    transport_calls = intercepted_wdi_transport(monkeypatch, allow_loopback=True)
+
+    def app():
+        return create_runtime_api_app(
+            cas_root=cas_root,
+            core_runs_root=cas_root / "runs",
+            deployment_security=security.build_deployment_security(
+                security.DeploymentSecurityConfig.from_mapping(trust.raw)
+            ),
+            enable_security_middlewares=True,
+            enable_csrf_protection=False,
+        )
+
+    def reader(control, **kwargs):
+        return route_owner.AcquisitionRouteLoop(
+            control_store=control._control_store,
+            artifact_store=control._artifact_store,
+            event_log=control._diagnostic_event_log,
+            core_source_resolver=control.resolve_completed_control_job_core_run_source,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            action_outcome_reader=control.acquisition_route_sink,
+            **kwargs,
+        )
+
+    def assert_same_offer(
+        actual: OrdinaryAcquisitionOffer | None, expected: OrdinaryAcquisitionOffer
+    ) -> None:
+        assert actual is not None
+        assert actual.content_hash == expected.content_hash
+        assert actual.model_dump(mode="json") == expected.model_dump(mode="json")
+
+    try:
+        with TestClient(app()) as client:
+            control = client.app.state.runtime_container.control_service
+            original, original_request = asyncio.run(
+                persist_wdi_route(
+                    control,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    run_id=run_id,
+                    generation_cycle_repo_root=substrate,
+                )
+            )
+            store = control._artifact_store
+            with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+                authority, (left_ref, right_ref, _, _) = _controlled_supplier_refs(
+                    tmp_path / "offers", store
+                )
+                legacy = reader(control).resolve_current_ordinary_route(run_id=run_id)
+                assert legacy.route_id == original.route_id and legacy.ordinary_offer is None
+                origin = reader(control)._resolve_verified_origin(run_id=run_id)
+                gap = origin.source_requirement
+                assert gap is not None and origin.planner_record.compiled_requirement_ref
+                constraints = acquisition_surface_execution._constraints_from_live_variable_route(
+                    original
+                )
+                scope = OrdinaryAcquisitionOfferScope(
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                    run_id=run_id,
+                    source_job_id=original.source_job_id,
+                    design_problem_ref=original.design_problem_ref,
+                    candidate_id=original.route_source_cycle.selected_candidate_ref,
+                    compiled_ref=origin.selected_compiled_ref,
+                    scenario_id=original.design_problem.design_problem_id,
+                    planner_report_ref=artifacts.artifact_ref_for_manifest(
+                        store.get_manifest(origin.report_ref)
+                    ),
+                    planner_record_id=origin.planner_record.acquisition_id,
+                    compiled_requirement_ref=origin.planner_record.compiled_requirement_ref,
+                    source_gap_id=gap.requirement_gap_id,
+                    canonical_variable_id="government.balance",
+                    canonical_unit="percent_gdp",
+                    country_code=constraints.country_code,
+                    year=constraints.start_year,
+                )
+                offers = tuple(
+                    OrdinaryAcquisitionOffer(
+                        scope=scope,
+                        supplier_ref=ref,
+                        cost_basis_hash=original.cost_basis_hash,
+                        effective_at=now - timedelta(minutes=1),
+                        expires_at=expiry,
+                    )
+                    for ref in (left_ref, right_ref)
+                )
+                configuration = route_owner.OrdinaryAcquisitionOfferConfiguration(
+                    authority=authority,
+                    canonical_unit="percent_gdp",
+                    constraints=constraints,
+                    offers=offers,
+                )
+                selected = reader(
+                    control, ordinary_offer_configuration=configuration
+                ).resolve_current_ordinary_routes(run_id=run_id)
+                # The no-effect enqueue witness never activates either prepared epoch.
+                epoch = production_admission_inputs(
+                    tmp_path / "owners",
+                    store=store,
+                    authority=authority,
+                    overlay_path=tmp_path / "unused-overlay.duckdb",
+                    epoch_history_root=tmp_path / "unused-history",
+                )
+                routes = tuple(
+                    AcquisitionWorldGrowthRoute(
+                        tenant_id=tenant_id,
+                        cell_id=cell_id,
+                        run_id=run_id,
+                        route_id=closure.route_id,
+                        design_problem_ref=closure.design_problem_ref,
+                        epoch_id=index,
+                        epoch_scope_identity=epoch["epoch_scope_identity"],
+                        authority_purpose=epoch["authority_purpose"],
+                        valid_effect_coordinate_evidence_ref=epoch[
+                            "valid_effect_coordinate_evidence_ref"
+                        ],
+                        visibility_knowledge_cutoff_evidence_ref=epoch[
+                            "visibility_knowledge_cutoff_evidence_ref"
+                        ],
+                        purpose_admission_cutoff_evidence_ref=epoch[
+                            "purpose_admission_cutoff_evidence_ref"
+                        ],
+                        facet_source_refs=epoch["facet_source_refs"],
+                        reentry_budget_usd=Decimal("0.10"),
+                    )
+                    for index, closure in enumerate(selected, 1)
+                )
+                config = AcquisitionWorldGrowthConfig(routes=routes, ordinary_offers=offers)
+                registry = store.put_json(
+                    {"fixture": "synthetic ordinary acquisition source"},
+                    artifacts.ArtifactWriteOptions(
+                        kind="test.registry", media_type="application/json"
+                    ),
+                )
+                RunContext.start(
+                    store=store,
+                    registry_bundle=registry,
+                    run_dir=cas_root / "runs" / run_id,
+                    run_id=run_id,
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                ).finalize()
+
+        def installed_port(*, control_service, world_growth_config=None, epoch_deployment=None):
+            del world_growth_config
+            bridge = AcquisitionWorldGrowthBridge(
+                config=config,
+                repo_root=authority.repo_root,
+                runtime_root=cas_root,
+                authority=authority,
+                artifact_store=control_service._artifact_store,
+                event_log=control_service._diagnostic_event_log,
+                control_store=control_service._control_store,
+                action_head_sink=control_service.acquisition_route_sink,
+                source_control_service=control_service,
+                epoch_deployment=epoch_deployment,
+            )
+            return acquisition_surface_execution.WorldBankWDIAcquisitionExecutionPort(
+                authority=authority,
+                registry=catalog_api.AcquisitionAuthorityRegistry.model_validate_json(
+                    authority.registry_path.read_bytes()
+                ),
+                provision=authority.provision,
+                provision_content_sha256=authority.provision_content_sha256,
+                runtime_state_root=cas_root,
+                artifact_store=control_service._artifact_store,
+                world_growth_bridge=bridge,
+            )
+
+        monkeypatch.setattr(
+            acquisition_surface_execution,
+            "build_production_world_bank_wdi_execution_port",
+            installed_port,
+        )
+        selections = tuple(
+            (
+                closure,
+                original_request.model_copy(update={"route_projection_hash": closure.route_id}),
+                route_template.format(run_id=run_id, route_id=closure.route_id),
+                subject,
+            )
+            for closure, subject in zip(selected, subjects, strict=True)
+        )
+        mandates, digests = [], []
+        with TestClient(app()) as client:
+            control = client.app.state.runtime_container.control_service
+            routes_response = client.get(
+                f"/api/v1/runs/{run_id}/acquisition-routes",
+                headers={
+                    "Authorization": trust.authorization_header("acquisition-operator"),
+                    "X-Tenant-ID": tenant_id,
+                },
+            )
+            assert routes_response.status_code == 200, routes_response.text
+            assert {route["route_id"] for route in routes_response.json()["routes"]} == {
+                closure.route_id for closure in selected
+            }
+            for closure, request, path, subject in selections:
+                refused, digest = trust.post(
+                    client,
+                    path + "/decision-request",
+                    request.model_dump(mode="json"),
+                    route=route_template + "/decision-request",
+                    subject=subject,
+                )
+                assert refused.status_code == 200, refused.text
+                slot, _ = served_fixture._appoint_served_acquisition_mandate(
+                    control,
+                    closure,
+                    request,
+                    digest,
+                    tmp_path=tmp_path,
+                    signers=signers,
+                    identities=identities,
+                    actor_subject=subject,
+                )
+                mandates.append(slot)
+                digests.append(digest)
+        trust.raw["acquisition_authority"]["mandates"] = mandates
+
+        with TestClient(app()) as client:
+            for (closure, request, _path, subject), digest, slot in zip(
+                selections, digests, mandates, strict=True
+            ):
+                _refusal, human_ref = served_fixture._approve_served_acquisition_request(
+                    client,
+                    request,
+                    digest,
+                    closure=closure,
+                    trust=trust,
+                    signers=signers,
+                    identities=identities,
+                    cas_root=cas_root,
+                    actor_subject=subject,
+                )
+                slot["human_decision_record_ref"] = human_ref
+
+        accepted = []
+        with TestClient(app()) as client:
+            container = client.app.state.runtime_container
+            control = container.control_service
+            for (closure, request, path, subject), offer in zip(selections, offers, strict=True):
+                allowed, _ = trust.post(
+                    client,
+                    path + "/execute",
+                    request.model_dump(mode="json"),
+                    route=route_template + "/execute",
+                    subject=subject,
+                )
+                assert allowed.status_code in {200, 202}, allowed.text
+                job_id = allowed.json()["job_id"]
+                assert_same_offer(closure.ordinary_offer, offer)
+                job = control._control_store.get_job(job_id)
+                assert job is not None and job.state == "pending"
+                with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+                    actor_scope, _ = control._control_store._reconcile_control_job_creation_envelope(
+                        job
+                    )
+                    assert actor_scope.actor_authenticated and actor_scope.actor_subject == subject
+                    assert job.payload_ref is not None
+                    payload = control._load_payload_ref(
+                        job.payload_ref, kind="runtime.control_job_payload.acquisition"
+                    )
+                    invocation = OperationInvocationRecord.model_validate(payload["invocation"])
+                    assert invocation.parameters["ordinary_acquisition_offer_hash"] == (
+                        offer.content_hash
+                    )
+                    assert "ordinary_acquisition_offer" not in invocation.parameters
+                    assert_same_offer(
+                        AcquisitionActionService._read_job_ordinary_offer(payload, invocation),
+                        offer,
+                    )
+                    without_offer = dict(payload)
+                    del without_offer["ordinary_acquisition_offer"]
+                    foreign_offer = next(
+                        other for other in offers if other.content_hash != offer.content_hash
+                    )
+                    with_foreign_offer = {
+                        **payload,
+                        "ordinary_acquisition_offer": foreign_offer.model_dump(mode="json"),
+                    }
+                    for wrong_payload in (without_offer, with_foreign_offer):
+                        with pytest.raises(
+                            AcquisitionActionServiceError,
+                            match="acquisition_job_ordinary_offer_binding_mismatch",
+                        ):
+                            AcquisitionActionService._read_job_ordinary_offer(
+                                wrong_payload, invocation
+                            )
+                    (head,) = control._control_store.list_acquisition_action_heads(
+                        tenant_id=tenant_id,
+                        cell_id=cell_id,
+                        run_id=run_id,
+                        source_job_id=closure.source_job_id,
+                        route_id=closure.route_id,
+                    )
+                    assert head.job_id == job_id and head.receipt_phase == "requested"
+                    assert head.action_generation == 1
+                    identity = (
+                        tenant_id,
+                        cell_id,
+                        run_id,
+                        closure.source_job_id,
+                        closure.route_id,
+                        job_id,
+                    )
+                    digest = sha256(canon.to_canonical_bytes(identity)).hexdigest()
+                    assert head.durable_event_id == f"evt_acquisition_1_ordinary_{digest}_requested"
+                    assert_same_offer(
+                        reader(control).resolve_recorded_ordinary_route(head=head).ordinary_offer,
+                        offer,
+                    )
+                accepted.append(head)
+            assert accepted[0].job_id != accepted[1].job_id
+            assert accepted[0].durable_event_id != accepted[1].durable_event_id
+
+        class ExpiredQuoteClock(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return expiry if tz is None else expiry.astimezone(tz)
+
+        monkeypatch.setattr(route_owner, "datetime", ExpiredQuoteClock)
+        with TestClient(app()) as client:
+            control = client.app.state.runtime_container.control_service
+            with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+                owner = reader(control)
+                assert owner.resolve_current_ordinary_routes(run_id=run_id) == ()
+                with pytest.raises(
+                    route_owner.AcquisitionRouteClosureError, match="acquisition_route_not_current"
+                ):
+                    owner.resolve_current_ordinary_route(run_id=run_id, route_id=original.route_id)
+                for head, offer in zip(accepted, offers, strict=True):
+                    assert_same_offer(
+                        owner.resolve_recorded_ordinary_route(head=head).ordinary_offer, offer
+                    )
+                with pytest.raises(
+                    route_owner.AcquisitionRouteClosureError,
+                    match="ordinary_acquisition_recorded_offer_refused",
+                ):
+                    owner.resolve_recorded_ordinary_route(
+                        head=replace(accepted[0], route_id=accepted[1].route_id)
+                    )
+                selected_blob, _ = control._artifact_store._paths(
+                    offers[0].supplier_ref.artifact_id
+                )
+                assert selected_blob.is_relative_to(tmp_path)
+                assert selected_blob.is_file() and not selected_blob.is_symlink()
+                parked = selected_blob.with_suffix(".offer-proof-removed")
+                assert not parked.exists()
+                selected_blob.rename(parked)
+                try:
+                    with pytest.raises(
+                        route_owner.AcquisitionRouteClosureError,
+                        match="ordinary_acquisition_recorded_offer_refused",
+                    ):
+                        owner.resolve_recorded_ordinary_route(head=accepted[0])
+                    assert_same_offer(
+                        owner.resolve_recorded_ordinary_route(head=accepted[1]).ordinary_offer,
+                        offers[1],
+                    )
+                finally:
+                    parked.rename(selected_blob)
+                assert_same_offer(
+                    owner.resolve_recorded_ordinary_route(head=accepted[0]).ordinary_offer,
+                    offers[0],
+                )
+            _closure, request, path, subject = selections[0]
+            refused, _ = trust.post(
+                client,
+                path + "/execute",
+                request.model_dump(mode="json"),
+                route=route_template + "/execute",
+                subject=subject,
+            )
+            assert refused.status_code == 404, refused.text
+            assert refused.json()["code"] == "acquisition_route_not_current"
+            assert all(
+                control._control_store.get_job(head.job_id).state == "pending" for head in accepted
+            )
+        # Use the actual creator envelope and a real lease to distinguish the
+        # offered route at the next owner boundary. All branches stop before
+        # an overlay or numerical owner can be entered.
+        with monkeypatch.context() as clock, TestClient(app()) as client:
+            clock.setattr(route_owner, "datetime", datetime)
+            control = client.app.state.runtime_container.control_service
+            store = control._control_store
+            worker_id = "fixture-ordinary-route-reentry"
+            lease = store.lease_next_job(worker_id=worker_id, lease_seconds=60)
+            assert lease is not None and lease.kind == "acquisition"
+            selected_index = next(
+                index for index, head in enumerate(accepted) if head.job_id == lease.job_id
+            )
+            selected_route = selections[selected_index][0]
+            other_route = selections[1 - selected_index][0]
+            controller = object.__new__(generation_cycle.GenerationCycleController)
+            controller._artifact_store = control._artifact_store
+            problem = selected_route.design_problem_basis
+            different_problem = problem.model_copy(
+                update={"design_problem_id": problem.design_problem_id + "-different"}
+            )
+            kwargs = {
+                "original_run": selected_route.generation_run,
+                "source_cycle": selected_route.source_cycle,
+                "problem": different_problem,
+                "overlay_receipt": None,
+                "observation_projection": None,
+                "baseline_path": tmp_path / "not-opened-baseline.duckdb",
+                "overlay_path": tmp_path / "not-opened-overlay.duckdb",
+                "budget_state": BudgetState(),
+            }
+            with (
+                tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id),
+                store.job_execution_fence(
+                    job_id=lease.job_id, worker_id=worker_id, attempt=lease.attempt
+                ),
+            ):
+                for route_id, code in (
+                    (selected_route.route_id, "acquisition_reentry_route_source_mismatch"),
+                    (other_route.route_id, "acquisition_reentry_ordinary_route_not_admitted"),
+                    (None, "acquisition_reentry_route_owner_not_established"),
+                ):
+                    with pytest.raises(generation_cycle.GenerationCycleError, match=code):
+                        asyncio.run(
+                            controller.reenter_after_active_acquisition_overlay(
+                                **kwargs, source_control_service=control, action_route_id=route_id
+                            )
+                        )
+                assert selected_route.ordinary_offer is not None
+                with pytest.raises(
+                    generation_cycle.GenerationCycleError,
+                    match="native_derivation_reentry_selection_incomplete",
+                ):
+                    asyncio.run(
+                        controller.reenter_after_active_acquisition_overlay(
+                            **kwargs,
+                            source_control_service=control,
+                            native_input_collection_ref=(
+                                selected_route.ordinary_offer.scope.compiled_ref
+                            ),
+                        )
+                    )
+                with pytest.raises(
+                    generation_cycle.GenerationCycleError,
+                    match="acquisition_reentry_case_binding_mismatch",
+                ):
+                    asyncio.run(controller.reenter_after_active_acquisition_overlay(**kwargs))
+        assert transport_calls == []
+    finally:
         trust.close()
 
 

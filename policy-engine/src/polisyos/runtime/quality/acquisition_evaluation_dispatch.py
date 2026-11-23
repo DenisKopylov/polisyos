@@ -3919,6 +3919,8 @@ def acquisition_terminal_frontier_cas(
             ref=terminal.current_continuation_ref,
             decision=decision,
             terminal=terminal,
+            growth=scope.owner.selection.growth,
+            control_store=scope.owner.bridge.control_store,
         )
         replacement = None
     else:
@@ -7463,6 +7465,7 @@ def _persist_current_continuation(
     from polisyos.runtime.quality.acquisition_retained_continuation import (
         AcquisitionRetainedContinuation,
         AcquisitionRetainedCurrentProjection,
+        resolve_retained_controlled_acquisition_replica,
     )
     from polisyos.runtime.quality.generation_cycle import _RetainedCheapProjection
 
@@ -7512,6 +7515,16 @@ def _persist_current_continuation(
         "predicate_provenance": "recomputed",
         "generated_at": datetime.now(UTC).isoformat(),
     }
+    if selection.growth.controlled_replica is not None:
+        if bridge.control_store is None:
+            raise ValueError("controlled_replica_action_history_missing")
+        payload["controlled_replica"] = resolve_retained_controlled_acquisition_replica(
+            store=bridge.artifact_store,
+            event_log=bridge.event_log,
+            control_store=bridge.control_store,
+            decision=decision,
+            growth=selection.growth,
+        ).model_dump(mode="json")
     record = AcquisitionRetainedContinuation.model_validate(
         {
             **payload,

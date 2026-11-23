@@ -24,6 +24,12 @@ from polisyos.runtime.quality.acquisition_evaluation import (
     _candidate_ref_same,
     read_acquisition_evaluation_artifact,
 )
+from polisyos.runtime.quality.acquisition_evidence_transition import (
+    ControlledAcquisitionReplicaProof,
+    ControlledAcquisitionReplicaSource,
+    resolve_controlled_acquisition_replica,
+    verify_controlled_acquisition_replica_delivery,
+)
 from polisyos.runtime.quality.acquisition_planner import (
     _N7_SOURCE_JOIN_RULE,
     AcquisitionCostBasisRecord,
@@ -67,6 +73,7 @@ if TYPE_CHECKING:
         VerifiedAcquisitionRouteClosure,
         VerifiedCandidateExperimentOrigin,
     )
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthReceipt
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 
 _HASH = r"^sha256:[0-9a-f]{64}$"
@@ -162,6 +169,9 @@ class AcquisitionRetainedContinuation(BaseModel):
     admitted_source_ref: ArtifactRef
     retained_evaluation: AcquisitionSelectedEvaluation
     current_projection: AcquisitionRetainedCurrentProjection
+    controlled_replica: ControlledAcquisitionReplicaProof | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     predicate_provenance: Literal["recomputed"] = "recomputed"
     generated_at: str
     content_hash: str = Field(pattern=_HASH)
@@ -1006,6 +1016,180 @@ def read_candidate_acquisition_retained_continuation(
     return record, prior
 
 
+def _controlled_replica_source(
+    *,
+    store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    decision: AcquisitionEvaluationDecision,
+    growth: AcquisitionWorldGrowthReceipt,
+) -> ControlledAcquisitionReplicaSource:
+    from polisyos.core.contracts import epoch
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        AcquisitionEvaluationBasis,
+        read_acquisition_basis_or_decision_artifact,
+    )
+    from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
+    from polisyos.runtime.quality.data_state_substrate import (
+        _replay_acquired_observation_projection,
+    )
+
+    basis = read_acquisition_basis_or_decision_artifact(
+        store=store, event_log=event_log, ref=decision.current_basis_ref, kind="basis"
+    )
+    scope = decision.tenant_id, decision.cell_id, decision.run_id, decision.route_id
+    if (
+        growth.controlled_replica is None
+        or growth.selection.key != scope
+        or not isinstance(basis, AcquisitionEvaluationBasis)
+        or basis.growth_receipt_ref != decision.growth_receipt_ref
+        or basis.admitted_source_ref != decision.admitted_source_ref
+    ):
+        raise ValueError("controlled_replica_growth_basis_mismatch")
+    inputs = basis.preparation_inputs
+    if (
+        inputs.source_ref != decision.admitted_source_ref
+        or inputs.passport_ref != growth.activation.passport_ref
+        or inputs.receipt_ref != growth.activation.overlay_admission_receipt_ref
+    ):
+        raise ValueError("controlled_replica_source_basis_mismatch")
+    passport = AdmissionPassport.model_validate(
+        epoch.load_verified_epoch_statement(
+            store=store,
+            ref=inputs.passport_ref,
+            expected_kind="epoch.acquisition_passport_snapshot",
+        )
+    )
+    live = passport.live_source_execution
+    if (
+        live is None
+        or live.raw_artifact_ref is None
+        or passport.passport_id != growth.passport_id
+        or passport.field_binding.raw_unit != passport.field_binding.canonical_unit
+    ):
+        raise ValueError("controlled_replica_source_passport_mismatch")
+    verify_controlled_acquisition_replica_delivery(
+        store, binding=growth.controlled_replica, epoch_id=growth.selection.epoch_id, evidence=live
+    )
+    projection = _replay_acquired_observation_projection(
+        store,
+        receipt_ref=inputs.receipt_ref,
+        passport_ref=inputs.passport_ref,
+        boundary_candidate_ref=inputs.boundary_candidate_ref,
+        expected_source_ref=inputs.source_ref,
+        activation=growth.activation,
+    )
+    rows = tuple(
+        row.observation
+        for row in projection.observations
+        if row.observation.observation_id == inputs.observation_id
+        and row.observation.canonical_var == inputs.slot_binding.canonical_variable_id
+    )
+    if len(rows) != 1 or projection.epoch_id != growth.selection.epoch_id:
+        raise ValueError("controlled_replica_admitted_row_not_selected")
+    return ControlledAcquisitionReplicaSource(
+        route_key=scope,
+        profile_selection_ref=inputs.slot_binding.profile_selection_ref,
+        canonical_variable_id=inputs.slot_binding.canonical_variable_id,
+        target_slot_id=inputs.slot_binding.target_slot_id,
+        canonical_unit=passport.field_binding.canonical_unit,
+        epoch_id=projection.epoch_id,
+        action_generation=decision.action_generation,
+        growth_ref=decision.growth_receipt_ref,
+        passport_ref=inputs.passport_ref,
+        raw_source_ref=live.raw_artifact_ref,
+        admitted_source_ref=inputs.source_ref,
+        capture_ref=growth.controlled_replica.capture_ref,
+        scalar_value=rows[0].value,
+    )
+
+
+def resolve_retained_controlled_acquisition_replica(
+    *,
+    store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    control_store: ControlPlaneStore,
+    decision: AcquisitionEvaluationDecision,
+    growth: AcquisitionWorldGrowthReceipt,
+) -> ControlledAcquisitionReplicaProof:
+    """Reopen two selected source actions and verify their controlled observations."""
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        AcquisitionRouteLoopAuthoritySink,
+    )
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        read_acquisition_basis_or_decision_artifact,
+    )
+    from polisyos.runtime.quality.acquisition_evaluation_history import (
+        read_historical_acquisition_growth,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceiptV2
+
+    if growth.controlled_replica is None or decision.comparison_result != "equivalent":
+        raise ValueError("controlled_replica_exact_retention_not_established")
+    outcomes = AcquisitionRouteLoopAuthoritySink(
+        artifact_store=store, event_log=event_log, control_store=control_store
+    ).action_outcomes(
+        tenant_id=decision.tenant_id,
+        cell_id=decision.cell_id,
+        run_id=decision.run_id,
+        source_job_id=decision.source_job_id,
+        route_id=decision.route_id,
+    )
+    previous = next(
+        (
+            outcome
+            for outcome in reversed(outcomes)
+            if outcome.head.action_generation < decision.action_generation
+            and isinstance(outcome.latest_receipt, AcquisitionRouteLoopReceiptV2)
+            and outcome.latest_receipt.terminal_outcome
+            in {"reentry_completed", "source_admitted_evaluation_retained"}
+        ),
+        None,
+    )
+    if previous is None or not isinstance(previous.latest_receipt, AcquisitionRouteLoopReceiptV2):
+        raise ValueError("controlled_replica_previous_source_missing")
+    terminal = previous.latest_receipt
+    prior_decision = read_acquisition_basis_or_decision_artifact(
+        store=store, event_log=event_log, ref=terminal.evaluation_decision_ref, kind="decision"
+    )
+    if (
+        not isinstance(prior_decision, AcquisitionEvaluationDecision)
+        or prior_decision.action_generation != previous.head.action_generation
+        or prior_decision.action_job_id != previous.head.job_id
+        or previous.selection_phase is None
+        or str(prior_decision.selected_action_receipt_ref.artifact_id)
+        != previous.selection_phase_ref
+        or previous.selection_phase.owner_receipt_refs
+        != (str(prior_decision.growth_receipt_ref.artifact_id),)
+        or str(prior_decision.growth_receipt_ref.artifact_id) not in terminal.owner_receipt_refs
+    ):
+        raise ValueError("controlled_replica_previous_source_selection_mismatch")
+    prior_growth = read_historical_acquisition_growth(
+        artifact_store=store,
+        event_log=event_log,
+        ref=prior_decision.growth_receipt_ref,
+        tenant_id=decision.tenant_id,
+        cell_id=decision.cell_id,
+        run_id=decision.run_id,
+        source_job_id=decision.source_job_id,
+    )
+    if (
+        prior_growth.action_phase_ref != previous.executing_phase_ref
+        or prior_growth.controlled_replica is None
+        or prior_growth.controlled_replica.plan_ref != growth.controlled_replica.plan_ref
+    ):
+        raise ValueError("controlled_replica_previous_growth_mismatch")
+    return resolve_controlled_acquisition_replica(
+        store=store,
+        plan_ref=growth.controlled_replica.plan_ref,
+        previous_source=_controlled_replica_source(
+            store=store, event_log=event_log, decision=prior_decision, growth=prior_growth
+        ),
+        selected_source=_controlled_replica_source(
+            store=store, event_log=event_log, decision=decision, growth=growth
+        ),
+    )
+
+
 def read_acquisition_retained_continuation(
     *,
     store: CoreJSONArtifactStore,
@@ -1013,6 +1197,8 @@ def read_acquisition_retained_continuation(
     ref: ArtifactRef,
     decision: AcquisitionEvaluationDecision,
     terminal: AcquisitionRouteLoopReceiptV2,
+    growth: AcquisitionWorldGrowthReceipt | None = None,
+    control_store: ControlPlaneStore | None = None,
 ) -> AcquisitionRetainedContinuation:
     """Reopen producer/event/profile, exact action/evaluation and compiler joins."""
     record = read_acquisition_evaluation_artifact(
@@ -1047,6 +1233,20 @@ def read_acquisition_retained_continuation(
         or record.retained_evaluation != decision.prior_evaluation
     ):
         raise ValueError("acquisition_retained_continuation_selected_join_mismatch")
+    if growth is not None and growth.controlled_replica is not None:
+        if control_store is None or record.controlled_replica is None:
+            raise ValueError("controlled_replica_proof_missing")
+        expected_replica = resolve_retained_controlled_acquisition_replica(
+            store=store,
+            event_log=event_log,
+            control_store=control_store,
+            decision=decision,
+            growth=growth,
+        )
+        if record.controlled_replica != expected_replica:
+            raise ValueError("controlled_replica_replay_mismatch")
+    elif record.controlled_replica is not None:
+        raise ValueError("controlled_replica_growth_anchor_missing")
     from polisyos.runtime.quality.generation_cycle import (
         _counterexample_record,
         _default_revision_request,

@@ -2107,7 +2107,15 @@ def _produce_served_acquisition_history(
         monkeypatch.setattr(
             acquisition_chain,
             "intercepted_wdi_transport",
-            lambda patch: intercepted_wdi_transport(patch, allow_loopback=True),
+            lambda patch: intercepted_wdi_transport(
+                patch,
+                allow_loopback=True,
+                response_headers_factory=(
+                    sequential_oracle.controlled_replica_headers
+                    if sequential_oracle is not None
+                    else None
+                ),
+            ),
         )
 
         def select_fixture_port(*, control_service, **kwargs):
@@ -2120,17 +2128,23 @@ def _produce_served_acquisition_history(
                     AcquisitionCandidateWorldRefresh,
                 )
 
-                refreshes = (
-                    AcquisitionCandidateWorldRefresh(
-                        tenant_id=closure.tenant_id,
-                        cell_id=closure.cell_id,
-                        run_id=closure.run_id,
-                        route_id=closure.route_id,
-                        profile_selection_ref=profile.profile_selection_ref,
-                        canonical_variable_id=candidate_refresh_variable,
-                        target_slot_id=candidate_refresh_variable,
-                    ),
+                refresh = AcquisitionCandidateWorldRefresh(
+                    tenant_id=closure.tenant_id,
+                    cell_id=closure.cell_id,
+                    run_id=closure.run_id,
+                    route_id=closure.route_id,
+                    profile_selection_ref=profile.profile_selection_ref,
+                    canonical_variable_id=candidate_refresh_variable,
+                    target_slot_id=candidate_refresh_variable,
                 )
+                if sequential_oracle is not None and candidate_refresh_profile is not None:
+                    refresh = _within_fixture_owner(
+                        sequential_oracle.prepare_controlled_replica,
+                        control_service._artifact_store,
+                        refresh,
+                        canonical_unit=candidate_refresh_profile.canonical_unit,
+                    )
+                refreshes = (refresh,)
             active_source = substrate_registry.current_catalog_serving_source()
             bootstrap = (
                 _independent_fixture_bootstrap

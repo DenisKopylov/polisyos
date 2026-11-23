@@ -5,10 +5,11 @@ from __future__ import annotations
 import sys
 import threading
 from collections import Counter
+from datetime import UTC, datetime
 from functools import wraps
 from pathlib import Path
 from types import CodeType, SimpleNamespace
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 import pytest
 from fastapi.testclient import TestClient
@@ -26,6 +27,16 @@ from polisyos.runtime.quality.acquisition_evaluation import (
     read_acquisition_basis_or_decision_artifact,
     resolve_selected_acquisition_evaluation_parts,
 )
+from polisyos.runtime.quality.acquisition_evidence_transition import (
+    CONTROLLED_REPLICA_RESPONSE_HEADER,
+    ControlledAcquisitionReplicaBinding,
+    ControlledAcquisitionReplicaFrame,
+    ControlledAcquisitionReplicaPlan,
+    capture_controlled_acquisition_replica,
+    controlled_replica_response_header,
+    persist_controlled_acquisition_replica_plan,
+    verify_controlled_acquisition_replica_delivery,
+)
 from polisyos.runtime.quality.acquisition_retained_continuation import (
     read_acquisition_retained_continuation,
 )
@@ -33,7 +44,10 @@ from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteLoopReceiptV2,
     AcquisitionRoutePhaseReceipt,
 )
-from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthReceipt
+from polisyos.runtime.quality.acquisition_world_growth import (
+    AcquisitionCandidateWorldRefresh,
+    AcquisitionWorldGrowthReceipt,
+)
 from polisyos.runtime.quality.agent_action_authority import agent_action_content_hash
 from polisyos.runtime.quality.generation_cycle import (
     AcquisitionOverlayReentryReceipt,
@@ -44,6 +58,7 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from polisyos.runtime.quality.n5_execution_basis import (
     exact_n5_content_bytes,
+    exact_n5_content_hash,
 )
 from tests._helpers import acquisition_chain, acquisition_production
 from tests._helpers import acquisition_served_history as fixture
@@ -56,6 +71,9 @@ from tests._helpers.acquisition_retention_history_probe import (
 from tests._helpers.control_worker import dispatch_one_control_job
 
 pytest_plugins = ("tests._helpers.acquisition_served_history",)
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactStore
 
 
 class _OwnerCallMonitor:
@@ -198,6 +216,10 @@ class _SequentialOracle:
         after_real_b: Any | None = None,
         acquisition_slot: str | None = None,
         initial_source_value: float = -17.1,
+        controlled_replica_frames: tuple[
+            ControlledAcquisitionReplicaFrame, ControlledAcquisitionReplicaFrame
+        ]
+        | None = None,
     ) -> None:
         self.monkeypatch = monkeypatch
         self.monitor = monitor
@@ -205,6 +227,10 @@ class _SequentialOracle:
         self.acquisition_slot = acquisition_slot
         self.epoch_id = 1
         self.value = initial_source_value
+        self.controlled_replica_frames = controlled_replica_frames
+        self.replica_plan_ref: ArtifactRef | None = None
+        self.replica_bindings: dict[int, ControlledAcquisitionReplicaBinding] = {}
+        self.replica_headers: dict[int, str] = {}
         self.content_scopes: list[Any] = []
         from polisyos.runtime.quality.n5_candidate_content import CandidateN5ContentRun
 
@@ -226,6 +252,49 @@ class _SequentialOracle:
         # The normal intercepted HTTP transport, Fabric, PII, passport and
         # native epoch owners consume these actual response bytes unchanged.
         monkeypatch.setattr(acquisition_production, "_normalized_rows", selected_rows)
+
+    def prepare_controlled_replica(
+        self,
+        store: ArtifactStore,
+        refresh: AcquisitionCandidateWorldRefresh,
+        *,
+        canonical_unit: str,
+    ) -> AcquisitionCandidateWorldRefresh:
+        """Emit one actual local draw per epoch before its controlled HTTP delivery."""
+        if self.controlled_replica_frames is None:
+            return refresh
+        if self.replica_plan_ref is None:
+            self.replica_plan_ref = persist_controlled_acquisition_replica_plan(
+                store,
+                ControlledAcquisitionReplicaPlan(
+                    route_key=refresh.key,
+                    profile_selection_ref=refresh.profile_selection_ref,
+                    canonical_variable_id=refresh.canonical_variable_id,
+                    target_slot_id=refresh.target_slot_id,
+                    canonical_unit=canonical_unit,
+                    frames=self.controlled_replica_frames,
+                ),
+            )
+        if self.epoch_id not in self.replica_bindings:
+            capture_ref, capture = capture_controlled_acquisition_replica(
+                store, plan_ref=self.replica_plan_ref, epoch_id=self.epoch_id
+            )
+            self.replica_bindings[self.epoch_id] = ControlledAcquisitionReplicaBinding(
+                plan_ref=self.replica_plan_ref, capture_ref=capture_ref
+            )
+            self.replica_headers[self.epoch_id] = controlled_replica_response_header(
+                store, capture_ref
+            )
+            self.value = capture.scalar_value
+        return AcquisitionCandidateWorldRefresh.model_validate(
+            {**refresh.model_dump(), "controlled_replica": self.replica_bindings[self.epoch_id]}
+        )
+
+    def controlled_replica_headers(self) -> dict[str, str]:
+        """Deliver the controlled sample alongside the stock-shaped numeric response."""
+        if self.controlled_replica_frames is None:
+            return {}
+        return {CONTROLLED_REPLICA_RESPONSE_HEADER: self.replica_headers[self.epoch_id]}
 
     def observe_case(self, case: Any, patch: pytest.MonkeyPatch) -> None:
         """Observe the fixture's actual installed N4 code without replacing it."""
@@ -917,6 +986,337 @@ def test_served_actual_acquisition_retains_equal_b_then_reenters_for_c(
             provider_mode="synthetic_settled_candidate",
         )
     assert result is not None and result["run_id"] and result["candidate_id"]
+
+
+def _annual_gdp_replica_frames() -> tuple[
+    ControlledAcquisitionReplicaFrame, ControlledAcquisitionReplicaFrame
+]:
+    from tests._helpers.annual_gdp_candidate import ANNUAL_GDP_VALUE_USD
+
+    value = ANNUAL_GDP_VALUE_USD
+    return (
+        ControlledAcquisitionReplicaFrame(
+            epoch_id=1,
+            observed_at=datetime(2024, 6, 5, tzinfo=UTC),
+            stream_seed="11" * 32,
+            blocks=(
+                (("a", value - 1), ("b", value + 1)),
+                (("c", value - 1), ("d", value + 3)),
+            ),
+        ),
+        ControlledAcquisitionReplicaFrame(
+            epoch_id=2,
+            observed_at=datetime(2024, 9, 8, tzinfo=UTC),
+            stream_seed="23" * 32,
+            blocks=(
+                (("e", value - 3), ("f", value), ("g", value)),
+                (("h", value - 3), ("i", value + 1), ("j", value + 2)),
+            ),
+        ),
+    )
+
+
+def test_controlled_local_samples_reopen_from_actual_source_journal_and_passport(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Check the genuine transport and admission boundary without a numerical run."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.core.contracts import epoch
+    from polisyos.runtime.quality.acquisition_executor import (
+        ActivatedSemanticEpochAdmissionReceipt,
+        AdmissionPassport,
+        admit_acquisition_with_production_semantic_epoch,
+        execute_live_catalog_acquisition,
+    )
+    from tests._helpers.acquisition_epoch_production import build_production_admission_case
+    from tests._helpers.annual_gdp_candidate import (
+        ANNUAL_GDP_WDI_PROFILE,
+        annual_gdp_candidate_problem,
+    )
+    from tests._helpers.lane01_wdi_profiles import (
+        build_fixture_wdi_authority,
+        fixture_wdi_response,
+    )
+
+    profile = ANNUAL_GDP_WDI_PROFILE
+    attempt_ids = _SequentialOracle.attempt_ids[:2]
+    bad_attempts = ("local-sample-missing", "local-sample-duplicate", "local-sample-relabel")
+    authority, entry = build_fixture_wdi_authority(
+        tmp_path / "source-owner", profile,
+        attempt_id=attempt_ids[0], subsequent_attempt_ids=(*attempt_ids[1:], *bad_attempts),
+    )
+    store = FileSystemCAS(tmp_path / "cas")
+    oracle = _SequentialOracle(
+        monkeypatch, _OwnerCallMonitor(), controlled_replica_frames=_annual_gdp_replica_frames()
+    )
+    refresh = AcquisitionCandidateWorldRefresh(
+        tenant_id=fixture.TENANT,
+        cell_id=fixture.CELL,
+        run_id="controlled-local-source-test",
+        route_id="sha256:" + "e" * 64,
+        profile_selection_ref="sha256:" + "f" * 64,
+        canonical_variable_id=profile.target_slot,
+        target_slot_id=profile.target_slot,
+    )
+    response_headers: dict[str, str] = {}
+    transports = acquisition_production.intercepted_wdi_transport(
+        monkeypatch,
+        response_factory=lambda *_: fixture_wdi_response(profile, value=oracle.value),
+        response_headers_factory=lambda: response_headers,
+    )
+
+    def read_delivery(attempt_id: str, headers: dict[str, str]) -> Any:
+        response_headers.clear()
+        response_headers.update(headers)
+        return execute_live_catalog_acquisition(
+            authority=authority,
+            entry_id=entry.entry_id,
+            attempt_id=attempt_id,
+            constraints=acquisition_production._constraints().model_copy(
+                update={
+                    "country_code": profile.country_code,
+                    "start_year": profile.year,
+                    "end_year": profile.year,
+                }
+            ),
+            journal_path=tmp_path / "live.jsonl",
+            cas_root=store.root,
+            artifact_store=store,
+            cache_namespace=f"controlled-local-source-{attempt_id}",
+        )
+
+    evidence = []
+    for epoch_id, attempt_id in enumerate(attempt_ids, start=1):
+        oracle.epoch_id = epoch_id
+        selected = oracle.prepare_controlled_replica(store, refresh, canonical_unit="usd")
+        assert selected.controlled_replica is not None
+        observed = read_delivery(
+            attempt_id,
+            {name.lower(): value for name, value in oracle.controlled_replica_headers().items()},
+        )
+        assert verify_controlled_acquisition_replica_delivery(
+            store, binding=selected.controlled_replica, epoch_id=epoch_id, evidence=observed
+        ).canonical_unit == "usd"
+        evidence.append(observed)
+    assert len(transports) == 2
+    assert evidence[0].raw_artifact_ref == evidence[1].raw_artifact_ref
+    assert evidence[0].raw_evidence_ref != evidence[1].raw_evidence_ref
+    with pytest.raises(ValueError, match="controlled_replica_delivery_capture_mismatch"):
+        verify_controlled_acquisition_replica_delivery(
+            store, binding=oracle.replica_bindings[2], epoch_id=2, evidence=evidence[0]
+        )
+    current_header = oracle.replica_headers[2]
+    current_profile, _, _ = current_header.rpartition(":")
+    old_sample_wire = oracle.replica_headers[1].rpartition(":")[2]
+    for attempt_id, headers in zip(
+        bad_attempts,
+        (
+            {},
+            {
+                CONTROLLED_REPLICA_RESPONSE_HEADER: current_header,
+                CONTROLLED_REPLICA_RESPONSE_HEADER.lower(): current_header,
+            },
+            {CONTROLLED_REPLICA_RESPONSE_HEADER: current_profile + ":" + old_sample_wire},
+        ),
+        strict=True,
+    ):
+        observed = read_delivery(attempt_id, headers)
+        assert observed.raw_artifact_ref == evidence[1].raw_artifact_ref
+        with pytest.raises(ValueError, match="controlled_replica_delivery_capture_mismatch"):
+            verify_controlled_acquisition_replica_delivery(
+                store, binding=oracle.replica_bindings[2], epoch_id=2, evidence=observed
+            )
+    assert len(transports) == 5
+
+    scope = fixture._candidate_refresh_epoch_inputs(profile, annual_gdp_candidate_problem())
+    case = build_production_admission_case(
+        tmp_path / "admission",
+        monkeypatch,
+        store=store,
+        authority=authority,
+        evidence=evidence[0],
+        scope_payload=scope["epoch_scope_payload"],
+        authority_purpose=scope["authority_purpose"],
+    )
+    activated = admit_acquisition_with_production_semantic_epoch(
+        **case.call_args, epoch_deployment=case.deployment
+    )
+    assert isinstance(activated, ActivatedSemanticEpochAdmissionReceipt)
+    passport = AdmissionPassport.model_validate(
+        epoch.load_verified_epoch_statement(
+            store=store,
+            ref=activated.passport_ref,
+            expected_kind="epoch.acquisition_passport_snapshot",
+        )
+    )
+    assert passport.live_source_execution == evidence[0]
+    assert verify_controlled_acquisition_replica_delivery(
+        FileSystemCAS(store.root),
+        binding=oracle.replica_bindings[1],
+        epoch_id=1,
+        evidence=passport.live_source_execution,
+    ).route_key == refresh.key
+
+
+def test_real_local_replica_retains_exact_b_and_refuses_relabel_after_restart(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    served_recorded_candidate_gateway: Any,
+) -> None:
+    """Serve a new verified equal-valued sample with the previously selected N5."""
+    from polisyos.core.contracts import epoch
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        AcquisitionEvaluationDecision,
+        persist_acquisition_evaluation_artifact,
+    )
+    from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
+    from polisyos.runtime.quality.acquisition_retained_continuation import (
+        AcquisitionRetainedContinuation,
+    )
+    from tests.integration.core_runtime.test_acquisition_model_transition_served import (
+        _run_annual_gdp_first_b,
+    )
+
+    def check(*, ctx: SimpleNamespace, oracle: _SequentialOracle, **inputs: Any) -> None:
+        assert ctx.growth.controlled_replica == oracle.replica_bindings[1]
+        calls_before = oracle.monitor.snapshot()
+        deferred, equal = inputs["issue_equal_source"]()
+        terminal = equal.receipt
+        assert len(deferred.transport_calls) == 1 and equal.transport_calls == ()
+        assert oracle.monitor.snapshot() == calls_before
+        assert equal.before_artifacts == equal.after_artifacts
+        assert terminal.terminal_outcome == "source_admitted_evaluation_retained"
+        assert terminal.current_continuation_ref is not None
+        assert terminal.selected_evaluation.n5_execution_ref == inputs["selected_b"].n5_execution_ref
+        assert terminal.selected_evaluation.n5_result_ref == inputs["selected_b"].n5_result_ref
+        with TestClient(ctx.app()) as client:
+            control = client.app.state.runtime_container.control_service
+            store, events = control._artifact_store, control._diagnostic_event_log
+            decision = fixture._within_fixture_owner(
+                read_acquisition_basis_or_decision_artifact,
+                store=store,
+                event_log=events,
+                ref=terminal.evaluation_decision_ref,
+                kind="decision",
+            )
+            assert isinstance(decision, AcquisitionEvaluationDecision)
+            assert decision.comparison_result == "equivalent"
+            assert decision.prior_basis_ref is not None
+            prior, current = (
+                fixture._within_fixture_owner(
+                    read_acquisition_basis_or_decision_artifact,
+                    store=store,
+                    event_log=events,
+                    ref=ref,
+                    kind="basis",
+                )
+                for ref in (decision.prior_basis_ref, decision.current_basis_ref)
+            )
+            assert type(prior) is type(current) is AcquisitionEvaluationBasisV2
+            assert basis_exact_values_equal(prior, current)
+            growth = AcquisitionWorldGrowthReceipt.model_validate(
+                canon.from_canonical_bytes(
+                    fixture._within_fixture_owner(store.get_bytes, decision.growth_receipt_ref)
+                )
+            )
+            binding = growth.controlled_replica
+            assert binding is not None and binding == oracle.replica_bindings[2]
+
+            def reopen(selected_terminal: AcquisitionRouteLoopReceiptV2) -> Any:
+                return fixture._within_fixture_owner(
+                    read_acquisition_retained_continuation,
+                    store=store,
+                    event_log=events,
+                    ref=selected_terminal.current_continuation_ref,
+                    decision=decision,
+                    terminal=selected_terminal,
+                    growth=growth,
+                    control_store=control._control_store,
+                )
+
+            continuation = reopen(terminal)
+            proof = continuation.controlled_replica
+            assert proof is not None and proof.plan_ref == binding.plan_ref
+            assert proof.previous_sample.member_ids == ("a", "b")
+            assert proof.selected_sample.member_ids == ("h", "i", "j")
+            assert (proof.previous_sample.sample_size, proof.selected_sample.sample_size) == (2, 3)
+            assert proof.previous_sample.observed_at < proof.selected_sample.observed_at
+            assert proof.previous_sample.scalar_value == proof.selected_sample.scalar_value
+            assert proof.previous_source.passport_ref != proof.selected_source.passport_ref
+            assert proof.previous_source.raw_source_ref == proof.selected_source.raw_source_ref
+            early = AdmissionPassport.model_validate(
+                fixture._within_fixture_owner(
+                    epoch.load_verified_epoch_statement,
+                    store=store,
+                    ref=proof.previous_source.passport_ref,
+                    expected_kind="epoch.acquisition_passport_snapshot",
+                )
+            )
+            assert early.live_source_execution is not None
+            with pytest.raises(ValueError, match="controlled_replica_delivery_capture_mismatch"):
+                fixture._within_fixture_owner(
+                    verify_controlled_acquisition_replica_delivery,
+                    store,
+                    binding=binding,
+                    epoch_id=growth.selection.epoch_id,
+                    evidence=early.live_source_execution,
+                )
+
+            payload = continuation.model_dump(mode="json", exclude={"content_hash"})
+            payload["controlled_replica"]["selected_sample"]["members"] = (
+                payload["controlled_replica"]["previous_sample"]["members"]
+            )
+            payload["controlled_replica"]["selected_source"]["capture_ref"] = (
+                proof.previous_source.capture_ref.model_dump(mode="json")
+            )
+            relabelled = AcquisitionRetainedContinuation.model_validate(
+                {**payload, "content_hash": exact_n5_content_hash(payload)}
+            )
+            foreign_ref = fixture._within_fixture_owner(
+                persist_acquisition_evaluation_artifact, store=store, event_log=events,
+                record=relabelled,
+            )
+            with pytest.raises(ValueError, match="controlled_replica_replay_mismatch"):
+                reopen(terminal.model_copy(update={"current_continuation_ref": foreign_ref}))
+
+        def current_projection() -> dict[str, Any]:
+            result = oracle._fresh_projection(ctx)
+            return next(
+                row for row in result["acquisition_history"]
+                if row["action_generation"] == terminal.action_generation
+            )
+
+        retained = current_projection()
+        assert retained["current_continuation_ref"] == terminal.current_continuation_ref.model_dump(
+            mode="json"
+        )
+        assert retained["evaluation_provenance"] == "retained_prior"
+        blob, _ = store._paths(binding.capture_ref.artifact_id)
+        assert blob.is_relative_to(tmp_path) and blob.is_file() and not blob.is_symlink()
+        parked = blob.with_name(blob.name + ".controlled-replica-removal")
+        assert not parked.exists()
+        blob.rename(parked)
+        try:
+            with TestClient(ctx.app()) as fresh:
+                response = fresh.get(ctx.history_path, headers=ctx.history_headers)
+                assert response.status_code == 200, response.text
+                projection = response.json()["run"]["candidate_simulation"]
+                assert projection["acquisition_history_limitation_code"] == (
+                    "acquisition_action_history_integrity_not_established"
+                )
+                assert projection["acquisition_history"] == []
+        finally:
+            parked.rename(blob)
+        assert current_projection() == retained
+        assert oracle.monitor.snapshot() == calls_before
+
+    _run_annual_gdp_first_b(
+        tmp_path,
+        monkeypatch,
+        served_recorded_candidate_gateway,
+        check,
+        controlled_replica_frames=_annual_gdp_replica_frames(),
+    )
 
 
 def test_owner_monitor_counts_one_async_entry_without_replacing_profile_or_slots() -> None:

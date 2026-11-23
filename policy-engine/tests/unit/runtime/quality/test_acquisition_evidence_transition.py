@@ -3,13 +3,19 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
-from typing import Any, get_args
+from typing import TYPE_CHECKING, Any, get_args
 
 import pytest
 from pydantic import ValidationError
 
-from polisyos.core.artifacts import ArtifactRef
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    FileSystemCAS,
+    PutOptions,
+    validate_core_model_json_artifact,
+)
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.canon import CanonSpec
 from polisyos.runtime.quality.acquisition_evidence_transition import (
     AcquisitionConstraintTransitionIntent,
     AcquisitionEvidenceTransitionBasis,
@@ -17,11 +23,29 @@ from polisyos.runtime.quality.acquisition_evidence_transition import (
     AcquisitionIndependentReplicaTransitionIntent,
     AcquisitionMethodTransitionIntent,
     AcquisitionModelTransitionIntent,
+    ControlledAcquisitionReplicaCapture,
+    ControlledAcquisitionReplicaFrame,
+    ControlledAcquisitionReplicaPlan,
+    ControlledAcquisitionReplicaSource,
     DeclaredAcquisitionReplicaObservation,
     acquisition_evidence_transition_profiles,
+    capture_controlled_acquisition_replica,
     dispatch_acquisition_evidence_transition,
+    persist_controlled_acquisition_replica_plan,
+    replay_controlled_acquisition_replica,
+    resolve_controlled_acquisition_replica,
 )
 from polisyos.runtime.quality.design_problem import DesignConstraint
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+type _ControlledDraws = tuple[
+    FileSystemCAS,
+    ArtifactRef,
+    ControlledAcquisitionReplicaSource,
+    ControlledAcquisitionReplicaSource,
+]
 
 
 def _ref(kind: str, digit: str) -> ArtifactRef:
@@ -285,3 +309,175 @@ def test_dispatch_revalidates_bypassed_models_and_rejects_claimed_authority() ->
     ):
         with pytest.raises(ValidationError):
             _observation(**updates)
+
+
+@pytest.fixture
+def controlled_draws(tmp_path: Path) -> _ControlledDraws:
+    owner = FileSystemCAS(tmp_path / "controlled-draws")
+    observed_at = datetime(2026, 11, 3, tzinfo=UTC)
+    plan = ControlledAcquisitionReplicaPlan(
+        route_key=("tenant", "cell", "run", "sha256:" + "a" * 64),
+        profile_selection_ref="sha256:" + "b" * 64,
+        canonical_variable_id="economy.value",
+        target_slot_id="scenario.value",
+        canonical_unit="USD",
+        frames=(
+            ControlledAcquisitionReplicaFrame(
+                epoch_id=1,
+                observed_at=observed_at,
+                stream_seed="11" * 32,
+                blocks=((("a", 6), ("b", 10)), (("c", 5), ("d", 13))),
+            ),
+            ControlledAcquisitionReplicaFrame(
+                epoch_id=2,
+                observed_at=observed_at + timedelta(days=1),
+                stream_seed="23" * 32,
+                blocks=(
+                    (("e", 4), ("f", 8), ("g", 9)),
+                    (("h", 6), ("i", 7), ("j", 11)),
+                ),
+            ),
+        ),
+    )
+    plan_ref = persist_controlled_acquisition_replica_plan(owner, plan)
+
+    def put(kind: str, payload: bytes, media_type: str = "application/json") -> ArtifactRef:
+        return owner.put_bytes(
+            payload,
+            PutOptions(kind=kind, media_type=media_type),
+            return_selected_profile=True,
+        )
+
+    # Equal upstream raw bytes are allowed. The fixture-owned draws are local.
+    raw = put("fabric.acquisition.raw_evidence", b'{"value":8}')
+    admitted = put("fabric.fetch_payload", b'{"observation_value":8}')
+
+    def source(epoch_id: int, generation: int) -> ControlledAcquisitionReplicaSource:
+        capture_ref, sample = capture_controlled_acquisition_replica(
+            owner, plan_ref=plan_ref, epoch_id=epoch_id
+        )
+        return ControlledAcquisitionReplicaSource(
+            route_key=plan.route_key,
+            profile_selection_ref=plan.profile_selection_ref,
+            canonical_variable_id=plan.canonical_variable_id,
+            target_slot_id=plan.target_slot_id,
+            canonical_unit=plan.canonical_unit,
+            epoch_id=epoch_id,
+            action_generation=generation,
+            growth_ref=put(
+                "runtime_quality.acquisition_world_growth_receipt",
+                f'{{"action_generation":{generation}}}'.encode(),
+            ),
+            passport_ref=put(
+                "epoch.acquisition_passport_snapshot",
+                f'{{"epoch":{epoch_id}}}'.encode(),
+                "application/vnd.polisyos.epoch+json",
+            ),
+            raw_source_ref=raw,
+            admitted_source_ref=admitted,
+            capture_ref=capture_ref,
+            scalar_value=sample.scalar_value,
+        )
+
+    return owner, plan_ref, source(1, 2), source(2, 4)
+
+
+def test_controlled_replica_draws_distinct_members_and_replays_exact_selected_sources(
+    controlled_draws: _ControlledDraws,
+) -> None:
+    owner, plan_ref, previous, selected = controlled_draws
+    proof = resolve_controlled_acquisition_replica(
+        store=owner, plan_ref=plan_ref, previous_source=previous, selected_source=selected
+    )
+    assert proof.previous_sample.observed_at == datetime(2026, 11, 3, tzinfo=UTC)
+    assert proof.selected_sample.observed_at == datetime(2026, 11, 4, tzinfo=UTC)
+    assert proof.previous_sample.sample_size == 2
+    assert proof.selected_sample.sample_size == 3
+    assert proof.previous_sample.scalar_value == proof.selected_sample.scalar_value == 8.0
+    assert proof.previous_sample.member_ids == ("a", "b")
+    assert proof.selected_sample.member_ids == ("h", "i", "j")
+    assert proof.previous_sample.sample_id != proof.selected_sample.sample_id
+    assert proof.predicate_provenance == "recomputed"
+    assert proof.publication_authority is False
+    assert replay_controlled_acquisition_replica(
+        type(proof).model_validate_json(proof.model_dump_json()),
+        store=FileSystemCAS(owner.root),
+        plan_ref=plan_ref,
+        previous_source=previous,
+        selected_source=selected,
+    ) == proof
+
+
+def test_controlled_replica_refuses_relabelled_members_and_missing_selected_evidence(
+    controlled_draws: _ControlledDraws,
+) -> None:
+    owner, plan_ref, previous, selected = controlled_draws
+    inputs = {
+        "store": owner,
+        "plan_ref": plan_ref,
+        "previous_source": previous,
+        "selected_source": selected,
+    }
+    proof = resolve_controlled_acquisition_replica(**inputs)
+    relabelled = proof.model_copy(
+        update={
+            "selected_sample": proof.selected_sample.model_copy(
+                update={"members": proof.previous_sample.members}
+            )
+        }
+    )
+    with pytest.raises(ValueError, match="controlled_replica_replay_mismatch"):
+        replay_controlled_acquisition_replica(relabelled, **inputs)
+    with pytest.raises(ValueError, match="controlled_replica_proof_missing"):
+        replay_controlled_acquisition_replica(None, **inputs)
+    foreign_profile = selected.passport_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+    )
+    with pytest.raises(ValueError, match="controlled_replica_selected_view_unverified"):
+        resolve_controlled_acquisition_replica(
+            **{
+                **inputs,
+                "selected_source": selected.model_copy(update={"passport_ref": foreign_profile}),
+            }
+        )
+    blob, _ = owner._paths(selected.capture_ref.artifact_id)
+    blob.unlink()
+    with pytest.raises(ValueError, match="controlled_replica_selected_view_unverified"):
+        replay_controlled_acquisition_replica(proof, **inputs)
+
+
+def test_later_passport_refuses_same_local_capture_with_new_epoch_and_sample_labels(
+    controlled_draws: _ControlledDraws,
+) -> None:
+    owner, plan_ref, previous, selected = controlled_draws
+    inputs = {"store": owner, "plan_ref": plan_ref, "previous_source": previous}
+    with pytest.raises(ValueError, match="controlled_replica_admitted_source_mismatch"):
+        resolve_controlled_acquisition_replica(
+            **inputs, selected_source=selected.model_copy(update={"capture_ref": previous.capture_ref})
+        )
+    old_capture = validate_core_model_json_artifact(
+        ControlledAcquisitionReplicaCapture, owner, previous.capture_ref
+    )
+    later = validate_core_model_json_artifact(
+        ControlledAcquisitionReplicaCapture, owner, selected.capture_ref
+    )
+    relabelled = later.model_copy(
+        update={"sample": later.sample.model_copy(update={"members": old_capture.sample.members})}
+    )
+    manifest = owner.get_manifest(selected.capture_ref)
+    ref = owner.put_json(
+        relabelled.model_dump(mode="json"),
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            producer=manifest.producer,
+            inputs=manifest.inputs,
+        ),
+        CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError, match="controlled_replica_capture_mismatch"):
+        resolve_controlled_acquisition_replica(
+            **inputs, selected_source=selected.model_copy(update={"capture_ref": ref})
+        )

@@ -27,6 +27,9 @@ from polisyos.common import async_tools
 from polisyos.core import artifacts, canon, contracts
 from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.runtime.quality import acquisition_executor
+from polisyos.runtime.quality.acquisition_evidence_transition import (
+    ControlledAcquisitionReplicaBinding,
+)
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionRequirementGap,
     N7DerivationBasis,
@@ -720,6 +723,9 @@ class AcquisitionCandidateWorldRefresh(_Strict):
     profile_selection_ref: str = Field(pattern=_SHA)
     canonical_variable_id: str = Field(min_length=1)
     target_slot_id: str = Field(min_length=1)
+    controlled_replica: ControlledAcquisitionReplicaBinding | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     mapping_semantics: Literal["candidate_value_forwarded_without_conversion"] = (
         "candidate_value_forwarded_without_conversion"
     )
@@ -1103,6 +1109,9 @@ class AcquisitionWorldGrowthAttempt(_Strict):
     owner_receipt_refs: tuple[str, ...]
     before: tuple[_PriorMembership, ...]
     action_phase_ref: str | None = Field(default=None, pattern=_SHA)
+    controlled_replica: ControlledAcquisitionReplicaBinding | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
 
 class AcquisitionWorldGrowthReceipt(_Strict):
@@ -1121,11 +1130,16 @@ class AcquisitionWorldGrowthReceipt(_Strict):
     previously_active_observations: int = Field(ge=0)
     live_evidence_refs: tuple[str, ...] = Field(min_length=1)
     action_phase_ref: str | None = Field(default=None, pattern=_SHA)
+    controlled_replica: ControlledAcquisitionReplicaBinding | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _action_scope_schema_version(self) -> Self:
         if self.schema_version.endswith("@1.0") and self.action_phase_ref is not None:
             raise ValueError("acquisition_growth_action_scope_schema_version_mismatch")
+        if self.controlled_replica is not None and self.action_phase_ref is None:
+            raise ValueError("controlled_replica_action_scope_not_established")
         return self
 
 
@@ -5446,6 +5460,9 @@ class AcquisitionWorldGrowthBridge:
                 evidence=evidence,
                 owner_receipt_refs=owner_receipt_refs,
                 action_phase_ref=action_phase_ref,
+                controlled_replica=self._controlled_replica_for_refresh(
+                    closure, selected, target_variable, evidence
+                ),
                 before=tuple(
                     _PriorMembership.model_validate(
                         {key: getattr(row, key) for key in _PriorMembership.model_fields}
@@ -5500,6 +5517,10 @@ class AcquisitionWorldGrowthBridge:
     ) -> AcquisitionWorldGrowthReceipt | PersistedSemanticEpochProductionReceipt | None:
         """Run the existing native owner; callers hold the shared admission lock."""
         selected = attempt.selection
+        if attempt.controlled_replica != self._controlled_replica_for_refresh(
+            closure, selected, attempt.target_variable, attempt.evidence
+        ):
+            raise ValueError("controlled_replica_attempt_selection_changed")
         overlay_path, history_root = self._paths(selected)
         activation = acquisition_executor.admit_acquisition_with_production_semantic_epoch(
             repo_root=self.repo_root,
@@ -5553,6 +5574,42 @@ class AcquisitionWorldGrowthBridge:
         if growth is not None:
             self.persist_growth(closure, growth)
         return growth
+
+    def _controlled_replica_for_refresh(
+        self,
+        closure: VerifiedAcquisitionRouteClosure,
+        selected: AcquisitionWorldGrowthRoute,
+        target_variable: str,
+        evidence: acquisition_executor.LiveSourceExecutionEvidence,
+    ) -> ControlledAcquisitionReplicaBinding | None:
+        refresh = next(
+            (row for row in self.config.candidate_world_refreshes if row.key == selected.key),
+            None,
+        )
+        if refresh is None or refresh.controlled_replica is None:
+            return None
+        if closure.native_derivation_leaf_scope is not None:
+            raise ValueError("controlled_replica_scope_not_supported")
+        from polisyos.runtime.quality.acquisition_evidence_transition import (
+            verify_controlled_acquisition_replica_delivery,
+        )
+
+        binding = refresh.controlled_replica
+        plan = verify_controlled_acquisition_replica_delivery(
+            self.artifact_store,
+            binding=binding,
+            epoch_id=selected.epoch_id,
+            evidence=evidence,
+        )
+        if (
+            plan.route_key != refresh.key
+            or plan.profile_selection_ref != refresh.profile_selection_ref
+            or plan.canonical_variable_id != refresh.canonical_variable_id
+            or plan.target_slot_id != refresh.target_slot_id
+            or plan.canonical_variable_id != target_variable
+        ):
+            raise ValueError("controlled_replica_refresh_selection_mismatch")
+        return binding
 
     def has_deferred_admission(self, closure: VerifiedAcquisitionRouteClosure) -> bool:
         """Read eligibility from a known negative; never create files or predict admission."""
@@ -6142,6 +6199,7 @@ class AcquisitionWorldGrowthBridge:
             previously_active_observations=admitted.admitted_observation_count - delta,
             live_evidence_refs=attempt.owner_receipt_refs,
             action_phase_ref=action_phase_ref,
+            controlled_replica=attempt.controlled_replica,
         )
 
     def _recover_current_positive_from_activation(
@@ -6162,6 +6220,10 @@ class AcquisitionWorldGrowthBridge:
         )
         if attempt.selection != selected:
             raise ValueError("acquisition_world_growth_case_mismatch")
+        if attempt.controlled_replica != self._controlled_replica_for_refresh(
+            closure, selected, attempt.target_variable, attempt.evidence
+        ):
+            raise ValueError("controlled_replica_attempt_selection_changed")
         overlay_path, _ = self._paths(selected, create=False)
         projection = data_forge_read_api.catalog.project_catalog_acquisition_state(
             self.authority.baseline_path, overlay_path=overlay_path
@@ -6925,6 +6987,36 @@ class AcquisitionWorldGrowthBridge:
         growth = AcquisitionWorldGrowthReceipt.model_validate(self._read(ref, _GROWTH_KIND))
         if self.selection(closure) != growth.selection:
             raise ValueError("acquisition_world_growth_case_mismatch")
+        if growth.controlled_replica is not None:
+            from polisyos.runtime.quality.acquisition_evidence_transition import (
+                verify_controlled_acquisition_replica_delivery,
+            )
+
+            passport = acquisition_executor.AdmissionPassport.model_validate(
+                contracts.epoch.load_verified_epoch_statement(
+                    store=self.artifact_store,
+                    ref=growth.activation.passport_ref,
+                    expected_kind="epoch.acquisition_passport_snapshot",
+                )
+            )
+            if (
+                passport.live_source_execution is None
+                or passport.field_binding.raw_unit != passport.field_binding.canonical_unit
+                or closure.native_derivation_leaf_scope is not None
+            ):
+                raise ValueError("controlled_replica_source_passport_mismatch")
+            plan = verify_controlled_acquisition_replica_delivery(
+                self.artifact_store,
+                binding=growth.controlled_replica,
+                epoch_id=growth.selection.epoch_id,
+                evidence=passport.live_source_execution,
+            )
+            if (
+                plan.route_key != growth.selection.key
+                or plan.canonical_variable_id != passport.variable_id
+                or plan.canonical_unit != passport.field_binding.canonical_unit
+            ):
+                raise ValueError("controlled_replica_source_passport_mismatch")
         overlay_path, _ = self._paths(growth.selection)
         overlay = data_forge_read_api.catalog.CatalogAcquisitionOverlay(
             self.authority.baseline_path, overlay_path

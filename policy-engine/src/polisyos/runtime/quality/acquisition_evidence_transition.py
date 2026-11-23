@@ -1,31 +1,53 @@
-"""Declare bounded acquisition research transitions without certifying them.
+"""Route acquisition research intents and replay a bounded local sampling design.
 
-The existing acquisition-evaluation basis owns effective input comparison.
-``acquisition_model_transition.resolve_candidate_model_revision`` is the only
-supported verifier here; its real selected-owner replay remains mandatory.
-This pure routing helper performs no acquisition, N5 execution, admission,
-independence verification, or authority promotion. It extends those canonical
-owners rather than adding another execution or evidence engine.
+The acquisition-evaluation basis owns effective input comparison. Declared
+intents confer no authority. The controlled replica verifier computes a
+candidate-only result over a server-selected sampling plan and exact source
+views that the acquisition owner has already admitted.
 """
 
 from __future__ import annotations
 
-from typing import Annotated, Literal
+import base64
+import json
+from fractions import Fraction
+from hashlib import sha256
+from typing import TYPE_CHECKING, Annotated, ClassVar, Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.core.artifacts import ArtifactRef
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    ArtifactWriteOptions,
+    ProducerInfo,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+    validate_core_model_json_artifact,
+)
+from polisyos.core.canon import CanonSpec
 from polisyos.runtime.quality.design_problem import DesignConstraint
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactStore, VerifiableArtifactReader
+    from polisyos.runtime.quality.acquisition_executor import LiveSourceExecutionEvidence
 
 type AcquisitionEvidenceTransitionKind = Literal[
     "model", "method", "constraint", "independent_replica"
 ]
 type _Text = Annotated[str, Field(min_length=1)]
+type _Digest = Annotated[str, Field(pattern=r"^sha256:[0-9a-f]{64}$")]
 type _DispatchStatus = Literal["verification_required", "not_supported"]
+type _RouteKey = tuple[_Text, _Text, _Text, _Digest]
+type _SampleBlock = Annotated[tuple[tuple[_Text, int], ...], Field(min_length=1, max_length=64)]
 
 _MODEL_VERIFIER = (
     "polisyos.runtime.quality.acquisition_model_transition.resolve_candidate_model_revision"
 )
+_CONTROLLED_PRODUCER = ProducerInfo(
+    component="polisyos.runtime.quality.acquisition_evidence_transition", version="1.0"
+)
+CONTROLLED_REPLICA_RESPONSE_HEADER = "X-PolicyOS-Controlled-Replica"
+_CONTROLLED_CAPTURE_MAX_BYTES = 3_072
 
 
 class _Strict(BaseModel):
@@ -136,6 +158,421 @@ class AcquisitionIndependentReplicaTransitionIntent(_Intent):
     attempt_kind: Literal["new_scientific_sample", "technical_retry"]
     previous_observation: DeclaredAcquisitionReplicaObservation
     requested_observation: DeclaredAcquisitionReplicaObservation
+
+
+class ControlledAcquisitionReplicaFrame(_Strict):
+    """Two eligible blocks of measured local units at one declared frame time.
+
+    The controlled source provisions each frame and a separate stream seed
+    before observation selection. Blocks consist of stable unit keys and their
+    exact integer measurements in the candidate variable's canonical units.
+    """
+
+    epoch_id: int = Field(ge=1)
+    observed_at: AwareDatetime
+    stream_seed: str = Field(pattern=r"^[0-9a-f]{64}$")
+    blocks: tuple[_SampleBlock, _SampleBlock]
+
+    @model_validator(mode="after")
+    def _fixed_sample_size(self) -> ControlledAcquisitionReplicaFrame:
+        if len(self.blocks[0]) != len(self.blocks[1]):
+            raise ValueError("controlled_replica_variable_frame_denominator")
+        return self
+
+
+class ControlledAcquisitionReplicaPlan(_Strict):
+    """Preassigned controlled sampling design for one exact candidate refresh."""
+
+    ARTIFACT_KIND: ClassVar[str] = "runtime_quality.controlled_acquisition_replica_plan"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "ControlledAcquisitionReplicaPlan"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+
+    route_key: _RouteKey
+    profile_selection_ref: _Digest
+    canonical_variable_id: _Text
+    target_slot_id: _Text
+    canonical_unit: _Text
+    frames: tuple[ControlledAcquisitionReplicaFrame, ControlledAcquisitionReplicaFrame]
+
+    @model_validator(mode="after")
+    def _separate_design(self) -> ControlledAcquisitionReplicaPlan:
+        previous, selected = self.frames
+        if (
+            previous.epoch_id >= selected.epoch_id
+            or previous.observed_at >= selected.observed_at
+            or previous.stream_seed == selected.stream_seed
+        ):
+            raise ValueError("controlled_replica_frames_not_separate")
+        unit_ids = [
+            unit_id for frame in self.frames for block in frame.blocks for unit_id, _ in block
+        ]
+        if len(unit_ids) != len(set(unit_ids)):
+            raise ValueError("controlled_replica_frame_membership_overlap")
+        return self
+
+
+class ControlledAcquisitionReplicaSource(_Strict):
+    """Bind one controlled frame to an owner-reopened admitted occurrence."""
+
+    route_key: _RouteKey
+    profile_selection_ref: _Digest
+    canonical_variable_id: _Text
+    target_slot_id: _Text
+    canonical_unit: _Text
+    epoch_id: int = Field(ge=1)
+    action_generation: int = Field(ge=1)
+    growth_ref: ArtifactRef
+    passport_ref: ArtifactRef
+    raw_source_ref: ArtifactRef
+    admitted_source_ref: ArtifactRef
+    capture_ref: ArtifactRef
+    scalar_value: float = Field(allow_inf_nan=False)
+
+    @model_validator(mode="after")
+    def _selected_source_views(self) -> ControlledAcquisitionReplicaSource:
+        if self.admitted_source_ref.manifest_profile_sha256 is None or any(
+            ref.manifest_profile_sha256 is None or ref.kind != kind
+            for ref, kind in (
+                (self.growth_ref, "runtime_quality.acquisition_world_growth_receipt"),
+                (self.passport_ref, "epoch.acquisition_passport_snapshot"),
+                (self.raw_source_ref, "fabric.acquisition.raw_evidence"),
+                (self.capture_ref, ControlledAcquisitionReplicaCapture.ARTIFACT_KIND),
+            )
+        ):
+            raise ValueError("controlled_replica_selected_view_required")
+        return self
+
+
+class ControlledAcquisitionReplicaSample(_Strict):
+    """The actual selected members, measurement time, denominator and aggregate."""
+
+    sample_id: _Digest
+    observed_at: AwareDatetime
+    members: _SampleBlock
+    sample_size: int = Field(ge=1)
+    scalar_value: float = Field(allow_inf_nan=False)
+
+    @property
+    def member_ids(self) -> tuple[str, ...]:
+        """Return the stable identities of the selected local units."""
+        return tuple(unit_id for unit_id, _ in self.members)
+
+
+class ControlledAcquisitionReplicaCapture(_Strict):
+    """An observed draw separately produced before the corresponding admission."""
+
+    ARTIFACT_KIND: ClassVar[str] = "runtime_quality.controlled_acquisition_replica_capture"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "ControlledAcquisitionReplicaCapture"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+
+    sampling_rule: Literal["controlled-separate-frame-block-draw/v1"] = (
+        "controlled-separate-frame-block-draw/v1"
+    )
+    plan_ref: ArtifactRef
+    epoch_id: int = Field(ge=1)
+    sample: ControlledAcquisitionReplicaSample
+
+
+class ControlledAcquisitionReplicaBinding(_Strict):
+    """The server-selected local plan and actually emitted draw for one action."""
+
+    plan_ref: ArtifactRef
+    capture_ref: ArtifactRef
+
+    @model_validator(mode="after")
+    def _selected_captures(self) -> ControlledAcquisitionReplicaBinding:
+        if any(
+            ref.manifest_profile_sha256 is None or ref.kind != model.ARTIFACT_KIND
+            for ref, model in (
+                (self.plan_ref, ControlledAcquisitionReplicaPlan),
+                (self.capture_ref, ControlledAcquisitionReplicaCapture),
+            )
+        ):
+            raise ValueError("controlled_replica_selected_view_required")
+        return self
+
+
+class ControlledAcquisitionReplicaProof(_Strict):
+    """Candidate-only proof of distinct samples under the bounded local design."""
+
+    plan_ref: ArtifactRef
+    previous_source: ControlledAcquisitionReplicaSource
+    selected_source: ControlledAcquisitionReplicaSource
+    previous_sample: ControlledAcquisitionReplicaSample
+    selected_sample: ControlledAcquisitionReplicaSample
+    predicate_provenance: Literal["recomputed"] = "recomputed"
+    authority_purpose: Literal["controlled_local_sampling_only"] = "controlled_local_sampling_only"
+    publication_authority: Literal[False] = False
+
+
+def _draw_controlled_replica(
+    plan_ref: ArtifactRef, plan: ControlledAcquisitionReplicaPlan, epoch_id: int
+) -> ControlledAcquisitionReplicaCapture:
+    frame = next((frame for frame in plan.frames if frame.epoch_id == epoch_id), None)
+    if frame is None:
+        raise ValueError("controlled_replica_frame_not_selected")
+    # With two eligible blocks, a bit from each preassigned stream chooses one
+    # whole block. Replay does not consult the retained scalar to choose members.
+    block = frame.blocks[sha256(bytes.fromhex(frame.stream_seed)).digest()[0] & 1]
+    return ControlledAcquisitionReplicaCapture(
+        plan_ref=plan_ref,
+        epoch_id=frame.epoch_id,
+        sample=ControlledAcquisitionReplicaSample(
+            sample_id="sha256:" + sha256(frame.model_dump_json().encode()).hexdigest(),
+            observed_at=frame.observed_at,
+            members=block,
+            sample_size=len(block),
+            scalar_value=float(Fraction(sum(value for _, value in block), len(block))),
+        ),
+    )
+
+
+def _replica_artifact_options(
+    model: type[ControlledAcquisitionReplicaPlan] | type[ControlledAcquisitionReplicaCapture],
+    plan_ref: ArtifactRef | None = None,
+) -> ArtifactWriteOptions:
+    inputs = (
+        [input_ref_from_artifact_ref(plan_ref, role="controlled_replica_plan")]
+        if plan_ref is not None
+        else []
+    )
+    return ArtifactWriteOptions(
+        kind=model.ARTIFACT_KIND,
+        media_type="application/json",
+        schema=SchemaInfo(name=model.ARTIFACT_SCHEMA_NAME, version=model.ARTIFACT_SCHEMA_VERSION),
+        producer=_CONTROLLED_PRODUCER,
+        inputs=inputs,
+    )
+
+
+def _read_controlled_replica_artifact[
+    Record: (ControlledAcquisitionReplicaPlan, ControlledAcquisitionReplicaCapture)
+](
+    store: VerifiableArtifactReader,
+    ref: ArtifactRef,
+    model: type[Record],
+    plan_ref: ArtifactRef | None = None,
+) -> Record:
+    if ref.manifest_profile_sha256 is None or not store.verify(ref).ok:
+        raise ValueError("controlled_replica_selected_view_unverified")
+    manifest = store.get_manifest(ref)
+    options = _replica_artifact_options(model, plan_ref)
+    if (
+        manifest.producer != options.producer
+        or manifest.inputs != options.inputs
+        or manifest.media_type != options.media_type
+    ):
+        raise ValueError("controlled_replica_local_producer_mismatch")
+    return validate_core_model_json_artifact(model, store, ref)
+
+
+def persist_controlled_acquisition_replica_plan(
+    store: ArtifactStore, plan: ControlledAcquisitionReplicaPlan
+) -> ArtifactRef:
+    """Provision the local source's declared plan as an exact selected CAS artifact."""
+    return store.put_json(
+        plan.model_dump(mode="json"),
+        _replica_artifact_options(ControlledAcquisitionReplicaPlan),
+        CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+
+
+def capture_controlled_acquisition_replica(
+    store: ArtifactStore, *, plan_ref: ArtifactRef, epoch_id: int
+) -> tuple[ArtifactRef, ControlledAcquisitionReplicaSample]:
+    """Draw and persist the local source's actual sample before serving its value."""
+    plan = _read_controlled_replica_artifact(store, plan_ref, ControlledAcquisitionReplicaPlan)
+    capture = _draw_controlled_replica(plan_ref, plan, epoch_id)
+    ref = store.put_json(
+        capture.model_dump(mode="json"),
+        _replica_artifact_options(ControlledAcquisitionReplicaCapture, plan_ref),
+        CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    return ref, capture.sample
+
+
+def read_controlled_acquisition_replica_capture(
+    store: VerifiableArtifactReader,
+    *,
+    plan_ref: ArtifactRef,
+    capture_ref: ArtifactRef,
+    epoch_id: int,
+) -> tuple[ControlledAcquisitionReplicaPlan, ControlledAcquisitionReplicaSample]:
+    """Reopen an independently provisioned plan and the actual selected draw."""
+    plan = _read_controlled_replica_artifact(store, plan_ref, ControlledAcquisitionReplicaPlan)
+    capture = _read_controlled_replica_artifact(
+        store, capture_ref, ControlledAcquisitionReplicaCapture, plan_ref
+    )
+    if capture != _draw_controlled_replica(plan_ref, plan, epoch_id):
+        raise ValueError("controlled_replica_capture_mismatch")
+    return plan, capture.sample
+
+
+def controlled_replica_response_header(
+    store: VerifiableArtifactReader, capture_ref: ArtifactRef
+) -> str:
+    """Encode the selected local sample bytes for delivery by the controlled source."""
+    if capture_ref.manifest_profile_sha256 is None:
+        raise ValueError("controlled_replica_selected_view_required")
+    capture_bytes = store.get_bytes(capture_ref)
+    if len(capture_bytes) > _CONTROLLED_CAPTURE_MAX_BYTES:
+        raise ValueError("controlled_replica_delivery_capture_too_large")
+    # The full bytes distinguish the actual sample from a new header label
+    # for an old sample. The prefix binds the exact selected CAS interpretation.
+    return capture_ref.manifest_profile_sha256 + ":" + base64.b64encode(capture_bytes).decode(
+        "ascii"
+    )
+
+
+def verify_controlled_acquisition_replica_delivery(
+    store: VerifiableArtifactReader,
+    *,
+    binding: ControlledAcquisitionReplicaBinding,
+    epoch_id: int,
+    evidence: LiveSourceExecutionEvidence,
+) -> ControlledAcquisitionReplicaPlan:
+    """Verify actual sampled units and aggregate against the selected raw response."""
+    from polisyos.fabric.data_plane import (
+        resolve_journal_event_ref,
+        resolve_live_transport_trace,
+        resolve_raw_response_body,
+    )
+
+    plan, sample = read_controlled_acquisition_replica_capture(
+        store, plan_ref=binding.plan_ref, capture_ref=binding.capture_ref, epoch_id=epoch_id
+    )
+    raw_ref = evidence.raw_artifact_ref
+    if raw_ref is None or not store.verify(raw_ref).ok:
+        raise ValueError("controlled_replica_delivery_source_unverified")
+    raw_event_ref = evidence.raw_evidence_ref
+    body = resolve_raw_response_body(raw_event_ref)
+    if (
+        resolve_live_transport_trace(raw_event_ref) != evidence.transport_trace
+        or store.get_bytes(raw_ref) != body
+        or "sha256:" + sha256(body).hexdigest() != evidence.raw_body_sha256
+    ):
+        raise ValueError("controlled_replica_delivery_source_mismatch")
+    event = resolve_journal_event_ref(raw_event_ref)
+    response = event.get("raw_response")
+    if not isinstance(response, dict):
+        raise ValueError("controlled_replica_delivery_source_mismatch")
+    headers = response.get("response_headers")
+    observed = (
+        [
+            value
+            for key, value in headers.items()
+            if key.casefold() == CONTROLLED_REPLICA_RESPONSE_HEADER.casefold()
+        ]
+        if isinstance(headers, dict)
+        else []
+    )
+    if observed != [controlled_replica_response_header(store, binding.capture_ref)]:
+        raise ValueError("controlled_replica_delivery_capture_mismatch")
+    # Catalog verifies the scope and one-page normalization of these same
+    # bytes. This profile additionally binds its single numeric row to the
+    # delivered sample before materialization and again at historical replay.
+    try:
+        rows = json.loads(body)[1]
+        value = rows[0]["value"] if isinstance(rows, list) and len(rows) == 1 else None
+    except (KeyError, IndexError, TypeError, ValueError) as exc:
+        raise ValueError("controlled_replica_delivery_observation_missing") from exc
+    if type(value) not in {float, int} or value != sample.scalar_value:
+        raise ValueError("controlled_replica_aggregate_mismatch")
+    return plan
+
+
+def resolve_controlled_acquisition_replica(
+    *,
+    store: VerifiableArtifactReader,
+    plan_ref: ArtifactRef,
+    previous_source: ControlledAcquisitionReplicaSource,
+    selected_source: ControlledAcquisitionReplicaSource,
+) -> ControlledAcquisitionReplicaProof:
+    """Verify two actual emitted local samples against the exact admitted sources.
+
+    The running acquisition owner supplies the configured plan and sources
+    built from verified action/passport/occurrence joins. The equal scalar is
+    a check on the selected blocks. Currentness, numerical reuse and external
+    sampling independence are outside this bounded decision.
+    """
+    if (
+        previous_source.action_generation >= selected_source.action_generation
+        or previous_source.epoch_id >= selected_source.epoch_id
+        or previous_source.growth_ref.artifact_id == selected_source.growth_ref.artifact_id
+        or previous_source.passport_ref.artifact_id == selected_source.passport_ref.artifact_id
+        or previous_source.scalar_value != selected_source.scalar_value
+        or previous_source.capture_ref.artifact_id == selected_source.capture_ref.artifact_id
+    ):
+        raise ValueError("controlled_replica_admitted_source_mismatch")
+    sources = previous_source, selected_source
+    refs = (
+        ref
+        for source in sources
+        for ref in (
+            source.growth_ref,
+            source.passport_ref,
+            source.raw_source_ref,
+            source.admitted_source_ref,
+        )
+    )
+    if any(not store.verify(ref).ok for ref in refs):
+        raise ValueError("controlled_replica_selected_view_unverified")
+    samples: list[ControlledAcquisitionReplicaSample] = []
+    for source in sources:
+        plan, sample = read_controlled_acquisition_replica_capture(
+            store, plan_ref=plan_ref, capture_ref=source.capture_ref, epoch_id=source.epoch_id
+        )
+        if (
+            (
+                source.route_key,
+                source.profile_selection_ref,
+                source.canonical_variable_id,
+                source.target_slot_id,
+                source.canonical_unit,
+            )
+            != (
+                plan.route_key,
+                plan.profile_selection_ref,
+                plan.canonical_variable_id,
+                plan.target_slot_id,
+                plan.canonical_unit,
+            )
+        ):
+            raise ValueError("controlled_replica_admitted_source_mismatch")
+        if sample.scalar_value != source.scalar_value:
+            raise ValueError("controlled_replica_aggregate_mismatch")
+        samples.append(sample)
+    return ControlledAcquisitionReplicaProof(
+        plan_ref=plan_ref,
+        previous_source=previous_source,
+        selected_source=selected_source,
+        previous_sample=samples[0],
+        selected_sample=samples[1],
+    )
+
+
+def replay_controlled_acquisition_replica(
+    proof: ControlledAcquisitionReplicaProof | None,
+    *,
+    store: VerifiableArtifactReader,
+    plan_ref: ArtifactRef,
+    previous_source: ControlledAcquisitionReplicaSource,
+    selected_source: ControlledAcquisitionReplicaSource,
+) -> ControlledAcquisitionReplicaProof:
+    """Recompute the expected local samples and refuse missing or changed proof."""
+    if proof is None:
+        raise ValueError("controlled_replica_proof_missing")
+    expected = resolve_controlled_acquisition_replica(
+        store=store,
+        plan_ref=plan_ref,
+        previous_source=previous_source,
+        selected_source=selected_source,
+    )
+    if proof != expected:
+        raise ValueError("controlled_replica_replay_mismatch")
+    return expected
 
 
 type AcquisitionEvidenceTransitionIntent = Annotated[

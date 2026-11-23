@@ -11,7 +11,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -43,6 +43,11 @@ from tests.integration.core_runtime.test_acquisition_receiver_constructor_served
 )
 
 pytest_plugins = ("tests._helpers.acquisition_served_history",)
+
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.acquisition_evidence_transition import (
+        ControlledAcquisitionReplicaFrame,
+    )
 
 
 def test_custom_seed_observation_continues_without_changing_legacy_stop() -> None:
@@ -386,6 +391,11 @@ def _run_annual_gdp_first_b(
     monkeypatch: pytest.MonkeyPatch,
     served_recorded_candidate_gateway: Any,
     check: Callable[..., None],
+    *,
+    controlled_replica_frames: tuple[
+        ControlledAcquisitionReplicaFrame, ControlledAcquisitionReplicaFrame
+    ]
+    | None = None,
 ) -> None:
     """Start with an actual costed route for a source-bound outcome."""
     import json
@@ -506,6 +516,7 @@ def _run_annual_gdp_first_b(
         catalog_source_factory=annual_gdp_catalog_source,
         candidate_refresh_profile=ANNUAL_GDP_WDI_PROFILE,
         source_knob_profile="served_tax_global_scalar",
+        controlled_replica_frames=controlled_replica_frames,
     )
 
 

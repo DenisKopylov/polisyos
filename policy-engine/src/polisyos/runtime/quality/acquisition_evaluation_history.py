@@ -2915,9 +2915,9 @@ def verify_retained_route_accumulator(
         VerifiedAcquisitionActionOutcome,
     )
     from polisyos.runtime.http.services.control_plane_store import AcquisitionActionHeadRecord
-    from polisyos.runtime.quality.acquisition_evaluation import (
+    from polisyos.runtime.quality.acquisition_evaluation import replay_acquisition_basis_for_history
+    from polisyos.runtime.quality.acquisition_retained_continuation import (
         read_acquisition_retained_continuation,
-        replay_acquisition_basis_for_history,
     )
     from polisyos.runtime.quality.generation_cycle import _cycle_basis_ref
 
@@ -3173,6 +3173,8 @@ def verify_retained_route_accumulator(
         ref=terminal.current_continuation_ref,
         decision=decision,
         terminal=terminal,
+        growth=growth,
+        control_store=control_store,
     )
     return _VerifiedRetainedRoute(
         decision=decision,

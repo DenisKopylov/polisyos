@@ -11,7 +11,7 @@ import socket
 from collections.abc import Callable, Mapping
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import Any
 from urllib.parse import urlsplit
 
 import aiohttp
@@ -582,6 +582,7 @@ def intercepted_wdi_transport(
     *,
     allow_loopback: bool = False,
     response_factory: Callable[[str, str, Mapping[str, str]], bytes] | None = None,
+    response_headers_factory: Callable[[], Mapping[str, str]] | None = None,
 ) -> list[tuple[str, str, dict[str, str]]]:
     """Intercept external HTTP bytes while executing the real WDI/Fabric owners.
 
@@ -596,10 +597,12 @@ def intercepted_wdi_transport(
 
     class _InterceptedResponse:
         status = 200
-        headers: ClassVar[dict[str, str]] = {"content-type": "application/json"}
 
         def __init__(self, body: bytes):
             self.body = body
+            self.headers = {"content-type": "application/json"}
+            if response_headers_factory is not None:
+                self.headers.update(response_headers_factory())
 
         async def __aenter__(self):
             return self

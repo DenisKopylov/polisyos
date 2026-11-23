@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -34,6 +34,11 @@ from tests.integration.core_runtime.test_acquisition_retained_sequential_served 
 
 pytest_plugins = ("tests._helpers.acquisition_served_history",)
 
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.acquisition_evidence_transition import (
+        ControlledAcquisitionReplicaFrame,
+    )
+
 
 def _run_genuine_first_b(
     tmp_path: Path,
@@ -49,6 +54,10 @@ def _run_genuine_first_b(
     catalog_source_factory: Callable[..., Any] | None = None,
     candidate_refresh_profile: Any | None = None,
     source_knob_profile: str = "controlled_overlay",
+    controlled_replica_frames: tuple[
+        ControlledAcquisitionReplicaFrame, ControlledAcquisitionReplicaFrame
+    ]
+    | None = None,
 ) -> None:
     from tests._helpers.candidate_cycle_source_profile import (
         build_candidate_cycle_substrate_route_inputs,
@@ -145,6 +154,7 @@ def _run_genuine_first_b(
             after_real_b=after_real_b,
             acquisition_slot=acquisition_slot,
             initial_source_value=initial_source_value,
+            controlled_replica_frames=controlled_replica_frames,
         )
         result = fixture._produce_served_acquisition_history(
             tmp_path,

@@ -7,6 +7,7 @@ authority remain separate predicates; a replayed value never supplies a score.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
@@ -485,16 +486,44 @@ def _same_ref(left: ArtifactRef | None, right: ArtifactRef | None) -> bool:
 
 
 def verify_registered_derived_family(
-    profile: RegisteredDerivedInputProfile, family: TransformFamily
+    profile: RegisteredDerivedInputProfile,
+    family: TransformFamily,
+    *,
+    input_kinds: Mapping[str, Literal["candidate_source", "certified_derived"]] | None = None,
 ) -> None:
-    """Require the selected arithmetic ABI to implement this finite relation."""
+    """Require the selected arithmetic ABI to implement this finite relation.
+
+    Existing callers omit ``input_kinds`` and retain the candidate-source
+    contract. A composed operation may pass the exact kind selected for every
+    role; that kind must match both the profile's complete role set and the
+    family ABI. This keeps a derived predecessor distinct from a same-value
+    candidate observation.
+    """
     roles = {item.role for item in profile.inputs}
+    specs = {item.role: item for item in family.input_specs}
     expression = family.expression
+    if input_kinds is None:
+        input_kinds_match = all(
+            "candidate_source" in spec.allowed_input_kinds for spec in specs.values()
+        )
+    else:
+        if (
+            not isinstance(input_kinds, Mapping)
+            or set(input_kinds) != roles
+            or any(
+                kind not in ("candidate_source", "certified_derived")
+                for kind in input_kinds.values()
+            )
+        ):
+            raise ValueError("composition_input_registered_family_input_kinds_mismatch")
+        input_kinds_match = set(specs) == roles and all(
+            input_kinds[role] in specs[role].allowed_input_kinds for role in roles
+        )
     if (
         family.family_id != profile.family_id
         or family.method_version != profile.method_version
-        or {item.role for item in family.input_specs} != roles
-        or any("candidate_source" not in item.allowed_input_kinds for item in family.input_specs)
+        or set(specs) != roles
+        or not input_kinds_match
         or family.parameter_rules
         or family.output_parameter_bindings
         or expression.operator != "multiply"

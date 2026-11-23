@@ -6,6 +6,7 @@ from decimal import Decimal
 
 import pytest
 
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.semantic_composition_binding import (
     RegisteredDerivationRoleBasis,
     RegisteredDerivedInputContext,
@@ -21,8 +22,18 @@ from polisyos.core.contracts.semantic_composition_binding import (
 )
 from polisyos.core.contracts.variable_binding import SelectedVariableBindingRef
 from polisyos.core.derivations import (
+    BasisSignature,
+    CandidateDerivationInput,
+    CandidateSourceSeries,
+    CertifiedDerivedInput,
+    DerivationContext,
+    DerivationRefusalError,
+    SeriesPoint,
     TransformFamily,
     TransformFamilyRegistry,
+    build_composition_recipe,
+    materialize_composition,
+    persist_candidate_source_series,
     persist_transform_family_registry,
 )
 from tests.unit.core.contracts.test_semantic_derived_binding import _case
@@ -138,6 +149,57 @@ def _projection_inputs(tmp_path):
     )
 
 
+def _selected_marker(store: FileSystemCAS, label: str, *, kind: str) -> SelectedVariableBindingRef:
+    ref = store.put_bytes(
+        label.encode(),
+        PutOptions(kind=kind, media_type="text/plain"),
+        return_selected_profile=True,
+    )
+    return SelectedVariableBindingRef.model_validate(ref.model_dump(mode="python"))
+
+
+def _candidate_source(
+    store: FileSystemCAS,
+    *,
+    variable_id: str,
+    basis: BasisSignature,
+    value: Decimal,
+    context_ref: SelectedVariableBindingRef,
+    scope_ref: SelectedVariableBindingRef,
+    year: int,
+) -> SelectedVariableBindingRef:
+    source_ref = _selected_marker(store, f"source:{variable_id}", kind="fixture.source_record")
+    occurrence_ref = _selected_marker(
+        store, f"occurrence:{variable_id}", kind="fixture.source_occurrence"
+    )
+    lineage_refs = tuple(
+        sorted(
+            (source_ref, occurrence_ref),
+            key=lambda ref: (
+                str(ref.artifact_id),
+                ref.kind,
+                ref.media_type,
+                ref.manifest_profile_sha256 or "",
+            ),
+        )
+    )
+    return SelectedVariableBindingRef.model_validate(
+        persist_candidate_source_series(
+            store,
+            CandidateSourceSeries(
+                variable_id=variable_id,
+                basis=basis,
+                points=(SeriesPoint(year=year, value=value),),
+                source_occurrence_ref=occurrence_ref,
+                source_ref=source_ref,
+                context_ref=context_ref,
+                scope_ref=scope_ref,
+                lineage_refs=lineage_refs,
+            ),
+        ).model_dump(mode="python")
+    )
+
+
 def test_registered_source_projection_uses_refs_and_keeps_unknown_authority(tmp_path):
     store, family, args = _projection_inputs(tmp_path)
     verify_registered_derived_family(args["profile"], family)
@@ -148,6 +210,137 @@ def test_registered_source_projection_uses_refs_and_keeps_unknown_authority(tmp_
     assert result.empirical_authority == "not_established"
     assert "effective_score" not in result.model_dump(mode="json")
     assert load_registered_derived_input_profile(store, args["profile_ref"]) == args["profile"]
+
+
+def test_registered_family_binds_certified_role_and_refuses_same_value_candidate_source(
+    tmp_path,
+):
+    store, source_family, args = _projection_inputs(tmp_path)
+    family_c = source_family.model_copy(
+        update={
+            "family_id": "registered.family.certified_base",
+            "method_id": "arithmetic.registered_product.certified_base",
+            "input_specs": tuple(
+                spec.model_copy(
+                    update={
+                        "allowed_input_kinds": (
+                            ("certified_derived",) if spec.role == "base" else ("candidate_source",)
+                        )
+                    }
+                )
+                for spec in source_family.input_specs
+            ),
+        }
+    )
+    registry = TransformFamilyRegistry(
+        families=tuple(
+            sorted((source_family, family_c), key=lambda row: (row.family_id, row.method_version))
+        )
+    )
+    registry_ref = persist_transform_family_registry(store, registry)
+    selected_registry_ref = SelectedVariableBindingRef.model_validate(
+        registry_ref.model_dump(mode="python")
+    )
+    profile_c = args["profile"].model_copy(
+        update={"registry_ref": selected_registry_ref, "family_id": family_c.family_id}
+    )
+    verify_registered_derived_family(
+        profile_c,
+        family_c,
+        input_kinds={"base": "certified_derived", "share": "candidate_source"},
+    )
+    with pytest.raises(ValueError, match="composition_input_registered_family_relation_mismatch"):
+        verify_registered_derived_family(
+            profile_c,
+            family_c,
+            input_kinds={"base": "candidate_source", "share": "candidate_source"},
+        )
+
+    context_ref = args["context_ref"]
+    scope_ref = _selected_marker(store, "candidate scope", kind="fixture.scope")
+    context = DerivationContext(
+        context_ref=context_ref,
+        scope_ref=scope_ref,
+        years=(args["context"].year,),
+    )
+    role_bases = {spec.role: spec.basis for spec in source_family.input_specs}
+    denominator = _candidate_source(
+        store,
+        variable_id="fixture.base_candidate",
+        basis=role_bases["base"],
+        value=Decimal("100"),
+        context_ref=context_ref,
+        scope_ref=scope_ref,
+        year=args["context"].year,
+    )
+    ratio = _candidate_source(
+        store,
+        variable_id="fixture.share_candidate",
+        basis=role_bases["share"],
+        value=Decimal("0.5"),
+        context_ref=context_ref,
+        scope_ref=scope_ref,
+        year=args["context"].year,
+    )
+    intermediate_recipe = build_composition_recipe(
+        store,
+        registry=registry,
+        registry_ref=registry_ref,
+        input_refs={
+            "base": CandidateDerivationInput(artifact_ref=denominator),
+            "share": CandidateDerivationInput(artifact_ref=ratio),
+        },
+        context=context,
+        output_variable_id="fixture.intermediate",
+        family_id=source_family.family_id,
+        method_version=source_family.method_version,
+    )
+    intermediate = materialize_composition(store, intermediate_recipe)
+    composed_recipe = build_composition_recipe(
+        store,
+        registry=registry,
+        registry_ref=registry_ref,
+        input_refs={
+            "base": CertifiedDerivedInput(
+                artifact_ref=intermediate.derived_artifact_ref,
+                certificate_ref=intermediate.certificate_artifact_ref,
+            ),
+            "share": CandidateDerivationInput(artifact_ref=ratio),
+        },
+        context=context,
+        output_variable_id="fixture.composed",
+        family_id=family_c.family_id,
+        method_version=family_c.method_version,
+    )
+    composed = materialize_composition(store, composed_recipe)
+    assert composed.series.evidence_status == "not_established"
+    assert composed.series.effective_score is None
+
+    same_value_observation = _candidate_source(
+        store,
+        variable_id="fixture.same_value_observation",
+        basis=role_bases["base"],
+        value=intermediate.series.points[0].value,
+        context_ref=context_ref,
+        scope_ref=scope_ref,
+        year=args["context"].year,
+    )
+    with pytest.raises(DerivationRefusalError) as refused:
+        build_composition_recipe(
+            store,
+            registry=registry,
+            registry_ref=registry_ref,
+            input_refs={
+                "base": CandidateDerivationInput(artifact_ref=same_value_observation),
+                "share": CandidateDerivationInput(artifact_ref=ratio),
+            },
+            context=context,
+            output_variable_id="fixture.observed_substitution",
+            family_id=family_c.family_id,
+            method_version=family_c.method_version,
+        )
+    assert refused.value.reason is not None
+    assert refused.value.reason.value == "no_certified_transform"
 
 
 @pytest.mark.parametrize(

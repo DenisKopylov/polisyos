@@ -4652,6 +4652,14 @@ def acquisition_planner_report_matches_context(
     return expected.planning_binding_hash == report.planning_binding_hash
 
 
+class _N7ConfiguredCandidateSourceValidationError(ValueError):
+    """Carry typed source-validation issues through planner report validation."""
+
+    def __init__(self, issues: tuple[dict[str, Any], ...]) -> None:
+        self.issues = issues
+        super().__init__("n7_candidate_report_source_not_established")
+
+
 def _validate_persisted_planner_report(
     *,
     store: ArtifactStore,
@@ -4686,16 +4694,20 @@ def _validate_persisted_planner_report(
                 opts=options,
                 created_at=manifest.created_at,
             )
-            if (
-                artifacts.artifact_manifest_profile_projection(manifest)
-                != artifacts.artifact_manifest_profile_projection(expected)
-                or ref.manifest_profile_sha256
-                != artifacts.artifact_manifest_profile_sha256(expected)
-                or not store.verify(ref).ok
+            if artifacts.artifact_manifest_profile_projection(
+                manifest
+            ) != artifacts.artifact_manifest_profile_projection(
+                expected
+            ) or ref.manifest_profile_sha256 != artifacts.artifact_manifest_profile_sha256(
+                expected
             ):
                 return ({"code": "n7_candidate_report_selected_writer_profile_mismatch"},)
+            if not store.verify(ref).ok:
+                return ({"code": "acquisition_planner_report_readback_failed"},)
             _n7_validate_configured_candidate_report_source(store=store, report=report)
         persisted = load_acquisition_planner_report(store, ref)
+    except _N7ConfiguredCandidateSourceValidationError as exc:
+        return exc.issues
     except Exception as exc:
         return (
             {
@@ -7185,13 +7197,21 @@ def _n7_validate_configured_candidate_report_source(
 
         validate_pre_numerical_candidate_report(store, report, source)
         return
-    if basis is None or _validate_persisted_data_requirement_compilation_report(
-        store=store, binding=basis, require_selected_writer_profile=True
-    ):
+    if basis is None:
         raise ValueError("n7_candidate_report_source_not_established")
-    compilation = DataRequirementCompilationReport.model_validate(
-        load_core_json_artifact(store, basis.compiler_report_ref)
+    compiler_issues = _validate_persisted_data_requirement_compilation_report(
+        store=store, binding=basis, require_selected_writer_profile=True
     )
+    if compiler_issues:
+        raise _N7ConfiguredCandidateSourceValidationError(compiler_issues)
+    try:
+        compilation = DataRequirementCompilationReport.model_validate(
+            load_core_json_artifact(store, basis.compiler_report_ref)
+        )
+    except Exception as exc:
+        raise _N7ConfiguredCandidateSourceValidationError(
+            ({"code": "n7_compiler_report_readback_failed", "error": str(exc)},)
+        ) from exc
     derivation_bundle = (
         _n7_load_derivation_bundle(store, source.derivation_bundle_ref)
         if source.derivation_bundle_ref is not None

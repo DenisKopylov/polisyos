@@ -9,10 +9,11 @@ from __future__ import annotations
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
+from stat import S_IMODE
 
 import pytest
 
-from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS, ProducerInfo
+from polisyos.core.artifacts import ArtifactRef, ArtifactWriteOptions, FileSystemCAS, ProducerInfo
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality import acquisition_planner as owner
@@ -25,7 +26,9 @@ from polisyos.runtime.quality.generation_cycle import (
 from tests.unit.runtime.quality.test_n7_descriptor_source_join import _compilation
 
 
-def test_candidate_plan_binds_typed_source_and_every_reference_occurrence(tmp_path: Path) -> None:
+def test_candidate_plan_binds_typed_source_and_every_reference_occurrence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     tenant = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
     cell = "018f47a0-0000-7000-8000-000000000001"
     with tenant_scope(None, tenant_id=tenant, cell_id=cell):
@@ -156,6 +159,106 @@ def test_candidate_plan_binds_typed_source_and_every_reference_occurrence(tmp_pa
         ]
         assert all(str(edge.artifact_id) != grounding.report_ref for edge in manifest.inputs)
         assert legacy.model_dump_json() == legacy_bytes
+
+        def issues_after_missing_blob(blob_ref: ArtifactRef) -> tuple[str, ...]:
+            blob, _manifest = store._paths(blob_ref.artifact_id)
+            saved_bytes = blob.read_bytes()
+            saved_mode = S_IMODE(blob.stat().st_mode)
+            blob.unlink()
+            try:
+                assert not blob.exists()
+                return tuple(
+                    issue["code"]
+                    for issue in owner._validate_persisted_planner_report(
+                        store=store, ref=ref, report=report
+                    )
+                )
+            finally:
+                if not blob.exists():
+                    blob.write_bytes(saved_bytes)
+                    blob.chmod(saved_mode)
+                assert blob.read_bytes() == saved_bytes
+                assert store.verify(blob_ref).ok
+
+        planner_missing_codes = issues_after_missing_blob(ref)
+        assert report.requirement_basis_binding is not None
+        compiler_ref = report.requirement_basis_binding.compiler_report_ref
+        assert compiler_ref.manifest_profile_sha256 is not None
+        compiler_missing_codes = issues_after_missing_blob(compiler_ref)
+
+        planner_options, _planner_spec = owner._n7_configured_candidate_report_write_profile(report)
+        planner_bytes = store.get_bytes(ref)
+        foreign_planner = store.put_bytes(
+            planner_bytes,
+            replace(
+                planner_options,
+                producer=ProducerInfo(component="foreign.planner.fixture", version="1"),
+            ),
+            return_selected_profile=True,
+        )
+        assert foreign_planner.artifact_id == ref.artifact_id
+        assert foreign_planner.manifest_profile_sha256 != ref.manifest_profile_sha256
+        planner_profile_codes = tuple(
+            issue["code"]
+            for issue in owner._validate_persisted_planner_report(
+                store=store, ref=foreign_planner, report=report
+            )
+        )
+
+        compiler_blob, _compiler_manifest = store._paths(compiler_ref.artifact_id)
+        compiler_bytes = compiler_blob.read_bytes()
+        compiler_mode = S_IMODE(compiler_blob.stat().st_mode)
+        original_compiler_validator = owner._validate_persisted_data_requirement_compilation_report
+        removed_between_reads = False
+
+        def remove_compiler_after_validation(**kwargs):
+            nonlocal removed_between_reads
+            issues = original_compiler_validator(**kwargs)
+            if (
+                not issues
+                and kwargs["binding"].compiler_report_ref == compiler_ref
+                and not removed_between_reads
+            ):
+                compiler_blob.unlink()
+                removed_between_reads = True
+            return issues
+
+        monkeypatch.setattr(
+            owner,
+            "_validate_persisted_data_requirement_compilation_report",
+            remove_compiler_after_validation,
+        )
+        try:
+            compiler_race_codes = tuple(
+                issue["code"]
+                for issue in owner._validate_persisted_planner_report(
+                    store=store, ref=ref, report=report
+                )
+            )
+        finally:
+            monkeypatch.setattr(
+                owner,
+                "_validate_persisted_data_requirement_compilation_report",
+                original_compiler_validator,
+            )
+            if not compiler_blob.exists():
+                compiler_blob.write_bytes(compiler_bytes)
+                compiler_blob.chmod(compiler_mode)
+            assert compiler_blob.read_bytes() == compiler_bytes
+            assert store.verify(compiler_ref).ok
+        assert removed_between_reads
+
+        assert (
+            planner_missing_codes,
+            compiler_missing_codes,
+            compiler_race_codes,
+            planner_profile_codes,
+        ) == (
+            ("acquisition_planner_report_readback_failed",),
+            ("n7_compiler_report_readback_failed",),
+            ("n7_compiler_report_readback_failed",),
+            ("n7_candidate_report_selected_writer_profile_mismatch",),
+        )
 
         # Same source bytes under another manifest are not the producer view.
         options, _ = owner._n7_configured_port_write_profile(source)

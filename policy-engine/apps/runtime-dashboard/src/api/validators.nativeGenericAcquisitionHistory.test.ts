@@ -140,12 +140,52 @@ function nativeGenericHistoryFixture(requestProfileVersion = "v5") {
   };
 }
 
-function responseWithNativeHistory(position: HistoryPosition): MutableRecord {
+function blockedNativeGenericHistoryFixture() {
+  const selectedRef = (kind: string, id: string, profile: string) => ({
+    artifact_id: digest(id),
+    kind,
+    media_type: "application/json",
+    manifest_profile_sha256: digest(profile),
+  });
+
+  return {
+    schema_version:
+      "policyos.runtime.run_native_generic_blocked_acquisition_history.v1",
+    source_job_id: "source-job-1",
+    action_job_id: "action-job-3",
+    candidate_id: "candidate-native-1",
+    route_id: digest("c"),
+    action_generation: 4,
+    route_receipt_ref: selectedRef(REF_KINDS.route_receipt_ref, "a", "b"),
+    reentry_receipt_ref: selectedRef(REF_KINDS.reentry_receipt_ref, "c", "d"),
+    source_compiled_ref: selectedRef(REF_KINDS.source_compiled_ref, "2", "2"),
+    pending_action_phase_ref: selectedRef(
+      REF_KINDS.pending_action_phase_ref,
+      "e",
+      "f",
+    ),
+    source_cycle_index: 5,
+    continued_cycle_index: 6,
+    terminal_outcome: "reentry_completed",
+    terminal_kind: "acquisition_required",
+    simulation_status: "simulation_blocked",
+    scheduler_action: "defer",
+    blocker_code: "budget_exhausted_for_next_level",
+    numerical_result_status: "not_established",
+    currentness_status: "not_established",
+    authority_purpose: "candidate_observation_only",
+    publication_authority: false,
+  };
+}
+
+function responseWithNativeHistory(
+  position: HistoryPosition,
+  history: MutableRecord[] = [nativeGenericHistoryFixture()],
+): MutableRecord {
   const payload = structuredClone(
     actualPartialCapacityRunDetails,
   ) as unknown as MutableRecord;
   const run = record(payload.run);
-  const row = nativeGenericHistoryFixture();
 
   if (position === "candidate_simulation") {
     run.candidate_simulation = {
@@ -161,12 +201,12 @@ function responseWithNativeHistory(position: HistoryPosition): MutableRecord {
         manifest_profile_sha256: digest("e"),
       },
       source_content_hash: WORLD_HASH,
-      acquisition_history: [row],
+      acquisition_history: history,
       acquisition_history_limitation_code: null,
     };
   } else {
     const projection = record(run.generic_cycle_simulation);
-    projection.acquisition_history = [row];
+    projection.acquisition_history = history;
     projection.acquisition_history_limitation_code = null;
   }
 
@@ -286,6 +326,74 @@ describe("Native Generic acquisition history wire", () => {
         projection,
       );
       expect(normalized.kind).toBe("candidate_only");
+    },
+  );
+
+  it.each(["candidate_simulation", "generic_cycle_simulation"] as const)(
+    "accepts a budget-deferred row alongside successful Native history in %s",
+    (position) => {
+      const blocked = blockedNativeGenericHistoryFixture();
+      const payload = responseWithNativeHistory(position, [
+        nativeGenericHistoryFixture(),
+        blocked,
+      ]);
+
+      const parsed = runDetailsSchema.parse(payload);
+      const projection = record(parsed.run[position]);
+
+      expect(projection.acquisition_history).toMatchObject([
+        expectedNativeHistory,
+        blocked,
+      ]);
+      expect(
+        (projection.acquisition_history as unknown[])[1],
+      ).not.toHaveProperty("simulation_result_body");
+    },
+  );
+
+  const invalidBlockedHistory: Array<[string, (row: MutableRecord) => void]> = [
+    [
+      "a missing pending phase profile",
+      (row) => {
+        delete record(row.pending_action_phase_ref).manifest_profile_sha256;
+      },
+    ],
+    [
+      "the wrong receipt kind",
+      (row) => {
+        record(row.reentry_receipt_ref).kind = REF_KINDS.route_receipt_ref;
+      },
+    ],
+    [
+      "a numerical result from a successful row",
+      (row) => {
+        row.simulation_result_body =
+          nativeGenericHistoryFixture().simulation_result_body;
+      },
+    ],
+    [
+      "a non-adjacent continued cycle",
+      (row) => {
+        row.continued_cycle_index = 7;
+      },
+    ],
+    [
+      "publication authority",
+      (row) => {
+        row.publication_authority = true;
+      },
+    ],
+  ];
+
+  it.each(invalidBlockedHistory)(
+    "rejects budget-deferred history with %s",
+    (_label, mutate) => {
+      const position = "generic_cycle_simulation";
+      const payload = responseWithNativeHistory(position, [
+        blockedNativeGenericHistoryFixture(),
+      ]);
+      mutate(historyRow(payload, position));
+      expect(runDetailsSchema.safeParse(payload).success).toBe(false);
     },
   );
 

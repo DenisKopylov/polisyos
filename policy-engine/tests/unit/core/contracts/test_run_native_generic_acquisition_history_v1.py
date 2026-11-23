@@ -22,6 +22,7 @@ from polisyos.core.contracts.runtime import (
     RunGenericCycleSimulationN5ResultBody,
     RunGenericCycleSimulationProjection,
     RunNativeGenericAcquisitionHistoryEntryV1,
+    RunNativeGenericBlockedAcquisitionHistoryEntryV1,
 )
 
 _SCHEMA_VERSION = "policyos.runtime.run_native_generic_acquisition_history.v1"
@@ -146,6 +147,30 @@ def _row(*, request_profile_version: str = "v5") -> RunNativeGenericAcquisitionH
     )
 
 
+def _blocked_wire_row() -> dict[str, Any]:
+    wire = _wire_row()
+    return {
+        **{
+            key: wire[key]
+            for key in (
+                "source_job_id",
+                "action_job_id",
+                "candidate_id",
+                "route_id",
+                "action_generation",
+                "route_receipt_ref",
+                "reentry_receipt_ref",
+                "source_compiled_ref",
+                "pending_action_phase_ref",
+                "source_cycle_index",
+                "continued_cycle_index",
+            )
+        },
+        "schema_version": "policyos.runtime.run_native_generic_blocked_acquisition_history.v1",
+        "blocker_code": "budget_exhausted_for_next_level",
+    }
+
+
 @pytest.mark.parametrize("mode", ["validation", "serialization"])
 def test_native_history_schema_requires_every_exact_full_selected_json_ref(mode: str) -> None:
     schema = RunNativeGenericAcquisitionHistoryEntryV1.model_json_schema(mode=mode)
@@ -190,6 +215,8 @@ def test_native_history_round_trips_through_candidate_and_generic_projection_uni
         "simulation_only_k_sim_not_world_evidence",
         "historical_native_reentry_not_current_permission",
     }
+    blocked = RunNativeGenericBlockedAcquisitionHistoryEntryV1.model_validate(_blocked_wire_row())
+    mixed_history = (restored_row, blocked)
     for version in ("v4", "v5"):
         assert _row(request_profile_version=version).request_profile_schema_version.endswith(
             f".{version}"
@@ -201,7 +228,7 @@ def test_native_history_round_trips_through_candidate_and_generic_projection_uni
             "artifact_status": "resolved",
             "source_ref": _ref("runtime.compiled_recursive_generation_cycle", "a"),
             "source_content_hash": _WORLD_HASH,
-            "acquisition_history": (restored_row,),
+            "acquisition_history": mixed_history,
         }
     )
     candidate_round_trip = RunCandidateSimulationProjection.model_validate_json(
@@ -210,6 +237,7 @@ def test_native_history_round_trips_through_candidate_and_generic_projection_uni
     assert type(candidate_round_trip.acquisition_history[0]) is (
         RunNativeGenericAcquisitionHistoryEntryV1
     )
+    assert candidate_round_trip.acquisition_history == mixed_history
 
     generic = RunGenericCycleSimulationProjection.model_validate(
         {
@@ -218,7 +246,7 @@ def test_native_history_round_trips_through_candidate_and_generic_projection_uni
             "source_ref": _ref("runtime.compiled_recursive_generation_cycle", "a"),
             "source_content_hash": _WORLD_HASH,
             "child_profile_status": "not_attempted",
-            "acquisition_history": (restored_row,),
+            "acquisition_history": mixed_history,
         }
     )
     generic_round_trip = RunGenericCycleSimulationProjection.model_validate_json(
@@ -228,6 +256,37 @@ def test_native_history_round_trips_through_candidate_and_generic_projection_uni
     assert type(generic_round_trip.acquisition_history[0]) is (
         RunNativeGenericAcquisitionHistoryEntryV1
     )
+    assert generic_round_trip.acquisition_history == mixed_history
+
+
+@pytest.mark.parametrize(
+    ("field", "replacement"),
+    [
+        (
+            "pending_action_phase_ref",
+            _ref("runtime.quality.generic_cycle_simulation_n5_input", "a"),
+        ),
+        ("continued_cycle_index", 6),
+        ("blocker_code", "provider_unavailable"),
+        ("publication_authority", True),
+        ("currentness_status", "current"),
+        ("numerical_result_status", "resolved"),
+        ("n5_result_ref", _ref("polisyos.runtime.joint_simulation_result", "f")),
+        ("simulation_result_body", _wire_row()["simulation_result_body"]),
+    ],
+)
+def test_blocked_native_history_refuses_authority_or_numerical_claims(field, replacement) -> None:
+    wire = _blocked_wire_row()
+    wire[field] = replacement
+    with pytest.raises(ValidationError):
+        RunNativeGenericBlockedAcquisitionHistoryEntryV1.model_validate(wire)
+
+
+def test_blocked_native_history_requires_exact_selected_reference() -> None:
+    wire = _blocked_wire_row()
+    del wire["pending_action_phase_ref"]["manifest_profile_sha256"]
+    with pytest.raises(ValidationError, match="native_generic_history_selected_ref_invalid"):
+        RunNativeGenericBlockedAcquisitionHistoryEntryV1.model_validate(wire)
 
 
 @pytest.mark.parametrize("field", tuple(_REF_KINDS))

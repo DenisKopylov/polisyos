@@ -937,6 +937,7 @@
         "modelInputContinuationScope": "A persisted candidate observation from a completed continuation; it does not grant a current execution or publication right.",
         "modelInputContinuationBoundary": "Authority purpose: {purpose}; currentness: {currentness}; publication authority: {publication}.",
         "modelInputContinuationSimulation": "Recorded simulation status: {status}",
+        "modelInputContinuationN6Deferred": "N6 deferred the calculation because the remaining budget could not cover N5. No numerical result was produced for this continuation.",
         "modelInputContinuationLimitations": "Recorded limitations:",
         "modelInputContinuationBlockers": "Simulation authority blockers:",
         "modelInputContinuationNoBlockers": "No simulation authority blockers were recorded. This does not grant publication authority.",

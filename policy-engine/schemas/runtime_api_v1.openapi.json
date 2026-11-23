@@ -42531,6 +42531,9 @@
                 },
                 {
                   "$ref": "#/components/schemas/RunNativeGenericAcquisitionHistoryEntryV1"
+                },
+                {
+                  "$ref": "#/components/schemas/RunNativeGenericBlockedAcquisitionHistoryEntryV1"
                 }
               ]
             },
@@ -45684,6 +45687,9 @@
                     },
                     {
                       "$ref": "#/components/schemas/RunNativeGenericAcquisitionHistoryEntryV1"
+                    },
+                    {
+                      "$ref": "#/components/schemas/RunNativeGenericBlockedAcquisitionHistoryEntryV1"
                     }
                   ]
                 },
@@ -47899,6 +47905,206 @@
           "limitations"
         ],
         "title": "RunNativeGenericAcquisitionHistoryEntryV1",
+        "type": "object"
+      },
+      "RunNativeGenericBlockedAcquisitionHistoryEntryV1": {
+        "additionalProperties": false,
+        "description": "Selected Native re-entry history for a cycle deferred before N5.",
+        "properties": {
+          "action_generation": {
+            "minimum": 1.0,
+            "title": "Action Generation",
+            "type": "integer"
+          },
+          "action_job_id": {
+            "minLength": 1,
+            "title": "Action Job Id",
+            "type": "string"
+          },
+          "authority_purpose": {
+            "const": "candidate_observation_only",
+            "default": "candidate_observation_only",
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "blocker_code": {
+            "const": "budget_exhausted_for_next_level",
+            "title": "Blocker Code",
+            "type": "string"
+          },
+          "candidate_id": {
+            "minLength": 1,
+            "title": "Candidate Id",
+            "type": "string"
+          },
+          "continued_cycle_index": {
+            "minimum": 1.0,
+            "title": "Continued Cycle Index",
+            "type": "integer"
+          },
+          "currentness_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Currentness Status",
+            "type": "string"
+          },
+          "numerical_result_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Numerical Result Status",
+            "type": "string"
+          },
+          "pending_action_phase_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output",
+            "properties": {
+              "kind": {
+                "const": "runtime_quality.acquisition_route_phase_receipt"
+              },
+              "manifest_profile_sha256": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "media_type": {
+                "const": "application/json"
+              }
+            },
+            "required": [
+              "artifact_id",
+              "kind",
+              "media_type",
+              "manifest_profile_sha256"
+            ]
+          },
+          "publication_authority": {
+            "const": false,
+            "default": false,
+            "title": "Publication Authority",
+            "type": "boolean"
+          },
+          "reentry_receipt_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output",
+            "properties": {
+              "kind": {
+                "const": "runtime_quality.acquisition_overlay_reentry_receipt"
+              },
+              "manifest_profile_sha256": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "media_type": {
+                "const": "application/json"
+              }
+            },
+            "required": [
+              "artifact_id",
+              "kind",
+              "media_type",
+              "manifest_profile_sha256"
+            ]
+          },
+          "route_id": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Route Id",
+            "type": "string"
+          },
+          "route_receipt_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output",
+            "properties": {
+              "kind": {
+                "const": "runtime_quality.acquisition_route_loop_receipt"
+              },
+              "manifest_profile_sha256": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "media_type": {
+                "const": "application/json"
+              }
+            },
+            "required": [
+              "artifact_id",
+              "kind",
+              "media_type",
+              "manifest_profile_sha256"
+            ]
+          },
+          "scheduler_action": {
+            "const": "defer",
+            "default": "defer",
+            "title": "Scheduler Action",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.run_native_generic_blocked_acquisition_history.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "simulation_status": {
+            "const": "simulation_blocked",
+            "default": "simulation_blocked",
+            "title": "Simulation Status",
+            "type": "string"
+          },
+          "source_compiled_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output",
+            "properties": {
+              "kind": {
+                "const": "runtime.compiled_recursive_generation_cycle"
+              },
+              "manifest_profile_sha256": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "media_type": {
+                "const": "application/json"
+              }
+            },
+            "required": [
+              "artifact_id",
+              "kind",
+              "media_type",
+              "manifest_profile_sha256"
+            ]
+          },
+          "source_cycle_index": {
+            "minimum": 0.0,
+            "title": "Source Cycle Index",
+            "type": "integer"
+          },
+          "source_job_id": {
+            "minLength": 1,
+            "title": "Source Job Id",
+            "type": "string"
+          },
+          "terminal_kind": {
+            "const": "acquisition_required",
+            "default": "acquisition_required",
+            "title": "Terminal Kind",
+            "type": "string"
+          },
+          "terminal_outcome": {
+            "const": "reentry_completed",
+            "default": "reentry_completed",
+            "title": "Terminal Outcome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "schema_version",
+          "source_job_id",
+          "action_job_id",
+          "candidate_id",
+          "route_id",
+          "action_generation",
+          "route_receipt_ref",
+          "reentry_receipt_ref",
+          "source_compiled_ref",
+          "pending_action_phase_ref",
+          "source_cycle_index",
+          "continued_cycle_index",
+          "blocker_code"
+        ],
+        "title": "RunNativeGenericBlockedAcquisitionHistoryEntryV1",
         "type": "object"
       },
       "RunNodeRecord": {

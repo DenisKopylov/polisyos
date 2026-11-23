@@ -8,17 +8,38 @@ retained-source selector owns the authentic full continuation qualification.
 from __future__ import annotations
 
 from copy import deepcopy
+from datetime import UTC, datetime
+from decimal import Decimal
 from types import SimpleNamespace
 
 import pytest
 
 from polisyos.core import artifacts
 from polisyos.runtime.http.routes import runs
+from polisyos.runtime.http.services.control.run_lifecycle import AcquisitionRouteLoopAuthoritySink
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.quality import native_source_reentry_history as history
+from polisyos.runtime.quality.acquisition_route_loop import persist_world_commit_and_reenter
+from polisyos.runtime.quality.acquisition_world_growth import (
+    AcquisitionWorldGrowthBridge,
+    AcquisitionWorldGrowthConfig,
+    AcquisitionWorldGrowthReceipt,
+    AcquisitionWorldGrowthRoute,
+)
+from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
-from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
+from polisyos.runtime.quality.generation_cycle import (
+    AcquisitionOverlayReentryReceipt,
+    GenerationCycleRun,
+    SimulationPortObservation,
+    _derive_fronts,
+    generation_cycle_run_content_hash,
+    validate_acquisition_overlay_continuation,
+)
+from tests._helpers.semantic_epoch_native import finalize_native_epoch_case, make_native_epoch_case
 from tests.unit.core.contracts.test_run_native_generic_acquisition_history_v1 import _wire_row
+from tests.unit.runtime.quality.test_generation_cycle_model_input_wire import _v3_fixture
+from tests.unit.runtime.quality.test_native_derivation_action_history import _native_requested
 
 
 @pytest.fixture
@@ -308,3 +329,233 @@ def test_native_history_requires_the_original_terminal_ancestor_and_profile(
         ValueError, match=r"^native_acquisition_reentry_terminal_ancestor_mismatch$"
     ):
         runs._native_generic_acquisition_history_entry(**case.args)
+
+
+def test_native_blocked_history_reads_exact_growth_and_refuses_missing_selected_view(
+    tmp_path, request
+):
+    native = make_native_epoch_case(tmp_path / "native")
+    finalized = finalize_native_epoch_case(native)
+    store = native.store
+    control = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    request.addfinalizer(control.close)
+    events = RuntimeDiagnosticEventLog(store=control, artifact_store=store)
+    sink = AcquisitionRouteLoopAuthoritySink(
+        artifact_store=store, event_log=events, control_store=control
+    )
+    service = SimpleNamespace(_control_store=control, acquisition_route_sink=sink)
+    source = GenerationCycleRun.model_validate(_v3_fixture()[1])
+    prior = source.cycles[-1]
+    blocker = "budget_exhausted_for_next_level"
+    new_cycle = prior.model_copy(
+        update={
+            "cycle_index": prior.cycle_index + 1,
+            "terminal_kind": "acquisition_required",
+            "simulation": SimulationPortObservation(
+                candidate_id=prior.selected_candidate_ref,
+                status="simulation_blocked",
+                authority_blockers=(blocker,),
+                diagnostics={"port": "N6", "reason": blocker, "scheduler_action": "defer"},
+            ),
+            "voi_decision": prior.voi_decision.model_copy(
+                update={
+                    "terminal_kind": "acquisition_required",
+                    "scheduler_action": "defer",
+                    "scheduler_reason": blocker,
+                }
+            ),
+        }
+    )
+    appended = tuple(
+        item.model_copy(update={"cycle_index": new_cycle.cycle_index})
+        for item in source.candidate_summaries
+        if item.cycle_index == prior.cycle_index
+    )
+    summaries = source.candidate_summaries + appended
+    continued = source.model_copy(
+        update={
+            "cycles": (*source.cycles, new_cycle),
+            "candidate_summaries": summaries,
+            "fronts": _derive_fronts(summaries),
+        }
+    )
+    activated = finalized.activated
+    reentry = AcquisitionOverlayReentryReceipt.issue(
+        source_run_id=source.run_id,
+        design_problem_ref=source.design_problem_ref,
+        source_cycle_index=prior.cycle_index,
+        source_candidate_ref=prior.selected_candidate_ref,
+        overlay_receipt_ref=str(activated.receipt_ref.artifact_id),
+        overlay_receipt_content_hash=activated.receipt_content_hash,
+        baseline_content_hash=activated.baseline_before_sha256,
+        overlay_path="fixture-overlay",
+        epoch_id=activated.epoch_id,
+        passport_id=activated.passport_id,
+        passport_variable_id=native.scenario.passport.variable_id,
+        admitted_observation_count=activated.admitted_observation_count,
+        semantic_epoch_ref=activated.semantic_epoch_stamp.epoch_ref,
+        semantic_epoch_production_receipt_ref=str(finalized.production.receipt_ref.artifact_id),
+        semantic_epoch_production_receipt_content_hash=finalized.production.receipt_content_hash,
+        new_cycle=new_cycle,
+        candidate_summaries=appended,
+        source_generation_run_content_hash=generation_cycle_run_content_hash(source),
+        continued_generation_run_content_hash=generation_cycle_run_content_hash(continued),
+        continued_generation_run=continued,
+    )
+    validate_acquisition_overlay_continuation(source, reentry)
+    compiled_ref = store.put_json(
+        {"design_problem_ref": source.design_problem_ref},
+        artifacts.ArtifactWriteOptions(
+            kind="runtime.compiled_recursive_generation_cycle", media_type="application/json"
+        ),
+        return_selected_profile=True,
+    )
+    initial = _native_requested(store, index=1, now=datetime.now(UTC)).model_copy(
+        update={"compiled_ref": str(compiled_ref.artifact_id)}
+    )
+    requested = sink.persist_phase(initial)
+    executing = sink.persist_phase(
+        initial.model_copy(
+            update={
+                "receipt_id": "executing",
+                "receipt_phase": "executing",
+                "coarse_phase": "executing",
+                "predecessor_receipt_ref": requested.receipt_ref,
+            }
+        )
+    )
+    query = native.scenario.query
+    growth = AcquisitionWorldGrowthReceipt(
+        selection=AcquisitionWorldGrowthRoute(
+            tenant_id=initial.tenant_id,
+            cell_id=initial.cell_id,
+            run_id=initial.run_id,
+            route_id=initial.route_id,
+            design_problem_ref=source.design_problem_ref,
+            epoch_id=activated.epoch_id,
+            epoch_scope_identity=query.scope_identity,
+            authority_purpose=query.authority_purpose,
+            valid_effect_coordinate_evidence_ref=query.valid_effect_coordinate_evidence_ref,
+            visibility_knowledge_cutoff_evidence_ref=query.visibility_knowledge_cutoff_evidence_ref,
+            purpose_admission_cutoff_evidence_ref=query.purpose_admission_cutoff_evidence_ref,
+            facet_source_refs={},
+            reentry_budget_usd=Decimal("0.10"),
+        ),
+        binding_id="fixture-binding",
+        activation=finalized.receipt,
+        passport_id=activated.passport_id,
+        admitted_observation_delta=activated.admitted_observation_count,
+        previously_active_observations=0,
+        live_evidence_refs=(native.scenario.passport.raw_artifact_id,),
+        action_phase_ref=executing.receipt_ref,
+    )
+    bridge = AcquisitionWorldGrowthBridge(
+        config=AcquisitionWorldGrowthConfig(),
+        repo_root=tmp_path,
+        runtime_root=tmp_path,
+        authority=native.scenario.authority,
+        artifact_store=store,
+        event_log=events,
+        epoch_deployment=native.deployment,
+    )
+    growth_id = bridge._persist(
+        initial,
+        growth.model_dump(mode="json"),
+        "runtime_quality.acquisition_world_growth_receipt",
+        AcquisitionWorldGrowthReceipt.ARTIFACT_SCHEMA_NAME,
+        "world_committed",
+    )
+    selected_phase = {
+        "receipt_id": "outcome",
+        "receipt_phase": "outcome_selected",
+        "coarse_phase": "executing",
+        "predecessor_receipt_ref": executing.receipt_ref,
+        "owner_receipt_refs": (growth_id,),
+    }
+    selection = sink.persist_phase(initial.model_copy(update=selected_phase))
+    reentry_event_id = "evt_acquisition_reentry_" + growth_id.removeprefix("sha256:")
+    reentry_ref = bridge._persist(
+        initial,
+        reentry.model_dump(mode="json"),
+        "runtime_quality.acquisition_overlay_reentry_receipt",
+        "polisyos.runtime.AcquisitionOverlayReentryReceipt",
+        "reentry_terminal",
+        event_id=reentry_event_id,
+        return_selected_profile=True,
+    )
+    report = reconcile_authority_ref(
+        artifact_store=store,
+        event_log=events,
+        cas_ref=reentry_ref,
+        expected_tenant_id=initial.tenant_id,
+        expected_cell_id=initial.cell_id,
+        expected_run_id=initial.run_id,
+        expected_job_id=initial.source_job_id,
+    )
+    assert report.durable_event_id == reentry_event_id
+    terminal = persist_world_commit_and_reenter(
+        sink=sink,
+        pending_receipt=initial.model_copy(
+            update={
+                **selected_phase,
+                "receipt_id": "pending",
+                "receipt_phase": "world_committed_reentry_pending",
+                "coarse_phase": "world_committed",
+                "recovery_state": "reentry_recovery_required",
+                "predecessor_receipt_ref": selection.receipt_ref,
+            }
+        ),
+        reentry=lambda: str(reentry_ref.artifact_id),
+    )
+    fresh_sink = AcquisitionRouteLoopAuthoritySink(
+        artifact_store=store, event_log=events, control_store=control
+    )
+    service.acquisition_route_sink = fresh_sink
+    selected_terminal = artifacts.artifact_ref_for_manifest(
+        artifacts.resolve_manifest_by_profile(
+            store, terminal.receipt_ref, terminal.receipt_manifest_profile_sha256
+        )
+    )
+    terminal_receipt = fresh_sink.verify_action_head(terminal).latest_receipt
+    args = {
+        "store": store,
+        "control_service": service,
+        "head": terminal,
+        "route_receipt_ref": selected_terminal,
+        "route_receipt": terminal_receipt,
+        "reentry_receipt_ref": reentry_ref,
+        "reentry_event_id": report.durable_event_id,
+        "reentry_receipt": reentry,
+        "compiled_ref": compiled_ref,
+    }
+    row = runs._native_generic_blocked_acquisition_history_entry(**args)
+    assert row.blocker_code == blocker
+    assert row.continued_cycle_index == prior.cycle_index + 1
+    assert row.numerical_result_status == row.currentness_status == "not_established"
+    assert row.publication_authority is False
+    assert not {"n5_result_ref", "simulation_result_body"} & row.model_dump().keys()
+
+    with pytest.raises(ValueError, match="native_acquisition_blocked_reentry_event_mismatch"):
+        runs._native_generic_blocked_acquisition_history_entry(
+            **{**args, "reentry_event_id": "evt_acquisition_reentry_" + "0" * 64}
+        )
+
+    unexpected_simulation = new_cycle.simulation.model_copy(
+        update={"simulation_ref": str(compiled_ref.artifact_id)}
+    )
+    unexpected_reentry = reentry.model_copy(
+        update={"new_cycle": new_cycle.model_copy(update={"simulation": unexpected_simulation})}
+    )
+    with pytest.raises(ValueError, match="native_acquisition_blocked_reentry_not_established"):
+        runs._native_generic_blocked_acquisition_history_entry(
+            **{**args, "reentry_receipt": unexpected_reentry}
+        )
+
+    overlay_ref = activated.receipt_ref
+    exact_view = store._manifest_path_for_ref(
+        overlay_ref.artifact_id, overlay_ref.manifest_profile_sha256
+    )
+    exact_view.unlink()
+    assert store.has(overlay_ref.artifact_id)
+    with pytest.raises((FileNotFoundError, ValueError, RuntimeError)):
+        runs._native_generic_blocked_acquisition_history_entry(**args)

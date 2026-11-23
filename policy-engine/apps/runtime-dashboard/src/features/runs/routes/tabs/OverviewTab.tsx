@@ -22,6 +22,7 @@ import {
   runCandidateSimulationAcquisitionHistoryEntryV4Schema,
   runCandidateSimulationAcquisitionHistoryEntryV5Schema,
   runNativeGenericAcquisitionHistoryEntryV1Schema,
+  runNativeGenericBlockedAcquisitionHistoryEntryV1Schema,
   runCandidateSourceCurrentProjectionSchema,
 } from "@/api/validators";
 import { isRuntimeApiNotFound } from "@/api/http";
@@ -946,6 +947,88 @@ function AcquisitionHistorySection({
           ) : null}
           {acquisitionHistory.map((value, index) => {
             const row = asRecord(value);
+            if (
+              row?.schema_version ===
+              "policyos.runtime.run_native_generic_blocked_acquisition_history.v1"
+            ) {
+              const parsed =
+                runNativeGenericBlockedAcquisitionHistoryEntryV1Schema.safeParse(
+                  row,
+                );
+              if (
+                !projectionKnown ||
+                artifactStatus !== "resolved" ||
+                !parsed.success
+              ) {
+                return (
+                  <p
+                    key={index}
+                    data-testid={testIdPrefix + "-history-refused"}
+                  >
+                    {t(
+                      "pages.runs.candidateSimulation.acquisitionHistoryRefused",
+                    )}
+                  </p>
+                );
+              }
+              const blocked = parsed.data;
+              const receipts = {
+                "route-receipt": blocked.route_receipt_ref,
+                "reentry-receipt": blocked.reentry_receipt_ref,
+                "source-compiled": blocked.source_compiled_ref,
+                "pending-action-phase": blocked.pending_action_phase_ref,
+              };
+              return (
+                <div
+                  key={index}
+                  className="space-y-1 border-t pt-2"
+                  data-testid={testIdPrefix + "-history-native-blocked"}
+                >
+                  <p className="font-medium">
+                    {t("pages.runs.candidateSimulation.acquisitionRoute", {
+                      route: blocked.route_id,
+                      generation: String(blocked.action_generation),
+                    })}
+                  </p>
+                  <p>
+                    {t(
+                      "pages.runs.candidateSimulation.modelInputContinuationN6Deferred",
+                    )}
+                  </p>
+                  <p>
+                    <code>{blocked.blocker_code}</code>
+                  </p>
+                  <p data-testid={testIdPrefix + "-native-blocked-boundary"}>
+                    {t(
+                      "pages.runs.candidateSimulation.modelInputContinuationBoundary",
+                      {
+                        purpose: blocked.authority_purpose,
+                        currentness: blocked.currentness_status,
+                        publication: String(blocked.publication_authority),
+                      },
+                    )}
+                  </p>
+                  <ul className="space-y-1">
+                    {Object.entries(receipts).map(([name, ref]) => (
+                      <li key={name}>
+                        <Link
+                          className="text-accent text-xs break-all underline"
+                          to={buildArtifactHref(ref.artifact_id, {
+                            tab: "content",
+                            artifactRef: ref,
+                          })}
+                          data-testid={
+                            testIdPrefix + "-native-blocked-" + name + "-ref"
+                          }
+                        >
+                          {ref.kind}: {ref.artifact_id}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            }
             if (
               row?.schema_version ===
               "policyos.runtime.run_native_generic_acquisition_history.v1"

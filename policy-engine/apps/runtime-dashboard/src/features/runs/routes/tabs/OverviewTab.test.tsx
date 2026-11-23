@@ -1051,6 +1051,55 @@ function nativeGenericAcquisitionHistoryEntryFixture(): Record<
   };
 }
 
+function blockedNativeGenericAcquisitionHistoryEntryFixture() {
+  const refFor = (kind: string, id: string, profile: string) => ({
+    artifact_id: "sha256:" + id.repeat(64),
+    kind,
+    media_type: "application/json",
+    manifest_profile_sha256: "sha256:" + profile.repeat(64),
+  });
+  return {
+    schema_version:
+      "policyos.runtime.run_native_generic_blocked_acquisition_history.v1",
+    source_job_id: "source-job-1",
+    action_job_id: "action-job-3",
+    candidate_id: "candidate-native-1",
+    route_id: "sha256:" + "c".repeat(64),
+    action_generation: 4,
+    route_receipt_ref: refFor(
+      nativeHistoryRefKinds.route_receipt_ref,
+      "a",
+      "b",
+    ),
+    reentry_receipt_ref: refFor(
+      nativeHistoryRefKinds.reentry_receipt_ref,
+      "c",
+      "d",
+    ),
+    source_compiled_ref: refFor(
+      nativeHistoryRefKinds.source_compiled_ref,
+      "2",
+      "2",
+    ),
+    pending_action_phase_ref: refFor(
+      nativeHistoryRefKinds.pending_action_phase_ref,
+      "e",
+      "f",
+    ),
+    source_cycle_index: 5,
+    continued_cycle_index: 6,
+    terminal_outcome: "reentry_completed",
+    terminal_kind: "acquisition_required",
+    simulation_status: "simulation_blocked",
+    scheduler_action: "defer",
+    blocker_code: "budget_exhausted_for_next_level",
+    numerical_result_status: "not_established",
+    currentness_status: "not_established",
+    authority_purpose: "candidate_observation_only",
+    publication_authority: false,
+  };
+}
+
 function runWithJointParent(parent: unknown): Record<string, unknown> {
   const run = parsedRunWithGenericCycleSimulation();
   const projection = run.generic_cycle_simulation as Record<string, unknown>;
@@ -2292,6 +2341,115 @@ describe("OverviewTab", () => {
     );
     expect(body).toHaveTextContent("Outcome outcome-a: 0.75");
     expect(history).not.toHaveTextContent("observed_admission: true");
+  });
+
+  it("shows the deferred N6 continuation and exact receipts alongside an earlier Native result", () => {
+    const run = parsedRunWithGenericCycleSimulation();
+    const blocked = blockedNativeGenericAcquisitionHistoryEntryFixture();
+    Object.assign(run.generic_cycle_simulation as Record<string, unknown>, {
+      acquisition_history: [
+        nativeGenericAcquisitionHistoryEntryFixture(),
+        blocked,
+      ],
+      acquisition_history_limitation_code: null,
+    });
+    overviewState.run = run;
+
+    renderWithProviders(<OverviewTab />);
+
+    const entry = screen.getByTestId(
+      "overview-generic-acquisition-history-native-blocked",
+    );
+    expect(entry).toHaveTextContent(
+      "N6 deferred the calculation because the remaining budget could not cover N5. No numerical result was produced for this continuation.",
+    );
+    expect(entry).toHaveTextContent("budget_exhausted_for_next_level");
+    expect(
+      within(entry).getByTestId(
+        "overview-generic-acquisition-native-blocked-boundary",
+      ),
+    ).toHaveTextContent(
+      "Authority purpose: candidate_observation_only; currentness: not_established; publication authority: false.",
+    );
+    const receipts = {
+      "route-receipt": blocked.route_receipt_ref,
+      "reentry-receipt": blocked.reentry_receipt_ref,
+      "source-compiled": blocked.source_compiled_ref,
+      "pending-action-phase": blocked.pending_action_phase_ref,
+    };
+    expect(within(entry).getAllByRole("link")).toHaveLength(4);
+    for (const [name, ref] of Object.entries(receipts)) {
+      const link = within(entry).getByTestId(
+        `overview-generic-acquisition-native-blocked-${name}-ref`,
+      );
+      const href = new URL(link.getAttribute("href")!, window.location.origin);
+      expect(href.pathname).toBe("/artifacts/" + ref.artifact_id);
+      expect(JSON.parse(href.searchParams.get("artifactRefKey")!)).toEqual([
+        ref.artifact_id,
+        ref.kind,
+        ref.media_type,
+        ref.manifest_profile_sha256,
+      ]);
+    }
+    expect(
+      within(entry).queryByTestId(/-n5-result-body$/u),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId("overview-generic-acquisition-native-n5-result-body"),
+    ).toHaveTextContent("Outcome outcome-a: 0.75");
+  });
+
+  it("withholds previously rendered Native history when the blocked row loses its pending receipt profile", () => {
+    const run = parsedRunWithGenericCycleSimulation();
+    const previous = nativeGenericAcquisitionHistoryEntryFixture();
+    const blocked = blockedNativeGenericAcquisitionHistoryEntryFixture();
+    const projection = run.generic_cycle_simulation as Record<string, unknown>;
+    overviewState.run = {
+      ...run,
+      generic_cycle_simulation: {
+        ...projection,
+        acquisition_history: [previous, blocked],
+      },
+    };
+    const view = renderWithProviders(<OverviewTab />);
+    expect(
+      screen.getByTestId("overview-generic-acquisition-history-native-blocked"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId("overview-generic-acquisition-native-n5-result-body"),
+    ).toBeInTheDocument();
+
+    overviewState.run = {
+      ...run,
+      generic_cycle_simulation: {
+        ...projection,
+        acquisition_history: [
+          previous,
+          {
+            ...blocked,
+            pending_action_phase_ref: {
+              ...blocked.pending_action_phase_ref,
+              manifest_profile_sha256: null,
+            },
+          },
+        ],
+      },
+    };
+    view.rerender(<OverviewTab />);
+
+    expect(
+      screen.getByTestId("overview-generic-cycle-simulation-refused"),
+    ).toHaveTextContent("projection_version_binding_invalid");
+    expect(
+      screen.queryByTestId(
+        "overview-generic-acquisition-history-native-blocked",
+      ),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(
+        "overview-generic-acquisition-native-n5-result-body",
+      ),
+    ).not.toBeInTheDocument();
   });
 
   it("renders listed simulation authority blockers on saved continuation history", () => {

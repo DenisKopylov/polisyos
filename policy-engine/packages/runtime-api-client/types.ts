@@ -19123,7 +19123,7 @@ export interface components {
              * Acquisition History
              * @default []
              */
-            acquisition_history: (components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV5"] | components["schemas"]["RunNativeGenericAcquisitionHistoryEntryV1"])[];
+            acquisition_history: (components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV5"] | components["schemas"]["RunNativeGenericAcquisitionHistoryEntryV1"] | components["schemas"]["RunNativeGenericBlockedAcquisitionHistoryEntryV1"])[];
             /** Acquisition History Limitation Code */
             acquisition_history_limitation_code?: ("acquisition_n4_source_not_established" | "acquisition_action_history_not_observed" | "acquisition_action_history_incomplete" | "acquisition_action_history_integrity_not_established" | "acquisition_action_history_terminal_projection_unavailable" | "acquisition_reentry_source_not_established") | null;
             /**
@@ -20229,7 +20229,7 @@ export interface components {
          */
         RunGenericCycleSimulationProjection: {
             /** Acquisition History */
-            acquisition_history?: (components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV5"] | components["schemas"]["RunNativeGenericAcquisitionHistoryEntryV1"])[] | null;
+            acquisition_history?: (components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntry"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV3"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV4"] | components["schemas"]["RunCandidateSimulationAcquisitionHistoryEntryV5"] | components["schemas"]["RunNativeGenericAcquisitionHistoryEntryV1"] | components["schemas"]["RunNativeGenericBlockedAcquisitionHistoryEntryV1"])[] | null;
             /** Acquisition History Limitation Code */
             acquisition_history_limitation_code?: string | null;
             /**
@@ -21080,6 +21080,116 @@ export interface components {
             terminal_outcome: "reentry_completed";
             /** World Model Record Content Hash */
             world_model_record_content_hash: string;
+        };
+        /**
+         * RunNativeGenericBlockedAcquisitionHistoryEntryV1
+         * @description Selected Native re-entry history for a cycle deferred before N5.
+         */
+        RunNativeGenericBlockedAcquisitionHistoryEntryV1: {
+            /** Action Generation */
+            action_generation: number;
+            /** Action Job Id */
+            action_job_id: string;
+            /**
+             * Authority Purpose
+             * @default candidate_observation_only
+             * @constant
+             */
+            authority_purpose: "candidate_observation_only";
+            /**
+             * Blocker Code
+             * @constant
+             */
+            blocker_code: "budget_exhausted_for_next_level";
+            /** Candidate Id */
+            candidate_id: string;
+            /** Continued Cycle Index */
+            continued_cycle_index: number;
+            /**
+             * Currentness Status
+             * @default not_established
+             * @constant
+             */
+            currentness_status: "not_established";
+            /**
+             * Numerical Result Status
+             * @default not_established
+             * @constant
+             */
+            numerical_result_status: "not_established";
+            pending_action_phase_ref: {
+                /** @constant */
+                kind: "runtime_quality.acquisition_route_phase_receipt";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            /**
+             * Publication Authority
+             * @default false
+             * @constant
+             */
+            publication_authority: false;
+            reentry_receipt_ref: {
+                /** @constant */
+                kind: "runtime_quality.acquisition_overlay_reentry_receipt";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            /** Route Id */
+            route_id: string;
+            route_receipt_ref: {
+                /** @constant */
+                kind: "runtime_quality.acquisition_route_loop_receipt";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            /**
+             * Scheduler Action
+             * @default defer
+             * @constant
+             */
+            scheduler_action: "defer";
+            /**
+             * Schema Version
+             * @constant
+             */
+            schema_version: "policyos.runtime.run_native_generic_blocked_acquisition_history.v1";
+            /**
+             * Simulation Status
+             * @default simulation_blocked
+             * @constant
+             */
+            simulation_status: "simulation_blocked";
+            source_compiled_ref: {
+                /** @constant */
+                kind: "runtime.compiled_recursive_generation_cycle";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Output"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            /** Source Cycle Index */
+            source_cycle_index: number;
+            /** Source Job Id */
+            source_job_id: string;
+            /**
+             * Terminal Kind
+             * @default acquisition_required
+             * @constant
+             */
+            terminal_kind: "acquisition_required";
+            /**
+             * Terminal Outcome
+             * @default reentry_completed
+             * @constant
+             */
+            terminal_outcome: "reentry_completed";
         };
         /**
          * RunNodeRecord

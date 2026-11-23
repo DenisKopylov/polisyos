@@ -81,6 +81,7 @@ from polisyos.core.contracts.runtime import (
     RunModelInputUseN5SuccessorProjectionV2,
     RunModelInputUseN5SuccessorResponse,
     RunNativeGenericAcquisitionHistoryEntryV1,
+    RunNativeGenericBlockedAcquisitionHistoryEntryV1,
     RunNodesResponse,
     RunOperatorDiagnostic,
     RunQuantitiesResponse,
@@ -1033,6 +1034,169 @@ def _native_generic_acquisition_history_entry(
     )
 
 
+def _native_generic_blocked_acquisition_history_entry(
+    *,
+    store: Any,
+    control_service: Any,
+    head: Any,
+    route_receipt_ref: ArtifactRef,
+    route_receipt: Any,
+    reentry_receipt_ref: ArtifactRef,
+    reentry_event_id: str | None,
+    reentry_receipt: Any,
+    compiled_ref: ArtifactRef,
+) -> RunNativeGenericBlockedAcquisitionHistoryEntryV1:
+    """Reopen the selected pre-N5 deferral and its historical Native activation."""
+    from polisyos.core.contracts.epoch import (
+        ActivatedOverlayAdmissionStatement,
+        load_verified_epoch_statement,
+    )
+    from polisyos.fabric.data_plane import content_sha256
+    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRoutePhaseReceipt
+    from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthReceipt
+
+    cycle = reentry_receipt.new_cycle
+    simulation = cycle.simulation
+    diagnostics = simulation.diagnostics
+    blocker = "budget_exhausted_for_next_level"
+    if (
+        route_receipt.schema_version != "AcquisitionRouteLoopReceipt@1.2"
+        or route_receipt.owner_declared_profile_ref is None
+        or route_receipt.native_leaf_provider_selection is None
+        or route_receipt.terminal_outcome != "reentry_completed"
+        or route_receipt.reentry_receipt_ref != str(reentry_receipt_ref.artifact_id)
+        or route_receipt.compiled_ref != str(compiled_ref.artifact_id)
+        or reentry_receipt.schema_version != "policyos.runtime.acquisition_overlay_reentry.v3"
+        or cycle.terminal_kind != "acquisition_required"
+        or cycle.selected_candidate_ref != simulation.candidate_id
+        or cycle.voi_decision.scheduler_action != "defer"
+        or cycle.voi_decision.scheduler_reason != blocker
+        or simulation.status != "simulation_blocked"
+        or simulation.authority_blockers != (blocker,)
+        or diagnostics.get("port") != "N6"
+        or diagnostics.get("scheduler_action") != "defer"
+        or diagnostics.get("reason") != blocker
+        or any(
+            getattr(simulation, field) is not None
+            for field in type(simulation).model_fields
+            if field.startswith(("generic_", "candidate_simulation_"))
+            or field
+            in {
+                "simulation_ref",
+                "simulation_result_ref",
+                "cycle_substrate_context_job_ref",
+                "model_input_obligation_set_ref",
+            }
+        )
+    ):
+        raise ValueError("native_acquisition_blocked_reentry_not_established")
+
+    verified = control_service.acquisition_route_sink.verify_action_head(head)
+    if (
+        verified.head != head
+        or verified.latest_receipt != route_receipt
+        or str(route_receipt_ref.artifact_id) != head.receipt_ref
+        or route_receipt_ref.manifest_profile_sha256 != head.receipt_manifest_profile_sha256
+    ):
+        raise ValueError("native_acquisition_reentry_terminal_head_mismatch")
+    chain = verified.phase_chain
+    if len(chain) < 3:
+        raise ValueError("native_acquisition_blocked_reentry_phase_missing")
+    selection, pending = chain[-3:-1]
+    if (
+        not isinstance(selection.receipt, AcquisitionRoutePhaseReceipt)
+        or selection.receipt.receipt_phase != "outcome_selected"
+        or len(selection.receipt.owner_receipt_refs) != 1
+        or not isinstance(pending.receipt, AcquisitionRoutePhaseReceipt)
+        or pending.receipt.receipt_phase != "world_committed_reentry_pending"
+        or pending.receipt_ref != route_receipt.predecessor_receipt_ref
+    ):
+        raise ValueError("native_acquisition_blocked_reentry_phase_missing")
+    pending_head = control_service._control_store.get_acquisition_action_head_by_receipt(
+        tenant_id=route_receipt.tenant_id,
+        cell_id=route_receipt.cell_id,
+        run_id=route_receipt.run_id,
+        source_job_id=route_receipt.source_job_id,
+        route_id=route_receipt.route_id,
+        action_generation=route_receipt.action_generation,
+        receipt_ref=pending.receipt_ref,
+    )
+    if (
+        pending_head is None
+        or pending_head.durable_event_id != pending.durable_event_id
+        or pending_head.head_generation != head.head_generation - 1
+        or pending_head.receipt_manifest_profile_sha256 is None
+    ):
+        raise ValueError("native_acquisition_blocked_reentry_phase_profile_missing")
+    pending_ref = ArtifactRef(
+        artifact_id=ArtifactID.model_validate(pending.receipt_ref),
+        kind="runtime_quality.acquisition_route_phase_receipt",
+        media_type="application/json",
+        manifest_profile_sha256=pending_head.receipt_manifest_profile_sha256,
+    )
+    if not store.verify(pending_ref).ok:
+        raise ValueError("native_acquisition_blocked_reentry_phase_profile_missing")
+
+    (growth_id,) = selection.receipt.owner_receipt_refs
+    if reentry_event_id != "evt_acquisition_reentry_" + growth_id.removeprefix("sha256:"):
+        raise ValueError("native_acquisition_blocked_reentry_event_mismatch")
+    growth_selector = ArtifactID.model_validate(growth_id)
+    growth_manifest = read_core_manifest_profile(store, growth_selector)[0]
+    if growth_manifest.kind != "runtime_quality.acquisition_world_growth_receipt":
+        raise ValueError("native_acquisition_blocked_reentry_growth_missing")
+    growth = AcquisitionWorldGrowthReceipt.model_validate(
+        read_core_json_artifact(store, artifact_ref_for_manifest(growth_manifest)).value
+    )
+    activation = growth.activation
+    overlay_ref = activation.overlay_admission_receipt_ref
+    if overlay_ref.manifest_profile_sha256 is None or str(overlay_ref.artifact_id) != (
+        reentry_receipt.overlay_receipt_ref
+    ):
+        raise ValueError("native_acquisition_blocked_reentry_overlay_mismatch")
+    overlay = ActivatedOverlayAdmissionStatement.model_validate(
+        load_verified_epoch_statement(
+            store=store,
+            ref=overlay_ref,
+            expected_kind="epoch.activated_overlay_admission_receipt",
+        )
+    )
+    if (
+        growth.selection.design_problem_ref != reentry_receipt.design_problem_ref
+        or growth.selection.epoch_id != reentry_receipt.epoch_id
+        or growth.passport_id != reentry_receipt.passport_id
+        or overlay.epoch_id != reentry_receipt.epoch_id
+        or overlay.passport_id != reentry_receipt.passport_id
+        or overlay.baseline_before_sha256 != reentry_receipt.baseline_content_hash
+        or overlay.admitted_observation_count != reentry_receipt.admitted_observation_count
+        or growth.previously_active_observations + growth.admitted_observation_delta
+        != reentry_receipt.admitted_observation_count
+        or overlay.semantic_epoch_stamp != activation.semantic_epoch_stamp
+        or overlay.semantic_epoch_stamp.epoch_ref != reentry_receipt.semantic_epoch_ref
+        or overlay.semantic_epoch_production_receipt_ref
+        != activation.semantic_epoch_production_receipt_ref
+        or str(activation.semantic_epoch_production_receipt_ref.artifact_id)
+        != reentry_receipt.semantic_epoch_production_receipt_ref
+        or content_sha256(overlay.model_dump(mode="json"))
+        != reentry_receipt.overlay_receipt_content_hash
+    ):
+        raise ValueError("native_acquisition_blocked_reentry_overlay_mismatch")
+    return RunNativeGenericBlockedAcquisitionHistoryEntryV1(
+        schema_version="policyos.runtime.run_native_generic_blocked_acquisition_history.v1",
+        source_job_id=route_receipt.source_job_id,
+        action_job_id=route_receipt.job_id,
+        candidate_id=cycle.selected_candidate_ref,
+        route_id=route_receipt.route_id,
+        action_generation=route_receipt.action_generation,
+        route_receipt_ref=route_receipt_ref,
+        reentry_receipt_ref=reentry_receipt_ref,
+        source_compiled_ref=compiled_ref,
+        pending_action_phase_ref=pending_ref,
+        source_cycle_index=reentry_receipt.source_cycle_index,
+        continued_cycle_index=cycle.cycle_index,
+        blocker_code=blocker,
+    )
+
+
 def _candidate_acquisition_history_projection(
     *,
     compiled: Any,
@@ -1051,7 +1215,8 @@ def _candidate_acquisition_history_projection(
         | RunCandidateSimulationAcquisitionHistoryEntryV3
         | RunCandidateSimulationAcquisitionHistoryEntryV4
         | RunCandidateSimulationAcquisitionHistoryEntryV5
-        | RunNativeGenericAcquisitionHistoryEntryV1,
+        | RunNativeGenericAcquisitionHistoryEntryV1
+        | RunNativeGenericBlockedAcquisitionHistoryEntryV1,
         ...,
     ],
     str | None,
@@ -1297,6 +1462,7 @@ def _candidate_acquisition_history_projection(
             | RunCandidateSimulationAcquisitionHistoryEntryV4
             | RunCandidateSimulationAcquisitionHistoryEntryV5
             | RunNativeGenericAcquisitionHistoryEntryV1
+            | RunNativeGenericBlockedAcquisitionHistoryEntryV1
         ] = []
         matching_receipts: list[
             tuple[
@@ -1760,7 +1926,7 @@ def _candidate_acquisition_history_projection(
                 route_receipt.reentry_receipt_ref,
                 kind="runtime_quality.acquisition_overlay_reentry_receipt",
             )
-            reentry_payload, _reentry_bytes, _reentry_report, reentry_receipt_ref = (
+            reentry_payload, _reentry_bytes, reentry_report, reentry_receipt_ref = (
                 _read_authority_payload(
                     reentry_receipt_ref,
                     expected_kind="runtime_quality.acquisition_overlay_reentry_receipt",
@@ -1817,6 +1983,25 @@ def _candidate_acquisition_history_projection(
             source_run = source_runs[0]
             if reentry_receipt.schema_version.endswith(".v3"):
                 validate_acquisition_overlay_continuation(source_run, reentry_receipt)
+            if (
+                route_receipt.schema_version == "AcquisitionRouteLoopReceipt@1.2"
+                and reentry_receipt.new_cycle.simulation.status == "simulation_blocked"
+                and reentry_receipt.new_cycle.simulation.diagnostics.get("port") == "N6"
+            ):
+                history_entries.append(
+                    _native_generic_blocked_acquisition_history_entry(
+                        store=store,
+                        control_service=control_service,
+                        head=_head,
+                        route_receipt_ref=route_receipt_ref,
+                        route_receipt=route_receipt,
+                        reentry_receipt_ref=reentry_receipt_ref,
+                        reentry_event_id=reentry_report.durable_event_id,
+                        reentry_receipt=reentry_receipt,
+                        compiled_ref=compiled_ref,
+                    )
+                )
+                continue
             if (
                 _acquisition_reentry_source_family(reentry_receipt.new_cycle.simulation)
                 == "generic"

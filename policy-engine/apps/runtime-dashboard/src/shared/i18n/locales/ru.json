@@ -667,6 +667,7 @@
         "modelInputContinuationScope": "Сохранённое наблюдение кандидата после продолжения; оно не предоставляет актуального права на выполнение или публикацию.",
         "modelInputContinuationBoundary": "Цель полномочий: {purpose}; актуальность: {currentness}; право публикации: {publication}.",
         "modelInputContinuationSimulation": "Зафиксированный статус симуляции: {status}",
+        "modelInputContinuationN6Deferred": "N6 отложил расчёт, поскольку остатка бюджета не хватило на N5. Для этого продолжения численный результат не получен.",
         "modelInputContinuationLimitations": "Зафиксированные ограничения:",
         "modelInputContinuationBlockers": "Блокирующие условия полномочий симуляции:",
         "modelInputContinuationNoBlockers": "Для этой записи блокирующие условия симуляции не зафиксированы. Это не предоставляет права публикации.",

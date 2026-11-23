@@ -3370,6 +3370,7 @@ const runCandidateSimulationProjectionSchema = z
           runCandidateSimulationAcquisitionHistoryEntryV3Schema,
           runCandidateSimulationAcquisitionHistoryEntrySchema,
           z.lazy(() => runNativeGenericAcquisitionHistoryEntryV1Schema),
+          z.lazy(() => runNativeGenericBlockedAcquisitionHistoryEntryV1Schema),
         ]),
       )
       .default([]),
@@ -3797,6 +3798,46 @@ export const runNativeGenericAcquisitionHistoryEntryV1Schema = z
 export type RunNativeGenericAcquisitionHistoryEntryV1View = z.output<
   typeof runNativeGenericAcquisitionHistoryEntryV1Schema
 >;
+
+export const runNativeGenericBlockedAcquisitionHistoryEntryV1Schema = z
+  .object({
+    schema_version: z.literal(
+      "policyos.runtime.run_native_generic_blocked_acquisition_history.v1",
+    ),
+    source_job_id: z.string().min(1),
+    action_job_id: z.string().min(1),
+    candidate_id: z.string().min(1),
+    route_id: z.string().regex(/^sha256:[0-9a-f]{64}$/),
+    action_generation: z.number().int().positive(),
+    route_receipt_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime_quality.acquisition_route_loop_receipt",
+    ),
+    reentry_receipt_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime_quality.acquisition_overlay_reentry_receipt",
+    ),
+    source_compiled_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime.compiled_recursive_generation_cycle",
+    ),
+    pending_action_phase_ref: nativeGenericAcquisitionHistoryRefSchema(
+      "runtime_quality.acquisition_route_phase_receipt",
+    ),
+    source_cycle_index: z.number().int().nonnegative(),
+    continued_cycle_index: z.number().int().positive(),
+    terminal_outcome: z.literal("reentry_completed"),
+    terminal_kind: z.literal("acquisition_required"),
+    simulation_status: z.literal("simulation_blocked"),
+    scheduler_action: z.literal("defer"),
+    blocker_code: z.literal("budget_exhausted_for_next_level"),
+    numerical_result_status: z.literal("not_established"),
+    currentness_status: z.literal("not_established"),
+    authority_purpose: z.literal("candidate_observation_only"),
+    publication_authority: z.literal(false),
+  })
+  .strict()
+  .refine((row) => row.continued_cycle_index === row.source_cycle_index + 1, {
+    path: ["continued_cycle_index"],
+    message: "native_generic_history_cycle_order_invalid",
+  });
 
 const runModelInputUseActionSelectorSchema = z
   .object({
@@ -5135,6 +5176,7 @@ const runGenericCycleSimulationProjectionFields = {
         runCandidateSimulationAcquisitionHistoryEntryV3Schema,
         runCandidateSimulationAcquisitionHistoryEntrySchema,
         runNativeGenericAcquisitionHistoryEntryV1Schema,
+        runNativeGenericBlockedAcquisitionHistoryEntryV1Schema,
       ]),
     )
     .nullable()

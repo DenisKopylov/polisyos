@@ -4489,7 +4489,8 @@ class RunCandidateSimulationProjection(BaseModel):
         | RunCandidateSimulationAcquisitionHistoryEntryV3
         | RunCandidateSimulationAcquisitionHistoryEntryV4
         | RunCandidateSimulationAcquisitionHistoryEntryV5
-        | RunNativeGenericAcquisitionHistoryEntryV1,
+        | RunNativeGenericAcquisitionHistoryEntryV1
+        | RunNativeGenericBlockedAcquisitionHistoryEntryV1,
         ...,
     ] = ()
     acquisition_history_limitation_code: (
@@ -5163,6 +5164,67 @@ class RunNativeGenericAcquisitionHistoryEntryV1(BaseModel):
             self.limitations
         ):
             raise ValueError("native_generic_history_limitations_incomplete")
+        return self
+
+
+class RunNativeGenericBlockedAcquisitionHistoryEntryV1(BaseModel):
+    """Selected Native re-entry history for a cycle deferred before N5."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["policyos.runtime.run_native_generic_blocked_acquisition_history.v1"]
+    source_job_id: str = Field(min_length=1)
+    action_job_id: str = Field(min_length=1)
+    candidate_id: str = Field(min_length=1)
+    route_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    action_generation: int = Field(ge=1)
+    route_receipt_ref: Annotated[
+        ArtifactRef,
+        Field(json_schema_extra=_native_generic_history_ref_json_schema("route_receipt_ref")),
+    ]
+    reentry_receipt_ref: Annotated[
+        ArtifactRef,
+        Field(json_schema_extra=_native_generic_history_ref_json_schema("reentry_receipt_ref")),
+    ]
+    source_compiled_ref: Annotated[
+        ArtifactRef,
+        Field(json_schema_extra=_native_generic_history_ref_json_schema("source_compiled_ref")),
+    ]
+    pending_action_phase_ref: Annotated[
+        ArtifactRef,
+        Field(
+            json_schema_extra=_native_generic_history_ref_json_schema("pending_action_phase_ref")
+        ),
+    ]
+    source_cycle_index: int = Field(ge=0)
+    continued_cycle_index: int = Field(ge=1)
+    terminal_outcome: Literal["reentry_completed"] = "reentry_completed"
+    terminal_kind: Literal["acquisition_required"] = "acquisition_required"
+    simulation_status: Literal["simulation_blocked"] = "simulation_blocked"
+    scheduler_action: Literal["defer"] = "defer"
+    blocker_code: Literal["budget_exhausted_for_next_level"]
+    numerical_result_status: Literal["not_established"] = "not_established"
+    currentness_status: Literal["not_established"] = "not_established"
+    authority_purpose: Literal["candidate_observation_only"] = "candidate_observation_only"
+    publication_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _bind_blocked_history(self) -> RunNativeGenericBlockedAcquisitionHistoryEntryV1:
+        for field_name in (
+            "route_receipt_ref",
+            "reentry_receipt_ref",
+            "source_compiled_ref",
+            "pending_action_phase_ref",
+        ):
+            ref = getattr(self, field_name)
+            if (
+                ref.kind != _NATIVE_GENERIC_HISTORY_REF_KINDS[field_name]
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("native_generic_history_selected_ref_invalid")
+        if self.continued_cycle_index != self.source_cycle_index + 1:
+            raise ValueError("native_generic_history_cycle_order_invalid")
         return self
 
 
@@ -5968,7 +6030,8 @@ class RunGenericCycleSimulationProjection(BaseModel):
             | RunCandidateSimulationAcquisitionHistoryEntryV3
             | RunCandidateSimulationAcquisitionHistoryEntryV4
             | RunCandidateSimulationAcquisitionHistoryEntryV5
-            | RunNativeGenericAcquisitionHistoryEntryV1,
+            | RunNativeGenericAcquisitionHistoryEntryV1
+            | RunNativeGenericBlockedAcquisitionHistoryEntryV1,
             ...,
         ]
         | None

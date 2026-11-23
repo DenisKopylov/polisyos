@@ -7,9 +7,13 @@ from decimal import Decimal
 
 import pytest
 
-from polisyos.core.llm.settlement import LLMProducerEvent, LLMProducerSettlement
+from polisyos.core.llm.settlement import (
+    LLMManagedProducerOutcomeError,
+    LLMProducerEvent,
+    LLMProducerSettlement,
+)
 from polisyos.core.llm.traced_client import TracedLLMClient
-from polisyos.runtime.quality.design_generation import RecordingLLMClient
+from polisyos.runtime.quality.design_generation import LLMGenerationCall, RecordingLLMClient
 from polisyos.runtime.quality.native_settled_draft import (
     NativeSettledDraftRecovery,
     NativeSettledN4Occurrence,
@@ -17,6 +21,7 @@ from polisyos.runtime.quality.native_settled_draft import (
     _adopt_settled_draft,
     _native_settled_draft_scope,
     _native_settled_n4_scope,
+    _verify_baseline_n4_response,
     _verify_settled_draft,
     _verify_settled_n4_recovery,
 )
@@ -239,7 +244,7 @@ def _make_n4_cut() -> _N4Cut:
         event_id="llm-provider:" + "b" * 32,
         request_digest="1" * 64,
         response_text="baseline",
-        revision=16,
+        revision=12,
         committed_at=_BEFORE - timedelta(seconds=5),
         amount=Decimal("0.70"),
     )
@@ -404,11 +409,22 @@ def _bind_n4_cut_to_live_requests(
         event_id, request_digest = extra_accounted_request
         bind(event_id, request_digest, _N4_BODY)
     selected = cut.selected.model_copy(update={"occurrences": tuple(bound_occurrences)})
-    return _N4Cut(
-        selected,
-        cut.snapshot.model_copy(update={"producer_settlements": records, "spend_receipts": spends}),
-        cut.window,
+    snapshot = cut.snapshot.model_copy(
+        update={"producer_settlements": records, "spend_receipts": spends}
     )
+    window = cut.window
+    if (
+        extra_accounted_request is not None
+        and records[extra_accounted_request[0]].revision <= window.revision
+    ):
+        total, digest = _reentry_prefix(snapshot, window.scope.run_binding, cutoff=window.revision)
+        window = window.model_copy(
+            update={"baseline_total_usd": total, "baseline_prefix_digest": digest}
+        )
+        snapshot = snapshot.model_copy(
+            update={"reentry_budget_windows": {window.window_id: window}}
+        )
+    return _N4Cut(selected, snapshot, window)
 
 
 def _issued_n4_request(
@@ -768,8 +784,24 @@ async def test_native_recorder_consumes_draft_and_two_paid_n4_calls_once_then_fe
 
 
 @pytest.mark.asyncio
-async def test_native_n4_scope_allows_new_managed_consolidation_after_selected_outputs(
+@pytest.mark.parametrize(
+    ("stage", "instance", "baseline_case"),
+    [
+        pytest.param("drafter_consolidation", "consolidation", "new", id="genuinely-new"),
+        pytest.param("formalizer", "formalize", "missing", id="paid-in-baseline"),
+        pytest.param("formalizer", "formalize", "original", id="adopt-formalizer"),
+        pytest.param("critic", "critique", "original", id="adopt-critic"),
+        pytest.param("formalizer", "formalize", "corrupt", id="same-role-wrong-bytes"),
+        pytest.param("formalizer", "formalize", "ambiguous", id="ambiguous-response"),
+        pytest.param("formalizer", "formalize", "foreign-begin", id="foreign-original-owner"),
+        pytest.param("critic", "critique", "foreign-digest", id="unrelated-paid-digest"),
+    ],
+)
+async def test_native_n4_scope_classifies_managed_followup_after_selected_outputs(
     monkeypatch: pytest.MonkeyPatch,
+    stage: str,
+    instance: str,
+    baseline_case: str,
 ) -> None:
     from polisyos.runtime.quality.design_generation import _PREPARED_INPUT_KEY
     from polisyos.scientist.orchestration.llm._n4_request import _binding_scope
@@ -806,6 +838,14 @@ async def test_native_n4_scope_allows_new_managed_consolidation_after_selected_o
         attempt=0,
         user="paid constraint request",
     )
+    followup, context, followup_digest = _issued_n4_request(
+        recorder,
+        traced,
+        stage=stage,
+        instance=instance,
+        attempt=0,
+        user="managed follow-up request",
+    )
     base = _make_n4_cut()
     cut = _bind_n4_cut_to_live_requests(
         base,
@@ -824,26 +864,138 @@ async def test_native_n4_scope_allows_new_managed_consolidation_after_selected_o
                 constraint_digest,
             ),
         ),
+        extra_accounted_request=(
+            ("llm-provider:" + "b" * 32, followup_digest)
+            if baseline_case not in {"new", "foreign-digest"}
+            else None
+        ),
     )
+    baseline = cut.snapshot.producer_settlements["llm-provider:" + "b" * 32]
+    baseline_spend = cut.snapshot.spend_receipts[baseline.event_id]
+    binding = cut.window.scope.run_binding
+    if baseline_case == "foreign-digest":
+        foreign_id = "llm-provider:" + "f" * 32
+        foreign_event = LLMProducerEvent(
+            event_id=foreign_id,
+            request_digest=followup_digest,
+            response_digest=hashlib.sha256(_N4_BODY.encode()).hexdigest(),
+            model=baseline.model,
+            provider=baseline.provider,
+            amount=baseline.amount,
+            cost_origin=baseline.cost_origin,
+        )
+        shared = {
+            "event_id": foreign_id,
+            "key": "nl-run:other-run",
+            "payload_digest": foreign_event.payload_digest,
+            "revision": 14,
+        }
+        foreign = baseline.model_copy(
+            update={
+                **shared,
+                "request_digest": followup_digest,
+                "run_binding": binding.model_copy(
+                    update={"run_id": "other-run", "control_job_id": "other-source"}
+                ),
+            }
+        )
+        cut = replace(
+            cut,
+            snapshot=cut.snapshot.model_copy(
+                update={
+                    "producer_settlements": {
+                        **cut.snapshot.producer_settlements,
+                        foreign_id: foreign,
+                    },
+                    "spend_receipts": {
+                        **cut.snapshot.spend_receipts,
+                        foreign_id: baseline_spend.model_copy(update=shared),
+                    },
+                }
+            ),
+        )
     proof = cut.verify()
+    begin = baseline.model_copy(
+        update={
+            "status": "pending",
+            "payload_digest": None,
+            "amount": None,
+            "cost_origin": "unknown",
+            "revision": baseline.revision - 1,
+            "committed_at": baseline.committed_at - timedelta(seconds=1),
+            "run_binding": (
+                binding.model_copy(update={"control_job_id": "other-source"})
+                if baseline_case == "foreign-begin"
+                else binding
+            ),
+        }
+    )
+    original_call = LLMGenerationCall(
+        call_index=0,
+        role_hint=stage,
+        model_id=_MODEL,
+        prompt_hash=_REF,
+        raw_llm_response=_N4_BODY + " " if baseline_case == "corrupt" else _N4_BODY,
+    )
+    original_calls = (original_call,)
+    if baseline_case == "ambiguous":
+        original_calls += (original_call.model_copy(update={"call_index": 1}),)
+    reopened = []
 
-    with _native_settled_n4_scope(cut.selected, lambda: proof):
+    def reopen_baseline(record, current_stage):
+        reopened.append((record.event_id, current_stage))
+        return _verify_baseline_n4_response(
+            record,
+            stage=current_stage,
+            snapshot=cut.snapshot,
+            window=cut.window,
+            begin=begin,
+            calls=original_calls,
+        )
+
+    with _native_settled_n4_scope(
+        cut.selected,
+        lambda: proof,
+        reopen_baseline=None if baseline_case == "missing" else reopen_baseline,
+    ):
         assert (await recorder.generate(**draft_request)).content == _BODY
         assert (await recorder.generate(**side_request)).content == _N4_BODY
         assert (await recorder.generate(**constraint_request)).content == _N4_BODY
 
-        consolidation, context, _ = _issued_n4_request(
-            recorder,
-            traced,
-            stage="drafter_consolidation",
-            instance="consolidation",
-            attempt=0,
-            user="new consolidation request",
-        )
-        prepared = consolidation.pop(_PREPARED_INPUT_KEY)
-        kwargs = {name: value for name, value in consolidation.items() if not name.startswith("_")}
-        with (
-            _binding_scope(recorder._producer_request_binding, context, kwargs),
-            traced.prepared_producer_input(prepared, kwargs),
-        ):
-            assert _adopt_settled_draft(traced, kwargs, context) is None
+        if baseline_case in {"new", "foreign-digest"}:
+            prepared = followup.pop(_PREPARED_INPUT_KEY)
+            kwargs = {name: value for name, value in followup.items() if not name.startswith("_")}
+            with (
+                _binding_scope(recorder._producer_request_binding, context, kwargs),
+                traced.prepared_producer_input(prepared, kwargs),
+            ):
+                assert _adopt_settled_draft(traced, kwargs, context) is None
+            assert reopened == []
+        elif baseline_case == "original":
+            adopted = await recorder.generate(**followup)
+            assert adopted.content == _N4_BODY
+            assert adopted.settlement.event.event_id == baseline.event_id
+            assert adopted.settlement.event.payload_digest == baseline.payload_digest
+            assert recorder.calls[-1].historical_settlement_event_id == baseline.event_id
+            repeated, _, _ = _issued_n4_request(
+                recorder,
+                traced,
+                stage=stage,
+                instance=instance,
+                attempt=0,
+                user="managed follow-up request",
+            )
+            with pytest.raises(LLMManagedProducerOutcomeError) as refusal:
+                await recorder.generate(**repeated)
+            assert str(refusal.value.__cause__) == "native_settled_n4_paid_request_digest_replayed"
+            assert reopened == [(baseline.event_id, stage)]
+        else:
+            reason = {
+                "missing": "response_not_established",
+                "corrupt": "response_not_established",
+                "ambiguous": "response_ambiguous",
+                "foreign-begin": "settlement_not_established",
+            }[baseline_case]
+            with pytest.raises(LLMManagedProducerOutcomeError) as refusal:
+                await recorder.generate(**followup)
+            assert str(refusal.value.__cause__) == f"native_settled_n4_baseline_{reason}"

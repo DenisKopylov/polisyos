@@ -17,10 +17,12 @@ if TYPE_CHECKING:
     from datetime import datetime
 
     from polisyos.core.llm.settlement import LLMProducerSettlement, LLMSettledResponse
+    from polisyos.runtime.quality.design_generation import LLMGenerationCall
     from polisyos.scientist.orchestration.engine.budget_ledger import (
         BudgetLedgerProducerRecord,
         BudgetLedgerReentryBudgetWindow,
         BudgetLedgerSnapshot,
+        BudgetLedgerSpendReceipt,
     )
 
 
@@ -189,6 +191,7 @@ class VerifiedNativeSettledN4Recovery:
     occurrences: tuple[VerifiedNativeSettledN4Occurrence, ...]
     accounted_producer_event_ids: tuple[str, ...]
     accounted_request_digests: tuple[str, ...]
+    baseline_paid_records: tuple[BudgetLedgerProducerRecord, ...]
 
 
 def _verify_settled_n4_recovery(
@@ -208,11 +211,6 @@ def _verify_settled_n4_recovery(
     action lease supplies the separate time interval for its six charged N4
     retries; this verifier makes no claim about external N5 execution.
     """
-    from polisyos.core.llm.settlement import (
-        LLMProducerEvent,
-        LLMProducerSettlement,
-        LLMSettlementAck,
-    )
     from polisyos.scientist.orchestration.engine.budget_ledger import _reentry_prefix
 
     binding = window.scope.run_binding
@@ -387,38 +385,12 @@ def _verify_settled_n4_recovery(
     ):
         raise ValueError("native_settled_n4_open_or_physical_reservation")
 
-    def make_settlement(
-        record: BudgetLedgerProducerRecord, response_text: str
-    ) -> LLMProducerSettlement:
-        event = LLMProducerEvent(
-            event_id=record.event_id,
-            request_digest=record.request_digest,
-            response_digest=hashlib.sha256(response_text.encode()).hexdigest(),
-            model=record.model,
-            provider=record.provider,
-            amount=record.amount,
-            cost_origin=record.cost_origin,
-        )
-        spend = spend_by_id[record.event_id]
-        if (event.payload_digest, record.payload_digest, spend.payload_digest) != (
-            event.payload_digest,
-        ) * 3:
-            raise ValueError("native_settled_n4_response_mismatch")
-        return LLMProducerSettlement(
-            event,
-            LLMSettlementAck(
-                event.event_id,
-                event.payload_digest,
-                "committed",
-                (event.event_id,),
-                "ledger",
-            ),
-        )
-
     draft_record = records_by_id.get(selected.draft.producer_event_id)
     if draft_record is None or draft_record.revision != selected.draft.ledger_revision:
         raise ValueError("native_settled_n4_draft_selection_mismatch")
-    draft_settlement = make_settlement(draft_record, selected.draft.response_text)
+    draft_settlement = _settled_n4_response(
+        draft_record, spend_by_id[draft_record.event_id], selected.draft.response_text
+    )
     selected_occurrences: list[VerifiedNativeSettledN4Occurrence] = []
     for occurrence in selected.occurrences:
         record = records_by_id.get(occurrence.producer_event_id)
@@ -427,7 +399,9 @@ def _verify_settled_n4_recovery(
         selected_occurrences.append(
             VerifiedNativeSettledN4Occurrence(
                 occurrence,
-                make_settlement(record, occurrence.response_text),
+                _settled_n4_response(
+                    record, spend_by_id[record.event_id], occurrence.response_text
+                ),
             )
         )
 
@@ -437,7 +411,131 @@ def _verify_settled_n4_recovery(
         occurrences=tuple(selected_occurrences),
         accounted_producer_event_ids=tuple(record.event_id for record in records),
         accounted_request_digests=tuple(record.request_digest for record in records),
+        baseline_paid_records=tuple(
+            record
+            for record in snapshot.producer_settlements.values()
+            if record.revision <= window.revision
+            and record.run_binding == binding
+            and record.key == key
+            and record.control_job_attempt == source_attempt
+        ),
     )
+
+
+def _settled_n4_response(
+    record: BudgetLedgerProducerRecord,
+    spend: BudgetLedgerSpendReceipt,
+    response_text: str,
+) -> LLMProducerSettlement:
+    from polisyos.core.llm.settlement import (
+        LLMProducerEvent,
+        LLMProducerSettlement,
+        LLMSettlementAck,
+    )
+
+    event = LLMProducerEvent(
+        event_id=record.event_id,
+        request_digest=record.request_digest,
+        response_digest=hashlib.sha256(response_text.encode()).hexdigest(),
+        model=record.model,
+        provider=record.provider,
+        amount=record.amount,
+        cost_origin=record.cost_origin,
+    )
+    if (
+        event.payload_digest != record.payload_digest
+        or event.payload_digest != spend.payload_digest
+    ):
+        raise ValueError("native_settled_n4_response_mismatch")
+    return LLMProducerSettlement(
+        event,
+        LLMSettlementAck(
+            event.event_id, event.payload_digest, "committed", (event.event_id,), "ledger"
+        ),
+    )
+
+
+def _verify_baseline_n4_response(
+    record: BudgetLedgerProducerRecord,
+    *,
+    stage: str,
+    snapshot: BudgetLedgerSnapshot,
+    window: BudgetLedgerReentryBudgetWindow,
+    begin: BudgetLedgerProducerRecord | None,
+    calls: tuple[LLMGenerationCall, ...],
+) -> LLMSettledResponse:
+    """Reconcile one original producer receipt with its selected durable source bytes."""
+    from polisyos.core.llm.settlement import LLMSettledResponse
+    from polisyos.scientist.orchestration.engine.budget_ledger import _reentry_prefix
+    from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse
+
+    if (
+        snapshot.ledger_id != window.ledger_id
+        or snapshot.reentry_budget_windows.get(window.window_id) != window
+        or record.revision > window.baseline_revision
+        or record.run_binding != window.scope.run_binding
+        or snapshot.producer_settlements.get(record.event_id) != record
+        or _reentry_prefix(snapshot, window.scope.run_binding, cutoff=window.revision)
+        != (window.baseline_total_usd, window.baseline_prefix_digest)
+    ):
+        raise ValueError("native_settled_n4_baseline_prefix_mismatch")
+    spend = snapshot.spend_receipts.get(record.event_id)
+    if (
+        begin is None
+        or spend is None
+        or begin.status != "pending"
+        or record.status != "committed"
+        or record.cost_origin not in {"reported", "estimated"}
+        or record.amount is None
+        or record.control_job_attempt is None
+        or not begin.revision < record.revision == spend.revision
+        or not begin.committed_at <= record.committed_at <= spend.committed_at
+        or (
+            begin.event_id,
+            begin.key,
+            begin.model,
+            begin.provider,
+            begin.request_digest,
+            begin.run_binding,
+            begin.control_job_attempt,
+        )
+        != (
+            record.event_id,
+            record.key,
+            record.model,
+            record.provider,
+            record.request_digest,
+            record.run_binding,
+            record.control_job_attempt,
+        )
+        or (spend.event_id, spend.key, spend.provider, spend.amount)
+        != (record.event_id, record.key, record.provider, record.amount)
+    ):
+        raise ValueError("native_settled_n4_baseline_settlement_not_established")
+
+    # Match the complete historical provider payload, not the caller's JSON
+    # interpretation, a normalized response, or another occurrence's role.
+    matched = None
+    for call in calls:
+        if (
+            call.role_hint != stage
+            or call.status != "success"
+            or call.model_id != record.model
+            or not call.raw_llm_response
+        ):
+            continue
+        try:
+            settlement = _settled_n4_response(record, spend, call.raw_llm_response)
+        except ValueError:
+            continue
+        if matched is not None:
+            raise ValueError("native_settled_n4_baseline_response_ambiguous")
+        matched = LLMSettledResponse(
+            GatewayLLMResponse(content=call.raw_llm_response, model=record.model), settlement
+        )
+    if matched is None:
+        raise ValueError("native_settled_n4_baseline_response_not_established")
+    return matched
 
 
 @dataclass(slots=True)
@@ -461,10 +559,12 @@ class _N4Adoption:
 
     selected: NativeSettledN4Recovery
     reopen: Callable[[], VerifiedNativeSettledN4Recovery]
+    reopen_baseline: Callable[[BudgetLedgerProducerRecord, str], LLMSettledResponse] | None
     lock: Lock = field(default_factory=Lock)
     draft_consumed: bool = False
     occurrence_index: int = 0
     latest_proof: VerifiedNativeSettledN4Recovery | None = None
+    baseline_adopted: set[str] = field(default_factory=set)
 
 
 _N4_ACTIVE: ContextVar[_N4Adoption | None] = ContextVar("native_settled_n4_recovery", default=None)
@@ -488,11 +588,17 @@ def _native_settled_draft_scope(
 def _native_settled_n4_scope(
     selected: NativeSettledN4Recovery,
     reopen: Callable[[], VerifiedNativeSettledN4Recovery],
+    *,
+    reopen_baseline: Callable[[BudgetLedgerProducerRecord, str], LLMSettledResponse] | None = None,
 ) -> Iterator[None]:
     """Require one exact draft followed by both selected paid N4 occurrences."""
-    if type(selected) is not NativeSettledN4Recovery or not callable(reopen):
+    if (
+        type(selected) is not NativeSettledN4Recovery
+        or not callable(reopen)
+        or (reopen_baseline is not None and not callable(reopen_baseline))
+    ):
         raise TypeError("native_settled_n4_scope_untyped")
-    adoption = _N4Adoption(selected, reopen)
+    adoption = _N4Adoption(selected, reopen, reopen_baseline)
     token = _N4_ACTIVE.set(adoption)
     try:
         yield
@@ -675,7 +781,37 @@ def _adopt_settled_n4(
             raise ValueError("native_settled_n4_paid_request_digest_replayed")
         if not _native_n4_managed_direct_call(client):
             raise ValueError("native_settled_n4_new_managed_stage_required")
-        return None
+        baseline = tuple(
+            record
+            for record in adoption.latest_proof.baseline_paid_records
+            if record.request_digest == current_digest
+        )
+        if not baseline:
+            return None
+        if len(baseline) != 1:
+            raise ValueError("native_settled_n4_baseline_response_ambiguous")
+        (record,) = baseline
+        if record.event_id in adoption.baseline_adopted:
+            raise ValueError("native_settled_n4_paid_request_digest_replayed")
+        if adoption.reopen_baseline is None or producer_context.get("model_id") != record.model:
+            raise ValueError("native_settled_n4_baseline_response_not_established")
+        response = adoption.reopen_baseline(record, stage)
+        if type(response) is not LLMSettledResponse:
+            raise ValueError("native_settled_n4_baseline_response_not_established")
+        settlement = response.settlement
+        if (
+            settlement.event.event_id != record.event_id
+            or settlement.event.payload_digest != record.payload_digest
+            or settlement.ack.status != "committed"
+            or settlement.ack.durability != "ledger"
+            or settlement.ack.receipts != (record.event_id,)
+            or not isinstance(response.content, str)
+            or hashlib.sha256(response.content.encode()).hexdigest()
+            != settlement.event.response_digest
+        ):
+            raise ValueError("native_settled_n4_baseline_response_not_established")
+        adoption.baseline_adopted.add(record.event_id)
+        return response
 
 
 def _adopt_settled_draft(

@@ -2081,7 +2081,7 @@ if TYPE_CHECKING:
         ObservationalRunIntent as _ObservationalRunIntent,
     )
     from polisyos.core.llm import LLMProducerIntent
-    from polisyos.core.llm.settlement import LLMProducerSettlement
+    from polisyos.core.llm.settlement import LLMProducerSettlement, LLMSettledResponse
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
@@ -9865,6 +9865,7 @@ class ControlPlaneService(
             from polisyos.runtime.quality.native_settled_draft import (
                 VerifiedNativeSettledN4Recovery,
                 _native_settled_n4_scope,
+                _verify_baseline_n4_response,
                 _verify_settled_n4_recovery,
             )
 
@@ -9919,8 +9920,69 @@ class ControlPlaneService(
                 validate_current_admission()
                 return proof
 
+            def reopen_baseline_n4(
+                record: BudgetLedgerProducerRecord, stage: str
+            ) -> LLMSettledResponse:
+                from polisyos.runtime.http.services.control.producer_basis import (
+                    read_control_job_producer_basis,
+                )
+                from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+
+                if self._control_store.current_native_acquisition_custody_recovery() != recovery:
+                    raise ValueError("native_settled_n4_recovery_changed")
+                terminal = self.resolve_completed_control_job_core_run_source(
+                    source_job,
+                    expected_control_run_id=binding.run_id,
+                    tenant_id=binding.tenant_id,
+                    cell_id=binding.cell_id,
+                )
+                begins = read_control_job_producer_basis(
+                    store=self._artifact_store,
+                    terminal=terminal,
+                    run_binding=binding,
+                    attempt=source_job.attempt,
+                )
+                source, context_ref, n4_ref = bridge._native_derivation_reentry_source_refs(closure)
+                simulation = closure.source_cycle.simulation
+                if (
+                    source.schema_version
+                    != "policyos.runtime.n7_configured_candidate_port_source.v3"
+                    or simulation.generic_profile_ref is None
+                ):
+                    raise ValueError("native_settled_n4_baseline_response_not_established")
+                original = GenerationSourceRepository(self._artifact_store).load(
+                    n4_ref,
+                    run_id=source.source_generation_run_id,
+                    expected_job_id=binding.control_job_id,
+                    expected_run_id=binding.run_id,
+                    expected_tenant_id=binding.tenant_id,
+                    expected_cell_id=binding.cell_id,
+                    context_job_ref=context_ref,
+                    profile_ref=simulation.generic_profile_ref,
+                    n4_child_profile_family_ref=simulation.generic_n4_child_profile_family_ref,
+                )
+                if original.cycle_index != source.cycle_index:
+                    raise ValueError("native_settled_n4_baseline_response_not_established")
+                snapshot = run_guarded_dependency_operation(
+                    self._control_store, store.snapshot_safe
+                )
+                response = _verify_baseline_n4_response(
+                    record,
+                    stage=stage,
+                    snapshot=snapshot,
+                    window=window,
+                    begin=begins.get(record.event_id),
+                    calls=original.generation_result.llm_calls,
+                )
+                validate_current_admission()
+                if self._control_store.current_native_acquisition_custody_recovery() != recovery:
+                    raise ValueError("native_settled_n4_recovery_changed")
+                return response
+
             reopen_settled_n4()
-            draft_scope = _native_settled_n4_scope(selected_recovery, reopen_settled_n4)
+            draft_scope = _native_settled_n4_scope(
+                selected_recovery, reopen_settled_n4, reopen_baseline=reopen_baseline_n4
+            )
         if recovery is not None and (
             recovery.settled_draft is not None or recovery.n4_recovery is not None
         ):

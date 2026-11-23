@@ -5,6 +5,7 @@ from __future__ import annotations
 import sys
 import threading
 from collections import Counter
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from functools import wraps
 from pathlib import Path
@@ -73,7 +74,13 @@ from tests._helpers.control_worker import dispatch_one_control_job
 pytest_plugins = ("tests._helpers.acquisition_served_history",)
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from polisyos.core.artifacts import ArtifactStore
+
+
+class _UnexpectedReplicaN5EntryError(RuntimeError):
+    """An equal-replica fixture attempted to enter a real N5 body again."""
 
 
 class _OwnerCallMonitor:
@@ -91,6 +98,7 @@ class _OwnerCallMonitor:
         self._counts: Counter[str] = Counter()
         self._lock = threading.Lock()
         self._prior_profile: Any = None
+        self._refuse_n5_starts = False
 
     def __enter__(self) -> _OwnerCallMonitor:
         from polisyos.runtime.quality import data_state_substrate, world_model_record
@@ -176,7 +184,26 @@ class _OwnerCallMonitor:
         with self._lock:
             target = self._targets.get(id(code))
             if target is not None and target[0] is code:
-                self._counts[target[1]] += 1
+                label = target[1]
+                self._counts[label] += 1
+                if self._refuse_n5_starts and label in {"n5", "n5_controller"}:
+                    raise _UnexpectedReplicaN5EntryError(
+                        f"controlled_replica_unexpected_n5_entry:{label}"
+                    )
+
+    @contextmanager
+    def refuse_replica_n5(self) -> Iterator[None]:
+        """Fence the real numerical bodies during the equal-replica actions."""
+        self.assert_slots_unchanged()
+        with self._lock:
+            if self._tool_id is None or self._refuse_n5_starts:
+                raise RuntimeError("acquisition_sequence_n5_refusal_scope_invalid")
+            self._refuse_n5_starts = True
+        try:
+            yield
+        finally:
+            with self._lock:
+                self._refuse_n5_starts = False
 
     def snapshot(self) -> Counter[str]:
         with self._lock:
@@ -1180,7 +1207,8 @@ def test_real_local_replica_retains_exact_b_and_refuses_relabel_after_restart(
     def check(*, ctx: SimpleNamespace, oracle: _SequentialOracle, **inputs: Any) -> None:
         assert ctx.growth.controlled_replica == oracle.replica_bindings[1]
         calls_before = oracle.monitor.snapshot()
-        deferred, equal = inputs["issue_equal_source"]()
+        with oracle.monitor.refuse_replica_n5():
+            deferred, equal = inputs["issue_equal_source"]()
         terminal = equal.receipt
         assert len(deferred.transport_calls) == 1 and equal.transport_calls == ()
         assert oracle.monitor.snapshot() == calls_before
@@ -1354,6 +1382,49 @@ def test_owner_monitor_counts_one_async_entry_without_replacing_profile_or_slots
         assert sys.getprofile() is profile
     finally:
         sys.setprofile(prior)
+
+
+def test_owner_monitor_refuses_scoped_real_n5_entries_before_their_bodies() -> None:
+    """Count refused owner entries and allow normal entry after the scope closes."""
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationControllerError,
+        JointSimulationHorizonController,
+    )
+
+    port_call = JointSimulationPort.__call__
+    controller_run = JointSimulationHorizonController.run
+    prior_capture = object()
+    port = SimpleNamespace(_candidate_execution_started=False)
+    controller = SimpleNamespace(_last_n5_implementation_capture=prior_capture)
+    empty_request = SimpleNamespace(intervention_atoms=())
+
+    def cheap_reaction() -> str:
+        return "retained"
+
+    with _OwnerCallMonitor() as monitor:
+        monitor.watch("cheap", cheap_reaction)
+        with monitor.refuse_replica_n5():
+            assert cheap_reaction() == "retained"
+            with pytest.raises(_UnexpectedReplicaN5EntryError, match=r"unexpected_n5_entry:n5$"):
+                port_call(port, candidate=None, problem=None, cycle_index=2)
+            with pytest.raises(
+                _UnexpectedReplicaN5EntryError, match=r"unexpected_n5_entry:n5_controller$"
+            ):
+                controller_run(controller, empty_request)
+            assert monitor.snapshot() == {"cheap": 1, "n5": 1, "n5_controller": 1}
+            assert not port._candidate_execution_started
+            assert controller._last_n5_implementation_capture is prior_capture
+
+        with pytest.raises(AttributeError, match="_produce"):
+            port_call(port, candidate=None, problem=None, cycle_index=2)
+        with pytest.raises(JointSimulationControllerError, match="intervention_atoms_missing"):
+            controller_run(controller, empty_request)
+        assert monitor.snapshot() == {"cheap": 1, "n5": 2, "n5_controller": 2}
+        assert port._candidate_execution_started
+        assert controller._last_n5_implementation_capture is None
+        assert JointSimulationPort.__call__ is port_call
+        assert JointSimulationHorizonController.run is controller_run
+        monitor.assert_slots_unchanged()
 
 
 @pytest.mark.asyncio

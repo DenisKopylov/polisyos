@@ -1571,6 +1571,17 @@ class AcquisitionEvaluationCurrentOwner:
             raise ValueError("acquisition_retained_current_basis_changed")
         return current
 
+    def currentness_resolver(self) -> bool:
+        """Reopen the live selected basis before consuming its retained handoff."""
+        if self.prior is None:
+            return False
+        try:
+            self.revalidate()
+        except (OSError, RuntimeError, TypeError, ValueError, KeyError, AttributeError) as exc:
+            artifacts.raise_artifact_read_access_error(exc)
+            return False
+        return True
+
     def planner_snapshot(self, base: AcquisitionWorldSnapshot) -> AcquisitionWorldSnapshot:
         """Keep the old real evaluation world and bind the freshly revalidated source relation."""
         from polisyos.runtime.quality.acquisition_planner import AcquisitionWorldSnapshot
@@ -7303,55 +7314,56 @@ def _prospective_model_transition(
     )
 
 
-def _current_cheap_continuation(
-    bridge: AcquisitionWorldGrowthBridge,
-    selection: _CurrentSelection,
-    prior: ResolvedAcquisitionEvaluation,
-    current_basis_ref: ArtifactRef,
-    native_context: CandidateN5NativeContext | None = None,
-) -> object:
+def _current_cheap_continuation(owner: AcquisitionEvaluationCurrentOwner) -> object:
     from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
     from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+    from polisyos.runtime.quality.substrate_registry import catalog_serving_source_scope
     from polisyos.scientist import BudgetState
 
-    payload = load_core_json_artifact(bridge.artifact_store, selection.closure.source_payload_ref)
-    models = payload.get("llm_models")
-    model_id = str(models[0]) if isinstance(models, list) and models else None
-    if model_id is None:
-        raise ValueError("acquisition_retained_current_model_unconfigured")
-    controller = GenerationCycleController(
-        repo_root=bridge.repo_root,
-        model_id=model_id,
-        promotion_runtime=bridge.promotion_runtime,
-        cycle_substrate_context=prior.handoff.context,
-        candidate_simulation_handoff=prior.handoff,
-        _prepared_n5_configuration=selection.prepared.n5_execution_configuration,
-    )
-    controller._acquisition_retention_current_owner = AcquisitionEvaluationCurrentOwner(
-        bridge=bridge,
-        current_basis_ref=current_basis_ref,
-        selection=selection,
-        prior=prior,
-        native_context=native_context,
-    )
-    return controller._retained_configured_cheap_continuation(
-        original_run=selection.closure.generation_run,
-        source_cycle=selection.closure.source_cycle,
-        problem=selection.closure.design_problem_basis,
-        budget_state=BudgetState.model_validate(
-            {
-                "limits": {
-                    "run": {
-                        "key": "run",
-                        "max_usd": selection.growth.selection.reentry_budget_usd,
+    bridge, prior = owner.bridge, owner.prior
+    service = bridge._source_control_service
+    if prior is None or type(service) is not ControlPlaneService:
+        raise ValueError("acquisition_retained_current_owner_not_composed")
+    with catalog_serving_source_scope(service.catalog_serving_source):
+        selection = owner.revalidate()
+        closure = selection.closure
+        payload = load_core_json_artifact(bridge.artifact_store, closure.source_payload_ref)
+        models = payload.get("llm_models")
+        if not isinstance(models, list) or not models or not isinstance(models[0], str):
+            raise ValueError("acquisition_retained_current_model_unconfigured")
+        controller = GenerationCycleController(
+            repo_root=bridge.repo_root,
+            model_id=models[0],
+            promotion_runtime=bridge.promotion_runtime,
+            artifact_store=bridge.artifact_store,
+            catalog_serving_source=service.catalog_serving_source,
+            capability_resolver=service._registry_providers.capability_resolver,
+            cycle_substrate_context=prior.handoff.context,
+            candidate_simulation_handoff=prior.handoff,
+            candidate_simulation_currentness_resolver=owner.currentness_resolver,
+            _prepared_n5_configuration=selection.prepared.n5_execution_configuration,
+        )
+        controller._begin_source_run(closure.generation_run.run_id)
+        controller._acquisition_retention_current_owner = owner
+        return controller._retained_configured_cheap_continuation(
+            original_run=closure.generation_run,
+            source_cycle=closure.source_cycle,
+            problem=closure.design_problem_basis,
+            budget_state=BudgetState.model_validate(
+                {
+                    "limits": {
+                        "run": {
+                            "key": "run",
+                            "max_usd": selection.growth.selection.reentry_budget_usd,
+                        }
                     }
                 }
-            }
-        ),
-        current_basis_ref=current_basis_ref,
-        admitted_source_ref=selection.admitted_source_ref,
-        growth_ref=selection.growth_ref,
-    )
+            ),
+            current_basis_ref=owner.current_basis_ref,
+            admitted_source_ref=selection.admitted_source_ref,
+            growth_ref=selection.growth_ref,
+        )
 
 
 def _dispatch_candidate_retained_continuation(
@@ -7906,10 +7918,7 @@ def complete_positive_acquisition_admission(
                     prior,
                     native_context,
                 )
-                owner.revalidate()
-                current_cheap = _current_cheap_continuation(
-                    bridge, selection, prior, current_basis_ref, native_context
-                )
+                current_cheap = _current_cheap_continuation(owner)
                 if type(current_cheap) is _RetainedCheapProjection:
                     decision = _decision(
                         selection,

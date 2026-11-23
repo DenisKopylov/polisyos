@@ -20250,6 +20250,54 @@
           "origins_sha256": "7ccba17030b9d0f833a69fd8567e47abd172fa94d1773aa6212fb933cb73a191",
           "verified_boundary": "Actual scoped N6 frontier_stable, budget_exhausted and grounded_abstention persist and reopen in fresh stock Run Details. Each arbitrary sibling mutation (6) returns exact HTTP 400 and restored response matches. Candidate-only, no currentness, no N5 or embedded worker. 1951 module files exact, joined 42.242s and 1763983360B. Historical true partial projection and mounted Dashboard remain open."
         },
+        "native_cg5_original_owner_bounded_replay": {
+          "source_commit": "985086f775aa56baf1f32abd5363ffea6cc8fd76",
+          "source_tree": "23768134404f3b22f0b4378feca74aefe2d3e93a",
+          "output": "Primary:policy-engine/_cache/e02/native-cg5-owner-probe-20261123/attempt-1/budget/result.json",
+          "sha256": "edd5f3cc34220a03cfc774067e9a8b6085e318d145bf1e74daaa0e44317926d3",
+          "command_log_sha256": "e2816ca42a2abe6fc02eda80eaed92d193a06e871f8049461f775e1258e22217",
+          "verified_boundary": "Exact retained selected source, K_ref and owner reproduce CG3 and two exact CG5 abstain outputs. Actual CG3 11.6ms, CG5 about 4ms on 16 edges. Source preserved, no network or N5, 1468137472B peak RSS, 4601819136B min disk, joined PASS. Historic CG4 and current A+B CGF admission are not established."
+        },
+        "cyc_03_05_retained_r9_v5_bootstrap_refusal": {
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "source_tree": "93dd2fe60a0afcd4463e6b77a43a5ea53f691640",
+          "output": "Primary:policy-engine/_cache/e02/lane01-v5-run-details-r9-preflight-r3/execution-r3/execution-status.json",
+          "sha256": "11f887d646ca966d6f4d01b59fcf9c75c0557573c4de0380e6f09b4cf8b5ba61",
+          "status": "FAILED_BEFORE_HTTP",
+          "verified_boundary": "Latest verified clean reader traverses exact g1 acquisition job/sole created event and signed scope, then unscoped PromotionRuntime verifier startup conflicts with existing tenant ownership. No GET body and no provider/worker/N5. Original archive fingerprint holds. R1 import and R2 wrong job bootstrap failures retained. Separate original g2 DS9 invalid-source denial remains."
+        },
+        "acq_01_served_gdp_retained_trial_r1": {
+          "source_commit": "49cee621a8588fe43e0107b0acae25034fdb5668",
+          "source_tree": "ef223b126533ab768bbd753a7f8b91dd985f8dd6",
+          "published_product_parent": "985086f775aa56baf1f32abd5363ffea6cc8fd76",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/acq01-served-gdp-20261123-r1/budget/result.json",
+          "sha256": "b3546c6d2e45df4e6258ef2b5ba06b0c7a931b473182c423fd84d8c12aa442a9",
+          "junit_sha256": "0acb30f34ed78be92a0f33b2ef75224f4f7c24f0f5603adda4149dc8f8a1dfd3",
+          "status": "COMMAND_FAIL after actual first GDP B",
+          "verified_boundary": "Three stock jobs complete; g1 quarantined_no_growth and g2 reentry_completed. Exact selected g2 numeric GDP moves from input 29298012454912 to output 29548012454912, tax target remains bound at 0.5/set_to 0. One controlled WDI request/transport/raw/terminal. Whole test fails on registry read through closed historical bridge after the B assertions. No g3. Preserve exact retained R1, no numerical replay for a fresh reader and removal check. 489.945s, 2636972032B RSS, 4394831872B minimum disk, joined."
+        },
+        "cyc_04_03_real_n4_preflight_served_r1": {
+          "source_commit": "8dd2e689fea31dcf16f1b43d8ce8009de72e043e",
+          "source_tree": "c5b8fdf7657541c620c46edd23675b034d86145f",
+          "published_product_base": "985086f775aa56baf1f32abd5363ffea6cc8fd76",
+          "preflight_output": "CYC isolated checkout:policy-engine/_cache/e02/cyc04-03-n8-preflight-r3.HUTGbFD2/budget/result.json",
+          "preflight_sha256": "771144f36c767076e6a52c1ad8af7f6b5914d841cf9256cfb20f53a3ba29487a",
+          "output": "CYC isolated checkout:policy-engine/_cache/e02/cyc04-03-n8-served-positive-r1.Pmj0dUjQ/budget/result.json",
+          "sha256": "dfb192df4d5eb4f83ecb06a6e2c549d0ccb956dc80675b1ac408b7aac0d303a7",
+          "junit_sha256": "318587e13ada456eef24aca1cc05fa7544163e5c61438d73835d0e9d8d095eee",
+          "status": "PASS at compiler and N4 preflight, COMMAND_FAIL in served R1",
+          "verified_boundary": "Actual N4 produced three neutral-ranked candidates with stock per-slot units. One served candidate N5 used two standard replications in the same exact result and no protected unit. N8 saved candidate-treatment refusal but withheld its retry marker because bound entrypoint scope was unavailable. No sibling selected result and no attempt record. Both groups joined. Need real discovery binding and one replication per candidate before testing the selected transition."
+        },
+        "native_model_input_use_draft_no_effect": {
+          "source_base": "985086f775aa56baf1f32abd5363ffea6cc8fd76",
+          "controller_output": "Primary:policy-engine/_cache/e02/native-use-controller-focused-20261123/guard-r1/result.json",
+          "controller_sha256": "d51a576d2d4bf71115d3b36c8b67377f5f07216fd2949b07d736f159b4b46048",
+          "service_output": "Primary:policy-engine/_cache/e02/native-use-http-composed-noeffect-20261123.kdkn238b/result.json",
+          "service_sha256": "5839dc08eb0f79c1219c0a4d1ab63ab96c5c36e745773d69cc86b280c0ff429c",
+          "cgf_output": "Primary:policy-engine/_cache/e02/native-retained-cgf-rank-focused-20261123/guard/result.json",
+          "cgf_sha256": "c14dc1cb751a5c502193e515a6fc0bbcb14dd577093492afe096514a5dbf7b71",
+          "verified_boundary": "Working draft controller 4/4 no-effect refusals pass. Initial composed service passes Native/direct PA2 checks but four completion fixtures patch the old handler. Initial CGF/rank fixtures stop before selectors at the unbound historical tax slot. No provider or physical N5. Positive protected route, exact current A+B, one N5 and fresh API remain open."
+        },
         "sel01_r12_current_consumer_profile_attempt": {
           "source_commit": "0234a6ce0bd297226d3ed9e6d6f37661e23bd2be",
           "source_tree": "6bf7d48e21fbc20545a220f0c5c6213926e04bc4",

@@ -35,6 +35,7 @@ from polisyos.runtime.quality.acquisition_evaluation import (
     ResolvedAcquisitionEvaluation,
     _candidate_model_values_same,
     _candidate_ref_same,
+    _parse_retained_continuation_wire,
     basis_exact_values_equal,
     issue_acquisition_evaluation_basis,
     persist_acquisition_evaluation_artifact,
@@ -7479,7 +7480,6 @@ def _persist_current_continuation(
     current: object,
 ) -> ArtifactRef:
     from polisyos.runtime.quality.acquisition_retained_continuation import (
-        AcquisitionRetainedContinuation,
         AcquisitionRetainedCurrentProjection,
         resolve_retained_controlled_acquisition_replica,
     )
@@ -7541,7 +7541,7 @@ def _persist_current_continuation(
             decision=decision,
             growth=selection.growth,
         ).model_dump(mode="json")
-    record = AcquisitionRetainedContinuation.model_validate(
+    record = _parse_retained_continuation_wire(
         {
             **payload,
             "content_hash": exact_n5_content_hash(payload),

@@ -5992,6 +5992,17 @@ def persist_acquisition_evaluation_artifact(
     return result.cas_ref
 
 
+def _parse_retained_continuation_wire(value: object) -> AcquisitionRetainedContinuation:
+    """Validate the decoded JSON wire without changing native DTO validation."""
+    from polisyos.runtime.quality.acquisition_retained_continuation import (
+        AcquisitionRetainedContinuation,
+    )
+
+    return AcquisitionRetainedContinuation.model_validate_json(
+        json.dumps(value, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+    )
+
+
 def read_acquisition_evaluation_artifact(
     *,
     store: CoreJSONArtifactStore,
@@ -6066,7 +6077,12 @@ def read_acquisition_evaluation_artifact(
         or manifest.producer.version != "1.0"
     ):
         raise ValueError("acquisition_evaluation_artifact_owner_mismatch")
-    record = record_type.model_validate(load_core_json_artifact(store, ref))
+    value = load_core_json_artifact(store, ref)
+    record = (
+        _parse_retained_continuation_wire(value)
+        if record_type is AcquisitionRetainedContinuation
+        else record_type.model_validate(value)
+    )
     expected_inputs = tuple(
         sorted(
             (str(item.artifact_id), item.role, item.manifest_profile_sha256)

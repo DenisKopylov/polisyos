@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -15,10 +17,16 @@ from polisyos.runtime.quality.generation_cycle import GenerationCycleController,
 from polisyos.runtime.quality.generation_source import GenerationSourceRepository
 from polisyos.runtime.quality.substrate_registry import current_catalog_serving_source
 from tests._helpers.runtime_http import _build_control_service
+from tests.unit.runtime.quality.test_acquisition_evidence_transition import (
+    controlled_draws as controlled_draws,
+)
 from tests.unit.runtime.quality.test_generation_cycle_model_input_wire import _v3_fixture
 from tests.unit.runtime.quality.test_n5_prepared_configuration_owner import (
     _candidate_context_fixture,
 )
+
+if TYPE_CHECKING:
+    from tests.unit.runtime.quality.test_acquisition_evidence_transition import _ControlledDraws
 
 
 def test_ordinary_retention_composes_current_owner_and_reopens_source(
@@ -142,3 +150,146 @@ def test_ordinary_retention_composes_current_owner_and_reopens_source(
         dispatch._current_cheap_continuation(changed)
     assert len(reopened) == 1
     assert current_catalog_serving_source() is None
+
+
+def test_ordinary_retained_replica_roundtrips_the_strict_wire_and_refuses_relabel(
+    tmp_path: Path,
+    controlled_draws: _ControlledDraws,  # noqa: F811
+) -> None:
+    """Exercise exact CAS and diagnostic readback for the actual local draw proof."""
+    from pydantic import ValidationError
+
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        AcquisitionSelectedEvaluation,
+        _parse_retained_continuation_wire,
+        persist_acquisition_evaluation_artifact,
+        read_acquisition_evaluation_artifact,
+    )
+    from polisyos.runtime.quality.acquisition_evidence_transition import (
+        replay_controlled_acquisition_replica,
+        resolve_controlled_acquisition_replica,
+    )
+    from polisyos.runtime.quality.acquisition_retained_continuation import (
+        AcquisitionRetainedContinuation,
+        AcquisitionRetainedCurrentProjection,
+    )
+    from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+    from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_hash
+    from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
+
+    store, plan_ref, previous, selected = controlled_draws
+    database = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "retained.sqlite3")
+    events = RuntimeDiagnosticEventLog(store=database, artifact_store=store)
+    _, run_wire = _v3_fixture()
+    run = GenerationCycleRun.model_validate(run_wire)
+    cycle = run.cycles[-1]
+    candidate = cycle.selected_candidate_ref
+    tenant, cell, run_id, route = selected.route_key
+
+    def parent(kind: str) -> artifacts.ArtifactRef:
+        return store.put_json(
+            {"component_parent": kind},
+            artifacts.ArtifactWriteOptions(kind=kind, media_type="application/json"),
+            return_selected_profile=True,
+        )
+
+    evaluation = AcquisitionSelectedEvaluation(
+        candidate_id=candidate,
+        candidate_content_hash=cycle.selected_candidate_content_hash,
+        design_problem_ref=run.design_problem_ref,
+        world_model_record_hash="sha256:" + "8" * 64,
+        evaluation_job_id="previous-action-job",
+        evaluation_run_id=run_id,
+        generation_run_id=run.run_id,
+        cycle_index=cycle.cycle_index,
+        n4_source_ref=parent("runtime.quality.n4_candidate_scenario_source"),
+        context_job_ref=parent("runtime.quality.cycle_substrate_context_job"),
+        n5_input_ref=parent("runtime.quality.candidate_simulation_n5_input"),
+        n5_execution_ref=parent("runtime.quality.candidate_simulation_execution"),
+        n5_result_ref=parent("polisyos.runtime.joint_simulation_result"),
+    )
+    schedule = SchedulingDecision(
+        candidate_id=candidate,
+        priority=0.125,
+        recommended_action="reject",
+        reason="roi_below_threshold",
+        economics={
+            "candidate_id": candidate,
+            "recommended_action": "reject",
+            "expected_improvement_per_usd": 0.125,
+            "expected_falsification_value": 0.0,
+            "expected_governance_value": 0.0,
+            "timeout_risk": 0.0,
+            "replay_cost_usd": 0.0,
+            "calibration_debt": 0.0,
+            "current_pareto_position": "component",
+        },
+    )
+    proof = resolve_controlled_acquisition_replica(
+        store=store, plan_ref=plan_ref, previous_source=previous, selected_source=selected
+    )
+    draft = AcquisitionRetainedContinuation.model_construct(
+        tenant_id=tenant,
+        cell_id=cell,
+        run_id=run_id,
+        source_job_id="source-job",
+        action_job_id="equal-replica-job",
+        action_generation=selected.action_generation,
+        route_id=route,
+        compiled_ref="sha256:" + "7" * 64,
+        design_problem_ref=run.design_problem_ref,
+        candidate_id=candidate,
+        selected_action_receipt_ref=parent("runtime_quality.acquisition_route_phase_receipt"),
+        evaluation_decision_ref=parent("runtime_quality.acquisition_evaluation_decision"),
+        current_basis_ref=parent("runtime_quality.acquisition_evaluation_basis"),
+        growth_receipt_ref=selected.growth_ref,
+        admitted_source_ref=selected.admitted_source_ref,
+        retained_evaluation=evaluation,
+        current_projection=AcquisitionRetainedCurrentProjection(
+            source_cycle_index=cycle.cycle_index,
+            selected_candidate_id=candidate,
+            selected_candidate_content_hash=cycle.selected_candidate_content_hash,
+            grounding=cycle.grounding,
+            value_port=cycle.value_port.model_copy(update={"candidate_id": candidate}),
+            execution_schedule=schedule,
+            terminal_kind=cycle.terminal_kind,
+            voi_decision=cycle.voi_decision,
+            revision_request=cycle.revision_request,
+            counterexample=cycle.counterexample,
+            refinement_decision=cycle.refinement_decision,
+            search_iteration=cycle.search_iteration,
+        ),
+        controlled_replica=proof,
+        generated_at=proof.selected_sample.observed_at.isoformat(),
+    )
+    wire = draft.model_dump(mode="json", exclude={"content_hash"})
+    body = {**wire, "content_hash": exact_n5_content_hash(wire)}
+    with pytest.raises(ValidationError, match=r"controlled_replica\.previous_source\.route_key"):
+        AcquisitionRetainedContinuation.model_validate(body)
+    record = _parse_retained_continuation_wire(body)
+    ref = persist_acquisition_evaluation_artifact(store=store, event_log=events, record=record)
+    fresh = artifacts.FileSystemCAS(store.root)
+    assert artifacts.load_core_json_artifact(fresh, ref) == body
+    reopened = read_acquisition_evaluation_artifact(
+        store=fresh, event_log=events, ref=ref, record_type=AcquisitionRetainedContinuation
+    )
+    assert reopened == record
+    assert type(reopened) is AcquisitionRetainedContinuation
+    assert reopened.controlled_replica == proof
+
+    relabelled = deepcopy(wire)
+    relabelled["controlled_replica"]["selected_sample"]["members"] = relabelled[
+        "controlled_replica"
+    ]["previous_sample"]["members"]
+    tampered = _parse_retained_continuation_wire(
+        {**relabelled, "content_hash": exact_n5_content_hash(relabelled)}
+    )
+    with pytest.raises(ValueError, match="controlled_replica_replay_mismatch"):
+        replay_controlled_acquisition_replica(
+            tampered.controlled_replica,
+            store=fresh,
+            plan_ref=plan_ref,
+            previous_source=previous,
+            selected_source=selected,
+        )

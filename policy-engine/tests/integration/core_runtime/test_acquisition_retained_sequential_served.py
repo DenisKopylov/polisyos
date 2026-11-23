@@ -1194,12 +1194,10 @@ def test_real_local_replica_retains_exact_b_and_refuses_relabel_after_restart(
     from polisyos.core.contracts import epoch
     from polisyos.runtime.quality.acquisition_evaluation import (
         AcquisitionEvaluationDecision,
+        _parse_retained_continuation_wire,
         persist_acquisition_evaluation_artifact,
     )
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
-    from polisyos.runtime.quality.acquisition_retained_continuation import (
-        AcquisitionRetainedContinuation,
-    )
     from tests.integration.core_runtime.test_acquisition_model_transition_served import (
         _run_annual_gdp_first_b,
     )
@@ -1297,7 +1295,7 @@ def test_real_local_replica_retains_exact_b_and_refuses_relabel_after_restart(
             payload["controlled_replica"]["selected_source"]["capture_ref"] = (
                 proof.previous_source.capture_ref.model_dump(mode="json")
             )
-            relabelled = AcquisitionRetainedContinuation.model_validate(
+            relabelled = _parse_retained_continuation_wire(
                 {**payload, "content_hash": exact_n5_content_hash(payload)}
             )
             foreign_ref = fixture._within_fixture_owner(

@@ -20266,6 +20266,16 @@
           "status": "FAILED_BEFORE_HTTP",
           "verified_boundary": "Latest verified clean reader traverses exact g1 acquisition job/sole created event and signed scope, then unscoped PromotionRuntime verifier startup conflicts with existing tenant ownership. No GET body and no provider/worker/N5. Original archive fingerprint holds. R1 import and R2 wrong job bootstrap failures retained. Separate original g2 DS9 invalid-source denial remains."
         },
+        "cyc_03_05_retained_r9_v5_cold_http_r4": {
+          "source_commit": "8462c64c815011eba4a51a5de29b1239eb61b216",
+          "source_tree": "93dd2fe60a0afcd4463e6b77a43a5ea53f691640",
+          "bootstrap_output": "Primary:policy-engine/_cache/e02/lane01-v5-run-details-r9-preflight-r4/execution-r4-bootstrap-only/execution-status.json",
+          "bootstrap_sha256": "ba6590d65bc3a5bf1929ad59759b3ef76ed5b3394a7755b5ecf4113d66d68f69",
+          "output": "Primary:policy-engine/_cache/e02/lane01-v5-run-details-r9-preflight-r4/execution-r4/run-details-projection.sanitized.json",
+          "sha256": "bf803fa72c6615415f22ddafef05236839bf0b10f97767f416f5f62902f9c24a",
+          "status": "BOOTSTRAP PASS; HTTP 200 with history integrity limitation",
+          "verified_boundary": "Scoped owner bootstrap passes and is cleared before the GET. A signed fresh reader sees the actual existing run, zero modern V5 rows and acquisition_action_history_integrity_not_established, with three clone-only read audits. The outer harness remains FAIL due a runs.view audit expectation against the actual scoped runs.review. This failure is distinct from the product history outcome. Original CAS/SQL/Catalog unchanged; no worker/provider/N5. Exact V5 owner refusal still to identify."
+        },
         "acq_01_served_gdp_retained_trial_r1": {
           "source_commit": "49cee621a8588fe43e0107b0acae25034fdb5668",
           "source_tree": "ef223b126533ab768bbd753a7f8b91dd985f8dd6",
@@ -20296,6 +20306,17 @@
           "status": "PASS at compiler and N4 preflight, COMMAND_FAIL in served R1",
           "verified_boundary": "Actual N4 produced three neutral-ranked candidates with stock per-slot units. One served candidate N5 used two standard replications in the same exact result and no protected unit. N8 saved candidate-treatment refusal but withheld its retry marker because bound entrypoint scope was unavailable. No sibling selected result and no attempt record. Both groups joined. Need real discovery binding and one replication per candidate before testing the selected transition."
         },
+        "cyc_04_03_bound_discovery_served_r2": {
+          "source_base": "dd4225205fdf0b6452a1da21d93d1b8ae90642fc",
+          "preflight_output": "Primary:policy-engine/_cache/e02/cyc04-bound-discovery-preflight-r2.EQN0sy/budget/result.json",
+          "served_output": "Primary:policy-engine/_cache/e02/cyc04-bound-discovery-served-positive-r2.OPPAex/budget/result.json",
+          "served_sha256": "916f5f129dd2fcee4096228fe2059f94beeeaa755056b6f8112d129d2c456496",
+          "physical_calls_sha256": "77c2c79939180a2ce95beeae3460e17792889e777f888374de22ed0a7dacce39",
+          "effect_census_sha256": "b1757b26af4fc09ad7f2c36e326a85fc5f397fa31627772452afb9b03bea3ff8",
+          "one_arm_output": "Primary:policy-engine/_cache/e02/cyc04-bound-discovery-served-one-arm-r2.0rIRze/budget/result.json",
+          "one_arm_sha256": "6a227039317fd6c256705c3cc1931b6cf3a5a139192ea0f901fd623a53c62777",
+          "verified_boundary": "Bound discovery plus real N4 preflight 2/2 no N5. Served R2 on a pinned working overlay has one completed Control job, two one-replication N5 calls in candidate order, two completed standard units and no protected spend. Both use the same per-cycle N4. First candidate's local AIPW refusal is persisted and served, second has completed estimate 1.9999943737942087. Strict run stops at a per-cycle/aggregate N4-ref comparison before the fresh reader. One-arm outer test remains FAIL: one N5, earlier shared manifest-route refusal, no local marker or retry. No method-arm preflight or expired budget/lease established by that cut."
+        },
         "native_model_input_use_draft_no_effect": {
           "source_base": "985086f775aa56baf1f32abd5363ffea6cc8fd76",
           "controller_output": "Primary:policy-engine/_cache/e02/native-use-controller-focused-20261123/guard-r1/result.json",
@@ -20316,6 +20337,8 @@
           "cgf_sha256": "3a6d16bb0fe320fdffe56b5980e7b7e34938c3640985b6654365baee614b923f",
           "registered_output": "Primary:policy-engine/_cache/e02/native-use-http-registered-noeffect-20261123.p3wf9c3e/result.json",
           "registered_sha256": "45a713f6e4f67cc399c369a2eff3aa2cbcee0a5e626a5cefa912278db800f50e",
+          "scratch_openapi_sha256": "55eaf6b5d49b4e108c485d6f1c1b19e98a96a0c0823df362021f0615cd84925c",
+          "scratch_openapi_output": "Primary:policy-engine/_cache/e02/native-use-openapi-read-draft.egyPjitF/",
           "verified_boundary": "Service R2 9/9 no effect before routing edits. R3 real compatible saved WMR proves rank while old advisory-field tamper assertion fails. R4 proves valid advisory change has no authority or decision effect, rejects canonically changed witnesses and separately changed CG3 and CG5, and joins. Registered draft 10/10 tests legacy/Native request binding, completion lease and GET refusal dispatch with zero producer effects; 25.881s, 1584513024B RSS. No actual Native action or kernel; live scope, V3 persistence/replay and API acceptance remain open."
         },
         "sel01_r12_current_consumer_profile_attempt": {

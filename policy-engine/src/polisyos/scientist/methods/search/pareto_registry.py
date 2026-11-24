@@ -13,11 +13,21 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, ValidationError, model_validator
 
+from polisyos.core.artifacts import (
+    CoreJSONArtifactStore,
+    with_ambient_ownership_enforcement_if_supported,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.contracts.runtime import (
     CompletedExAnteCandidateObservation,
     CompletedExAnteCandidateRanking,
     CompletedExAnteCandidateSource,
+)
+from polisyos.scientist.methods.autotune.benchmark_pareto import (
+    MethodJobParetoCandidate,
+    MethodJobParetoReport,
+    load_method_job_front,
+    persist_method_job_front,
 )
 from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
@@ -491,6 +501,35 @@ class ParetoRegistry:
         self._root = (root or default_search_registry_root() / "policy_pareto").resolve()
         self._transfer_policy = transfer_policy or TransferPolicy()
         self._source_store = source_store
+
+    def persist_method_job_front(
+        self,
+        *,
+        suite_ref: ArtifactRef,
+        policies: tuple[PromotionPolicy, ...],
+        candidates: tuple[MethodJobParetoCandidate, ...],
+        declared_reference_point: dict[str, float] | None = None,
+    ) -> ArtifactRef:
+        """Write candidate geometry from the registry's selected benchmark store."""
+        store = self._method_job_source_store()
+        return persist_method_job_front(
+            store,
+            suite_ref=suite_ref,
+            policies=policies,
+            candidates=candidates,
+            declared_reference_point=declared_reference_point,
+        )
+
+    def load_method_job_front(self, ref: ArtifactRef) -> MethodJobParetoReport:
+        """Reopen a selected frontier and verify it against current source custody."""
+        store = self._method_job_source_store()
+        return load_method_job_front(store, ref)
+
+    def _method_job_source_store(self) -> CoreJSONArtifactStore:
+        store = with_ambient_ownership_enforcement_if_supported(self._source_store)
+        if not isinstance(store, CoreJSONArtifactStore):
+            raise TypeError("MethodJob Pareto comparison requires a Core JSON source store")
+        return store
 
     @staticmethod
     def rank_completed_ex_ante_candidates(

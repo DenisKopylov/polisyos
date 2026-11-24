@@ -152,9 +152,13 @@ def test_ordinary_holdout_cannot_fill_a_hidden_holdout_axis() -> None:
     assert rejected.input_assessment is not None
     assert rejected.input_assessment.status == "no_usable_inputs"
     assert rejected.coordinate_schema is not None
+    hidden_axis = rejected.coordinate_schema.coordinates[0].coordinate_id
     assert rejected.input_assessment.unassessed_evaluations[0].missing_coordinate_ids == [
-        rejected.coordinate_schema.coordinates[0].coordinate_id
+        hidden_axis
     ]
+    for compute in (promoter.compute_front, promoter.compute_front_with_indicator):
+        with pytest.raises(TypeError, match="unexpected keyword argument 'coordinate_values'"):
+            compute([ordinary], coordinate_values=[{hidden_axis: 5.0}])  # type: ignore[call-arg]
 
 
 def _split_eval(*, selection_score: float, holdout_score: float) -> BenchmarkEvaluation:

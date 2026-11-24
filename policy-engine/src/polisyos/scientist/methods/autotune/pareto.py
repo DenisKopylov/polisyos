@@ -377,7 +377,24 @@ class ParetoPromoter:
         *,
         declared_reference_point: dict[str, float] | None = None,
     ) -> ParetoFront:
-        """Compute a Pareto front with an optional fixed reference in normalized coordinates."""
+        """Evaluate the configured coordinates from their benchmark split maps."""
+        return self._compute_front(evaluations, declared_reference_point=declared_reference_point)
+
+    def _compute_front(
+        self,
+        evaluations: list[BenchmarkEvaluation],
+        *,
+        declared_reference_point: dict[str, float] | None = None,
+        coordinate_values: list[dict[str, float]] | None = None,
+    ) -> ParetoFront:
+        """Compute Pareto geometry from benchmark maps or source-selected coordinates.
+
+        An explicit reference is expressed in normalized coordinates. Values
+        selected by a source owner are still raw measurements, so the same
+        direction and omission logic applies to both input forms.
+        """
+        if coordinate_values is not None and len(coordinate_values) != len(evaluations):
+            raise ValueError("Pareto coordinate rows must cover the exact evaluation sequence")
         if declared_reference_point is not None:
             self._validate_reference_point(declared_reference_point)
         if not evaluations:
@@ -393,7 +410,12 @@ class ParetoPromoter:
         objective_vectors: list[tuple[float, ...]] = []
         unassessed: list[ParetoUnassessedEvaluation] = []
         for input_index, evaluation in enumerate(evaluations):
-            vector, missing, non_finite = self._assess_objective_vector(evaluation)
+            vector, missing, non_finite = self._assess_objective_vector(
+                evaluation,
+                coordinate_values=(
+                    coordinate_values[input_index] if coordinate_values is not None else None
+                ),
+            )
             if vector is None:
                 unassessed.append(
                     ParetoUnassessedEvaluation(
@@ -464,8 +486,24 @@ class ParetoPromoter:
         *,
         declared_reference_point: dict[str, float] | None = None,
     ) -> tuple[ParetoFront, ParetoHypervolumeIndicator | None]:
-        """Measure geometry only when every supplied candidate was assessed."""
-        front = self.compute_front(evaluations, declared_reference_point=declared_reference_point)
+        """Measure benchmark geometry only when every supplied candidate was assessed."""
+        return self._compute_front_with_indicator(
+            evaluations, declared_reference_point=declared_reference_point
+        )
+
+    def _compute_front_with_indicator(
+        self,
+        evaluations: list[BenchmarkEvaluation],
+        *,
+        declared_reference_point: dict[str, float] | None = None,
+        coordinate_values: list[dict[str, float]] | None = None,
+    ) -> tuple[ParetoFront, ParetoHypervolumeIndicator | None]:
+        """Share the comparator with the companion owner of verified source rows."""
+        front = self._compute_front(
+            evaluations,
+            declared_reference_point=declared_reference_point,
+            coordinate_values=coordinate_values,
+        )
         if front.input_assessment is None or front.input_assessment.status != "complete":
             return front, None
         return front, ParetoHypervolumeIndicator(
@@ -542,34 +580,43 @@ class ParetoPromoter:
     def _assess_objective_vector(
         self,
         ev: BenchmarkEvaluation,
+        *,
+        coordinate_values: dict[str, float] | None = None,
     ) -> tuple[tuple[float, ...] | None, list[str], list[str]]:
         """Return finite coordinates plus exact missing/non-finite omissions."""
+        if coordinate_values is not None and not coordinate_values.keys() <= set(
+            self._objective_names
+        ):
+            raise ValueError("Pareto values name an undeclared coordinate")
         values: list[float] = []
         missing: list[str] = []
         non_finite: list[str] = []
         ordinary_splits = {BenchmarkSplit.SELECTION, BenchmarkSplit.HOLDOUT}
         method_job = any((ev.method_result_ref, ev.method_evidence_ref, ev.method_job_key))
         for coordinate in self._coordinates:
-            split = coordinate.split
-            # The shared holdout map does not establish what specialized split
-            # produced it. Historical selection/holdout aggregates remain usable.
-            needs_exact_split = (
-                method_job
-                or split not in ordinary_splits
-                or (
-                    split is BenchmarkSplit.HOLDOUT
-                    and ev.runtime_split_type is not None
-                    and ev.runtime_split_type not in ordinary_splits
+            if coordinate_values is not None:
+                value = coordinate_values.get(coordinate.coordinate_id)
+            else:
+                split = coordinate.split
+                # The shared holdout map does not establish what specialized split
+                # produced it. Historical selection/holdout aggregates remain usable.
+                needs_exact_split = (
+                    method_job
+                    or split not in ordinary_splits
+                    or (
+                        split is BenchmarkSplit.HOLDOUT
+                        and ev.runtime_split_type is not None
+                        and ev.runtime_split_type not in ordinary_splits
+                    )
                 )
-            )
-            if (needs_exact_split and ev.runtime_split_type is not split) or (
-                method_job
-                and coordinate.unit is not None
-                and ev.metadata.get("metric_unit") != coordinate.unit
-            ):
-                missing.append(coordinate.coordinate_id)
-                continue
-            value = ev.primary_value(split=split, metric=coordinate.metric)
+                if (needs_exact_split and ev.runtime_split_type is not split) or (
+                    method_job
+                    and coordinate.unit is not None
+                    and ev.metadata.get("metric_unit") != coordinate.unit
+                ):
+                    missing.append(coordinate.coordinate_id)
+                    continue
+                value = ev.primary_value(split=split, metric=coordinate.metric)
             if value is None:
                 missing.append(coordinate.coordinate_id)
                 continue

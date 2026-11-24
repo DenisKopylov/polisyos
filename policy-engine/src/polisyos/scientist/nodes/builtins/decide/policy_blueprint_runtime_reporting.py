@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import math
 from collections import Counter
 from collections.abc import Mapping
@@ -1392,7 +1393,11 @@ def _build_runtime_outcome(session: _RuntimeSession) -> NodeOutcome:
                     "Policy runtime inferred evidence source availability from config "
                     "because no cross-graph profile artifact was available."
                 ),
-                attrs={"evidence_source_statuses": dict(session.runtime_source_statuses)},
+                attrs={
+                    "evidence_source_statuses_json": json.dumps(
+                        session.runtime_source_statuses, sort_keys=True, separators=(",", ":")
+                    )
+                },
             )
         )
     if session.phase_d4_warnings:
@@ -1400,7 +1405,7 @@ def _build_runtime_outcome(session: _RuntimeSession) -> NodeOutcome:
             NodeEvent(
                 level="warn",
                 message="Phase D.4 challenge suites emitted warnings.",
-                attrs={"warnings": list(session.phase_d4_warnings)},
+                attrs={"warnings_json": json.dumps(session.phase_d4_warnings)},
             )
         )
     if session.strategic_output.warnings:
@@ -1408,7 +1413,7 @@ def _build_runtime_outcome(session: _RuntimeSession) -> NodeOutcome:
             NodeEvent(
                 level="warn",
                 message="Strategic runtime artifact flow emitted warnings.",
-                attrs={"warnings": list(session.strategic_output.warnings)},
+                attrs={"warnings_json": json.dumps(session.strategic_output.warnings)},
             )
         )
     return NodeOutcome(status="ok", state=session.new_state, artifacts=artifacts, events=events)

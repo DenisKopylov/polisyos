@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 import logging
 from pathlib import Path
+from types import SimpleNamespace
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -31,11 +33,13 @@ from polisyos.scientist.methods.search.transfer_context import (
     TransferTenantScopeStatus,
 )
 from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
+from polisyos.scientist.nodes.builtins.c6c_runtime_support import StrategicRuntimeOutput
 from polisyos.scientist.nodes.builtins.decide import run_policy_blueprint_runtime as runtime
 from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_engine import (
     _RuntimeSession,
 )
 from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_reporting import (
+    _build_runtime_outcome,
     _project_voi_scope,
     _serialize_funnel_outcome,
     finalize_runtime_session,
@@ -115,6 +119,57 @@ def _outcome(*, objective_value: float, feedback: dict[str, object]) -> FunnelOu
         final_action="advance",
         completed=True,
     )
+
+
+def test_reporting_keeps_structured_diagnostics_on_scalar_events(tmp_path: Path) -> None:
+    ctx = _context(tmp_path, "run_reporting_events")
+    candidate_ref = persist_policy_candidate_schema(ctx.store, _candidate())
+    source_statuses = {
+        "completed_method_metric_projection": "verification_missing",
+        "simulation": "available",
+    }
+    phase_warnings = ("challenge_roster_unavailable", "challenge_suite_degraded")
+    strategic_warnings = ("strategic_model_unavailable", "response, fallback")
+    state = ExperimentState(
+        run_id="run_reporting_events",
+        params={"policy_runtime_source_statuses": source_statuses},
+    )
+    session = SimpleNamespace(
+        owner=runtime,
+        outcome=_outcome(objective_value=0.375, feedback={}),
+        selection_ref=candidate_ref,
+        evidence_ref=candidate_ref,
+        ambiguity_certificate_ref=None,
+        strategic_output=StrategicRuntimeOutput(warnings=strategic_warnings),
+        platform_meta_ref=None,
+        stress_report_ref=None,
+        voi_report_ref=candidate_ref,
+        hidden_holdout_ref=None,
+        cross_graph_profile=None,
+        runtime_source_statuses=source_statuses,
+        phase_d4_warnings=phase_warnings,
+        new_state=state,
+    )
+
+    result = _build_runtime_outcome(session)
+
+    assert result.status == "ok"
+    assert result.state.params["policy_runtime_source_statuses"] == source_statuses
+    _, source_event, phase_event, strategic_event = result.events
+    assert (source_event.level, phase_event.level, strategic_event.level) == (
+        "info",
+        "warn",
+        "warn",
+    )
+    serialized_statuses = source_event.attrs["evidence_source_statuses_json"]
+    serialized_phase = phase_event.attrs["warnings_json"]
+    serialized_strategic = strategic_event.attrs["warnings_json"]
+    assert isinstance(serialized_statuses, str)
+    assert isinstance(serialized_phase, str)
+    assert isinstance(serialized_strategic, str)
+    assert json.loads(serialized_statuses) == source_statuses
+    assert json.loads(serialized_phase) == list(phase_warnings)
+    assert json.loads(serialized_strategic) == list(strategic_warnings)
 
 
 def test_reporting_finite_projection_roundtrips_nested_evidence_without_loss() -> None:

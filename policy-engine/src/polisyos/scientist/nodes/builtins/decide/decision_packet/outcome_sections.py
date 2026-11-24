@@ -384,11 +384,8 @@ def _build_calibration_validation_section(
 
         bundle = load_calibration_validation_bundle(ctx.store, bundle_ref)
         readout = dict(bundle.readout_summary())
-        direct_backtest = (
-            packet_payload.get("backtest")
-            if packet_payload is not None and isinstance(packet_payload.get("backtest"), dict)
-            else None
-        )
+        backtest_payload = packet_payload.get("backtest") if packet_payload is not None else None
+        direct_backtest = backtest_payload if isinstance(backtest_payload, dict) else None
         direct_ref = artifacts_index.get(ARTIFACT_BACKTEST_REPORT_REF)
         nested_ref = bundle.backtest_report_ref
         nested_identity = (
@@ -409,6 +406,7 @@ def _build_calibration_validation_section(
             and nested_identity is not None
             and artifact_ref_identity_key(direct_ref) != nested_identity
         ):
+            direct_backtest.pop("model_conditional_prediction_intervals", None)
             direct_backtest.update(
                 {
                     "backtest_report_status": "unavailable",

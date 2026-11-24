@@ -74,6 +74,7 @@ from polisyos.scientist.governance.stress_scenarios import (
     StressScenarioResult,
     StressScenarioRunner,
 )
+from polisyos.scientist.methods.backtesting.native_replay import load_native_backtest_report
 from polisyos.scientist.methods.backtesting.orchestrator import _plan_requests_native
 from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
 from polisyos.scientist.methods.discovery.utility_judge import DownstreamUtilityReport
@@ -111,7 +112,7 @@ def _source_json_snapshot_model_type(
 _CALIBRATION_VALIDATION_BUNDLE_SCHEMA_NAME = (
     "polisyos.scientist.governance.CalibrationValidationBundle"
 )
-_CALIBRATION_VALIDATION_BUNDLE_SCHEMA_VERSIONS = ("1.0", "1.1")
+_CALIBRATION_VALIDATION_BUNDLE_SCHEMA_VERSIONS = ("1.0", "1.1", "1.2")
 _CANDIDATE_DIAGNOSTIC_SOURCE_ROLES = (
     "household_candidate_panel",
     *_S1_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT.values(),
@@ -552,22 +553,12 @@ def _selected_split_role_payload(
 FreshBacktestReportStatus = Literal["not_loaded", "not_linked", "available", "unavailable"]
 
 
-class CalibrationValidationBundle(BaseModel):
-    """Persisted bundle combining backtest, stress, and leaderboard validation.
-
-    This is the durable decision artifact consumed by promotion dashboards and
-    downstream orchestration. `status` records whether replay ran or governance
-    blocked first, while the nested report refs preserve the audit trail.
-    """
+class _CalibrationValidationReadout(BaseModel):
+    """Shared persisted diagnostic state and fresh C5b readout computation."""
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: Literal["1.0", "1.1"] = "1.0"
     run_id: str = Field(min_length=1)
-    candidate_ref: ArtifactRef
-    governance_verdict: str = Field(min_length=1)
-    status: str = Field(pattern="^(completed|blocked_by_governance|candidate_diagnostic)$")
-    purpose: str = Field(default="promotion", pattern="^(promotion|candidate_diagnostic)$")
     backtest_matrix: BacktestMatrixResult | None = None
     stress_scenarios: StressScenarioResult | None = None
     leaderboard_entry: CalibrationLeaderboardEntry | None = None
@@ -622,48 +613,7 @@ class CalibrationValidationBundle(BaseModel):
         self._fresh_backtest_report_status = status
         self._fresh_backtest_report_reason = reason
 
-    @model_validator(mode="after")
-    def _validate_selected_split_roles(self) -> CalibrationValidationBundle:
-        requested = (
-            self.selected_training_role,
-            self.selected_validation_role,
-            self.selected_holdout_role,
-        )
-        supplied = [role for role in requested if role is not None]
-        if len(supplied) != len(set(supplied)):
-            raise ValueError("selected training, validation and holdout roles must be distinct")
-        if (requested[0] is None) != (requested[2] is None):
-            raise ValueError("selected training and holdout roles must be supplied together")
-        if requested[1] is not None and any(role is None for role in requested):
-            raise ValueError("validation role requires the complete three-role request")
-        if self.purpose == "candidate_diagnostic" and any(role is None for role in requested):
-            raise ValueError("candidate diagnostic must retain its three selected split roles")
-        if self.source_json_snapshot_reads and self.schema_version != "1.1":
-            raise ValueError("source JSON snapshot provenance requires bundle schema 1.1")
-        if self.source_json_snapshot_reads:
-            _validate_source_json_snapshot_reads(
-                self.source_json_snapshot_reads,
-                purpose=self.purpose,
-            )
-        return self
-
-    @model_validator(mode="after")
-    def _candidate_diagnostic_is_nonpromotable(self) -> CalibrationValidationBundle:
-        if self.purpose == "candidate_diagnostic":
-            if self.status != "candidate_diagnostic":
-                raise ValueError("candidate diagnostic purpose requires its distinct status")
-            if self.governance_verdict != "human_gate":
-                raise ValueError("candidate diagnostic cannot claim a governance approval")
-            if (
-                self.leaderboard_entry is not None
-                or self.stress_scenarios is not None
-                or self.lesson_card_ref is not None
-                or self.governance_accountability_ref is not None
-            ):
-                raise ValueError("candidate diagnostic cannot carry promotion outputs")
-        return self
-
-    def readout_summary(self) -> dict[str, Any]:
+    def _readout_summary(self, *, purpose: str, status: str) -> dict[str, Any]:
         """Return a compact promotion-oriented summary for UIs and lessons."""
 
         entry = self.leaderboard_entry
@@ -690,7 +640,7 @@ class CalibrationValidationBundle(BaseModel):
             source_binding_status,
             self.source_json_snapshot_reads,
         )
-        if self.purpose == "candidate_diagnostic" and source_binding_status != "available":
+        if purpose == "candidate_diagnostic" and source_binding_status != "available":
             diagnostics = None
             diagnostics_status = "unavailable"
         trust_projection = verify_backtest_trust_projection(report) if report is not None else None
@@ -700,7 +650,7 @@ class CalibrationValidationBundle(BaseModel):
         )
         trust_score = None if trust_projection is None else trust_projection.score
         trust_grade = None if trust_projection is None else trust_projection.grade
-        if self.purpose == "candidate_diagnostic" and source_binding_status != "available":
+        if purpose == "candidate_diagnostic" and source_binding_status != "available":
             trust_status = "unavailable"
             trust_reason = source_binding_reason
             trust_score = None
@@ -709,8 +659,8 @@ class CalibrationValidationBundle(BaseModel):
             self._fresh_matrix_diagnostic_admitted and report_status == "available"
         )
         return {
-            "status": self.status,
-            "purpose": self.purpose,
+            "status": status,
+            "purpose": purpose,
             "backtest_report_ref": (
                 None
                 if self.backtest_report_ref is None
@@ -722,7 +672,7 @@ class CalibrationValidationBundle(BaseModel):
             "backtest_metric_diagnostics": diagnostics,
             "backtest_metric_diagnostics_reason": (
                 source_binding_reason
-                if self.purpose == "candidate_diagnostic" and source_binding_status != "available"
+                if purpose == "candidate_diagnostic" and source_binding_status != "available"
                 else None
                 if diagnostic_projection is None
                 else diagnostic_projection.reason
@@ -808,13 +758,106 @@ class CalibrationValidationBundle(BaseModel):
         )
 
 
+class CalibrationValidationBundle(_CalibrationValidationReadout):
+    """Persisted bundle combining backtest, stress, and leaderboard validation.
+
+    This is the durable decision artifact consumed by promotion dashboards and
+    downstream orchestration. `status` records whether replay ran or governance
+    blocked first, while the nested report refs preserve the audit trail.
+    """
+
+    schema_version: Literal["1.0", "1.1"] = "1.0"
+    candidate_ref: ArtifactRef
+    governance_verdict: str = Field(min_length=1)
+    status: str = Field(pattern="^(completed|blocked_by_governance|candidate_diagnostic)$")
+    purpose: str = Field(default="promotion", pattern="^(promotion|candidate_diagnostic)$")
+
+    @model_validator(mode="after")
+    def _validate_selected_split_roles(self) -> CalibrationValidationBundle:
+        requested = (
+            self.selected_training_role,
+            self.selected_validation_role,
+            self.selected_holdout_role,
+        )
+        supplied = [role for role in requested if role is not None]
+        if len(supplied) != len(set(supplied)):
+            raise ValueError("selected training, validation and holdout roles must be distinct")
+        if (requested[0] is None) != (requested[2] is None):
+            raise ValueError("selected training and holdout roles must be supplied together")
+        if requested[1] is not None and any(role is None for role in requested):
+            raise ValueError("validation role requires the complete three-role request")
+        if self.purpose == "candidate_diagnostic" and any(role is None for role in requested):
+            raise ValueError("candidate diagnostic must retain its three selected split roles")
+        if self.source_json_snapshot_reads and self.schema_version != "1.1":
+            raise ValueError("source JSON snapshot provenance requires bundle schema 1.1")
+        if self.source_json_snapshot_reads:
+            _validate_source_json_snapshot_reads(
+                self.source_json_snapshot_reads,
+                purpose=self.purpose,
+            )
+        return self
+
+    @model_validator(mode="after")
+    def _candidate_diagnostic_is_nonpromotable(self) -> CalibrationValidationBundle:
+        if self.purpose == "candidate_diagnostic":
+            if self.status != "candidate_diagnostic":
+                raise ValueError("candidate diagnostic purpose requires its distinct status")
+            if self.governance_verdict != "human_gate":
+                raise ValueError("candidate diagnostic cannot claim a governance approval")
+            if (
+                self.leaderboard_entry is not None
+                or self.stress_scenarios is not None
+                or self.lesson_card_ref is not None
+                or self.governance_accountability_ref is not None
+            ):
+                raise ValueError("candidate diagnostic cannot carry promotion outputs")
+        return self
+
+    def readout_summary(self) -> dict[str, Any]:
+        """Return the fresh selected report and calibration limitations."""
+        return self._readout_summary(purpose=self.purpose, status=self.status)
+
+
+class NativePredictionDiagnosticBundle(_CalibrationValidationReadout):
+    """C5b observation of one verified Native replay report's selected profile."""
+
+    schema_version: Literal["1.2"] = "1.2"
+    candidate_ref: None = Field(default=None, exclude=True)
+    governance_verdict: Literal["human_gate"] = "human_gate"
+    status: Literal["native_prediction_diagnostic"] = "native_prediction_diagnostic"
+    purpose: Literal["native_prediction_diagnostic"] = "native_prediction_diagnostic"
+
+    @model_validator(mode="after")
+    def _native_report_only(self) -> NativePredictionDiagnosticBundle:
+        ref = self.backtest_report_ref
+        if (
+            ref is None
+            or ref.manifest_profile_sha256 is None
+            or self.selected_training_role is not None
+            or self.selected_validation_role is not None
+            or self.selected_holdout_role is not None
+            or self.metadata
+            or self.stress_scenarios is not None
+            or self.leaderboard_entry is not None
+            or self.lesson_card_ref is not None
+            or self.governance_accountability_ref is not None
+            or self.governance_accountability_summary
+        ):
+            raise ValueError("Native diagnostic requires the selected forecast report only")
+        return self
+
+    def readout_summary(self) -> dict[str, Any]:
+        """Return the fresh selected report and calibration limitations."""
+        return self._readout_summary(purpose=self.purpose, status=self.status)
+
+
 class CalibrationValidationRunnerResult(BaseModel):
     """Pair the persisted bundle ref with the in-memory validation payload."""
 
     model_config = ConfigDict(extra="forbid")
 
     bundle_ref: CalibrationValidationBundleRef
-    bundle: CalibrationValidationBundle
+    bundle: CalibrationValidationBundle | NativePredictionDiagnosticBundle
 
 
 class CalibrationValidationRunner:
@@ -839,6 +882,34 @@ class CalibrationValidationRunner:
         self._stress_runner = stress_runner or StressScenarioRunner(store)
         self._leaderboard = leaderboard or CalibrationLeaderboard(store=store)
         self._lesson_publisher = lesson_publisher or CalibrationValidationLessonPublisher()
+
+    def observe_native_prediction_report(
+        self, report_ref: BacktestReportRef
+    ) -> CalibrationValidationRunnerResult:
+        """Persist a candidate diagnostic over an already selected Native report.
+
+        Args:
+            report_ref: Exact selected Native replay report to observe.
+
+        Returns:
+            The persisted C5b artifact and its freshly verified diagnostic.
+        """
+        if report_ref.manifest_profile_sha256 is None:
+            raise ValueError("Native diagnostic requires a selected report profile")
+        report = load_native_backtest_report(
+            self._store, ArtifactRef.model_validate(report_ref.model_dump(mode="python"))
+        )
+        bundle = NativePredictionDiagnosticBundle(
+            run_id=report.report_id,
+            backtest_matrix=BacktestMatrixResult(
+                report_id=report.report_id, backtest_report_ref=report_ref
+            ),
+        )
+        bundle_ref = persist_calibration_validation_bundle(
+            self._store, bundle, return_selected_profile=True
+        )
+        fresh = load_calibration_validation_bundle(self._store, bundle_ref)
+        return CalibrationValidationRunnerResult(bundle_ref=bundle_ref, bundle=fresh)
 
     def run(
         self,
@@ -1221,7 +1292,7 @@ class CalibrationValidationLessonPublisher:
 
 def persist_calibration_validation_bundle(
     store: FileSystemCAS,
-    bundle: CalibrationValidationBundle,
+    bundle: CalibrationValidationBundle | NativePredictionDiagnosticBundle,
     *,
     inputs: list[InputRef] | None = None,
     return_selected_profile: bool = False,
@@ -1266,7 +1337,7 @@ def persist_calibration_validation_bundle(
 def _load_calibration_validation_bundle(
     store: FileSystemCAS,
     ref: ArtifactRef | CalibrationValidationBundleRef,
-) -> CalibrationValidationBundle:
+) -> CalibrationValidationBundle | NativePredictionDiagnosticBundle:
     """Load a persisted calibration validation bundle from the artifact store.
 
     Args:
@@ -1279,9 +1350,17 @@ def _load_calibration_validation_bundle(
     from polisyos.core.artifacts import load_core_json_artifact
 
     payload = load_core_json_artifact(store, ref)
-    bundle = CalibrationValidationBundle.model_validate(payload)
     manifest = store.get_manifest(ref)
     schema = manifest.artifact_schema
+    model = (
+        NativePredictionDiagnosticBundle
+        if schema is not None and schema.version == "1.2"
+        else CalibrationValidationBundle
+    )
+    bundle = model.model_validate(payload)
+    if isinstance(bundle, NativePredictionDiagnosticBundle):
+        if ref.manifest_profile_sha256 is None:
+            raise ValueError("Native diagnostic requires a selected bundle profile")
     if (
         manifest.kind != "scientist.calibration_validation_bundle"
         or manifest.media_type != "application/json"
@@ -1319,6 +1398,25 @@ def _load_calibration_validation_bundle(
     bundle_source_inputs = list(manifest.inputs)
     del bundle_source_inputs[structural_report_indices[0]]
     report_artifact_ref = ArtifactRef.model_validate(report_ref.model_dump(mode="python"))
+    if isinstance(bundle, NativePredictionDiagnosticBundle):
+        try:
+            report = load_native_backtest_report(store, report_artifact_ref)
+            matrix = bundle.backtest_matrix
+            if (
+                bundle_source_inputs
+                or matrix is None
+                or matrix
+                != BacktestMatrixResult(report_id=report.report_id, backtest_report_ref=report_ref)
+                or bundle.run_id != report.report_id
+            ):
+                raise ValueError("Native diagnostic report scope does not reconcile")
+        except Exception:
+            bundle.record_fresh_backtest_report(
+                None, "unavailable", "nested_backtest_report_invalid"
+            )
+        else:
+            bundle.record_fresh_backtest_report(report, "available", None)
+        return bundle
     try:
         report_manifest = store.get_manifest(report_artifact_ref)
         report = load_backtest_report(_ensure_ir_artifact_store(store), report_ref)
@@ -1360,7 +1458,7 @@ def _load_calibration_validation_bundle(
 def load_calibration_validation_bundle(
     store: FileSystemCAS,
     ref: ArtifactRef | CalibrationValidationBundleRef,
-) -> CalibrationValidationBundle:
+) -> CalibrationValidationBundle | NativePredictionDiagnosticBundle:
     """Load a bundle and limit its Matrix scores to the freshly resolved report."""
     bundle = _load_calibration_validation_bundle(store, ref)
     if bundle.leaderboard_entry is not None:
@@ -1379,6 +1477,7 @@ __all__ = [
     "CalibrationValidationRunner",
     "CalibrationValidationRunnerInput",
     "CalibrationValidationRunnerResult",
+    "NativePredictionDiagnosticBundle",
     "load_calibration_validation_bundle",
     "persist_calibration_validation_bundle",
 ]

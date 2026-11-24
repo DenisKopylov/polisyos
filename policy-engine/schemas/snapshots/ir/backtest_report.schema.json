@@ -1,5 +1,73 @@
 {
   "$defs": {
+    "ArtifactID": {
+      "description": "IR-local artifact ID model compatible with CAS interfaces.",
+      "maxLength": 71,
+      "minLength": 71,
+      "pattern": "^sha256:[0-9A-Fa-f]{64}$",
+      "title": "ArtifactID",
+      "type": "string"
+    },
+    "BacktestFixedUnitTransform": {
+      "additionalProperties": false,
+      "description": "The actual Fabric factor and definition fingerprints used on both operands.",
+      "properties": {
+        "canonical_unit": {
+          "minLength": 1,
+          "title": "Canonical Unit",
+          "type": "string"
+        },
+        "definition_basis_content_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Definition Basis Content Sha256",
+          "type": "string"
+        },
+        "definition_content_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Definition Content Sha256",
+          "type": "string"
+        },
+        "executor_version": {
+          "const": "polisyos.fabric.units.fixed-multiplicative.v1",
+          "title": "Executor Version",
+          "type": "string"
+        },
+        "multiplier": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            }
+          ],
+          "title": "Multiplier"
+        },
+        "raw_unit": {
+          "minLength": 1,
+          "title": "Raw Unit",
+          "type": "string"
+        },
+        "transform_ref": {
+          "const": "fabric://units/fixed-multiplicative/v1",
+          "title": "Transform Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "raw_unit",
+        "canonical_unit",
+        "multiplier",
+        "definition_basis_content_sha256",
+        "definition_content_sha256",
+        "transform_ref",
+        "executor_version"
+      ],
+      "title": "BacktestFixedUnitTransform",
+      "type": "object"
+    },
     "BacktestNumericalRange": {
       "additionalProperties": false,
       "description": "Binary64 range failures without losing representable comparison rows.",
@@ -31,6 +99,190 @@
         "policy_version"
       ],
       "title": "BacktestNumericalRange",
+      "type": "object"
+    },
+    "BacktestPooledStratum": {
+      "additionalProperties": false,
+      "description": "Numerical summary in exactly one selected measurement representation.",
+      "properties": {
+        "canonical_unit": {
+          "minLength": 1,
+          "title": "Canonical Unit",
+          "type": "string"
+        },
+        "comparison_count": {
+          "exclusiveMinimum": 0,
+          "title": "Comparison Count",
+          "type": "integer"
+        },
+        "micro_mae": {
+          "minimum": 0.0,
+          "title": "Micro Mae",
+          "type": "number"
+        },
+        "micro_rmse": {
+          "minimum": 0.0,
+          "title": "Micro Rmse",
+          "type": "number"
+        },
+        "representation_ref": {
+          "$ref": "#/$defs/SelectedRepresentationRef"
+        },
+        "scenario_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Scenario Ids",
+          "type": "array"
+        },
+        "semantic_definition_ref": {
+          "$ref": "#/$defs/SelectedDefinitionRef"
+        },
+        "weighted_macro_rmse": {
+          "minimum": 0.0,
+          "title": "Weighted Macro Rmse",
+          "type": "number"
+        }
+      },
+      "required": [
+        "representation_ref",
+        "semantic_definition_ref",
+        "canonical_unit",
+        "scenario_ids",
+        "comparison_count",
+        "micro_rmse",
+        "micro_mae",
+        "weighted_macro_rmse"
+      ],
+      "title": "BacktestPooledStratum",
+      "type": "object"
+    },
+    "BacktestPoolingMeasure": {
+      "additionalProperties": false,
+      "description": "A preflight qualification, tied by position to the selected member.",
+      "properties": {
+        "canonical_unit": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Canonical Unit"
+        },
+        "limitation": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Limitation"
+        },
+        "semantic_definition_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SelectedDefinitionRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "transform": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BacktestFixedUnitTransform"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "BacktestPoolingMeasure",
+      "type": "object"
+    },
+    "BacktestPoolingPolicyRef": {
+      "additionalProperties": false,
+      "description": "Exact pre-execution selection of historical comparison policy.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "ir.backtest_pooling_policy",
+          "default": "ir.backtest_pooling_policy",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Manifest Profile Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "manifest_profile_sha256"
+      ],
+      "title": "BacktestPoolingPolicyRef",
+      "type": "object"
+    },
+    "BacktestPoolingProjection": {
+      "additionalProperties": false,
+      "description": "Selected normalized statistics with explicit nonpooled source members.",
+      "properties": {
+        "measures": {
+          "items": {
+            "$ref": "#/$defs/BacktestPoolingMeasure"
+          },
+          "minItems": 1,
+          "title": "Measures",
+          "type": "array"
+        },
+        "policy_ref": {
+          "$ref": "#/$defs/BacktestPoolingPolicyRef"
+        },
+        "strata": {
+          "items": {
+            "$ref": "#/$defs/BacktestPooledStratum"
+          },
+          "title": "Strata",
+          "type": "array"
+        },
+        "unavailable": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Unavailable",
+          "type": "object"
+        }
+      },
+      "required": [
+        "policy_ref",
+        "measures",
+        "strata",
+        "unavailable"
+      ],
+      "title": "BacktestPoolingProjection",
       "type": "object"
     },
     "BacktestResidualOverflowCell": {
@@ -360,6 +612,63 @@
       "title": "BacktestScenario",
       "type": "object"
     },
+    "BacktestUnpooledStratum": {
+      "additionalProperties": false,
+      "description": "Raw error statistics within one source scenario and metric.",
+      "properties": {
+        "comparison_count": {
+          "minimum": 0,
+          "title": "Comparison Count",
+          "type": "integer"
+        },
+        "jurisdiction": {
+          "title": "Jurisdiction",
+          "type": "string"
+        },
+        "mae": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Mae"
+        },
+        "metric_name": {
+          "title": "Metric Name",
+          "type": "string"
+        },
+        "rmse": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Rmse"
+        },
+        "scenario_id": {
+          "title": "Scenario Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenario_id",
+        "metric_name",
+        "jurisdiction",
+        "comparison_count",
+        "rmse",
+        "mae"
+      ],
+      "title": "BacktestUnpooledStratum",
+      "type": "object"
+    },
     "BiasDirection": {
       "description": "Direction of systematic bias detected in historical validation.",
       "enum": [
@@ -597,6 +906,70 @@
       "title": "OutcomeComparison",
       "type": "object"
     },
+    "SelectedDefinitionRef": {
+      "additionalProperties": false,
+      "description": "IR handle for the existing Catalog semantic definition.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "catalog.variable_semantic_definition",
+          "default": "catalog.variable_semantic_definition",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Manifest Profile Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "manifest_profile_sha256"
+      ],
+      "title": "SelectedDefinitionRef",
+      "type": "object"
+    },
+    "SelectedRepresentationRef": {
+      "additionalProperties": false,
+      "description": "IR handle for an exact existing Catalog measurement representation.",
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/ArtifactID"
+        },
+        "kind": {
+          "const": "catalog.variable_representation",
+          "default": "catalog.variable_representation",
+          "title": "Kind",
+          "type": "string"
+        },
+        "manifest_profile_sha256": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Manifest Profile Sha256",
+          "type": "string"
+        },
+        "media_type": {
+          "const": "application/json",
+          "default": "application/json",
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "manifest_profile_sha256"
+      ],
+      "title": "SelectedRepresentationRef",
+      "type": "object"
+    },
     "SystematicBias": {
       "additionalProperties": false,
       "description": "Structured bias pattern detected across backtest scenarios.",
@@ -681,7 +1054,11 @@
     "aggregation_policy": {
       "anyOf": [
         {
-          "const": "micro_rmse_with_explicit_equal_scenario_macro",
+          "enum": [
+            "micro_rmse_with_explicit_equal_scenario_macro",
+            "preselected_weighted_measurement_strata",
+            "measurement_comparability_not_established"
+          ],
           "type": "string"
         },
         {
@@ -888,6 +1265,17 @@
       "default": null,
       "title": "Policy Spec Ref"
     },
+    "pooling": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/BacktestPoolingProjection"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
     "prediction_mode_effective": {
       "anyOf": [
         {
@@ -960,6 +1348,21 @@
       ],
       "default": null,
       "title": "Trust Score"
+    },
+    "unpooled_strata": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/BacktestUnpooledStratum"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Unpooled Strata"
     }
   },
   "required": [

@@ -6,8 +6,8 @@
     "release_fragment_change_class": "persisted-artifact-format",
     "version_owner": "team-scientist"
   },
-  "content_hash": "375d76d52225b060314fdcf714bc438cd84f1762920d94b639310acd318e1804",
-  "generated_at": "2026-11-03T09:06:04+00:00",
+  "content_hash": "14317df2f563c59ddca87ea6608be28dcb4cd9d6991611ef6316a63cae9f9ca9",
+  "generated_at": "2026-11-24T09:22:21+00:00",
   "generator_version": "1.1.0",
   "models": {
     "calibration_validation_bundle_v1_1": {
@@ -22,6 +22,20 @@
       "schema_version": "1.1",
       "sha256_full": "fe17c6c11746ae9744ab764381c6d345e7c7dfbba81335b8bb7d8bf83ec50bec",
       "sha256_semantic": "ea2dadae80b45d382848a49d2a396293062d03e4ef7ecf6178077e0294eabd22",
+      "version_field": "schema_version"
+    },
+    "calibration_validation_bundle_v1_2": {
+      "aliases": [],
+      "compat_mode": "strict",
+      "fqn": "polisyos.scientist.governance.calibration_validation.NativePredictionDiagnosticBundle",
+      "lifecycle": "active",
+      "priority": "p1",
+      "schema_file": "calibration_validation_bundle_v1_2.schema.json",
+      "schema_mode": "serialization",
+      "schema_variant_version": "1.2",
+      "schema_version": "1.2",
+      "sha256_full": "bfe590ecb01a5e718dfab71e1356a55aecafe82ae9fe92e9317fe549280a3713",
+      "sha256_semantic": "b3a4d2b4024cbceca34e9dfef408a84fedf7f9618213f934113a58cc2b763572",
       "version_field": "schema_version"
     },
     "propagation_report_v1_1": {

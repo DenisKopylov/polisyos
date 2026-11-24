@@ -12,7 +12,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1678`.
+- Total IR types: `1690`.
 - Public/root-or-package facade types: `694`.
 - ABI snapshot-backed types: `103`.
 - Export enumeration covers these public packages:
@@ -31,7 +31,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 1030 | 347 | 45 |
+| `analytics` | 1042 | 347 | 45 |
 | `artifacts` | 30 | 3 | 0 |
 | `governance` | 99 | 27 | 8 |
 | `kernel` | 60 | 54 | 0 |
@@ -1349,6 +1349,17 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `residual_overflow_cells` | `list[polisyos.ir.analytics.backtest.BacktestResidualOverflowCell]` | `no` | `—` | `polisyos.ir.analytics.backtest.BacktestResidualOverflowCell` |
 | `unavailable_error_sums` | `dict[_ErrorSumName, _RangeFailure]` | `no` | `—` | — |
 
+### `polisyos.ir.analytics.backtest.BacktestPoolingVerificationRequiredError` { #polisyos-ir-analytics-backtest-backtestpoolingverificationrequirederror }
+
+- Kind: `class`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: A selected pooling report needs measurement and source-row verification.
+
 ### `polisyos.ir.analytics.backtest.BacktestReport` { #polisyos-ir-analytics-backtest-backtestreport }
 
 - Kind: `pydantic_model`
@@ -1357,12 +1368,12 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Exported from: `polisyos.ir.analytics:BacktestReport`, `polisyos.ir:BacktestReport`
 - ABI snapshot: `backtest_report` / `schemas/snapshots/ir/backtest_report.schema.json`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.backtest.BacktestScenario`, `polisyos.ir.analytics.backtest.BiasDirection`, `polisyos.ir.analytics.backtest.MetricBiasDiagnostic`, `polisyos.ir.analytics.backtest.SystematicBias`
+- References: `polisyos.ir.analytics.backtest.BacktestScenario`, `polisyos.ir.analytics.backtest.BacktestUnpooledStratum`, `polisyos.ir.analytics.backtest.BiasDirection`, `polisyos.ir.analytics.backtest.MetricBiasDiagnostic`, `polisyos.ir.analytics.backtest.SystematicBias`, `polisyos.ir.analytics.backtest_pooling.BacktestPoolingProjection`
 - Summary: Summarize historical validation quality and trust diagnostics for one model/policy pair.
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
-| `aggregation_policy` | `Literal[micro_rmse_with_explicit_equal_scenario_macro] \| NoneType` | `no` | `—` | — |
+| `aggregation_policy` | `Literal[micro_rmse_with_explicit_equal_scenario_macro, preselected_weighted_measurement_strata, measurement_comparability_not_established] \| NoneType` | `no` | `—` | — |
 | `backtest_config_ref` | `str \| NoneType` | `no` | `—` | — |
 | `cas_artifact_id` | `str \| NoneType` | `no` | `—` | — |
 | `decision_packet_ref` | `str \| NoneType` | `no` | `—` | — |
@@ -1383,6 +1394,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `overall_r_squared` | `float \| NoneType` | `no` | `—` | — |
 | `overall_rmse` | `float \| NoneType` | `no` | `—` | — |
 | `policy_spec_ref` | `str \| NoneType` | `no` | `—` | — |
+| `pooling` | `polisyos.ir.analytics.backtest_pooling.BacktestPoolingProjection \| NoneType` | `no` | `—` | `polisyos.ir.analytics.backtest_pooling.BacktestPoolingProjection` |
 | `prediction_mode_effective` | `str \| NoneType` | `no` | `—` | — |
 | `prediction_mode_requested` | `str \| NoneType` | `no` | `—` | — |
 | `report_id` | `str` | `yes` | `—` | — |
@@ -1391,6 +1403,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `trust_eligible` | `bool` | `no` | `True` | — |
 | `trust_grade` | `str \| NoneType` | `no` | `—` | — |
 | `trust_score` | `float \| NoneType` | `no` | `—` | — |
+| `unpooled_strata` | `tuple[polisyos.ir.analytics.backtest.BacktestUnpooledStratum] \| NoneType` | `no` | `—` | `polisyos.ir.analytics.backtest.BacktestUnpooledStratum` |
 
 ### `polisyos.ir.analytics.backtest.BacktestResidualOverflowCell` { #polisyos-ir-analytics-backtest-backtestresidualoverflowcell }
 
@@ -1453,6 +1466,26 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `scenario_id` | `str` | `yes` | `—` | — |
 | `scenario_label` | `str` | `yes` | `—` | — |
 | `squared_error_sum` | `float \| NoneType` | `no` | `—` | — |
+
+### `polisyos.ir.analytics.backtest.BacktestUnpooledStratum` { #polisyos-ir-analytics-backtest-backtestunpooledstratum }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Raw error statistics within one source scenario and metric.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `comparison_count` | `int` | `yes` | `—` | — |
+| `jurisdiction` | `str` | `yes` | `—` | — |
+| `mae` | `float \| NoneType` | `yes` | `—` | — |
+| `metric_name` | `str` | `yes` | `—` | — |
+| `rmse` | `float \| NoneType` | `yes` | `—` | — |
+| `scenario_id` | `str` | `yes` | `—` | — |
 
 ### `polisyos.ir.analytics.backtest.BiasDirection` { #polisyos-ir-analytics-backtest-biasdirection }
 
@@ -1556,6 +1589,196 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `metadata` | `dict[str, Any]` | `no` | `—` | — |
 | `p_value` | `float \| NoneType` | `no` | `—` | — |
 | `statistical_test` | `str` | `no` | `''` | — |
+
+### `polisyos.ir.analytics.backtest_pooling.BacktestFixedUnitTransform` { #polisyos-ir-analytics-backtest-pooling-backtestfixedunittransform }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: The actual Fabric factor and definition fingerprints used on both operands.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `canonical_unit` | `str` | `yes` | `—` | — |
+| `definition_basis_content_sha256` | `str` | `yes` | `—` | — |
+| `definition_content_sha256` | `str` | `yes` | `—` | — |
+| `executor_version` | `Literal[polisyos.fabric.units.fixed-multiplicative.v1]` | `yes` | `—` | — |
+| `multiplier` | `Decimal` | `yes` | `—` | — |
+| `raw_unit` | `str` | `yes` | `—` | — |
+| `transform_ref` | `Literal[fabric://units/fixed-multiplicative/v1]` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.backtest_pooling.BacktestPooledStratum` { #polisyos-ir-analytics-backtest-pooling-backtestpooledstratum }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.backtest_pooling.SelectedDefinitionRef`, `polisyos.ir.analytics.backtest_pooling.SelectedRepresentationRef`
+- Summary: Numerical summary in exactly one selected measurement representation.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `canonical_unit` | `str` | `yes` | `—` | — |
+| `comparison_count` | `int` | `yes` | `—` | — |
+| `micro_mae` | `float` | `yes` | `—` | — |
+| `micro_rmse` | `float` | `yes` | `—` | — |
+| `representation_ref` | `polisyos.ir.analytics.backtest_pooling.SelectedRepresentationRef` | `yes` | `—` | `polisyos.ir.analytics.backtest_pooling.SelectedRepresentationRef` |
+| `scenario_ids` | `tuple[str]` | `yes` | `—` | — |
+| `semantic_definition_ref` | `polisyos.ir.analytics.backtest_pooling.SelectedDefinitionRef` | `yes` | `—` | `polisyos.ir.analytics.backtest_pooling.SelectedDefinitionRef` |
+| `weighted_macro_rmse` | `float` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.backtest_pooling.BacktestPoolingMeasure` { #polisyos-ir-analytics-backtest-pooling-backtestpoolingmeasure }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.backtest_pooling.BacktestFixedUnitTransform`, `polisyos.ir.analytics.backtest_pooling.SelectedDefinitionRef`
+- Summary: A preflight qualification, tied by position to the selected member.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `canonical_unit` | `str \| NoneType` | `no` | `—` | — |
+| `limitation` | `str \| NoneType` | `no` | `—` | — |
+| `semantic_definition_ref` | `polisyos.ir.analytics.backtest_pooling.SelectedDefinitionRef \| NoneType` | `no` | `—` | `polisyos.ir.analytics.backtest_pooling.SelectedDefinitionRef` |
+| `transform` | `polisyos.ir.analytics.backtest_pooling.BacktestFixedUnitTransform \| NoneType` | `no` | `—` | `polisyos.ir.analytics.backtest_pooling.BacktestFixedUnitTransform` |
+
+### `polisyos.ir.analytics.backtest_pooling.BacktestPoolingMember` { #polisyos-ir-analytics-backtest-pooling-backtestpoolingmember }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.backtest_pooling.SelectedHistoricalRowsRef`, `polisyos.ir.analytics.backtest_pooling.SelectedRepresentationRef`
+- Summary: One selected source window of a semantic scenario and its provided forecast.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `canonical_representation_ref` | `polisyos.ir.analytics.backtest_pooling.SelectedRepresentationRef \| NoneType` | `no` | `—` | `polisyos.ir.analytics.backtest_pooling.SelectedRepresentationRef` |
+| `comparison_representation_ref` | `polisyos.ir.analytics.backtest_pooling.SelectedRepresentationRef \| NoneType` | `no` | `—` | `polisyos.ir.analytics.backtest_pooling.SelectedRepresentationRef` |
+| `historical_rows_ref` | `polisyos.ir.analytics.backtest_pooling.SelectedHistoricalRowsRef` | `yes` | `—` | `polisyos.ir.analytics.backtest_pooling.SelectedHistoricalRowsRef` |
+| `macro_weight` | `Decimal` | `yes` | `—` | — |
+| `metric_name` | `str` | `yes` | `—` | — |
+| `observation_start` | `int` | `yes` | `—` | — |
+| `predictions` | `tuple[float]` | `yes` | `—` | — |
+| `scenario_group` | `str` | `yes` | `—` | — |
+| `scenario_id` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.backtest_pooling.BacktestPoolingPolicy` { #polisyos-ir-analytics-backtest-pooling-backtestpoolingpolicy }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `1.0`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.backtest_pooling.BacktestPoolingMember`
+- Summary: Fix member windows, quantities and macro weights before the backtest runs.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `members` | `tuple[polisyos.ir.analytics.backtest_pooling.BacktestPoolingMember]` | `yes` | `—` | `polisyos.ir.analytics.backtest_pooling.BacktestPoolingMember` |
+| `schema_version` | `Literal[1.0]` | `no` | `'1.0'` | — |
+
+### `polisyos.ir.analytics.backtest_pooling.BacktestPoolingPolicyRef` { #polisyos-ir-analytics-backtest-pooling-backtestpoolingpolicyref }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Exact pre-execution selection of historical comparison policy.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[ir.backtest_pooling_policy]` | `no` | `'ir.backtest_pooling_policy'` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.analytics.backtest_pooling.BacktestPoolingProjection` { #polisyos-ir-analytics-backtest-pooling-backtestpoolingprojection }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.backtest_pooling.BacktestPooledStratum`, `polisyos.ir.analytics.backtest_pooling.BacktestPoolingMeasure`, `polisyos.ir.analytics.backtest_pooling.BacktestPoolingPolicyRef`
+- Summary: Selected normalized statistics with explicit nonpooled source members.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `measures` | `tuple[polisyos.ir.analytics.backtest_pooling.BacktestPoolingMeasure]` | `yes` | `—` | `polisyos.ir.analytics.backtest_pooling.BacktestPoolingMeasure` |
+| `policy_ref` | `polisyos.ir.analytics.backtest_pooling.BacktestPoolingPolicyRef` | `yes` | `—` | `polisyos.ir.analytics.backtest_pooling.BacktestPoolingPolicyRef` |
+| `strata` | `tuple[polisyos.ir.analytics.backtest_pooling.BacktestPooledStratum]` | `yes` | `—` | `polisyos.ir.analytics.backtest_pooling.BacktestPooledStratum` |
+| `unavailable` | `dict[str, str]` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.backtest_pooling.SelectedDefinitionRef` { #polisyos-ir-analytics-backtest-pooling-selecteddefinitionref }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: IR handle for the existing Catalog semantic definition.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[catalog.variable_semantic_definition]` | `no` | `'catalog.variable_semantic_definition'` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.analytics.backtest_pooling.SelectedHistoricalRowsRef` { #polisyos-ir-analytics-backtest-pooling-selectedhistoricalrowsref }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: Select the exact JSON source supplying the withheld observations.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `str` | `yes` | `—` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
+
+### `polisyos.ir.analytics.backtest_pooling.SelectedRepresentationRef` { #polisyos-ir-analytics-backtest-pooling-selectedrepresentationref }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.artifacts.contracts.ArtifactID`
+- Summary: IR handle for an exact existing Catalog measurement representation.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `artifact_id` | `polisyos.ir.artifacts.contracts.ArtifactID` | `yes` | `—` | `polisyos.ir.artifacts.contracts.ArtifactID` |
+| `kind` | `Literal[catalog.variable_representation]` | `no` | `'catalog.variable_representation'` | — |
+| `manifest_profile_sha256` | `str` | `yes` | `—` | — |
+| `media_type` | `Literal[application/json]` | `no` | `'application/json'` | — |
 
 ### `polisyos.ir.analytics.calibration.CalibrationCandidateScore` { #polisyos-ir-analytics-calibration-calibrationcandidatescore }
 

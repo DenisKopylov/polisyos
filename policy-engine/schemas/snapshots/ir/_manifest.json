@@ -6,8 +6,8 @@
     "release_fragment_change_class": "persisted-artifact-format",
     "version_owner": "team-ir"
   },
-  "content_hash": "d2099b57660950fbcebadec029b650f3f5bbb94c203e9d969e5b2a6762f3eb71",
-  "generated_at": "2026-11-24T08:14:24+00:00",
+  "content_hash": "29e824d674c9507751772bfa69b6dc2c02bbb79f2308bade7cfe2a824d75f144",
+  "generated_at": "2026-11-24T09:22:21+00:00",
   "generator_version": "1.1.0",
   "models": {
     "abm_alignment_report": {
@@ -78,8 +78,8 @@
       "priority": "p1",
       "schema_file": "backtest_report.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "670aacf079e4a7238dda69975dc319aa76d591a46db0be258be69436b23bb062",
-      "sha256_semantic": "2968ced3f2f37477d32b3a224ccf20b0c03fd3d6867e6588bc3151bad927724b",
+      "sha256_full": "2634ff5db38a2378260054e30d1d01412dcbea5d24d87ae36ee04e6386d7204b",
+      "sha256_semantic": "f2fcdf25a5ea973d0642cec9b1bac3a7d2eeedbf6d9671a40a7d4a16047ae806",
       "version_field": "schema_version"
     },
     "bounds_estimation_bundle": {

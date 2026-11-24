@@ -16,6 +16,13 @@ from polisyos.ir.analytics._owner_admission import (
     declare_model_owner,
     owner_profile_for_spec,
 )
+from polisyos.ir.analytics.backtest_pooling import (
+    BacktestPoolingProjection,
+    load_backtest_pooling_policy,
+    project_backtest_pooling,
+    read_selected_inputs,
+    verify_pooling_policy_edge,
+)
 from polisyos.ir.artifacts import ArtifactStore, InputRef  # noqa: TC001
 from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_artifact
 from polisyos.ir.migrations.base import CompatibilityMode
@@ -28,6 +35,15 @@ if TYPE_CHECKING:
 
 type _ErrorSumName = Literal["squared_error_sum", "absolute_error_sum", "percentage_error_sum"]
 type _RangeFailure = Literal["overflow", "underflow"]
+
+_DIMENSIONAL_SCENARIO_FIELDS = (
+    "rmse",
+    "mae",
+    "mape",
+    "squared_error_sum",
+    "absolute_error_sum",
+    "percentage_error_sum",
+)
 
 
 class BacktestResidualOverflowCell(BaseModel):
@@ -435,6 +451,81 @@ class BacktestScenario(BaseModel):
         return self
 
 
+def _scenario_metrics(scenario: BacktestScenario) -> set[str]:
+    return (
+        {row.metric_name for row in scenario.outcome_comparisons}
+        | {metric for metric, _ in scenario.missing_cells}
+        | {metric for metric, _ in scenario.invalid_cells}
+    )
+
+
+def backtest_measurements_need_policy(scenarios: Sequence[BacktestScenario]) -> bool:
+    """Recognize distinct metrics, jurisdictions, or mixed jurisdiction scope."""
+    metrics = {metric for scenario in scenarios for metric in _scenario_metrics(scenario)}
+    jurisdictions = {scenario.jurisdiction.strip() for scenario in scenarios}
+    return len(metrics) > 1 or len(jurisdictions) > 1
+
+
+class BacktestUnpooledStratum(BaseModel):
+    """Raw error statistics within one source scenario and metric."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    scenario_id: str
+    metric_name: str
+    jurisdiction: str
+    comparison_count: int = Field(ge=0)
+    rmse: float | None = Field(ge=0.0, allow_inf_nan=False)
+    mae: float | None = Field(ge=0.0, allow_inf_nan=False)
+
+
+def unpooled_backtest_scenarios(scenarios: Sequence[BacktestScenario]) -> list[BacktestScenario]:
+    """Preserve raw rows and withhold already projected cross-metric scenario scalars."""
+    limited: list[BacktestScenario] = []
+    for scenario in scenarios:
+        if len(_scenario_metrics(scenario)) <= 1:
+            limited.append(scenario)
+            continue
+        raw_range = scenario.numerical_range
+        limited.append(
+            scenario.model_copy(
+                update={
+                    **dict.fromkeys(_DIMENSIONAL_SCENARIO_FIELDS),
+                    "numerical_range": (
+                        raw_range.model_copy(update={"unavailable_error_sums": {}})
+                        if raw_range is not None and raw_range.residual_overflow_cells
+                        else None
+                    ),
+                }
+            )
+        )
+    return limited
+
+
+def summarize_unpooled_backtest(
+    scenarios: Sequence[BacktestScenario],
+) -> tuple[BacktestUnpooledStratum, ...]:
+    """Reduce every requested scenario/metric separately in its original representation."""
+    summaries: list[BacktestUnpooledStratum] = []
+    for scenario in scenarios:
+        by_metric: dict[str, list[float]] = {metric: [] for metric in _scenario_metrics(scenario)}
+        for row in scenario.outcome_comparisons:
+            by_metric[row.metric_name].append(row.y_pred - row.y_true)
+        for metric, residuals in sorted(by_metric.items()):
+            errors = summarize_backtest_errors(residuals, ())
+            summaries.append(
+                BacktestUnpooledStratum(
+                    scenario_id=scenario.scenario_id,
+                    metric_name=metric,
+                    jurisdiction=scenario.jurisdiction,
+                    comparison_count=len(residuals),
+                    rmse=errors.rmse,
+                    mae=errors.mae,
+                )
+            )
+    return tuple(summaries)
+
+
 class BacktestReport(BaseModel):
     """Summarize historical validation quality and trust diagnostics for one model/policy pair.
 
@@ -463,7 +554,20 @@ class BacktestReport(BaseModel):
     overall_r_squared: float | None = None
     n_scenarios: int = Field(default=0, ge=0)
     n_metrics_evaluated: int = Field(default=0, ge=0)
-    aggregation_policy: Literal["micro_rmse_with_explicit_equal_scenario_macro"] | None = None
+    aggregation_policy: (
+        Literal[
+            "micro_rmse_with_explicit_equal_scenario_macro",
+            "preselected_weighted_measurement_strata",
+            "measurement_comparability_not_established",
+        ]
+        | None
+    ) = None
+    pooling: BacktestPoolingProjection | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    unpooled_strata: tuple[BacktestUnpooledStratum, ...] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     detected_biases: list[SystematicBias] = Field(default_factory=list)
     metric_diagnostics: list[MetricBiasDiagnostic] = Field(default_factory=list)
@@ -487,6 +591,14 @@ class BacktestReport(BaseModel):
             self.n_scenarios = len(self.scenarios)
         if self.n_scenarios != len(self.scenarios):
             raise ValueError("n_scenarios must match scenarios length")
+        if (self.pooling is not None) != (
+            self.aggregation_policy == "preselected_weighted_measurement_strata"
+        ):
+            raise ValueError("backtest pooling requires its declared aggregation policy")
+        if (self.unpooled_strata is not None) != (
+            self.aggregation_policy == "measurement_comparability_not_established"
+        ):
+            raise ValueError("backtest unpooled measures require their limitation policy")
         for value, name in (
             (self.overall_rmse, "overall_rmse"),
             (self.overall_macro_rmse, "overall_macro_rmse"),
@@ -503,6 +615,8 @@ class BacktestReport(BaseModel):
         else:
             if range_limited:
                 raise ValueError("numerical range limitations require source-bound diagnostics")
+            if self.pooling is not None or self.unpooled_strata is not None:
+                raise ValueError("backtest pooling requires source-row verification")
             self._refuse_unbound_legacy_trust()
         if range_limited and (
             not self.degraded
@@ -660,9 +774,26 @@ class BacktestReport(BaseModel):
                     raise ValueError("source outcome within_ci does not match interval bounds")
                 errors_by_metric.setdefault(comparison.metric_name, []).append(residual)
                 scenario_errors.append(residual)
-            scenario_rmse = self._assert_scenario_errors(
-                scenario, scenario_errors, percentage_errors
-            )
+            if self.unpooled_strata is not None and len(_scenario_metrics(scenario)) > 1:
+                if (
+                    any(
+                        getattr(scenario, field) is not None
+                        for field in _DIMENSIONAL_SCENARIO_FIELDS
+                    )
+                    or scenario.percentage_error_count != len(percentage_errors)
+                    or (
+                        scenario.numerical_range is not None
+                        and scenario.numerical_range.unavailable_error_sums
+                    )
+                ):
+                    raise ValueError(
+                        "backtest cannot summarize a mixed scenario without comparability"
+                    )
+                scenario_rmse = None
+            else:
+                scenario_rmse = self._assert_scenario_errors(
+                    scenario, scenario_errors, percentage_errors
+                )
             if scenario_rmse is not None:
                 scenario_rmses.append(scenario_rmse)
             total_percentage_errors.extend(percentage_errors)
@@ -736,6 +867,34 @@ class BacktestReport(BaseModel):
         residuals = [value for values in errors_by_metric.values() for value in values]
         if self.n_metrics_evaluated != len(residuals):
             raise ValueError("n_metrics_evaluated must match the complete actual outcome-row set")
+        if self.pooling is not None or self.unpooled_strata is not None:
+            combined = self.pooling.combined_stratum if self.pooling is not None else None
+            if self.unpooled_strata is not None and (
+                not backtest_measurements_need_policy(self.scenarios)
+                or self.unpooled_strata != summarize_unpooled_backtest(self.scenarios)
+                or "measurement_comparability_not_established" not in self.degraded_reasons
+            ):
+                raise ValueError("backtest unpooled strata differ from source outcomes")
+            if (
+                self.overall_rmse != (combined.micro_rmse if combined else None)
+                or self.overall_mae != (combined.micro_mae if combined else None)
+                or self.overall_macro_rmse != (combined.weighted_macro_rmse if combined else None)
+                or self.overall_mape is not None
+                or self.overall_coverage_probability is not None
+                or self.overall_r_squared is not None
+            ):
+                raise ValueError("backtest combined statistics must match the comparable stratum")
+            if (
+                self.metric_diagnostics
+                or self.detected_biases
+                or self.overall_bias_direction is not BiasDirection.UNKNOWN
+                or not self.degraded
+                or self.trust_eligible
+                or self.trust_score is not None
+                or self.trust_grade is not None
+            ):
+                raise ValueError("backtest pooling supports candidate error statistics only")
+            return
         totals = summarize_backtest_errors(residuals, total_percentage_errors)
         range_limited = any(scenario.numerical_range is not None for scenario in self.scenarios)
         abs_tol = 0.0 if range_limited else 1e-12
@@ -949,7 +1108,11 @@ class BacktestReport(BaseModel):
 
     def metric_diagnostics_are_source_bound(self) -> bool:
         """Return whether the full diagnostic set reconciles with persisted source rows."""
-        if "metric_diagnostics" not in self.model_fields_set:
+        if (
+            self.pooling is not None
+            or self.unpooled_strata is not None
+            or "metric_diagnostics" not in self.model_fields_set
+        ):
             return False
         try:
             self._assert_metric_diagnostics_match_scenarios()
@@ -1049,6 +1212,7 @@ def persist_backtest_report(
     if "metric_diagnostics" not in report.model_fields_set:
         payload.pop("metric_diagnostics", None)
     verified = BacktestReport.model_validate(payload)
+    _verify_backtest_pooling(store, verified, inputs or ())
     payload = verified.model_dump(mode="json")
     if "metric_diagnostics" not in verified.model_fields_set:
         payload.pop("metric_diagnostics", None)
@@ -1068,13 +1232,42 @@ class NativeBacktestVerificationRequiredError(ValueError):
     """A selected native report needs its higher-layer trajectory verifier."""
 
 
+class BacktestPoolingVerificationRequiredError(ValueError):
+    """A selected pooling report needs measurement and source-row verification."""
+
+
+def _verify_backtest_pooling(
+    store: ArtifactStore,
+    report: BacktestReport,
+    inputs: Sequence[InputRef],
+) -> None:
+    projection = report.pooling
+    verify_pooling_policy_edge(inputs, projection)
+    if projection is None:
+        return
+    policy = load_backtest_pooling_policy(store, projection.policy_ref)
+    recomputed = project_backtest_pooling(
+        projection.policy_ref,
+        policy,
+        projection.measures,
+        report.scenarios,
+        summarize_backtest_errors,
+    )
+    if recomputed != projection:
+        raise ValueError("backtest pooled statistics differ from selected policy and outcome rows")
+
+
 def load_backtest_report_candidate(store: ArtifactStore, ref: BacktestReportRef) -> BacktestReport:
     """Load owner-admitted report bytes for verification, without native authority.
 
-    This candidate read alone does not establish native prediction, workflow, or
-    cohort consistency. Consumers must use the native verifier before use.
+    This read reconciles the selected report's arithmetic. Native and pooling
+    source custody require their respective higher-layer verifiers before use.
     """
-    return _get_owned_json_artifact(store, ref, owner=_BACKTEST_REPORT_OWNER)
+    report = _get_owned_json_artifact(store, ref, owner=_BACKTEST_REPORT_OWNER)
+    if report.pooling is not None and ref.manifest_profile_sha256 is None:
+        raise ValueError("backtest pooling requires an exact selected report profile")
+    _verify_backtest_pooling(store, report, read_selected_inputs(store, ref))
+    return report
 
 
 def load_backtest_report(store: ArtifactStore, ref: BacktestReportRef) -> BacktestReport:
@@ -1148,11 +1341,16 @@ def load_backtest_report(store: ArtifactStore, ref: BacktestReportRef) -> Backte
                     raise NativeBacktestVerificationRequiredError(
                         "native_backtest_requires_trajectory_verification"
                     )
+    if report.pooling is not None:
+        raise BacktestPoolingVerificationRequiredError(
+            "backtest_pooling_requires_source_verification"
+        )
     report._withhold_unreconciled_source_trust()
     return report
 
 
 __all__ = [
+    "BacktestPoolingVerificationRequiredError",
     "BacktestReport",
     "BacktestScenario",
     "BiasDirection",

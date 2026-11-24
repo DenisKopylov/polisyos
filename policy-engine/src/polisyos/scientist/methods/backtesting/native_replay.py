@@ -45,6 +45,7 @@ if TYPE_CHECKING:
     from polisyos.ir.analytics.backtest import BacktestReport, BacktestScenario
     from polisyos.ir.registry.refs import ArtifactRefModel
     from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
+    from polisyos.scientist.methods.backtesting.pooling import SelectedBacktestPoolingRun
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
 PROFILE_KEY = "backtest_native_forecast"
@@ -1696,10 +1697,12 @@ def load_native_backtest_report(
         cas.ensure_ir_artifact_store(store),
         BacktestReportRef.model_validate(_selected(report_ref).model_dump(mode="json")),
     )
+    if report.pooling is not None:
+        raise ValueError("provided backtest pooling cannot claim a native forecast")
     if "metric_diagnostics" not in report.model_fields_set:
         raise ValueError("native report requires source-bound metric diagnostics")
     scenario_rmses: list[float] = []
-    for scenario in report.scenarios:
+    for scenario in report.scenarios if report.unpooled_strata is None else ():
         rows = scenario.outcome_comparisons
         if not rows:
             if (
@@ -1715,14 +1718,14 @@ def load_native_backtest_report(
             raise ValueError("native report scenario is missing source residuals")
         scenario_rmses.append(errors.rmse)
     expected_macro = backtest_mean(scenario_rmses)
-    if expected_macro is None:
+    if report.unpooled_strata is None and expected_macro is None:
         if (
             report.overall_macro_rmse is not None
             or report.overall_rmse is not None
             or report.overall_mae is not None
         ):
             raise ValueError("native report empty outcomes cannot claim error metrics")
-    else:
+    elif report.unpooled_strata is None:
         range_limited = any(scenario.numerical_range is not None for scenario in report.scenarios)
         if report.overall_macro_rmse is None or not math.isclose(
             report.overall_macro_rmse,
@@ -1976,10 +1979,14 @@ def load_native_backtest_report(
 
 
 def load_backtest_report_for_consumption(
-    store: cas.CoreJSONArtifactStore, report_ref: ArtifactRefModel | cas.ArtifactRef
+    store: cas.CoreJSONArtifactStore,
+    report_ref: ArtifactRefModel | cas.ArtifactRef,
+    *,
+    pooling_run: SelectedBacktestPoolingRun | None = None,
 ) -> BacktestReport:
-    """Load a legacy report or verify every selected native source before use."""
+    """Load legacy reports and verify native or pooled sources before use."""
     from polisyos.ir.analytics.backtest import (
+        BacktestPoolingVerificationRequiredError,
         NativeBacktestVerificationRequiredError,
         load_backtest_report,
     )
@@ -1992,6 +1999,10 @@ def load_backtest_report_for_consumption(
     )
     try:
         return load_backtest_report(cas.ensure_ir_artifact_store(store), selected)
+    except BacktestPoolingVerificationRequiredError:
+        from polisyos.scientist.methods.backtesting.pooling import load_pooled_backtest_report
+
+        return load_pooled_backtest_report(store, selected, selected_run=pooling_run)
     except NativeBacktestVerificationRequiredError:
         core_ref = cas.ArtifactRef.model_validate(selected.model_dump(mode="json"))
         return load_native_backtest_report(store, core_ref)

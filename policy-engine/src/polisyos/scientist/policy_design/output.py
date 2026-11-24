@@ -54,7 +54,10 @@ from polisyos.ir.registry.refs import (
 from polisyos.scientist.evidence.claims.head_index import ClaimLedgerOwnerPort
 from polisyos.scientist.evidence.claims.models import ClaimLedger
 from polisyos.scientist.evidence.claims.projections import project_policy_artifact_bundle_claims
-from polisyos.scientist.governance.calibration_validation import CalibrationValidationBundle
+from polisyos.scientist.governance.calibration_validation import (
+    CalibrationValidationBundle,
+    NativePredictionDiagnosticBundle,
+)
 from polisyos.scientist.methods.doe.stress_report import StressTestReport
 from polisyos.scientist.methods.search.artifact_minimality import (
     ArtifactFunction,
@@ -620,7 +623,9 @@ class PolicyArtifactBuildInput(BaseModel):
     uncertainty_envelope: UncertaintyEnvelope | None = None
     stress_test_report: StressTestReport | None = None
     stress_test_report_ref: ArtifactRef | None = None
-    calibration_validation_bundle: CalibrationValidationBundle | None = None
+    calibration_validation_bundle: (
+        CalibrationValidationBundle | NativePredictionDiagnosticBundle | None
+    ) = None
     calibration_validation_bundle_ref: ArtifactRef | None = None
     policy_brief: PolicyBrief | None = None
     translator_compliance: Any | None = None

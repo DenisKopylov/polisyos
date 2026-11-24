@@ -14,10 +14,18 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
+from polisyos.core.contracts.backtest import BacktestReportRef
 from polisyos.core.contracts.foundry import SimulationResult, SimulationResultRef
 from polisyos.core.run.manifest import RunManifest
 from polisyos.ir.analytics.backtest import persist_backtest_report
 from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+from polisyos.scientist.governance.backtest_matrix import verify_backtest_diagnostic_projection
+from polisyos.scientist.governance.calibration_validation import (
+    CalibrationValidationRunner,
+    NativePredictionDiagnosticBundle,
+    load_calibration_validation_bundle,
+    persist_calibration_validation_bundle,
+)
 from polisyos.scientist.methods.backtesting.native_replay import (
     _edge_ref,
     load_native_backtest_report,
@@ -32,7 +40,10 @@ from polisyos.scientist.nodes.builtins.simulate.native_predictive_interval impor
     NativeModelPredictionInterval,
     load_native_model_prediction,
 )
-from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_BACKTEST_REPORT_REF
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_BACKTEST_REPORT_REF,
+    ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
+)
 from polisyos.scientist.orchestration.engine.executor import WorkflowExecutor
 from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -102,7 +113,9 @@ def test_registered_labor_state_interval_reopens_exactly_with_model_scope(tmp_pa
         expected_point=row.y_pred,
     )
     registry_ref = ArtifactRef.model_validate(plan.scientist_state["inputs"]["registry_bundle_ref"])
-    packet = _issue_packet(fresh, registry_ref, report_ref, run_id="native-prediction-positive")
+    packet = _issue_packet(fresh, registry_ref, report_ref, run_id="native-prediction-positive")[
+        "backtest"
+    ]
     assert packet["backtest_report_status"] == "available"
     assert packet["overall_coverage_probability"] == 0.0
     assert packet["trust_eligible"] is False
@@ -132,14 +145,105 @@ def test_registered_labor_state_interval_reopens_exactly_with_model_scope(tmp_pa
     )
     with pytest.raises(ValueError, match="native_prediction_interval:labor"):
         load_native_backtest_report(fresh, stripped)
-    packet = _issue_packet(fresh, registry_ref, stripped, run_id="native-prediction-removed")
+    packet = _issue_packet(fresh, registry_ref, stripped, run_id="native-prediction-removed")[
+        "backtest"
+    ]
     assert packet["backtest_report_status"] == "unavailable"
     assert packet["trust_eligible"] is False
     assert "model_conditional_prediction_intervals" not in packet
+    _assert_selected_c5b(fresh, registry_ref, report_ref, stripped)
     assert len(physical) == 2
 
 
-def _issue_packet(store, registry_ref, report_ref, *, run_id):
+def _assert_selected_c5b(store, registry_ref, report_ref, stripped):
+    typed_ref = BacktestReportRef.model_validate(report_ref.model_dump(mode="json"))
+    intake = CalibrationValidationRunner(store)
+    with pytest.raises(ValueError, match="selected report profile"):
+        intake.observe_native_prediction_report(
+            typed_ref.model_copy(update={"manifest_profile_sha256": None})
+        )
+    stripped_ref = BacktestReportRef.model_validate(stripped.model_dump(mode="json"))
+    with pytest.raises(ValueError, match="native_prediction_interval:labor"):
+        intake.observe_native_prediction_report(stripped_ref)
+
+    observed = intake.observe_native_prediction_report(typed_ref)
+    bundle_ref = ArtifactRef.model_validate(observed.bundle_ref.model_dump(mode="json"))
+    reader = FileSystemCAS(store.root)
+    with pytest.raises(ValueError, match="selected bundle profile"):
+        load_calibration_validation_bundle(
+            reader, bundle_ref.model_copy(update={"manifest_profile_sha256": None})
+        )
+    bundle = load_calibration_validation_bundle(reader, bundle_ref)
+    assert isinstance(bundle, NativePredictionDiagnosticBundle)
+    report = load_native_backtest_report(reader, report_ref)
+    assert bundle.run_id == report.report_id
+    assert bundle.backtest_report_ref == typed_ref
+    assert bundle.candidate_ref is None
+    assert reader.get_manifest(bundle_ref).inputs == [
+        input_ref_from_artifact_ref(report_ref, role="backtest_report")
+    ]
+    diagnostics = verify_backtest_diagnostic_projection(report).metric_diagnostics
+    assert diagnostics and bundle.readout_summary()["backtest_metric_diagnostics"] == diagnostics
+    packet = _issue_packet(
+        reader, registry_ref, report_ref, run_id="native-prediction-c5b", calibration_ref=bundle_ref
+    )
+    readout = packet["calibration_validation"]
+    assert readout["purpose"] == "native_prediction_diagnostic"
+    assert readout["backtest_report_status"] == "available"
+    assert readout["backtest_metric_diagnostics"] == diagnostics
+    assert readout["summary"]["source_json_snapshot_binding_status"] == "not_established"
+    assert readout["summary"]["eligible_for_promotion"] is False
+    assert packet["backtest"]["model_conditional_prediction_intervals"][0]["scenario_id"] == "labor"
+    assert packet["backtest"]["trust_eligible"] is False
+
+    manifest = reader.get_manifest(bundle_ref)
+    cut = store.put_json(
+        bundle,
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert cut.artifact_id == bundle_ref.artifact_id
+    rejected = load_calibration_validation_bundle(reader, cut)
+    assert rejected.readout_summary()["backtest_report_status"] == "unavailable"
+    assert rejected.readout_summary()["eligible_for_promotion"] is False
+
+    wrong_run_ref = persist_calibration_validation_bundle(
+        store, bundle.model_copy(update={"run_id": "foreign-run"}), return_selected_profile=True
+    )
+    wrong_run = load_calibration_validation_bundle(reader, wrong_run_ref)
+    assert wrong_run.readout_summary()["backtest_report_status"] == "unavailable"
+
+    reversed_packet = _issue_packet(
+        reader,
+        registry_ref,
+        report_ref,
+        run_id="native-prediction-c5b-conflicting",
+        calibration_ref=ArtifactRef.model_validate(
+            persist_calibration_validation_bundle(
+                store,
+                bundle.model_copy(
+                    update={
+                        "backtest_matrix": bundle.backtest_matrix.model_copy(
+                            update={"backtest_report_ref": stripped_ref}
+                        )
+                    }
+                ),
+                return_selected_profile=True,
+            ).model_dump(mode="json")
+        ),
+    )
+    assert reversed_packet["backtest"]["backtest_report_status"] == "unavailable"
+    assert "model_conditional_prediction_intervals" not in reversed_packet["backtest"]
+    assert reversed_packet["calibration_validation"]["summary"]["eligible_for_promotion"] is False
+    return bundle_ref
+
+
+def _issue_packet(store, registry_ref, report_ref, *, run_id, calibration_ref=None):
     default = default_workflow_spec()
     by_alias = {node.alias: node for node in default.nodes}
     workflow = default.model_copy(
@@ -159,10 +263,13 @@ def _issue_packet(store, registry_ref, report_ref, *, run_id):
     registry = NodeRegistry()
     for node in (RunGovernanceNode(), RunEvaluatorNode(), BuildDecisionPacketNode()):
         registry.register(node)
+    artifacts = {ARTIFACT_BACKTEST_REPORT_REF: report_ref}
+    if calibration_ref is not None:
+        artifacts[ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF] = calibration_ref
     initial = ExperimentState(
         run_id=run_id,
         inputs={"registry_bundle_ref": registry_ref},
-        artifacts_index={ARTIFACT_BACKTEST_REPORT_REF: report_ref},
+        artifacts_index=artifacts,
         params={"random_seed": 12},
     )
     result = WorkflowExecutor(context, registry).execute(workflow, initial)
@@ -173,7 +280,14 @@ def _issue_packet(store, registry_ref, report_ref, *, run_id):
     assert input_ref_from_artifact_ref(report_ref, role="backtest.report_ref") in (
         reader.get_manifest(packet_ref).inputs
     )
-    return load_core_json_artifact(reader, packet_ref)["backtest"]
+    if calibration_ref is not None:
+        assert (
+            input_ref_from_artifact_ref(
+                calibration_ref, role=f"artifact.{ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF}"
+            )
+            in reader.get_manifest(packet_ref).inputs
+        )
+    return load_core_json_artifact(reader, packet_ref)
 
 
 def _assert_selected_interval(store, selected, forecast_ref, request_ref, *, expected_point):

@@ -26,6 +26,7 @@ from polisyos.ir.analytics.backtest import (
     BacktestReport,
     BacktestScenario,
     backtest_mean,
+    backtest_measurements_need_policy,
     persist_backtest_report,
 )
 from polisyos.ir.observation.bundles import BacktestPlanBundle
@@ -44,6 +45,7 @@ from polisyos.scientist.methods.backtesting.trust_scorer import TrustScorer
 
 _NATIVE_PREDICTIVE_GAP_PREFIX = "native_predictive_simulation_only:"
 _SOURCE_NOT_ESTABLISHED = "backtest_matrix_source_not_established"
+_MEASUREMENT_COMPARABILITY_NOT_ESTABLISHED = "measurement_comparability_not_established"
 
 
 class BacktestKind(str, Enum):
@@ -178,6 +180,8 @@ def _admit_matrix_for_leaderboard(
     except Exception:
         return False, ["backtest_matrix_report_not_established"]
 
+    if report.unpooled_strata is not None:
+        return False, [_MEASUREMENT_COMPARABILITY_NOT_ESTABLISHED]
     trust = verify_backtest_trust_projection(report)
     reasons = [_SOURCE_NOT_ESTABLISHED]
     if report.degraded or trust.status != "recomputed" or not trust.eligible:
@@ -660,16 +664,22 @@ class BacktestMatrixRunner:
 
             scenarios_for_kind = scenario_groups[kind]
             native_kind = any(_plan_requests_native(plan) for plan in plans)
-            native_gap = f"{_NATIVE_PREDICTIVE_GAP_PREFIX}{kind.value}" if native_kind else None
-            if native_gap is not None:
-                gap_flags.append(native_gap)
+            gap_flag = None
+            if native_kind:
+                gap_flag = f"{_NATIVE_PREDICTIVE_GAP_PREFIX}{kind.value}"
                 notes.append("Native model simulation does not establish promotion calibration.")
+            elif backtest_measurements_need_policy(scenarios_for_kind):
+                gap_flag = f"{_MEASUREMENT_COMPARABILITY_NOT_ESTABLISHED}:{kind.value}"
+            if gap_flag is not None:
+                gap_flags.append(gap_flag)
             kind_results.append(
                 BacktestKindResult(
                     kind=kind,
-                    status="gap" if native_kind else "ok",
-                    score=None if native_kind else _score_backtest_scenarios(scenarios_for_kind),
-                    gap_flag=native_gap,
+                    status="gap" if gap_flag is not None else "ok",
+                    score=None
+                    if gap_flag is not None
+                    else _score_backtest_scenarios(scenarios_for_kind),
+                    gap_flag=gap_flag,
                     n_plans=len(plans),
                     n_scenarios=len(scenarios_for_kind),
                     scenario_ids=[scenario.scenario_id for scenario in scenarios_for_kind],
@@ -718,8 +728,12 @@ class BacktestMatrixRunner:
             or None,
         )
         report.cas_artifact_id = str(report_ref.artifact_id)
+        if report.unpooled_strata is not None:
+            gap_flags.append(_MEASUREMENT_COMPARABILITY_NOT_ESTABLISHED)
         composite_score = (
-            None if has_native else _mean_defined(result.score for result in kind_results)
+            None
+            if has_native or report.unpooled_strata is not None
+            else _mean_defined(result.score for result in kind_results)
         )
         scored_results = [result for result in kind_results if result.score is not None]
         worst_kind = (
@@ -727,7 +741,7 @@ class BacktestMatrixRunner:
                 scored_results,
                 key=lambda item: (item.score if item.score is not None else 1.0, item.kind.value),
             ).kind
-            if scored_results and not has_native
+            if scored_results and composite_score is not None
             else None
         )
         trust_projection = verify_backtest_trust_projection(report)
@@ -745,7 +759,11 @@ class BacktestMatrixRunner:
                 "report_degraded": report.degraded or not trust_projection.eligible,
                 "report_trust_eligible": trust_projection.eligible,
                 "source_reconciliation_status": "not_established",
-                "composite_score_purpose": "candidate_diagnostic" if not has_native else None,
+                "composite_score_purpose": (
+                    "candidate_diagnostic"
+                    if not has_native and report.unpooled_strata is None
+                    else None
+                ),
             },
         )
 

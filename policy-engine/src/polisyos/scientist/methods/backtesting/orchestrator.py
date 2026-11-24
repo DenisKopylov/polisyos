@@ -67,9 +67,12 @@ from polisyos.ir.analytics.backtest import (
     MetricBiasDiagnostic,
     SystematicBias,
     backtest_mean,
+    backtest_measurements_need_policy,
     backtest_sample_spread,
     persist_backtest_report,
     summarize_backtest_errors,
+    summarize_unpooled_backtest,
+    unpooled_backtest_scenarios,
 )
 from polisyos.ir.artifacts import (
     InputRef,
@@ -137,6 +140,11 @@ def _trust_scorer_profile(scorer: TrustScorer) -> dict[str, Any] | None:
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactTenantContextInfo
     from polisyos.core.artifacts.protocol import ArtifactStore as CoreArtifactStore
+    from polisyos.core.run.context import RunContext
+    from polisyos.ir.analytics.backtest_pooling import (
+        BacktestPoolingPolicyRef,
+        BacktestPoolingProjection,
+    )
     from polisyos.ir.artifacts import ArtifactStore as IRArtifactStore
 
     type BacktestStore = IRArtifactStore | CoreArtifactStore
@@ -612,6 +620,8 @@ class BacktestOrchestrator:
         inputs: Sequence[InputRef] | None = None,
         metadata: dict[str, Any] | None = None,
         trust_screening: TrustScreeningMode = TrustScreeningMode.DEFAULT,
+        pooling_policy_ref: BacktestPoolingPolicyRef | None = None,
+        pooling_run_context: RunContext | None = None,
     ) -> BacktestReport:
         """Execute every historical plan and persist its report in CAS.
 
@@ -625,6 +635,8 @@ class BacktestOrchestrator:
             inputs=inputs,
             metadata=metadata,
             trust_screening=trust_screening,
+            pooling_policy_ref=pooling_policy_ref,
+            pooling_run_context=pooling_run_context,
         )
         return report
 
@@ -636,6 +648,8 @@ class BacktestOrchestrator:
         inputs: Sequence[InputRef] | None = None,
         metadata: dict[str, Any] | None = None,
         trust_screening: TrustScreeningMode = TrustScreeningMode.DEFAULT,
+        pooling_policy_ref: BacktestPoolingPolicyRef | None = None,
+        pooling_run_context: RunContext | None = None,
     ) -> tuple[BacktestReport, BacktestReportRef]:
         """Execute the plans and return the report plus its exact persisted CAS ref.
 
@@ -646,6 +660,8 @@ class BacktestOrchestrator:
         contract; this owner resolves only the exact refs in its configured CAS.
         The returned ref is the selected view returned by the report write; it
         is not reconstructed from the content-addressed artifact ID.
+        A selected pooling policy fixes provided cases and weights before any
+        scenario is evaluated.
         """
         resolved_report_id = _resolve_report_id(
             report_id,
@@ -656,7 +672,32 @@ class BacktestOrchestrator:
             resolved_trust_screening = TrustScreeningMode(trust_screening)
         except (TypeError, ValueError) as exc:
             raise ValueError("trust_screening must be a supported typed mode") from exc
+        if (pooling_policy_ref is None) != (pooling_run_context is None):
+            raise ValueError("backtest pooling requires both policy and active run context")
+        pooling = None
+        pooling_edges: list[InputRef] = []
+        policy = None
+        measures = ()
+        if pooling_policy_ref is not None and pooling_run_context is not None:
+            from polisyos.ir.analytics.backtest_pooling import (
+                load_backtest_pooling_policy,
+                pooling_policy_edge,
+                project_backtest_pooling,
+                verify_pooling_policy_edge,
+            )
+            from polisyos.scientist.methods.backtesting.pooling import (
+                prepare_backtest_pooling,
+                record_backtest_pooling_policy,
+            )
+
+            policy = load_backtest_pooling_policy(self._store, pooling_policy_ref)
+            record_backtest_pooling_policy(
+                pooling_run_context, self._scientist_execution_store(), pooling_policy_ref
+            )
         manifest_inputs = _resolve_manifest_inputs(self._store, inputs)
+        if policy is not None:
+            verify_pooling_policy_edge(manifest_inputs or (), None)
+            measures = prepare_backtest_pooling(self._store, policy, plans)
         scenarios: list[BacktestScenario] = []
         warnings: list[str] = []
         requested_modes: list[str] = []
@@ -680,6 +721,11 @@ class BacktestOrchestrator:
                 [f"{plan.plan_id}: {item}" for item in scenario_degraded_reasons]
             )
 
+        if pooling_policy_ref is not None and policy is not None:
+            pooling = project_backtest_pooling(
+                pooling_policy_ref, policy, measures, scenarios, summarize_backtest_errors
+            )
+            pooling_edges.append(pooling_policy_edge(pooling_policy_ref))
         report = self._aggregate(
             report_id=resolved_report_id,
             scenarios=scenarios,
@@ -689,15 +735,22 @@ class BacktestOrchestrator:
             prediction_mode_effective=_collapse_modes(effective_modes),
             degraded_reasons=degraded_reasons,
             trust_screening=resolved_trust_screening,
+            pooling=pooling,
         )
         report = self._validate_trust_projection_before_persist(report)
         report._withhold_unreconciled_source_trust()
-        report_inputs = [*(manifest_inputs or []), *_scenario_report_inputs(scenarios)]
+        report_inputs = [
+            *(manifest_inputs or []),
+            *_scenario_report_inputs(scenarios),
+            *pooling_edges,
+        ]
         ref = persist_backtest_report(
             _ensure_ir_artifact_store(self._store),
             report,
             inputs=report_inputs or None,
         )
+        if pooling_run_context is not None:
+            pooling_run_context.add_output(CoreArtifactRef.model_validate(dict(ref)))
         report.cas_artifact_id = str(ref.artifact_id)
         return report, ref
 
@@ -1929,40 +1982,58 @@ class BacktestOrchestrator:
         prediction_mode_effective: str | None,
         degraded_reasons: list[str],
         trust_screening: TrustScreeningMode = TrustScreeningMode.DEFAULT,
+        pooling: BacktestPoolingProjection | None = None,
     ) -> BacktestReport:
+        measurement_unqualified = pooling is None and backtest_measurements_need_policy(scenarios)
+        unpooled = None
+        if measurement_unqualified:
+            scenarios = unpooled_backtest_scenarios(scenarios)
+            unpooled = summarize_unpooled_backtest(scenarios)
         comparisons = [row for scenario in scenarios for row in scenario.outcome_comparisons]
-        percentage_errors = [
-            percentage
-            for row in comparisons
-            if row.relative_error is not None
-            and math.isfinite(percentage := row.relative_error * 100.0)
-        ]
-        totals = summarize_backtest_errors(
-            [row.y_pred - row.y_true for row in comparisons], percentage_errors
-        )
-        rmse_values = [item.rmse for item in scenarios if item.rmse is not None]
-        coverage_values = [
-            item.coverage_probability for item in scenarios if item.coverage_probability is not None
-        ]
-        overall_rmse = totals.rmse if comparisons else backtest_mean(rmse_values)
-        overall_mae = (
-            totals.mae
-            if comparisons
-            else backtest_mean([item.mae for item in scenarios if item.mae is not None])
-        )
-        overall_mape = (
-            totals.mape
-            if percentage_errors
-            else backtest_mean([item.mape for item in scenarios if item.mape is not None])
-        )
-        interval_evaluated = sum(item.interval_evaluated_count for item in scenarios)
-        interval_hits = sum(item.interval_hit_count for item in scenarios)
-        overall_coverage = (
-            float(interval_hits / interval_evaluated)
-            if interval_evaluated > 0
-            else (float(np.mean(coverage_values)) if coverage_values else None)
-        )
-        overall_macro_rmse = backtest_mean(rmse_values)
+        pooled_range_limited = False
+        if pooling is None and not measurement_unqualified:
+            percentage_errors = [
+                percentage
+                for row in comparisons
+                if row.relative_error is not None
+                and math.isfinite(percentage := row.relative_error * 100.0)
+            ]
+            totals = summarize_backtest_errors(
+                [row.y_pred - row.y_true for row in comparisons], percentage_errors
+            )
+            rmse_values = [item.rmse for item in scenarios if item.rmse is not None]
+            coverage_values = [
+                item.coverage_probability
+                for item in scenarios
+                if item.coverage_probability is not None
+            ]
+            overall_rmse = totals.rmse if comparisons else backtest_mean(rmse_values)
+            overall_mae = (
+                totals.mae
+                if comparisons
+                else backtest_mean([item.mae for item in scenarios if item.mae is not None])
+            )
+            overall_mape = (
+                totals.mape
+                if percentage_errors
+                else backtest_mean([item.mape for item in scenarios if item.mape is not None])
+            )
+            interval_evaluated = sum(item.interval_evaluated_count for item in scenarios)
+            interval_hits = sum(item.interval_hit_count for item in scenarios)
+            overall_coverage = (
+                float(interval_hits / interval_evaluated)
+                if interval_evaluated > 0
+                else (float(np.mean(coverage_values)) if coverage_values else None)
+            )
+            overall_macro_rmse = backtest_mean(rmse_values)
+            pooled_range_limited = bool(totals.unavailable_error_sums)
+        else:
+            combined = pooling.combined_stratum if pooling is not None else None
+            overall_rmse = combined.micro_rmse if combined else None
+            overall_mae = combined.micro_mae if combined else None
+            overall_macro_rmse = combined.weighted_macro_rmse if combined else None
+            overall_mape = None
+            overall_coverage = None
         interval_contracts = [
             {
                 "scenario_id": item.scenario_id,
@@ -1984,13 +2055,22 @@ class BacktestOrchestrator:
         trust_profile = _trust_scorer_profile(self._trust_scorer)
         metadata_payload["trust_scorer_profile"] = trust_profile
 
-        biases, metric_diagnostics, statistical_degraded_reasons = self._detect_systematic_biases(
-            scenarios
-        )
+        if pooling is None and not measurement_unqualified:
+            biases, metric_diagnostics, statistical_degraded_reasons = (
+                self._detect_systematic_biases(scenarios)
+            )
+        else:
+            biases, metric_diagnostics = [], []
+            if pooling is None:
+                statistical_degraded_reasons = ["measurement_comparability_not_established"]
+            else:
+                statistical_degraded_reasons = ["backtest_pooling_candidate_only"]
+                if len(pooling.strata) > 1:
+                    statistical_degraded_reasons.append("distinct_measurement_strata")
+                if pooling.unavailable:
+                    statistical_degraded_reasons.append("incomplete_backtest_measure_comparability")
         all_degraded_reasons = [*degraded_reasons, *statistical_degraded_reasons]
-        if totals.unavailable_error_sums or any(
-            item.numerical_range is not None for item in scenarios
-        ):
+        if pooled_range_limited or any(item.numerical_range is not None for item in scenarios):
             all_degraded_reasons.append("backtest_numerical_range")
         if trust_profile is None:
             all_degraded_reasons.append("trust_scorer_profile_unavailable")
@@ -2042,11 +2122,23 @@ class BacktestOrchestrator:
             n_scenarios=len(scenarios),
             n_metrics_evaluated=len(comparisons),
             aggregation_policy=(
-                "micro_rmse_with_explicit_equal_scenario_macro" if scenarios else None
+                "preselected_weighted_measurement_strata"
+                if pooling is not None
+                else "measurement_comparability_not_established"
+                if measurement_unqualified
+                else "micro_rmse_with_explicit_equal_scenario_macro"
+                if scenarios
+                else None
             ),
+            pooling=pooling,
+            unpooled_strata=unpooled,
             detected_biases=biases,
             metric_diagnostics=metric_diagnostics,
-            overall_bias_direction=self._aggregate_bias_direction(biases, metric_diagnostics),
+            overall_bias_direction=(
+                BiasDirection.UNKNOWN
+                if pooling is not None or measurement_unqualified
+                else self._aggregate_bias_direction(biases, metric_diagnostics)
+            ),
             prediction_mode_requested=prediction_mode_requested,
             prediction_mode_effective=prediction_mode_effective,
             degraded=degraded,

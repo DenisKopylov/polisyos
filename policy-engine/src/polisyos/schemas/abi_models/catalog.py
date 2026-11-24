@@ -842,6 +842,19 @@ SCIENTIST_ABI_MODELS: tuple[ABIModelEntry, ...] = (
         schema_variant_version="1.1",
     ),
     ABIModelEntry(
+        abi_key="calibration_validation_bundle_v1_2",
+        fqn=(
+            "polisyos.scientist.governance.calibration_validation.NativePredictionDiagnosticBundle"
+        ),
+        module="scientist",
+        schema_file="calibration_validation_bundle_v1_2.schema.json",
+        priority=Priority.P1,
+        compat_mode=CompatMode.STRICT,
+        version_field="schema_version",
+        schema_mode=SchemaMode.SERIALIZATION,
+        schema_variant_version="1.2",
+    ),
+    ABIModelEntry(
         abi_key="retained_skg_snapshot_v1_1",
         fqn="polisyos.data_forge.domains.academic.knowledge.skg_snapshot.RetainedSKGSnapshotV11",
         module="scientist",

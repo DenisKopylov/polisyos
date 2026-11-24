@@ -311,6 +311,9 @@ export type CandidateExperimentN5ResultProjection =
 export type CandidateExperimentPriorN5ResultProjection =
   RuntimeApiComponents["schemas"]["CandidateExperimentPriorN5ResultProjection"];
 
+export type CandidateExperimentReentryCustodyRequest =
+  RuntimeApiComponents["schemas"]["CandidateExperimentReentryCustodyRequest"];
+
 export type CandidateExperimentReuseActionExecutionRequest =
   RuntimeApiComponents["schemas"]["CandidateExperimentReuseActionExecutionRequest"];
 

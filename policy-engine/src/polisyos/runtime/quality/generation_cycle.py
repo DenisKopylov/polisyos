@@ -1959,6 +1959,7 @@ def _validate_loaded_joint_simulation_result(
     expected_world_model_record_content_hash: str | None,
     expected_atom_ids: Sequence[str] | None,
     expected_selected_outcomes: Sequence[str] | None,
+    expected_candidate_quota_interruption: bool = False,
 ) -> None:
     """Check semantic bindings that CAS byte integrity cannot establish."""
 
@@ -1993,7 +1994,17 @@ def _validate_loaded_joint_simulation_result(
         _joint_simulation_result_integrity_error("selected_outcomes_binding_mismatch")
     if not result.selected_outcomes:
         _joint_simulation_result_integrity_error("selected_outcomes_missing")
-    if not result.trajectories:
+    if expected_candidate_quota_interruption:
+        if (
+            result.trajectories
+            or result.receipt.calibration_status != "no_run"
+            or result.receipt.authoritative_for
+            or result.diagnostics.get("physical_work_interruption")
+            != "n5_invocation_quota_exhausted"
+            or result.world_credal_state_before != result.world_credal_state_after
+        ):
+            _joint_simulation_result_integrity_error("candidate_quota_interruption_invalid")
+    elif not result.trajectories:
         raise GenerationCycleError(
             "joint_simulation_result_trajectory_missing",
             "N5 result contains no numerical trajectory",
@@ -2120,6 +2131,46 @@ def load_joint_simulation_result(
     )
 
 
+def _load_candidate_quota_interrupted_joint_simulation_result(
+    ref: CASArtifactRef,
+    *,
+    store: ArtifactReader,
+    expected_request: JointSimulationRequest,
+    expected_receipt_payload_hash: str,
+) -> JointSimulationResult:
+    """Decode the signed, trajectory-free NCM report for the partial-work owner."""
+    from polisyos.runtime.quality.joint_simulation_horizon import _replication_seeds
+
+    with _decode_joint_simulation_result(
+        ref,
+        store=store,
+        expected_world_model_record_content_hash=expected_request.world_model_record.content_hash,
+        expected_atom_ids=tuple(
+            atom.intervention_id for atom in expected_request.intervention_atoms
+        ),
+        expected_selected_outcomes=expected_request.selected_outcomes,
+        expected_receipt_payload_hash=expected_receipt_payload_hash,
+        expected_request=expected_request,
+        expected_candidate_quota_interruption=True,
+    ) as (result, has_semantic_inputs):
+        if (
+            has_semantic_inputs
+            or result.receipt.engine_kind != "ncm_parallel_worlds"
+            or expected_request.comparator_profile is not None
+            or result.world_model_record_ref != expected_request.world_model_record_ref
+            or result.horizon != expected_request.horizon
+            or result.diagnostics.get("requested_replications") != expected_request.replications
+            or result.diagnostics.get("replication_seeds")
+            != list(_replication_seeds(expected_request))
+            or result.marginal_effects
+            or result.interaction_terms
+            or result.higher_order_residuals
+            or result.higher_order_residual_sampling
+        ):
+            _joint_simulation_result_integrity_error("candidate_quota_interruption_binding_invalid")
+        return result
+
+
 @contextmanager
 def _decode_joint_simulation_result(
     ref: CASArtifactRef,
@@ -2130,6 +2181,7 @@ def _decode_joint_simulation_result(
     expected_selected_outcomes: Sequence[str] | None = None,
     expected_receipt_payload_hash: str | None = None,
     expected_request: JointSimulationRequest | None = None,
+    expected_candidate_quota_interruption: bool = False,
 ) -> Iterator[tuple[JointSimulationResult, bool]]:
     """Decode one fresh selected view; callers must complete its semantic proof."""
     from polisyos.common.canonical_profile import CanonicalProfileRefusalError
@@ -2255,6 +2307,7 @@ def _decode_joint_simulation_result(
             expected_world_model_record_content_hash=expected_world_model_record_content_hash,
             expected_atom_ids=expected_atom_ids,
             expected_selected_outcomes=expected_selected_outcomes,
+            expected_candidate_quota_interruption=expected_candidate_quota_interruption,
         )
         try:
             semantic_edges = [

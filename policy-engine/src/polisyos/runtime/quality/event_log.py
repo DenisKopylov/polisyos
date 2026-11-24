@@ -7,7 +7,7 @@ import uuid
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
@@ -20,6 +20,9 @@ from polisyos.runtime.quality.diagnostic_events import (
     DiagnosticEvent,
     validate_diagnostic_event,
 )
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactRef
 
 INLINE_PAYLOAD_MAX_BYTES = 2048
 CORRECTIVE_EVENT_ACTIONS = frozenset({"supersede", "withdraw", "reconcile", "quarantine"})
@@ -93,6 +96,53 @@ class _PreparedDiagnosticEvent:
         if payload is not None and not self.inline_payload and self.payload_ref != expected:
             raise ValueError("diagnostic_preparation_cas_identity_mismatch")
         return event, payload
+
+
+class _PreparedDiagnosticEventLookup:
+    """Reopen one unpublished event solely for its CAS authority comparison."""
+
+    def __init__(
+        self,
+        event_log: RuntimeDiagnosticEventLog,
+        prepared: _PreparedDiagnosticEvent,
+        ref: ArtifactRef,
+    ) -> None:
+        if (
+            type(event_log) is not RuntimeDiagnosticEventLog
+            or type(prepared) is not _PreparedDiagnosticEvent
+            or ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("prepared_candidate_diagnostic_scope_invalid")
+        event, payload = prepared.publication_values()
+        self.payload_ref = str(ref.artifact_id)
+        if (
+            payload is not None
+            or prepared.inline_payload
+            or prepared.payload_ref != self.payload_ref
+            or event.artifact_refs != (self.payload_ref,)
+        ):
+            raise ValueError("prepared_candidate_diagnostic_ref_mismatch")
+        self.event = event
+        self._event_log = event_log
+
+    def list_events(
+        self,
+        *,
+        event_id: str | None = None,
+        run_id: str | None = None,
+        job_id: str | None = None,
+        limit: int = 500,
+    ) -> list[_PreparedDiagnosticEventLookup]:
+        """Supply only this verified preparation under its exact selector."""
+        if (
+            event_id != self.event.event_id
+            or (run_id is not None and run_id != self.event.run_id)
+            or (job_id is not None and job_id != self.event.job_id)
+            or limit < 1
+            or self._event_log.list_events(event_id=event_id, limit=1)
+        ):
+            raise ValueError("prepared_candidate_diagnostic_selector_refused")
+        return [self]
 
 
 class RuntimeDiagnosticEventLog:

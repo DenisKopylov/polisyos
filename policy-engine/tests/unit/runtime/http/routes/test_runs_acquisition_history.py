@@ -629,6 +629,35 @@ def test_verified_blocked_terminal_preserves_earlier_history_in_run_details(
     assert all(row.publication_authority is False for row in projection.acquisition_history)
 
 
+def test_missing_partial_quota_proof_preserves_earlier_history_without_current_fallback(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleError
+
+    earlier = _case(tmp_path, monkeypatch)
+    latest = _case(tmp_path, monkeypatch, previous=earlier)
+    positive, _, _ = _project(latest)
+    assert tuple(row.route_receipt_ref for row in positive) == (
+        earlier.selected_ref,
+        latest.selected_ref,
+    )
+    owner = history_owner.verify_candidate_experiment_terminal_history
+    code = runs._PARTIAL_CANDIDATE_N5_PROOF_UNAVAILABLE
+
+    def verify(**kwargs: Any) -> CandidateExperimentTerminalHistory:
+        if kwargs["terminal_ref"] == latest.selected_ref:
+            raise GenerationCycleError(code)
+        return owner(**kwargs)
+
+    monkeypatch.setattr(history_owner, "verify_candidate_experiment_terminal_history", verify)
+    entries, limitation, current = _project(latest)
+    assert entries == positive[:1]
+    assert limitation == "acquisition_action_history_terminal_projection_unavailable"
+    assert current.status == "not_established"
+    assert current.issues == (code,)
+    assert not current.occurrences and current.fronts is None
+
+
 def test_verified_ordinary_requested_sibling_preserves_completed_history(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

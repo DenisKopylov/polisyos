@@ -27,6 +27,8 @@ from polisyos.runtime.http.permissions import (
 )
 from polisyos.runtime.http.services.acquisition_action_service import (
     CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_RESOURCE_KIND,
+    CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_SCOPE_FIELDS,
+    CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_TARGET_FIELDS,
     CANDIDATE_MODEL_REVISION_TERMINAL_CUSTODY_RESOURCE_KIND,
     AcquisitionActionService,
     AcquisitionActionServiceError,
@@ -36,6 +38,7 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionRouteListResponse,
     AcquisitionRouteMutationRequest,
     AcquisitionRouteProjection,
+    CandidateExperimentReentryCustodyRequest,
     CandidateExperimentReuseActionExecutionRequest,
     CandidateExperimentRouteExecutionRequest,
     CandidateExperimentRouteMutationRequest,
@@ -138,16 +141,17 @@ _CANDIDATE_EXPERIMENT_EXECUTION_AUTHZ = require_action_permission(
         ),
     ),
 )
-_CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_FIELDS = tuple(
-    CandidateExperimentTerminalCustodyRequest.model_fields
-)
 _CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_AUTHZ = require_action_permission(
     RuntimePermission.EVIDENCE_ACQUIRE,
     ResourceBindingSpec(
         source=ResourceBindingSource.REQUEST_COMPOSITE,
         resource_kind=CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_RESOURCE_KIND,
-        selector_fields=_CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_FIELDS,
-        required_selector_fields=_CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_FIELDS,
+        selector_fields=(
+            *CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_SCOPE_FIELDS,
+            *CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_TARGET_FIELDS,
+        ),
+        required_selector_fields=CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_SCOPE_FIELDS,
+        omit_absent_selector_fields=CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_TARGET_FIELDS,
     ),
 )
 _CANDIDATE_MODEL_REVISION_TERMINAL_CUSTODY_FIELDS = tuple(
@@ -573,7 +577,7 @@ def execute_run_candidate_acquisition_experiment(
 def settle_run_candidate_acquisition_experiment_terminal(
     run_id: str,
     route_id: str,
-    body: CandidateExperimentTerminalCustodyRequest,
+    body: CandidateExperimentTerminalCustodyRequest | CandidateExperimentReentryCustodyRequest,
     request: Request,
     service: _Service,
     bound_permission: Annotated[
@@ -582,7 +586,7 @@ def settle_run_candidate_acquisition_experiment_terminal(
     ],
     step_up: Annotated[StepUpAssertionVerification, Depends(_MUTATION_STEP_UP)],
 ) -> CandidateExperimentTerminalCustodyResponse:
-    """Select an existing numerical candidate under a fresh same-actor approval."""
+    """Settle a selected experiment terminal or held reentry under fresh approval."""
     tenant_id, _, principal = _scope(request)
     set_authz_resource(
         request, tenant_id=tenant_id, kind=CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_RESOURCE_KIND

@@ -66,7 +66,13 @@ if TYPE_CHECKING:
         NativeSettledDraftRecovery,
         NativeSettledN4Recovery,
     )
-    from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceiptV2
+    from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+        PreparedCandidateExperimentReentryCustody,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentTerminalReceipt,
+        AcquisitionRouteLoopReceiptV2,
+    )
 
 from polisyos.runtime.http.services.control.response_shapes import (
     _operator_diagnostic_from_failure_payload,
@@ -91,6 +97,7 @@ _NATIVE_CUSTODY_RECOVERY_EVENT = "native_acquisition_custody_recovery_requested"
 _NATIVE_DRAFT_RECOVERY_PURPOSE = "resume_native_from_settled_draft"
 _NATIVE_N4_RECOVERY_PURPOSE = "resume_native_from_settled_n4"
 _CANDIDATE_TERMINAL_CUSTODY_EVENT = "candidate_experiment_terminal_custody_settled"
+_CANDIDATE_REENTRY_CUSTODY_EVENT = "candidate_experiment_reentry_custody_settled"
 _ORDINARY_TERMINAL_CUSTODY_EVENT = "ordinary_acquisition_terminal_custody_settled"
 
 _COMPLETED_HTE_VALIDITY_OUTBOX_TOPIC = "control.decision_validity.hte_source_update"
@@ -9889,6 +9896,120 @@ class ControlPlaneStore:
             selected_n5_execution_ref=selected_n5_execution_ref,
         )
 
+    def settle_candidate_experiment_reentry_custody(
+        self,
+        *,
+        expected_job: ControlJobRecord,
+        expected_head: AcquisitionActionHeadRecord,
+        prepared: PreparedCandidateExperimentReentryCustody,
+        actor_subject: str,
+        resource_digest: str,
+        authority_expires_at: int,
+        step_up_sha256: str,
+        verify_precommit: Callable[[], None],
+    ) -> AcquisitionActionHeadRecord:
+        """Settle a held blocked experiment without a numerical frontier."""
+        from polisyos.core.canon import CanonSpec, to_canonical_bytes
+        from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+            PreparedCandidateExperimentReentryCustody,
+        )
+        from polisyos.runtime.quality.acquisition_route_loop import (
+            AcquisitionCandidateExperimentTerminalReceipt,
+        )
+
+        if self._job_execution_fence.get() is not None:
+            raise ControlJobExecutionAdmissionError("candidate_terminal_custody_request_required")
+        if type(prepared) is not PreparedCandidateExperimentReentryCustody:
+            raise ValueError("candidate_reentry_custody_preparation_invalid")
+        terminal = prepared.terminal
+        frontier = prepared.frontier_cas
+        _validate_acquisition_evaluation_frontier_cas(frontier, require_replacement=False)
+        if (
+            type(expected_job) is not ControlJobRecord
+            or expected_job.kind != "acquisition"
+            or expected_job.state != "failed"
+            or expected_job.error_message != "candidate_experiment_evaluation_recovery_required"
+            or expected_job.attempt < 1
+            or expected_job.payload_ref is None
+            or type(expected_head) is not AcquisitionActionHeadRecord
+            or expected_head.job_id != expected_job.job_id
+            or expected_head.run_id != expected_job.run_id
+            or expected_head.action_generation != 1
+            or expected_head.receipt_phase != "candidate_input_reentry_pending"
+            or expected_head.recovery_state != "reentry_recovery_required"
+            or not _is_sha256_ref(expected_head.receipt_manifest_profile_sha256)
+            or type(terminal) is not AcquisitionCandidateExperimentTerminalReceipt
+            or terminal.terminal_outcome != "candidate_reentry_completed"
+            or terminal.predecessor_receipt_ref != expected_head.receipt_ref
+            or terminal.selected_evaluation is not None
+            or terminal.current_continuation_ref is not None
+            or terminal.candidate_reentry_ref is None
+            or terminal.selected_evaluation_witness_ref != terminal.candidate_reentry_ref
+            or terminal.selected_basis_ref is None
+            or terminal.evaluation_decision_ref is None
+            or terminal.quota_interruption_witness_ref is None
+            or any(
+                getattr(terminal, name) != getattr(expected_head, name)
+                for name in (
+                    "tenant_id",
+                    "cell_id",
+                    "run_id",
+                    "source_job_id",
+                    "route_id",
+                    "job_id",
+                    "action_generation",
+                )
+            )
+            or type(prepared.terminal_ref) is not ArtifactRef
+            or prepared.terminal_ref.kind != "runtime_quality.acquisition_route_loop_receipt"
+            or prepared.terminal_ref.media_type != "application/json"
+            or not _is_sha256_ref(prepared.terminal_ref.manifest_profile_sha256)
+            or type(prepared.terminal_event) is not _PreparedDiagnosticEvent
+            or type(prepared.basis_event) is not _PreparedDiagnosticEvent
+            or frontier.expected_revision != 0
+            or frontier.expected_frontier_ref is not None
+            or frontier.replacement is not None
+            or frontier.key
+            != AcquisitionEvaluationFrontierKey(
+                tenant_id=terminal.tenant_id,
+                cell_id=terminal.cell_id,
+                source_job_id=terminal.source_job_id,
+                design_problem_ref=terminal.policy_scope.design_problem_ref,
+                candidate_id=terminal.policy_scope.candidate_id,
+            )
+            or type(actor_subject) is not str
+            or not actor_subject.strip()
+            or not _is_sha256_ref(resource_digest)
+            or not _is_sha256_ref(step_up_sha256)
+            or type(authority_expires_at) is not int
+            or authority_expires_at <= 0
+        ):
+            raise ValueError("candidate_reentry_custody_subject_invalid")
+        terminal_sha256 = hashlib.sha256(
+            to_canonical_bytes(terminal.model_dump(mode="json"), CanonSpec(forbid_floats=False))
+        ).hexdigest()
+        if str(prepared.terminal_ref.artifact_id) != f"sha256:{terminal_sha256}":
+            raise ValueError("candidate_reentry_custody_terminal_content_mismatch")
+        terminal_event, _ = prepared.terminal_event.publication_values()
+        return self._settle_terminal_custody_transaction(
+            expected_job=expected_job,
+            expected_head=expected_head,
+            terminal_ref=prepared.terminal_ref,
+            terminal_event_id=terminal_event.event_id,
+            frontier_cas=frontier,
+            actor_subject=actor_subject,
+            resource_digest=resource_digest,
+            authority_expires_at=authority_expires_at,
+            step_up_sha256=step_up_sha256,
+            mode="candidate_experiment_reentry",
+            prepared_event=prepared.terminal_event,
+            terminal=terminal,
+            reentry_ref=terminal.candidate_reentry_ref,
+            selected_n5_execution_ref=None,
+            prepared_basis_event=prepared.basis_event,
+            verify_precommit=verify_precommit,
+        )
+
     def _settle_terminal_custody_transaction(
         self,
         *,
@@ -9901,15 +10022,27 @@ class ControlPlaneStore:
         resource_digest: str,
         authority_expires_at: int,
         step_up_sha256: str,
-        mode: Literal["candidate_experiment", "ordinary_model_revision"],
+        mode: Literal[
+            "candidate_experiment", "candidate_experiment_reentry", "ordinary_model_revision"
+        ],
         prepared_event: _PreparedDiagnosticEvent | None,
-        terminal: AcquisitionRouteLoopReceiptV2 | None,
+        terminal: AcquisitionRouteLoopReceiptV2
+        | AcquisitionCandidateExperimentTerminalReceipt
+        | None,
         reentry_ref: ArtifactRef | None,
         selected_n5_execution_ref: ArtifactRef | None,
+        prepared_basis_event: _PreparedDiagnosticEvent | None = None,
+        verify_precommit: Callable[[], None] | None = None,
     ) -> AcquisitionActionHeadRecord:
         """Share the locked failed-attempt transition while preserving both event contracts."""
+        from polisyos.runtime.quality.acquisition_route_loop import (
+            AcquisitionCandidateExperimentTerminalReceipt,
+        )
+
+        reentry_custody = mode == "candidate_experiment_reentry"
+        experiment = mode != "ordinary_model_revision"
         replacement = frontier_cas.replacement
-        if replacement is None:
+        if (replacement is None) != reentry_custody:
             raise ValueError("candidate_terminal_custody_subject_invalid")
 
         def require_current_authority() -> None:
@@ -9918,7 +10051,7 @@ class ControlPlaneStore:
         require_current_authority()
         job_id = expected_job.job_id
         terminal_id = str(terminal_ref.artifact_id)
-        if mode == "candidate_experiment":
+        if experiment:
             receipt_id = f"{job_id}.candidate-experiment.terminal"
             event_suffix = hashlib.sha256(receipt_id.encode()).hexdigest()[:16]
             if terminal_event_id != (
@@ -9970,9 +10103,16 @@ class ControlPlaneStore:
             previous = self._advance_acquisition_evaluation_frontier_in_transaction(
                 replace(frontier_cas, replacement=None)
             )
-            if previous is None or (
-                previous.selected_evaluation_witness_ref
-                == replacement.selected_evaluation_witness_ref
+            if reentry_custody:
+                if previous is not None:
+                    raise ValueError("candidate_reentry_custody_frontier_not_absent")
+            elif (
+                previous is None
+                or replacement is None
+                or (
+                    previous.selected_evaluation_witness_ref
+                    == replacement.selected_evaluation_witness_ref
+                )
             ):
                 raise ValueError("candidate_terminal_custody_new_evaluation_missing")
             self._lock_acquisition_route_source(expected_head.source_job_id)
@@ -9985,7 +10125,11 @@ class ControlPlaneStore:
             )
             if not heads or heads[-1] != expected_head:
                 raise ValueError("candidate_terminal_custody_head_changed")
+            basis_event = None
+            basis_id = None
             if mode == "candidate_experiment":
+                if replacement is None:
+                    raise ValueError("candidate_terminal_custody_new_evaluation_missing")
                 events = self.list_diagnostic_events(
                     event_id=terminal_event_id,
                     run_id=expected_head.run_id,
@@ -10017,6 +10161,69 @@ class ControlPlaneStore:
                     }.issubset(event.input_refs)
                 ):
                     raise ValueError("candidate_terminal_custody_event_mismatch")
+            elif reentry_custody:
+                from polisyos.runtime.http.services.control.run_lifecycle import (
+                    _acquisition_route_receipt_inputs,
+                )
+                from polisyos.runtime.quality.acquisition_evaluation import (
+                    PRODUCER,
+                    _candidate_evaluation_role_event_id,
+                )
+
+                if (
+                    type(terminal) is not AcquisitionCandidateExperimentTerminalReceipt
+                    or terminal.selected_basis_ref is None
+                    or prepared_event is None
+                    or prepared_basis_event is None
+                    or verify_precommit is None
+                    or reentry_ref is None
+                    or self.list_diagnostic_events(event_id=terminal_event_id, limit=1)
+                ):
+                    raise ValueError("candidate_reentry_custody_event_identity_changed")
+                event, payload = prepared_event.publication_values()
+                basis_event, basis_payload = prepared_basis_event.publication_values()
+                basis_id = str(terminal.selected_basis_ref.artifact_id)
+                if (
+                    payload is not None
+                    or prepared_event.payload_ref != terminal_id
+                    or prepared_event.payload_sha256 is not None
+                    or prepared_event.inline_payload
+                    or event.event_id != terminal_event_id
+                    or event.event_source != "polisyos.runtime.quality.acquisition_route_loop"
+                    or event.event_type
+                    != "polisyos.runtime.acquisition.candidate_experiment_terminal.v1"
+                    or event.event_subject != f"run/{job.run_id}/job/{job_id}/acquisition/terminal"
+                    or (event.tenant_id, event.cell_id, event.run_id, event.job_id)
+                    != (scope.tenant_id, scope.cell_id, job.run_id, job_id)
+                    or event.phase != "acquisition_route_loop"
+                    or event.state_before != expected_head.receipt_phase
+                    or event.state_after != "terminal"
+                    or event.event_time != terminal.generated_at
+                    or event.payload_ref != terminal_id
+                    or event.artifact_refs != (terminal_id,)
+                    or event.input_refs != _acquisition_route_receipt_inputs(terminal)
+                    or basis_payload is not None
+                    or prepared_basis_event.payload_ref != basis_id
+                    or prepared_basis_event.payload_sha256 is not None
+                    or prepared_basis_event.inline_payload
+                    or basis_event.event_id
+                    != _candidate_evaluation_role_event_id(
+                        terminal.candidate_action_ref, "outcome_basis"
+                    )
+                    or basis_event.event_source != PRODUCER
+                    or basis_event.event_type != "polisyos.runtime.acquisition.evaluation.v1"
+                    or (
+                        basis_event.tenant_id,
+                        basis_event.cell_id,
+                        basis_event.run_id,
+                        basis_event.job_id,
+                    )
+                    != (scope.tenant_id, scope.cell_id, job.run_id, expected_head.source_job_id)
+                    or basis_event.payload_ref != basis_id
+                    or basis_event.artifact_refs != (basis_id,)
+                    or basis_event.state_after != "not_established"
+                ):
+                    raise ValueError("candidate_reentry_custody_event_binding_invalid")
             else:
                 if (
                     prepared_event is None
@@ -10117,7 +10324,13 @@ class ControlPlaneStore:
                 raise ValueError("candidate_terminal_custody_failed_progress_changed")
 
             require_current_authority()
-            if mode == "ordinary_model_revision":
+            if (
+                basis_event is not None
+                and self.append_diagnostic_event(event=basis_event, payload_ref=basis_id).event
+                != basis_event
+            ):
+                raise ValueError("candidate_reentry_custody_basis_event_changed")
+            if mode != "candidate_experiment":
                 record = self.append_diagnostic_event(event=event, payload_ref=terminal_id)
                 if record.event != event:
                     raise DiagnosticEventContractError(
@@ -10125,17 +10338,23 @@ class ControlPlaneStore:
                         "A terminal retry must match the exact prepared event.",
                         details={"event_id": event.event_id},
                     )
+            if verify_precommit is not None:
+                verify_precommit()
             attempt = job.attempt + 1
             prior_dead_letter = self._row_to_dead_letter_record(dead_letter)
             custody_event = (
-                _CANDIDATE_TERMINAL_CUSTODY_EVENT
-                if mode == "candidate_experiment"
+                _CANDIDATE_REENTRY_CUSTODY_EVENT
+                if reentry_custody
+                else _CANDIDATE_TERMINAL_CUSTODY_EVENT
+                if experiment
                 else _ORDINARY_TERMINAL_CUSTODY_EVENT
             )
             custody = {
                 "schema_version": (
-                    "candidate_experiment_terminal_custody.v1"
-                    if mode == "candidate_experiment"
+                    "candidate_experiment_reentry_custody.v1"
+                    if reentry_custody
+                    else "candidate_experiment_terminal_custody.v1"
+                    if experiment
                     else "ordinary_acquisition_terminal_custody.v1"
                 ),
                 "authority_purpose": "historical_terminal_custody_only",
@@ -10169,11 +10388,13 @@ class ControlPlaneStore:
                 "pending_manifest_profile_sha256": expected_head.receipt_manifest_profile_sha256,
                 "terminal_ref": terminal_ref.model_dump(mode="json"),
                 "terminal_event_id": terminal_event_id,
-                "frontier_before_ref": previous.frontier_ref,
+                "frontier_before_ref": previous.frontier_ref if previous is not None else None,
                 "resource_digest": resource_digest,
                 "step_up_sha256": step_up_sha256,
                 "authority_expires_at": authority_expires_at,
             }
+            if reentry_custody and reentry_ref is not None:
+                custody["reentry_ref"] = reentry_ref.model_dump(mode="json")
             # This operation-specific outbox key preserves its at-most-once audit record.
             self.enqueue_outbox_event(
                 topic=_job_event_topic(custody_event),
@@ -10202,7 +10423,7 @@ class ControlPlaneStore:
                     "state": "pending",
                     "phase": (
                         "candidate_experiment_terminal_custody"
-                        if mode == "candidate_experiment"
+                        if experiment
                         else "acquisition_model_revision_terminal_custody"
                     ),
                     "authority_purpose": "historical_terminal_custody_only",
@@ -10237,15 +10458,11 @@ class ControlPlaneStore:
                     progress={
                         "state": "completed",
                         "phase": (
-                            "candidate_experiment"
-                            if mode == "candidate_experiment"
-                            else "acquisition_model_revision"
+                            "candidate_experiment" if experiment else "acquisition_model_revision"
                         ),
                         "receipt_phase": "terminal",
                         "terminal_outcome": (
-                            "candidate_reentry_completed"
-                            if mode == "candidate_experiment"
-                            else "reentry_completed"
+                            "candidate_reentry_completed" if experiment else "reentry_completed"
                         ),
                         "terminal_receipt_ref": terminal_id,
                     },

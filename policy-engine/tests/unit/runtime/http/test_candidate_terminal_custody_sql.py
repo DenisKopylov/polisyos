@@ -13,7 +13,7 @@ from typing import Any
 
 import pytest
 
-from polisyos.core.artifacts import ArtifactID, ArtifactRef
+from polisyos.core.artifacts import ArtifactID, ArtifactRef, ArtifactWriteOptions, FileSystemCAS
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.runtime.http.services import control_plane_store
 from polisyos.runtime.http.services.control.run_lifecycle import (
@@ -27,8 +27,22 @@ from polisyos.runtime.http.services.control_plane_store import (
     ControlJobLeaseLostError,
     ControlPlaneStore,
 )
-from polisyos.runtime.quality.acquisition_evaluation import AcquisitionSelectedEvaluation
-from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceiptV2
+from polisyos.runtime.quality.acquisition_evaluation import (
+    PRODUCER,
+    AcquisitionSelectedEvaluation,
+    _candidate_evaluation_role_event_id,
+)
+from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+    PreparedCandidateExperimentReentryCustody,
+    _candidate_experiment_completed_reentry_terminal,
+)
+from polisyos.runtime.quality.acquisition_evaluation_history import (
+    _recheck_candidate_experiment_custody_evidence,
+)
+from polisyos.runtime.quality.acquisition_route_loop import (
+    AcquisitionCandidateExperimentPhaseReceipt,
+    AcquisitionRouteLoopReceiptV2,
+)
 from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
 from polisyos.runtime.quality.event_log import (
     DiagnosticEventPayloadPolicy,
@@ -47,10 +61,13 @@ from tests.unit.runtime.http.test_control_plane_store_evaluation_frontier import
     _sha,
     _value,
 )
+from tests.unit.runtime.quality.test_candidate_experiment_current_outcome import _requested_phase
 
 
 def _custody_case(
     tmp_path: Path,
+    *,
+    interrupted_reentry: bool = False,
 ) -> tuple[ControlPlaneStore, dict[str, Any], AcquisitionEvaluationFrontierRecord]:
     store = _make_store(tmp_path)
     _, frontier, _ = _bootstrap(store, tmp_path, source_job_id="source-job")
@@ -95,7 +112,11 @@ def _custody_case(
         )
         store.fail_job(
             job_id=job.job_id,
-            error_message="interrupted publication",
+            error_message=(
+                "candidate_experiment_evaluation_recovery_required"
+                if interrupted_reentry
+                else "interrupted publication"
+            ),
             progress={"state": "failed", "phase": "candidate_experiment", "attempt": attempt},
         )
     terminal = ArtifactRef(
@@ -149,7 +170,8 @@ def _custody_case(
         duplicate_of=None,
         dedupe_key=None,
     )
-    store.append_diagnostic_event(event=event)
+    if not interrupted_reentry:
+        store.append_diagnostic_event(event=event)
     expiry = int(time.time()) + 300
     assert store.consume_step_up_assertion(assertion_id="step-up", expires_at=expiry)
     return (
@@ -397,6 +419,267 @@ def _rows(path: Path, job_id: str) -> dict[str, list[tuple[object, ...]]]:
                 "control_diagnostic_events",
             )
         }
+
+
+@pytest.mark.parametrize(
+    "outcome",
+    [
+        "selected",
+        "occupied-frontier",
+        "insert-abort",
+        "withdrawn-reentry-event",
+        "withdrawn-result",
+    ],
+)
+def test_interrupted_candidate_custody_commits_only_the_blocked_occurrence(
+    tmp_path: Path,
+    outcome: str,
+) -> None:
+    store, args, unrelated = _custody_case(tmp_path, interrupted_reentry=True)
+    head = args["expected_head"]
+    original_job = args["expected_job"]
+    frontier_key = (
+        unrelated.key
+        if outcome == "occupied-frontier"
+        else replace(unrelated.key, candidate_id="held-candidate")
+    )
+    requested = _requested_phase()
+    artifact_store = FileSystemCAS(tmp_path / "custody-artifacts")
+
+    def ref(label: str, kind: str) -> ArtifactRef:
+        return ArtifactRef(
+            artifact_id=ArtifactID(_sha(label)),
+            kind=kind,
+            media_type="application/json",
+            manifest_profile_sha256=_sha(label + " profile"),
+        )
+
+    action_ref = ref("held action", "runtime_quality.acquisition_candidate_action_receipt")
+    result_ref = artifact_store.put_json(
+        {"state": "invocation_quota_exhausted"},
+        ArtifactWriteOptions(
+            kind="polisyos.runtime.joint_simulation_result", media_type="application/json"
+        ),
+        return_selected_profile=True,
+    )
+    reentry_ref = artifact_store.put_json(
+        {"selected_result": result_ref.model_dump(mode="json")},
+        ArtifactWriteOptions(
+            kind="runtime_quality.candidate_source_reentry_receipt", media_type="application/json"
+        ),
+        return_selected_profile=True,
+    )
+    quota_witness = ref(
+        "held quota witness", "runtime_quality.candidate_experiment_quota_interruption_witness"
+    )
+    basis_ref = ref("held blocked basis", "runtime_quality.acquisition_evaluation_basis")
+    decision_ref = ref("held decision", "runtime_quality.acquisition_evaluation_decision")
+    pending = AcquisitionCandidateExperimentPhaseReceipt.model_validate(
+        requested.model_dump(mode="python")
+        | {
+            "tenant_id": head.tenant_id,
+            "cell_id": head.cell_id,
+            "run_id": head.run_id,
+            "source_job_id": head.source_job_id,
+            "route_id": head.route_id,
+            "action_generation": head.action_generation,
+            "job_id": head.job_id,
+            "policy_scope": requested.policy_scope.model_copy(
+                update={
+                    "tenant_id": head.tenant_id,
+                    "cell_id": head.cell_id,
+                    "run_id": head.run_id,
+                    "source_job_id": head.source_job_id,
+                    "design_problem_ref": frontier_key.design_problem_ref,
+                    "candidate_id": frontier_key.candidate_id,
+                }
+            ),
+            "voi_decision": requested.voi_decision.model_copy(
+                update={"candidate_id": frontier_key.candidate_id}
+            ),
+            "predecessor_receipt_ref": head.predecessor_receipt_ref,
+            "coarse_phase": head.coarse_phase,
+            "receipt_phase": head.receipt_phase,
+            "recovery_state": head.recovery_state,
+            "owner_receipt_refs": (str(action_ref.artifact_id),),
+            "candidate_receipt_ref": action_ref,
+        }
+    )
+    terminal = _candidate_experiment_completed_reentry_terminal(
+        pending,
+        pending_phase_ref=head.receipt_ref,
+        action_ref=action_ref,
+        decision_ref=decision_ref,
+        reentry_ref=reentry_ref,
+        basis_ref=basis_ref,
+        witness=reentry_ref,
+        selected_evaluation=None,
+        quota_interruption_witness_ref=quota_witness,
+    )
+    terminal_digest = sha256(
+        to_canonical_bytes(terminal.model_dump(mode="json"), CanonSpec(forbid_floats=False))
+    ).hexdigest()
+    terminal_ref = ArtifactRef(
+        artifact_id=ArtifactID("sha256:" + terminal_digest),
+        kind="runtime_quality.acquisition_route_loop_receipt",
+        media_type="application/json",
+        manifest_profile_sha256=_sha("held terminal profile"),
+    )
+    terminal_event = DiagnosticEvent(
+        event_id=args["terminal_event_id"],
+        event_source="polisyos.runtime.quality.acquisition_route_loop",
+        event_type="polisyos.runtime.acquisition.candidate_experiment_terminal.v1",
+        event_time=terminal.generated_at,
+        event_subject=f"run/{head.run_id}/job/{head.job_id}/acquisition/terminal",
+        schema_name="polisyos.runtime.quality.diagnostic_event",
+        schema_version="1.0",
+        trace_id=f"trace-{head.job_id}",
+        span_id="span-terminal",
+        parent_span_id=None,
+        run_id=head.run_id,
+        job_id=head.job_id,
+        tenant_id=head.tenant_id,
+        cell_id=head.cell_id,
+        producer_component="polisyos.runtime.acquisition_route_loop",
+        producer_version="2026.08.28+ds15-c02",
+        execution_profile="governed",
+        phase="acquisition_route_loop",
+        state_before=head.receipt_phase,
+        state_after="terminal",
+        payload_ref=str(terminal_ref.artifact_id),
+        artifact_refs=(str(terminal_ref.artifact_id),),
+        input_refs=_acquisition_route_receipt_inputs(terminal),
+        blocking_status="non_blocking",
+        redaction_policy_ref=None,
+        duplicate_of=None,
+        dedupe_key=None,
+    )
+    basis_event = DiagnosticEvent.model_validate(
+        terminal_event.model_dump(mode="python")
+        | {
+            "event_id": _candidate_evaluation_role_event_id(action_ref, "outcome_basis"),
+            "event_source": PRODUCER,
+            "event_type": "polisyos.runtime.acquisition.evaluation.v1",
+            "event_subject": f"run/{head.run_id}/candidate/{frontier_key.candidate_id}",
+            "job_id": head.source_job_id,
+            "producer_component": PRODUCER,
+            "phase": "acquisition_evaluation",
+            "state_before": None,
+            "state_after": "not_established",
+            "payload_ref": str(basis_ref.artifact_id),
+            "artifact_refs": (str(basis_ref.artifact_id),),
+        }
+    )
+    event_log = RuntimeDiagnosticEventLog(store=store, artifact_store=artifact_store)
+    event_policy = DiagnosticEventPayloadPolicy(authority_bearing=True)
+    reentry_event = basis_event.model_copy(
+        update={
+            "event_id": "evt-source-selected-reentry",
+            "payload_ref": str(reentry_ref.artifact_id),
+            "artifact_refs": (str(reentry_ref.artifact_id),),
+        }
+    )
+    reentry_row = event_log.append(reentry_event)
+    prepared = PreparedCandidateExperimentReentryCustody(
+        terminal=terminal,
+        terminal_ref=terminal_ref,
+        terminal_event=event_log.prepare(terminal_event, payload_policy=event_policy),
+        basis_event=event_log.prepare(basis_event, payload_policy=event_policy),
+        frontier_cas=AcquisitionEvaluationFrontierCAS(
+            key=frontier_key, expected_revision=0, expected_frontier_ref=None, replacement=None
+        ),
+    )
+    path = tmp_path / "control-plane.sqlite3"
+    selected_manifest = artifact_store._manifest_path_for_ref(
+        result_ref.artifact_id, result_ref.manifest_profile_sha256
+    )
+    _recheck_candidate_experiment_custody_evidence(
+        store=artifact_store,
+        required_refs=(reentry_ref, result_ref),
+        events=event_log,
+        expected_diagnostics=(reentry_row,),
+    )
+    if outcome == "withdrawn-reentry-event":
+        with sqlite3.connect(path) as connection:
+            connection.execute(
+                "DELETE FROM control_diagnostic_events WHERE row_id = ?", (reentry_row.row_id,)
+            )
+        assert artifact_store.verify(reentry_ref).ok and artifact_store.verify(result_ref).ok
+    if outcome == "withdrawn-result":
+        selected_manifest.rename(selected_manifest.with_suffix(".withheld"))
+        assert artifact_store.verify(result_ref.artifact_id).ok
+
+    before = _rows(path, head.job_id)
+    source_before = _rows(path, head.source_job_id)
+    terminal_reads = []
+
+    def verify_precommit() -> None:
+        for event in (basis_event, terminal_event):
+            (row,) = store.list_diagnostic_events(event_id=event.event_id, limit=2)
+            assert row.event == event
+        terminal_reads.append(store.get_job(head.job_id))
+        _recheck_candidate_experiment_custody_evidence(
+            store=artifact_store,
+            required_refs=(reentry_ref, result_ref),
+            events=event_log,
+            expected_diagnostics=(reentry_row,),
+        )
+
+    def settle():
+        return store.settle_candidate_experiment_reentry_custody(
+            expected_job=original_job,
+            expected_head=head,
+            prepared=prepared,
+            actor_subject=args["actor_subject"],
+            resource_digest=args["resource_digest"],
+            authority_expires_at=args["authority_expires_at"],
+            step_up_sha256=args["step_up_sha256"],
+            verify_precommit=verify_precommit,
+        )
+
+    if outcome == "occupied-frontier":
+        with pytest.raises(ValueError, match="acquisition_evaluation_frontier_conflict"):
+            settle()
+        assert terminal_reads == []
+    elif outcome == "insert-abort":
+        with sqlite3.connect(path) as connection:
+            connection.execute(
+                "CREATE TRIGGER abort_held_custody BEFORE INSERT ON runtime_acquisition_action_heads "
+                "WHEN NEW.receipt_phase = 'terminal' "
+                "BEGIN SELECT RAISE(ABORT, 'held_custody_sql_abort'); END"
+            )
+        with pytest.raises(sqlite3.IntegrityError, match="held_custody_sql_abort"):
+            settle()
+        assert terminal_reads == [original_job]
+    elif outcome == "withdrawn-reentry-event":
+        with pytest.raises(
+            ValueError, match="candidate_experiment_reentry_custody_diagnostic_changed"
+        ):
+            settle()
+        assert terminal_reads == [original_job]
+    elif outcome == "withdrawn-result":
+        with pytest.raises(
+            ValueError, match="candidate_experiment_reentry_custody_selected_evidence_changed"
+        ):
+            settle()
+        assert terminal_reads == [original_job]
+    else:
+        selected = settle()
+        assert selected.receipt_ref == str(terminal_ref.artifact_id)
+        assert selected.evaluation_frontier_ref is None
+        assert selected.evaluation_frontier_before_ref is None
+        completed = store.get_job(head.job_id)
+        assert completed.state == "completed" and completed.attempt == original_job.attempt + 1
+        assert terminal_reads == [original_job]
+        assert store.read_acquisition_evaluation_frontier(frontier_key) is None
+        assert (
+            _rows(path, head.job_id)["control_job_events"][: len(before["control_job_events"])]
+            == (before["control_job_events"])
+        )
+    assert store.read_acquisition_evaluation_frontier(unrelated.key) == unrelated
+    if outcome != "selected":
+        assert _rows(path, head.job_id) == before
+        assert _rows(path, head.source_job_id) == source_before
 
 
 @pytest.mark.parametrize("prior_ack", [False, True])

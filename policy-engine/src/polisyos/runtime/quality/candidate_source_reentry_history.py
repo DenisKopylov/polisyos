@@ -19,6 +19,10 @@ from polisyos.core import artifacts, canon
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
 from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
 from polisyos.scientist import SchedulingDecision
+from polisyos.scientist.orchestration.engine.budget_ledger import (
+    BudgetLedgerInvocationReservation,
+    BudgetLedgerMutation,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -55,7 +59,15 @@ if TYPE_CHECKING:
         GenerationCycleRecord,
     )
     from polisyos.runtime.quality.generation_source import N4CandidateScenarioSourceRecordV3
+    from polisyos.runtime.quality.joint_simulation_horizon import JointSimulationResult
     from polisyos.runtime.quality.world_model_record import WorldModelRecord
+    from polisyos.scientist.orchestration.engine import (
+        BudgetInvocationQuotaPolicy,
+        BudgetLedgerProducerRunBinding,
+        BudgetLedgerReentryBudgetWindow,
+        BudgetLedgerSnapshot,
+        BudgetMiddleware,
+    )
 
 _PRODUCER = "polisyos.runtime.acquisition_world_growth"
 _REENTRY_KIND = "runtime_quality.candidate_source_reentry_receipt"
@@ -67,6 +79,43 @@ _N5_CHECKPOINT_PHASE = "candidate_source_reentry_n5_checkpoint"
 _N5_CHECKPOINT_CANON = canon.CanonSpec(forbid_floats=False)
 _N5_CHECKPOINT_EVENT_TYPE = "polisyos.runtime.diagnostic.producer_execution.v1"
 _CANDIDATE_EXPERIMENT_PHASE_KIND = "runtime_quality.acquisition_candidate_experiment_phase_receipt"
+_QUOTA_INTERRUPTION = "n5_invocation_quota_exhausted"
+_QUOTA_WITNESS_KIND = "runtime_quality.candidate_experiment_quota_interruption_witness"
+_QUOTA_WITNESS_SCHEMA = "polisyos.runtime.CandidateExperimentQuotaInterruptionWitness"
+
+
+class _CandidateQuotaCut(BaseModel):
+    """Exact owner observations proving that this action opened without a permit."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    after_revision: int = Field(ge=0, strict=True)
+    cut_revision: int = Field(ge=1, strict=True)
+    active_at_cut: int = Field(ge=0, strict=True)
+    mutations: tuple[BudgetLedgerMutation, ...]
+    standard_at_cut: tuple[BudgetLedgerInvocationReservation, ...]
+
+
+class CandidateExperimentQuotaInterruptionWitness(BaseModel):
+    """Bind a historical quota cut to the exact selected candidate-only result."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["CandidateExperimentQuotaInterruptionWitness@1.0"] = (
+        "CandidateExperimentQuotaInterruptionWitness@1.0"
+    )
+    authority_purpose: Literal["candidate_historical_quota_custody_only"] = (
+        "candidate_historical_quota_custody_only"
+    )
+    reentry_ref: artifacts.ArtifactRef
+    action_ref: artifacts.ArtifactRef
+    n5_input_ref: artifacts.ArtifactRef
+    n5_result_ref: artifacts.ArtifactRef
+    window_id: str = Field(pattern=r"^[a-f0-9]{64}$")
+    window_digest: str = Field(pattern=r"^[a-f0-9]{64}$")
+    budget_owner: tuple[str, str, str]
+    budget_resource: tuple[int, int, str, int, int]
+    quota_cut: _CandidateQuotaCut
 
 
 @dataclass(frozen=True)
@@ -1052,6 +1101,489 @@ def _require_n4_origin(
         raise ValueError("candidate_reentry_history_n4_origin_mismatch")
 
 
+def is_candidate_experiment_quota_interruption(cycle: GenerationCycleRecord) -> bool:
+    """Identify the recorded interruption that requires partial-work verification."""
+    return (
+        cycle.simulation.status == "simulation_blocked"
+        and _QUOTA_INTERRUPTION in cycle.simulation.authority_blockers
+    )
+
+
+def _require_historical_candidate_quota_stop(
+    *,
+    settlement_store: BudgetMiddleware,
+    binding: BudgetLedgerProducerRunBinding,
+    policy: BudgetInvocationQuotaPolicy,
+    budget_owner: tuple[str, str, str],
+    budget_resource: tuple[int, int, str, int, int],
+    invocations: tuple[tuple[str, str, str], ...],
+    after_revision: int,
+    cut: int,
+    sealed_cut: _CandidateQuotaCut | None = None,
+) -> _CandidateQuotaCut:
+    """Reconcile the original standard partition and each selected unit at its cut."""
+    from polisyos.scientist.orchestration.engine import (
+        BudgetLedgerInvocationProfile,
+        verify_completed_standard_invocations_historical,
+    )
+    from polisyos.scientist.orchestration.engine.producer_budget import _capacity_store_snapshot
+
+    observed = verify_completed_standard_invocations_historical(
+        settlement_store=settlement_store,
+        expected_run_binding=binding,
+        expected_policy=policy,
+        expected_settlement_owner=budget_owner,
+        expected_invocations=invocations,
+    )
+    profile = BudgetLedgerInvocationProfile.from_policy(binding, policy)
+    owner, resource, anchor, snapshot = _capacity_store_snapshot(
+        settlement_store, require_existing_lock=True
+    )
+    standard_at_cut = _standard_invocations_at_quota_cut(
+        snapshot, run_id=binding.run_id, profile_digest=profile.profile_digest, cut=cut
+    )
+    # Mutation keys identify the run, not individual permits. Replay the
+    # outstanding count backwards to exclude any permit issued before the window.
+    run_key = f"nl-run:{binding.run_id}"
+    if sealed_cut is None:
+        suffix = tuple(row for row in snapshot.recent_mutations if row.revision > after_revision)
+        if len(suffix) != snapshot.revision - after_revision or any(
+            row.revision != num for num, row in enumerate(suffix, after_revision + 1)
+        ):
+            raise ValueError("partial_candidate_quota_exhaustion_not_established")
+        active_now = sum(
+            row.status == "reserved"
+            for row in snapshot.invocation_reservations.values()
+            if row.run_id == binding.run_id
+        )
+        active_after_cut = sum(
+            (row.operation == "reserve_invocation") - (row.operation == "finish_invocation")
+            for row in suffix
+            if row.key == run_key and row.revision > cut
+        )
+        proof = _CandidateQuotaCut(
+            after_revision=after_revision,
+            cut_revision=cut,
+            active_at_cut=active_now - active_after_cut,
+            mutations=tuple(row for row in suffix if row.revision <= cut),
+            standard_at_cut=standard_at_cut,
+        )
+    else:
+        proof = sealed_cut
+    outstanding_before = proof.active_at_cut - sum(
+        (row.operation == "reserve_invocation") - (row.operation == "finish_invocation")
+        for row in proof.mutations
+        if row.key == run_key
+    )
+    terminal_at_cut = {row.operation_id: row for row in standard_at_cut}
+    retained_mutations = {row.revision: row for row in snapshot.recent_mutations}
+    if (
+        owner != budget_owner
+        or resource != budget_resource
+        or snapshot.revision != anchor[0]
+        or cut > anchor[0]
+        or after_revision >= cut
+        or proof.after_revision != after_revision
+        or proof.cut_revision != cut
+        or proof.standard_at_cut != standard_at_cut
+        or len(proof.mutations) != cut - after_revision
+        or any(
+            row.revision != num or retained_mutations.get(num, row) != row
+            for num, row in enumerate(proof.mutations, after_revision + 1)
+        )
+        or outstanding_before != 0
+        or snapshot.invocation_profiles.get(binding.run_id) != profile
+        or len(terminal_at_cut) != profile.total_units - profile.protected_units
+        or any(
+            terminal_at_cut.get(row.operation_id) != row or row.revision <= after_revision
+            for row in observed
+        )
+    ):
+        raise ValueError("partial_candidate_quota_exhaustion_not_established")
+    return proof
+
+
+def _standard_invocations_at_quota_cut(
+    snapshot: BudgetLedgerSnapshot, *, run_id: str, profile_digest: str, cut: int
+) -> tuple[BudgetLedgerInvocationReservation, ...]:
+    return tuple(
+        sorted(
+            (
+                row
+                for row in snapshot.invocation_reservations.values()
+                if row.run_id == run_id
+                and row.profile_digest == profile_digest
+                and row.purpose == "standard"
+                and row.status in {"completed", "failed"}
+                and row.revision <= cut
+            ),
+            key=lambda row: row.operation_id,
+        )
+    )
+
+
+def _recheck_candidate_quota_custody_ledger(
+    *,
+    settlement_store: BudgetMiddleware | None,
+    window: BudgetLedgerReentryBudgetWindow,
+    witness: CandidateExperimentQuotaInterruptionWitness,
+) -> None:
+    """Reopen the established window and its exact standard rows under the ledger owner."""
+    from polisyos.scientist.orchestration.engine import BudgetMiddleware
+    from polisyos.scientist.orchestration.engine.producer_budget import _capacity_store_snapshot
+
+    if type(settlement_store) is not BudgetMiddleware:
+        raise ValueError("candidate_quota_custody_ledger_changed")
+    owner, resource, anchor, snapshot = _capacity_store_snapshot(
+        settlement_store, require_existing_lock=True
+    )
+    binding = window.scope.run_binding
+    cut = witness.quota_cut
+    profile = snapshot.invocation_profiles.get(binding.run_id)
+    if (
+        owner != witness.budget_owner
+        or resource != witness.budget_resource
+        or resource != window.resource_identity
+        or snapshot.revision != anchor[0]
+        or cut.cut_revision > snapshot.revision
+        or window.window_id != witness.window_id
+        or window.record_digest != witness.window_digest
+        or snapshot.reentry_budget_windows.get(window.window_id) != window
+        or profile is None
+        or profile.run_binding != binding
+    ):
+        raise ValueError("candidate_quota_custody_ledger_changed")
+    current_mutations = {row.revision: row for row in snapshot.recent_mutations}
+    if _standard_invocations_at_quota_cut(
+        snapshot,
+        run_id=binding.run_id,
+        profile_digest=profile.profile_digest,
+        cut=cut.cut_revision,
+    ) != cut.standard_at_cut or any(
+        current_mutations.get(row.revision, row) != row for row in cut.mutations
+    ):
+        raise ValueError("candidate_quota_custody_ledger_changed")
+
+
+def _candidate_quota_witness_options(
+    witness: CandidateExperimentQuotaInterruptionWitness,
+    *,
+    tenant_id: str,
+    cell_id: str,
+) -> artifacts.ArtifactWriteOptions:
+    parents = (
+        ("candidate_reentry", witness.reentry_ref),
+        ("candidate_action", witness.action_ref),
+        ("n5_input", witness.n5_input_ref),
+        ("n5_result", witness.n5_result_ref),
+    )
+    if any(ref.manifest_profile_sha256 is None for _, ref in parents):
+        raise ValueError("candidate_quota_interruption_parent_profile_missing")
+    return artifacts.ArtifactWriteOptions(
+        kind=_QUOTA_WITNESS_KIND,
+        media_type="application/json",
+        schema=artifacts.SchemaInfo(name=_QUOTA_WITNESS_SCHEMA, version="1.0"),
+        producer=artifacts.ProducerInfo(
+            component="polisyos.runtime.candidate_source_reentry_history", version="1.0"
+        ),
+        canon=artifacts.CanonInfo.from_spec(_N5_CHECKPOINT_CANON),
+        governance=artifacts.ArtifactGovernanceInfo(classification="internal"),
+        tenant_context=artifacts.ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id),
+        inputs=[artifacts.input_ref_from_artifact_ref(ref, role=role) for role, ref in parents],
+    )
+
+
+def _read_candidate_quota_witness(
+    store: artifacts.ArtifactStore,
+    ref: artifacts.ArtifactRef,
+    *,
+    tenant_id: str,
+    cell_id: str,
+) -> CandidateExperimentQuotaInterruptionWitness:
+    payload = _selected_payload(store, ref, kind=_QUOTA_WITNESS_KIND)
+    witness = CandidateExperimentQuotaInterruptionWitness.model_validate(payload)
+    options = _candidate_quota_witness_options(witness, tenant_id=tenant_id, cell_id=cell_id)
+    manifest = store.get_manifest(ref)
+    if (
+        payload != witness.model_dump(mode="json")
+        or manifest.artifact_schema != options.schema
+        or manifest.producer != options.producer
+        or manifest.canon != options.canon
+        or manifest.governance != options.governance
+        or manifest.tenant_context != options.tenant_context
+        or manifest.inputs != options.inputs
+        or manifest.authority is not None
+        or manifest.same_input_closure is not None
+    ):
+        raise ValueError("candidate_quota_interruption_witness_profile_mismatch")
+    return witness
+
+
+def _verify_candidate_experiment_quota_interruption(
+    *,
+    store: artifacts.ArtifactStore,
+    settlement_store: BudgetMiddleware | None,
+    window: BudgetLedgerReentryBudgetWindow | None,
+    transition: CandidateSourceBasisTransition,
+    target_cycle: GenerationCycleRecord,
+    reentry_ref: artifacts.ArtifactRef | None,
+    witness_ref: artifacts.ArtifactRef | None,
+) -> tuple[JointSimulationResult, _CandidateQuotaCut, tuple[str, str, str]]:
+    """Reopen a candidate's signed partial work and its original standard quota.
+
+    The calling owner independently verifies the action, transition, and
+    selected budget window. This result is an interruption explanation and
+    carries only candidate work custody.
+    """
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        rebuild_selected_candidate_n5_request,
+    )
+    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationN5InputV5
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleError,
+        _load_candidate_quota_interrupted_joint_simulation_result,
+    )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.n5_candidate_content import read_candidate_n5_content_observation
+    from polisyos.scientist.orchestration.engine import (
+        BudgetLedgerReentryBudgetWindow,
+        BudgetMiddleware,
+        ProducerBudgetObservation,
+        ProducerBudgetSourceError,
+    )
+
+    unavailable = "candidate_source_current_v5_partial_n5_explanation_not_established"
+    simulation = target_cycle.simulation
+    value = target_cycle.value_port
+    if (
+        type(settlement_store) is not BudgetMiddleware
+        or type(window) is not BudgetLedgerReentryBudgetWindow
+        or not is_candidate_experiment_quota_interruption(target_cycle)
+        or value.status != "value_blocked"
+        or value.value_ref is not None
+        or _QUOTA_INTERRUPTION not in value.authority_blockers
+        or transition.n4_source_ref is None
+        or transition.n5_input_ref is None
+        or transition.n5_result_ref is None
+        or transition.n5_execution_ref is not None
+        or simulation.simulation_result_ref != transition.n5_result_ref
+        or simulation.simulation_ref is None
+        or simulation.k_world_ref_after != transition.scenario_world_model_content_hash
+        or window.scope.action_job_id != transition.action_job_id
+        or window.scope.route_id != transition.route_id
+    ):
+        raise GenerationCycleError(unavailable)
+    binding = window.scope.run_binding
+    if (binding.run_id, binding.tenant_id, binding.cell_id) != (
+        transition.run_id,
+        transition.tenant_id,
+        transition.cell_id,
+    ):
+        raise GenerationCycleError(unavailable)
+
+    input_ref = transition.n5_input_ref
+    scope = {
+        "run_id": transition.run_id,
+        "job_id": transition.action_job_id,
+        "tenant_id": transition.tenant_id,
+        "cell_id": transition.cell_id,
+    }
+    try:
+        input_record = GenerationSourceRepository(store).resolve_candidate_simulation_v5(
+            ref=input_ref, **{f"expected_{key}": item for key, item in scope.items()}
+        )
+        if (
+            type(input_record) is not CandidateSimulationN5InputV5
+            or input_record.n4_source_ref != transition.n4_source_ref
+            or input_record.context_job_ref != transition.context_job_ref
+            or input_record.model_declaration_ref != transition.model_declaration_ref
+            or input_record.ncm_ref != transition.ncm_ref
+            or input_record.materialization.world_model_record_hash
+            != transition.scenario_world_model_content_hash
+            or input_record.original_candidate_id != transition.source_candidate_ref
+            or input_record.original_candidate_hash != target_cycle.selected_candidate_content_hash
+            or input_record.n5.invocation_quota_policy is None
+            or input_record.n5.invocation_purpose != "standard"
+        ):
+            raise ValueError("partial_candidate_quota_profile_not_established")
+        request = rebuild_selected_candidate_n5_request(store=store, input_ref=input_ref, **scope)
+        result = _load_candidate_quota_interrupted_joint_simulation_result(
+            transition.n5_result_ref,
+            store=store,
+            expected_request=request,
+            expected_receipt_payload_hash=simulation.simulation_ref,
+        )
+        completion = read_candidate_n5_content_observation(
+            result, input_ref=input_ref, expected_request=request
+        ).completion
+        work = result.physical_work_observations
+        refusal_basis = result.diagnostics.get("budget_interruption_basis")
+        if (
+            result.diagnostics.get("physical_work_capture_status") != "observed"
+            or not isinstance(refusal_basis, dict)
+            or refusal_basis.get("purpose") != "standard"
+            or refusal_basis.get("work_unit") != "physical_simulation_invocation"
+            or completion.status != "not_established"
+            or completion.interruption_reason != _QUOTA_INTERRUPTION
+            or completion.failed_units
+            or not work
+            or len(work) != len(completion.completed_units)
+            or not set(completion.completed_units) < set(completion.planned_units)
+            or len(work) != len(set(completion.completed_units))
+            or len({row.event_id for row in work}) != len(work)
+        ):
+            raise ValueError("partial_candidate_plan_not_established")
+
+        invocations: list[tuple[str, str, str]] = []
+        for row in work:
+            if (
+                row.status != "completed"
+                or row.budget_status != "current_owner_checked"
+                or row.invocation_quota_purpose != "standard"
+                or row.invocation_quota_status != "completed"
+                or row.invocation_quota_operation_id is None
+                or row.invocation_quota_request_digest is None
+                or row.invocation_quota_profile_digest is None
+            ):
+                raise ValueError("partial_candidate_invocation_not_established")
+            invocations.append(
+                (
+                    row.invocation_quota_operation_id,
+                    row.invocation_quota_request_digest,
+                    row.invocation_quota_profile_digest,
+                )
+            )
+        raw_bases = result.diagnostics.get("producer_budget_observations")
+        if not isinstance(raw_bases, dict) or not raw_bases:
+            raise ValueError("partial_candidate_budget_cuts_not_established")
+        bases = {
+            digest: ProducerBudgetObservation.model_validate(raw)
+            for digest, raw in raw_bases.items()
+        }
+        budget_owner = next(iter(bases.values())).settlement_owner
+        if any(
+            basis.run_binding != binding
+            or basis.settlement_owner != budget_owner
+            or basis.source_basis_digest != digest
+            or basis.ledger_revision < window.revision
+            or basis.configured_limit_usd != window.effective_limit_usd
+            for digest, basis in bases.items()
+        ) or any(row.budget_source_basis_digest not in bases for row in work):
+            raise ValueError("partial_candidate_budget_cut_owner_mismatch")
+        sealed_cut = None
+        if witness_ref is not None:
+            witness = _read_candidate_quota_witness(
+                store,
+                witness_ref,
+                tenant_id=transition.tenant_id,
+                cell_id=transition.cell_id,
+            )
+            if (
+                reentry_ref is None
+                or witness.reentry_ref != reentry_ref
+                or witness.action_ref != transition.candidate_action_ref
+                or witness.n5_input_ref != input_ref
+                or witness.n5_result_ref != transition.n5_result_ref
+                or witness.window_id != window.window_id
+                or witness.window_digest != window.record_digest
+                or witness.budget_owner != budget_owner
+                or witness.budget_resource != window.resource_identity
+            ):
+                raise ValueError("candidate_quota_interruption_witness_scope_mismatch")
+            sealed_cut = witness.quota_cut
+        cutoff = _require_historical_candidate_quota_stop(
+            settlement_store=settlement_store,
+            binding=binding,
+            policy=input_record.n5.invocation_quota_policy,
+            budget_owner=budget_owner,
+            budget_resource=window.resource_identity,
+            invocations=tuple(invocations),
+            after_revision=window.revision,
+            # A later budget read can replace the view with the same digest.
+            cut=max(basis.ledger_revision for basis in bases.values()),
+            sealed_cut=sealed_cut,
+        )
+    except GenerationCycleError:
+        raise
+    except (ProducerBudgetSourceError, TypeError, ValueError) as exc:
+        artifacts.raise_artifact_read_access_error(exc)
+        raise GenerationCycleError(unavailable) from exc
+    return result, cutoff, budget_owner
+
+
+def read_candidate_experiment_quota_interruption(
+    *,
+    store: artifacts.ArtifactStore,
+    settlement_store: BudgetMiddleware | None,
+    window: BudgetLedgerReentryBudgetWindow | None,
+    transition: CandidateSourceBasisTransition,
+    target_cycle: GenerationCycleRecord,
+    reentry_ref: artifacts.ArtifactRef | None = None,
+    witness_ref: artifacts.ArtifactRef | None = None,
+) -> JointSimulationResult:
+    """Reconcile the blocked explanatory result against its scoped original quota."""
+    result, _, _ = _verify_candidate_experiment_quota_interruption(
+        store=store,
+        settlement_store=settlement_store,
+        window=window,
+        transition=transition,
+        target_cycle=target_cycle,
+        reentry_ref=reentry_ref,
+        witness_ref=witness_ref,
+    )
+    return result
+
+
+def persist_candidate_experiment_quota_interruption_witness(
+    *,
+    store: artifacts.ArtifactStore,
+    settlement_store: BudgetMiddleware | None,
+    window: BudgetLedgerReentryBudgetWindow,
+    reentry_ref: artifacts.ArtifactRef,
+    reentry: CandidateSourceReentryReceipt,
+) -> artifacts.ArtifactRef:
+    """Keep the refreshed ledger's checked cut with the exact historical candidate."""
+    if reentry.n5_input_ref is None or reentry.n5_result_ref is None:
+        raise ValueError("candidate_quota_interruption_witness_result_missing")
+    transition = reentry.basis_transition
+    _, cutoff, budget_owner = _verify_candidate_experiment_quota_interruption(
+        store=store,
+        settlement_store=settlement_store,
+        window=window,
+        transition=transition,
+        target_cycle=reentry.new_cycle,
+        reentry_ref=reentry_ref,
+        witness_ref=None,
+    )
+    witness = CandidateExperimentQuotaInterruptionWitness(
+        reentry_ref=reentry_ref,
+        action_ref=reentry.candidate_action_ref,
+        n5_input_ref=reentry.n5_input_ref,
+        n5_result_ref=reentry.n5_result_ref,
+        window_id=window.window_id,
+        window_digest=window.record_digest,
+        budget_owner=budget_owner,
+        budget_resource=window.resource_identity,
+        quota_cut=cutoff,
+    )
+    ref = store.put_json(
+        witness.model_dump(mode="json"),
+        _candidate_quota_witness_options(
+            witness, tenant_id=transition.tenant_id, cell_id=transition.cell_id
+        ),
+        _N5_CHECKPOINT_CANON,
+        return_selected_profile=True,
+    )
+    if (
+        _read_candidate_quota_witness(
+            store, ref, tenant_id=transition.tenant_id, cell_id=transition.cell_id
+        )
+        != witness
+    ):
+        raise ValueError("candidate_quota_interruption_witness_readback_mismatch")
+    return ref
+
+
 def _verify_n5(
     *,
     store: artifacts.ArtifactStore,
@@ -1060,6 +1592,10 @@ def _verify_n5(
     prior_origin_ref: artifacts.ArtifactRef | None,
     profile: CandidateSimulationScenarioProfile,
     problem: DesignProblem,
+    settlement_store: BudgetMiddleware | None = None,
+    window: BudgetLedgerReentryBudgetWindow | None = None,
+    selected_reentry_ref: artifacts.ArtifactRef | None = None,
+    quota_interruption_witness_ref: artifacts.ArtifactRef | None = None,
 ) -> None:
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationExecutionV5,
@@ -1185,6 +1721,23 @@ def _verify_n5(
         or execution.world_model_record_hash != receipt.scenario_world_model_content_hash
     ):
         raise ValueError("candidate_reentry_history_n5_execution_mismatch")
+    if (
+        window is not None
+        and receipt.n5_result_ref is not None
+        and is_candidate_experiment_quota_interruption(target_cycle)
+    ):
+        read_candidate_experiment_quota_interruption(
+            store=store,
+            settlement_store=settlement_store,
+            window=window,
+            transition=receipt,
+            target_cycle=target_cycle,
+            reentry_ref=selected_reentry_ref,
+            witness_ref=quota_interruption_witness_ref,
+        )
+        return
+    if quota_interruption_witness_ref is not None:
+        raise ValueError("candidate_reentry_history_unexpected_quota_witness")
     if receipt.n5_result_ref is not None:
         if input_record is None:
             raise ValueError("candidate_reentry_history_n5_result_input_missing")
@@ -1241,6 +1794,7 @@ def _read_historical_action(
 ) -> tuple[
     CandidateAcquisitionActionReceipt,
     AcquisitionCandidateExperimentPhaseReceipt | AcquisitionRoutePhaseReceipt,
+    BudgetLedgerReentryBudgetWindow | None,
 ]:
     if (origin is None) != (bridge is None):
         raise ValueError("candidate_reentry_history_experiment_owner_incomplete")
@@ -1267,14 +1821,14 @@ def _read_historical_action(
                 kind="runtime_quality.acquisition_candidate_experiment_phase_receipt",
             )
         )
-        action, _source, _window = read_candidate_experiment_acquisition_action_historical(
+        action, _source, window = read_candidate_experiment_acquisition_action_historical(
             bridge=bridge,
             origin=origin,
             receipt_ref=action_ref,
             executing_phase=phase,
             executing_phase_ref=str(selected.selected_action_phase_ref.artifact_id),
         )
-        return action, phase
+        return action, phase, window
     from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRoutePhaseReceipt
     from polisyos.runtime.quality.candidate_acquisition_action import (
         CandidateAcquisitionActionReceipt,
@@ -1302,7 +1856,7 @@ def _read_historical_action(
         executing_phase=executing,
         executing_phase_ref=str(selected.selected_action_phase_ref.artifact_id),
     )
-    return action, executing
+    return action, executing, None
 
 
 def _scope_from_action(action: CandidateAcquisitionActionReceipt) -> _Scope:
@@ -1414,6 +1968,8 @@ def verify_candidate_source_basis_transition_historical(
     problem: DesignProblem,
     origin: VerifiedCandidateExperimentOrigin | None = None,
     bridge: AcquisitionWorldGrowthBridge | None = None,
+    selected_reentry_ref: artifacts.ArtifactRef | None = None,
+    quota_interruption_witness_ref: artifacts.ArtifactRef | None = None,
 ) -> None:
     """Reopen the selected owner basis of one declared candidate-only edge.
 
@@ -1476,7 +2032,7 @@ def verify_candidate_source_basis_transition_historical(
         transition=transition, source_cycle=source_cycle, target_cycle=target_cycle
     ) or transition.design_problem_basis_ref != gy_content_hash(problem.model_dump(mode="json")):
         raise ValueError("candidate_reentry_history_cycle_pair_mismatch")
-    action, executing = _read_historical_action(
+    action, executing, budget_window = _read_historical_action(
         store=store,
         event_log=event_log,
         action_ref=transition.candidate_action_ref,
@@ -1623,6 +2179,7 @@ def verify_candidate_source_basis_transition_historical(
         or "candidate_only" not in transition.limitations
     ):
         raise ValueError("candidate_reentry_history_context_or_limitations_mismatch")
+    service = bridge._source_control_service if bridge is not None else None
     _verify_n5(
         store=store,
         receipt=transition,
@@ -1630,6 +2187,10 @@ def verify_candidate_source_basis_transition_historical(
         prior_origin_ref=prior_source.origin_source_ref,
         profile=profile,
         problem=problem,
+        settlement_store=service._llm_producer_settlement_store if service is not None else None,
+        window=budget_window,
+        selected_reentry_ref=selected_reentry_ref,
+        quota_interruption_witness_ref=quota_interruption_witness_ref,
     )
 
 
@@ -1709,7 +2270,7 @@ def verify_candidate_source_reentry_history(
         getattr(receipt, name) != getattr(scope, name) for name in _Scope.__dataclass_fields__
     ):
         raise ValueError("candidate_reentry_history_action_scope_mismatch")
-    action, executing = _read_historical_action(
+    action, executing, _budget_window = _read_historical_action(
         store=artifact_store, event_log=event_log, action_ref=receipt.candidate_action_ref
     )
     if _scope_from_action(action) != scope:
@@ -1766,6 +2327,7 @@ def verify_candidate_experiment_source_reentry_history(
     origin: VerifiedCandidateExperimentOrigin,
     receipt_ref: artifacts.ArtifactRef,
     expected_selected_action_ref: artifacts.ArtifactRef,
+    quota_interruption_witness_ref: artifacts.ArtifactRef | None = None,
 ) -> CandidateSourceReentryReceipt:
     """Replay an experiment source reentry without widening it to a costed closure."""
     from polisyos.runtime.quality.acquisition_route_loop import (
@@ -1790,7 +2352,7 @@ def verify_candidate_experiment_source_reentry_history(
         != "runtime_quality.acquisition_candidate_action_receipt"
     ):
         raise TypeError("candidate_experiment_reentry_history_owner_untyped")
-    action, _executing = _read_historical_action(
+    action, _executing, _budget_window = _read_historical_action(
         store=bridge.artifact_store,
         event_log=bridge.event_log,
         action_ref=expected_selected_action_ref,
@@ -1865,5 +2427,7 @@ def verify_candidate_experiment_source_reentry_history(
         problem=context_job.problem,
         origin=origin,
         bridge=bridge,
+        selected_reentry_ref=receipt_ref,
+        quota_interruption_witness_ref=quota_interruption_witness_ref,
     )
     return receipt

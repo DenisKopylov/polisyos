@@ -1765,7 +1765,7 @@ export interface paths {
         put?: never;
         /**
          * Settle Run Candidate Acquisition Experiment Terminal
-         * @description Select an existing numerical candidate under a fresh same-actor approval.
+         * @description Settle a selected experiment terminal or held reentry under fresh approval.
          */
         post: operations["settle_run_candidate_acquisition_experiment_terminal"];
         delete?: never;
@@ -5061,6 +5061,36 @@ export interface components {
             /** Prior Action Generation */
             prior_action_generation: number;
             prior_action_ref: components["schemas"]["ArtifactRef-Output"];
+        };
+        /**
+         * CandidateExperimentReentryCustodyRequest
+         * @description Select a saved quota-interrupted reentry for candidate-only custody.
+         */
+        CandidateExperimentReentryCustodyRequest: {
+            /** Failed Attempt */
+            failed_attempt: number;
+            /** Job Id */
+            job_id: string;
+            pending_head_ref: {
+                /** @constant */
+                kind: "runtime_quality.acquisition_candidate_experiment_phase_receipt";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Input"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            reentry_ref: {
+                /** @constant */
+                kind: "runtime_quality.candidate_source_reentry_receipt";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Input"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            /** Route Id */
+            route_id: string;
+            /** Run Id */
+            run_id: string;
         };
         /**
          * CandidateExperimentReuseActionExecutionRequest
@@ -33461,7 +33491,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CandidateExperimentTerminalCustodyRequest"];
+                "application/json": components["schemas"]["CandidateExperimentTerminalCustodyRequest"] | components["schemas"]["CandidateExperimentReentryCustodyRequest"];
             };
         };
         responses: {

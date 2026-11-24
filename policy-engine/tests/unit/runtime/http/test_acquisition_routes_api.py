@@ -792,13 +792,22 @@ def test_candidate_experiment_execute_transport_is_scoped_and_step_up_protected(
     assert expired.json()["code"] == "candidate_experiment_step_up_expired_before_admission"
 
 
+@pytest.mark.parametrize("held_reentry", [False, True], ids=["terminal", "held-reentry"])
 def test_candidate_experiment_terminal_custody_requires_a_fresh_bound_request(
     runtime_api_env,
     monkeypatch: pytest.MonkeyPatch,
+    held_reentry: bool,
 ) -> None:
     run_id = "run-candidate-experiment"
     route_id = "sha256:" + "a" * 64
     path = f"/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/terminal-custody"
+    selector = "reentry_ref" if held_reentry else "terminal_ref"
+    terminal_ref = {
+        "artifact_id": "sha256:" + "d" * 64,
+        "kind": "runtime_quality.acquisition_route_loop_receipt",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:" + "e" * 64,
+    }
     body = {
         "run_id": run_id,
         "route_id": route_id,
@@ -810,12 +819,11 @@ def test_candidate_experiment_terminal_custody_requires_a_fresh_bound_request(
             "media_type": "application/json",
             "manifest_profile_sha256": "sha256:" + "c" * 64,
         },
-        "terminal_ref": {
-            "artifact_id": "sha256:" + "d" * 64,
-            "kind": "runtime_quality.acquisition_route_loop_receipt",
-            "media_type": "application/json",
-            "manifest_profile_sha256": "sha256:" + "e" * 64,
-        },
+        selector: (
+            dict(terminal_ref, kind="runtime_quality.candidate_source_reentry_receipt")
+            if held_reentry
+            else terminal_ref
+        ),
     }
     calls = []
     expire_before_effect = False
@@ -849,8 +857,8 @@ def test_candidate_experiment_terminal_custody_requires_a_fresh_bound_request(
             "run_id": run_id,
             "route_id": route_id,
             "job_id": body["job_id"],
-            "terminal_ref": body["terminal_ref"],
-            "frontier_revision": 4,
+            "terminal_ref": terminal_ref,
+            "frontier_revision": 0 if held_reentry else 4,
         }
 
     client, cell, provider = _build_secure_client(
@@ -885,11 +893,20 @@ def test_candidate_experiment_terminal_custody_requires_a_fresh_bound_request(
         bound_headers = {**headers, "X-PolicyOS-Step-Up": step_up}
         settled = client.post(path, headers=bound_headers, json=body)
         assert settled.status_code == 200, settled.text
-        assert settled.json()["frontier_revision"] == 4
+        assert settled.json()["frontier_revision"] == (0 if held_reentry else 4)
         assert len(calls) == 1
         replay = client.post(path, headers=bound_headers, json=body)
         assert replay.status_code == 403, replay.text
         assert replay.json()["code"] == "step_up_replayed"
+        if held_reentry:
+            ambiguous_step_up = _install_bound_test_step_up(client)
+            ambiguous = client.post(
+                path,
+                headers={**headers, "X-PolicyOS-Step-Up": ambiguous_step_up},
+                json={**body, "terminal_ref": terminal_ref},
+            )
+            assert ambiguous.status_code == 422, ambiguous.text
+            assert len(calls) == 1
         fresh_step_up = _install_bound_test_step_up(client)
         foreign_path = client.post(
             path.replace(run_id, "different-run"),

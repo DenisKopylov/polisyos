@@ -268,6 +268,8 @@ from polisyos.runtime.quality.evaluation_safety import (
 from polisyos.runtime.quality.event_log import (
     DiagnosticEventPayloadPolicy,
     RuntimeDiagnosticEventLog,
+    _PreparedDiagnosticEvent,
+    _PreparedDiagnosticEventLookup,
 )
 from polisyos.runtime.quality.joint_simulation_horizon import _receipt_verification_scoped
 from polisyos.runtime.quality.open_world_risk import PromotionRuntime
@@ -2498,6 +2500,20 @@ def _native_acquisition_receipt_selected_inputs(
     return refs
 
 
+def _acquisition_route_receipt_selected_inputs(receipt: object) -> list[artifacts.InputRef]:
+    """Bind profile-selected terminal proof without changing legacy Native classification."""
+    if (
+        type(receipt) is AcquisitionCandidateExperimentTerminalReceipt
+        and receipt.quota_interruption_witness_ref is not None
+    ):
+        return [
+            input_ref_from_artifact_ref(
+                receipt.quota_interruption_witness_ref, role="candidate_experiment_quota_witness"
+            )
+        ]
+    return _native_acquisition_receipt_selected_inputs(receipt)
+
+
 def _replay_native_acquisition_receipt_profile(
     *,
     artifact_store: ArtifactStore,
@@ -2597,7 +2613,7 @@ def _acquisition_route_receipt_inputs(
     """Derive complete event lineage for the actual typed receipt family."""
     refs = set(receipt.owner_receipt_refs)
     refs.update(
-        str(item.artifact_id) for item in _native_acquisition_receipt_selected_inputs(receipt)
+        str(item.artifact_id) for item in _acquisition_route_receipt_selected_inputs(receipt)
     )
     if receipt.predecessor_receipt_ref is not None:
         refs.add(receipt.predecessor_receipt_ref)
@@ -2669,6 +2685,7 @@ def _read_verified_acquisition_action_phase(
     receipt_ref: str,
     selected_ref: ArtifactRef | None = None,
     control_store: ControlPlaneStore | None = None,
+    prepared_event: _PreparedDiagnosticEvent | None = None,
 ) -> VerifiedAcquisitionActionPhase:
     """Read exact receipt bytes and verify their complete producer-event binding.
 
@@ -2764,10 +2781,12 @@ def _read_verified_acquisition_action_phase(
         or closure.closure_sha256 != receipt.route_id
     ):
         raise ValueError("acquisition_action_head_receipt_schema_or_scope_invalid")
-    for expected_input in _native_acquisition_receipt_selected_inputs(receipt):
+    for expected_input in _acquisition_route_receipt_selected_inputs(receipt):
         if [item for item in manifest.inputs if item.role == expected_input.role] != [
             expected_input
         ]:
+            if type(receipt) is AcquisitionCandidateExperimentTerminalReceipt:
+                raise ValueError("candidate_experiment_quota_witness_selected_input_mismatch")
             raise ValueError("native_acquisition_receipt_selected_input_mismatch")
     _replay_native_acquisition_receipt_profile(
         artifact_store=artifact_store,
@@ -2786,9 +2805,20 @@ def _read_verified_acquisition_action_phase(
             expected_occurrence
         ]:
             raise ValueError("candidate_experiment_reuse_terminal_occurrence_manifest_mismatch")
+    authority_events: RuntimeDiagnosticEventLog | _PreparedDiagnosticEventLookup = event_log
+    if prepared_event is not None:
+        if (
+            selected_ref is None
+            or type(receipt) is not AcquisitionCandidateExperimentTerminalReceipt
+            or receipt.terminal_outcome != "candidate_reentry_completed"
+            or receipt.selected_evaluation is not None
+            or receipt.quota_interruption_witness_ref is None
+        ):
+            raise ValueError("candidate_experiment_prepared_terminal_scope_invalid")
+        authority_events = _PreparedDiagnosticEventLookup(event_log, prepared_event, selected_ref)
     report = reconcile_authority_ref(
         artifact_store=artifact_store,
-        event_log=event_log,
+        event_log=authority_events,
         cas_ref=selected_ref if selected_ref is not None else receipt_ref,
         expected_tenant_id=receipt.tenant_id,
         expected_cell_id=receipt.cell_id,
@@ -2858,7 +2888,7 @@ def _read_verified_acquisition_action_phase(
         )
         else "non_blocking"
     )
-    records = event_log.list_events(
+    records = authority_events.list_events(
         event_id=event.event_id,
         run_id=receipt.run_id,
         job_id=receipt.job_id,
@@ -3845,7 +3875,11 @@ class AcquisitionRouteLoopAuthoritySink:
         )
 
     def _read_verified_action_phase(
-        self, receipt_ref: str, *, selected_ref: ArtifactRef | None = None
+        self,
+        receipt_ref: str,
+        *,
+        selected_ref: ArtifactRef | None = None,
+        prepared_event: _PreparedDiagnosticEvent | None = None,
     ) -> VerifiedAcquisitionActionPhase:
         """Resolve exact receipt bytes and verify its complete producer-event binding."""
         return _read_verified_acquisition_action_phase(
@@ -3854,6 +3888,7 @@ class AcquisitionRouteLoopAuthoritySink:
             receipt_ref=receipt_ref,
             selected_ref=selected_ref,
             control_store=self._control_store,
+            prepared_event=prepared_event,
         )
 
     def _verified_receipt_ref(
@@ -7161,7 +7196,7 @@ class AcquisitionRouteLoopAuthoritySink:
                         )
                     ]
                     if type(typed) is AcquisitionCandidateExperimentTerminalReceiptV2
-                    else _native_acquisition_receipt_selected_inputs(typed)
+                    else _acquisition_route_receipt_selected_inputs(typed)
                 ),
             ),
             evidence_id=typed.receipt_id,

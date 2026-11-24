@@ -12,6 +12,7 @@ from pydantic import (
     ConfigDict,
     Field,
     SerializerFunctionWrapHandler,
+    field_validator,
     model_serializer,
     model_validator,
 )
@@ -357,8 +358,19 @@ class CandidateExperimentRouteExecutionRequest(BaseModel):
     decision_ref: str = Field(pattern=_SHA256_PATTERN)
 
 
-class CandidateExperimentTerminalCustodyRequest(BaseModel):
-    """Identify one failed candidate attempt and its already published terminal."""
+def _selected_custody_ref_schema(kind: str) -> dict[str, object]:
+    return {
+        "required": ["artifact_id", "kind", "media_type", "manifest_profile_sha256"],
+        "properties": {
+            "kind": {"const": kind},
+            "media_type": {"const": "application/json"},
+            "manifest_profile_sha256": {"type": "string", "pattern": _SHA256_PATTERN},
+        },
+    }
+
+
+class _CandidateExperimentTerminalCustodyScope(BaseModel):
+    """Bind either custody route to the exact failed job and pending phase."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -367,43 +379,72 @@ class CandidateExperimentTerminalCustodyRequest(BaseModel):
     job_id: str = Field(min_length=1)
     failed_attempt: int = Field(ge=1, strict=True)
     pending_head_ref: artifacts.ArtifactRef = Field(
-        json_schema_extra={
-            "required": ["artifact_id", "kind", "media_type", "manifest_profile_sha256"],
-            "properties": {
-                "kind": {"const": "runtime_quality.acquisition_candidate_experiment_phase_receipt"},
-                "media_type": {"const": "application/json"},
-                "manifest_profile_sha256": {"type": "string", "pattern": _SHA256_PATTERN},
-            },
-        }
-    )
-    terminal_ref: artifacts.ArtifactRef = Field(
-        json_schema_extra={
-            "required": ["artifact_id", "kind", "media_type", "manifest_profile_sha256"],
-            "properties": {
-                "kind": {"const": "runtime_quality.acquisition_route_loop_receipt"},
-                "media_type": {"const": "application/json"},
-                "manifest_profile_sha256": {"type": "string", "pattern": _SHA256_PATTERN},
-            },
-        }
+        json_schema_extra=_selected_custody_ref_schema(
+            "runtime_quality.acquisition_candidate_experiment_phase_receipt"
+        )
     )
 
-    @model_validator(mode="after")
-    def _require_selected_profiles(self) -> CandidateExperimentTerminalCustodyRequest:
-        for ref, kind in (
-            (
-                self.pending_head_ref,
-                "runtime_quality.acquisition_candidate_experiment_phase_receipt",
-            ),
-            (self.terminal_ref, "runtime_quality.acquisition_route_loop_receipt"),
+    @field_validator("pending_head_ref")
+    @classmethod
+    def _require_pending_profile(cls, ref: artifacts.ArtifactRef) -> artifacts.ArtifactRef:
+        if (
+            type(ref) is not artifacts.ArtifactRef
+            or ref.kind != "runtime_quality.acquisition_candidate_experiment_phase_receipt"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
         ):
-            if (
-                type(ref) is not artifacts.ArtifactRef
-                or ref.kind != kind
-                or ref.media_type != "application/json"
-                or ref.manifest_profile_sha256 is None
-            ):
-                raise ValueError("candidate_experiment_terminal_custody_profile_required")
-        return self
+            raise ValueError("candidate_experiment_terminal_custody_profile_required")
+        return ref
+
+
+class CandidateExperimentTerminalCustodyRequest(_CandidateExperimentTerminalCustodyScope):
+    """Identify one failed candidate attempt and its already published terminal."""
+
+    terminal_ref: artifacts.ArtifactRef = Field(
+        json_schema_extra=_selected_custody_ref_schema(
+            "runtime_quality.acquisition_route_loop_receipt"
+        )
+    )
+
+    @field_validator("terminal_ref")
+    @classmethod
+    def _require_terminal_profile(cls, ref: artifacts.ArtifactRef) -> artifacts.ArtifactRef:
+        if (
+            type(ref) is not artifacts.ArtifactRef
+            or ref.kind != "runtime_quality.acquisition_route_loop_receipt"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("candidate_experiment_terminal_custody_profile_required")
+        return ref
+
+
+class CandidateExperimentReentryCustodyRequest(_CandidateExperimentTerminalCustodyScope):
+    """Select a saved quota-interrupted reentry for candidate-only custody."""
+
+    reentry_ref: artifacts.ArtifactRef = Field(
+        json_schema_extra=_selected_custody_ref_schema(
+            "runtime_quality.candidate_source_reentry_receipt"
+        )
+    )
+
+    @field_validator("reentry_ref")
+    @classmethod
+    def _require_reentry_profile(cls, ref: artifacts.ArtifactRef) -> artifacts.ArtifactRef:
+        if (
+            type(ref) is not artifacts.ArtifactRef
+            or ref.kind != "runtime_quality.candidate_source_reentry_receipt"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("candidate_experiment_terminal_custody_profile_required")
+        return ref
+
+
+CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_SCOPE_FIELDS = tuple(
+    _CandidateExperimentTerminalCustodyScope.model_fields
+)
+CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_TARGET_FIELDS = ("terminal_ref", "reentry_ref")
 
 
 class CandidateExperimentTerminalCustodyResponse(BaseModel):
@@ -415,18 +456,7 @@ class CandidateExperimentTerminalCustodyResponse(BaseModel):
     route_id: str
     job_id: str
     terminal_ref: artifacts.ArtifactRef
-    frontier_revision: int = Field(ge=1)
-
-
-def _selected_custody_ref_schema(kind: str) -> dict[str, object]:
-    return {
-        "required": ["artifact_id", "kind", "media_type", "manifest_profile_sha256"],
-        "properties": {
-            "kind": {"const": kind},
-            "media_type": {"const": "application/json"},
-            "manifest_profile_sha256": {"type": "string", "pattern": _SHA256_PATTERN},
-        },
-    }
+    frontier_revision: int = Field(ge=0)
 
 
 class CandidateModelRevisionTerminalCustodyRequest(BaseModel):
@@ -476,6 +506,8 @@ class CandidateModelRevisionTerminalCustodyRequest(BaseModel):
 
 class CandidateModelRevisionTerminalCustodyResponse(CandidateExperimentTerminalCustodyResponse):
     """The ordinary model revision terminal selected by this request."""
+
+    frontier_revision: int = Field(ge=1)
 
 
 class CandidateExperimentReuseActionExecutionRequest(BaseModel):
@@ -5057,7 +5089,8 @@ class AcquisitionActionService:
     def settle_candidate_experiment_terminal_custody(
         self,
         *,
-        request: CandidateExperimentTerminalCustodyRequest,
+        request: CandidateExperimentTerminalCustodyRequest
+        | CandidateExperimentReentryCustodyRequest,
         principal: RuntimePrincipal,
         bound_permission: BoundActionPermissionVerification,
         step_up: StepUpAssertionVerification,
@@ -5163,6 +5196,16 @@ class AcquisitionActionService:
             raise AcquisitionActionServiceError(
                 "candidate_experiment_terminal_custody_predecessor_not_established"
             ) from exc
+        if isinstance(request, CandidateExperimentReentryCustodyRequest):
+            return self._settle_candidate_experiment_reentry_custody(
+                request=request,
+                job=job,
+                head=head,
+                principal=principal,
+                resource_digest=resource_digest,
+                step_up=step_up,
+                authorize_effect=authorize_effect,
+            )
         try:
             frontier_cas, event_id = run_catalog_source_call(
                 control.catalog_serving_source,
@@ -5204,6 +5247,90 @@ class AcquisitionActionService:
             job_id=request.job_id,
             terminal_ref=request.terminal_ref,
             frontier_revision=frontier_cas.expected_revision + 1,
+        )
+
+    def _settle_candidate_experiment_reentry_custody(
+        self,
+        *,
+        request: CandidateExperimentReentryCustodyRequest,
+        job: ControlJobRecord,
+        head: AcquisitionActionHeadRecord,
+        principal: RuntimePrincipal,
+        resource_digest: str,
+        step_up: StepUpAssertionVerification,
+        authorize_effect: Callable[[], int],
+    ) -> CandidateExperimentTerminalCustodyResponse:
+        """Select the original blocked occurrence under the current request grant."""
+        from polisyos.runtime.http.services.acquisition_surface_execution import (
+            WorldBankWDIAcquisitionExecutionPort,
+        )
+        from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+            prepare_candidate_experiment_reentry_custody,
+        )
+        from polisyos.runtime.quality.acquisition_evaluation_history import (
+            _verify_candidate_experiment_reentry_custody_preparation,
+        )
+        from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
+        from polisyos.runtime.quality.substrate_registry import run_catalog_source_call
+
+        control = self.control_service
+        port = self._require_candidate_experiment_execution_port()
+        if (
+            type(port) is not WorldBankWDIAcquisitionExecutionPort
+            or type(port._world_growth_bridge) is not AcquisitionWorldGrowthBridge
+            or port._world_growth_bridge._source_control_service is not control
+            or job.error_message != "candidate_experiment_evaluation_recovery_required"
+        ):
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_terminal_custody_history_not_established"
+            )
+        authorize_effect()
+        try:
+            prepared = run_catalog_source_call(
+                control.catalog_serving_source,
+                prepare_candidate_experiment_reentry_custody,
+                bridge=port._world_growth_bridge,
+                head=head,
+                reentry_ref=request.reentry_ref,
+            )
+            if prepared.terminal.candidate_reentry_ref != request.reentry_ref:
+                raise ValueError("candidate_experiment_reentry_custody_history_changed")
+            verify_precommit = run_catalog_source_call(
+                control.catalog_serving_source,
+                _verify_candidate_experiment_reentry_custody_preparation,
+                control_service=control,
+                head=head,
+                prepared=prepared,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_terminal_custody_history_not_established"
+            ) from exc
+
+        try:
+            assertion_sha256 = hashlib.sha256(step_up.assertion_id.encode("utf-8")).hexdigest()
+            control._control_store.settle_candidate_experiment_reentry_custody(
+                expected_job=job,
+                expected_head=head,
+                prepared=prepared,
+                actor_subject=principal.subject,
+                resource_digest=resource_digest,
+                authority_expires_at=min(authorize_effect(), step_up.expires_at),
+                step_up_sha256=f"sha256:{assertion_sha256}",
+                verify_precommit=verify_precommit,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            if str(exc) == "candidate_experiment_step_up_expired_before_admission":
+                raise AcquisitionActionServiceError(str(exc)) from exc
+            raise AcquisitionActionServiceError(
+                "candidate_experiment_terminal_custody_commit_refused"
+            ) from exc
+        return CandidateExperimentTerminalCustodyResponse(
+            run_id=request.run_id,
+            route_id=request.route_id,
+            job_id=request.job_id,
+            terminal_ref=prepared.terminal_ref,
+            frontier_revision=0,
         )
 
     @_receipt_verification_scoped

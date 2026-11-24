@@ -2058,14 +2058,28 @@ def test_each_mutating_operation_projects_action_permission_extension(
             assert resource_binding["resource_kind"] == (
                 "runtime.evidence.acquisition.candidate_experiment.terminal_custody"
             )
-            assert set(resource_binding["required_selector_fields"]) == {
+            scope_fields = {
                 "run_id",
                 "route_id",
                 "job_id",
                 "failed_attempt",
                 "pending_head_ref",
-                "terminal_ref",
             }
+            assert set(resource_binding["required_selector_fields"]) == scope_fields
+            assert set(resource_binding["selector_fields"]) == scope_fields | {
+                "terminal_ref",
+                "reentry_ref",
+            }
+            body = openapi_operation["requestBody"]["content"]["application/json"]["schema"]
+            variants = {item["$ref"].split("/")[-1] for item in body["anyOf"]}
+            assert variants == {
+                "CandidateExperimentTerminalCustodyRequest",
+                "CandidateExperimentReentryCustodyRequest",
+            }
+            assert {
+                frozenset(schema["components"]["schemas"][name]["required"]) - scope_fields
+                for name in variants
+            } == {frozenset({"terminal_ref"}), frozenset({"reentry_ref"})}
         if operation == _CANDIDATE_MODEL_REVISION_TERMINAL_CUSTODY:
             assert resource_binding["source"] == "request_composite"
             assert resource_binding["resource_kind"] == (

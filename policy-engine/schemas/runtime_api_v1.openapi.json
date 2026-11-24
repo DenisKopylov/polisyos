@@ -6923,6 +6923,84 @@
         "title": "CandidateExperimentPriorN5ResultProjection",
         "type": "object"
       },
+      "CandidateExperimentReentryCustodyRequest": {
+        "additionalProperties": false,
+        "description": "Select a saved quota-interrupted reentry for candidate-only custody.",
+        "properties": {
+          "failed_attempt": {
+            "minimum": 1.0,
+            "title": "Failed Attempt",
+            "type": "integer"
+          },
+          "job_id": {
+            "minLength": 1,
+            "title": "Job Id",
+            "type": "string"
+          },
+          "pending_head_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input",
+            "properties": {
+              "kind": {
+                "const": "runtime_quality.acquisition_candidate_experiment_phase_receipt"
+              },
+              "manifest_profile_sha256": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "media_type": {
+                "const": "application/json"
+              }
+            },
+            "required": [
+              "artifact_id",
+              "kind",
+              "media_type",
+              "manifest_profile_sha256"
+            ]
+          },
+          "reentry_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Input",
+            "properties": {
+              "kind": {
+                "const": "runtime_quality.candidate_source_reentry_receipt"
+              },
+              "manifest_profile_sha256": {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "media_type": {
+                "const": "application/json"
+              }
+            },
+            "required": [
+              "artifact_id",
+              "kind",
+              "media_type",
+              "manifest_profile_sha256"
+            ]
+          },
+          "route_id": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Route Id",
+            "type": "string"
+          },
+          "run_id": {
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "route_id",
+          "job_id",
+          "failed_attempt",
+          "pending_head_ref",
+          "reentry_ref"
+        ],
+        "title": "CandidateExperimentReentryCustodyRequest",
+        "type": "object"
+      },
       "CandidateExperimentReuseActionExecutionRequest": {
         "additionalProperties": false,
         "description": "Exact signed no-fetch reuse request selected for one deferred worker job.",
@@ -7359,7 +7437,7 @@
         "description": "The candidate terminal and frontier revision selected by this request.",
         "properties": {
           "frontier_revision": {
-            "minimum": 1.0,
+            "minimum": 0.0,
             "title": "Frontier Revision",
             "type": "integer"
           },
@@ -91184,7 +91262,7 @@
     },
     "/api/v1/runs/{run_id}/candidate-acquisition-experiment/{route_id}/terminal-custody": {
       "post": {
-        "description": "Select an existing numerical candidate under a fresh same-actor approval.",
+        "description": "Settle a selected experiment terminal or held reentry under fresh approval.",
         "operationId": "settle_run_candidate_acquisition_experiment_terminal",
         "parameters": [
           {
@@ -91210,7 +91288,15 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CandidateExperimentTerminalCustodyRequest"
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/CandidateExperimentTerminalCustodyRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/CandidateExperimentReentryCustodyRequest"
+                  }
+                ],
+                "title": "Body"
               }
             }
           },
@@ -91438,8 +91524,7 @@
             "route_id",
             "job_id",
             "failed_attempt",
-            "pending_head_ref",
-            "terminal_ref"
+            "pending_head_ref"
           ],
           "resource_kind": "runtime.evidence.acquisition.candidate_experiment.terminal_custody",
           "selector_fields": [
@@ -91448,7 +91533,8 @@
             "job_id",
             "failed_attempt",
             "pending_head_ref",
-            "terminal_ref"
+            "terminal_ref",
+            "reentry_ref"
           ],
           "source": "request_composite"
         },

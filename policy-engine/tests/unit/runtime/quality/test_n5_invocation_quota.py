@@ -18,8 +18,13 @@ import pytest
 from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.ncm_engine import NCMEngineMethod
+from polisyos.runtime.quality.candidate_source_reentry_history import (
+    _require_historical_candidate_quota_stop,
+)
 from polisyos.runtime.quality.generation_cycle import (
+    GenerationCycleError,
     _joint_simulation_port_outcome,
+    _load_candidate_quota_interrupted_joint_simulation_result,
     load_joint_simulation_result,
     persist_joint_simulation_result,
 )
@@ -514,6 +519,78 @@ def test_quota_reservation_source_failure_refuses_before_native_dispatch(
         fresh.diagnostics["physical_work_interruption"]
         == result.diagnostics["physical_work_interruption"]
     )
+
+
+def test_selected_quota_interruption_reads_only_as_a_blocked_report(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The exact partial report can explain a cutoff without qualifying as N5 output."""
+    owner_path = tmp_path / "owner"
+    middleware, binding, state, profile = _quota_owner(owner_path, total=2, protected=1)
+    ledger = FileBudgetLedger(owner_path / "ledger.json")
+    before = ledger.snapshot().revision
+    observer = _observer(middleware, binding, state, profile)
+    calls = _record_native_calls(monkeypatch)
+    request = _one_call_request().model_copy(update={"replications": 2})
+    result = JointSimulationHorizonController(producer_budget_observer=observer).run(request)
+    cas_path = tmp_path / "partial-cas"
+    ref = persist_joint_simulation_result(result, store=FileSystemCAS(cas_path))
+    store = FileSystemCAS.open_existing_read_only(cas_path)
+    receipt_hash = result.receipt.payload_hash
+
+    with pytest.raises(GenerationCycleError, match="joint_simulation_result_trajectory_missing"):
+        load_joint_simulation_result(ref, store=store, expected_request=request)
+    partial = _load_candidate_quota_interrupted_joint_simulation_result(
+        ref, store=store, expected_request=request, expected_receipt_payload_hash=receipt_hash
+    )
+    assert calls == [31]
+    assert partial.physical_work_observations == result.physical_work_observations
+    assert len(partial.physical_work_observations) == 1
+    assert partial.trajectories == ()
+    assert partial.receipt.authoritative_for == ()
+    assert "n5_invocation_quota_exhausted" in _joint_simulation_port_outcome(partial)[1]
+    quota = observer.observe_standard_invocation_capacity()
+    assert (quota.standard_remaining_units, quota.protected_remaining_units) == (0, 1)
+    snapshot = ledger.snapshot()
+    (operation,) = snapshot.invocation_reservations.values()
+    ledger_owner, resource, _ = middleware.continuation_binding()
+    quota_check = {
+        "settlement_store": middleware,
+        "binding": binding,
+        "policy": BudgetInvocationQuotaPolicy(
+            allocation_id=profile.allocation_id, total_units=2, protected_units=1
+        ),
+        "budget_owner": ledger_owner,
+        "budget_resource": resource,
+        "invocations": (
+            (operation.operation_id, operation.request_digest, operation.profile_digest),
+        ),
+        "cut": snapshot.revision,
+    }
+    _require_historical_candidate_quota_stop(**quota_check, after_revision=before)
+    (reserve_revision,) = (
+        item.revision
+        for item in snapshot.recent_mutations
+        if item.operation == "reserve_invocation"
+    )
+    assert before < reserve_revision < operation.revision
+    # The same selected completion after the boundary cannot launder the
+    # outstanding permit created before that boundary.
+    with pytest.raises(ValueError, match="partial_candidate_quota_exhaustion_not_established"):
+        _require_historical_candidate_quota_stop(**quota_check, after_revision=reserve_revision)
+    with pytest.raises(ValueError, match="partial_candidate_quota_exhaustion_not_established"):
+        _require_historical_candidate_quota_stop(**quota_check, after_revision=operation.revision)
+
+    with pytest.raises(GenerationCycleError, match="candidate_quota_interruption_binding_invalid"):
+        _load_candidate_quota_interrupted_joint_simulation_result(
+            ref,
+            store=store,
+            expected_request=request.model_copy(update={"seed": 32}),
+            expected_receipt_payload_hash=receipt_hash,
+        )
+    assert calls == [31]
+    assert observer.observe_standard_invocation_capacity() == quota
+    assert ledger.snapshot() == snapshot
 
 
 def test_zero_unit_profile_refuses_before_any_native_call(

@@ -52,6 +52,8 @@ from polisyos.runtime.quality.n5_execution_basis import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from polisyos.core.artifacts import CoreJSONArtifactStore
     from polisyos.core.contracts import RunCandidateSimulationCheapConsequences
     from polisyos.core.contracts.runtime import RunCandidateSimulationFirstAcquiredEvaluation
@@ -66,12 +68,16 @@ if TYPE_CHECKING:
         AcquisitionActionHeadRecord,
         AcquisitionEvaluationFrontierKey,
         AcquisitionEvaluationFrontierRecord,
+        ControlDiagnosticEventRecord,
         ControlJobRecord,
         ControlPlaneStore,
     )
     from polisyos.runtime.quality.acquisition_evaluation import (
         CandidateEvaluationTerminalHistory,
         CandidateExperimentTerminalHistory,
+    )
+    from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+        PreparedCandidateExperimentReentryCustody,
     )
     from polisyos.runtime.quality.acquisition_model_transition import CandidateModelRevision
     from polisyos.runtime.quality.acquisition_retained_continuation import (
@@ -80,6 +86,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.acquisition_route_loop import VerifiedCandidateExperimentOrigin
     from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthReceipt
+    from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
     from polisyos.runtime.quality.generation_cycle import AcquisitionOverlayReentryReceipt
 
@@ -1396,12 +1403,212 @@ def verify_candidate_experiment_terminal_history(
     )
 
 
+def _verify_candidate_experiment_reentry_custody_preparation(
+    *,
+    control_service: ControlPlaneService,
+    head: AcquisitionActionHeadRecord,
+    prepared: PreparedCandidateExperimentReentryCustody,
+) -> Callable[[], None]:
+    """Replay the held candidate before SQL and retain its bounded transaction check."""
+    from polisyos.runtime.quality.authority_reconciliation import (
+        resolve_authority_diagnostic_event_ref,
+    )
+    from polisyos.runtime.quality.candidate_source_reentry_history import (
+        _read_candidate_quota_witness,
+        _recheck_candidate_quota_custody_ledger,
+    )
+    from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
+
+    history = _verify_candidate_experiment_terminal_history_generation(
+        control_service=control_service,
+        head=head,
+        terminal_ref=prepared.terminal_ref,
+        prepared_custody=prepared,
+    )
+    terminal = history.terminal
+    reentry = history.reentry
+    window = history.budget_window
+    if (
+        history.head != head
+        or terminal != prepared.terminal
+        or reentry is None
+        or window is None
+        or history.decision is None
+        or history.frontier_before is not None
+        or history.frontier_after is not None
+        or history.evaluation is not None
+        or history.reentry_evaluation is not None
+        or history.selected_basis is None
+        or history.selected_basis.basis_role != "blocked"
+        or history.selected_basis.predicate_provenance != "not_established"
+        or terminal.selected_basis_ref is None
+        or terminal.evaluation_decision_ref is None
+        or terminal.quota_interruption_witness_ref is None
+        or reentry.n4_source_ref is None
+    ):
+        raise ValueError("candidate_experiment_reentry_custody_history_changed")
+
+    store = control_service._artifact_store
+    control = control_service._control_store
+    events = control_service._diagnostic_event_log
+    witness = _read_candidate_quota_witness(
+        store,
+        terminal.quota_interruption_witness_ref,
+        tenant_id=head.tenant_id,
+        cell_id=head.cell_id,
+    )
+    phase_scope = {
+        "tenant_id": head.tenant_id,
+        "cell_id": head.cell_id,
+        "run_id": head.run_id,
+        "source_job_id": head.source_job_id,
+        "route_id": head.route_id,
+    }
+
+    def read_phase_heads() -> tuple[AcquisitionActionHeadRecord | None, ...]:
+        return tuple(
+            control.get_acquisition_action_head_by_receipt(
+                **phase_scope,
+                action_generation=head.action_generation,
+                receipt_ref=phase.receipt_ref,
+            )
+            for phase in history.phase_chain[:-1]
+        )
+
+    phase_heads = read_phase_heads()
+    phase_refs = []
+    legacy_phase_refs = []
+    phase_events = {}
+    for phase, phase_head in zip(history.phase_chain[:-1], phase_heads, strict=True):
+        if phase_head is None or phase_head.durable_event_id != phase.durable_event_id:
+            raise ValueError("candidate_experiment_reentry_custody_phase_head_changed")
+        if phase_head.receipt_manifest_profile_sha256 is None:
+            ref = _selected_ref(store, phase.receipt_ref)
+            legacy_phase_refs.append(ref)
+        else:
+            ref = ArtifactRef(
+                artifact_id=artifacts.ArtifactID.model_validate(phase.receipt_ref),
+                kind="runtime_quality.acquisition_candidate_experiment_phase_receipt",
+                media_type="application/json",
+                manifest_profile_sha256=phase_head.receipt_manifest_profile_sha256,
+            )
+        phase_refs.append(ref)
+        phase_events[str(ref.artifact_id)] = phase.event
+
+    prepared_refs = (prepared.terminal_ref, terminal.selected_basis_ref)
+    durable_refs = (
+        *phase_refs,
+        terminal.evaluation_decision_ref,
+        history.decision.current_basis_ref,
+        witness.reentry_ref,
+        witness.action_ref,
+        reentry.candidate_world_intent_ref,
+        reentry.candidate_world_checkpoint_ref,
+    )
+    event_refs = []
+    diagnostic_rows = []
+    for ref in (*prepared_refs, *durable_refs):
+        manifest = store.get_manifest(ref)
+        if manifest.authority is None:
+            raise ValueError("candidate_experiment_reentry_custody_event_missing")
+        event_ref = resolve_authority_diagnostic_event_ref(store, manifest.authority)
+        event_refs.append(event_ref)
+        if ref in prepared_refs:
+            continue
+        event = DiagnosticEvent.model_validate(load_core_json_artifact(store, event_ref))
+        if (
+            event.payload_ref != str(ref.artifact_id)
+            or (event.tenant_id, event.cell_id, event.run_id)
+            != (head.tenant_id, head.cell_id, head.run_id)
+            or event.job_id not in {head.job_id, head.source_job_id}
+            or phase_events.get(str(ref.artifact_id), event) != event
+        ):
+            raise ValueError("candidate_experiment_reentry_custody_diagnostic_changed")
+        diagnostic_rows.append(_read_candidate_experiment_custody_diagnostic(events, event))
+    selected_refs = (
+        *prepared_refs,
+        *durable_refs,
+        terminal.quota_interruption_witness_ref,
+        witness.n5_input_ref,
+        witness.n5_result_ref,
+        reentry.n4_source_ref,
+        reentry.candidate_source_ref,
+        reentry.data_snapshot_ref,
+        reentry.world_model_ref,
+        reentry.context_job_ref,
+        reentry.model_declaration_ref,
+        reentry.ncm_ref,
+        *event_refs,
+    )
+    required_refs = tuple({artifact_ref_identity_key(ref): ref for ref in selected_refs}.values())
+    if any(ref.manifest_profile_sha256 is None for ref in required_refs):
+        raise ValueError("candidate_experiment_reentry_custody_profile_missing")
+    expected_diagnostics = tuple(diagnostic_rows)
+
+    def recheck() -> None:
+        if read_phase_heads() != phase_heads or any(
+            artifact_ref_identity_key(
+                artifact_ref_for_manifest(store.get_manifest(ref.artifact_id))
+            )
+            != artifact_ref_identity_key(ref)
+            for ref in legacy_phase_refs
+        ):
+            raise ValueError("candidate_experiment_reentry_custody_phase_head_changed")
+        _recheck_candidate_experiment_custody_evidence(
+            store=store,
+            required_refs=required_refs,
+            events=events,
+            expected_diagnostics=expected_diagnostics,
+        )
+        _recheck_candidate_quota_custody_ledger(
+            settlement_store=control_service._llm_producer_settlement_store,
+            window=window,
+            witness=witness,
+        )
+
+    return recheck
+
+
+def _read_candidate_experiment_custody_diagnostic(
+    events: RuntimeDiagnosticEventLog, event: DiagnosticEvent
+) -> ControlDiagnosticEventRecord:
+    from polisyos.runtime.http.services.control_plane_store import ControlDiagnosticEventRecord
+
+    rows = events.list_events(
+        event_id=event.event_id, run_id=event.run_id, job_id=event.job_id, limit=2
+    )
+    if (
+        len(rows) != 1
+        or type(rows[0]) is not ControlDiagnosticEventRecord
+        or rows[0].event != event
+        or rows[0].payload_ref != event.payload_ref
+    ):
+        raise ValueError("candidate_experiment_reentry_custody_diagnostic_changed")
+    return rows[0]
+
+
+def _recheck_candidate_experiment_custody_evidence(
+    *,
+    store: CoreJSONArtifactStore,
+    required_refs: tuple[ArtifactRef, ...],
+    events: RuntimeDiagnosticEventLog,
+    expected_diagnostics: tuple[ControlDiagnosticEventRecord, ...],
+) -> None:
+    for ref in required_refs:
+        if not store.verify(ref).ok:
+            raise ValueError("candidate_experiment_reentry_custody_selected_evidence_changed")
+    for row in expected_diagnostics:
+        if _read_candidate_experiment_custody_diagnostic(events, row.event) != row:
+            raise ValueError("candidate_experiment_reentry_custody_diagnostic_changed")
+
+
 def _verify_candidate_experiment_terminal_history_generation(
     *,
     control_service: ControlPlaneService,
     head: AcquisitionActionHeadRecord,
     terminal_ref: ArtifactRef,
     history_prefix: _CandidateExperimentHistoryPrefix | None = None,
+    prepared_custody: PreparedCandidateExperimentReentryCustody | None = None,
 ) -> CandidateExperimentTerminalHistory:
     """Replay one candidate-experiment terminal from its original signed history.
 
@@ -1432,6 +1639,9 @@ def _verify_candidate_experiment_terminal_history_generation(
         _candidate_ref_same,
         replay_candidate_acquisition_basis_for_history,
         resolve_selected_acquisition_evaluation_parts,
+    )
+    from polisyos.runtime.quality.acquisition_evaluation_dispatch import (
+        PreparedCandidateExperimentReentryCustody,
     )
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionCandidateExperimentPhaseReceipt,
@@ -1487,6 +1697,15 @@ def _verify_candidate_experiment_terminal_history_generation(
     ) == head.receipt_ref and terminal_ref.manifest_profile_sha256 == getattr(
         head, "receipt_manifest_profile_sha256", None
     )
+    if prepared_custody is not None and (
+        type(prepared_custody) is not PreparedCandidateExperimentReentryCustody
+        or prepared_custody.terminal_ref != terminal_ref
+        or committed
+        or history_prefix is not None
+        or head.action_generation != 1
+        or head.receipt_phase != "candidate_input_reentry_pending"
+    ):
+        raise ValueError("candidate_experiment_prepared_history_scope_invalid")
     if str(terminal_ref.artifact_id) == head.receipt_ref and not committed:
         raise ValueError("candidate_experiment_terminal_profile_not_selected")
     if not committed and head.receipt_phase not in {
@@ -1508,9 +1727,16 @@ def _verify_candidate_experiment_terminal_history_generation(
     # Reuse the phase-head owner for all persisted ancestors. Do not call the
     # full action fold here: verify_action_head delegates to this function for
     # terminal generations, so a full fold would recurse.
-    terminal_verified = sink._read_verified_action_phase(
-        str(terminal_ref.artifact_id), selected_ref=terminal_ref
-    )
+    if prepared_custody is None:
+        terminal_verified = sink._read_verified_action_phase(
+            str(terminal_ref.artifact_id), selected_ref=terminal_ref
+        )
+    else:
+        terminal_verified = sink._read_verified_action_phase(
+            str(terminal_ref.artifact_id),
+            selected_ref=terminal_ref,
+            prepared_event=prepared_custody.terminal_event,
+        )
     terminal = terminal_verified.receipt
     if type(terminal) is AcquisitionCandidateExperimentTerminalReceiptV2:
         return _verify_candidate_experiment_reuse_terminal_history(
@@ -1899,6 +2125,7 @@ def _verify_candidate_experiment_terminal_history_generation(
         store=store,
         event_log=events,
         ref=terminal.selected_basis_ref,
+        _prepared_event=None if prepared_custody is None else prepared_custody.basis_event,
     )
     if (
         not isinstance(decision, CandidateAcquisitionEvaluationDecision)
@@ -2113,6 +2340,7 @@ def _verify_candidate_experiment_terminal_history_generation(
             origin=origin,
             receipt_ref=terminal.candidate_reentry_ref,
             expected_selected_action_ref=terminal.candidate_action_ref,
+            quota_interruption_witness_ref=terminal.quota_interruption_witness_ref,
         )
         if (
             reentry.source_cycle_index != effective_source_cycle.cycle_index

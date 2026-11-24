@@ -1027,6 +1027,9 @@ class AcquisitionCandidateExperimentTerminalReceipt(_CandidateExperimentActionId
     current_continuation_ref: ArtifactRef | None = None
     blocker_ref: ArtifactRef | None = None
     blocker_reason: str | None = Field(default=None, min_length=1)
+    quota_interruption_witness_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @property
     def reentry_receipt_ref(self) -> str | None:
@@ -1043,6 +1046,17 @@ class AcquisitionCandidateExperimentTerminalReceipt(_CandidateExperimentActionId
         )
         if str(self.candidate_action_ref.artifact_id) not in self.owner_receipt_refs:
             raise ValueError("candidate_experiment_terminal_action_owner_missing")
+        if self.quota_interruption_witness_ref is not None:
+            if (
+                self.terminal_outcome != "candidate_reentry_completed"
+                or self.candidate_reentry_ref is None
+                or self.selected_evaluation is not None
+            ):
+                raise ValueError("candidate_experiment_terminal_quota_witness_invalid")
+            _require_experiment_selected_ref(
+                self.quota_interruption_witness_ref,
+                frozenset({"runtime_quality.candidate_experiment_quota_interruption_witness"}),
+            )
         if self.terminal_outcome == "candidate_blocked":
             if (
                 self.blocker_ref is None

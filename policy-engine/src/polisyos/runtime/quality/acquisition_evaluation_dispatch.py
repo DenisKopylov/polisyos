@@ -4069,6 +4069,8 @@ def _revalidate_candidate_experiment_reentry_owner(
         _current_candidate_experiment_reentry_action_context,
     )
     from polisyos.runtime.quality.candidate_source_reentry_history import (
+        is_candidate_experiment_quota_interruption,
+        read_candidate_experiment_quota_interruption,
         verify_candidate_experiment_source_reentry_history,
     )
     from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
@@ -4244,6 +4246,7 @@ def _revalidate_candidate_experiment_reentry_owner(
             origin=origin,
             receipt_ref=terminal.candidate_reentry_ref,
             expected_selected_action_ref=owner.candidate_action_ref,
+            quota_interruption_witness_ref=terminal.quota_interruption_witness_ref,
         )
     except (OSError, RuntimeError, TypeError, ValueError) as exc:
         raise ValueError("candidate_experiment_reentry_receipt_not_selected") from exc
@@ -4295,12 +4298,26 @@ def _revalidate_candidate_experiment_reentry_owner(
         or simulation.simulation_ref is None
     ):
         raise ValueError("candidate_experiment_reentry_n5_result_not_in_run")
-    current_result = load_joint_simulation_result(
-        reentry.n5_result_ref,
-        store=bridge.artifact_store,
-        expected_world_model_record_content_hash=simulation.k_world_ref_after,
-        expected_receipt_payload_hash=simulation.simulation_ref,
-    )
+    quota_interrupted = is_candidate_experiment_quota_interruption(reentry.new_cycle)
+    if quota_interrupted:
+        if terminal.selected_evaluation is not None:
+            raise ValueError("candidate_experiment_reentry_partial_result_selected_as_evaluation")
+        current_result = read_candidate_experiment_quota_interruption(
+            store=bridge.artifact_store,
+            settlement_store=service._llm_producer_settlement_store,
+            window=window,
+            transition=reentry.basis_transition,
+            target_cycle=reentry.new_cycle,
+            reentry_ref=terminal.candidate_reentry_ref,
+            witness_ref=terminal.quota_interruption_witness_ref,
+        )
+    else:
+        current_result = load_joint_simulation_result(
+            reentry.n5_result_ref,
+            store=bridge.artifact_store,
+            expected_world_model_record_content_hash=simulation.k_world_ref_after,
+            expected_receipt_payload_hash=simulation.simulation_ref,
+        )
     if type(current_result) is not JointSimulationResult:
         raise ValueError("candidate_experiment_reentry_n5_result_untyped")
     current_event_ids = tuple(item.event_id for item in current_result.physical_work_observations)
@@ -4313,9 +4330,9 @@ def _revalidate_candidate_experiment_reentry_owner(
         current_result.diagnostics.get("physical_work_capture_status") == "observed"
         and bool(current_event_ids)
         and len(current_event_ids) == len(set(current_event_ids))
-        # Individual and joint trajectories can reference the same physical run.
-        and current_event_ids
-        and set(current_event_ids) == set(expected_event_ids)
+        # Interrupted work was already joined to the exact planned subset.
+        # Complete results join their shared physical events to trajectories.
+        and (quota_interrupted or set(current_event_ids) == set(expected_event_ids))
     )
     current_operations = current_result.physical_work_observations
     current_operation_ids = tuple(
@@ -4358,6 +4375,7 @@ def _revalidate_candidate_experiment_reentry_owner(
         or observation.settlement_owner != capacity.settlement_owner
         or capacity.predicate_basis != "independently_reconciled"
         or capacity.status not in {"available", "exhausted"}
+        or (quota_interrupted and capacity.status != "exhausted")
         or capacity.profile_digest != selected_quota.profile_digest
         or capacity.standard_limit_units is None
         or capacity.standard_remaining_units is None
@@ -4542,6 +4560,294 @@ def prepare_candidate_experiment_terminal_custody(
             replacement=replacement,
         ),
         phase.durable_event_id,
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class PreparedCandidateExperimentReentryCustody:
+    """Hold canonical blocked basis/terminal bytes with detached SQL events."""
+
+    terminal: AcquisitionCandidateExperimentTerminalReceipt
+    terminal_ref: ArtifactRef
+    terminal_event: _PreparedDiagnosticEvent
+    basis_event: _PreparedDiagnosticEvent
+    frontier_cas: AcquisitionEvaluationFrontierCAS
+
+
+def prepare_candidate_experiment_reentry_custody(
+    *,
+    bridge: AcquisitionWorldGrowthBridge,
+    head: AcquisitionActionHeadRecord,
+    reentry_ref: ArtifactRef,
+) -> PreparedCandidateExperimentReentryCustody:
+    """Reopen one first-generation partial reentry and stage its blocked terminal."""
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
+    from polisyos.runtime.http.services.control_plane_store import (
+        AcquisitionEvaluationFrontierCAS,
+        AcquisitionEvaluationFrontierKey,
+    )
+    from polisyos.runtime.quality.acquisition_evaluation import (
+        _candidate_evaluation_role_event_id,
+        issue_candidate_acquisition_evaluation_basis,
+        prepare_candidate_experiment_blocked_basis_artifact,
+    )
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        AcquisitionCandidateExperimentPhaseReceipt,
+    )
+    from polisyos.runtime.quality.candidate_acquisition_action import (
+        _candidate_experiment_source_selection,
+        read_candidate_experiment_acquisition_action_historical,
+    )
+    from polisyos.runtime.quality.candidate_source_basis import (
+        _candidate_source_predecessors_for_verified_experiment_origin,
+    )
+    from polisyos.runtime.quality.candidate_source_reentry_history import (
+        is_candidate_experiment_quota_interruption,
+        persist_candidate_experiment_quota_interruption_witness,
+    )
+    from polisyos.runtime.quality.generation_cycle import CandidateSourceReentryReceipt
+
+    service = bridge._source_control_service
+    if (
+        type(bridge) is not AcquisitionWorldGrowthBridge
+        or type(service) is not ControlPlaneService
+        or type(head) is not AcquisitionActionHeadRecord
+        or head.action_generation != 1
+        or head.receipt_phase != "candidate_input_reentry_pending"
+        or head.recovery_state != "reentry_recovery_required"
+        or head.receipt_manifest_profile_sha256 is None
+        or reentry_ref.manifest_profile_sha256 is None
+    ):
+        raise ValueError("candidate_experiment_reentry_custody_owner_invalid")
+    sink = service.acquisition_route_sink
+    store = bridge.artifact_store
+    events = bridge.event_log
+    phase_ref = artifacts.ArtifactRef(
+        artifact_id=artifacts.ArtifactID.model_validate(head.receipt_ref),
+        kind="runtime_quality.acquisition_candidate_experiment_phase_receipt",
+        media_type="application/json",
+        manifest_profile_sha256=head.receipt_manifest_profile_sha256,
+    )
+    pending = sink._read_verified_action_phase(head.receipt_ref, selected_ref=phase_ref).receipt
+    if (
+        type(pending) is not AcquisitionCandidateExperimentPhaseReceipt
+        or pending.receipt_phase != "candidate_input_reentry_pending"
+        or pending.candidate_receipt_ref is None
+        or sink.get_head(pending) != head
+    ):
+        raise ValueError("candidate_experiment_reentry_custody_predecessor_changed")
+    action_ref = pending.candidate_receipt_ref
+    _, _, _, origin = sink._candidate_experiment_phase_action_context(pending)
+    if origin.candidate_terminal_history_chain:
+        raise ValueError("candidate_experiment_reentry_custody_prior_frontier_not_absent")
+    scope = AcquisitionEvaluationFrontierKey(
+        tenant_id=origin.tenant_id,
+        cell_id=origin.cell_id,
+        source_job_id=origin.source_job_id,
+        design_problem_ref=origin.policy_scope.design_problem_ref,
+        candidate_id=origin.policy_scope.candidate_id,
+    )
+    if service._control_store.read_acquisition_evaluation_frontier(scope) is not None:
+        raise ValueError("candidate_experiment_reentry_custody_prior_frontier_not_absent")
+    chain = sink._verified_candidate_experiment_phase_chain(
+        head, verified_origin=origin, reuse_verified_origin=True
+    )
+    (executing,) = (row for row in chain if row.receipt.receipt_phase == "executing")
+    if type(executing.receipt) is not AcquisitionCandidateExperimentPhaseReceipt:
+        raise ValueError("candidate_experiment_reentry_custody_executing_phase_invalid")
+    _action, _, window = read_candidate_experiment_acquisition_action_historical(
+        bridge=bridge,
+        origin=origin,
+        receipt_ref=action_ref,
+        executing_phase=executing.receipt,
+        executing_phase_ref=executing.receipt_ref,
+    )
+    reentry = _read_candidate_experiment_selected_reentry(
+        bridge=bridge, origin=origin, candidate_action_ref=action_ref, receipt_ref=reentry_ref
+    )
+    if (
+        type(reentry) is not CandidateSourceReentryReceipt
+        or reentry.n5_execution_ref is not None
+        or reentry.n5_result_ref is None
+        or not is_candidate_experiment_quota_interruption(reentry.new_cycle)
+    ):
+        raise ValueError("candidate_experiment_reentry_custody_partial_result_missing")
+
+    selection = _candidate_experiment_source_selection(bridge, origin)
+    overlay, _ = bridge._paths(selection, create=False)
+    decision_event_id = _candidate_evaluation_role_event_id(action_ref, "decision")
+    decision_ref = bridge._read_candidate_world_pointer(
+        overlay.parent / (decision_event_id + ".selected.json"),
+        candidate_action_ref=action_ref,
+        expected_kind=CandidateAcquisitionEvaluationDecision.ARTIFACT_KIND,
+    )
+    decision = read_candidate_acquisition_evaluation_decision_artifact(
+        store=store, event_log=events, ref=decision_ref
+    )
+    if (
+        type(decision) is not CandidateAcquisitionEvaluationDecisionV2
+        or not _candidate_ref_same(decision.candidate_action_ref, action_ref)
+        or decision.action_job_id != pending.job_id
+        or decision.route_id != pending.route_id
+        or decision.action_generation != 1
+        or decision.comparison_result != "not_established"
+        or decision.predicate_provenance != "not_established"
+        or decision.reason_codes != ("candidate_evaluation_prior_basis_not_established",)
+        or decision.expected_frontier_revision != 0
+        or decision.expected_frontier_ref is not None
+        or decision.prior_basis_ref is not None
+        or decision.prior_evaluation is not None
+    ):
+        raise ValueError("candidate_experiment_reentry_custody_decision_mismatch")
+    current = read_candidate_acquisition_evaluation_basis_artifact(
+        store=store, event_log=events, ref=decision.current_basis_ref
+    )
+    if (
+        type(current) is not CandidateAcquisitionEvaluationBasisV2
+        or current.basis_role != "prospective"
+        or not _candidate_ref_same(current.candidate_action_ref, action_ref)
+        or not _candidate_ref_same(current.candidate_source_ref, reentry.candidate_source_ref)
+        or not _candidate_ref_same(
+            current.candidate_world_intent_ref, reentry.candidate_world_intent_ref
+        )
+        or current.candidate_id != scope.candidate_id
+        or current.source_candidate_content_hash
+        != origin.effective_source_cycle.selected_candidate_content_hash
+    ):
+        raise ValueError("candidate_experiment_reentry_custody_current_basis_mismatch")
+    values, reasons = recompute_candidate_acquisition_basis_values(
+        artifact_store=store,
+        problem=origin.design_problem_basis,
+        preparation_inputs=current.preparation_inputs,
+        predecessors=_candidate_source_predecessors_for_verified_experiment_origin(
+            store=store, origin=origin
+        ),
+        prior=None,
+        prepared_n5_configuration=current.prepared_n5_configuration,
+        fresh_limit_usd=window.fresh_limit_usd,
+        global_limit_usd=window.global_limit_usd,
+        selected_data_snapshot_ref=reentry.data_snapshot_ref,
+        selected_world_model_ref=reentry.world_model_ref,
+        historical_read_only=True,
+        basis_version="2.0",
+    )
+    if values or not reasons:
+        raise ValueError("candidate_experiment_reentry_custody_blocked_basis_not_established")
+    blocked = issue_candidate_acquisition_evaluation_basis(
+        tenant_id=pending.tenant_id,
+        cell_id=pending.cell_id,
+        run_id=pending.run_id,
+        source_job_id=pending.source_job_id,
+        action_job_id=pending.job_id,
+        action_generation=pending.action_generation,
+        route_id=pending.route_id,
+        design_problem_ref=origin.policy_scope.design_problem_ref,
+        design_problem_basis_ref=origin.policy_scope.design_problem_basis_ref,
+        candidate_id=current.candidate_id,
+        source_candidate_content_hash=current.source_candidate_content_hash,
+        candidate_action_ref=action_ref,
+        candidate_world_intent_ref=current.candidate_world_intent_ref,
+        candidate_source_ref=current.candidate_source_ref,
+        preparation_inputs=current.preparation_inputs,
+        prepared_n5_configuration=current.prepared_n5_configuration,
+        basis_role="blocked",
+        values=values,
+        predicate_provenance="not_established",
+        reason_codes=reasons,
+        limitations=tuple(dict.fromkeys((*current.limitations, *reentry.limitations))),
+        selected_data_snapshot_ref=reentry.data_snapshot_ref,
+        selected_world_model_ref=reentry.world_model_ref,
+        basis_version="2.0",
+    )
+    if type(blocked) is not CandidateAcquisitionEvaluationBasisV2:
+        raise ValueError("candidate_experiment_reentry_custody_blocked_basis_not_established")
+    basis_event_id = _candidate_evaluation_role_event_id(action_ref, "outcome_basis")
+    basis_lock = overlay.parent / (basis_event_id + ".lock-target")
+    with data_forge_read_api.catalog.acquisition_overlay_admission_fence(basis_lock):
+        basis_ref, basis_event = prepare_candidate_experiment_blocked_basis_artifact(
+            store=store, event_log=events, record=blocked
+        )
+    quota_witness = persist_candidate_experiment_quota_interruption_witness(
+        store=store,
+        settlement_store=service._llm_producer_settlement_store,
+        window=window,
+        reentry_ref=reentry_ref,
+        reentry=reentry,
+    )
+    terminal = _candidate_experiment_completed_reentry_terminal(
+        pending,
+        pending_phase_ref=head.receipt_ref,
+        action_ref=action_ref,
+        decision_ref=decision_ref,
+        reentry_ref=reentry_ref,
+        basis_ref=basis_ref,
+        witness=reentry_ref,
+        selected_evaluation=None,
+        quota_interruption_witness_ref=quota_witness,
+    )
+    terminal_ref, terminal_event = _stage_acquisition_terminal_custody(
+        control_service=service, terminal=terminal, predecessor_phase=pending.receipt_phase
+    )
+    return PreparedCandidateExperimentReentryCustody(
+        terminal=terminal,
+        terminal_ref=terminal_ref,
+        terminal_event=terminal_event,
+        basis_event=basis_event,
+        frontier_cas=AcquisitionEvaluationFrontierCAS(
+            key=scope, expected_revision=0, expected_frontier_ref=None, replacement=None
+        ),
+    )
+
+
+def _candidate_experiment_completed_reentry_terminal(
+    pending: AcquisitionCandidateExperimentPhaseReceipt,
+    *,
+    pending_phase_ref: str,
+    action_ref: ArtifactRef,
+    decision_ref: ArtifactRef,
+    reentry_ref: ArtifactRef,
+    basis_ref: ArtifactRef,
+    witness: ArtifactRef,
+    selected_evaluation: AcquisitionSelectedEvaluation | None,
+    quota_interruption_witness_ref: ArtifactRef | None = None,
+) -> AcquisitionCandidateExperimentTerminalReceipt:
+    """Construct the canonical experiment terminal from its selected reentry."""
+    return AcquisitionCandidateExperimentTerminalReceipt(
+        receipt_id=pending.job_id + ".candidate-experiment.terminal",
+        tenant_id=pending.tenant_id,
+        cell_id=pending.cell_id,
+        run_id=pending.run_id,
+        source_job_id=pending.source_job_id,
+        route_id=pending.route_id,
+        action_generation=pending.action_generation,
+        job_id=pending.job_id,
+        source_payload_ref=pending.source_payload_ref,
+        capability_manifest_ref=pending.capability_manifest_ref,
+        request_content_hash=pending.request_content_hash,
+        policy_scope=pending.policy_scope,
+        policy_ref=pending.policy_ref,
+        authority_decision_ref=pending.authority_decision_ref,
+        voi_decision=pending.voi_decision,
+        monetary_cost="not_established",
+        information_value="not_established",
+        observed_data_authority=False,
+        publication_authority=False,
+        predecessor_receipt_ref=pending_phase_ref,
+        owner_receipt_refs=tuple(
+            sorted({str(action_ref.artifact_id), str(decision_ref.artifact_id)})
+        ),
+        terminal_outcome="candidate_reentry_completed",
+        candidate_action_ref=action_ref,
+        candidate_reentry_ref=reentry_ref,
+        evaluation_decision_ref=decision_ref,
+        selected_basis_ref=basis_ref,
+        selected_evaluation_witness_ref=witness,
+        selected_evaluation=selected_evaluation,
+        current_continuation_ref=None,
+        blocker_ref=None,
+        blocker_reason=None,
+        quota_interruption_witness_ref=quota_interruption_witness_ref,
+        generated_at=datetime.now(UTC),
     )
 
 
@@ -6368,6 +6674,10 @@ def dispatch_candidate_experiment_evaluation(
         _candidate_source_predecessors_for_verified_experiment_origin,
         prepare_live_candidate_experiment_source_basis_values,
     )
+    from polisyos.runtime.quality.candidate_source_reentry_history import (
+        is_candidate_experiment_quota_interruption,
+        persist_candidate_experiment_quota_interruption_witness,
+    )
     from polisyos.runtime.quality.joint_simulation_horizon import (
         prepare_joint_simulation_configuration,
     )
@@ -6941,41 +7251,27 @@ def dispatch_candidate_experiment_evaluation(
             if selected_basis_is_evaluated and evaluation
             else reentry_ref
         )
-        terminal = AcquisitionCandidateExperimentTerminalReceipt(
-            receipt_id=pending.job_id + ".candidate-experiment.terminal",
-            tenant_id=pending.tenant_id,
-            cell_id=pending.cell_id,
-            run_id=pending.run_id,
-            source_job_id=pending.source_job_id,
-            route_id=pending.route_id,
-            action_generation=pending.action_generation,
-            job_id=pending.job_id,
-            source_payload_ref=pending.source_payload_ref,
-            capability_manifest_ref=pending.capability_manifest_ref,
-            request_content_hash=pending.request_content_hash,
-            policy_scope=pending.policy_scope,
-            policy_ref=pending.policy_ref,
-            authority_decision_ref=pending.authority_decision_ref,
-            voi_decision=pending.voi_decision,
-            monetary_cost="not_established",
-            information_value="not_established",
-            observed_data_authority=False,
-            publication_authority=False,
-            predecessor_receipt_ref=pending_phase_ref,
-            owner_receipt_refs=tuple(
-                sorted({str(action_ref.artifact_id), str(decision_ref.artifact_id)})
-            ),
-            terminal_outcome="candidate_reentry_completed",
-            candidate_action_ref=action_ref,
-            candidate_reentry_ref=reentry_ref,
-            evaluation_decision_ref=decision_ref,
-            selected_basis_ref=actual_ref,
-            selected_evaluation_witness_ref=witness,
+        quota_witness = (
+            persist_candidate_experiment_quota_interruption_witness(
+                store=bridge.artifact_store,
+                settlement_store=service._llm_producer_settlement_store,
+                window=window,
+                reentry_ref=reentry_ref,
+                reentry=reentry,
+            )
+            if is_candidate_experiment_quota_interruption(reentry.new_cycle)
+            else None
+        )
+        terminal = _candidate_experiment_completed_reentry_terminal(
+            pending,
+            pending_phase_ref=pending_phase_ref,
+            action_ref=action_ref,
+            decision_ref=decision_ref,
+            reentry_ref=reentry_ref,
+            basis_ref=actual_ref,
+            witness=witness,
             selected_evaluation=selected_evaluation,
-            current_continuation_ref=None,
-            blocker_ref=None,
-            blocker_reason=None,
-            generated_at=datetime.now(UTC),
+            quota_interruption_witness_ref=quota_witness,
         )
     if (
         sink.get_head(terminal) != snapshot.head
@@ -7106,16 +7402,7 @@ def prepare_ordinary_acquisition_terminal(
     The checkpoint owner has already verified the comparison and completed
     work. A separate current custody transaction selects these staged values.
     """
-    import hashlib
-
-    from polisyos.core.canon import CanonSpec, to_canonical_bytes
-    from polisyos.runtime.http.services.control.artifacts import write_authority_artifact
-    from polisyos.runtime.http.services.control.run_lifecycle import (
-        ControlPlaneService,
-        _acquisition_route_event_id,
-        _acquisition_route_receipt_inputs,
-        _native_acquisition_receipt_selected_inputs,
-    )
+    from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
     from polisyos.runtime.http.services.control_plane_store import (
         AcquisitionEvaluationFrontierCAS,
         AcquisitionEvaluationFrontierValue,
@@ -7123,9 +7410,6 @@ def prepare_ordinary_acquisition_terminal(
     from polisyos.runtime.quality.acquisition_evaluation_history import (
         VerifiedOrdinaryAcquisitionTerminalCheckpoint,
     )
-    from polisyos.runtime.quality.authority import GovernanceMetadata
-    from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
-    from polisyos.runtime.quality.event_log import DiagnosticEventPayloadPolicy
 
     if (
         type(control_service) is not ControlPlaneService
@@ -7178,6 +7462,39 @@ def prepare_ordinary_acquisition_terminal(
         ),
     )
     work_event_ids = tuple(row.event_id for row in evaluation.result.physical_work_observations)
+    terminal_ref, prepared_event = _stage_acquisition_terminal_custody(
+        control_service=control_service, terminal=terminal, predecessor_phase=pending.receipt_phase
+    )
+    return PreparedOrdinaryAcquisitionTerminal(
+        terminal=terminal,
+        terminal_ref=terminal_ref,
+        prepared_event=prepared_event,
+        frontier_cas=frontier_cas,
+        reentry_ref=checkpoint.reentry_ref,
+        work_event_ids=work_event_ids,
+    )
+
+
+def _stage_acquisition_terminal_custody(
+    *,
+    control_service: ControlPlaneService,
+    terminal: AcquisitionRouteLoopReceiptV2 | AcquisitionCandidateExperimentTerminalReceipt,
+    predecessor_phase: str,
+) -> tuple[ArtifactRef, _PreparedDiagnosticEvent]:
+    """Stage canonical custody bytes while SQL owns the selection event."""
+    import hashlib
+
+    from polisyos.core.canon import CanonSpec, to_canonical_bytes
+    from polisyos.runtime.http.services.control.artifacts import write_authority_artifact
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        _acquisition_route_event_id,
+        _acquisition_route_receipt_inputs,
+        _acquisition_route_receipt_selected_inputs,
+    )
+    from polisyos.runtime.quality.authority import GovernanceMetadata
+    from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
+    from polisyos.runtime.quality.event_log import DiagnosticEventPayloadPolicy
+
     store = control_service._artifact_store
     event_log = control_service._diagnostic_event_log
     payload = terminal.model_dump(mode="json")
@@ -7185,8 +7502,18 @@ def prepare_ordinary_acquisition_terminal(
     terminal_digest = hashlib.sha256(to_canonical_bytes(payload, canon_spec)).hexdigest()
     input_refs = _acquisition_route_receipt_inputs(terminal)
     generated_at = terminal.generated_at.isoformat()
-    # Use the same CAS/event encoding as the ordinary route sink. Its live
-    # writer would also append SQL before the custody transaction can run.
+    if isinstance(terminal, AcquisitionCandidateExperimentTerminalReceipt):
+        schema_name = "polisyos.runtime.AcquisitionCandidateExperimentTerminalReceipt"
+        semantic_binding = str(terminal.authority_decision_ref.artifact_id)
+        event_suffix = (
+            "experiment_terminal_" + hashlib.sha256(terminal.receipt_id.encode()).hexdigest()[:16]
+        )
+        event_type = "polisyos.runtime.acquisition.candidate_experiment_terminal.v1"
+    else:
+        schema_name = "polisyos.runtime.AcquisitionRouteLoopReceipt"
+        semantic_binding = terminal.cost_basis_hash
+        event_suffix = f"loop_terminal_{terminal_digest}"
+        event_type = "polisyos.runtime.acquisition.route_loop.v2"
     result = write_authority_artifact(
         store,
         payload,
@@ -7194,7 +7521,7 @@ def prepare_ordinary_acquisition_terminal(
             kind="runtime_quality.acquisition_route_loop_receipt",
             media_type="application/json",
             schema=artifacts.SchemaInfo(
-                name="polisyos.runtime.AcquisitionRouteLoopReceipt",
+                name=schema_name,
                 version=terminal.schema_version.rsplit("@", 1)[-1],
             ),
             producer=artifacts.ProducerInfo(
@@ -7202,7 +7529,7 @@ def prepare_ordinary_acquisition_terminal(
                 version="2026.08.28+ds15-c02",
             ),
             governance=artifacts.ArtifactGovernanceInfo(classification="internal"),
-            inputs=_native_acquisition_receipt_selected_inputs(terminal),
+            inputs=_acquisition_route_receipt_selected_inputs(terminal),
         ),
         evidence_id=terminal.receipt_id,
         evidence_class="authority_bearing",
@@ -7235,7 +7562,7 @@ def prepare_ordinary_acquisition_terminal(
         },
         input_refs=input_refs,
         effective_mode_ref=terminal.route_id,
-        semantic_binding_ref=terminal.cost_basis_hash,
+        semantic_binding_ref=semantic_binding,
         validation_status="pass",
         blocking_status="non_blocking",
         governance=GovernanceMetadata(
@@ -7247,13 +7574,13 @@ def prepare_ordinary_acquisition_terminal(
             override_policy="no_override",
             approval_policy="pa2_ds9_decision_required",
         ),
-        event_id=_acquisition_route_event_id(terminal, f"loop_terminal_{terminal_digest}"),
+        event_id=_acquisition_route_event_id(terminal, event_suffix),
         event_source="polisyos.runtime.quality.acquisition_route_loop",
-        event_type="polisyos.runtime.acquisition.route_loop.v2",
+        event_type=event_type,
         event_subject=(
             f"run/{terminal.run_id}/job/{terminal.job_id}/acquisition/{terminal.receipt_phase}"
         ),
-        state_before=pending.receipt_phase,
+        state_before=predecessor_phase,
         state_after=terminal.receipt_phase,
         canon_spec=canon_spec,
     )
@@ -7266,17 +7593,10 @@ def prepare_ordinary_acquisition_terminal(
         or str(result.cas_ref.artifact_id) != receipt_ref
         or event.payload_ref != receipt_ref
     ):
-        raise ValueError("ordinary_acquisition_terminal_preparation_content_mismatch")
-    return PreparedOrdinaryAcquisitionTerminal(
-        terminal=terminal,
-        terminal_ref=result.cas_ref,
-        prepared_event=event_log.prepare(
-            event,
-            payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True),
-        ),
-        frontier_cas=frontier_cas,
-        reentry_ref=checkpoint.reentry_ref,
-        work_event_ids=work_event_ids,
+        raise ValueError("acquisition_terminal_custody_preparation_content_mismatch")
+    return result.cas_ref, event_log.prepare(
+        event,
+        payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True),
     )
 
 

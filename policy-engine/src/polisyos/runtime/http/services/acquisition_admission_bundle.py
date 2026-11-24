@@ -66,8 +66,11 @@ from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
 
 from .acquisition_action_service import (
     CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_RESOURCE_KIND,
+    CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_SCOPE_FIELDS,
+    CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_TARGET_FIELDS,
     CANDIDATE_MODEL_REVISION_TERMINAL_CUSTODY_RESOURCE_KIND,
     AcquisitionRouteMutationRequest,
+    CandidateExperimentReentryCustodyRequest,
     CandidateExperimentRouteMutationRequest,
     CandidateExperimentTerminalCustodyRequest,
     CandidateModelRevisionTerminalCustodyRequest,
@@ -95,6 +98,7 @@ type _ActionRequest = (
 type _AcquisitionBindingRequest = (
     _ActionRequest
     | CandidateExperimentTerminalCustodyRequest
+    | CandidateExperimentReentryCustodyRequest
     | CandidateModelRevisionTerminalCustodyRequest
 )
 type _AcquisitionRequestBinding = tuple[type[_AcquisitionBindingRequest], str, RuntimePermission]
@@ -566,6 +570,21 @@ def _recompute_bound_acquisition_request(
         )
         and binding.omit_absent_selector_fields == ("native_use",)
     )
+    experiment_custody_variants_binding = (
+        request_model
+        in {
+            CandidateExperimentTerminalCustodyRequest,
+            CandidateExperimentReentryCustodyRequest,
+        }
+        and binding.selector_fields
+        == (
+            *CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_SCOPE_FIELDS,
+            *CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_TARGET_FIELDS,
+        )
+        and binding.required_selector_fields == CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_SCOPE_FIELDS
+        and binding.omit_absent_selector_fields
+        == CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_TARGET_FIELDS
+    )
     effective_fields = (
         tuple(name for name, _value in expected_selectors)
         if expected_selectors is not None
@@ -578,7 +597,9 @@ def _recompute_bound_acquisition_request(
         or requirement.permission is not permission
         or binding.source is not ResourceBindingSource.REQUEST_COMPOSITE
         or binding.resource_kind != resource_kind
-        or not (exact_binding or model_input_variants_binding)
+        or not (
+            exact_binding or model_input_variants_binding or experiment_custody_variants_binding
+        )
         or binding.required_selector_alternatives
         or selector_names != tuple(sorted(effective_fields))
         or (expected_selectors is not None and resource.canonical_selectors != expected_selectors)
@@ -642,14 +663,20 @@ def require_model_input_use_bound_permission(
 
 def require_candidate_experiment_terminal_custody_bound_permission(
     bound_permission: BoundActionPermissionVerification,
-    request: CandidateExperimentTerminalCustodyRequest,
+    request: CandidateExperimentTerminalCustodyRequest | CandidateExperimentReentryCustodyRequest,
 ) -> str:
     """Bind terminal custody to its own request without a new PA2 action."""
+    request_model = type(request)
+    if request_model not in {
+        CandidateExperimentTerminalCustodyRequest,
+        CandidateExperimentReentryCustodyRequest,
+    }:
+        raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
     return _recompute_bound_acquisition_request(
         bound_permission,
         request=request,
         selected=(
-            CandidateExperimentTerminalCustodyRequest,
+            request_model,
             CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY_RESOURCE_KIND,
             RuntimePermission.EVIDENCE_ACQUIRE,
         ),

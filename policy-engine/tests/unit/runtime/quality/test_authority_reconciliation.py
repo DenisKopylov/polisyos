@@ -61,7 +61,10 @@ from polisyos.runtime.quality.authority_reconciliation import (
     resolve_authority_diagnostic_event_ref,
 )
 from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
-from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+from polisyos.runtime.quality.event_log import (
+    RuntimeDiagnosticEventLog,
+    _PreparedDiagnosticEventLookup,
+)
 
 
 def _runtime_context(source_ref: str) -> dict[str, object]:
@@ -1307,6 +1310,51 @@ def test_runtime_authority_writer_rejects_existing_cas_without_durable_event(
 
     assert error.value.code == "authority_orphan_cas"
     assert event_log.list_events(run_id="run-wave-2", job_id="job-wave-2") == []
+
+
+def test_prepared_diagnostic_replay_requires_exact_linked_event_without_publishing(tmp_path):
+    store, event_log = _stores(tmp_path)
+    source = store.put_json(
+        {"source": "partial-held-result"},
+        PutOptions(kind="runtime.input", media_type="application/json"),
+    )
+    source_id = str(source.artifact_id)
+    staged = write_authority_artifact(
+        store, {"status": "blocked"}, _opts(source_id), **_runtime_context(source_id)
+    )
+    event = DiagnosticEvent.model_validate(
+        from_canonical_bytes(store.get_bytes(staged.diagnostic_event_ref))
+    )
+    lookup = _PreparedDiagnosticEventLookup(event_log, event_log.prepare(event), staged.cas_ref)
+    assert (
+        reconcile_authority_ref(
+            artifact_store=store, event_log=lookup, cas_ref=staged.cas_ref
+        ).status
+        == "pass"
+    )
+    assert event_log.list_events(event_id=event.event_id) == []
+    with pytest.raises(AuthorityReconciliationError) as error:
+        reconcile_authority_ref(artifact_store=store, event_log=event_log, cas_ref=staged.cas_ref)
+    assert error.value.code == "authority_orphan_cas"
+    wrong_event = event.model_copy(update={"state_after": "other"})
+    wrong = _PreparedDiagnosticEventLookup(
+        event_log, event_log.prepare(wrong_event), staged.cas_ref
+    )
+    with pytest.raises(AuthorityReconciliationError) as error:
+        reconcile_authority_ref(artifact_store=store, event_log=wrong, cas_ref=staged.cas_ref)
+    assert error.value.code == "authority_payload_mismatch"
+    with pytest.raises(ValueError, match="prepared_candidate_diagnostic_selector_refused"):
+        lookup.list_events(event_id=event.event_id, job_id="another-job")
+
+    event_log.append(event)
+    with pytest.raises(ValueError, match="prepared_candidate_diagnostic_selector_refused"):
+        lookup.list_events(event_id=event.event_id)
+    assert (
+        reconcile_authority_ref(
+            artifact_store=store, event_log=event_log, cas_ref=staged.cas_ref
+        ).status
+        == "pass"
+    )
 
 
 def test_runtime_authority_writer_refuses_distinct_matching_authority_profiles(tmp_path):

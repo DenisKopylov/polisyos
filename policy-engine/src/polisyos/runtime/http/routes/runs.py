@@ -753,198 +753,36 @@ _PARTIAL_CANDIDATE_N5_PROOF_UNAVAILABLE = (
 )
 
 
-def _require_historical_candidate_quota_stop(
-    *,
-    settlement_store: Any,
-    binding: Any,
-    policy: Any,
-    budget_owner: tuple[str, str, str],
-    budget_resource: tuple[int, int, str, int, int],
-    invocations: tuple[tuple[str, str, str], ...],
-    cut: int,
-) -> None:
-    """Require the original standard partition to be exhausted at this cut."""
-    from polisyos.scientist.orchestration.engine import (
-        BudgetLedgerInvocationProfile,
-        verify_completed_standard_invocations_historical,
-    )
-    from polisyos.scientist.orchestration.engine.producer_budget import _capacity_store_snapshot
-
-    observed = verify_completed_standard_invocations_historical(
-        settlement_store=settlement_store,
-        expected_run_binding=binding,
-        expected_policy=policy,
-        expected_settlement_owner=budget_owner,
-        expected_invocations=invocations,
-    )
-    profile = BudgetLedgerInvocationProfile.from_policy(binding, policy)
-    owner, resource, anchor, snapshot = _capacity_store_snapshot(
-        settlement_store, require_existing_lock=True
-    )
-    terminal_at_cut = {
-        row.operation_id
-        for row in snapshot.invocation_reservations.values()
-        if row.run_id == binding.run_id
-        and row.profile_digest == profile.profile_digest
-        and row.purpose == "standard"
-        and row.status in {"completed", "failed"}
-        and row.revision <= cut
-    }
-    if (
-        owner != budget_owner
-        or resource != budget_resource
-        or snapshot.revision != anchor[0]
-        or anchor[0] < cut
-        or snapshot.invocation_profiles.get(binding.run_id) != profile
-        or len(terminal_at_cut) != profile.total_units - profile.protected_units
-        or any(
-            row.operation_id not in terminal_at_cut
-            or snapshot.invocation_reservations.get(row.operation_id) != row
-            for row in observed
-        )
-    ):
-        raise ValueError("partial_candidate_quota_exhaustion_not_established")
-
-
 def _verify_historical_partial_candidate_n5(
     *, verified: CandidateExperimentTerminalHistory, store: Any, settlement_store: Any
 ) -> None:
-    """Reconcile the selected interrupted request with its original durable quota."""
-    from polisyos.core.artifacts.ownership import raise_artifact_read_access_error
-    from polisyos.runtime.quality.acquisition_evaluation import (
-        rebuild_selected_candidate_n5_request,
+    """Use the candidate reentry owner's exact blocked-work and quota proof."""
+    from polisyos.runtime.quality.candidate_source_reentry_history import (
+        read_candidate_experiment_quota_interruption,
     )
-    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationN5InputV5
-    from polisyos.runtime.quality.generation_cycle import (
-        GenerationCycleError,
-        load_joint_simulation_result,
-    )
-    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
-    from polisyos.runtime.quality.n5_candidate_content import read_candidate_n5_content_observation
-    from polisyos.scientist.orchestration.engine import (
-        ProducerBudgetObservation,
-        ProducerBudgetSourceError,
-    )
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleError
 
     receipt = verified.reentry
     window = verified.budget_window
-    interruption = "n5_invocation_quota_exhausted"
     if (
         receipt is None
         or window is None
-        or receipt.new_cycle.simulation.status != "simulation_blocked"
-        or receipt.new_cycle.value_port.status != "value_blocked"
-        or interruption not in receipt.new_cycle.simulation.authority_blockers
-        or interruption not in receipt.new_cycle.value_port.authority_blockers
         or verified.reentry_evaluation is not None
-        or receipt.n4_source_ref is None
-        or receipt.n5_input_ref is None
-        or receipt.n5_result_ref is None
-        or receipt.n5_execution_ref is not None
         or window.scope.action_job_id != receipt.action_job_id
         or window.scope.action_generation != receipt.action_generation
         or window.scope.route_id != receipt.route_id
+        or window.scope.run_binding.control_job_id != receipt.source_job_id
     ):
         raise GenerationCycleError(_PARTIAL_CANDIDATE_N5_PROOF_UNAVAILABLE)
-    binding = window.scope.run_binding
-    scope = {
-        "run_id": receipt.run_id,
-        "job_id": receipt.action_job_id,
-        "tenant_id": receipt.tenant_id,
-        "cell_id": receipt.cell_id,
-    }
-    if (binding.run_id, binding.control_job_id, binding.tenant_id, binding.cell_id) != (
-        receipt.run_id,
-        receipt.source_job_id,
-        receipt.tenant_id,
-        receipt.cell_id,
-    ):
-        raise GenerationCycleError(_PARTIAL_CANDIDATE_N5_PROOF_UNAVAILABLE)
-    try:
-        request = rebuild_selected_candidate_n5_request(
-            store=store, input_ref=receipt.n5_input_ref, **scope
-        )
-        result = load_joint_simulation_result(
-            receipt.n5_result_ref,
-            store=store,
-            expected_world_model_record_content_hash=receipt.scenario_world_model_content_hash,
-            expected_atom_ids=tuple(atom.intervention_id for atom in request.intervention_atoms),
-            expected_selected_outcomes=request.selected_outcomes,
-            expected_receipt_payload_hash=receipt.new_cycle.simulation.simulation_ref or "",
-        )
-        completion = read_candidate_n5_content_observation(
-            result, input_ref=receipt.n5_input_ref, expected_request=request
-        ).completion
-        work = result.physical_work_observations
-        refusal_basis = result.diagnostics.get("budget_interruption_basis")
-        if (
-            result.trajectories
-            or result.diagnostics.get("physical_work_capture_status") != "observed"
-            or not isinstance(refusal_basis, dict)
-            or refusal_basis.get("purpose") != "standard"
-            or completion.status != "not_established"
-            or completion.interruption_reason != interruption
-            or completion.failed_units
-            or not work
-            or len(work) != len(completion.completed_units)
-            or not set(completion.completed_units) < set(completion.planned_units)
-            or any(
-                row.status != "completed"
-                or row.budget_status != "current_owner_checked"
-                or row.invocation_quota_purpose != "standard"
-                or row.invocation_quota_status != "completed"
-                for row in work
-            )
-        ):
-            raise ValueError("partial_candidate_plan_not_established")
-
-        input_record = GenerationSourceRepository(store).resolve_candidate_simulation_v5(
-            ref=receipt.n5_input_ref, **{f"expected_{key}": value for key, value in scope.items()}
-        )
-        if (
-            type(input_record) is not CandidateSimulationN5InputV5
-            or input_record.n5.invocation_quota_policy is None
-            or input_record.n5.invocation_purpose != "standard"
-        ):
-            raise ValueError("partial_candidate_quota_profile_not_established")
-        policy = input_record.n5.invocation_quota_policy
-        raw_bases = result.diagnostics.get("producer_budget_observations")
-        if not isinstance(raw_bases, dict) or not raw_bases:
-            raise ValueError("partial_candidate_budget_cuts_not_established")
-        bases = {
-            digest: ProducerBudgetObservation.model_validate(raw)
-            for digest, raw in raw_bases.items()
-        }
-        budget_owner = next(iter(bases.values())).settlement_owner
-        if any(
-            basis.run_binding != binding
-            or basis.settlement_owner != budget_owner
-            or basis.source_basis_digest != digest
-            for digest, basis in bases.items()
-        ) or any(row.budget_source_basis_digest not in bases for row in work):
-            raise ValueError("partial_candidate_budget_cut_owner_mismatch")
-        # Later spending cannot explain a refusal at the producer's cut.
-        _require_historical_candidate_quota_stop(
-            settlement_store=settlement_store,
-            binding=binding,
-            policy=policy,
-            budget_owner=budget_owner,
-            budget_resource=window.resource_identity,
-            invocations=tuple(
-                (
-                    row.invocation_quota_operation_id,
-                    row.invocation_quota_request_digest,
-                    row.invocation_quota_profile_digest,
-                )
-                for row in work
-            ),
-            cut=max(basis.ledger_revision for basis in bases.values()),
-        )
-    except GenerationCycleError:
-        raise
-    except (ProducerBudgetSourceError, TypeError, ValueError) as exc:
-        raise_artifact_read_access_error(exc)
-        raise GenerationCycleError(_PARTIAL_CANDIDATE_N5_PROOF_UNAVAILABLE) from exc
+    read_candidate_experiment_quota_interruption(
+        store=store,
+        settlement_store=settlement_store,
+        window=window,
+        transition=receipt.basis_transition,
+        target_cycle=receipt.new_cycle,
+        reentry_ref=verified.terminal.candidate_reentry_ref,
+        witness_ref=verified.terminal.quota_interruption_witness_ref,
+    )
 
 
 def _candidate_source_current_projection_from_v5_history(
@@ -2065,6 +1903,8 @@ def _candidate_acquisition_history_projection(
 
     def _retain_latest_v5_result_absence(head: Any, exc: GenerationCycleError) -> bool:
         """Keep the latest occurrence unavailable when its selected result is absent."""
+        if exc.code == _PARTIAL_CANDIDATE_N5_PROOF_UNAVAILABLE:
+            return _retain_latest_v5_unavailability(head, exc.code)
         return (
             exc.code == "joint_simulation_result_unavailable"
             and isinstance(exc.__cause__, FileNotFoundError)

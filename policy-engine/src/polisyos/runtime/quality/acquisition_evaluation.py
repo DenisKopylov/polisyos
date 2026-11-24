@@ -18,6 +18,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, fields, is_dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
+from functools import partial
 from typing import TYPE_CHECKING, ClassVar, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -59,6 +60,7 @@ if TYPE_CHECKING:
     from polisyos.core.registry import RegistryBundleContent
     from polisyos.foundry.data_plane import SelectedMethodInputFacts
     from polisyos.runtime.http.services.adapters.core_run import TerminalCoreRunSource
+    from polisyos.runtime.http.services.control.artifacts import AuthorityArtifactWriteResult
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
     )
@@ -100,7 +102,10 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.candidate_source_basis import CandidateSourceBasisPredecessor
     from polisyos.runtime.quality.design_problem import DesignProblem
-    from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+    from polisyos.runtime.quality.event_log import (
+        RuntimeDiagnosticEventLog,
+        _PreparedDiagnosticEvent,
+    )
     from polisyos.runtime.quality.generation_cycle import (
         CandidateSourceReentryReceipt,
         GenerationCycleRecord,
@@ -5822,11 +5827,8 @@ def _evaluation_artifact_schema_version(record_type: type[_Record]) -> str:
     return "1.0"
 
 
-def persist_acquisition_evaluation_artifact(
-    *,
-    store: CoreJSONArtifactStore,
-    event_log: RuntimeDiagnosticEventLog,
-    record: AcquisitionEvaluationBasis
+type _AcquisitionEvaluationRecord = (
+    AcquisitionEvaluationBasis
     | AcquisitionEvaluationDecision
     | CandidateAcquisitionEvaluationBasis
     | CandidateAcquisitionEvaluationDecision
@@ -5837,9 +5839,19 @@ def persist_acquisition_evaluation_artifact(
     | GenericModelInputEvaluationDecisionV1
     | GenericModelInputInitialEvaluationBasis
     | GenericModelInputInitialEvaluationDecision
-    | GenericModelInputInitialReconciliation,
-) -> ArtifactRef:
-    """Persist and reopen one strict basis/decision with its real producer event."""
+    | GenericModelInputInitialReconciliation
+)
+
+
+def _write_acquisition_evaluation_artifact(
+    *,
+    store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    record: _AcquisitionEvaluationRecord,
+    generated_at: str,
+    publish_event: bool,
+) -> AuthorityArtifactWriteResult:
+    from polisyos.runtime.http.services.control.artifacts import write_authority_artifact
     from polisyos.runtime.quality.acquisition_retained_continuation import (
         AcquisitionRetainedContinuation,
         CandidateAcquisitionRetainedContinuation,
@@ -5877,12 +5889,14 @@ def persist_acquisition_evaluation_artifact(
         )
     payload = record.model_dump(mode="json")
     identity = record.content_hash.removeprefix("sha256:")
-    generated_at = datetime.now(UTC).isoformat()
     typed_refs = _typed_record_input_refs(record)
     refs = tuple(sorted({str(ref.artifact_id) for _, ref in typed_refs}))
-    result = write_runtime_authority_artifact(
-        store,
-        event_log,
+    writer = (
+        partial(write_runtime_authority_artifact, store, event_log)
+        if publish_event
+        else partial(write_authority_artifact, store)
+    )
+    return writer(
         payload,
         artifacts.ArtifactWriteOptions(
             kind=record.ARTIFACT_KIND,
@@ -5981,6 +5995,22 @@ def persist_acquisition_evaluation_artifact(
         state_after=record.predicate_provenance,
         canon_spec=canon.CanonSpec(forbid_floats=False),
     )
+
+
+def persist_acquisition_evaluation_artifact(
+    *,
+    store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    record: _AcquisitionEvaluationRecord,
+) -> ArtifactRef:
+    """Persist and reopen one strict basis/decision with its real producer event."""
+    result = _write_acquisition_evaluation_artifact(
+        store=store,
+        event_log=event_log,
+        record=record,
+        generated_at=datetime.now(UTC).isoformat(),
+        publish_event=True,
+    )
     loaded = read_acquisition_evaluation_artifact(
         store=store,
         event_log=event_log,
@@ -5990,6 +6020,65 @@ def persist_acquisition_evaluation_artifact(
     if loaded != record:
         raise RuntimeError("acquisition_evaluation_artifact_readback_mismatch")
     return result.cas_ref
+
+
+def prepare_candidate_experiment_blocked_basis_artifact(
+    *,
+    store: CoreJSONArtifactStore,
+    event_log: RuntimeDiagnosticEventLog,
+    record: CandidateAcquisitionEvaluationBasisV2,
+) -> tuple[ArtifactRef, _PreparedDiagnosticEvent]:
+    """Stage the historical blocked basis and its event for one custody transaction."""
+    from polisyos.runtime.quality.authority import EvidenceAuthorityEnvelope
+    from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
+    from polisyos.runtime.quality.event_log import DiagnosticEventPayloadPolicy
+
+    if (
+        type(record) is not CandidateAcquisitionEvaluationBasisV2
+        or record.basis_role != "blocked"
+        or record.predicate_provenance != "not_established"
+        or record.evaluation is not None
+        or record.action_generation != 1
+    ):
+        raise ValueError("candidate_experiment_blocked_custody_basis_invalid")
+    canon_spec = canon.CanonSpec(forbid_floats=False)
+    ref = ArtifactRef(
+        artifact_id=artifacts.ArtifactID(
+            "sha256:"
+            + canon.content_hash(
+                canon.to_canonical_bytes(record.model_dump(mode="json"), canon_spec)
+            )
+        ),
+        kind=record.ARTIFACT_KIND,
+        media_type="application/json",
+    )
+    generated_at = datetime.now(UTC).isoformat()
+    if store.has(ref):
+        # A refused SQL selection can leave intact staged CAS. Reuse its actual
+        # time; the stock artifact writer checks the complete canonical view.
+        manifest = artifacts.read_core_manifest_profile(store, ref)[0]
+        if manifest.authority is None:
+            raise ValueError("candidate_experiment_blocked_custody_basis_profile_missing")
+        envelope_ref = artifacts.resolve_authority_envelope_ref(store, manifest.authority)
+        envelope = EvidenceAuthorityEnvelope.model_validate(
+            artifacts.read_core_json_artifact(store, envelope_ref).value
+        )
+        generated_at = envelope.generated_at
+    written = _write_acquisition_evaluation_artifact(
+        store=store,
+        event_log=event_log,
+        record=record,
+        generated_at=generated_at,
+        publish_event=False,
+    )
+    event = DiagnosticEvent.model_validate(
+        artifacts.read_core_json_artifact(store, written.diagnostic_event_ref).value
+    )
+    if written.cas_ref.artifact_id != ref.artifact_id or event.payload_ref != str(ref.artifact_id):
+        raise ValueError("candidate_experiment_blocked_custody_basis_event_mismatch")
+    return written.cas_ref, event_log.prepare(
+        event, payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True)
+    )
 
 
 def _parse_retained_continuation_wire(value: object) -> AcquisitionRetainedContinuation:
@@ -6020,6 +6109,7 @@ def read_acquisition_evaluation_artifact(
     | type[GenericModelInputInitialEvaluationBasis]
     | type[GenericModelInputInitialEvaluationDecision]
     | type[GenericModelInputInitialReconciliation],
+    _prepared_event: _PreparedDiagnosticEvent | None = None,
 ) -> (
     AcquisitionEvaluationBasis
     | AcquisitionEvaluationDecision
@@ -6040,6 +6130,7 @@ def read_acquisition_evaluation_artifact(
         CandidateAcquisitionRetainedContinuation,
         CandidateRetainedPortCapture,
     )
+    from polisyos.runtime.quality.event_log import _PreparedDiagnosticEventLookup
 
     if record_type not in {
         AcquisitionEvaluationBasis,
@@ -6098,9 +6189,19 @@ def read_acquisition_evaluation_artifact(
     )
     if actual_inputs != expected_inputs:
         raise ValueError("acquisition_evaluation_artifact_input_lineage_mismatch")
+    authority_events: RuntimeDiagnosticEventLog | _PreparedDiagnosticEventLookup = event_log
+    if _prepared_event is not None:
+        if (
+            type(record) is not CandidateAcquisitionEvaluationBasisV2
+            or record.action_generation != 1
+            or record.basis_role != "blocked"
+            or record.predicate_provenance != "not_established"
+        ):
+            raise ValueError("candidate_experiment_prepared_basis_scope_invalid")
+        authority_events = _PreparedDiagnosticEventLookup(event_log, _prepared_event, ref)
     report = reconcile_authority_ref(
         artifact_store=store,
-        event_log=event_log,
+        event_log=authority_events,
         cas_ref=(
             ref
             if isinstance(
@@ -6145,7 +6246,7 @@ def read_acquisition_evaluation_artifact(
             if type(record) in _GENERIC_MODEL_INPUT_EVALUATION_TYPES
             else _candidate_evaluation_event_id(record)
         )
-        rows = event_log.list_events(event_id=expected_event_id, limit=2)
+        rows = authority_events.list_events(event_id=expected_event_id, limit=2)
         if report.durable_event_id != expected_event_id or len(rows) != 1:
             raise ValueError("candidate_evaluation_artifact_event_unavailable")
         event = rows[0].event
@@ -6202,6 +6303,7 @@ def read_candidate_acquisition_evaluation_basis_artifact(
     store: CoreJSONArtifactStore,
     event_log: RuntimeDiagnosticEventLog,
     ref: ArtifactRef,
+    _prepared_event: _PreparedDiagnosticEvent | None = None,
 ) -> CandidateAcquisitionEvaluationBasis:
     """Dispatch the selected candidate basis by its persisted manifest version.
 
@@ -6221,7 +6323,11 @@ def read_candidate_acquisition_evaluation_basis_artifact(
     else:
         raise ValueError("candidate_evaluation_basis_version_unsupported")
     record = read_acquisition_evaluation_artifact(
-        store=store, event_log=event_log, ref=ref, record_type=record_type
+        store=store,
+        event_log=event_log,
+        ref=ref,
+        record_type=record_type,
+        _prepared_event=_prepared_event,
     )
     if not isinstance(record, CandidateAcquisitionEvaluationBasis):
         raise TypeError("candidate_evaluation_basis_reader_untyped")

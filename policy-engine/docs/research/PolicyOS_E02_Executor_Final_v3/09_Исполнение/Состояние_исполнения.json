@@ -21706,8 +21706,8 @@
       "transition_evidence": [],
       "corrective_windows": [],
       "current_execution": {
-        "status": "ACTIVE. Sixteen packets, 68 original requirements and 68 original test contracts. Eighteen named local requirements qualify. OPT-01-03/05/06, TRN-03-03, FUN-02-03/04 and CTL-03-03 have partial evidence.",
-        "next": "Finish selected two-split fiscal/frontier readback, actual generation and cost gates, and scoped transfer reassessment. Close precise subnormal rounding regression and the verified interval source consumer. DA-08 stays a separate final profile window.",
+        "status": "ACTIVE. Sixteen packets, 68 original requirements and 68 original test contracts. Twenty-eight named local requirements qualify. OPT-01-05, OPT-02-01 and TRN-01-04 have partial evidence.",
+        "next": "Complete Search service custody and the composed native GP/transfer profiles, validate the exact fiscal and Funnel producer-to-reader paths, and wire the selected N9 permit with atomic Runtime effect. DA-08 and G retain separate acceptance.",
         "baseline_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4"
       }
     },
@@ -41351,14 +41351,16 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "opt_follow",
       "base_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4",
-      "integrated_commit": "c3c8ac470a4397e7efc914a631e1206024055765",
+      "integrated_commit": "1438e28a6cf5da49d133cab994f3e18388a15d42",
       "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/benchmark_pareto.py",
         "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
         "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
         "policy-engine/src/polisyos/scientist/methods/search/objective.py",
         "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
         "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
         "policy-engine/src/polisyos/scientist/policy_design/output.py",
+        "policy-engine/tests/unit/scientist/methods/autotune/test_benchmark_pareto.py",
         "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
         "policy-engine/tests/unit/scientist/methods/search/test_objective.py",
         "policy-engine/tests/unit/scientist/policy_design/test_phase_b_output.py",
@@ -41452,6 +41454,20 @@
           "result": "61 green with three wider exact-baseline cases separately observed. V3.1 report binds typed candidate counts and exact omission, preserves governed map and exact selected old v3.0 bytes. Candidate 2D exact volume 8 and 3D bounding-box upper estimate 1000 vs exact union 28 have distinct identity, declared reference and comparison rules.",
           "source_commit": "c3c8ac470a4397e7efc914a631e1206024055765",
           "guard_sha256": "dabd03e7db748c8a8ba9bda846bbd3c653673555287b4cfdb3963bfd4ed39f8e"
+        },
+        {
+          "id": "opt01_actual_benchmark_coordinate_join",
+          "output": "Primary:policy-engine/_cache/e02/lane02-opt01-candidate-coverage.tDObx7XM/benchmark-private/",
+          "result": "Nine actual registered MethodJobs provide three distinct candidate rows over three canonical axes, including selection and holdout with USD per resident. Fresh simulated scope refuses hidden alias, foreign unit and candidate, altered/removed selected result; unaffected 2/3 retained. 58 tests and independent review.",
+          "source_commit": "1438e28a6cf5da49d133cab994f3e18388a15d42",
+          "guard_sha256": "a7569dfecbf724ff03d38c03ecf88f49a1fe5596119331bb06075fddbf2eed61"
+        },
+        {
+          "id": "opt01_actual_benchmark_indicator_cold",
+          "output": "Primary:policy-engine/_cache/e02/lane02-opt01-candidate-coverage.tDObx7XM/benchmark-private-cold/",
+          "result": "Fresh process reconciles exact selected report, complete source and canonical refs, retains 127 bytes-preserved case files and executes zero MethodJobs. Three-dimensional bounding-box upper 1000 remains distinct from independent exact union 28.",
+          "source_commit": "1438e28a6cf5da49d133cab994f3e18388a15d42",
+          "guard_sha256": "b421d46b25a077528076836fcddff70b2617c59b25462256897a87a3919895f8"
         }
       ],
       "blockers": [],
@@ -41498,8 +41514,8 @@
         {
           "requirement_id": "REQ-OPT-01-03",
           "test_id": "TEST-OPT-01-03",
-          "status": "PARTIAL",
-          "basis": "The real Pareto producer preserves 3 canonical/display axes and reference coordinates across JSON on colliding inputs. The registered MethodJob source and unit tests pass separately. A complete two-split source→Pareto registry→fresh consumer positive is still open.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual two-split registered source and a delimiter-containing third metric preserve three canonical coordinates and exact unit/axis labels in fresh typed report. Wrong split/unit/subject/profile or withdrawn selected source refuses, with useful partial retained. No governed authority.",
           "criterion_pointer": "04_Трассировка/OPT-01.json#/requirements/2",
           "test_ids": [
             "TEST-OPT-01-03"
@@ -41507,14 +41523,13 @@
           "binding_ids": [
             "E02-I02-B-B03"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
             "opt01_display_collision",
-            "opt01_registered_unit_source"
+            "opt01_actual_benchmark_coordinate_join",
+            "opt01_actual_benchmark_indicator_cold"
           ],
-          "remaining_kinds": [
-            "actual_registered_split_unit_frontier_join_and_fresh_consumer"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-OPT-01-04",
@@ -41559,20 +41574,19 @@
         {
           "requirement_id": "REQ-OPT-01-06",
           "test_id": "TEST-OPT-01-06",
-          "status": "PARTIAL",
-          "basis": "Typed algorithms, reference identities and change refusal distinguish exact 2D from 3D bounding-box upper estimate; 2D stock report persists. Product 3D benchmark-report readback remains open.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Typed reported algorithms distinguish exact 2D union 8 from persisted 3D bounding-box upper 1000 and independent union 28. Declared finite reference and basis must match for change; partial/unknown input yields no indicator; membership unaffected.",
           "criterion_pointer": "04_Трассировка/OPT-01.json#/requirements/5",
           "test_ids": [
             "TEST-OPT-01-06"
           ],
           "binding_ids": [],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
-            "opt01_candidate_projection_hv_versioned"
+            "opt01_candidate_projection_hv_versioned",
+            "opt01_actual_benchmark_indicator_cold"
           ],
-          "remaining_kinds": [
-            "registered_benchmark_three_dimensional_report_fresh_reader"
-          ]
+          "remaining_kinds": []
         }
       ]
     },
@@ -41582,13 +41596,16 @@
       "lane_sequence": 10,
       "track_id": "02-A",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "assigned_executor": "bayes_next",
+      "base_commit": "268376e68",
+      "integrated_commit": "d09191cb684e52845c90956b8661c4a0a480a05e",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -41603,9 +41620,40 @@
         "TEST-OPT-02-03",
         "TEST-OPT-02-04"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "opt02_native_bounded_actions",
+          "output": "Primary:policy-engine/_cache/e02/lane02-opt02-replica.xB4Lxeav/green/",
+          "result": "Exact native slice. 21 focused pass distinguishing metadata fake repeats and committed-origin training dedup; earlier 40 strategy tests establish continuation and bounded versus exact finite proof. Independent authority and no-clock control.",
+          "source_commit": "d09191cb684e52845c90956b8661c4a0a480a05e",
+          "guard_sha256": "8cacd7002844536c5336d65c7a2e59f6d0152b515f66675705b82cf32a94a429"
+        }
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-OPT-02-01",
+          "test_id": "TEST-OPT-02-01",
+          "status": "PARTIAL",
+          "basis": "Canonical native action rejects occupied pending/completed scope, distinguishes true tiny census from bounded search, and preserves already selected batch prefix. Cosmetic IDs/seed cannot mint repeat or duplicate training origin. Stock wrapper/service and deliberately admitted independent repeat remain open.",
+          "criterion_pointer": "04_Трассировка/OPT-02.json#/requirements/0",
+          "test_ids": [
+            "TEST-OPT-02-01"
+          ],
+          "binding_ids": [
+            "E02-I02-B-B02"
+          ],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "opt02_native_bounded_actions"
+          ],
+          "remaining_kinds": [
+            "ordinary_search_wrapper_typed_exhaustion_and_partial",
+            "explicit_new_measurement_authorized_replicate"
+          ]
+        }
+      ]
     },
     {
       "packet_id": "CTL-02",
@@ -41797,15 +41845,18 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "lane2_custody",
       "base_commit": "ea352e31defe775a86229d5e4633da26943190ea",
-      "integrated_commit": "7aae05643a413cfd8c1e3456c36982806ffabf4e",
+      "integrated_commit": "82f03039d717540160993df4d97032a5319c57b9",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
         "policy-engine/src/polisyos/scientist/methods/search/controller.py",
         "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
         "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
         "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/errors.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
         "policy-engine/tests/unit/remediation/test_srv_01.py",
         "policy-engine/tests/unit/remediation/test_srv_03.py",
+        "policy-engine/tests/unit/scientist/search/strategies/test_controller_batch.py",
         "policy-engine/tests/unit/scientist/search/test_search_loop.py"
       ],
       "shared_writer": "lane2_custody",
@@ -41863,6 +41914,20 @@
           "result": "33 tests and exact independent review. Completed history, best and frontier survive typed failure/cancellation, including callback/interrupt, malformed late feedback and unreadable budget projection. Two controlled provider calls settle 0.125 each under the existing durable FileBudgetLedger, while pre-dispatch failure adds zero.",
           "source_commit": "7aae05643a413cfd8c1e3456c36982806ffabf4e",
           "guard_sha256": "a8f74f4d7d9701039535ad7ceb816f058c3c6cd0b8cf554d619465cde27942ff"
+        },
+        {
+          "id": "ctl01_generation_outcomes",
+          "output": "Primary:policy-engine/_cache/e02/lane02-ctl-generation.7CoLtYVe/final-r2/",
+          "result": "48 qualified. Stock Grid final short batch works and true complete enumeration is distinct from configured truncation. Bare empty reaches bounded attempt cap; typed repair, temporary and source exhaustion are disjoint. Existing budget gates check before dispatch/retry.",
+          "source_commit": "82f03039d717540160993df4d97032a5319c57b9",
+          "guard_sha256": "8561d9feb998ff8e863fc5348fa5710ba9387b59fee915fe77a48c38fc96ee35"
+        },
+        {
+          "id": "ctl-detached-runs",
+          "output": "Primary:policy-engine/_cache/e02/lane02-ctl-budget-projection.6b6Ji0zD/qualified/",
+          "result": "Actual MethodJob selected output, independent same-owner and fresh-owner runs, detached nested score/evidence mutations, warm target-unit check and real stage ports. Forty-nine affected checks pass.",
+          "source_commit": "7e390c755a799d02d4c5b31d9391efccb9d29f46",
+          "guard_sha256": "e0792fb39bd1dccff0f9dc56a9fc553683cb1024c8d1307a50b2083875e8fad6"
         }
       ],
       "blockers": [],
@@ -41903,6 +41968,42 @@
           "evidence_refs": [
             "ctl01_interruption_red",
             "ctl01_interruption_qualified"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CTL-01-03",
+          "test_id": "TEST-CTL-01-03",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Real generation attempts separate empty, verified exhaustion, attempt bound, repair and bounded transient source. Accepted candidate can follow transient emptiness, actual Grid submits its final short batch, and no empty/paused state creates an evaluation or scientific stop.",
+          "criterion_pointer": "04_Трассировка/CTL-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-CTL-01-03"
+          ],
+          "binding_ids": [
+            "E02-I02-A-B02"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "ctl01_generation_outcomes"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CTL-01-04",
+          "test_id": "TEST-CTL-01-04",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "A real MethodJob and fresh store produce independent same-controller and separate-controller histories. Already returned nested scores and source facts stay detached. Warm EUR and JPY stay distinct, with active overlap refusal.",
+          "criterion_pointer": "04_Трассировка/CTL-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-CTL-01-04"
+          ],
+          "binding_ids": [
+            "E02-I02-A-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "ctl-detached-runs"
           ],
           "remaining_kinds": []
         }
@@ -42026,6 +42127,13 @@
           "result": "34 tests pass and independent exact review. Zero, negative, invalid cap, nonfinite and unrepresentable cost are distinct. Actual provider two 0.25 settlements and threshold checked through repaired gateway wire fixture separately.",
           "source_commit": "77c553afb57366651bd0275cb8f32f4afb7b2d5f",
           "guard_sha256": "cf3f430d6b76ee29e841e74d4389c4ad24d2eaf37e76e9e1b44a557b8b98d595"
+        },
+        {
+          "id": "ctl-cost-projection",
+          "output": "Primary:policy-engine/_cache/e02/lane02-ctl-budget-projection.6b6Ji0zD/qualified/",
+          "result": "Exact retained Decimal 1E-500 never becomes settled zero at the stopping consumer. Settled zero and ordinary spend remain distinct. Forty-nine scoped checks pass.",
+          "source_commit": "7e390c755a799d02d4c5b31d9391efccb9d29f46",
+          "guard_sha256": "e0792fb39bd1dccff0f9dc56a9fc553683cb1024c8d1307a50b2083875e8fad6"
         }
       ],
       "blockers": [],
@@ -42034,8 +42142,8 @@
         {
           "requirement_id": "REQ-CTL-03-03",
           "test_id": "TEST-CTL-03-03",
-          "status": "PARTIAL",
-          "basis": "Finite positive guard and ordinary source-backed settlement/threshold behavior are verified. Actual owner Decimal 1E-500 was observed to collapse to float 0 before criterion scope. Exact owner versus projection precision must pass on the live handoff.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Existing strict finite cap and actual provider-wire coverage combine with a retained FileBudgetLedger settlement that reaches the current stopping stage without rounding 1E-500 to zero. The unrepresentable amount is unavailable and stops without a new provider POST.",
           "criterion_pointer": "04_Трассировка/CTL-03.json#/requirements/2",
           "test_ids": [
             "TEST-CTL-03-03"
@@ -42043,13 +42151,11 @@
           "binding_ids": [
             "E02-I02-A-B03"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
-            "ctl03_cost_cap_finite"
+            "ctl-cost-projection"
           ],
-          "remaining_kinds": [
-            "exact_unrepresentable_owner_amount_in_stopping_state"
-          ]
+          "remaining_kinds": []
         }
       ]
     },
@@ -42324,6 +42430,13 @@
           "result": "146 tests, exact independent review, authenticated actual Funnel→selected CAS→fresh native SearchController→generator hint, rejected routes no writes, bounded sidecar, exact source withdrawal and same-body alternate manifest. Actual terminal card grade 1.0; 0.9 threshold fixture is separate.",
           "source_commit": "6143b158aac81c50573ca0bd759e31541f211786",
           "guard_sha256": "c11c7f56a6164f4345efaaebdfd05796cdbdea510ea28ed1f8710085a21e6851"
+        },
+        {
+          "id": "trn-assessment-successor",
+          "output": "Primary:policy-engine/_cache/e02/lane02-trn03-reassessment.WlhnTIMq/qualified-r2/",
+          "result": "162 qualified checks on shipped decision files; later lifecycle cost changes do not modify the tested lesson-hint method. Real ETS observed-source changes bind the prior and exact new evidence. Fresh registry replays conservative transfer; same-observation wrapper and removed evidence refuse.",
+          "source_commit": "d130c13a0569355778cc7d429e70ba98c18dca40",
+          "guard_sha256": "2b7cb1aacac232a4b55ee0255ed1e3dd9c15a090a41c335c5bdeffbe9e648bc8"
         }
       ],
       "blockers": [],
@@ -42371,8 +42484,8 @@
         {
           "requirement_id": "REQ-TRN-03-03",
           "test_id": "TEST-TRN-03-03",
-          "status": "PARTIAL",
-          "basis": "The supported conservative default is repaired and verified in both original writer and a separate process. The broader TEST-03 source-bound verified reassessment remains open.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Initial transfer and restart agree on selected evidence time and conservative age. A genuine later observed-source reassessment creates an exact profile-bound low-trust successor without changing old CAS bytes or granting empirical calibration authority.",
           "criterion_pointer": "04_Трассировка/TRN-03.json#/requirements/2",
           "test_ids": [
             "TEST-TRN-03-03"
@@ -42380,14 +42493,11 @@
           "binding_ids": [
             "E02-I02-D-B04"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
-            "trn03_selected_older_card_clock",
-            "trn03_selected_clock_fresh_process"
+            "trn-assessment-successor"
           ],
-          "remaining_kinds": [
-            "actual_source_bound_verified_reassessment"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-TRN-03-04",
@@ -42421,7 +42531,7 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "trn_follow",
       "base_commit": "268376e68",
-      "integrated_commit": "af28151d6330880cbbe5d645c729eb467ac46a9c",
+      "integrated_commit": "510d488a5aca58c5dcfc00fda2e92f147247e2cd",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
         "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
@@ -42463,6 +42573,13 @@
           "result": "49 pass and exact independent review. Actual CAS→WarmStartBridge distinguishes total delivery and eligible bound. MIN/MAX retain direction/diversity and malformed or unknown outcomes stay diagnostics. Independent consumer probe trains its local subset on exactly two source-eligible rows among five; ordinary fitted GP remains separately qualified.",
           "source_commit": "af28151d6330880cbbe5d645c729eb467ac46a9c",
           "guard_sha256": "c91fa5d2137a9b2e46fd6c8c645bf9e22fba86beba21de7ee52d954c7420b681"
+        },
+        {
+          "id": "trn01_reverse_conversion_refusal",
+          "output": "Primary:policy-engine/_cache/e02/lane02-trn01-reverse-boundary.NISEpwDW/",
+          "result": "49 pass and independent exact review. Actual selected CAS retains historical raw MAX 0.8 vs normalized -0.8, exact source profile/split/params. Nonempty converter without real selected resolver refuses, old import and empty behavior remain. Census finds no production converter caller.",
+          "source_commit": "510d488a5aca58c5dcfc00fda2e92f147247e2cd",
+          "guard_sha256": "2018fa33226f2f066f1a64c429f45949c9f13d9ed486c8f74a1de4df26f3e655"
         }
       ],
       "blockers": [],
@@ -42502,6 +42619,24 @@
             "trn01_history_two_quotas"
           ],
           "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-TRN-01-04",
+          "test_id": "TEST-TRN-01-04",
+          "status": "PARTIAL",
+          "basis": "The live history path preserves the source Evaluation and the unused nonempty exporter refuses fabricating target-suite evidence from a syntactic reference. Actual separate target MethodJob reevaluation companion remains open.",
+          "criterion_pointer": "04_Трассировка/TRN-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-TRN-01-04"
+          ],
+          "binding_ids": [],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "trn01_reverse_conversion_refusal"
+          ],
+          "remaining_kinds": [
+            "target_method_job_new_benchmark_on_separate_evaluation"
+          ]
         }
       ]
     },
@@ -42512,7 +42647,7 @@
       "track_id": "02-C",
       "track_position": 3,
       "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": null,
       "base_commit": null,
@@ -42532,9 +42667,55 @@
         "TEST-TRN-02-03",
         "TEST-TRN-02-04"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "trn-bounded-refill-cas",
+          "output": "Primary:policy-engine/_cache/e02/lane02-trn02-refill.FL58EX4E/qualified/",
+          "result": "41 pass against the actual file CAS and exact known-run index lookup. Distinguishes limiting from completed discovery and verifies current permission, immutable bytes and entry/size eviction.",
+          "source_commit": "a80408aa10cd193cdd1b0af7d70533c419a03e28",
+          "guard_sha256": "dc1aa87c09c2d363f26d598eb2a7e878ee0d8ce2c6333d8db02b0571e7b8286e"
+        }
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-TRN-02-01",
+          "test_id": "TEST-TRN-02-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The stock discovery refills from k=2 to k=4 to find a compatible source past nearer incompatible tenant/split records. A scan cap and a completed no-match probe report different terminal statuses.",
+          "criterion_pointer": "04_Трассировка/TRN-02.json#/requirements/0",
+          "test_ids": [
+            "TEST-TRN-02-01"
+          ],
+          "binding_ids": [
+            "E02-I02-D-B02"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "trn-bounded-refill-cas"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-TRN-02-02",
+          "test_id": "TEST-TRN-02-02",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual file CAS and selected metadata enforce exact known-run lookup without a second ANN call. The immutable payload cache enforces 128 entries and 32 MiB, rechecks live permission, refuses foreign manifest profiles, and skips oversized payload retention.",
+          "criterion_pointer": "04_Трассировка/TRN-02.json#/requirements/1",
+          "test_ids": [
+            "TEST-TRN-02-02"
+          ],
+          "binding_ids": [
+            "E02-I02-D-B02"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "trn-bounded-refill-cas"
+          ],
+          "remaining_kinds": []
+        }
+      ]
     },
     {
       "packet_id": "FUN-01",
@@ -42622,6 +42803,27 @@
           "result": "51 scoped pass. Native 0.12/0.1 becomes historical diagnostic 0.06/0.05 with explicit heuristic producer. Not-instrumented alone is unverified; claimed bootstrap/count without source cannot be measured. Old typed method labels replay.",
           "source_commit": "123f14d480eb29fa2a0aa9db5f2d051ca9d278d0",
           "guard_sha256": "1046049780d35e795344c77d15f4cedeb4d4faadbb55cc1ef1da25acf1f488ec"
+        },
+        {
+          "id": "fun02_subnormal_boundary_exact",
+          "output": "Primary:policy-engine/_cache/e02/lane02-fun02-subnormal.LkbB9t5x/decision/",
+          "result": "Pinned actual L3/L4 above, below, and at the subnormal tie now round once to exact oracle. Genuine zero and underflow preserved, unchanged fast normal path and label, independent 10 passed, final focused group 61.",
+          "source_commit": "60e24dafd59fa64c91f0c7da42a63d76d346379e",
+          "guard_sha256": "fc7b06bc8a89f1211a43bffa23446e362f18a8603b43441cf7957abb161078a9"
+        },
+        {
+          "id": "fun-selected-empirical-interval",
+          "output": "Primary:policy-engine/_cache/e02/lane02-fun-02-04-resolved.rGe2TlPa/qualified/",
+          "result": "Eighty-eight completed affected tests. The same original one-fit CausalForest report is verified through selected MethodJob custody and Funnel uncertainty projection.",
+          "source_commit": "f0b5a6d6521416c030a41a156819cb9ec8fdfa95",
+          "guard_sha256": "e011b91334ca55ea436174f8cfbca19e2eaff6484855abadbe79a91f9d4b40e5"
+        },
+        {
+          "id": "fun-empirical-cold-read",
+          "output": "Primary:policy-engine/_cache/e02/lane02-fun-02-04-resolved.rGe2TlPa/retained-fresh-reader-r3/",
+          "result": "Fresh reader reproduces the actual report and interval, rejects foreign subject, stale generation and withdrawn selected inputs, and detects restored originals. No new fit.",
+          "source_commit": "f0b5a6d6521416c030a41a156819cb9ec8fdfa95",
+          "guard_sha256": "d8134f4a22ef34ece1deef362e9bdd8b7db985452d3edeed5b3926b3d08fa246"
         }
       ],
       "blockers": [],
@@ -42630,8 +42832,8 @@
         {
           "requirement_id": "REQ-FUN-02-03",
           "test_id": "TEST-FUN-02-03",
-          "status": "PARTIAL",
-          "basis": "Large and equal-scale extreme, zero/missing/invalid cases and both actual adapters pass. Independent review isolated an asymmetric subnormal double-rounding witness with true rounded result 5e-324 versus emitted 1e-323. The precise subnormal branch awaits repair.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual L3/L4 avoid large overflow and correctly round exact subnormal ratios, including ties-to-even and rounded zero, with unchanged typed invalid/missing/output provenance.",
           "criterion_pointer": "04_Трассировка/FUN-02.json#/requirements/2",
           "test_ids": [
             "TEST-FUN-02-03"
@@ -42639,20 +42841,19 @@
           "binding_ids": [
             "E02-I02-C-B03"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
             "fun02_ci_exact_red",
-            "fun02_ci_exact_qualified"
+            "fun02_ci_exact_qualified",
+            "fun02_subnormal_boundary_exact"
           ],
-          "remaining_kinds": [
-            "exact_rounded_asymmetric_subnormal_boundary"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-FUN-02-04",
           "test_id": "TEST-FUN-02-04",
-          "status": "PARTIAL",
-          "basis": "Verified actual native heuristic projection, legacy compatibility and no promotion of absent/forged provenance. Selected source-owned HTE interval consumer is still open. Numerical job completed once; retained outbox source mismatch is under diagnosis.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual native causal forest and historical heuristic resolutions retain different width origins. The one measured method reaches L4 and a fresh selected consumer through backend-conditional diagnostic scope. Missing source is withheld and restored exact source reopens.",
           "criterion_pointer": "04_Трассировка/FUN-02.json#/requirements/3",
           "test_ids": [
             "TEST-FUN-02-04"
@@ -42660,13 +42861,12 @@
           "binding_ids": [
             "E02-I02-C-B02"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
-            "fun02_verified_proxy_label"
+            "fun-selected-empirical-interval",
+            "fun-empirical-cold-read"
           ],
-          "remaining_kinds": [
-            "selected_interval_package_source_join_and_fresh_reader"
-          ]
+          "remaining_kinds": []
         }
       ]
     },
@@ -42684,7 +42884,13 @@
       "integrated_commit": null,
       "actual_write_set": [],
       "shared_writer": null,
-      "decision_records": [],
+      "decision_records": [
+        {
+          "decision_id": "DEC-FUN-03-02",
+          "status": "CHOSEN",
+          "decision": "User selected N9 as the issuer of a narrow subject- and attempt-scoped protected promotion permit. Runtime verifies the live selected binding and serializes revocation with the atomic internal effect and receipt. L6 remains a consumer. The acceptance remains open pending stock positive and negative checks."
+        }
+      ],
       "requirement_ids": [
         "REQ-FUN-03-01",
         "REQ-FUN-03-02",

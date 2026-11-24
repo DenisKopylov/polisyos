@@ -429,6 +429,77 @@ def _unverified_v5_association_payload() -> dict[str, Any]:
     return payload
 
 
+def test_reopen_report_target_requires_exact_bundle_and_measured_rows(tmp_path: Path) -> None:
+    from polisyos.core.artifacts import ArtifactRef, ensure_ir_artifact_store
+    from polisyos.ir import InputRef, load_backtest_report, persist_backtest_report
+    from polisyos.scientist.methods.backtesting import ForecastOwner
+    from tests.unit.remediation.test_frc_02_owner import _request, _rule, _source
+
+    root = tmp_path / "cas"
+    store = FileSystemCAS(root)
+    result = ForecastOwner(store).run(
+        _request(
+            _source(store, holdout=[31.0, 32.0, 33.0, 34.0]),
+            _rule(store),
+            report_id="frc-selected-target-reopen",
+        )
+    )
+    report_ref = result.backtest_report_ref
+    bundle_ref = ArtifactRef.model_validate(result.uncertainty_bundle_ref)
+    ir_store = ensure_ir_artifact_store(store)
+    report = load_backtest_report(ir_store, report_ref)
+    assert "target_metric" not in report.metadata
+
+    def resolve(selected_report, selected_bundle=bundle_ref):
+        reader = FileSystemCAS(root)
+        reopened = load_backtest_report(ensure_ir_artifact_store(reader), selected_report)
+        return predictive_calibration._reopen_report_target_metric(
+            reader,
+            reopened,
+            report_ref=ArtifactRef.model_validate(selected_report),
+            bundle_ref=selected_bundle,
+        )
+
+    assert resolve(report_ref) == "metric"
+
+    foreign_bundle = store.put_bytes(
+        store.get_bytes(bundle_ref),
+        ArtifactWriteOptions(
+            kind=bundle_ref.kind,
+            media_type=bundle_ref.media_type,
+            schema=SchemaInfo(name="test.retained_bundle_sibling", version="1.0"),
+            canon=store.get_manifest(bundle_ref).canon,
+        ),
+        return_selected_profile=True,
+    )
+    assert foreign_bundle.artifact_id == bundle_ref.artifact_id
+    assert foreign_bundle.manifest_profile_sha256 != bundle_ref.manifest_profile_sha256
+    with pytest.raises(
+        predictive_calibration.PredictiveCalibrationError,
+        match="predictive_calibration_uncertainty_bundle_binding_mismatch",
+    ):
+        resolve(report_ref, foreign_bundle)
+
+    report_inputs = [
+        InputRef(
+            artifact_id=str(edge.artifact_id),
+            role=edge.role,
+            manifest_profile_sha256=edge.manifest_profile_sha256,
+        )
+        for edge in store.get_manifest(ArtifactRef.model_validate(report_ref)).inputs
+    ]
+    altered = persist_backtest_report(
+        ir_store,
+        report.model_copy(update={"metadata": {**report.metadata, "target_metric": "foreign"}}),
+        inputs=report_inputs,
+    )
+    with pytest.raises(
+        predictive_calibration.PredictiveCalibrationError,
+        match="predictive_calibration_report_target_metric_mismatch",
+    ):
+        resolve(altered)
+
+
 def test_v5_candidate_projection_does_not_advertise_diagnostic_rows_as_observed() -> None:
     """Versioned unavailable values remain null through typed API serialization."""
     association = predictive_calibration.PredictiveCalibrationAssociation.model_validate(

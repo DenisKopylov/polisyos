@@ -6186,6 +6186,7 @@ async def _exercise_predictive_calibration_run_surface(
 ) -> None:
     """Exercise one actual owned run; full acquisition is a separate input scope."""
     import hashlib
+    from contextlib import asynccontextmanager
     from dataclasses import replace
     from typing import cast
 
@@ -6252,7 +6253,12 @@ async def _exercise_predictive_calibration_run_surface(
             assert interval is not None
             bundle = load_forecasting_uncertainty_bundle(ir_store, interval.bundle_ref)
             assert bundle.method_fqn == interval.method_fqn == calibration_service._METHOD_FQN
-            assert bundle.target_id == interval.target_metric == report.metadata["target_metric"]
+            assert bundle.target_id == interval.target_metric
+            assert {
+                comparison.metric_name
+                for scenario in report.scenarios
+                for comparison in scenario.outcome_comparisons
+            } == {bundle.target_id}
             assert bundle.nominal_coverage == interval.nominal_coverage
             assert bundle.prediction_interval
 
@@ -6325,6 +6331,7 @@ async def _exercise_predictive_calibration_run_surface(
 
     cas_root = tmp_path / ".polisyos"
     shared_cas = FileSystemCAS(cas_root)
+    bounded_source_root: Path | None = None
     if include_owner_profile:
         from polisyos.runtime.quality import generation_cycle as generation_cycle_module
         from tests.integration.core_runtime.test_acquisition_world_growth_chain import (
@@ -6600,12 +6607,29 @@ async def _exercise_predictive_calibration_run_surface(
             local_owner.repo_root, tmp_path / "selected-local-source"
         )
     else:
-        from tests.unit.runtime.quality.test_generation_cycle import REPO_ROOT
+        from tests._helpers.candidate_cycle_source_profile import (
+            build_candidate_cycle_substrate_route_inputs,
+        )
 
-        # The profileless candidate API consumes actual Core-owned run inputs.
-        # The normal selected Catalog context is not an observed-data input here;
-        # no native epoch appointment, L5 permission or production provenance is claimed.
-        owner_repo_root = REPO_ROOT
+        # Keep ordinary N4 and its complete K_ref build on test-owned sources.
+        # Forecast observations still enter through the Core manifest below.
+        bounded_source = build_candidate_cycle_substrate_route_inputs(
+            tmp_path / "predictive-calibration-source",
+            outcome_variable="government.balance",
+            include_owner_slot_manifest=True,
+            owner_knob_dictionary={
+                "tax_relief_rate": {
+                    "default": 0.1,
+                    "type": "float",
+                    "min": 0.0,
+                    "max": 0.5,
+                    "mechanism_id": "tax_relief_rate",
+                    "param_path": "params.rate",
+                }
+            },
+        )
+        bounded_source_root = bounded_source.root
+        owner_repo_root = bounded_source_root
         selected_source = resolve_catalog_serving_source(
             owner_repo_root, selection=None, requested_profile="preflight_core"
         )
@@ -6701,12 +6725,28 @@ async def _exercise_predictive_calibration_run_surface(
         monkeypatch,
         tmp_path,
         root_input_factory=attach_selected_inputs,
-        source_repo_root=None if include_owner_profile else owner_repo_root,
+        source_repo_root=bounded_source_root,
+        source_root=bounded_source_root,
+        basis_repo_root=bounded_source_root,
+        l6_source_owner_root=bounded_source_root,
         tenant_id=tenant_id,
         cell_id=cell_id,
         stage_diagnostic_path=tmp_path / "predictive-calibration-job-stages.jsonl",
     )
     request.addfinalizer(fixture.service.close)
+    if bounded_source_root is not None:
+        job_source = fixture.service.catalog_serving_source
+        assert job_source.repo_root == bounded_source_root
+        assert job_source.database_path == selected_source.database_path
+        assert set(fixture.actual_kref_repo_roots) == {str(bounded_source_root)}
+        credal_catalog_paths = {
+            Path(reference.data_forge_catalog_source_profile.source_database_path)
+            for _, reference, error in fixture.kref_observations
+            if error is None
+            and reference is not None
+            and reference.data_forge_catalog_source_profile is not None
+        }
+        assert credal_catalog_paths == {selected_source.database_path}
     core_run_id = str(fixture.job.progress["core_run_id"])
     job_id = fixture.job.job_id
     assert fixture.profile.rule.operator_kind == "tax_relief_rate"
@@ -6755,24 +6795,34 @@ async def _exercise_predictive_calibration_run_surface(
                 **app_options,
             )
         _install_fixture_tenant_lifespan(app, tenant_id=tenant_id, cell_id=cell_id)
-        control_service = app.state.runtime_container.control_service
-        assert control_service is not None
-        app_source = control_service.catalog_serving_source
-        expected_repo_root = (
-            owner_repo_root if source_repo_root is None else source_repo_root
-        ).resolve()
-        assert app_source.repo_root == expected_repo_root
-        expected_profile = (
-            selected_source.catalog_run_profile
-            if catalog_source_selection is None
-            else catalog_source_selection.catalog_run_profile
-        )
-        assert app_source.catalog_run_profile == expected_profile
-        assert app_source.selection_basis == (
-            "legacy_default_candidate_only"
-            if catalog_source_selection is None
-            else "explicit_path_candidate_only"
-        )
+        owner_lifespan = app.router.lifespan_context
+
+        @asynccontextmanager
+        async def verify_started_source(application: Any) -> AsyncIterator[Any]:
+            async with owner_lifespan(application) as state:
+                control_service = application.state.runtime_container.control_service
+                assert control_service is not None
+                app_source = control_service.catalog_serving_source
+                expected_repo_root = (
+                    owner_repo_root if source_repo_root is None else source_repo_root
+                ).resolve()
+                assert app_source.repo_root == expected_repo_root
+                if bounded_source_root is not None:
+                    assert app_source.database_path == selected_source.database_path
+                expected_profile = (
+                    selected_source.catalog_run_profile
+                    if catalog_source_selection is None
+                    else catalog_source_selection.catalog_run_profile
+                )
+                assert app_source.catalog_run_profile == expected_profile
+                assert app_source.selection_basis == (
+                    "legacy_default_candidate_only"
+                    if catalog_source_selection is None
+                    else "explicit_path_candidate_only"
+                )
+                yield state
+
+        app.router.lifespan_context = verify_started_source
         return app
 
     route_source_calls: list[tuple[str, object, object]] = []

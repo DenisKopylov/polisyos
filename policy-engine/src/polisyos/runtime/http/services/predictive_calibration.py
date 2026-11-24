@@ -40,9 +40,11 @@ from polisyos.core.contracts.forecast_profile_member import ForecastProfileMembe
 from polisyos.ir import (
     ArtifactRefModel,
     BacktestReport,
+    ForecastingUncertaintyBundleRef,
     InputRef,
     get_json_artifact,
     load_backtest_report,
+    load_forecasting_uncertainty_bundle,
     normalize_artifact_ref,
     persist_backtest_report,
     put_json_artifact,
@@ -1817,6 +1819,8 @@ def _revalidate_profile_member_binding(
     store: ArtifactStore,
     association: PredictiveCalibrationAssociation,
     report: BacktestReport,
+    *,
+    target_metric: str | None,
 ) -> None:
     """Recompute the profile/member join from exact current CAS bytes on fresh GET."""
     profile_ref = association.value_data_profile_ref
@@ -1867,7 +1871,7 @@ def _revalidate_profile_member_binding(
             expected_kind=None,
         )
         observed_payload = get_json_artifact(ensure_ir_artifact_store(store), data_ref)
-        target_metric = _required_text(report.metadata.get("target_metric"), "target_metric")
+        target_metric = _required_text(target_metric, "target_metric")
         if not isinstance(observed_payload, Mapping):
             raise ValueError("observed source data is not a metric map")
         recomputed, _values = join_profile_member_to_observed_series(
@@ -1924,6 +1928,64 @@ def _revalidate_profile_member_binding(
         raise PredictiveCalibrationError(
             "predictive_calibration_profile_member_reopen_mismatch"
         ) from exc
+
+
+def _reopen_report_target_metric(
+    store: ArtifactStore,
+    report: BacktestReport,
+    *,
+    report_ref: ArtifactRef,
+    bundle_ref: ArtifactRef,
+) -> str:
+    """Resolve the forecast target through the selected report and bundle views."""
+
+    try:
+        selected_bundle = ForecastingUncertaintyBundleRef.from_selected_write(
+            bundle_ref.model_dump(mode="json")
+        )
+        report_bundle = ForecastingUncertaintyBundleRef.from_selected_write(
+            report.metadata.get("uncertainty_bundle_ref")
+        )
+        bundle_links = tuple(
+            (str(edge.artifact_id), edge.manifest_profile_sha256)
+            for edge in store.get_manifest(report_ref).inputs
+            if edge.role == "uncertainty_bundle"
+        )
+    except (OSError, TypeError, ValueError) as exc:
+        raise PredictiveCalibrationError(
+            "predictive_calibration_uncertainty_bundle_unresolved"
+        ) from exc
+    if report_bundle != selected_bundle or bundle_links != (
+        (str(selected_bundle.artifact_id), selected_bundle.manifest_profile_sha256),
+    ):
+        raise PredictiveCalibrationError(
+            "predictive_calibration_uncertainty_bundle_binding_mismatch"
+        )
+
+    try:
+        bundle = load_forecasting_uncertainty_bundle(
+            ensure_ir_artifact_store(store), selected_bundle
+        )
+    except (OSError, TypeError, ValueError) as exc:
+        raise PredictiveCalibrationError(
+            "predictive_calibration_uncertainty_bundle_unresolved"
+        ) from exc
+    target = _required_text(bundle.target_id, "target_metric")
+    outcome_metrics = {
+        comparison.metric_name
+        for scenario in report.scenarios
+        for comparison in scenario.outcome_comparisons
+    }
+    diagnostic_metrics = {diagnostic.metric_name for diagnostic in report.metric_diagnostics}
+    if (
+        bundle.method_fqn != _METHOD_FQN
+        or outcome_metrics != {target}
+        or (diagnostic_metrics and diagnostic_metrics != {target})
+        or report.metadata.get("target_metric", target) != target
+        or bundle.metadata.get("target_metric", target) != target
+    ):
+        raise PredictiveCalibrationError("predictive_calibration_report_target_metric_mismatch")
+    return target
 
 
 def _validate_current_run_binding(
@@ -1991,7 +2053,17 @@ def _validate_current_run_binding(
         ensure_ir_artifact_store(store),
         _as_ir_artifact_ref(association.backtest_report_ref),
     )
-    _revalidate_profile_member_binding(store, association, report)
+    target_metric = (
+        None
+        if association.schema_version == _LEGACY_ASSOCIATION_SCHEMA
+        else _reopen_report_target_metric(
+            store,
+            report,
+            report_ref=association.backtest_report_ref,
+            bundle_ref=association.uncertainty_bundle_ref,
+        )
+    )
+    _revalidate_profile_member_binding(store, association, report, target_metric=target_metric)
     try:
         evidence = load_empirical_calibration_evidence(
             store,
@@ -2014,7 +2086,9 @@ def _validate_current_run_binding(
         or evidence.failure_codes != association.evidence_reason_codes
     ):
         raise PredictiveCalibrationError("predictive_calibration_evidence_reopen_mismatch")
-    recomputed_s10 = _recompute_s10(store, association, report=report, evidence=evidence)
+    recomputed_s10 = _recompute_s10(
+        store, association, target_metric=target_metric, report=report, evidence=evidence
+    )
     if not _s10_summary_matches(
         association.s10,
         recomputed_s10,
@@ -2068,6 +2142,7 @@ def _recompute_s10(
     store: ArtifactStore,
     association: PredictiveCalibrationAssociation,
     *,
+    target_metric: str | None,
     report: BacktestReport | None = None,
     evidence: object | None = None,
 ) -> PredictiveCalibrationS10Summary:
@@ -2102,13 +2177,7 @@ def _recompute_s10(
         ensure_ir_artifact_store(store),
         _as_ir_artifact_ref(association.backtest_report_ref),
     )
-    if association.schema_version in {
-        _ASSOCIATION_SCHEMA,
-        _V5_ASSOCIATION_SCHEMA,
-        _PREVIOUS_ASSOCIATION_SCHEMA,
-        _PRIOR_ASSOCIATION_SCHEMA,
-    }:
-        target_metric = _required_text(report.metadata.get("target_metric"), "target_metric")
+    if target_metric is not None:
         expected_binding = _n4_outcome_target_binding_record(candidate_source, target_metric)
         if report.metadata.get("n4_outcome_target_binding") != expected_binding:
             raise PredictiveCalibrationError(

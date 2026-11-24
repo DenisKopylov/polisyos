@@ -503,6 +503,54 @@ def test_paid_history_uses_one_exact_deferral_replay_and_reopens_each_call(
         assert len(case.transport.calls) == case.call_count
 
 
+def test_paid_history_preserves_raw_codecs_in_selected_reader(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Reopen the paid proof through the final N5 join's selected reader."""
+    with tenant_scope(None, tenant_id=_TENANT, cell_id=_CELL):
+        case = _negative_case(tmp_path, monkeypatch, with_action_history=True)
+        fresh_store = artifacts.FileSystemCAS(case.store.root)
+        reader = artifacts.SelectedProfileVerificationReader(fresh_store)
+        events = RuntimeDiagnosticEventLog(store=case.control, artifact_store=reader)
+
+        def verify():
+            return growth.verify_native_paid_input_admission_selection(
+                reader,
+                events,
+                control_store=case.control,
+                selection=case.paid_selection,
+                scope=case.cost_scope,
+                provider=case.phase.native_leaf_provider_selection,
+                route_id=case.phase.route_id,
+                compiled_ref=case.phase.compiled_ref,
+                planner_report_hash=case.phase.planner_report_hash,
+                cost_basis_hash=case.phase.cost_basis_hash,
+            )
+
+        coordinate = case.attempt.selection.valid_effect_coordinate_evidence_ref
+        assert coordinate.manifest_profile_sha256 is None
+        assert fresh_store.get_manifest(coordinate).canon is None
+        raw = case.attempt.evidence.raw_artifact_ref
+        assert raw is not None and raw.manifest_profile_sha256 is not None
+        assert verify() == case.attempt
+
+        selected_path = fresh_store._manifest_path_for_ref(
+            raw.artifact_id, raw.manifest_profile_sha256
+        )
+        held = selected_path.with_suffix(".held")
+        selected_path.rename(held)
+        try:
+            assert fresh_store.get_bytes(raw.artifact_id)
+            with pytest.raises(
+                catalog.AcquisitionAuthorityError, match="live_raw_selected_profile_unresolved"
+            ):
+                verify()
+        finally:
+            held.rename(selected_path)
+        assert verify() == case.attempt
+        assert len(case.transport.calls) == case.call_count == 1
+
+
 def test_real_epoch_negative_replays_selected_owner_and_refuses_scope_grafts(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

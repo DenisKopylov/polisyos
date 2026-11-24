@@ -1442,16 +1442,69 @@ def verify_acquisition_admission_negative(
         != expected_provider.connector_id
     ):
         raise ValueError("acquisition_deferred_admission_provider_mismatch")
-    required_refs = {
-        str(attempt.evidence.raw_artifact_id),
-        str(attempt.evidence.evidence_bundle_ref.artifact_id),
-        str(attempt.evidence.data_snapshot_ref.artifact_id),
-        str(attempt.evidence.normalized_data_artifact_id),
-    }
+    evidence = attempt.evidence
+    raw_id = str(evidence.raw_artifact_id)
+    snapshot_id = str(evidence.data_snapshot_ref.artifact_id)
+    bundle_id = str(evidence.evidence_bundle_ref.artifact_id)
+    normalized_id = str(evidence.normalized_data_artifact_id)
+    required_refs = {raw_id, snapshot_id, bundle_id, normalized_id}
     if not required_refs.issubset(attempt.owner_receipt_refs):
         raise ValueError("acquisition_deferred_admission_evidence_incomplete")
+
+    selected_refs: dict[str, artifacts.ArtifactRef] = {}
+    verified_opaque_ids: set[str] = set()
+    if evidence.raw_artifact_ref is not None:
+        # The paid statement already selects the original capture. Follow its
+        # typed snapshot to the exact normalized view before verifying the
+        # ID-only historical inventory.
+        snapshot = artifacts.validate_core_model_json_artifact(
+            contracts.DataSnapshot, artifact_store, evidence.data_snapshot_ref
+        )
+        normalized_ref = artifacts.ArtifactRef.model_validate(
+            snapshot.data_ref.model_dump(mode="python")
+        )
+        codec = contracts.epoch.acquisition_artifact_codec(
+            normalized_ref.kind, media_type=normalized_ref.media_type
+        )
+        if (
+            snapshot.evidence_ref is None
+            or artifacts.artifact_ref_identity_key(snapshot.evidence_ref)
+            != artifacts.artifact_ref_identity_key(evidence.evidence_bundle_ref)
+            or str(normalized_ref.artifact_id) != normalized_id
+            or normalized_ref.manifest_profile_sha256 is None
+            or codec is None
+            or codec.payload_format != "connector_cache_payload"
+            or codec.media_type != normalized_ref.media_type
+        ):
+            raise ValueError("acquisition_deferred_admission_evidence_unreadable")
+        raw = data_forge_read_api.catalog.read_selected_live_raw_source(
+            artifact_store, evidence.raw_artifact_ref
+        )
+        normalized_manifest, declaration = artifacts.read_core_manifest_profile(
+            artifact_store, normalized_ref, allow_profile_absent=True
+        )
+        normalized = artifact_store.get_bytes(normalized_ref)
+        if (
+            f"sha256:{hashlib.sha256(raw).hexdigest()}" != evidence.raw_body_sha256
+            or declaration.status != "absent"
+            or normalized_manifest.artifact_schema
+            != artifacts.SchemaInfo(name=codec.schema_name, version=codec.schema_version)
+            or normalized_manifest.byte_size != len(normalized)
+            or normalized_manifest.integrity.sha256 != normalized_ref.artifact_id.hex
+            or hashlib.sha256(normalized).hexdigest() != normalized_ref.artifact_id.hex
+            or artifact_store.get_manifest(normalized_ref) != normalized_manifest
+        ):
+            raise ValueError("acquisition_deferred_admission_evidence_unreadable")
+        verified_opaque_ids = {raw_id, normalized_id}
+        selected_refs = {
+            snapshot_id: evidence.data_snapshot_ref,
+            bundle_id: evidence.evidence_bundle_ref,
+        }
     for ref in attempt.owner_receipt_refs:
-        if not artifact_store.verify(ref).ok:
+        if (
+            ref not in verified_opaque_ids
+            and not artifact_store.verify(selected_refs.get(ref, ref)).ok
+        ):
             raise ValueError("acquisition_deferred_admission_evidence_unreadable")
     return verified
 

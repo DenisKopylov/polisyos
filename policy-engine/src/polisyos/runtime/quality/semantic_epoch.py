@@ -1874,15 +1874,40 @@ def build_epoch_resolution_query_from_evidence(
     )
     coordinate_refs: list[Digest] = []
     for role, ref in evidence:
-        report = artifact_store.verify(ref)
-        manifest = artifact_store.get_manifest(ref)
+        native_role = epoch_contract.acquisition_native_coordinate_role(ref.kind)
+        if native_role is None:
+            if not bool(getattr(artifact_store.verify(ref), "ok", False)):
+                raise ValueError("epoch_coordinate_evidence_basis_mismatch")
+            manifest = artifact_store.get_manifest(ref)
+        else:
+            # Registered coordinates use their native byte codec. Historical
+            # queries retain the original selector, including a default view.
+            codec = epoch_contract.acquisition_artifact_codec(ref.kind, media_type=ref.media_type)
+            manifest, declaration = artifacts.read_core_manifest_profile(
+                artifact_store, ref, allow_profile_absent=True
+            )
+            if (
+                native_role != role
+                or codec is None
+                or ref.media_type != codec.media_type
+                or declaration.status != "absent"
+                or manifest.artifact_schema is not None
+            ):
+                raise ValueError("epoch_coordinate_evidence_basis_mismatch")
         payload = artifact_store.get_bytes(ref)
         if (
-            not bool(getattr(report, "ok", False))
-            or getattr(manifest, "artifact_id", None) != ref.artifact_id
+            getattr(manifest, "artifact_id", None) != ref.artifact_id
             or getattr(manifest, "kind", None) != ref.kind
             or getattr(manifest, "media_type", None) != ref.media_type
             or _raw_cas_hash(payload) != str(ref.artifact_id)
+            or (
+                native_role is not None
+                and (
+                    manifest.byte_size != len(payload)
+                    or manifest.integrity.sha256 != ref.artifact_id.hex
+                    or artifact_store.get_manifest(ref) != manifest
+                )
+            )
         ):
             raise ValueError("epoch_coordinate_evidence_basis_mismatch")
         coordinate_refs.append(

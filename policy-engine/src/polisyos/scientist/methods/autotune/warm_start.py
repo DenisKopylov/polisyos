@@ -3,15 +3,11 @@
 from __future__ import annotations
 
 import logging
-import math
 from typing import TYPE_CHECKING
 
-from polisyos.scientist.methods.search.objective import (
-    OptimizationDirection,
-    _evaluation_matches_selected_objectives,
-)
+from polisyos.scientist.methods.search.objective import OptimizationDirection
 
-from .models import BenchmarkEvaluation, BenchmarkSplit
+from .models import BenchmarkEvaluation
 
 logger = logging.getLogger(__name__)
 
@@ -26,8 +22,8 @@ if TYPE_CHECKING:
 class WarmStartBridge:
     """Loads historical evaluations from TransferLearningManager for autotune seeding.
 
-    Converts search-strategy ``Evaluation`` objects into
-    ``BenchmarkEvaluation`` format suitable for autotune warm-start.
+    The target consumes typed historical ``Evaluation`` records. A fresh
+    benchmark measurement belongs to its selected source producer.
     """
 
     def __init__(
@@ -89,78 +85,15 @@ class WarmStartBridge:
         objective_direction: OptimizationDirection | None = None,
         objective_rule_spec: str | None = None,
     ) -> list[BenchmarkEvaluation]:
-        """Convert only evaluations recomputed under the supplied selected rule."""
-        from polisyos.core.artifacts.manifest import ArtifactRef
+        """Preserve the legacy entry point with explicit source-bound refusal.
 
-        results: list[BenchmarkEvaluation] = []
-        if objective_direction is None or not objective_rule_spec:
-            return results
-        for ev in evaluations:
-            if not _evaluation_matches_selected_objectives(
-                ev,
-                objective_names=[primary_metric],
-                objective_directions={primary_metric: objective_direction},
-                objective_rule_specs={primary_metric: objective_rule_spec},
-                require_scalar_score=True,
-            ):
-                logger.warning(
-                    "WarmStartBridge: skipping candidate %s with unreconciled %s basis",
-                    getattr(ev, "candidate_id", "unknown"),
-                    primary_metric,
-                )
-                continue
-            try:
-                ref = ArtifactRef(
-                    artifact_id=ev.candidate_id,
-                    kind="search.candidate",
-                    media_type="application/json",
-                )
-            except (TypeError, ValueError) as exc:
-                logger.warning(
-                    "WarmStartBridge: skipping candidate without an artifact reference %s: %s",
-                    ev.candidate_id,
-                    exc,
-                )
-                continue
-
-            selected = next(
-                objective for objective in ev.objectives if objective.name == primary_metric
+        Raises:
+            NotImplementedError: A nonempty history requires an actual selected
+                benchmark source for the candidate, suite, and split.
+        """
+        if evaluations:
+            raise NotImplementedError(
+                "warm_start_benchmark_source_unestablished: use historical evaluations "
+                "or obtain a selected result from the benchmark producer"
             )
-            metrics = {primary_metric: selected.raw_value}
-            directions = {primary_metric: selected.direction.value}
-            if not math.isfinite(selected.raw_value):
-                logger.warning(
-                    "WarmStartBridge: skipping candidate %s without measured %s",
-                    ev.candidate_id,
-                    primary_metric,
-                )
-                continue
-
-            source_run_id = ev.metadata.get("source_run_id", "unknown")
-            metadata = {
-                "warm_start": True,
-                "source_candidate_id": ev.candidate_id,
-                "params": dict(ev.params),
-                "directions": directions,
-                "direction": directions[primary_metric],
-            }
-            if source_run_id != "unknown":
-                metadata["source_run_id"] = source_run_id
-            if ev.provenance_ref is not None:
-                metadata["provenance_ref"] = ev.provenance_ref
-
-            results.append(
-                BenchmarkEvaluation(
-                    loop_id=loop_id,
-                    suite_id=suite_id,
-                    candidate_ref=ref,
-                    selection_metrics=metrics,
-                    holdout_metrics={},
-                    promotable=False,
-                    status="warm_start_limited",
-                    notes=[f"transferred from {source_run_id}"],
-                    runtime_split_type=BenchmarkSplit.SELECTION,
-                    metadata=metadata,
-                )
-            )
-        return results
+        return []

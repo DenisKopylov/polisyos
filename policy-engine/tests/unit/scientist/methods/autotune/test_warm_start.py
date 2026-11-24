@@ -12,7 +12,6 @@ import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
-from polisyos.scientist.methods.autotune.models import BenchmarkSplit
 from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
 from polisyos.scientist.methods.search.objective import (
     BudgetDeficitObjective,
@@ -256,89 +255,77 @@ class TestWarmStartBridge:
         evals = bridge.load_warm_start(_fingerprint())
         assert len(evals) == 1
 
-    def test_evaluations_to_benchmarks(self):
-        candidate_id = _artifact_id("c")
-        provenance_ref = _artifact_id("e")
-        second_candidate_id = _artifact_id("d")
-        second_provenance_ref = _artifact_id("f")
-        evals = [
-            _make_eval(candidate_id, 0.8, "run1", provenance_ref=provenance_ref),
-            _make_eval(
-                second_candidate_id,
-                0.6,
-                "run1",
-                provenance_ref=second_provenance_ref,
-            ),
-        ]
-        assert (
+    def test_reverse_benchmark_requires_source_beyond_a_syntactic_candidate_ref(self):
+        unsupported = _make_eval(_artifact_id("0"), 0.8, "origin", provenance_ref=_artifact_id("a"))
+        assert WarmStartBridge.evaluations_to_benchmarks([], loop_id="target") == []
+        with pytest.raises(NotImplementedError, match="warm_start_benchmark_source_unestablished"):
             WarmStartBridge.evaluations_to_benchmarks(
-                evals,
-                loop_id="loop1",
-                primary_metric="score",
-            )
-            == []
-        )
-        assert (
-            WarmStartBridge.evaluations_to_benchmarks(
-                evals,
-                loop_id="loop1",
-                primary_metric="score",
+                [unsupported],
+                loop_id="target",
+                suite_id="requested-suite",
                 objective_direction=OptimizationDirection.MINIMIZE,
                 objective_rule_spec=configured_objective_rule_spec(
-                    GDPGrowthObjective(expected_unit="points")
+                    BudgetDeficitObjective(expected_unit="points")
                 ),
             )
-            == []
-        )
-        benchmarks = WarmStartBridge.evaluations_to_benchmarks(
-            evals,
-            loop_id="loop1",
-            primary_metric="score",
-            objective_direction=OptimizationDirection.MINIMIZE,
-            objective_rule_spec=configured_objective_rule_spec(
-                BudgetDeficitObjective(expected_unit="points")
-            ),
-        )
-        assert len(benchmarks) == 2
-        candidate_refs = {str(benchmark.candidate_ref.artifact_id) for benchmark in benchmarks}
-        assert candidate_refs == {candidate_id, second_candidate_id}
-        assert all(ref != f"sha256:{'0' * 64}" for ref in candidate_refs)
-        benchmark = benchmarks[0]
-        assert benchmark.loop_id == "loop1"
-        assert str(benchmark.candidate_ref.artifact_id) == candidate_id
-        assert benchmark.selection_metrics == {"score": 0.8}
-        assert benchmark.holdout_metrics == {}
-        assert benchmark.runtime_split_type is BenchmarkSplit.SELECTION
-        assert benchmark.promotable is False
-        assert benchmark.status == "warm_start_limited"
-        assert benchmark.metadata["params"] == {"x": 0.5}
-        assert benchmark.metadata["source_candidate_id"] == candidate_id
-        assert benchmark.metadata["provenance_ref"] == provenance_ref
-        assert benchmarks[1].metadata["provenance_ref"] == second_provenance_ref
-        assert benchmarks[1].holdout_metrics == {}
 
-    def test_evaluations_to_benchmarks_preserves_raw_maximize_value(self):
-        candidate_id = _artifact_id("9")
-        evaluation = _make_eval(
-            candidate_id,
-            -0.8,
-            "run1",
-            raw_score=0.8,
-            direction=OptimizationDirection.MAXIMIZE,
+    def test_actual_hidden_history_stays_an_evaluation_when_target_has_no_benchmark(self, tmp_path):
+        store = FileSystemCAS(tmp_path / "cas")
+        index = _MemoryVectorIndex()
+        original = _complete_fingerprint("origin", embedding=[1.0])
+        rule = configured_objective_rule_spec(GDPGrowthObjective(expected_unit="points"))
+        source = original.model_copy(
+            update={
+                "split": "holdout",
+                "objective_directions": {"score": OptimizationDirection.MAXIMIZE.value},
+                "objective_rule_specs": {"score": rule},
+            }
         )
-
-        benchmark = WarmStartBridge.evaluations_to_benchmarks(
-            [evaluation],
-            loop_id="loop1",
-            primary_metric="score",
-            objective_direction=OptimizationDirection.MAXIMIZE,
-            objective_rule_spec=configured_objective_rule_spec(
-                GDPGrowthObjective(expected_unit="points")
-            ),
-        )[0]
-
-        assert benchmark.selection_metrics == {"score": 0.8}
-        assert benchmark.metadata["direction"] == OptimizationDirection.MAXIMIZE.value
+        refs = [
+            store.put_json(
+                {"candidate": n},
+                PutOptions(kind="search.candidate", media_type="application/json"),
+                return_selected_profile=True,
+            )
+            for n in (1, 2)
+        ]
+        rows = [
+            _make_eval(
+                str(ref.artifact_id),
+                value,
+                source.run_id,
+                raw_score=value,
+                direction=OptimizationDirection.MAXIMIZE,
+                provenance_ref=str(ref.artifact_id),
+            )
+            for ref, value in zip(refs, (0.8, 0.6), strict=True)
+        ]
+        for row, ref in zip(rows, refs, strict=True):
+            row.metadata.update(
+                source_suite_id="original-hidden-suite",
+                candidate_profile_sha256=ref.manifest_profile_sha256,
+            )
+        written = TransferLearningManager(store, index).register_run(source, rows)
+        assert written is not None and written.manifest_profile_sha256 is not None
+        bridge = WarmStartBridge(TransferLearningManager(FileSystemCAS(store.root), index))
+        target = source.model_copy(update={"run_id": "target-run"})
+        historical = bridge.load_warm_start(target)
+        assert [row.candidate_id for row in historical] == [str(ref.artifact_id) for ref in refs]
+        assert historical[0].objectives[0].raw_value == 0.8
+        assert historical[0].objectives[0].normalized_value == -0.8
+        assert historical[0].metadata["source_suite_id"] == "original-hidden-suite"
+        assert historical[0].metadata["candidate_profile_sha256"] == refs[0].manifest_profile_sha256
+        assert historical[0].params == {"x": 0.5}
+        assert bridge.load_warm_start(target.model_copy(update={"split": "selection"})) == []
+        with pytest.raises(NotImplementedError, match="warm_start_benchmark_source_unestablished"):
+            bridge.evaluations_to_benchmarks(
+                historical,
+                loop_id="target-run",
+                suite_id="requested-suite",
+                objective_direction=OptimizationDirection.MAXIMIZE,
+                objective_rule_spec=rule,
+            )
+        assert bridge.load_warm_start(target) == historical
 
 
 class TestTransferLearningManagerWarmStart:

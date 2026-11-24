@@ -53,6 +53,15 @@ class ForecastProfileContract(BaseModel):
         return self
 
 
+class KnownAheadCalendarFeature(BaseModel):
+    """Recompute ISO weekdays over the declared daily forecast horizon."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    profile: Literal["iso_weekday.daily.v1"]
+    output_field: str = Field(pattern=r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
 class HistoricalValidationPlan(BaseModel):
     """Backtest plan describing one historical validation scenario."""
 
@@ -73,6 +82,9 @@ class HistoricalValidationPlan(BaseModel):
     ground_truth_outcomes: dict[str, list[float]] = Field(default_factory=dict)
     target_metrics: list[str] = Field(default_factory=list)
     masking_strategy: MaskingStrategy = MaskingStrategy.DROP_POST
+    known_ahead_calendar: KnownAheadCalendarFeature | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     prediction_source: PredictionSource = PredictionSource.NAIVE
     predicted_outcomes: dict[str, list[float]] | None = None
@@ -102,6 +114,12 @@ class HistoricalValidationPlan(BaseModel):
         for metric in self.target_metrics:
             if metric not in self.ground_truth_outcomes:
                 raise ValueError(f"target metric '{metric}' missing in ground_truth_outcomes")
+        if self.known_ahead_calendar is not None and self.known_ahead_calendar.output_field in {
+            "time_index",
+            "_backtest_metadata",
+            *self.target_metrics,
+        }:
+            raise ValueError("known-ahead calendar field conflicts with a historical field")
         if self.prediction_source == PredictionSource.PROVIDED and not self.predicted_outcomes:
             raise ValueError("prediction_source=provided requires predicted_outcomes")
         if (self.selected_training_role is None) != (self.selected_holdout_role is None):
@@ -131,6 +149,7 @@ __all__ = [
     "ForecastProducerBinding",
     "ForecastProfileContract",
     "HistoricalValidationPlan",
+    "KnownAheadCalendarFeature",
     "MaskingStrategy",
     "PredictionSource",
 ]

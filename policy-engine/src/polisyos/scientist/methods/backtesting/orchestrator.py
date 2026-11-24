@@ -23,6 +23,7 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts import (
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
+    read_core_manifest_profile,
     resolve_manifest_by_profile,
 )
 from polisyos.core.artifacts import (
@@ -42,6 +43,7 @@ from polisyos.core.contracts import (
     ExecuteRequest,
     ExecuteResult,
     FoundryExecConfig,
+    FoundryInputBindingRule,
     FoundryInputBindings,
     MetricsRef,
     SimulationResult,
@@ -73,7 +75,7 @@ from polisyos.ir.artifacts import (
 from polisyos.scientist import run_experiment
 from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
 from polisyos.scientist.methods.backtesting.evaluator import PredictionEvaluator
-from polisyos.scientist.methods.backtesting.masking import OutcomeMasker
+from polisyos.scientist.methods.backtesting.masking import MaskingValidationError, OutcomeMasker
 from polisyos.scientist.methods.backtesting.plan import (
     ForecastProfileContract,
     HistoricalValidationPlan,
@@ -83,6 +85,7 @@ from polisyos.scientist.methods.backtesting.trust_scorer import TrustScorer
 from polisyos.scientist.nodes.builtins.simulate.uncertainty_source_projection import (
     load_science_simulation_result_uncertainty_admission,
 )
+from polisyos.scientist.nodes.builtins.state_keys import INPUT_INPUT_BINDINGS_REF
 from polisyos.scientist.orchestration.engine.context import FoundryPort
 
 
@@ -454,6 +457,62 @@ def _plan_requests_native(plan: HistoricalValidationPlan) -> bool:
     )
 
 
+def _verify_historical_binding_sources(
+    masked_data: Mapping[str, object],
+    params: Mapping[str, object],
+    inputs: Mapping[str, object],
+) -> list[str]:
+    """Require the ordinary replay to bind from the admitted historical view."""
+    if inputs.get(INPUT_INPUT_BINDINGS_REF) is not None:
+        raise MaskingValidationError(
+            "Prebound inputs have no verified as-of derivation for this replay",
+            code="scientist_historical_prebound_inputs_not_established",
+        )
+    raw_rules = params.get("foundry_input_binding_rules")
+    if raw_rules is None:
+        return []
+    try:
+        if not isinstance(raw_rules, list):
+            raise ValueError("binding rules must be a list")
+        rules = [FoundryInputBindingRule.model_validate(item) for item in raw_rules]
+    except ValueError as exc:
+        raise MaskingValidationError(
+            "Historical input binding rule is invalid",
+            code="scientist_historical_binding_rule_invalid",
+        ) from exc
+
+    warnings: list[str] = []
+    for rule in rules:
+        field, separator, index = rule.source_path.partition(".")
+        # Admitted view values are flat series. A request can select a series
+        # or one position in it, but cannot recover an omitted path via a default.
+        must_refuse = not rule.source_path or field == "_backtest_metadata"
+        values = None if must_refuse else masked_data.get(field)
+        if isinstance(values, (list, tuple)):
+            if not separator:
+                continue
+            if index.isdecimal():
+                try:
+                    position = int(index)
+                except ValueError:
+                    position = len(values)
+                if position < len(values):
+                    value = values[position]
+                    if value is not None and (not isinstance(value, float) or math.isfinite(value)):
+                        continue
+                    # Mask placeholders still resolve under Foundry's path reader.
+                    must_refuse = True
+        message = f"Historical binding source {rule.source_path!r} has no admitted as-of value"
+        if must_refuse or rule.required or rule.default_value is not None:
+            raise MaskingValidationError(
+                message,
+                code="scientist_historical_feature_not_admitted",
+                details={"binding_id": rule.binding_id, "source_path": rule.source_path},
+            )
+        warnings.append(message)
+    return warnings
+
+
 def _scenario_report_inputs(scenarios: Sequence[BacktestScenario]) -> list[InputRef]:
     """Retain each scenario's selected cohort and native trajectory views."""
     edges: list[InputRef] = []
@@ -802,27 +861,34 @@ class BacktestOrchestrator:
                 "native_started_count_status": "not_established",
             }
 
-        if plan.scientist_state is None:
-            reason = "scientist_state_missing"
-            warnings.append("scientist_state missing; using naive predictor fallback")
+        if not self._has_declared_temporal_boundary(plan):
+            if native:
+                return native_unavailable("native_forecast_unavailable:historical_cutoff_missing")
+            return {
+                "predictions": {},
+                "intervals": {},
+                "warnings": ["Scientist historical cutoff missing; no as-of prediction available"],
+                "prediction_mode_effective": "scientist_unavailable",
+                "degraded": True,
+                "degraded_reasons": ["scientist_historical_cutoff_missing"],
+            }
+
+        def naive_before_dispatch(reason: str, warning: str) -> dict[str, Any]:
             naive = self._predict_with_naive(plan, masked_data)
-            naive["warnings"] = warnings + naive.get("warnings", [])
+            naive["warnings"] = [*warnings, warning, *naive.get("warnings", [])]
             naive["prediction_mode_effective"] = PredictionSource.NAIVE.value
             naive["degraded"] = True
             naive["degraded_reasons"] = [reason]
             return naive
 
-        if not self._has_declared_temporal_boundary(plan):
-            if native:
-                return native_unavailable("native_forecast_unavailable:historical_cutoff_missing")
-            reason = "scientist_historical_cutoff_missing"
-            warnings.append("scientist historical cutoff missing; using naive fallback")
-            naive = self._predict_with_naive(plan, masked_data)
-            naive["warnings"] = warnings + naive.get("warnings", [])
-            naive["prediction_mode_effective"] = PredictionSource.NAIVE.value
-            naive["degraded"] = True
-            naive["degraded_reasons"] = [reason]
-            return naive
+        if plan.scientist_state is None:
+            return naive_before_dispatch(
+                "scientist_state_missing", "scientist_state missing; using naive predictor fallback"
+            )
+        if native and plan.known_ahead_calendar is not None:
+            return native_unavailable(
+                "native_forecast_unavailable:known_ahead_calendar_unsupported"
+            )
 
         state_template = dict(plan.scientist_state)
         params_template = state_template.get("params", {})
@@ -831,6 +897,17 @@ class BacktestOrchestrator:
         inputs_template = state_template.get("inputs", {})
         if not isinstance(inputs_template, dict):
             raise ValueError("scientist_state.inputs must be an object when provided")
+        if not native:
+            try:
+                warnings.extend(
+                    _verify_historical_binding_sources(
+                        masked_data, params_template, inputs_template
+                    )
+                )
+            except MaskingValidationError as exc:
+                return naive_before_dispatch(
+                    exc.code or "scientist_historical_input_invalid", exc.message
+                )
 
         base_seed = plan.random_seed
         if base_seed is None:
@@ -1033,7 +1110,7 @@ class BacktestOrchestrator:
                 ):
                     raise ValueError("scientist_simulation_result_mismatch")
                 artifacts: dict[str, Any] = {
-                    "metrics_ref": metrics_ref.model_dump(mode="json"),
+                    "metrics_ref": metrics_ref,
                     "simulation_result_ref": simulation_result_ref.model_dump(mode="json"),
                 }
                 if native:
@@ -1322,12 +1399,16 @@ class BacktestOrchestrator:
                 "native_limitations": artifacts["native_limitations"],
             }
 
-        metrics_ref_payload = artifacts.get("metrics_ref")
+        metrics_ref = artifacts.get("metrics_ref")
         predictions: dict[str, list[float]] = {}
-        if isinstance(metrics_ref_payload, dict) and metrics_ref_payload.get("artifact_id"):
+        if isinstance(metrics_ref, MetricsRef):
             try:
-                artifact_id = ArtifactID.model_validate(metrics_ref_payload["artifact_id"])
-                metrics_payload = load_core_json_artifact(self._store, artifact_id)
+                selector = (
+                    metrics_ref
+                    if metrics_ref.manifest_profile_sha256 is not None
+                    else metrics_ref.artifact_id
+                )
+                metrics_payload = load_core_json_artifact(self._store, selector)
                 values = metrics_payload.get("values", metrics_payload)
                 if isinstance(values, dict):
                     for metric in plan.target_metrics:
@@ -1335,7 +1416,7 @@ class BacktestOrchestrator:
                         horizon = len(plan.ground_truth_outcomes.get(metric, []))
                         constant_profile = self._is_constant_forecast(
                             metrics_payload,
-                            artifact_id,
+                            selector,
                             horizon,
                         )
                         if isinstance(raw, list):
@@ -1575,7 +1656,7 @@ class BacktestOrchestrator:
     def _is_constant_forecast(
         self,
         payload: Any,
-        artifact_id: ArtifactID,
+        selector: MetricsRef | ArtifactID,
         horizon: int,
     ) -> bool:
         """Require a typed, producer-bound contract for constant trajectories."""
@@ -1583,7 +1664,10 @@ class BacktestOrchestrator:
             return False
         try:
             contract = ForecastProfileContract.model_validate(payload.get("forecast_contract"))
-            manifest = self._store.get_manifest(artifact_id)
+            if isinstance(selector, MetricsRef):
+                manifest, _ = read_core_manifest_profile(self._store, selector)
+            else:
+                manifest = self._store.get_manifest(selector)
         except Exception:
             return False
         producer = manifest.producer
@@ -1625,15 +1709,20 @@ class BacktestOrchestrator:
     ) -> dict[str, str]:
         """Persist and bind the immutable masked view consumed by Scientist."""
         canon_spec = IRCanonSpec(forbid_floats=False, forbid_nan_inf=False)
-        data_ref = put_json_artifact(
-            _ensure_ir_artifact_store(self._store),
-            masked_data,
-            kind="scientist.backtest.masked_historical_view",
-            schema_name="polisyos.scientist.backtesting.MaskedHistoricalView",
-            schema_version="1.0",
-            canon_spec=canon_spec,
+        data_ref = CoreArtifactRef.model_validate(
+            put_json_artifact(
+                _ensure_ir_artifact_store(self._store),
+                masked_data,
+                kind="scientist.backtest.masked_historical_view",
+                schema_name="polisyos.scientist.backtesting.MaskedHistoricalView",
+                schema_version="1.0",
+                canon_spec=canon_spec,
+                return_selected_profile=True,
+            )
         )
-        lineage_inputs = [InputRef(artifact_id=data_ref["artifact_id"], role="masked_data")]
+        lineage_inputs: list[InputRefLike] = [
+            input_ref_from_artifact_ref(data_ref, role="masked_data")
+        ]
         if plan.historical_data_ref:
             try:
                 lineage_inputs.append(
@@ -1652,7 +1741,9 @@ class BacktestOrchestrator:
             if isinstance(step, int):
                 snapshot_stats["intervention_step"] = step
         snapshot = DataSnapshot(
-            data_ref=data_ref,
+            # Preserve the v0.2.0 snapshot body used by existing ModelSpecs.
+            # Foundry restores the selected child from the masked_data edge.
+            data_ref=data_ref.model_copy(update={"manifest_profile_sha256": None}),
             stats=snapshot_stats,
             notes=[
                 "scientist.backtest.masked_historical_view",
@@ -1667,6 +1758,7 @@ class BacktestOrchestrator:
             schema_version="0.2.0",
             inputs=lineage_inputs,
             canon_spec=canon_spec,
+            return_selected_profile=True,
         )
 
     def _predict_with_naive(

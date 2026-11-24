@@ -3,12 +3,17 @@
 from __future__ import annotations
 
 import copy
+from datetime import date
 from typing import Any
 
 import numpy as np
 
 from polisyos.core.errors import ErrorCategory, PolicyOSError
-from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, MaskingStrategy
+from polisyos.scientist.methods.backtesting.plan import (
+    HistoricalValidationPlan,
+    MaskingStrategy,
+    PredictionSource,
+)
 
 
 class MaskingValidationError(PolicyOSError):
@@ -22,10 +27,22 @@ class OutcomeMasker:
     """Apply post-intervention masking for historical validation."""
 
     def mask(self, data: dict[str, Any], plan: HistoricalValidationPlan) -> dict[str, Any]:
-        masked = copy.deepcopy(data)
+        """Mask the target and project the fields admitted to a Scientist replay."""
+        scientist_replay = plan.prediction_source is PredictionSource.SCIENTIST
+        if scientist_replay:
+            # A prefix-shaped feature can still depend on the complete series.
+            # Only declared outcomes and their coordinate axis come from this
+            # legacy source unless a feature's availability can be established.
+            masked = {
+                field: data[field]
+                for field in {*plan.target_metrics, "time_index"}
+                if field in data
+            }
+        else:
+            masked = copy.deepcopy(data)
         t0 = self._resolve_cutoff(masked, plan)
         if t0 is None:
-            return masked
+            return copy.deepcopy(masked) if scientist_replay else masked
 
         time_index = masked.get("time_index")
         if time_index is not None and not isinstance(time_index, (list, tuple, np.ndarray)):
@@ -90,11 +107,14 @@ class OutcomeMasker:
                 arr[t0:] = np.nan
                 masked[metric] = arr.tolist()
 
-        if time_index is not None and plan.masking_strategy in {
-            MaskingStrategy.DROP_POST,
-            MaskingStrategy.TRUNCATE,
-        }:
-            masked["time_index"] = np.asarray(time_index)[:t0].tolist()
+        if time_index is not None:
+            if plan.masking_strategy in {MaskingStrategy.DROP_POST, MaskingStrategy.TRUNCATE}:
+                masked["time_index"] = np.asarray(time_index)[:t0].tolist()
+            elif scientist_replay:
+                masked["time_index"] = [
+                    *np.asarray(time_index)[:t0].tolist(),
+                    *([None] * (len(time_index) - t0)),
+                ]
 
         masked.setdefault("_backtest_metadata", {})
         masked["_backtest_metadata"].update(
@@ -104,7 +124,39 @@ class OutcomeMasker:
                 "masking_strategy": plan.masking_strategy.value,
             }
         )
+        if scientist_replay and plan.known_ahead_calendar is not None:
+            calendar = plan.known_ahead_calendar
+            origin, weekdays = self._known_ahead_weekdays(plan)
+            masked[calendar.output_field] = weekdays
+            masked["_backtest_metadata"]["known_ahead_calendar"] = {
+                **calendar.model_dump(mode="json"),
+                "origin": origin.isoformat(),
+                "horizon": len(weekdays),
+            }
         return masked
+
+    @staticmethod
+    def _known_ahead_weekdays(plan: HistoricalValidationPlan) -> tuple[date, list[int]]:
+        """Materialize a calendar independent of any future source observations."""
+        try:
+            origin = date.fromisoformat(plan.intervention_date)
+        except ValueError as exc:
+            raise MaskingValidationError(
+                "Known-ahead calendar requires an ISO intervention date",
+                code="known_ahead_calendar_origin_invalid",
+            ) from exc
+        if origin.isoformat() != plan.intervention_date:
+            raise MaskingValidationError(
+                "Known-ahead calendar requires an ISO intervention date",
+                code="known_ahead_calendar_origin_invalid",
+            )
+        horizon = plan.post_intervention_periods
+        if not horizon or horizon - 1 > (date.max - origin).days:
+            raise MaskingValidationError(
+                "Known-ahead calendar requires a valid positive daily horizon",
+                code="known_ahead_calendar_horizon_invalid",
+            )
+        return origin, [(origin.weekday() + offset) % 7 + 1 for offset in range(horizon)]
 
     @staticmethod
     def _resolve_cutoff(data: dict[str, Any], plan: HistoricalValidationPlan) -> int | None:

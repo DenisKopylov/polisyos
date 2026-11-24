@@ -1022,7 +1022,10 @@ class TestFunnelOrchestrator:
         assert outcome.lesson_refs
         assert lesson_registry.top_patterns(limit=5)[0].kind.value == "success"
 
-    def test_persisted_funnel_lesson_reaches_native_generator_with_live_scope(self, tmp_path):
+    @pytest.mark.parametrize("typed_context", [False, True], ids=["json-subject", "typed-subject"])
+    def test_persisted_funnel_lesson_reaches_native_generator_with_live_scope(
+        self, tmp_path, typed_context
+    ):
         store_root = tmp_path / ".polisyos"
         registry_root = tmp_path / "lessons"
         store = FileSystemCAS(store_root)
@@ -1078,7 +1081,11 @@ class TestFunnelOrchestrator:
                     stage_b_evaluator=lambda _candidate, _context: {},
                 )
                 context = {
-                    "transfer_context": target.model_dump(mode="json", exclude_unset=True),
+                    "transfer_context": (
+                        target
+                        if typed_context
+                        else target.model_dump(mode="json", exclude_unset=True)
+                    ),
                     "lesson_registry": LessonRegistry(
                         root=registry_root, store=FileSystemCAS(store_root)
                     ),

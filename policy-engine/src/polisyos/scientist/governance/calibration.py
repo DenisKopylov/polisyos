@@ -49,6 +49,7 @@ from polisyos.scientist.methods.search.registry_contracts import (
     publish_lesson_card,
     resolve_lesson_record_local,
 )
+from polisyos.scientist.methods.search.transfer_context import TransferContext
 
 
 class CalibrationPassResult(BaseModel):
@@ -97,6 +98,16 @@ class CalibrationAdversarialResult(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+class PredictiveLessonSelection(BaseModel):
+    """Select a scoped candidate-only lesson based on a persisted prediction reassessment."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    evidence_ref: ArtifactRef
+    prior_lesson_ref: ArtifactRef | None = None
+    context: TransferContext
+
+
 class CalibrationGovernanceInput(BaseModel):
     """Inputs required to run calibration governance over a candidate policy.
 
@@ -117,6 +128,7 @@ class CalibrationGovernanceInput(BaseModel):
     params: dict[str, Any] = Field(default_factory=dict)
     selection_metadata: dict[str, Any] | None = None
     lesson_registry: object | None = None
+    predictive_lesson: PredictiveLessonSelection | None = None
     active_disambiguation_input: ActiveDisambiguationPlannerInput | None = None
 
 
@@ -217,9 +229,23 @@ class LessonCardPublisher:
         from polisyos.scientist.methods.search.lessons import (
             LessonCard,
             LessonKind,
+            LessonRegistry,
             LessonTrustLevel,
         )
         from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
+
+        if (selection := bundle.predictive_lesson) is not None:
+            if type(bundle.lesson_registry) is not LessonRegistry:
+                raise TypeError("selected predictive lesson requires the stock lesson registry")
+            context = resolve_transfer_context(
+                transfer_context=selection.context, run_id=bundle.run_id
+            )
+            return bundle.lesson_registry.record_predictive_assessment(
+                selection.evidence_ref,
+                candidate_ref=bundle.candidate_ref,
+                prior_lesson_ref=selection.prior_lesson_ref,
+                context=context,
+            )
 
         selected_record_local = record_local
         if selected_record_local is None:

@@ -6,6 +6,7 @@ import math
 import os
 import re
 from collections.abc import Iterable, Mapping
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from enum import Enum
 from hashlib import sha256
@@ -17,7 +18,12 @@ from uuid import uuid4
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
 from polisyos.common.timestamps import ensure_utc, parse_iso_datetime
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir import FailureSeverity, TypedFailureCard
@@ -45,6 +51,9 @@ from polisyos.scientist.methods.search.transfer_context import (
 _LESSON_CARD_KIND = "scientist.search.lesson_card"
 _LESSON_INDEX_KIND = "scientist.search.lesson_index"
 _LESSON_TRANSFER_SOURCE_ROLE = "lesson_transfer_source"
+_PREDICTIVE_LESSON_TYPE = "selected_predictive_reassessment"
+_SELECTED_ASSESSMENT = "selected_lesson_assessment"
+_PREVIOUS_ASSESSMENT = "prior_lesson_assessment"
 _LESSON_CARD_SCHEMA = SchemaInfo(name="polisyos.scientist.search.LessonCard", version="2.0")
 _LESSON_INDEX_SCHEMA = SchemaInfo(
     name="polisyos.scientist.search.LessonIndexSnapshot",
@@ -102,6 +111,19 @@ class LessonCard(BaseModel):
     failure_card_refs: list[ArtifactRef] = Field(default_factory=list)
     trace_refs: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+@dataclass(frozen=True, slots=True)
+class _PredictiveLessonBasis:
+    report_id: str
+    observed_at: datetime
+    candidate_id: str
+    candidate_profile: str
+    selected_subject: tuple[tuple[str, str, str], ...]
+    method: tuple[str, str, str, float]
+    observed_data_id: str
+    observed_rows: tuple[tuple[str, float], ...]
+    interval_hits: int
 
 
 class LessonQuery(BaseModel):
@@ -576,7 +598,228 @@ class LessonRegistry:
         *,
         context: TransferContext | None = None,
     ) -> ArtifactRef:
+        if card.failure_type == _PREDICTIVE_LESSON_TYPE:
+            raise ValueError("predictive assessment requires selected evidence")
         return self._record_local(card, context=context)
+
+    def record_predictive_assessment(
+        self,
+        evidence_ref: ArtifactRef,
+        *,
+        candidate_ref: ArtifactRef,
+        prior_lesson_ref: ArtifactRef | None,
+        context: TransferContext,
+    ) -> ArtifactRef:
+        """Write a candidate-only lesson from a new selected predictive observation.
+
+        Args:
+            evidence_ref: Exact current predictive evidence verified against numerical inputs.
+            candidate_ref: The exact candidate source selected by the evidence report.
+            prior_lesson_ref: Current assessed lesson to supersede, if there is one.
+            context: Destination whose tenant must resolve through the live owner.
+
+        Returns:
+            The selected immutable lesson with its current basis and predecessor edges.
+        """
+        from polisyos.core.artifacts import read_core_manifest_profile
+
+        target = resolve_transfer_context(transfer_context=context)
+        if target.tenant_scope_status is not TransferTenantScopeStatus.AUTHENTICATED:
+            raise ValueError("predictive lesson requires live authenticated scope")
+        basis = self._selected_predictive_basis(evidence_ref)
+        if (
+            str(candidate_ref.artifact_id) != basis.candidate_id
+            or candidate_ref.manifest_profile_sha256 != basis.candidate_profile
+            or basis.observed_at > target.timestamp
+        ):
+            raise ValueError("selected evidence does not match the lesson subject or cutoff")
+        read_core_manifest_profile(self._store, candidate_ref)
+
+        snapshot = self.index_snapshot(context=target)
+        previous = next(
+            (
+                entry
+                for entry in snapshot.entries
+                if entry.failure_type == _PREDICTIVE_LESSON_TYPE
+                and not entry.invalidated
+                and entry.candidate_hash == basis.candidate_id
+            ),
+            None,
+        )
+        inputs = [input_ref_from_artifact_ref(evidence_ref, role=_SELECTED_ASSESSMENT)]
+        if prior_lesson_ref is not None:
+            if previous is None or previous.artifact_ref != prior_lesson_ref:
+                raise ValueError("current predictive lesson predecessor is not selected")
+            old_card = load_lesson_card(self._store, previous.artifact_ref)
+            old_basis = self._predictive_card_basis(previous.artifact_ref, old_card)
+            if (
+                old_basis.selected_subject != basis.selected_subject
+                or old_basis.method != basis.method
+                or tuple(name for name, _ in old_basis.observed_rows)
+                != tuple(name for name, _ in basis.observed_rows)
+            ):
+                raise ValueError("predictive lesson assessment subject changed")
+            if (
+                basis.observed_at <= old_basis.observed_at
+                or basis.observed_data_id == old_basis.observed_data_id
+                or basis.observed_rows == old_basis.observed_rows
+            ):
+                raise ValueError("predictive lesson reassessment requires new observations")
+            previous.invalidated = True
+            previous.invalidation_reason = "superseded_by_selected_predictive_assessment"
+            inputs.append(input_ref_from_artifact_ref(prior_lesson_ref, role=_PREVIOUS_ASSESSMENT))
+        elif previous is not None:
+            raise ValueError("existing predictive lesson requires its selected predecessor")
+
+        card = LessonCard(
+            kind=LessonKind.OPPORTUNITY,
+            summary="Review the recomputed outcomes for this selected predictive profile.",
+            failure_type=_PREDICTIVE_LESSON_TYPE,
+            stage_name="calibration_governance",
+            fidelity_level=0,
+            candidate_hash=basis.candidate_id,
+            source_run_id=basis.report_id,
+            created_at=basis.observed_at,
+            confidence=0.5,
+            trust_level=LessonTrustLevel.LOW_CONFIDENCE,
+            tags=["predictive_interval_coverage", basis.candidate_id],
+            metadata={
+                "empirical_source_status": "not_established",
+                "recomputed_interval_hits": basis.interval_hits,
+                "recomputed_observation_count": len(basis.observed_rows),
+                "prior_lesson_ref": (
+                    prior_lesson_ref.model_dump(mode="json")
+                    if prior_lesson_ref is not None
+                    else None
+                ),
+            },
+        )
+        return self._record_local(card, context=target, inputs=inputs, snapshot=snapshot)
+
+    def _selected_predictive_basis(self, ref: ArtifactRef) -> _PredictiveLessonBasis:
+        """Reconcile the selected report, its observed rows, and its subject evidence."""
+        from polisyos.calibration.forecast_bridge import (
+            EVIDENCE_SCHEMA_VERSION,
+            EmpiricalCalibrationEvidenceRef,
+            load_empirical_calibration_evidence,
+        )
+        from polisyos.core.artifacts import ensure_ir_artifact_store
+        from polisyos.ir.analytics.backtest import load_backtest_report
+
+        if ref.manifest_profile_sha256 is None:
+            raise ValueError("predictive lesson requires selected evidence")
+        typed = EmpiricalCalibrationEvidenceRef.model_validate(ref.model_dump(mode="python"))
+        evidence = load_empirical_calibration_evidence(self._store, typed)
+        if (
+            evidence.schema_version != EVIDENCE_SCHEMA_VERSION
+            or not evidence.context_bound
+            or evidence.failure_codes != ("backtest_source_not_established",)
+            or evidence.observation_time is None
+            or evidence.method_ref is None
+            or evidence.method_version is None
+            or evidence.rule_version_ref is None
+            or evidence.calibration_threshold is None
+            or evidence.recomputed_denominator < 1
+        ):
+            raise ValueError("selected evidence lacks the bounded predictive row assessment")
+        ir_store = ensure_ir_artifact_store(self._store)
+        manifest = ir_store.get_manifest(evidence.report_ref)
+        subject_roles = ("candidate_source", "model_spec", "policy_spec", "calibration_rule")
+        selected: dict[str, tuple[str, str]] = {}
+        for role in (*subject_roles, "observed_data"):
+            edges = [item for item in manifest.inputs if item.role == role]
+            if len(edges) != 1 or edges[0].manifest_profile_sha256 is None:
+                raise ValueError(
+                    "selected evidence lacks an exact subject or observed-data profile"
+                )
+            selected[role] = (str(edges[0].artifact_id), edges[0].manifest_profile_sha256)
+        report = load_backtest_report(ir_store, evidence.report_ref)
+        rows = tuple(
+            (row.metric_name, row.y_true)
+            for scenario in report.scenarios
+            for row in scenario.outcome_comparisons
+            if row.within_ci is not None
+        )
+        if len(rows) != evidence.recomputed_denominator:
+            raise ValueError("selected evidence no longer reconciles its observed rows")
+        candidate_id, candidate_profile = selected["candidate_source"]
+        return _PredictiveLessonBasis(
+            report_id=evidence.report_id,
+            observed_at=evidence.observation_time,
+            candidate_id=candidate_id,
+            candidate_profile=candidate_profile,
+            selected_subject=tuple((role, *selected[role]) for role in subject_roles),
+            method=(
+                evidence.method_ref,
+                evidence.method_version,
+                evidence.rule_version_ref,
+                evidence.calibration_threshold,
+            ),
+            observed_data_id=selected["observed_data"][0],
+            observed_rows=rows,
+            interval_hits=evidence.recomputed_numerator,
+        )
+
+    def _predictive_card_basis(self, ref: ArtifactRef, card: LessonCard) -> _PredictiveLessonBasis:
+        """Check a retained lesson against its exact selected assessment and history."""
+        from polisyos.calibration.forecast_bridge import EVIDENCE_KIND
+        from polisyos.core.artifacts import read_core_manifest_profile
+
+        manifest, _ = read_core_manifest_profile(self._store, ref)
+        inputs = {item.role: item for item in manifest.inputs}
+        expected_roles = {_SELECTED_ASSESSMENT}
+        prior_payload = card.metadata.get("prior_lesson_ref")
+        if prior_payload is not None:
+            prior_ref = ArtifactRef.model_validate(prior_payload)
+            expected_roles.add(_PREVIOUS_ASSESSMENT)
+            if prior_ref.manifest_profile_sha256 is None or inputs.get(
+                _PREVIOUS_ASSESSMENT
+            ) != input_ref_from_artifact_ref(prior_ref, role=_PREVIOUS_ASSESSMENT):
+                raise ValueError("predictive lesson predecessor edge differs")
+            prior = load_lesson_card(self._store, prior_ref)
+            if (
+                prior.failure_type != _PREDICTIVE_LESSON_TYPE
+                or prior.candidate_hash != card.candidate_hash
+                or prior.task_family != card.task_family
+                or prior.domain != card.domain
+                or prior.origin_tenant_hash != card.origin_tenant_hash
+                or prior.origin_tenant_scope_status is not card.origin_tenant_scope_status
+                or prior.created_at >= card.created_at
+            ):
+                raise ValueError("predictive lesson predecessor subject differs")
+        if set(inputs) != expected_roles or len(inputs) != len(manifest.inputs):
+            raise ValueError("predictive lesson assessment edge differs")
+        selected = inputs[_SELECTED_ASSESSMENT]
+        basis = self._selected_predictive_basis(
+            ArtifactRef(
+                artifact_id=selected.artifact_id,
+                kind=EVIDENCE_KIND,
+                media_type="application/json",
+                manifest_profile_sha256=selected.manifest_profile_sha256,
+            )
+        )
+        if (
+            card.candidate_hash != basis.candidate_id
+            or card.created_at != basis.observed_at
+            or card.source_run_id != basis.report_id
+            or card.kind is not LessonKind.OPPORTUNITY
+            or card.confidence != 0.5
+            or card.trust_level is not LessonTrustLevel.LOW_CONFIDENCE
+            or card.metadata.get("empirical_source_status") != "not_established"
+            or card.metadata.get("recomputed_interval_hits") != basis.interval_hits
+            or card.metadata.get("recomputed_observation_count") != len(basis.observed_rows)
+        ):
+            raise ValueError("predictive lesson differs from its selected assessment")
+        return basis
+
+    def _has_current_lesson_assessment(self, ref: ArtifactRef, card: LessonCard) -> bool:
+        if card.failure_type != _PREDICTIVE_LESSON_TYPE:
+            return True
+        try:
+            self._predictive_card_basis(ref, card)
+        except (FileNotFoundError, ValueError, TransferScopeRefusedError):
+            return False
+        return True
 
     def _record_local(
         self,
@@ -584,6 +827,7 @@ class LessonRegistry:
         *,
         context: TransferContext | None = None,
         inputs: list[InputRef] | None = None,
+        snapshot: LessonIndexSnapshot | None = None,
     ) -> ArtifactRef:
         target = resolve_transfer_context(
             transfer_context=context,
@@ -598,7 +842,8 @@ class LessonRegistry:
         card_ref = _write_lesson_card(
             self._store, normalized_card, inputs=inputs, return_selected_profile=bool(inputs)
         )
-        snapshot = self.index_snapshot(context=target)
+        if snapshot is None:
+            snapshot = self.index_snapshot(context=target)
         signature = _normalized_signature(normalized_card)
         now = normalized_card.created_at
 
@@ -1489,6 +1734,8 @@ class LessonRegistry:
             selected_transfer_source = self._active_transfer_parent(entry.artifact_ref, normalized)
             if selected_transfer_source is None:
                 return None
+        elif not self._has_current_lesson_assessment(entry.artifact_ref, normalized):
+            return None
         selected_domain = (
             selected_transfer_source.domain
             if selected_transfer_source is not None
@@ -1526,7 +1773,7 @@ class LessonRegistry:
             current, current_ref = resolved
             if direct_parent is None:
                 direct_parent = current
-        return direct_parent
+        return direct_parent if self._has_current_lesson_assessment(current_ref, current) else None
 
     def _resolve_transfer_parent(
         self,

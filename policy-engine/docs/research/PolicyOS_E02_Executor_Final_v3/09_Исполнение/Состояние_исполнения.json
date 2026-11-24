@@ -21573,8 +21573,8 @@
       "local_qualification": "PARTIAL",
       "capability_acceptance": "NOT_RUN",
       "current_execution": {
-        "status": "ACTIVE. Eight packets, 61 requirements and 60 test contracts. All original product defects have local repairs. 50 named local profiles qualify, 8 are partial and 3 lack deciding qualification. Shared E02-I03-A/B/C remain open.",
-        "next": "Qualify exact temporal source selection, scope-bound measured observations, declared unit comparability, positive predictive interval and served calibration. Preserve existing owner limits and verify all three common-source scenarios.",
+        "status": "ACTIVE. Eight packets, 61 requirements and 60 test contracts. All original product defects have local repairs. 56 named local profiles qualify, 3 are partial and 2 lack deciding qualification. E02-I03-B qualifies. Shared E02-I03-A and E02-I03-C remain open.",
+        "next": "Complete the public scoped EMP/conditional summary and DA-07 replay for E02-I03-A, the prospective-versus-retrospective distinction for FRC-02-07, and the scientific and budget/report common variants in E02-I03-C.",
         "frc01_calibration_summary": {
           "scope": "REQ-FRC-01-01. S10 and G2 preserve descriptive counts while carrying only an admitted compatible floor. 10/10 limited, genuine 95/100 preserved. Removed records, tampered status and a foreign envelope refuse admission. 55 affected tests pass, with a separate exact old-mechanism failure and changed-import pass.",
           "output": "Primary:policy-engine/_cache/e02/frc01-01-envelope-green.rQmKbNmu/",
@@ -21692,6 +21692,17 @@
           "utc": "2026-11-24T09:03:28.570763+00:00",
           "output": "Primary:policy-engine/_cache/e02/lane03-emp07-luna.p1oc55ln/",
           "scope": "Synthetic candidate graph only. Exact output refused by stock native authority owner without selected graph evidence."
+        },
+        "e02_i03_b": {
+          "status": "QUALIFIED_NAMED_PROFILE",
+          "source_commit": "1f7f1920c6b31e246f652d61d9b07c1ba97d5d39",
+          "evidence_refs": [
+            "frc_integrated_holdout_and_v7_legacy",
+            "frc02_v7_actual_fiscal",
+            "frc02_v7_actual_gdp_fresh",
+            "frc02_v7_dashboard_stock_and_fallback"
+          ],
+          "scope": "Actual served ETS and exact historical compatibility, predictive only. Independent deciding variants preserve the original test and binding denominator."
         }
       },
       "transition_evidence": [],
@@ -39306,7 +39317,7 @@
       "track_id": "03-A",
       "track_position": 1,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": null,
       "base_commit": null,
@@ -39392,6 +39403,27 @@
           "output": "Primary:policy-engine/_cache/e02/emp01-llm-hypothesis-20261124-r2/",
           "result": "PASS exact real synthetic GPT-6 Luna candidate raw bytes fail without selected graph custody; retained 200-row AIPW point and interval remain search_only and consumer_asserted, authority marker controls fail. No offline provider/solver/N8 calls.",
           "guard_sha256": "e20ab07cfe133636cae1d1615109b59b62a2bebf22a2a934bcfc4bc3d9a5e00d"
+        },
+        {
+          "id": "emp05_signed_scope_sql_fresh_n8",
+          "output": "Primary:policy-engine/_cache/e02/emp05-n8-scoped-sql-20261124-r1/",
+          "result": "Stock signed Catalog rows before SQL cap and exact per-role dataset versions select 120 of 240 rows. Actual AIPW and a fresh N8 replay retain candidate authority and refuse foreign, missing or changed selected scopes.",
+          "source_commit": "044e29eb5",
+          "guard_sha256": "dbb0838baa8b561e12dd5e6cc3d9d3031ff1b101dd35a4cd0275b8b25095c1cf"
+        },
+        {
+          "id": "emp05_v2_width_and_scope_history",
+          "output": "Primary:policy-engine/_cache/e02/emp05-n8-scope-v2-golden-20261124-r1/",
+          "result": "Retained v2 source profile exact golden hash and compatible V1 request roundtrip.",
+          "source_commit": "044e29eb5",
+          "guard_sha256": "a39b96bf9f5bb7d8c23cfe7b8a70ee6b6f613a2abac799c5f479ae869b5a7c5b"
+        },
+        {
+          "id": "emp05_historical_v1_fresh_owner",
+          "output": "Primary:policy-engine/_cache/e02/emp05-v1-source-replay-20261124-r1/",
+          "result": "Actual historical V1 source/unit and registered method path still reopens the same qualified interval on an independent owner. A foreign selected profile refuses.",
+          "source_commit": "044e29eb5",
+          "guard_sha256": "488a0dee68ad3f5347f00b41805597cf11f2a4403598583a88a8efb44a9bb647"
         }
       ],
       "blockers": [],
@@ -39476,8 +39508,8 @@
         {
           "requirement_id": "REQ-EMP-01-05",
           "test_id": "TEST-EMP-01-05",
-          "status": "PARTIAL",
-          "basis": "Current signed v2/v3 Catalog scope owner selects exact active physical rows, source version, scope and source graph. Scope, bytes and refused inputs replay correctly.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Stock Catalog, SQL and N8 resolve per-role signed entity/population/time scope and dataset version before the row limit. Two populations with equal numerical values retain different exact profiles. Fresh replay refuses version/no-match, changed scope, wrong/missing/additional signed request edges and raw withdrawal; exact restoration succeeds. Historical candidate reads remain scoped to the format actually stored.",
           "criterion_pointer": "04_Трассировка/EMP-01.json#/requirements/4",
           "test_ids": [
             "TEST-EMP-01-05"
@@ -39485,13 +39517,13 @@
           "binding_ids": [
             "E02-I03-A-B01"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
-            "emp01_exact_catalog_scope_owner"
+            "emp05_signed_scope_sql_fresh_n8",
+            "emp05_v2_width_and_scope_history",
+            "emp05_historical_v1_fresh_owner"
           ],
-          "remaining_kinds": [
-            "exact_scope_through_N8_SQL_before_cap_and_cold_reader"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-EMP-01-06",
@@ -39558,7 +39590,7 @@
       "track_id": "03-A",
       "track_position": 2,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": null,
       "base_commit": null,
@@ -39634,6 +39666,27 @@
           "result": "137 PASS, package typecheck and lint. Dashboard parses exact served v6 body with limited observations; same-byte foreign ref refuses, v2-v5 canonical compatibility preserved.",
           "source_commit": "9c1f3047400d6affd19afc233fba43b1466e0fc4",
           "guard_sha256": "396f0f617cd7910d16aa9cfe303e119bdb246a831b2ef9d7b27fa4424e0070b1"
+        },
+        {
+          "id": "frc02_v7_actual_fiscal",
+          "output": "Primary:policy-engine/_cache/e02/frc02-v7-fiscal-served-r1.xDVUiEvm/",
+          "result": "Actual fiscal balance, 3/4 of the 2021–24 held-out intervals in USD, persisted selected v7 association, fresh relation matched/withdrawn/restored and blocked S10.",
+          "source_commit": "1f7f1920c",
+          "guard_sha256": "b330c302831d6a360620a5cc0ba335d6e8c54e26c9403d628982f1bba5d774dd"
+        },
+        {
+          "id": "frc02_v7_actual_gdp_fresh",
+          "output": "Primary:policy-engine/_cache/e02/frc02-v7-gdp-retained-cold-r2.zzbS2ujX/",
+          "result": "Independently reopened actual selected GDP v7. Coverage 3/4 at nominal .90; optional exact relation withdrawal leaves the same association and coverage, then restores the same relation. Expected read-audit append independently reconciled.",
+          "source_commit": "1f7f1920c",
+          "guard_sha256": "44370b927959a0b6ff6227053cab9aa056e0d488a37c81a543d12814d6a3d2b7"
+        },
+        {
+          "id": "frc_integrated_holdout_and_v7_legacy",
+          "output": "Primary:policy-engine/_cache/e02/frc02-v7-retained-v6-coexist.5qrsDuIB/",
+          "result": "Same numerical model bytes and training 10–20, identical point/interval 21–24, changed exact held-out rows give 4/4 versus 0/4. Fresh v7 reopens exact v6 GET/retries with no computation and retains predictive-only/blocked. Full method provenance differs in Git/path fields.",
+          "source_commit": "1f7f1920c",
+          "guard_sha256": "1ba99b99d157c7e3f6e3bf630f8efd11a7c9277376c302faff69226a9f336965"
         }
       ],
       "blockers": [],
@@ -39717,8 +39770,8 @@
         {
           "requirement_id": "REQ-FRC-01-05",
           "test_id": "TEST-FRC-01-05",
-          "status": "PARTIAL",
-          "basis": "Useful fixed-v6 conditional interval survives served projection while the unestablished outcome and source keep authority blocked. Existing actual S10/G2 checks keep independent purpose denials.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual v6/v7 useful predictive intervals remain visible. GDP and fiscal fresh relation withdrawal preserves independently measured series coverage without comparable outcome authority. The governed S10/G2 consumer preserves scope, blocked tier and its purpose denials.",
           "criterion_pointer": "04_Трассировка/FRC-01.json#/requirements/4",
           "test_ids": [
             "TEST-FRC-01-02",
@@ -39729,14 +39782,15 @@
           "binding_ids": [
             "E02-I03-A-B02"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
             "frc01_selected_support_v6",
-            "frc_v6_cold_resolved_target"
+            "frc01_s10_g2_admitted_floor",
+            "frc_v6_cold_resolved_target",
+            "frc02_v7_actual_fiscal",
+            "frc02_v7_actual_gdp_fresh"
           ],
-          "remaining_kinds": [
-            "v7_actual_outcome_relation_withdrawal"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-FRC-01-06",
@@ -40054,6 +40108,34 @@
           "result": "Actual earlier writers produced exact v1.0 and v1.1 artifacts. Fresh versioned read preserves old report semantics and absent 1.0 nominal, refuses changed identities, repersist or present S10 authority.",
           "source_commit": "57523bd49",
           "guard_sha256": "26f7a636ee4a753319c43397f686e73c008f3d5d9fcc08bd102cddeaaef46491"
+        },
+        {
+          "id": "frc02_v7_actual_fiscal",
+          "output": "Primary:policy-engine/_cache/e02/frc02-v7-fiscal-served-r1.xDVUiEvm/",
+          "result": "Actual fiscal balance, 3/4 of the 2021–24 held-out intervals in USD, persisted selected v7 association, fresh relation matched/withdrawn/restored and blocked S10.",
+          "source_commit": "1f7f1920c",
+          "guard_sha256": "b330c302831d6a360620a5cc0ba335d6e8c54e26c9403d628982f1bba5d774dd"
+        },
+        {
+          "id": "frc02_v7_actual_gdp_fresh",
+          "output": "Primary:policy-engine/_cache/e02/frc02-v7-gdp-retained-cold-r2.zzbS2ujX/",
+          "result": "Independently reopened actual selected GDP v7. Coverage 3/4 at nominal .90; optional exact relation withdrawal leaves the same association and coverage, then restores the same relation. Expected read-audit append independently reconciled.",
+          "source_commit": "1f7f1920c",
+          "guard_sha256": "44370b927959a0b6ff6227053cab9aa056e0d488a37c81a543d12814d6a3d2b7"
+        },
+        {
+          "id": "frc_integrated_holdout_and_v7_legacy",
+          "output": "Primary:policy-engine/_cache/e02/frc02-v7-retained-v6-coexist.5qrsDuIB/",
+          "result": "Same numerical model bytes and training 10–20, identical point/interval 21–24, changed exact held-out rows give 4/4 versus 0/4. Fresh v7 reopens exact v6 GET/retries with no computation and retains predictive-only/blocked. Full method provenance differs in Git/path fields.",
+          "source_commit": "1f7f1920c",
+          "guard_sha256": "1ba99b99d157c7e3f6e3bf630f8efd11a7c9277376c302faff69226a9f336965"
+        },
+        {
+          "id": "frc02_v7_dashboard_stock_and_fallback",
+          "output": "Primary:policy-engine/_cache/e02/frc02-v7-dashboard-fiscal-fallback.ugTuC9br/",
+          "result": "Exact v7 wire from two actual serves, range/source/authority controls and stock display preserving USD metric and series coverage without a relation. Generated ABI/SDK parity passes separately.",
+          "source_commit": "1f7f1920c",
+          "guard_sha256": "07012bdd9d4f982910472d1bcb0194dbc746ad4080733b90fc35edfe4afdbaa1"
         }
       ],
       "blockers": [],
@@ -40105,8 +40187,8 @@
         {
           "requirement_id": "REQ-FRC-02-03",
           "test_id": "TEST-FRC-02-03",
-          "status": "PARTIAL",
-          "basis": "The actual stock forecast owner, native CAS, canonical evidence loader and fresh HTTP v6 association are verified in a predictive-only limited profile.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Stock ForecastOwner and registered numerical producer run through CAS, canonical report/evidence, concrete operation intent/event and independent fresh run-bound API/S10. Existing exact selected source and model/rule/time counterexamples deny false qualification. Real shadow provenance is disclosed in the paired v6 holdout supplement.",
           "criterion_pointer": "04_Трассировка/FRC-02.json#/requirements/2",
           "test_ids": [
             "TEST-FRC-02-03",
@@ -40115,20 +40197,20 @@
           "binding_ids": [
             "E02-I03-B-B02"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
             "frc_holdout_and_temporal_owner",
-            "frc_v6_cold_resolved_target"
+            "frc_v6_cold_resolved_target",
+            "frc02_v7_actual_fiscal",
+            "frc_integrated_holdout_and_v7_legacy"
           ],
-          "remaining_kinds": [
-            "served_source_reconciled_v7_and_shared_mutation_matrix"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-FRC-02-04",
           "test_id": "TEST-FRC-02-04",
-          "status": "PARTIAL",
-          "basis": "Stock N4 source and actual model/world and Catalog owners bind the selected annual observable GDP profile. Exact candidate, period/location, unit and denials remain visible.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The selected effective WMR and exact N4 model slot bind the declared annual observed target, source member, representation, USD unit, calendar and descriptive role. Fresh API rederives the exact relation and preserves the same separate series coverage when its selected ref is withdrawn. The sole positive authority is candidate predictive support.",
           "criterion_pointer": "04_Трассировка/FRC-02.json#/requirements/3",
           "test_ids": [
             "TEST-FRC-02-05",
@@ -40138,19 +40220,20 @@
             "E02-I03-B-B03",
             "E02-X04-B04"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
-            "frc02_selected_observed_level_owner"
+            "frc02_selected_observed_level_owner",
+            "frc02_v7_actual_fiscal",
+            "frc02_v7_actual_gdp_fresh",
+            "frc02_v7_dashboard_stock_and_fallback"
           ],
-          "remaining_kinds": [
-            "served_selected_relation_and_partial_removal"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-FRC-02-05",
           "test_id": "TEST-FRC-02-05",
-          "status": "PARTIAL",
-          "basis": "Source/profile owner remains authoritative over candidate hypothesis. Exact observed role and disposition do not infer issuer, population completeness or release time. Shared annual representation resolves GDP and fiscal revenues.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Stock owner derives usable partial relation for two distinct metrics, GDP output and fiscal balance, with one shared semantic mechanism. Unknown issuer/release and population applicability remain explicit. Same-content foreign, wrong unit/profile and unverified relation cannot substitute for the owner.",
           "criterion_pointer": "04_Трассировка/FRC-02.json#/requirements/4",
           "test_ids": [
             "TEST-FRC-02-05",
@@ -40159,13 +40242,13 @@
           "binding_ids": [
             "E02-I03-B-B03"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
-            "frc02_selected_observed_level_owner"
+            "frc02_selected_observed_level_owner",
+            "frc02_v7_actual_fiscal",
+            "frc02_v7_actual_gdp_fresh"
           ],
-          "remaining_kinds": [
-            "second_producer_metric_via_served_ForecastOwner"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-FRC-02-06",
@@ -40206,6 +40289,32 @@
           "remaining_kinds": [
             "retrospective_ForecastOwner_temporal_admission"
           ]
+        },
+        {
+          "requirement_id": "REQ-FRC-02-08",
+          "test_id": "TEST-FRC-02-08",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual fresh S10 and stock Dashboard retain 3/4 at nominal .90, exact target and USD levels, while counterfactual, population, release-time and issuer authority remain unestablished. Core safety/world/candidate and exact source temporal roles survive source withdrawal/restoration without a new forecast or authority promotion.",
+          "criterion_pointer": "04_Трассировка/FRC-02.json#/requirements/7",
+          "test_ids": [
+            "TEST-FRC-02-03",
+            "TEST-FRC-02-04",
+            "TEST-FRC-02-05",
+            "TEST-FRC-02-06",
+            "TEST-FRC-02-08"
+          ],
+          "binding_ids": [
+            "E02-I03-B-B02",
+            "E02-X04-B04"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "frc02_v7_actual_fiscal",
+            "frc02_v7_actual_gdp_fresh",
+            "frc02_v7_dashboard_stock_and_fallback",
+            "frc_integrated_holdout_and_v7_legacy"
+          ],
+          "remaining_kinds": []
         }
       ]
     },
@@ -40487,7 +40596,7 @@
       "track_id": "03-B",
       "track_position": 2,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": null,
       "base_commit": null,
@@ -40549,6 +40658,13 @@
           "result": "16 focused tests. Persisted chronological policy, known/unknown and distinct metric default split, exact dimensional conversions, stable micro and separate weighted macro, source-row and foreign identity controls.",
           "source_commit": "6a465f4ee",
           "guard_sha256": "ff107e93b77dc5b4ca2c7aee3a04f9227e99156b2b25509162ad13f02d0c8fda"
+        },
+        {
+          "id": "bkt02_persisted_range_c5b_full_packet",
+          "output": "Primary:policy-engine/_cache/e02/bkt-c-range-packet-r1.tcjYNHRK/",
+          "result": "Stock PROVIDED evaluator, fresh CAS, C5b and full WorkflowExecutor packet retain 2 of 4 cells, finite MAE/RMSE, addressed overflow/invalid/missing and no trust; exact packet report edge. No Foundry work.",
+          "source_commit": "6cb9dcd02",
+          "guard_sha256": "7c20f7ee978eb6caa03ba500486929d53d30fd91f58a41ce0bb73c11b64c7448"
         }
       ],
       "blockers": [],
@@ -40591,7 +40707,8 @@
           "assessment": "selected_profile_qualified",
           "evidence_refs": [
             "bkt_range_and_bias_composed",
-            "bkt_native_macro_read"
+            "bkt_native_macro_read",
+            "bkt02_persisted_range_c5b_full_packet"
           ],
           "remaining_kinds": []
         },
@@ -40689,7 +40806,8 @@
           "evidence_refs": [
             "bkt_exact_native_model_interval",
             "bkt_range_and_bias_composed",
-            "bkt_c5b_native_selected_report"
+            "bkt_c5b_native_selected_report",
+            "bkt02_persisted_range_c5b_full_packet"
           ],
           "remaining_kinds": []
         },
@@ -40710,7 +40828,8 @@
           "evidence_refs": [
             "bkt_range_and_bias_composed",
             "bkt02_prepersisted_pooling_and_scope",
-            "bkt_c5b_native_selected_report"
+            "bkt_c5b_native_selected_report",
+            "bkt02_persisted_range_c5b_full_packet"
           ],
           "remaining_kinds": []
         }

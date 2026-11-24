@@ -10,6 +10,8 @@ import pytest
 from polisyos.scientist.methods.search.objective import (
     BudgetDeficitObjective,
     ObjectiveScoreStatus,
+    _assess_default_search_objective,
+    _evaluate_configured_objective_source,
 )
 
 # A declared fixture unit exercises generic binding only; it is not a production fiscal claim.
@@ -171,17 +173,10 @@ def test_budget_deficit_marks_missing_metric_unusable() -> None:
 
 
 @pytest.mark.parametrize("balance", [math.nan, math.inf, -math.inf])
-def test_budget_deficit_keeps_non_finite_metric_unusable(balance: float) -> None:
-    """Non-finite measurements fail after a valid fixture unit is supplied."""
-    results = {
-        "gov_balance": balance,
-        "budget_deficit": 100.0,
-        "metric_units": {
-            "gov_balance": FISCAL_UNIT_FIXTURE,
-            "budget_deficit": FISCAL_UNIT_FIXTURE,
-        },
-    }
-    evaluated = BudgetDeficitObjective(expected_unit=FISCAL_UNIT_FIXTURE).evaluate(results)
+def test_budget_deficit_invalid_stock_does_not_supply_a_period_measurement(balance: float) -> None:
+    evaluated = BudgetDeficitObjective(expected_unit=FISCAL_UNIT_FIXTURE).evaluate(
+        {"gov_balance": balance, "metric_units": {"gov_balance": FISCAL_UNIT_FIXTURE}}
+    )
 
     assert math.isnan(evaluated.raw_value)
     assert evaluated.score_status is ObjectiveScoreStatus.INVALID
@@ -202,9 +197,61 @@ def test_budget_deficit_rejects_boolean_measurements(value: bool) -> None:
     assert evaluated.is_satisfied is False
 
 
-def test_budget_deficit_rejects_conflicting_balance_and_deficit_families() -> None:
-    """The original cross-family conflict fails with explicit units on both inputs."""
-    evaluated = BudgetDeficitObjective(expected_unit=FISCAL_UNIT_FIXTURE).evaluate(
+@pytest.mark.parametrize("balance", [0.0, -77.0, math.inf])
+def test_period_deficit_keeps_a_separate_stock_outside_its_measurement_basis(
+    balance: float,
+) -> None:
+    objective = BudgetDeficitObjective(expected_unit=FISCAL_UNIT_FIXTURE)
+    source = {"budget_deficit": 7.0, "metric_units": {"budget_deficit": FISCAL_UNIT_FIXTURE}}
+    combined = {
+        **source,
+        "gov_balance": balance,
+        "metric_units": {**source["metric_units"], "gov_balance": "eur"},
+    }
+
+    direct = objective.evaluate(source)
+    observed = objective.evaluate(combined)
+    assert observed.score_status is ObjectiveScoreStatus.AVAILABLE
+    assert observed.raw_value == 7.0
+    assert observed.score_assessment == direct.score_assessment
+    assert observed.score_assessment is not None
+    assert observed.score_assessment.source_values == (("budget_deficit", 7.0),)
+    assert observed.score_assessment.source_unit_bindings == (("budget_deficit", "usd"),)
+
+
+def test_default_scalar_rechecks_period_deficit_without_binding_the_stock() -> None:
+    source = {
+        "gdp_change": 2.0,
+        "budget_deficit": 7.0,
+        "budget_deficit_objective_usable": True,
+        "budget_deficit_objective_value": 7.0,
+        "metric_units": {"budget_deficit": "usd", "gdp_change": "usd"},
+    }
+    direct = _assess_default_search_objective(source, expected_unit=FISCAL_UNIT_FIXTURE)
+    observed = _assess_default_search_objective(
+        {**source, "gov_balance": -2.0}, expected_unit=FISCAL_UNIT_FIXTURE
+    )
+
+    assert observed == direct
+    assert observed.objective_value == 1.5
+    assert observed.score_status is ObjectiveScoreStatus.AVAILABLE
+    assert (
+        _assess_default_search_objective(
+            {**source, "budget_deficit_objective_value": 2.0},
+            expected_unit=FISCAL_UNIT_FIXTURE,
+        ).score_status
+        is ObjectiveScoreStatus.INVALID
+    )
+
+
+def test_legacy_fiscal_rule_replays_its_original_conflict() -> None:
+    assessment = _evaluate_configured_objective_source(
+        {
+            "kind": "budget_deficit",
+            "weight": 1.0,
+            "threshold": None,
+            "expected_unit": FISCAL_UNIT_FIXTURE,
+        },
         {
             "gov_balance": 0.0,
             "budget_deficit": 100.0,
@@ -212,16 +259,11 @@ def test_budget_deficit_rejects_conflicting_balance_and_deficit_families() -> No
                 "gov_balance": FISCAL_UNIT_FIXTURE,
                 "budget_deficit": FISCAL_UNIT_FIXTURE,
             },
-        }
+        },
     )
 
-    assert math.isnan(evaluated.raw_value)
-    assert evaluated.score_status is ObjectiveScoreStatus.INVALID
-    assert evaluated.score_assessment is not None
-    assert evaluated.score_assessment.limitation == (
-        "objective_basis_conflicting_fiscal_measurements"
-    )
-    assert evaluated.is_satisfied is False
+    assert assessment.status is ObjectiveScoreStatus.INVALID
+    assert assessment.limitation == "objective_basis_conflicting_fiscal_measurements"
 
 
 def test_budget_deficit_rejects_conflicting_balance_aliases() -> None:
@@ -242,15 +284,15 @@ def test_budget_deficit_rejects_conflicting_balance_aliases() -> None:
     assert evaluated.is_satisfied is False
 
 
-def test_budget_deficit_rejects_conflicting_unit_views_even_when_score_is_limited() -> None:
-    """A limited score still rejects contradictory source-unit metadata."""
+def test_period_deficit_rejects_conflicting_unit_views_of_the_selected_measurement() -> None:
+    """The selected flow rejects contradictory source-unit metadata."""
     evaluated = BudgetDeficitObjective(expected_unit=FISCAL_UNIT_FIXTURE).evaluate(
         {
-            "gov_balance": -35.0,
-            "metric_units": {"gov_balance": FISCAL_UNIT_FIXTURE},
+            "budget_deficit": 35.0,
+            "metric_units": {"budget_deficit": FISCAL_UNIT_FIXTURE},
             "metrics": {
-                "gov_balance": -35.0,
-                "metric_units": {"gov_balance": "eur"},
+                "budget_deficit": 35.0,
+                "metric_units": {"budget_deficit": "eur"},
             },
         }
     )
@@ -262,7 +304,7 @@ def test_budget_deficit_rejects_conflicting_unit_views_even_when_score_is_limite
 
 @pytest.mark.parametrize(
     ("alias", "value"),
-    [("budget_deficit", 35.0), ("gov_balance", -35.0)],
+    [("budget_deficit", 35.0), ("deficit", -35.0)],
 )
 @pytest.mark.parametrize("unit", ["usd ", "", None, True])
 def test_budget_deficit_rejects_malformed_units_on_present_alias(

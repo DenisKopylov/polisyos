@@ -29,6 +29,7 @@ _INVALID = object()
 _SOURCE_RESULT_CONTAINERS = ("simulation_results", "metrics")
 _BALANCE_ALIASES = ("gov_balance", "government_balance")
 _DEFICIT_ALIASES = ("budget_deficit", "deficit")
+_PERIOD_DEFICIT_RULE_VERSION = "2.0"
 
 
 class SourceMetricObservation(BaseModel):
@@ -1404,20 +1405,25 @@ def _read_finite_numeric_metric(
 
 
 def _assess_search_fiscal_measurement(
-    results: dict[str, Any], *, expected_unit: str | None = None
+    results: dict[str, Any],
+    *,
+    expected_unit: str | None,
+    fiscal_rule_version: str | None,
 ) -> tuple[float | None, ObjectiveScoreStatus]:
-    """Admit the existing fiscal value only when actual aliases support it."""
-    # Explicit null on the primary aliases remains an absence signal under the
-    # B108 fallback contract; malformed non-null values remain invalid.
-    objective = BudgetDeficitObjective(expected_unit=expected_unit).evaluate(results)
+    """Reconcile the reported marker against the selected version of the fiscal rule."""
+    fiscal_spec = {
+        "kind": "budget_deficit",
+        "weight": 1.0,
+        "threshold": None,
+        "expected_unit": expected_unit,
+    }
+    if fiscal_rule_version is not None:
+        fiscal_spec["fiscal_rule_version"] = fiscal_rule_version
+    assessment = _evaluate_configured_objective_source(fiscal_spec, results)
     has_usable_marker = "budget_deficit_objective_usable" in results
     has_value_marker = "budget_deficit_objective_value" in results
     if not has_usable_marker and not has_value_marker:
-        return (
-            (objective.raw_value, ObjectiveScoreStatus.AVAILABLE)
-            if objective.score_status is ObjectiveScoreStatus.AVAILABLE
-            else (None, objective.score_status)
-        )
+        return assessment.value, assessment.status
     if not has_usable_marker or not has_value_marker:
         return None, ObjectiveScoreStatus.INVALID
 
@@ -1427,23 +1433,23 @@ def _assess_search_fiscal_measurement(
     if usable is False:
         if results["budget_deficit_objective_value"] is not None:
             return None, ObjectiveScoreStatus.INVALID
-        if objective.score_status not in {
+        if assessment.status not in {
             ObjectiveScoreStatus.UNAVAILABLE,
             ObjectiveScoreStatus.NOT_ESTABLISHED,
         }:
             return None, ObjectiveScoreStatus.INVALID
-        return None, objective.score_status
+        return None, assessment.status
 
     normalized_value, value_status = _read_finite_numeric_metric(
         results, "budget_deficit_objective_value"
     )
     if normalized_value is None or value_status is not ObjectiveScoreStatus.AVAILABLE:
         return None, ObjectiveScoreStatus.INVALID
-    if objective.score_status is ObjectiveScoreStatus.INVALID:
+    if assessment.status is ObjectiveScoreStatus.INVALID:
         return None, ObjectiveScoreStatus.INVALID
-    if objective.score_status is not ObjectiveScoreStatus.AVAILABLE:
+    if assessment.status is not ObjectiveScoreStatus.AVAILABLE:
         return None, ObjectiveScoreStatus.INVALID
-    if objective.raw_value != normalized_value:
+    if assessment.value != normalized_value:
         return None, ObjectiveScoreStatus.INVALID
     return normalized_value, ObjectiveScoreStatus.AVAILABLE
 
@@ -1452,10 +1458,13 @@ def _assess_default_search_objective(
     results: dict[str, Any], *, expected_unit: str | None = None
 ) -> _DefaultSearchObjectiveAssessment:
     """Use the existing scalar only when values and its selected unit basis are present."""
-    fiscal_fields = _BALANCE_ALIASES + _DEFICIT_ALIASES
-    expected_units = dict.fromkeys(("gdp_change", *fiscal_fields), expected_unit)
     score_assessment = _evaluate_configured_objective_source(
-        {"kind": "default_policy_scalar", "expected_units": expected_units}, results
+        {
+            "kind": "default_policy_scalar",
+            "expected_units": dict.fromkeys(("gdp_change", *_DEFICIT_ALIASES), expected_unit),
+            "fiscal_rule_version": _PERIOD_DEFICIT_RULE_VERSION,
+        },
+        results,
     )
     status = score_assessment.status
     if status is ObjectiveScoreStatus.AVAILABLE:
@@ -1604,12 +1613,15 @@ def _objective_rule_spec(objective: SearchObjective) -> dict[str, Any] | None:
             kind = "employment"
         else:
             return None
-        return {
+        spec = {
             "kind": kind,
             "weight": float(objective._weight),
             "threshold": objective._threshold,
             "expected_unit": objective.expected_unit,
         }
+        if kind == "budget_deficit":
+            spec["fiscal_rule_version"] = _PERIOD_DEFICIT_RULE_VERSION
+        return spec
     return None
 
 
@@ -1632,6 +1644,13 @@ def _policy_vector_channel_field_name(spec: dict[str, Any]) -> str | None:
     return f"channel:{group}:{name}"
 
 
+def _fiscal_score_aliases(spec: dict[str, Any]) -> tuple[str, ...]:
+    """Keep the historical source basis while selecting only flow in the current rule."""
+    if spec.get("fiscal_rule_version") == _PERIOD_DEFICIT_RULE_VERSION:
+        return _DEFICIT_ALIASES
+    return _BALANCE_ALIASES + _DEFICIT_ALIASES
+
+
 def _rule_input_groups(spec: dict[str, Any]) -> tuple[tuple[str, ...], ...]:
     kind = spec.get("kind")
     if kind == "policy_vector_channel":
@@ -1640,7 +1659,7 @@ def _rule_input_groups(spec: dict[str, Any]) -> tuple[tuple[str, ...], ...]:
     if kind == "gdp_growth":
         return (("gdp_change",),)
     if kind == "budget_deficit":
-        return ((_BALANCE_ALIASES + _DEFICIT_ALIASES),)
+        return (_fiscal_score_aliases(spec),)
     if kind == "inequality":
         return (("gini_coefficient",),)
     if kind == "employment":
@@ -1649,7 +1668,7 @@ def _rule_input_groups(spec: dict[str, Any]) -> tuple[tuple[str, ...], ...]:
         metric_name = spec.get("metric_name")
         return ((metric_name,),) if isinstance(metric_name, str) and metric_name else ()
     if kind == "default_policy_scalar":
-        return (("gdp_change",), (_BALANCE_ALIASES + _DEFICIT_ALIASES))
+        return (("gdp_change",), _fiscal_score_aliases(spec))
     if kind == "composite":
         return tuple(
             group for child in spec.get("children", []) for group in _rule_input_groups(child)
@@ -1659,6 +1678,9 @@ def _rule_input_groups(spec: dict[str, Any]) -> tuple[tuple[str, ...], ...]:
 
 def _rule_source_field_names(spec: dict[str, Any]) -> tuple[str, ...]:
     names = {name for group in _rule_input_groups(spec) for name in group}
+    if spec.get("kind") in {"budget_deficit", "default_policy_scalar"}:
+        # A stock without a flow explains why the deficit is not established.
+        names.update(_BALANCE_ALIASES)
     if spec.get("kind") == "default_policy_scalar":
         names.update(("budget_deficit_objective_usable", "budget_deficit_objective_value"))
     if spec.get("kind") == "composite":
@@ -1697,7 +1719,7 @@ def _rule_metric_unit_requirements(spec: dict[str, Any]) -> dict[str, str | None
             return None
         return {field_name: expected}
     if kind == "default_policy_scalar":
-        field_names = {"gdp_change", *_BALANCE_ALIASES, *_DEFICIT_ALIASES}
+        field_names = {"gdp_change", *_fiscal_score_aliases(spec)}
         raw_units = spec.get("expected_units")
         if raw_units is None:
             return dict.fromkeys(field_names, None)
@@ -1787,7 +1809,7 @@ def _selected_measurement_fields(spec: dict[str, Any], results: dict[str, Any]) 
         metric_name = spec.get("metric_name")
         candidates = (metric_name,) if isinstance(metric_name, str) else ()
     elif kind in {"budget_deficit", "default_policy_scalar"}:
-        candidates = _BALANCE_ALIASES + _DEFICIT_ALIASES
+        candidates = _fiscal_score_aliases(spec)
         if kind == "default_policy_scalar":
             candidates = ("gdp_change", *candidates)
     else:
@@ -2041,6 +2063,11 @@ def _assessment_for_rule_spec(
 ) -> ObjectiveScoreAssessment:
     """Recompute one built-in objective from its declared source operands."""
     kind = spec.get("kind")
+    fiscal_rule_version = spec.get("fiscal_rule_version")
+    if kind in {"budget_deficit", "default_policy_scalar"} and (
+        fiscal_rule_version is not None and fiscal_rule_version != _PERIOD_DEFICIT_RULE_VERSION
+    ):
+        return _unestablished_score_assessment("objective_fiscal_rule_version_unknown")
     groups = _rule_input_groups(spec)
     derived_values: dict[str, Any] = {}
     status: ObjectiveScoreStatus
@@ -2070,8 +2097,13 @@ def _assessment_for_rule_spec(
         if isinstance(metric_name, str) and metric_name:
             derived_values[metric_name] = raw_value
     elif kind == "budget_deficit":
-        balance = _read_metric_aliases(results, _BALANCE_ALIASES)
         deficit = _read_metric_aliases(results, _DEFICIT_ALIASES)
+        use_legacy_balance_basis = fiscal_rule_version is None
+        balance = (
+            _read_metric_aliases(results, _BALANCE_ALIASES)
+            if use_legacy_balance_basis or deficit is _MISSING
+            else _MISSING
+        )
         balance_score = None
         deficit_score = None
         if balance is _INVALID or deficit is _INVALID:
@@ -2079,7 +2111,8 @@ def _assessment_for_rule_spec(
         elif balance is _MISSING and deficit is _MISSING:
             status = ObjectiveScoreStatus.UNAVAILABLE
         else:
-            balance_score = max(-float(balance), 0.0) if balance is not _MISSING else None
+            if use_legacy_balance_basis and balance is not _MISSING:
+                balance_score = max(-float(balance), 0.0)
             deficit_score = abs(float(deficit)) if deficit is not _MISSING else None
             if (
                 balance_score is not None
@@ -2115,7 +2148,7 @@ def _assessment_for_rule_spec(
             expected_units.get("budget_deficit") if isinstance(expected_units, dict) else None
         )
         fiscal_value, fiscal_status = _assess_search_fiscal_measurement(
-            results, expected_unit=fiscal_unit
+            results, expected_unit=fiscal_unit, fiscal_rule_version=fiscal_rule_version
         )
         if (
             gdp_status is ObjectiveScoreStatus.INVALID

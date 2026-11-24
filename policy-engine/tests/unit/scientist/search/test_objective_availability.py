@@ -202,15 +202,15 @@ def test_missing_or_malformed_default_operands_never_become_zero() -> None:
         assert assessment.score_status is ObjectiveScoreStatus.INVALID
 
 
-def test_fiscal_reader_reconciles_both_supplied_alias_groups_without_inventing_precedence() -> None:
+def test_fiscal_reader_reconciles_conflicts_within_the_period_deficit_basis() -> None:
     objective = BudgetDeficitObjective(expected_unit="fixture-unit")
 
     contradicting = objective.evaluate(
-        _with_fixture_units({"gov_balance": -100.0, "budget_deficit": 20.0})
+        _with_fixture_units({"deficit": 100.0, "budget_deficit": 20.0})
     )
     assert contradicting.score_status is ObjectiveScoreStatus.INVALID
     assert contradicting.raw_value != contradicting.raw_value  # invalid diagnostic is NaN
-    contradicting_source = _with_fixture_units({"gov_balance": -100.0, "budget_deficit": 20.0})
+    contradicting_source = _with_fixture_units({"deficit": 100.0, "budget_deficit": 20.0})
     # Congruence can faithfully reproduce an INVALID assessment; admission still refuses it.
     assert score_assessment_matches_source(contradicting.score_assessment, contradicting_source)
     assert not objective_value_matches_rule(
@@ -222,11 +222,13 @@ def test_fiscal_reader_reconciles_both_supplied_alias_groups_without_inventing_p
     )
 
     nested_conflict = objective.evaluate(
-        _with_fixture_units({"gov_balance": -100.0, "simulation_results": {"budget_deficit": 20.0}})
+        _with_fixture_units(
+            {"budget_deficit": 100.0, "simulation_results": {"budget_deficit": 20.0}}
+        )
     )
     assert nested_conflict.score_status is ObjectiveScoreStatus.INVALID
     nested_conflict_source = _with_fixture_units(
-        {"gov_balance": -100.0, "simulation_results": {"budget_deficit": 20.0}}
+        {"budget_deficit": 100.0, "simulation_results": {"budget_deficit": 20.0}}
     )
     assert score_assessment_matches_source(nested_conflict.score_assessment, nested_conflict_source)
     assert not objective_value_matches_rule(
@@ -258,7 +260,7 @@ def test_fiscal_reader_reconciles_both_supplied_alias_groups_without_inventing_p
     )
 
     malformed_primary = objective.evaluate(
-        _with_fixture_units({"gov_balance": "bad", "budget_deficit": 100.0})
+        _with_fixture_units({"deficit": "bad", "budget_deficit": 100.0})
     )
     malformed_alternate = objective.evaluate(
         _with_fixture_units({"gov_balance": -100.0, "budget_deficit": "bad"})

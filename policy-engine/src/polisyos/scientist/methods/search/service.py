@@ -21,13 +21,18 @@ from polisyos.scientist.methods.search.contracts import (
     EvaluationBundle,
     GenerationNotice,
     GenerationTransition,
+    SearchAskRequest,
     SearchResult,
     SearchStatus,
     TellResult,
     _EvaluationDisposition,
     _NativeSearchControllerPort,
 )
-from polisyos.scientist.methods.search.frontier import materialize_candidate_proposal
+from polisyos.scientist.methods.search.frontier import (
+    _validate_search_ask_argument,
+    candidate_payloads_equal,
+    materialize_candidate_proposal,
+)
 
 logger = common_logger.get_logger(__name__)
 
@@ -61,11 +66,39 @@ class _NativeSearchServiceDriver:
         context: dict[str, Any],
     ) -> list[CandidateProposal]:
         """Generate proposals for the current owner generation."""
-        del goal, search_space
         with self.owner._run_operation():
-            return self._ask(context)
+            context, request = self._prepare_search_request(goal, search_space, context)
+            return self._ask(context, request=request)
 
-    def _ask(self, context: dict[str, Any]) -> list[CandidateProposal]:
+    def _prepare_search_request(
+        self,
+        goal: dict[str, Any] | None,
+        search_space: dict[str, Any] | None,
+        context: dict[str, Any],
+    ) -> tuple[dict[str, Any], SearchAskRequest | None]:
+        if goal is None and search_space is None:
+            return context, None
+        if not self.owner._supports_explicit_search_request():
+            raise ValueError("search_ask_explicit_request_unsupported")
+        arguments: dict[str, Any] = {}
+        for key, value in (("goal", goal), ("search_space", search_space)):
+            if value is None:
+                continue
+            _validate_search_ask_argument(key, value)
+            if key in context:
+                try:
+                    compatible = candidate_payloads_equal({key: context[key]}, {key: value})
+                except (TypeError, ValueError) as error:
+                    raise ValueError(f"search_ask_{key}_conflict") from error
+                if not compatible:
+                    raise ValueError(f"search_ask_{key}_conflict")
+            arguments[key] = deepcopy(value)
+        request = SearchAskRequest.model_validate(arguments)
+        return {**context, **arguments}, request
+
+    def _ask(
+        self, context: dict[str, Any], *, request: SearchAskRequest | None
+    ) -> list[CandidateProposal]:
         generation, iteration = self.owner._prepare_service_run()
         payloads, notice = self.owner._generate_candidates(
             iteration=iteration,
@@ -81,7 +114,11 @@ class _NativeSearchServiceDriver:
             if isinstance(payload, CandidateProposal):
                 proposal = deepcopy(payload)
                 materialize_candidate_proposal(proposal)
-                if proposal.metadata or proposal.service_iteration is not None:
+                if (
+                    proposal.metadata
+                    or proposal.service_iteration is not None
+                    or proposal.service_request is not None
+                ):
                     raise ValueError("candidate_service_context_already_present")
                 proposal.metadata = {"iteration": iteration}
                 proposal.service_iteration = iteration
@@ -107,6 +144,7 @@ class _NativeSearchServiceDriver:
                     metadata={"iteration": iteration},
                     service_iteration=iteration,
                 )
+            proposal.service_request = deepcopy(request)
             materialize_candidate_proposal(proposal)
             candidate_id = proposal.candidate_id
             if candidate_id in pending:

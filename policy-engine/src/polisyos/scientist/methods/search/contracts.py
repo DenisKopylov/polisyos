@@ -18,7 +18,7 @@ from enum import Enum
 from math import isfinite
 from typing import TYPE_CHECKING, Any, Literal, Protocol, get_type_hints
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.search.objective import (
@@ -61,11 +61,21 @@ class CandidateStrategyContext(BaseModel):
     policy_transport: bool = False
 
 
+class SearchAskRequest(BaseModel):
+    """Retain explicit JSON goal and space supplied to the candidate producer."""
+
+    model_config = ConfigDict(extra="forbid", strict=True, allow_inf_nan=False)
+
+    goal: dict[str, JsonValue] | None = None
+    search_space: dict[str, JsonValue] | None = None
+
+
 class CandidateProposal(BaseModel):
     """Carry the exact evaluated payload with an optional typed strategy binding.
 
     Unknown semantic inputs belong in ``payload``. Metadata other than the
     explicitly bound service iteration is refused at the evaluation boundary.
+    The service request records producer input outside the evaluated subject.
     """
 
     model_config = ConfigDict(extra="forbid", strict=True)
@@ -75,6 +85,13 @@ class CandidateProposal(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
     strategy_context: CandidateStrategyContext | None = None
     service_iteration: int | None = Field(default=None, ge=0)
+    service_request: SearchAskRequest | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        super().__setstate__(state)
+        self.__dict__.setdefault("service_request", None)
 
 
 class EvaluationBundle(BaseModel):
@@ -313,7 +330,11 @@ class TellResult(BaseModel):
 
 
 class SearchService(Protocol):
-    """Expose candidate generation (`ask`) and evaluator feedback ingestion (`tell`)."""
+    """Expose candidate generation (`ask`) and evaluator feedback ingestion (`tell`).
+
+    A generator declaring explicit ask support receives the supplied JSON goal
+    and space, which must agree with any corresponding context values.
+    """
 
     def ask(
         self,
@@ -628,6 +649,8 @@ class _NativeSearchControllerPort(Protocol):
 
     _status: SearchStatus
 
+    def _supports_explicit_search_request(self) -> bool: ...
+
     def _run_operation(self, *, full_run: bool = False) -> AbstractContextManager[None]: ...
 
     def _prepare_service_run(self) -> tuple[int, int]: ...
@@ -746,6 +769,7 @@ __all__ = [
     "ParetoBasisScope",
     "ParetoViewAssessment",
     "ParetoViewProjection",
+    "SearchAskRequest",
     "SearchInterruption",
     "SearchService",
     "TellResult",

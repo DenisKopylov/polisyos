@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from threading import Event
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -17,8 +19,14 @@ from polisyos.scientist.methods.search.adapters import LegacySearchServiceAdapte
 from polisyos.scientist.methods.search.contracts import (
     CandidateProposal,
     EvaluationBundle,
+    SearchStatus,
 )
-from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
+from polisyos.scientist.methods.search.controller import (
+    SearchConfig,
+    SearchController,
+    TracedLLMCandidateGenerator,
+)
+from polisyos.scientist.methods.search.frontier import materialize_candidate_proposal
 from polisyos.scientist.methods.search.objective import (
     BudgetDeficitObjective,
     CompositeObjective,
@@ -245,6 +253,89 @@ def test_ask_tell_uses_owner_transition_and_resumes_frontier() -> None:
     assert second_result.best_candidate == second[0].payload
     assert second_result.best_objective == 1.0
     assert first_result.best_candidate == first[0].payload
+
+
+def test_explicit_ask_goal_and_space_reach_the_traced_producer_and_selected_record() -> None:
+    class PromptClient:
+        def __init__(self) -> None:
+            self.contexts: list[dict[str, Any]] = []
+
+        async def generate(self, **kwargs: Any) -> Any:
+            wire = kwargs["user"].partition("Search inputs JSON:\n")[2]
+            context = json.loads(wire)["context"]
+            self.contexts.append(context)
+            bound = context["goal"]["choose"] if "goal" in context else None
+            x = context["search_space"]["x"][bound] if bound is not None else 7
+            return SimpleNamespace(content=json.dumps({"x": x}))
+
+    client = PromptClient()
+    controller = SearchController(
+        SearchConfig(
+            MaxIterations(4), CompositeObjective([BudgetDeficitObjective(expected_unit="EUR")])
+        ),
+        candidate_generator=TracedLLMCandidateGenerator(
+            client=client,  # type: ignore[arg-type]
+            system_prompt="Choose the requested endpoint in the search bounds.",
+        ),
+        stage_a_evaluator=lambda *_: (0.0, True),
+        stage_b_evaluator=lambda *_: {},
+    )
+    adapter = LegacySearchServiceAdapter(controller)
+    context = {"subject": "fiscal"}
+    first_goal = {"choose": "minimum"}
+    first_space = {"x": {"minimum": 2, "maximum": 3}}
+    second_goal = {"choose": "maximum"}
+    second_space = {"x": {"minimum": 8, "maximum": 9}}
+
+    with pytest.raises(ValueError, match="search_ask_goal_conflict"):
+        adapter.ask(first_goal, first_space, {**context, "goal": second_goal})
+    with pytest.raises(ValueError, match="search_ask_search_space_invalid"):
+        adapter.ask(first_goal, {"x": {"minimum": float("nan")}}, context)
+    with pytest.raises(ValueError, match="search_ask_goal_conflict"):
+        adapter.ask({"choose": 1}, first_space, {**context, "goal": {"choose": True}})
+    assert controller._status is SearchStatus.NOT_STARTED and client.contexts == []
+
+    first = adapter.ask(first_goal, first_space, context)[0]
+    assert materialize_candidate_proposal(first) == {"x": 2}
+    assert first.service_request is not None and first.service_request.goal is not None
+    first.service_request.goal["choose"] = "outside"
+    first_goal["choose"] = "outside"
+    first_space["x"]["minimum"] = 99
+    first_result = adapter.tell(first.candidate_id, _budget_deficit_evaluation(2))
+    assert first_result.best_candidate == {"x": 2}
+    first_record = controller._history[-1].candidate_proposal
+    assert first_record is not None and first_record.service_request is not None
+    restored = CandidateProposal.model_validate_json(first_record.model_dump_json())
+    assert restored.service_request is not None
+    assert restored.service_request.model_dump(exclude_none=True) == {
+        "goal": {"choose": "minimum"},
+        "search_space": {"x": {"minimum": 2, "maximum": 3}},
+    }
+    unbound = restored.model_copy(update={"metadata": {}, "service_iteration": None})
+    with pytest.raises(ValueError, match="candidate_service_request_unbound"):
+        materialize_candidate_proposal(unbound)
+
+    second = adapter.ask(second_goal, second_space, context)[0]
+    assert materialize_candidate_proposal(second) == {"x": 9}
+    second_result = adapter.tell(second.candidate_id, _budget_deficit_evaluation(9))
+    assert second_result.history_length == 2 and second_result.best_candidate == {"x": 2}
+    assert client.contexts[0]["goal"] == {"choose": "minimum"}
+    assert client.contexts[0]["search_space"] == {"x": {"minimum": 2, "maximum": 3}}
+    assert client.contexts[1]["goal"] == second_goal
+    assert client.contexts[1]["search_space"] == second_space
+
+    ordinary = adapter.ask(None, None, context)[0]
+    assert materialize_candidate_proposal(ordinary) == {"x": 7}
+    assert "service_request" not in ordinary.model_dump()
+    assert "goal" not in client.contexts[2] and "search_space" not in client.contexts[2]
+    assert context == {"subject": "fiscal"}
+
+
+def test_explicit_ask_refuses_a_generator_without_a_declared_context_profile() -> None:
+    adapter, generator = _build_adapter()
+    with pytest.raises(ValueError, match="search_ask_explicit_request_unsupported"):
+        adapter.ask({"choose": "minimum"}, {"x": {"minimum": 2}}, {})
+    assert generator.calls == 0 and adapter.controller._status is SearchStatus.NOT_STARTED
 
 
 def test_ask_tell_stage_a_rejection_does_not_count_stage_b() -> None:

@@ -295,6 +295,10 @@ class _SearchLifecycleOwner:
             self._run_state.status = SearchStatus.RUNNING
         return self._run_generation, self._service_ask_iteration
 
+    def _supports_explicit_search_request(self) -> bool:
+        """Require the selected source to declare the contextual ask profile."""
+        return getattr(type(self._generator), "supports_explicit_search_request", False) is True
+
     def _publish_service_proposals(
         self, generation: int, proposals: dict[str, CandidateProposal]
     ) -> None:
@@ -1106,7 +1110,11 @@ class _SearchLifecycleOwner:
                 and type(self._generator) is not StrategyAdapter
             ):
                 raise ValueError("candidate_strategy_producer_unestablished")
-            if proposal.metadata or proposal.service_iteration is not None:
+            if (
+                proposal.metadata
+                or proposal.service_iteration is not None
+                or proposal.service_request is not None
+            ):
                 raise ValueError("candidate_service_context_already_present")
             materialize_candidate_proposal(proposal)
 

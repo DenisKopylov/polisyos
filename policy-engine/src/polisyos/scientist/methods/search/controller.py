@@ -19,6 +19,7 @@ from types import SimpleNamespace
 from typing import (
     TYPE_CHECKING,
     Any,
+    ClassVar,
     Literal,
     NoReturn,
     Protocol,
@@ -1236,6 +1237,7 @@ class TracedLLMCandidateGenerator:
 
     client: TracedLLMClient
     system_prompt: str
+    supports_explicit_search_request: ClassVar[bool] = True
 
     def __post_init__(self) -> None:
         if not isinstance(self.system_prompt, str) or not self.system_prompt.strip():

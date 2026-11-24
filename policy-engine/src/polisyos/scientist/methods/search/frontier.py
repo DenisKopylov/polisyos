@@ -13,6 +13,7 @@ from polisyos.scientist.methods.search.contracts import (
     CandidateProposal,
     CandidateStrategyContext,
     EvaluationBundle,
+    SearchAskRequest,
 )
 from polisyos.scientist.methods.search.objective import ObjectiveValue
 
@@ -75,6 +76,16 @@ def candidate_payloads_equal(left: dict[str, Any], right: dict[str, Any]) -> boo
     return stable_json_dumps(left) == stable_json_dumps(right)
 
 
+def _validate_search_ask_argument(key: str, value: Any) -> None:
+    """Validate one explicit request argument at both issuance and readback."""
+    if type(value) is not dict:
+        raise ValueError(f"search_ask_{key}_invalid")
+    try:
+        _validate_json_subject(value)
+    except (TypeError, ValueError) as error:
+        raise ValueError(f"search_ask_{key}_invalid") from error
+
+
 def _strategy_subject_hash(context: CandidateStrategyContext) -> str:
     subject = context.subject
     _validate_json_subject(subject)
@@ -124,6 +135,18 @@ def materialize_candidate_proposal(proposal: CandidateProposal) -> dict[str, Any
             raise ValueError("candidate_proposal_metadata_not_evaluated")
     elif proposal.service_iteration is not None:
         raise ValueError("candidate_service_context_mismatch")
+    service_request = proposal.service_request
+    if service_request is not None:
+        if proposal.service_iteration is None:
+            raise ValueError("candidate_service_request_unbound")
+        if type(service_request) is not SearchAskRequest or (
+            service_request.goal is None and service_request.search_space is None
+        ):
+            raise ValueError("candidate_service_request_invalid")
+        if service_request.goal is not None:
+            _validate_search_ask_argument("goal", service_request.goal)
+        if service_request.search_space is not None:
+            _validate_search_ask_argument("search_space", service_request.search_space)
     if proposal.strategy_context is not None:
         reconstructed = strategy_candidate_payload(proposal.strategy_context)
         if not candidate_payloads_equal(reconstructed, proposal.payload):

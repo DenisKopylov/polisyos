@@ -20667,8 +20667,16 @@
           "sha256": "6f3d7e2de7c4c57f181e3854335aff10f78cc086c65110f14241fbe40dcfe788",
           "guard_sha256": "40e56b754d0e6e2706b15e63ee9b099b760d339b0593a9be854ecb7bff415b5f",
           "status": "COMMAND_FAIL",
-          "verified_boundary": "Stock DS9 POST returned HTTP 503 human_decision_custody_nonreceipt. The new same-action custody reservation is committed at 00:28:59.768517Z with record cf393364 and event evt_human_decision_336b217b04f264d109468fa8. The grant expires 02:23:44.091913Z. No new queued job, provider or physical work. Group joined after 260.884 seconds, peak 1690910720 B. Recover the same existing commitment through its owner.",
+          "verified_boundary": "Stock DS9 POST returned HTTP 503 human_decision_custody_nonreceipt. The new same-action custody reservation is committed at 00:28:59.768517Z with record cf393364 and event evt_human_decision_336b217b04f264d109468fa8. The grant expires 02:23:44.091913Z. No new queued job, provider or physical work. Group joined after 260.884 seconds, peak 1690910720 B. Exact submission provenance is recoverable, but the original PA2 bearer needed for a live continuation did not survive. The sealed R7 gets no worker queue or numerical work.",
           "profile": "Fresh signed local controlled action, 115-minute DS9 window and 6600-second process cap. One exact standard reservation and one graph invocation, no supplier. Separate normal 900-second stock profile."
+        },
+        "native_r8_exact_control_store_probe": {
+          "source_commit": "cba5b63849672c7e29adcc5724a76bd1f670a485",
+          "output": "Primary:policy-engine/_cache/e02/native-r8-controlled-20261124/custody-guard-probe/result.json",
+          "sha256": "d24b770be702405a926067d7007838ce85aab7984395c3e95b480b61336088a0",
+          "guard_sha256": "d04d57924ac2a01372ec131583019694eda88b37ecd6f90fa648f9676e599f16",
+          "source_receipt_sha256": "e07c3f978c48ef768b92d6cca09fd4897d9aae5f59c32cf09ecbdf0b2850b5a5",
+          "verified_boundary": "Exact supported 5-second control-store guard handles a 2.011925-second stock custody read, with zero decisions, jobs, reservations, events or CAS writes. Joined PASS 44.756 seconds. Prior raw probe joins PASS inside its supervisor, but outer harness binding fails on a concurrent script update. Final pin requalified independently. One distinct controlled warm case starts from same original paid B, with a 120-minute signed fixture ceiling and 6600-second cap."
         },
         "native_r7_historical_guarded_cow_timing_r2": {
           "source_commit": "b9a7a4615020135b77fd117f1e87fc4aef83c04a",
@@ -20843,6 +20851,24 @@
           "baseline_sha256": "08aa906ad9a4e197c7a7276028ca91c81efe4c0ed554b6dfa40bfd69e2942c64",
           "verified_boundary": "Working composed 6 pass, 6 fail, 9007 source pins stable. Independent immutable published cba runtime product replay reproduces all six failures and the same one passing comparator. Two show latest V5 authority reconciliation escapes the typed partial history. Separate stock R13 positive and missing prospective withdrawal are joined PASS."
         },
+        "acq01_04_composed_r13_history_published": {
+          "source_commit": "2237790382b6364cc4aea19be82fd4b233659b9e",
+          "source_tree": "2a4dc0f80477b487740592c31414eaa84b06afcb",
+          "output": "Primary:policy-engine/_cache/e02/acq01-r13-composed-history-r3.R2Cn9DES/junit.xml",
+          "sha256": "991a2a5600d8de41cb4be50f670d00db3c9e491cdd929afa6144f5281a66b1f0",
+          "guard_sha256": "959d4aa26c5f446155ca37e4f8052b822bc45992a646c01bb990f4318991fb2f",
+          "verified_boundary": "21 exact ordinary and V5 history cases pass in 38.095 seconds, RSS 1312391168 B. Latest foreign profile, missing event or mismatched manifest/body version limits the latest V5 projection and retains previously verified rows."
+        },
+        "acq01_04_same_offer_actual_expired_lease_recovery": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "output": "policy-engine/_cache/e02/acq01-04-ordinary-same-offer-recovery-r1.N1xJ6MoG/recovered.json in the isolated ACQ owner checkout",
+          "sha256": "2d70ef67df475f1e7e39dd16df0086b0fa5e338d35f26a9f8990b10d4047ef7e",
+          "deliberate_stop_sha256": "ae1ab997a08281bff896ceee5cfe7eafa4200201ffb2816c9586ef498a525481",
+          "live_cut_sqlite_sha256": "a800f160a7fe5cbc11a3f1a38a1369eaeae57a7e389fe8057161e840ba44b9f1",
+          "resume_guard_sha256": "6c9a49a37eb55eb26a29c6d4d30406d355e15eaa4119ae024bbb934a7c72dde7",
+          "cold_failed_guard_sha256": "7a89867f0df24c5c1db69b8f9ee811b1ab48eb32b517fb33e50cb9cebcfb1f04",
+          "verified_boundary": "Producer deliberately exits 75 after exact reentry and before frontier or terminal. One bounded local replay of retained B, one N5/two seeds. After actual lease expiry, new worker claims same job at attempt 2, selects same saved execution/result at frontier 1 and adds zero N5/provider. Resume PASS. Fresh process fails same_offer_fresh_history_unavailable; diagnose separately without work replay."
+        },
         "ordinary_signed_acquisition_routes_published": {
           "source_commit": "579e3e96e75a4734da3cc1aab815384ff5bb25f1",
           "source_tree": "a360cc2c57a77d63596d01ee12c9a90d1d0e51d1",
@@ -20924,6 +20950,13 @@
           "sha256": "3ce04e288a598d7378f38f44f415f83ace401d8d33aa2c65b6711bb2f52a7f00",
           "aggregate_guard_sha256": "49137ecc9d91f1b6e889ef3cdb41dab05972372b8dc2ce4f4597a7521d30eadb",
           "verified_boundary": "Exact published-source CYC-05 B fresh process returns the original +0.25, four distinguished rejections and complete comparator withdrawal/restoration in seven signed GETs. Original stores and four completed standard plus one protected unit remain unchanged, zero new effects. The aggregate guard stays COMMAND_FAIL solely on the separate CYC-04 A missing L6 control data. Retain both children and the earlier missing registry failure."
+        },
+        "gate_b_v16_world_and_snapshot_component": {
+          "source_commit": "5a4fbbd3e1f5befca7427ec781a460b86629974c",
+          "output": "Primary:policy-engine/_cache/e02/gate-b-v16-world-snapshot.qi5eVnJR/junit.xml",
+          "sha256": "b0ba709aad4251a87130bd538384c4071067cfc03e57e132dc72c03ba3211f0b",
+          "guard_sha256": "180dd65cd337ade1290cc99438720a3314c04e55b84fa6d0a481b9ffbe97eb14",
+          "verified_boundary": "Five completed tests pass on stable pins: v3 selected root-only world materialization/replay and snapshot with exact ancestor removal, v1/v2 world siblings and legacy snapshot. Aggregate RESOURCE_ABORT on wall at 182.165 seconds, RSS 1657552896 B. Three later graph/planner/resolver selectors were unfinished in this cohort."
         },
         "gate_b_v16_core_certified_predecessor_kind": {
           "source_commit": "79cab53249bb0358836389b0337a2de21c868207",

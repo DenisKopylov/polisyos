@@ -21573,8 +21573,8 @@
       "local_qualification": "PARTIAL",
       "capability_acceptance": "NOT_RUN",
       "current_execution": {
-        "status": "ACTIVE. Eight packets, 61 requirements and 60 test contracts. All original product defects have local repairs. 57 named local profiles qualify, 3 are partial and 1 lacks deciding qualification. Shared E02-I03-A/B and the affected DA-07 replay qualify. E02-I03-C remains open.",
-        "next": "Complete FRC-02-07 retrospective stock-owner admission and E02-I03-C physical budget, scientific scale and common retained report qualification.",
+        "status": "ACTIVE. Eight packets, 61 requirements and 60 test contracts. All original product defects have local repairs. 58 named local profiles qualify, 2 are partial and 1 lacks deciding qualification. Shared E02-I03-A/B and the affected DA-07 replay qualify. E02-I03-C remains open.",
+        "next": "Complete FRC-02-07 retrospective stock-owner readback and E02-I03-C physical budget and common retained report qualification.",
         "frc01_calibration_summary": {
           "scope": "REQ-FRC-01-01. S10 and G2 preserve descriptive counts while carrying only an admitted compatible floor. 10/10 limited, genuine 95/100 preserved. Removed records, tampered status and a foreign envelope refuse admission. 55 affected tests pass, with a separate exact old-mechanism failure and changed-import pass.",
           "output": "Primary:policy-engine/_cache/e02/frc01-01-envelope-green.rQmKbNmu/",
@@ -40847,7 +40847,7 @@
       "track_id": "03-B",
       "track_position": 3,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": null,
       "base_commit": null,
@@ -40901,6 +40901,12 @@
           "result": "Selected WDI revision, 19 annual rolling holdouts, exact same-target paired candidate loss and forecast-minus-actual orientation, units and conservative population, dependence, effective n, multiplicity and time limits. Research result 0e6ead87f87edf5b96539451f08c3e2baa3d00a05b1c2835fee66e7dcf574976.",
           "source_commit": "34b4f2931",
           "guard_sha256": "e8a4c014d8b610223520e98a66226caa5deee184e112a895e448fce101c371e4"
+        },
+        {
+          "id": "bkt03_exact_symmetric_fabric_scale",
+          "output": "Primary:policy-engine/_cache/e02/bkt03-03-07-symmetric-scale-r1.BcGvwd4d/",
+          "result": "Real stock PROVIDED reports through fresh CAS and diagnostic projection. Fabric m to cm factor 100, t=0/p=1 at both scales, MAE/RMSE x100, exact zero separate and no trust. Test source SHA-256 080c541307c0542583d735603318f887b9011b5505c069bdbbf7e8782df797a6.",
+          "guard_sha256": "50ef831569c714d41bc3dc022b9bc6584ff29ff6e5954f743f513e103007118d"
         }
       ],
       "blockers": [],
@@ -41027,21 +41033,21 @@
         {
           "requirement_id": "REQ-BKT-03-07",
           "test_id": "TEST-BKT-03-07",
-          "status": "PARTIAL",
-          "basis": "Tiny nonconstant samples reconcile at unit-scaled numerical sizes and no fixed zero-variance floor is used by the current producer.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Current scale-aware producer and verifier preserve the same actual SciPy statistic for symmetric residuals of ±1e-14 metre and ±1e-12 centimetre after the supported Fabric conversion. Both fresh reports preserve availability and descriptive-only policy. Exact all-zero and historical conservative diagnostics retain separate statuses and do not gain trust.",
           "criterion_pointer": "04_Трассировка/BKT-03.json#/requirements/6",
           "test_ids": [
             "TEST-BKT-03-02",
             "TEST-BKT-03-07"
           ],
           "binding_ids": [],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
-            "bkt_range_and_bias_composed"
+            "bkt03_exact_symmetric_fabric_scale",
+            "bkt_range_and_bias_composed",
+            "bkt_c5b_native_selected_report"
           ],
-          "remaining_kinds": [
-            "declared_scientific_scope_and_units"
-          ]
+          "remaining_kinds": []
         }
       ]
     },

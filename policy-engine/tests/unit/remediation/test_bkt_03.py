@@ -168,6 +168,117 @@ def test_zero_residual_is_a_separate_no_bias_control(tmp_path: Path) -> None:
     assert report.metric_diagnostics[0].direction_status == "not_applicable"
 
 
+def test_symmetric_tiny_residual_is_scale_consistent_in_fresh_reports(
+    tmp_path: Path,
+) -> None:
+    """A registered meter-to-centimeter scale preserves the tiny symmetric result."""
+    pytest.importorskip("scipy.stats")
+
+    from decimal import Decimal
+
+    from polisyos.fabric.connectors.types.fixed_units import resolve_fixed_unit_factor
+    from polisyos.scientist.governance.backtest_matrix import (
+        verify_backtest_diagnostic_projection,
+    )
+
+    errors_m = [-1e-14, 0.0, 1e-14]
+    meter_to_cm = resolve_fixed_unit_factor("m", "cm")
+    assert meter_to_cm.multiplier == "100"
+    assert meter_to_cm.transform_ref == "fabric://units/fixed-multiplicative/v1"
+    assert meter_to_cm.definition_content_sha256
+    errors_cm = [
+        float(Decimal(str(value)) * Decimal(meter_to_cm.multiplier)) for value in errors_m
+    ]
+    assert errors_cm == [-1e-12, 0.0, 1e-12]
+    persisted: dict[str, BacktestReport] = {}
+
+    for unit_name, predictions in (("meter", errors_m), ("centimeter", errors_cm)):
+        case_root = tmp_path / unit_name
+        case_root.mkdir()
+        report = _run_provided_report(
+            case_root,
+            predictions=predictions,
+            truths=[0.0, 0.0, 0.0],
+        )
+        assert report.cas_artifact_id is not None
+        store = build_ir_artifact_store(case_root / ".polisyos")
+        fresh_report = BacktestReport.model_validate(
+            get_json_artifact(_ensure_ir_artifact_store(store), report.cas_artifact_id)
+        )
+        fresh_projection = verify_backtest_diagnostic_projection(fresh_report)
+
+        assert fresh_projection.status == "computed"
+        assert fresh_projection.recomputed is True
+        for observed in (report, fresh_report):
+            diagnostic = observed.metric_diagnostics[0]
+            assert observed.overall_bias_direction is BiasDirection.UNKNOWN
+            assert observed.degraded is True
+            assert observed.trust_eligible is False
+            assert observed.trust_score is None
+            assert observed.trust_grade is None
+            assert observed.detected_biases == []
+            assert diagnostic.status == "available"
+            assert diagnostic.method_id == "scipy.stats.ttest_1samp"
+            assert diagnostic.backend_id == "scipy"
+            assert diagnostic.backend_version
+            assert diagnostic.statistic == 0.0
+            assert diagnostic.p_value == 1.0
+            assert diagnostic.mean_residual == 0.0
+            assert diagnostic.magnitude == 0.0
+            assert diagnostic.residual_sign == "zero"
+            assert diagnostic.direction_status == "not_established"
+            assert diagnostic.unresolved_assumptions == [
+                "residual_independence",
+                "multiplicity_policy",
+                "population_scope",
+                "metric_direction",
+            ]
+
+        projected = fresh_projection.metric_diagnostics
+        assert projected is not None and len(projected) == 1
+        assert projected[0]["status"] == "available"
+        assert projected[0]["method_id"] == "scipy.stats.ttest_1samp"
+        assert projected[0]["p_value"] == 1.0
+        persisted[unit_name] = fresh_report
+
+    meter = persisted["meter"]
+    centimeter = persisted["centimeter"]
+    assert centimeter.overall_mae == pytest.approx(meter.overall_mae * 100.0, rel=1e-12, abs=0.0)
+    assert centimeter.overall_rmse == pytest.approx(
+        meter.overall_rmse * 100.0, rel=1e-12, abs=0.0
+    )
+    meter_diagnostic = meter.metric_diagnostics[0]
+    centimeter_diagnostic = centimeter.metric_diagnostics[0]
+    assert centimeter_diagnostic.status == meter_diagnostic.status
+    assert centimeter_diagnostic.method_id == meter_diagnostic.method_id
+    assert centimeter_diagnostic.statistic == meter_diagnostic.statistic
+    assert centimeter_diagnostic.p_value == meter_diagnostic.p_value
+
+    exact_zero_root = tmp_path / "exact-zero"
+    exact_zero_root.mkdir()
+    exact_zero = _run_provided_report(
+        exact_zero_root,
+        predictions=[0.0, 0.0, 0.0],
+        truths=[0.0, 0.0, 0.0],
+    )
+    assert exact_zero.cas_artifact_id is not None
+    exact_zero_store = build_ir_artifact_store(exact_zero_root / ".polisyos")
+    exact_zero_fresh = BacktestReport.model_validate(
+        get_json_artifact(_ensure_ir_artifact_store(exact_zero_store), exact_zero.cas_artifact_id)
+    )
+    assert exact_zero.overall_mae == exact_zero_fresh.overall_mae == 0.0
+    assert exact_zero.overall_rmse == exact_zero_fresh.overall_rmse == 0.0
+    assert exact_zero_fresh.metric_diagnostics[0].status == "exact_zero"
+    assert exact_zero_fresh.metric_diagnostics[0].method_id is None
+    assert exact_zero_fresh.metric_diagnostics[0].p_value is None
+    assert exact_zero_fresh.metric_diagnostics[0].direction_status == "not_applicable"
+    exact_zero_projection = verify_backtest_diagnostic_projection(exact_zero_fresh)
+    assert exact_zero_projection.status == "computed"
+    assert exact_zero_projection.recomputed is True
+    assert exact_zero_projection.metric_diagnostics is not None
+    assert exact_zero_projection.metric_diagnostics[0]["status"] == "exact_zero"
+
+
 def test_small_sample_ttest_matches_scipy_reference() -> None:
     """The small-n reference is Student's t, not a normal approximation."""
     scipy_stats = pytest.importorskip("scipy.stats")

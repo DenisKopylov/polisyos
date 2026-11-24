@@ -7,6 +7,9 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.artifacts import ArtifactRef
+from polisyos.core.contracts import DataSnapshotRef
+
 
 class MaskingStrategy(str, Enum):
     """How temporal backtests hide post-intervention observations from the evaluator."""
@@ -62,6 +65,33 @@ class KnownAheadCalendarFeature(BaseModel):
     output_field: str = Field(pattern=r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
+class HistoricalReplaySourceSelection(BaseModel):
+    """Select the exact historical source and an optional prepared prefix."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_data_ref: ArtifactRef
+    prepared_snapshot_ref: DataSnapshotRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+
+    @model_validator(mode="after")
+    def _verify_selected_profiles(self) -> HistoricalReplaySourceSelection:
+        if (
+            self.source_data_ref.manifest_profile_sha256 is None
+            or self.source_data_ref.media_type != "application/json"
+        ):
+            raise ValueError("historical replay source must select an exact JSON profile")
+        prepared = self.prepared_snapshot_ref
+        if prepared is not None and (
+            prepared.manifest_profile_sha256 is None
+            or prepared.kind != "fabric.data_snapshot"
+            or prepared.media_type != "application/json"
+        ):
+            raise ValueError("prepared history must select an exact DataSnapshot profile")
+        return self
+
+
 class HistoricalValidationPlan(BaseModel):
     """Backtest plan describing one historical validation scenario."""
 
@@ -73,6 +103,9 @@ class HistoricalValidationPlan(BaseModel):
 
     historical_data_ref: str | None = None
     historical_data_path: str | None = None
+    historical_replay_source: HistoricalReplaySourceSelection | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     intervention_date: str = ""
     intervention_step: int | None = Field(default=None, ge=0)
@@ -105,8 +138,21 @@ class HistoricalValidationPlan(BaseModel):
 
     @model_validator(mode="after")
     def _validate_plan(self) -> HistoricalValidationPlan:
-        if self.historical_data_ref is None and self.historical_data_path is None:
-            raise ValueError("Either historical_data_ref or historical_data_path is required")
+        source = self.historical_replay_source
+        if source is None:
+            if self.historical_data_ref is None and self.historical_data_path is None:
+                raise ValueError("Either historical_data_ref or historical_data_path is required")
+        else:
+            if self.historical_data_path is not None or (
+                self.historical_data_ref is not None
+                and self.historical_data_ref != str(source.source_data_ref.artifact_id)
+            ):
+                raise ValueError("Historical replay source differs from another supplied source")
+            if (
+                source.prepared_snapshot_ref is not None
+                and self.prediction_source is not PredictionSource.SCIENTIST
+            ):
+                raise ValueError("Prepared history requires Scientist replay")
         if not self.ground_truth_outcomes:
             raise ValueError("ground_truth_outcomes cannot be empty")
         if not self.target_metrics:
@@ -148,6 +194,7 @@ class HistoricalValidationPlan(BaseModel):
 __all__ = [
     "ForecastProducerBinding",
     "ForecastProfileContract",
+    "HistoricalReplaySourceSelection",
     "HistoricalValidationPlan",
     "KnownAheadCalendarFeature",
     "MaskingStrategy",

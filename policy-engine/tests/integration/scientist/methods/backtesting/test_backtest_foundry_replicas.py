@@ -38,6 +38,7 @@ from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
 from polisyos.scientist.methods.backtesting.masking import MaskingValidationError
 from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator
 from polisyos.scientist.methods.backtesting.plan import (
+    HistoricalReplaySourceSelection,
     HistoricalValidationPlan,
     MaskingStrategy,
     PredictionSource,
@@ -307,6 +308,140 @@ def test_backtest_replays_only_masked_bindings_with_distinct_real_foundry_replic
     assert fresh_cohort["requested_count"] == 3
     assert fresh_cohort["completed_count"] == 3
     assert fresh_cohort["failed_count"] == 0
+
+
+@pytest.mark.parametrize(
+    ("basis", "error"),
+    [
+        ("matched", None),
+        ("foreign_source", "prepared_history_source_mismatch"),
+        ("foreign_cutoff", "prepared_history_snapshot_mismatch"),
+        ("foreign_projection", "prepared_history_projection_mismatch"),
+    ],
+)
+def test_backtest_consumes_a_selected_prepared_prefix_at_the_same_cutoff(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, basis: str, error: str | None
+) -> None:
+    cas_path = tmp_path / "cas"
+    store = FileSystemCAS(cas_path)
+    ir_store = ensure_ir_artifact_store(store)
+    owner = BacktestOrchestrator(cas=store)
+    raw, legacy_plan = _plan(tmp_path, replica_count=1)
+    raw.update(
+        time_index=["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04"],
+        derived_income=[451.0, 451.0],
+        weekday=[451.0, 451.0],
+    )
+
+    def persist_source(version: str) -> ArtifactRef:
+        return ArtifactRef.model_validate(
+            put_json_artifact(
+                ir_store,
+                raw,
+                kind="fixture.historical_source",
+                schema_name="fixture.HistoricalSource",
+                schema_version=version,
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
+        )
+
+    source = persist_source("1.0")
+    sibling = persist_source("1.1")
+    assert sibling.artifact_id == source.artifact_id
+    assert sibling.manifest_profile_sha256 != source.manifest_profile_sha256
+    plan = HistoricalValidationPlan.model_validate(
+        {
+            **legacy_plan.model_dump(mode="json"),
+            "historical_data_path": None,
+            "historical_replay_source": {"source_data_ref": source.model_dump(mode="json")},
+            "intervention_date": "2024-01-03",
+            "post_intervention_periods": 2,
+            "ground_truth_outcomes": {"metric": [900.0, 901.0]},
+            "known_ahead_calendar": {
+                "profile": "iso_weekday.daily.v1",
+                "output_field": "weekday",
+            },
+        }
+    )
+    full_before = store.get_bytes(source)
+    projected = owner._masker.mask(owner._load_historical_data(plan), plan)
+    prepared = DataSnapshotRef.model_validate(owner._persist_masked_view(plan, projected))
+    assert projected["metric"] == [1.0, 2.0]
+    assert projected["weekday"] == [3, 4]
+    assert "derived_income" not in projected
+    assert input_ref_from_artifact_ref(source, role="historical_data") in (
+        store.get_manifest(prepared).inputs
+    )
+
+    if basis == "foreign_projection":
+        same_shape = {**projected, "weekday": [451.0, 451.0]}
+        prepared = DataSnapshotRef.model_validate(owner._persist_masked_view(plan, same_shape))
+    selected_source = sibling if basis == "foreign_source" else source
+    plan.historical_replay_source = HistoricalReplaySourceSelection(
+        source_data_ref=selected_source,
+        prepared_snapshot_ref=prepared,
+    )
+    if basis == "foreign_cutoff":
+        plan.intervention_step = 3
+        plan.intervention_date = "2024-01-04"
+    registry = build_default_registry_bundle(store, return_selected_profile=True)
+    trinity = _persist_trinity(
+        store, data_snapshot_ref=prepared, registry_bundle_ref=registry.bundle_ref
+    )
+    _bind_real_default_route(
+        plan=plan, trinity_ref=trinity, registry_bundle_ref=registry.bundle_ref
+    )
+    assert plan.scientist_state is not None
+    plan.scientist_state["params"]["foundry_input_binding_rules"].append(
+        {
+            "binding_id": "calendar_projection_control",
+            "source_path": "weekday",
+            "target_slot_id": "agents.reported_income",
+        }
+    )
+    plan_before = plan.model_dump(mode="json")
+
+    def no_reissue(*_args, **_kwargs):
+        pytest.fail("prepared history should be reused directly")
+
+    consumer = BacktestOrchestrator(cas=FileSystemCAS(cas_path))
+    monkeypatch.setattr(consumer, "_persist_masked_view", no_reissue)
+    calls: list[ExecuteRequest] = []
+    execute = DefaultFoundryPort.execute
+
+    def observe(port, actual_store, request):
+        calls.append(request)
+        bindings = FoundryInputBindings.model_validate(
+            load_core_json_artifact(actual_store, request.input_bindings_ref)
+        )
+        assert artifact_ref_identity_key(bindings.data_snapshot_ref) == (
+            artifact_ref_identity_key(prepared)
+        )
+        prestate = load_state_snapshot(actual_store, snapshot_ref=bindings.bound_state_snapshot_ref)
+        assert np.asarray(prestate.agents.income, dtype=float).tolist() == [1.0, 2.0]
+        assert np.asarray(prestate.agents.reported_income, dtype=float).tolist() == [3.0, 4.0]
+        return execute(port, actual_store, request)
+
+    monkeypatch.setattr(DefaultFoundryPort, "execute", observe)
+    if error is None:
+        _, report_ref = consumer.run_with_ref([plan])
+        reader = FileSystemCAS(cas_path)
+        report = load_backtest_report(ensure_ir_artifact_store(reader), report_ref)
+        cohort_ref = ArtifactRef.model_validate(report.scenarios[0].metadata["replica_cohort_ref"])
+        assert cohort_ref.manifest_profile_sha256 is not None
+        cohort = load_core_json_artifact(reader, cohort_ref)
+        cohort_view = DataSnapshotRef.model_validate(cohort["masked_data_snapshot_ref"])
+        assert artifact_ref_identity_key(cohort_view) == artifact_ref_identity_key(prepared)
+        assert cohort["completed_count"] == cohort["foundry_execute_count"] == 1
+        assert len(calls) == 1
+    else:
+        with pytest.raises(MaskingValidationError) as refused:
+            consumer.run_with_ref([plan])
+        assert refused.value.code == error
+        assert calls == []
+    assert plan.model_dump(mode="json") == plan_before
+    assert FileSystemCAS(cas_path).get_bytes(source) == full_before
 
 
 def test_backtest_selects_exact_view_for_a_safe_legacy_snapshot_body(tmp_path) -> None:

@@ -26,6 +26,7 @@ from polisyos.core.artifacts import (
     input_ref_from_artifact_ref,
     read_core_manifest_profile,
     resolve_manifest_by_profile,
+    validate_core_model_json_artifact,
 )
 from polisyos.core.artifacts import (
     ensure_ir_artifact_store as _ensure_ir_artifact_store,
@@ -58,6 +59,7 @@ from polisyos.ir import (
     combine_envelopes,
 )
 from polisyos.ir import CanonSpec as IRCanonSpec
+from polisyos.ir import to_canonical_bytes as to_ir_canonical_bytes
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
     BacktestScenario,
@@ -82,6 +84,7 @@ from polisyos.scientist.methods.backtesting.evaluator import PredictionEvaluator
 from polisyos.scientist.methods.backtesting.masking import MaskingValidationError, OutcomeMasker
 from polisyos.scientist.methods.backtesting.plan import (
     ForecastProfileContract,
+    HistoricalReplaySourceSelection,
     HistoricalValidationPlan,
     PredictionSource,
 )
@@ -759,7 +762,11 @@ class BacktestOrchestrator:
             confidence_level=confidence_level,
             jurisdiction=plan.jurisdiction,
             intervention_date=plan.intervention_date,
-            data_source=plan.historical_data_ref or plan.historical_data_path or "",
+            data_source=(
+                str(plan.historical_replay_source.source_data_ref.artifact_id)
+                if plan.historical_replay_source is not None
+                else plan.historical_data_ref or plan.historical_data_path or ""
+            ),
             metadata=scenario_metadata,
         )
         return (
@@ -793,13 +800,16 @@ class BacktestOrchestrator:
     def _load_historical_data(self, plan: HistoricalValidationPlan) -> dict[str, Any]:
         from polisyos.core.artifacts import load_core_json_artifact
 
-        if plan.historical_data_ref:
-            artifact_id = ArtifactID.model_validate(plan.historical_data_ref)
-            payload = load_core_json_artifact(self._store, artifact_id)
+        source = plan.historical_replay_source
+        if source is not None or plan.historical_data_ref:
+            selector = (
+                source.source_data_ref
+                if source is not None
+                else ArtifactID.model_validate(plan.historical_data_ref)
+            )
+            payload = load_core_json_artifact(self._store, selector)
             if not isinstance(payload, dict):
-                raise ValueError(
-                    f"historical_data_ref must point to a JSON object: {plan.historical_data_ref}"
-                )
+                raise ValueError(f"historical_data_ref must point to a JSON object: {selector}")
             return cast("dict[str, Any]", payload)
         assert plan.historical_data_path is not None
         file_payload = json.loads(Path(plan.historical_data_path).read_text(encoding="utf-8"))
@@ -889,6 +899,11 @@ class BacktestOrchestrator:
             return naive_before_dispatch(
                 "scientist_state_missing", "scientist_state missing; using naive predictor fallback"
             )
+        source = plan.historical_replay_source
+        if native and source is not None:
+            return native_unavailable(
+                "native_forecast_unavailable:historical_replay_source_unsupported"
+            )
         if native and plan.known_ahead_calendar is not None:
             return native_unavailable(
                 "native_forecast_unavailable:known_ahead_calendar_unsupported"
@@ -945,6 +960,8 @@ class BacktestOrchestrator:
             except Exception as exc:
                 reason = f"native_forecast_unavailable:{type(exc).__name__}:{exc}"
                 return native_unavailable(reason)
+        elif source is not None and source.prepared_snapshot_ref is not None:
+            snapshot_payload = self._verify_prepared_masked_view(source, masked_data)
         else:
             snapshot_payload = self._persist_masked_view(plan, masked_data)
         masked_snapshot_ref = DataSnapshotRef.model_validate(snapshot_payload)
@@ -1262,7 +1279,7 @@ class BacktestOrchestrator:
         cohort_ref = self._persist_replica_cohort(
             cohort,
             inputs=cohort_inputs,
-            select_profile=native or select_cohort_profiles,
+            select_profile=native or select_cohort_profiles or source is not None,
         )
 
         def _naive_with_cohort(reason: str) -> dict[str, Any]:
@@ -1706,6 +1723,89 @@ class BacktestOrchestrator:
             lo, hi = hi, lo
         return lo, hi
 
+    def _verify_prepared_masked_view(
+        self,
+        source: HistoricalReplaySourceSelection,
+        recomputed_view: dict[str, Any],
+    ) -> dict[str, str]:
+        """Verify the selected prepared input against the freshly masked source."""
+        from polisyos.core.artifacts import load_core_json_artifact
+
+        ref = source.prepared_snapshot_ref
+        assert ref is not None
+        snapshot = validate_core_model_json_artifact(DataSnapshot, self._store, ref)
+        manifest, _ = read_core_manifest_profile(self._store, ref)
+        source_edge = input_ref_from_artifact_ref(source.source_data_ref, role="historical_data")
+        actual_source = [edge for edge in manifest.inputs if edge.role == "historical_data"]
+        if actual_source != [source_edge]:
+            raise MaskingValidationError(
+                "Prepared history names a different historical source profile",
+                code="prepared_history_source_mismatch",
+            )
+
+        child_edges = [edge for edge in manifest.inputs if edge.role == "masked_data"]
+        if (
+            len(manifest.inputs) != 2
+            or manifest.artifact_schema is None
+            or manifest.artifact_schema.version != DataSnapshot.ARTIFACT_SCHEMA_VERSION
+            or len(child_edges) != 1
+            or child_edges[0].manifest_profile_sha256 is None
+            or child_edges[0].artifact_id != snapshot.data_ref.artifact_id
+            or snapshot.data_ref.kind != "scientist.backtest.masked_historical_view"
+            or snapshot.data_ref.media_type != "application/json"
+            or snapshot.data_ref.manifest_profile_sha256
+            not in (None, child_edges[0].manifest_profile_sha256)
+        ):
+            raise MaskingValidationError(
+                "Prepared history lacks the selected masked data view",
+                code="prepared_history_snapshot_invalid",
+            )
+        expected = DataSnapshot(
+            data_ref=snapshot.data_ref,
+            stats=self._masked_view_stats(recomputed_view),
+            notes=snapshot.notes,
+        )
+        if snapshot != expected:
+            raise MaskingValidationError(
+                "Prepared history snapshot differs from the current cutoff or masking strategy",
+                code="prepared_history_snapshot_mismatch",
+            )
+        child_ref = snapshot.data_ref.model_copy(
+            update={"manifest_profile_sha256": child_edges[0].manifest_profile_sha256}
+        )
+        child_manifest, _ = read_core_manifest_profile(self._store, child_ref)
+        if (
+            child_manifest.artifact_schema is None
+            or child_manifest.artifact_schema.name
+            != "polisyos.scientist.backtesting.MaskedHistoricalView"
+            or child_manifest.artifact_schema.version != "1.0"
+        ):
+            raise MaskingValidationError(
+                "Prepared history has a foreign masked data profile",
+                code="prepared_history_snapshot_invalid",
+            )
+        actual = load_core_json_artifact(self._store, child_ref)
+        canon = IRCanonSpec(forbid_floats=False, forbid_nan_inf=False)
+        if to_ir_canonical_bytes(actual, canon) != to_ir_canonical_bytes(recomputed_view, canon):
+            raise MaskingValidationError(
+                "Prepared history data differs from the recomputed as-of view",
+                code="prepared_history_projection_mismatch",
+            )
+        return ref.model_dump(mode="json")
+
+    @staticmethod
+    def _masked_view_stats(masked_data: dict[str, Any]) -> dict[str, int | str]:
+        metadata = masked_data.get("_backtest_metadata", {})
+        stats: dict[str, int | str] = {}
+        if isinstance(metadata, dict):
+            strategy = metadata.get("masking_strategy")
+            step = metadata.get("intervention_step")
+            if isinstance(strategy, str):
+                stats["masking_strategy"] = strategy
+            if isinstance(step, int):
+                stats["intervention_step"] = step
+        return stats
+
     def _persist_masked_view(
         self,
         plan: HistoricalValidationPlan,
@@ -1727,7 +1827,13 @@ class BacktestOrchestrator:
         lineage_inputs: list[InputRefLike] = [
             input_ref_from_artifact_ref(data_ref, role="masked_data")
         ]
-        if plan.historical_data_ref:
+        if plan.historical_replay_source is not None:
+            lineage_inputs.append(
+                input_ref_from_artifact_ref(
+                    plan.historical_replay_source.source_data_ref, role="historical_data"
+                )
+            )
+        elif plan.historical_data_ref:
             try:
                 lineage_inputs.append(
                     InputRef(artifact_id=plan.historical_data_ref, role="historical_data")
@@ -1735,20 +1841,11 @@ class BacktestOrchestrator:
             except ValueError:
                 pass
 
-        metadata = masked_data.get("_backtest_metadata", {})
-        snapshot_stats: dict[str, int | str] = {}
-        if isinstance(metadata, dict):
-            strategy = metadata.get("masking_strategy")
-            step = metadata.get("intervention_step")
-            if isinstance(strategy, str):
-                snapshot_stats["masking_strategy"] = strategy
-            if isinstance(step, int):
-                snapshot_stats["intervention_step"] = step
         snapshot = DataSnapshot(
             # Preserve the v0.2.0 snapshot body used by existing ModelSpecs.
             # Foundry restores the selected child from the masked_data edge.
             data_ref=data_ref.model_copy(update={"manifest_profile_sha256": None}),
-            stats=snapshot_stats,
+            stats=self._masked_view_stats(masked_data),
             notes=[
                 "scientist.backtest.masked_historical_view",
                 f"plan_id:{plan.plan_id}",

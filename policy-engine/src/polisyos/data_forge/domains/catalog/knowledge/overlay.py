@@ -20,7 +20,6 @@ from decimal import Decimal
 from enum import StrEnum
 from functools import wraps
 from pathlib import Path
-from types import MappingProxyType
 from typing import Any, BinaryIO, Concatenate, Literal, Protocol, Self
 
 import duckdb
@@ -28,14 +27,9 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 import polisyos.fabric.data_plane as fabric_data_plane
 from polisyos.core import artifacts, canon, contracts, scan_secret_and_pii
-from polisyos.fabric.connectors.types.units import (
-    PREFIX_FACTORS,
-    STANDARD_UNITS,
-    SUPERSCRIPT_MAP,
-    BaseUnit,
-    Unit,
-    UnitConversionError,
-    UnitParseError,
+from polisyos.fabric.connectors.types.fixed_units import (
+    FixedUnitFactorError,
+    resolve_fixed_unit_factor,
 )
 
 ArtifactID = artifacts.ArtifactID
@@ -414,26 +408,6 @@ class LegacyAdmissionPassport(_StrictModel):
 
 _FIXED_UNIT_TRANSFORM = "fixed_multiplicative"
 _FIXED_UNIT_TRANSFORM_REF = "fabric://units/fixed-multiplicative/v1"
-_FIXED_UNIT_EXECUTOR_VERSION = "polisyos.fabric.units.fixed-multiplicative.v1"
-_UNIT_DIMENSIONS = (
-    "length",
-    "mass",
-    "time",
-    "current",
-    "temperature",
-    "amount",
-    "luminosity",
-    "currency",
-    "population",
-    "information",
-    "angle",
-)
-_FIXED_UNIT_DEFINITION_BASIS_CONTENT_SHA256 = (
-    "sha256:05b2363a679c1636cdb2f5b862ad88b279f5aafe3481d01aa93a5837148e384f"
-)
-_FIXED_UNIT_STANDARD_UNITS = MappingProxyType(dict(STANDARD_UNITS))
-_FIXED_UNIT_PREFIX_FACTORS = MappingProxyType(dict(PREFIX_FACTORS))
-_FIXED_UNIT_SUPERSCRIPT_MAP = MappingProxyType(dict(SUPERSCRIPT_MAP))
 
 
 class FixedUnitTransformEvidence(_StrictModel):
@@ -455,94 +429,8 @@ class FixedUnitTransformEvidence(_StrictModel):
     definition_content_sha256: str = Field(pattern=_SHA256_PATTERN)
 
 
-def _unit_definition_basis_sha256(
-    standard_units: Mapping[str, BaseUnit],
-    prefix_factors: Mapping[str, Decimal],
-    superscript_map: Mapping[str, str],
-) -> str:
-    """Hash the full static definition basis admitted by the fixed-unit v1 owner."""
-    payload = {
-        "standard_units": [
-            {
-                "registry_key": registry_key,
-                "symbol": definition.symbol,
-                "dimension": {
-                    name: getattr(definition.dimension, name) for name in _UNIT_DIMENSIONS
-                },
-                "to_si_factor": str(definition.to_si_factor),
-                "to_si_offset": str(definition.to_si_offset),
-                "aliases": list(definition.aliases),
-                "category": definition.category,
-            }
-            for registry_key, definition in sorted(standard_units.items())
-        ],
-        "prefix_factors": {key: str(value) for key, value in sorted(prefix_factors.items())},
-        "superscript_map": dict(sorted(superscript_map.items())),
-    }
-    encoded = json.dumps(
-        payload,
-        allow_nan=False,
-        ensure_ascii=False,
-        separators=(",", ":"),
-        sort_keys=True,
-    ).encode("utf-8")
-    return "sha256:" + hashlib.sha256(encoded).hexdigest()
-
-
-def _require_fixed_unit_definition_basis() -> str:
-    """Require both the frozen v1 snapshot and current owner maps to match the v1 pin."""
-    try:
-        snapshot_sha256 = _unit_definition_basis_sha256(
-            _FIXED_UNIT_STANDARD_UNITS,
-            _FIXED_UNIT_PREFIX_FACTORS,
-            _FIXED_UNIT_SUPERSCRIPT_MAP,
-        )
-        current_sha256 = _unit_definition_basis_sha256(
-            STANDARD_UNITS,
-            PREFIX_FACTORS,
-            SUPERSCRIPT_MAP,
-        )
-    except (AttributeError, RuntimeError, TypeError, ValueError) as exc:
-        raise OverlayAdmissionError("unit_transform_definition_content_drift") from exc
-    if (
-        snapshot_sha256 != _FIXED_UNIT_DEFINITION_BASIS_CONTENT_SHA256
-        or current_sha256 != _FIXED_UNIT_DEFINITION_BASIS_CONTENT_SHA256
-    ):
-        raise OverlayAdmissionError("unit_transform_definition_content_drift")
-    return snapshot_sha256
-
-
-def _unit_definition_payload(unit: Unit) -> dict[str, object]:
-    """Describe the frozen local definitions used by the fixed-unit v1 parser."""
-    components: list[dict[str, object]] = []
-    for symbol, power in unit._components:
-        definition = _FIXED_UNIT_STANDARD_UNITS.get(symbol)
-        if definition is None:
-            raise OverlayAdmissionError("unit_transform_definition_unregistered", symbol)
-        components.append(
-            {
-                "power": power,
-                "symbol": definition.symbol,
-                "dimension": {
-                    name: getattr(definition.dimension, name) for name in _UNIT_DIMENSIONS
-                },
-                "to_si_factor": str(definition.to_si_factor),
-                "to_si_offset": str(definition.to_si_offset),
-                "aliases": list(definition.aliases),
-                "category": definition.category,
-            }
-        )
-    return {
-        "parsed_symbol": unit.symbol,
-        "dimension": {name: getattr(unit.dimension, name) for name in _UNIT_DIMENSIONS},
-        "to_canonical_factor": str(unit.to_canonical_factor),
-        "to_canonical_offset": str(unit.to_canonical_offset),
-        "components": components,
-    }
-
-
 def _resolve_fixed_unit_transform(binding: MetricFieldBinding) -> FixedUnitTransformEvidence:
-    """Resolve a fixed conversion against the immutable, content-pinned v1 definition basis."""
+    """Bind the registered factor to the Catalog-owned source field selection."""
     if (
         binding.unit_transform != _FIXED_UNIT_TRANSFORM
         or binding.unit_transform_ref != _FIXED_UNIT_TRANSFORM_REF
@@ -551,89 +439,16 @@ def _resolve_fixed_unit_transform(binding: MetricFieldBinding) -> FixedUnitTrans
             "unit_transform_executor_unregistered",
             f"{binding.unit_transform}:{binding.unit_transform_ref}",
         )
-    if not binding.raw_unit.strip() or not binding.canonical_unit.strip():
-        raise OverlayAdmissionError("unit_transform_unit_missing")
-
-    basis_sha256 = _require_fixed_unit_definition_basis()
     try:
-        parse = Unit._parse_with_definition_maps
-        source = parse(
-            binding.raw_unit,
-            standard_units=_FIXED_UNIT_STANDARD_UNITS,
-            prefix_factors=_FIXED_UNIT_PREFIX_FACTORS,
-            superscript_map=_FIXED_UNIT_SUPERSCRIPT_MAP,
-        )
-        target = parse(
-            binding.canonical_unit,
-            standard_units=_FIXED_UNIT_STANDARD_UNITS,
-            prefix_factors=_FIXED_UNIT_PREFIX_FACTORS,
-            superscript_map=_FIXED_UNIT_SUPERSCRIPT_MAP,
-        )
-    except UnitParseError as exc:
-        raise OverlayAdmissionError("unit_transform_definition_unregistered", str(exc)) from exc
-    # The registered percent-to-ratio scale does not establish what a value
-    # measures: its population, time and denominator still need binding.
-    if (source.is_dimensionless or target.is_dimensionless) and (source.symbol, target.symbol) != (
-        "percent",
-        "ratio",
-    ):
-        raise OverlayAdmissionError("unit_transform_dimensionless_not_admissible")
-    if not source.is_compatible_with(target):
-        raise OverlayAdmissionError("unit_transform_incompatible_dimensions")
-    try:
-        conversion = source.get_conversion_factor(target)
-    except UnitConversionError as exc:
-        raise OverlayAdmissionError("unit_transform_incompatible_dimensions", str(exc)) from exc
-    if conversion.requires_rate:
-        raise OverlayAdmissionError("unit_transform_rate_required")
-    if conversion.offset != 0:
-        raise OverlayAdmissionError("unit_transform_offset_not_admissible")
-    if conversion.multiplier <= 0:
-        raise OverlayAdmissionError("unit_transform_multiplier_not_positive")
-    for unit in (source, target):
-        for symbol, _power in unit._components:
-            definition = _FIXED_UNIT_STANDARD_UNITS.get(symbol)
-            if definition is None:
-                raise OverlayAdmissionError("unit_transform_definition_unregistered", symbol)
-            if getattr(definition.dimension, "currency", 0):
-                raise OverlayAdmissionError("unit_transform_currency_rate_law_missing", symbol)
-            if getattr(definition.dimension, "population", 0):
-                raise OverlayAdmissionError("unit_transform_population_law_missing", symbol)
-    if conversion.multiplier == 1 and source.symbol != target.symbol:
-        raise OverlayAdmissionError("unit_transform_semantic_identity_unproven")
-
-    definition_payload = {
-        "executor_version": _FIXED_UNIT_EXECUTOR_VERSION,
-        "transform_ref": _FIXED_UNIT_TRANSFORM_REF,
-        "definition_basis_content_sha256": basis_sha256,
-        "raw_unit": binding.raw_unit,
-        "canonical_unit": binding.canonical_unit,
-        "source": _unit_definition_payload(source),
-        "target": _unit_definition_payload(target),
-        "multiplier": format(conversion.multiplier, "f"),
-        "offset": format(conversion.offset, "f"),
-    }
-    definition_hash = (
-        "sha256:"
-        + hashlib.sha256(
-            json.dumps(
-                definition_payload,
-                allow_nan=False,
-                ensure_ascii=False,
-                separators=(",", ":"),
-                sort_keys=True,
-            ).encode("utf-8")
-        ).hexdigest()
-    )
-
-    if _require_fixed_unit_definition_basis() != basis_sha256:
-        raise OverlayAdmissionError("unit_transform_definition_content_drift")
+        factor = resolve_fixed_unit_factor(binding.raw_unit, binding.canonical_unit)
+    except FixedUnitFactorError as exc:
+        raise OverlayAdmissionError(exc.code, exc.detail) from exc
     return FixedUnitTransformEvidence(
         binding_id=binding.binding_id,
-        raw_unit=binding.raw_unit,
-        canonical_unit=binding.canonical_unit,
-        multiplier=format(conversion.multiplier, "f"),
-        definition_content_sha256=definition_hash,
+        raw_unit=factor.raw_unit,
+        canonical_unit=factor.canonical_unit,
+        multiplier=factor.multiplier,
+        definition_content_sha256=factor.definition_content_sha256,
     )
 
 

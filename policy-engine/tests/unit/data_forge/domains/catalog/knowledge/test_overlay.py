@@ -2551,6 +2551,7 @@ def test_finalizer_fails_closed_when_a_selected_owner_snapshot_cannot_be_read(
 @pytest.mark.parametrize(
     ("raw_unit", "canonical_unit", "expected_multiplier"),
     [
+        ("cm", "m", "0.01"),
         ("km", "m", "1000"),
         ("kg", "g", "1000"),
         ("km/h", "m/s", "0.2777777777777777777777777778"),
@@ -2562,6 +2563,8 @@ def test_fixed_multiplicative_unit_transform_reuses_versioned_fabric_definitions
     canonical_unit: str,
     expected_multiplier: str,
 ) -> None:
+    from polisyos.fabric.connectors.types.fixed_units import resolve_fixed_unit_factor
+
     binding = overlay_module.build_metric_field_binding(
         dataset_id="dataset.fixed-unit",
         distribution_id="distribution.fixed-unit",
@@ -2579,6 +2582,7 @@ def test_fixed_multiplicative_unit_transform_reuses_versioned_fabric_definitions
     )
 
     evidence = overlay_module._resolve_fixed_unit_transform(binding)
+    factor = resolve_fixed_unit_factor(raw_unit, canonical_unit)
 
     assert evidence.transform_ref == "fabric://units/fixed-multiplicative/v1"
     assert evidence.executor_version == "polisyos.fabric.units.fixed-multiplicative.v1"
@@ -2586,7 +2590,7 @@ def test_fixed_multiplicative_unit_transform_reuses_versioned_fabric_definitions
     assert evidence.raw_unit == raw_unit
     assert evidence.canonical_unit == canonical_unit
     assert evidence.multiplier == expected_multiplier
-    assert evidence.definition_content_sha256.startswith("sha256:")
+    assert evidence.definition_content_sha256 == factor.definition_content_sha256
 
 
 @pytest.mark.parametrize(
@@ -2841,7 +2845,7 @@ def test_fixed_unit_executor_rejects_drift_across_entire_definition_basis(monkey
 
 
 def test_fixed_unit_resolver_uses_frozen_basis_during_live_registry_aba(monkeypatch):
-    from polisyos.fabric.connectors.types._units_base import STANDARD_UNITS
+    from polisyos.fabric.connectors.types.units import STANDARD_UNITS, Unit
 
     binding = overlay_module.build_metric_field_binding(
         dataset_id="dataset.fixed-unit-aba",
@@ -2858,7 +2862,7 @@ def test_fixed_unit_resolver_uses_frozen_basis_during_live_registry_aba(monkeypa
         proxy_penalty=0.0,
         evidence_refs=("repo://fixed-unit-aba-test",),
     )
-    original_parse = overlay_module.Unit._parse_with_definition_maps
+    original_parse = Unit._parse_with_definition_maps
     original_km = STANDARD_UNITS["km"]
     changed_km = original_km._replace(to_si_factor=original_km.to_si_factor * 2)
 
@@ -2868,7 +2872,7 @@ def test_fixed_unit_resolver_uses_frozen_basis_during_live_registry_aba(monkeypa
             return original_parse(unit_text, **definition_maps)
 
     monkeypatch.setattr(
-        overlay_module.Unit,
+        Unit,
         "_parse_with_definition_maps",
         classmethod(parse_while_live_map_is_changed),
     )

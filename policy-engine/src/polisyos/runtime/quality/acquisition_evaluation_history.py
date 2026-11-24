@@ -11,6 +11,7 @@ import hashlib
 import json
 from collections.abc import Mapping
 from dataclasses import dataclass
+from datetime import datetime
 from itertools import pairwise
 from pathlib import Path
 from typing import TYPE_CHECKING, Self
@@ -2518,8 +2519,8 @@ def _ordinary_checkpoint_reentry(
     head: AcquisitionActionHeadRecord,
     decision: AcquisitionEvaluationDecisionV2,
     growth: AcquisitionWorldGrowthReceipt,
-    reentry_ref: ArtifactRef,
-) -> AcquisitionOverlayReentryReceipt:
+    reentry_ref: ArtifactRef | str,
+) -> tuple[AcquisitionOverlayReentryReceipt, datetime]:
     """Reopen the growth-keyed event without repairing pointers or entering N5."""
     from polisyos.runtime.quality.acquisition_world_growth import AcquisitionWorldGrowthBridge
     from polisyos.runtime.quality.generation_cycle import AcquisitionOverlayReentryReceipt
@@ -2582,7 +2583,7 @@ def _ordinary_checkpoint_reentry(
         )
     ):
         raise ValueError("ordinary_acquisition_checkpoint_reentry_pointer_mismatch")
-    return reentry
+    return reentry, event.event_time
 
 
 def verify_ordinary_acquisition_terminal_checkpoint(
@@ -2771,7 +2772,7 @@ def verify_ordinary_acquisition_terminal_checkpoint(
         current_basis=current_basis,
         design_problem_ref=origin.design_problem_ref,
     )
-    reentry = _ordinary_checkpoint_reentry(
+    reentry, _ = _ordinary_checkpoint_reentry(
         control_service=control_service,
         head=head,
         decision=decision,
@@ -3198,7 +3199,7 @@ def _verify_first_acquired_basis_provenance(
     decision: AcquisitionEvaluationDecisionV2,
     prospective: AcquisitionEvaluationBasisV2,
     selected: AcquisitionEvaluationBasisV2,
-) -> None:
+) -> bool:
     if (
         prospective.reason_codes != decision.reason_codes[1:]
         or selected.predicate_provenance != "recomputed"
@@ -3206,23 +3207,125 @@ def _verify_first_acquired_basis_provenance(
     ):
         raise ValueError("candidate_first_acquired_evaluation_basis_mismatch")
     if prospective.predicate_provenance == "recomputed":
-        return
+        return False
 
-    # Both records came from the same action's preparation. The live identity
-    # comparison stopped before producing a full prospective numerical basis.
+    # The live comparison stopped at the prepared configuration. Any new
+    # preparation time must be explained by separately verified recovery.
     inputs = prospective.preparation_inputs
+    selected_inputs = selected.preparation_inputs
     configuration = inputs.n5_execution_configuration
     if (
         inputs.preparation_job_id != decision.action_job_id
         or configuration is None
-        or exact_n5_content_bytes(inputs.model_dump(mode="json"))
-        != exact_n5_content_bytes(selected.preparation_inputs.model_dump(mode="json"))
+        or exact_n5_content_bytes(inputs.model_dump(mode="json", exclude={"transaction_time"}))
+        != exact_n5_content_bytes(
+            selected_inputs.model_dump(mode="json", exclude={"transaction_time"})
+        )
         or bytes.fromhex(prospective.effective_native_values_hex)
         != exact_n5_content_bytes(
             {"n5_execution_configuration": _exact_native_content(configuration)}
         )
     ):
         raise ValueError("candidate_first_acquired_evaluation_basis_mismatch")
+    return inputs.transaction_time != selected_inputs.transaction_time
+
+
+def _verify_recovered_first_acquired_preparation(
+    *,
+    control_service: ControlPlaneService,
+    snapshot: VerifiedAcquisitionActionOutcome,
+    decision: AcquisitionEvaluationDecisionV2,
+    growth: AcquisitionWorldGrowthReceipt,
+    reentry: AcquisitionOverlayReentryReceipt,
+    prospective_time: str,
+    selected_time: str,
+) -> None:
+    """Bind distinct preparation times to one recovered ordinary action."""
+    control = control_service._control_store
+    head = snapshot.head
+    job = control.get_job(head.job_id)
+    if (
+        job is None
+        or job.kind != "acquisition"
+        or job.run_id != head.run_id
+        or job.state != "completed"
+        or job.attempt < 2
+        or job.progress.get("terminal_receipt_ref") != head.receipt_ref
+        or job.lease_owner is not None
+        or job.lease_expires_at is not None
+    ):
+        raise ValueError("candidate_first_acquired_recovered_job_mismatch")
+    running = control._latest_control_job_lifecycle_event_record(
+        job_id=job.job_id, event_type="job_running"
+    )
+    completed = control.get_job_terminal_source_event_record(job.job_id)
+    worker = running.payload.get("lease_owner")
+    if (
+        running.event_id >= completed.event_id
+        or running.payload.get("state") != "running"
+        or completed.event_type != "job_completed"
+        or completed.payload.get("state") != "completed"
+        or type(running.payload.get("attempt")) is not int
+        or type(completed.payload.get("attempt")) is not int
+        or running.payload["attempt"] != job.attempt
+        or completed.payload["attempt"] != job.attempt
+        or not isinstance(worker, str)
+        or not worker
+        or completed.payload.get("lease_owner") != worker
+    ):
+        raise ValueError("candidate_first_acquired_recovered_attempt_mismatch")
+
+    terminal = snapshot.latest_receipt
+    selection = snapshot.selection_phase
+    if (
+        type(terminal) is not AcquisitionRouteLoopReceiptV2
+        or terminal.reentry_receipt_ref is None
+        or type(selection) is not AcquisitionRoutePhaseReceipt
+        or len(snapshot.phase_chain) < 2
+    ):
+        raise ValueError("candidate_first_acquired_recovered_phase_mismatch")
+    pending = snapshot.phase_chain[-2]
+    if (
+        pending.receipt_ref != terminal.predecessor_receipt_ref
+        or type(pending.receipt) is not AcquisitionRoutePhaseReceipt
+        or pending.receipt.receipt_phase != "world_committed_reentry_pending"
+        or pending.receipt.predecessor_receipt_ref != snapshot.selection_phase_ref
+        or pending.receipt.owner_receipt_refs
+        != tuple(
+            sorted(
+                (
+                    str(decision.growth_receipt_ref.artifact_id),
+                    str(terminal.evaluation_decision_ref.artifact_id),
+                )
+            )
+        )
+    ):
+        raise ValueError("candidate_first_acquired_recovered_phase_mismatch")
+    reopened, reentry_time = _ordinary_checkpoint_reentry(
+        control_service=control_service,
+        head=head,
+        decision=decision,
+        growth=growth,
+        reentry_ref=terminal.reentry_receipt_ref,
+    )
+    if reopened != reentry:
+        raise ValueError("candidate_first_acquired_recovered_reentry_mismatch")
+
+    original, decided, resumed = map(
+        datetime.fromisoformat, (prospective_time, decision.generated_at, selected_time)
+    )
+    if any(value.tzinfo is None for value in (original, decided, resumed)) or not (
+        selection.generated_at
+        <= original
+        <= decided
+        <= pending.event.event_time
+        <= reentry_time
+        < running.created_at
+        <= resumed
+        <= snapshot.phase_chain[-1].event.event_time
+        <= completed.created_at
+    ):
+        raise ValueError("candidate_first_acquired_recovered_preparation_time_mismatch")
 
 
 def verify_first_acquired_evaluation_history(
@@ -3342,14 +3445,14 @@ def verify_first_acquired_evaluation_history(
             raise ValueError("candidate_first_acquired_evaluation_basis_mismatch")
     if prospective.evaluation is not None or selected_basis.evaluation != evaluation:
         raise ValueError("candidate_first_acquired_evaluation_basis_role_mismatch")
-    _verify_first_acquired_basis_provenance(
+    recovered_preparation = _verify_first_acquired_basis_provenance(
         decision=decision, prospective=prospective, selected=selected_basis
     )
 
     snapshot = control_service.acquisition_route_sink.verify_action_head(head)
     if snapshot.latest_receipt != terminal:
         raise ValueError("candidate_first_acquired_evaluation_terminal_changed")
-    _verified_growth(
+    growth = _verified_growth(
         artifact_store=store,
         event_log=events,
         snapshot=snapshot,
@@ -3358,6 +3461,16 @@ def verify_first_acquired_evaluation_history(
         current_basis=prospective,
         design_problem_ref=design_problem_ref,
     )
+    if recovered_preparation:
+        _verify_recovered_first_acquired_preparation(
+            control_service=control_service,
+            snapshot=snapshot,
+            decision=decision,
+            growth=growth,
+            reentry=reentry,
+            prospective_time=prospective.preparation_inputs.transaction_time,
+            selected_time=selected_basis.preparation_inputs.transaction_time,
+        )
     frontier = control.get_acquisition_evaluation_frontier_by_ref(head.evaluation_frontier_ref)
     if (
         frontier is None

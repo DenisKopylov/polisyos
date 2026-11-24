@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, datetime
 from hashlib import sha256
 from types import SimpleNamespace
@@ -19,6 +20,7 @@ from polisyos.runtime.quality.acquisition_evaluation import (
 from polisyos.runtime.quality.acquisition_evaluation_history import (
     _ordinary_checkpoint_reentry,
     _verify_first_acquired_basis_provenance,
+    _verify_recovered_first_acquired_preparation,
 )
 from polisyos.runtime.quality.acquisition_executor import ActivatedSemanticEpochAdmissionReceipt
 from polisyos.runtime.quality.acquisition_world_growth import (
@@ -37,6 +39,7 @@ from polisyos.runtime.quality.n5_execution_basis import (
     exact_n5_content_bytes,
 )
 from tests._helpers.runtime_http import _build_control_service
+from tests.unit.runtime.http.test_control_plane_store_evaluation_frontier import _create_action_job
 from tests.unit.runtime.quality.test_generation_cycle_model_input_wire import _v3_fixture
 
 if TYPE_CHECKING:
@@ -167,7 +170,13 @@ def retained_checkpoint(tmp_path: Path) -> SimpleNamespace:
 def test_retained_reentry_uses_its_real_growth_event_without_repair(retained_checkpoint) -> None:
     case = retained_checkpoint
     assert not case.pointer.exists()
-    assert _ordinary_checkpoint_reentry(**case.kwargs) == case.receipt
+    reopened, reentry_time = _ordinary_checkpoint_reentry(**case.kwargs)
+    assert reopened == case.receipt
+    growth_key = str(case.kwargs["decision"].growth_receipt_ref.artifact_id).removeprefix("sha256:")
+    (record,) = case.kwargs["control_service"]._diagnostic_event_log.list_events(
+        event_id="evt_acquisition_reentry_" + growth_key
+    )
+    assert reentry_time == record.event.event_time
     assert not case.pointer.exists()
 
     payload = dict(case.receipt)
@@ -199,7 +208,7 @@ def test_retained_reentry_refuses_conflicting_pointer_and_removed_blob(retained_
 
     ref = case.kwargs["reentry_ref"]
     case.pointer.write_text('{"receipt_ref":"' + str(ref.artifact_id) + '"}', encoding="utf-8")
-    assert _ordinary_checkpoint_reentry(**case.kwargs) == case.receipt
+    assert _ordinary_checkpoint_reentry(**case.kwargs)[0] == case.receipt
     store = case.kwargs["control_service"]._artifact_store
     blob, _manifest = store._paths(ref.artifact_id)
     evidence = blob.read_bytes()
@@ -212,7 +221,7 @@ def test_retained_reentry_refuses_conflicting_pointer_and_removed_blob(retained_
         assert case.pointer.read_bytes() == pointer_before
     finally:
         blob.write_bytes(evidence)
-    assert _ordinary_checkpoint_reentry(**case.kwargs) == case.receipt
+    assert _ordinary_checkpoint_reentry(**case.kwargs)[0] == case.receipt
 
 
 def test_first_acquired_basis_preserves_typed_unresolved_comparison() -> None:
@@ -222,6 +231,7 @@ def test_first_acquired_basis_preserves_typed_unresolved_comparison() -> None:
         observation_id="acquired-observation",
         preparation_job_id="selected-action",
         n5_execution_configuration=configuration,
+        transaction_time="2026-11-24T00:44:48.959775+00:00",
     )
     missing_prior = ("acquisition_prior_frontier_basis_not_established",)
     changed_identity = ("candidate_n5_current_declared_identity_changed",)
@@ -233,7 +243,7 @@ def test_first_acquired_basis_preserves_typed_unresolved_comparison() -> None:
     )
     # This covers the historical predicate join; the public history owner
     # separately reopens and recomputes the exact selected result and frontier.
-    _verify_first_acquired_basis_provenance(
+    assert not _verify_first_acquired_basis_provenance(
         decision=decision, prospective=recomputed, selected=recomputed
     )
     unresolved_decision = decision.model_copy(
@@ -248,8 +258,18 @@ def test_first_acquired_basis_preserves_typed_unresolved_comparison() -> None:
             ).hex(),
         }
     )
-    _verify_first_acquired_basis_provenance(
+    assert not _verify_first_acquired_basis_provenance(
         decision=unresolved_decision, prospective=unresolved_basis, selected=recomputed
+    )
+    resumed = recomputed.model_copy(
+        update={
+            "preparation_inputs": inputs.model_copy(
+                update={"transaction_time": "2026-11-24T00:47:07.235812+00:00"}
+            )
+        }
+    )
+    assert _verify_first_acquired_basis_provenance(
+        decision=unresolved_decision, prospective=unresolved_basis, selected=resumed
     )
     foreign = recomputed.model_copy(
         update={
@@ -268,3 +288,35 @@ def test_first_acquired_basis_preserves_typed_unresolved_comparison() -> None:
             _verify_first_acquired_basis_provenance(
                 decision=selected_decision, prospective=prospective, selected=selected
             )
+
+
+def test_changed_first_acquired_preparation_time_requires_a_recovered_attempt(
+    retained_checkpoint,
+) -> None:
+    case = retained_checkpoint
+    service = case.kwargs["control_service"]
+    control = service._control_store
+    head = replace(
+        case.kwargs["head"],
+        coarse_phase="terminal",
+        receipt_phase="terminal",
+        recovery_state="complete",
+    )
+    job, worker, attempt = _create_action_job(control, job_id=head.job_id, run_id=head.run_id)
+    assert attempt == 1
+    with control.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+        control.complete_job(job_id=job.job_id, progress={"terminal_receipt_ref": head.receipt_ref})
+    recorded = control.get_job(head.job_id)
+    assert recorded.state == "completed" and recorded.attempt == 1
+    assert recorded.progress["terminal_receipt_ref"] == head.receipt_ref
+
+    with pytest.raises(ValueError, match="candidate_first_acquired_recovered_job_mismatch"):
+        _verify_recovered_first_acquired_preparation(
+            control_service=service,
+            snapshot=SimpleNamespace(head=head),
+            decision=case.kwargs["decision"],
+            growth=case.kwargs["growth"],
+            reentry=case.receipt,
+            prospective_time="2026-11-24T00:44:48.959775+00:00",
+            selected_time="2026-11-24T00:47:07.235812+00:00",
+        )

@@ -20892,6 +20892,26 @@
           "cold_failed_guard_sha256": "7a89867f0df24c5c1db69b8f9ee811b1ab48eb32b517fb33e50cb9cebcfb1f04",
           "verified_boundary": "Producer deliberately exits 75 after exact reentry and before frontier or terminal. One bounded local replay of retained B, one N5/two seeds. After actual lease expiry, new worker claims same job at attempt 2, selects same saved execution/result at frontier 1 and adds zero N5/provider. Resume PASS. Fresh process fails same_offer_fresh_history_unavailable; diagnose separately without work replay."
         },
+        "acq01_04_bounded_ordinary_marker_and_failed_second_attempt": {
+          "source_commit": "29037fad8180564f2b348c83cbd2bf9ad620406c",
+          "source_tree": "541769921f31ed59edecb726969d8f8be8ab3fa0",
+          "output": "Isolated ACQ owner checkout:policy-engine/_cache/e02/acq01-04-ordinary-pre-kernel-source.zhl33hys/source/policy-engine/_cache/e02/acq01-04-ordinary-pre-kernel-r1.MaqgJbfX/before-kernel.json",
+          "sha256": "1a02173c43afd2c7b90661d0c65f12d4ca1b9454adfa8a3464e4e07e169552bd",
+          "seed_guard_sha256": "7fd63c1d687b0f8d7393e4dfaef2461489c6e79a77d98f00d78c48da5e50c7f5",
+          "start_guard_sha256": "5b31779c62519f50df6bc9da450e2493112819512d6b54e97b7a1dc37c56e588",
+          "resume_guard_sha256": "f2ef35fb0f0cf4d37546079776aaf7eb5c875c37f888bfe2be926558a8817aef",
+          "verified_boundary": "A settles one standard unit. Paid B deliberately exits after stock directory fsync and before physical entry (76). On genuine expiry the same job acquires attempt 2, proves the unchanged original window and persists its context before a Native-only readiness guard refuses ordinary work. Exact ledger stays revision 31, no B reserve, supplier work or N5 in attempt 2, protected available. Terminal failed job requires fresh same-subject authorization with the exact no-work evidence."
+        },
+        "acq01_04_same_offer_actual_recovered_fresh_r3_wire": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "consumer_history_sha256": "2a196f7638eb4036befb280c98878c94e485285d65dbad8ccf635492cb19134a",
+          "output": "Isolated ACQ owner checkout:policy-engine/_cache/e02/acq01-04-ordinary-same-offer-cold-r3-TWkCVHbQ/fresh-wire.json",
+          "sha256": "648d4c8e5e2a260a0cecfa412e63460591032142ca8a1ac2a08a92d293d1a6d6",
+          "body_sha256": "c0f8d649eea3780826f43d24624fe520f90779892cc57bbde84a38239304ebcb",
+          "guard_sha256": "a347f0c807ec1c879b4f4d295add01a1edc5c4997379bfc8675729505fcafb40",
+          "component_junit_sha256": "23d075edd8b9547b375e8dd404afa09b4fe88477fdfca4c42aac66329c6bb1fe",
+          "verified_boundary": "Signed HTTP 200 ordinary history.v2, two verified rows and no limitation. B is reentry_completed with exact execution and result, two trajectories at 29548012454912 and original F0 preserved. SQL independently selects revision 1. Only three private GET audit entries are new; SQL, original CAS and provider journals match. Raw guard COMMAND_FAIL 49.264 seconds on the incorrect V5 wrapper oracle. Twenty-two focused history checks pass. Exact attempt-event withdrawal remains pending."
+        },
         "ordinary_signed_acquisition_routes_published": {
           "source_commit": "579e3e96e75a4734da3cc1aab815384ff5bb25f1",
           "source_tree": "a360cc2c57a77d63596d01ee12c9a90d1d0e51d1",
@@ -20907,6 +20927,16 @@
           "sha256": "aaa94745f0f33961b7d1a44b4dbf33a1ce41ecb983317443d59b0fd68a330759",
           "junit_sha256": "3b0a89cde3248f9d0f5040402e724417d09c9aff9688ecd24afd02c483772435",
           "verified_boundary": "Four focused checks pass in 31.511 seconds at 1396129792 B on the working source. Relevant reader functions match the selective published stage. The two full revised integration mirrors remain unrun. No numerical replay or genuine two-occurrence adverse case in this wave."
+        },
+        "acq01_06_labor_corrected_fresh_selected_read": {
+          "source_commit": "29037fad8180564f2b348c83cbd2bf9ad620406c",
+          "actual_consumer_source_sha256": "f8efefeeb0d23dfb1a409ead34294d0e5966999250fa7a7c3d381859ca44b77c",
+          "output": "Primary:policy-engine/_cache/e02/acq01-corrected-labor-selected-cold.4Fiu04s2/execution-r1/positive.json",
+          "sha256": "8ad3413ade00f9f0df53c504a705796f3d26f04a65e80502f135e89e72800cf1",
+          "body_sha256": "64a1633bff4eb95af5b0def19db2989c7a6c6fe01aa3c15c2fd933cd73a756fb",
+          "guard_sha256": "d041a247a0603c5ba0a0567b7de5e886f5604e0c16d5b59aab57b9ae9ba5ba30",
+          "reconciliation_sha256": "607cae5a334649e3a6daad172e8d5268d4e81d6d2a2478c02bbdcc3267b1191a",
+          "verified_boundary": "A separate signed GET returns HTTP 200 with the sole V5 history, exact B outcome 0.17699999701976776 and effect 0.0020000000000000018 on both trajectories at frontier revision 1. Selected basis recomputed; no observed admission or publication, comparison/currentness not established. Original SQL, CAS, quota and ledger unchanged; zero supplier/N5/worker. Joined PASS 58.083 seconds, RSS 1766817792 B."
         },
         "acq01_06_labor_corrected_producer_terminal_and_reader_stop": {
           "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
@@ -20953,6 +20983,20 @@
           "guard_sha256": "f2f581e1b44b6d05edcde556de68fffd05e3208a44e2151dfaf36f44a2e8e379",
           "junit_sha256": "cdc5993a59c448d0b5beeac3e4f8ecf902d96a7a1960c84d9494a544ed4617d6",
           "verified_boundary": "A actual two standard completed calls recorded, 1 standard and 1 protected available. B setup stops on a non-exported verifier import before B work. Group joined COMMAND_FAIL at 131.085 seconds, RSS 1618444288 B. Reuse the retained exact A and canonical B owner."
+        },
+        "cyc0304_retained_b_partial_reentry_terminal_verifier_stop": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "output": "policy-engine/_cache/e02/cyc03-04-partial-b-draft.D0dlj6DE/retained-a-b-r1.dQSNy6QX/execute-r1.7PfSnHC2/budget/result.json in the CPI checkout",
+          "sha256": "a2cfe86b3607a5cc4dea98a3ee166477e64aea2e6469f0a11a17f66c36c126d9",
+          "n5_envelope_sha256": "9e7ffa724f4dd7497d62608dd630c19e337396b38e67fccc059638a77ff3a815",
+          "verified_boundary": "Sealed real B input fc53ffe4, zero-trajectory partial result 732bbb33, exact candidate-only reentry c1542ad9 and growth event. One kernel, one completed standard quota, one denied reserve, protected intact. Owner terminal verification expects a trajectory and refuses. Job failed attempt 1, selected pending head, frontier absent. Guard COMMAND_FAIL 2227.953 seconds, RSS 1560821760 B. Continue from exact saved partial evidence with no new N5."
+        },
+        "cyc0304_common_blocked_quota_proof_component": {
+          "source_commit": "29037fad8180564f2b348c83cbd2bf9ad620406c",
+          "output": "Primary:policy-engine/_cache/e02/cyc0304-blocked-quota-proof.iTWjt7sr/junit.xml",
+          "sha256": "29c59ea46a5c1fb6a0f4e73f58d68f9b859433d6a8f7742f16c760892e311cf6",
+          "guard_sha256": "5b518d0e50fa89258abea863d07c80dc6f8404d71a96f197fe93ed7b505f4b00",
+          "verified_boundary": "Six focused cases pass in 25.734 seconds on pinned working source. A typed no-trajectory blocked result requires its exact work input and resource-bound quota window. The bounded open/reserve/complete suffix reconstruction distinguishes a previously pending same-content operation. Actual sealed B replay and terminal custody remain pending."
         },
         "cyc0304_retained_a_b_exact_second_operation_exhausted": {
           "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
@@ -37521,14 +37565,16 @@
             "acq01_04_signed_offer_second_enqueue_event_collision",
             "acq01_04_two_catalog_offers_component_r4",
             "generic_served_sequence_r4_retained",
-            "lane01_r33_composed_historical_reader"
+            "lane01_r33_composed_historical_reader",
+            "acq01_04_same_offer_actual_recovered_fresh_r3_wire",
+            "acq01_04_bounded_ordinary_marker_and_failed_second_attempt"
           ],
-          "basis": "Actual R13 dual-actor race selects B while A is inside N5, retains A as diagnostics, and reopens precise selection through a fresh GET with a removal control. Separate same-offer worker takes the genuinely expired lease at attempt 2 and selects the same already durable execution with zero N5 or provider requests. Scientific C verifies metered recovery at the physical start boundary.",
+          "basis": "Actual R13 selects B during A's N5, retains A as diagnostics and reopens precise selection through fresh GET with a removal control. A separate same-offer worker takes a genuinely expired lease and selects the already durable B with zero extra N5 or provider requests. A fresh ordinary API returns exact B and the preceding row. The distinct bounded ordinary case proves the durable start marker and unchanged quota through actual attempt 2, which stops at the older Native-only check.",
           "remaining_kinds": [
             "bridge_missing",
             "verification_missing"
           ],
-          "remaining": "Verify the fresh API after same-offer recovery and connect the ordinary bounded profile to the existing durable budget/window and physical owner. Exercise recovery after a genuinely fsynced pre-work marker on that configured ordinary profile, with exact authorized observer identity, one N5 and preserved protected quota. Ordinary unmetered replay refuses when no settled result proves the boundary."
+          "remaining": "Withdraw the exact renewed running event in the post-result reader control. Provide scoped same-subject failed-job continuation from the confirmed ordinary no-work window, then prove exactly one new N5 and fresh selected API result with protected quota preserved. Ordinary unmetered replay refuses when no settled result proves the boundary."
         },
         {
           "requirement_id": "REQ-ACQ-01-05",
@@ -37575,13 +37621,14 @@
             "scientific_c_selected_read_reconciliation",
             "gdp_producer_fresh_read_reconciliation",
             "candidate_source_metric_separation_current",
-            "acq01_06_retained_governed_missing_need"
+            "acq01_06_retained_governed_missing_need",
+            "acq01_06_labor_corrected_fresh_selected_read"
           ],
-          "basis": "Scientific C and GDP provide actual distinct scoped producer and reader witnesses. A shared candidate source owner independently exercises typed metric separation.",
+          "basis": "Actual qualified GDP and corrected Labor producers give distinct scoped numerical candidates and fresh stock consumers. The Labor outcome is 0.17699999701976776 with exact selected V5 basis on revision 1. A shared candidate source owner verifies typed metric separation, and the real D5 retained resolver refusal verifies the missing need before effects.",
           "remaining_kinds": [
             "verification_missing"
           ],
-          "remaining": "Join the accepted common contract, actual source IDs and queries and both numerical consumers after the remaining ACQ-01-01 through ACQ-01-05 criteria. The real D5 retained resolver missing-need control is verified before effects. Preserve the candidate authority envelope in the shared LA-046 disposition."
+          "remaining": "Complete the common ACQ-01-04 and ACQ-01-05 prerequisites, then join both real consumer paths to the common requirement contract for LA-046. Preserve candidate-only authority and the original partial wrapper evidence."
         }
       ]
     },
@@ -37728,13 +37775,16 @@
           "evidence_refs": [
             "changed_c_r2_retained_b_fresh_read",
             "lane01_r33_composed_historical_reader",
-            "r33_independent_fresh_reader_r6"
+            "r33_independent_fresh_reader_r6",
+            "cyc0304_retained_b_partial_reentry_terminal_verifier_stop",
+            "cyc0304_common_blocked_quota_proof_component"
           ],
-          "basis": "Fresh API reads confirm that changed C is current and retained B remains identifiable and readable.",
+          "basis": "Real same-candidate A and B now exist. A retains two historical standard units. B completes exactly one standard unit, refuses the second on the original quota and persists a typed partial result and reentry. The protected unit remains available.",
           "remaining_kinds": [
+            "bridge_missing",
             "verification_missing"
           ],
-          "remaining": "Show a worse latest valid occurrence in the live front, with both occurrences in history for the same stable candidate. Scientific C, R33 and same-image GDP re-entry retain research occurrences; an evaluation refusal is not an adverse candidate occurrence. The modern experiment reader verifies V5 history but currently does not join its effective candidate run into the current-front projection."
+          "remaining": "Verify the exact partial B through the common owner, settle the blocked candidate terminal from the existing reentry with same-subject custody and zero additional physical work, and verify both occurrences, exact status and foreign occurrence/root controls through a fresh API."
         },
         {
           "requirement_id": "REQ-CYC-03-05",

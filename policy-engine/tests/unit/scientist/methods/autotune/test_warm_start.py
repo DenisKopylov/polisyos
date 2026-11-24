@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta, timezone
+from logging import INFO
 from typing import Any
 from unittest.mock import MagicMock
 
@@ -672,6 +673,82 @@ class TestTransferLearningManagerWarmStart:
             third_id,
             fourth_id,
         }
+
+    def test_explicit_history_quota_fills_from_valid_rows_before_diagnostics(
+        self, tmp_path, caplog
+    ):
+        malformed = _stored_eval("rejected", 0.0, "short")
+        malformed["stage_a_passed"] = "false"
+        unknown_time = _stored_eval("unavailable", 0.0, "long")
+        del unknown_time["timestamp"]
+        manager, sources = _manager_with_history(
+            tmp_path,
+            {
+                "short": [malformed],
+                "long": [
+                    _stored_eval("nine", 9.0, "long"),
+                    _stored_eval("one", 1.0, "long"),
+                    _stored_eval("two", 2.0, "long"),
+                    unknown_time,
+                ],
+            },
+        )
+        target = _complete_fingerprint("target-run", embedding=[])
+        selected = list(sources.values())
+        bridge = WarmStartBridge(manager, max_evals=4)
+        legacy = bridge.load_warm_start(target, similar_runs=selected)
+        assert len(legacy) == 4 and legacy[0].candidate_id == "rejected"
+
+        with caplog.at_level(INFO):
+            bounded = bridge.load_warm_start(target, similar_runs=selected, eligible_quota=3)
+            diagnostic = WarmStartBridge(manager, max_evals=2).load_warm_start(
+                target, similar_runs=selected, eligible_quota=0
+            )
+
+        assert [row.candidate_id for row in bounded] == ["one", "two", "nine", "rejected"]
+        assert [row.scalar_score for row in bounded if row.is_valid] == [1.0, 2.0, 9.0]
+        assert bounded[-1].metadata["transfer_error"] == "stage_a_passed must be a boolean"
+        assert [row.candidate_id for row in diagnostic] == ["rejected", "unavailable"]
+        assert not any(row.is_valid for row in diagnostic)
+        assert "returned=4 eligible=3 rejected=1 unavailable=0" in caplog.text
+        assert "returned=2 eligible=0 rejected=1 unavailable=1" in caplog.text
+        with pytest.raises(ValueError, match="eligible_quota"):
+            bridge.load_warm_start(target, similar_runs=selected, eligible_quota=5)
+
+    def test_explicit_history_quota_retains_maximize_order(self, tmp_path):
+        store = FileSystemCAS(tmp_path / "cas")
+        index = _MemoryVectorIndex()
+        source = _complete_fingerprint("maximize-source", embedding=[])
+        source = source.model_copy(
+            update={
+                "objective_directions": {"score": OptimizationDirection.MAXIMIZE.value},
+                "objective_rule_specs": {
+                    "score": configured_objective_rule_spec(
+                        GDPGrowthObjective(expected_unit="points")
+                    )
+                    or "",
+                },
+            }
+        )
+        writer = TransferLearningManager(store, index)
+        ref = writer.register_run(
+            source,
+            [
+                _make_eval(
+                    str(value), value, source.run_id, direction=OptimizationDirection.MAXIMIZE
+                )
+                for value in (1.0, 2.0, 9.0)
+            ],
+        )
+        assert ref is not None
+        fresh = TransferLearningManager(FileSystemCAS(store.root), index)
+        selected = [source.model_copy(update={"history_ref": ref})]
+        target = source.model_copy(update={"run_id": "maximize-target"})
+        warmed = WarmStartBridge(fresh, max_evals=3).load_warm_start(
+            target, similar_runs=selected, eligible_quota=2
+        )
+        assert [row.scalar_score for row in warmed] == [9.0, 2.0]
+        assert all(row.is_valid for row in warmed)
 
     def test_malformed_row_is_reported_instead_of_silently_dropped(self, tmp_path):
         candidate_id = _artifact_id("r")

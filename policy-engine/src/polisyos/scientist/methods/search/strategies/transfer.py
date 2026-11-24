@@ -10,7 +10,9 @@ import json
 import logging
 import math
 from collections import OrderedDict
+from collections.abc import Iterator
 from dataclasses import replace
+from itertools import islice, zip_longest
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
@@ -227,14 +229,21 @@ class TransferLearningManager:
         max_evals: int = 50,
         *,
         target_fingerprint: RunFingerprint,
+        eligible_quota: int | None = None,
     ) -> list[Evaluation]:
         """Reuse compatible history only after a complete target identity is supplied.
 
         Collects the best evaluations from each binding-compatible run, up to
-        ``max_evals`` total. Incomplete or malformed target identities are
-        refused before any history read. The result remains a list so rejected
-        history rows stay visible to compatible callers.
+        ``max_evals`` total. The default preserves round-robin delivery across
+        ordinary and diagnostic rows. An explicit ``eligible_quota`` selects up
+        to that many source-reconciled rows first and uses the remaining total
+        budget for diagnostics. Eligibility here covers the stored objective
+        basis. Actual optimizer admission remains with its target verifier.
         """
+        if eligible_quota is not None and (
+            type(eligible_quota) is not int or not 0 <= eligible_quota <= max_evals
+        ):
+            raise ValueError("eligible_quota must be an integer between zero and max_evals")
         if max_evals <= 0 or not similar_runs:
             return []
         if not isinstance(
@@ -266,27 +275,43 @@ class TransferLearningManager:
             if evaluations:
                 prepared.append(evaluations)
 
-        # Give every compatible source its first observation, then redistribute
-        # the remaining capacity round-robin.  This avoids the old floor quota
-        # dropping unused capacity from short histories while retaining source
-        # diversity for the initial warm-start corpus.
-        all_evals: list[Evaluation] = []
-        offsets = [0] * len(prepared)
-        while len(all_evals) < max_evals:
-            progressed = False
-            for index, evaluations in enumerate(prepared):
-                offset = offsets[index]
-                if offset >= len(evaluations):
-                    continue
-                all_evals.append(evaluations[offset])
-                offsets[index] += 1
-                progressed = True
-                if len(all_evals) >= max_evals:
-                    break
-            if not progressed:
-                break
+        if eligible_quota is None:
+            return list(islice(self._round_robin(prepared), max_evals))
 
-        return all_evals
+        eligible_by_run: list[list[Evaluation]] = []
+        diagnostics_by_run: list[list[Evaluation]] = []
+        for evaluations in prepared:
+            eligible: list[Evaluation] = []
+            diagnostics: list[Evaluation] = []
+            for evaluation in evaluations:
+                row_set = (
+                    eligible
+                    if self._history_eligible(evaluation, target_fingerprint)
+                    else diagnostics
+                )
+                row_set.append(evaluation)
+            eligible_by_run.append(eligible)
+            diagnostics_by_run.append(diagnostics)
+        selected = list(islice(self._round_robin(eligible_by_run), eligible_quota))
+        diagnostics = list(islice(self._round_robin(diagnostics_by_run), max_evals - len(selected)))
+        rejected = sum(
+            row.status is not EvaluationStatus.SUCCESS or not row.stage_a_passed
+            for row in diagnostics
+        )
+        logger.info(
+            "Warm-start history returned=%d eligible=%d rejected=%d unavailable=%d",
+            len(selected) + len(diagnostics),
+            len(selected),
+            rejected,
+            len(diagnostics) - rejected,
+        )
+        return selected + diagnostics
+
+    @staticmethod
+    def _round_robin(batches: list[list[Evaluation]]) -> Iterator[Evaluation]:
+        """Preserve source diversity while filling beyond short histories."""
+        for next_rows in zip_longest(*batches):
+            yield from (row for row in next_rows if row is not None)
 
     @staticmethod
     def _serialize_evaluation(evaluation: Evaluation) -> dict[str, Any]:
@@ -512,6 +537,13 @@ class TransferLearningManager:
     ) -> bool:
         """Admit a history row only when each score coordinate matches selected rules."""
         if not TransferLearningManager._has_complete_binding_basis(fingerprint):
+            return False
+        return TransferLearningManager._history_eligible(evaluation, fingerprint)
+
+    @staticmethod
+    def _history_eligible(evaluation: Evaluation, fingerprint: RunFingerprint) -> bool:
+        """Apply the stored selected objective basis independently of delivery quota."""
+        if evaluation.timestamp is None:
             return False
         return TransferLearningManager._evaluation_matches_objective_rules(
             evaluation.objectives,

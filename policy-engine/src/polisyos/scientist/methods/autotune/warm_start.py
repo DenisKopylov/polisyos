@@ -46,12 +46,16 @@ class WarmStartBridge:
         fingerprint: RunFingerprint,
         *,
         similar_runs: list[RunFingerprint] | None = None,
+        eligible_quota: int | None = None,
     ) -> list[Evaluation]:
         """Load indexed evaluations, optionally using an already-resolved source set.
 
         The manager rechecks the full fingerprint binding before reading each
         selected history, so callers may retain the exact index result and its
-        immutable history reference without repeating discovery.
+        immutable history reference without repeating discovery. An explicit
+        ``eligible_quota`` bounds source-eligible rows separately from diagnostics
+        within the bridge's total row limit. The target still verifies its own
+        admission and compatibility.
         """
         similar = (
             self._manager.find_similar_runs(fingerprint, top_k=self._top_k_runs)
@@ -66,6 +70,7 @@ class WarmStartBridge:
             similar,
             max_evals=self._max_evals,
             target_fingerprint=fingerprint,
+            eligible_quota=eligible_quota,
         )
         logger.info(
             "WarmStartBridge: loaded %d warm-start evaluations from %d similar runs",

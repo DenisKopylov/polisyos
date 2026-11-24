@@ -12,6 +12,7 @@ import json
 import math
 from collections import Counter
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts import (
@@ -125,6 +126,125 @@ _REGISTERED_SQL_MEASUREMENT_READ_LIMITS = CoreJsonReadLimits(
     max_elements=100_000,
     max_manifest_bytes=512 * 1024,
 )
+
+
+@dataclass(frozen=True, slots=True)
+class ActivatedMeasurementScopeSelection:
+    """One owner-verified source and the complete selected observation subset.
+
+    The selection is a candidate read result, not a claim of source
+    currentness, scientific identification, or publication authority.
+    """
+
+    requested_scope: ModelInputScope
+    source_selection: ScopedSourceSelection
+    projection_content_sha256: str
+    selected_rows: tuple[tuple[str, str], ...]
+    selection_content_sha256: str
+
+
+def select_activated_measurement_scope(
+    store: CoreJSONArtifactStore,
+    overlay: CatalogAcquisitionOverlay,
+    *,
+    receipt_ref: ArtifactRef,
+    passport: ActivatedAcquisitionPassport,
+    authority: CanonicalAcquisitionAuthority,
+    requested_scope: ModelInputScope,
+    dataset_version: str,
+) -> ActivatedMeasurementScopeSelection:
+    """Reopen the whole active source before selecting an annual scope.
+
+    Each row is decoded with the same source-owned scope rules used by
+    occurrence replay. The returned identity binds the selected receipt,
+    passport, boundary, source record and version, requested coordinates,
+    and every selected row hash. Unknown or contradictory coordinates refuse
+    the selection rather than silently falling back to a broader source.
+
+    Args:
+        store: Shared selected-artifact store.
+        overlay: Active Catalog acquisition owner.
+        receipt_ref: Selected active receipt to reopen.
+        passport: Passport to verify against that receipt and source.
+        authority: Canonical source-admission authority.
+        requested_scope: Explicit observation-time, calendar-year scope.
+        dataset_version: Explicit expected owner dataset version.
+
+    Returns:
+        ActivatedMeasurementScopeSelection: Verified source and selected rows.
+
+    Raises:
+        ValueError: If the owner, version, or any source scope is unresolved.
+    """
+    if not isinstance(requested_scope, ModelInputScope):
+        raise _AssessmentRefusal("measurement_scope_untyped")
+    try:
+        requested_scope = ModelInputScope.model_validate(requested_scope.model_dump(mode="python"))
+    except (TypeError, ValueError) as exc:
+        raise _AssessmentRefusal("measurement_scope_invalid") from exc
+    if (
+        requested_scope.time_role != "observation_time"
+        or requested_scope.period_basis != "calendar_year"
+        or (requested_scope.period_start.month, requested_scope.period_start.day) != (1, 1)
+        or (requested_scope.period_end.month, requested_scope.period_end.day) != (12, 31)
+    ):
+        raise _AssessmentRefusal("measurement_scope_time_not_supported")
+    if not isinstance(dataset_version, str) or not dataset_version.strip():
+        raise _AssessmentRefusal("measurement_scope_dataset_version_missing")
+    projection = overlay.read_activated_semantic_epoch_observations(
+        receipt_ref=receipt_ref,
+        artifact_store=store,
+        passport=passport,
+        authority=authority,
+    )
+    projection = ActivatedAcquisitionObservationProjection.model_validate(
+        projection.model_dump(mode="json")
+    )
+    _reopen_activation_evidence(store, projection, receipt_ref=receipt_ref, passport=passport)
+    source = _source_selection_for_projection(
+        store, projection=projection, receipt_ref=receipt_ref, passport=passport
+    )
+    if dataset_version != source.dataset_version:
+        raise _AssessmentRefusal("measurement_scope_dataset_version_mismatch")
+
+    selected_rows: list[tuple[str, str]] = []
+    for row in projection.observations:
+        observation = row.observation
+        try:
+            scope = source.scope_for_canonical_observation(
+                country_code=observation.country_code,
+                year=observation.year,
+                survey_year=observation.survey_year,
+                wave=observation.wave,
+                condition_json=observation.condition_json,
+            )
+        except ValueError as exc:
+            raise _AssessmentRefusal("measurement_scope_source_unresolved") from exc
+        if (
+            scope.population_ref == requested_scope.population_ref
+            and scope.geography_ref == requested_scope.geography_ref
+            and scope.jurisdiction_ref == requested_scope.jurisdiction_ref
+            and scope.period_basis == requested_scope.period_basis
+            and requested_scope.period_start <= scope.period_start
+            and scope.period_end <= requested_scope.period_end
+        ):
+            selected_rows.append((observation.observation_id, row.row_content_sha256))
+    if not selected_rows:
+        raise _AssessmentRefusal("measurement_scope_no_matching_observations")
+    canonical_rows = tuple(sorted(selected_rows))
+    identity = {
+        "requested_scope": requested_scope.model_dump(mode="json"),
+        "source_selection": source.model_dump(mode="json"),
+        "projection_content_sha256": projection.projection_content_sha256,
+        "selected_rows": canonical_rows,
+    }
+    return ActivatedMeasurementScopeSelection(
+        requested_scope=requested_scope,
+        source_selection=source,
+        projection_content_sha256=projection.projection_content_sha256,
+        selected_rows=canonical_rows,
+        selection_content_sha256=_sha256_mapping(identity),
+    )
 
 
 def materialize_activated_measurement_occurrence(
@@ -1111,18 +1231,14 @@ def _manifest_selected_ref(manifest: ArtifactManifest) -> ArtifactRef:
     )
 
 
-def _materialize_occurrence(
+def _source_selection_for_projection(
     store: CoreJSONArtifactStore,
     *,
     projection: ActivatedAcquisitionObservationProjection,
-    observation: CanonicalAcquisitionObservation,
-    observation_content_sha256: str,
     receipt_ref: ArtifactRef,
     passport: ActivatedAcquisitionPassport,
-    expected_transform: object,
-) -> tuple[ScopedSourceSelection, ScopedMeasurementOccurrence]:
-    """Build the occurrence only after replaying its exact admitted source bytes."""
-
+) -> ScopedSourceSelection:
+    """Rebuild the shared selected source mapping from its owner evidence."""
     selected_receipt = _selected_exact_ref(store, receipt_ref)
     selected_passport = _selected_exact_ref(store, projection.passport_ref)
     boundary_ref = _selected_exact_ref(store, passport.semantic_boundary_candidate_ref)
@@ -1138,9 +1254,8 @@ def _materialize_occurrence(
     if boundary_statement.source_record_content_hash != str(source_record_ref.artifact_id):
         raise _AssessmentRefusal("source_boundary_record_watermark_mismatch")
     try:
-        passport_mapping = passport.model_dump(mode="json")
-        source_selection = scoped_source_selection_from_passport_mapping(
-            passport_mapping,
+        return scoped_source_selection_from_passport_mapping(
+            passport.model_dump(mode="json"),
             source_receipt_ref=SelectedVariableBindingRef.model_validate(
                 selected_receipt.model_dump(mode="json")
             ),
@@ -1154,6 +1269,27 @@ def _materialize_occurrence(
                 source_record_ref.model_dump(mode="json")
             ),
         )
+    except (TypeError, ValueError) as exc:
+        raise _AssessmentRefusal("source_occurrence_replay_failed") from exc
+
+
+def _materialize_occurrence(
+    store: CoreJSONArtifactStore,
+    *,
+    projection: ActivatedAcquisitionObservationProjection,
+    observation: CanonicalAcquisitionObservation,
+    observation_content_sha256: str,
+    receipt_ref: ArtifactRef,
+    passport: ActivatedAcquisitionPassport,
+    expected_transform: object,
+) -> tuple[ScopedSourceSelection, ScopedMeasurementOccurrence]:
+    """Build the occurrence only after replaying its exact admitted source bytes."""
+
+    source_selection = _source_selection_for_projection(
+        store, projection=projection, receipt_ref=receipt_ref, passport=passport
+    )
+    try:
+        passport_mapping = passport.model_dump(mode="json")
         witness = (
             None
             if expected_transform is None

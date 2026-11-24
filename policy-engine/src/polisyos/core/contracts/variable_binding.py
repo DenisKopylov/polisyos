@@ -351,6 +351,38 @@ class ScopedSourceSelection(BaseModel):
         """Merge source declarations, rejecting contradictory row coordinates."""
         return _apply_declared_source_condition(condition, declared)
 
+    def scope_for_canonical_observation(
+        self,
+        *,
+        country_code: str,
+        year: int | None,
+        survey_year: int | None,
+        wave: int | None,
+        condition_json: str,
+    ) -> ModelInputScope:
+        """Resolve scope with the same rules as an independently replayed occurrence.
+
+        Callers must obtain the observation and this selection from their
+        verified source owner. This method decodes their coordinates; it does
+        not itself authenticate the source or assert empirical currentness.
+        """
+        try:
+            condition = json.loads(condition_json)
+        except (TypeError, json.JSONDecodeError) as exc:
+            raise ValueError("scoped_occurrence_scope_condition_invalid") from exc
+        if not isinstance(condition, Mapping):
+            raise ValueError("scoped_occurrence_scope_condition_invalid")
+        merged = self.apply_declared_condition(condition, self.declared_source_condition)
+        if "unit" in merged and merged["unit"] != self.canonical_unit:
+            raise ValueError("scoped_occurrence_condition_unit_mismatch")
+        return _scope_from_occurrence_fields(
+            country_code=country_code,
+            year=year,
+            survey_year=survey_year,
+            wave=wave,
+            condition_json=json.dumps(merged, sort_keys=True, separators=(",", ":")),
+        )
+
     @model_validator(mode="after")
     def _selected_source_refs(self) -> ScopedSourceSelection:
         if any(

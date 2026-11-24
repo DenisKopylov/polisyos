@@ -18,7 +18,8 @@ from polisyos.core.artifacts import (
     input_ref_from_artifact_ref,
     validate_core_model_json_artifact,
 )
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo, artifact_ref_identity_key
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.entity_axis import (
     EntityAxisMemberId,
@@ -875,6 +876,27 @@ def test_live_scoped_measurement_replays_in_a_fresh_reader_and_refuses_removed_r
             catalog_read_api.replay_selected_scoped_measurement_facts(fresh_store, occurrence_ref)
         )
         assert stored_occurrence == occurrence == replayed_occurrence
+        declared_scope = ModelInputScope(
+            population_ref="population:treasury",
+            geography_ref="UA",
+            jurisdiction_ref="UA",
+            period_start=date(2022, 1, 1),
+            period_end=date(2022, 12, 31),
+            time_role="observation_time",
+            period_basis="calendar_year",
+        )
+        scoped = catalog_read_api.select_activated_measurement_scope(
+            store,
+            history.overlay,
+            receipt_ref=projection.receipt_ref,
+            passport=active.passport,
+            authority=history.authority,
+            requested_scope=declared_scope,
+            dataset_version=active.passport.dataset_version,
+        )
+        assert scoped.source_selection == source_selection
+        assert scoped.selected_rows == ((row.observation.observation_id, row.row_content_sha256),)
+        assert replayed_occurrence.source_scope == declared_scope
         assert source_selection.source_receipt_ref == occurrence.source_receipt_ref
         assert source_selection.source_passport_ref == occurrence.source_passport_ref
         assert (
@@ -1104,3 +1126,224 @@ def test_native_catalog_optional_methodology_is_limited_while_required_denominat
         assert assess(original_ref).status == "candidate"
     finally:
         native_owner.overlay.close()
+
+
+def test_active_source_scope_selects_exact_signed_rows_and_refuses_fallback(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Candidate source scope selects owner rows before any downstream row cap."""
+    from polisyos.data_forge.read_api import catalog as catalog_read_api
+
+    store = FileSystemCAS(tmp_path / "cas")
+    rows = [
+        {
+            "country_code": "UA",
+            "year": year,
+            "value_raw": 0.3,
+            "condition_json": json.dumps(
+                {
+                    "population_ref": population,
+                    "geography_ref": "UA",
+                    "jurisdiction_ref": "UA",
+                    "time_period_basis": "calendar_year",
+                },
+                sort_keys=True,
+            ),
+        }
+        for population in ("population:first", "population:second")
+        for year in range(2019, 2023)
+    ]
+    owner = make_native_multivariable_active_projections(
+        tmp_path / "owner",
+        source_rows=rows,
+        variable_specs=(
+            {
+                "target_variable": "test.policy.scoped_value",
+                "raw_field": "value_raw",
+                "raw_unit": "ratio",
+                "canonical_unit": "ratio",
+                "valid_min": 0.0,
+                "valid_max": 1.0,
+            },
+        ),
+        condition_units_by_raw_field={"value_raw": "ratio"},
+        artifact_store=store,
+        return_selected_raw_profile=True,
+    )
+    try:
+        projection = owner.projections["test.policy.scoped_value"]
+        passport = AdmissionPassport.model_validate(
+            load_verified_epoch_statement(
+                store=store,
+                ref=projection.passport_ref,
+                expected_kind="epoch.acquisition_passport_snapshot",
+            )
+        )
+        first_scope = ModelInputScope(
+            population_ref="population:first",
+            geography_ref="UA",
+            jurisdiction_ref="UA",
+            period_start=date(2019, 1, 1),
+            period_end=date(2022, 12, 31),
+            time_role="observation_time",
+            period_basis="calendar_year",
+        )
+
+        def select(scope: ModelInputScope, version: str = passport.dataset_version):
+            return catalog_read_api.select_activated_measurement_scope(
+                store,
+                owner.overlay,
+                receipt_ref=projection.receipt_ref,
+                passport=passport,
+                authority=owner.authority,
+                requested_scope=scope,
+                dataset_version=version,
+            )
+
+        first = select(first_scope)
+        second = select(first_scope.model_copy(update={"population_ref": "population:second"}))
+        by_id = {row.observation.observation_id: row for row in projection.observations}
+        first_ids = {observation_id for observation_id, _ in first.selected_rows}
+        second_ids = {observation_id for observation_id, _ in second.selected_rows}
+        assert len(first_ids) == len(second_ids) == 4
+        assert first_ids.isdisjoint(second_ids)
+        assert {by_id[item].observation.value for item in first_ids} == {0.3}
+        assert {by_id[item].observation.value for item in second_ids} == {0.3}
+        assert first.selection_content_sha256 != second.selection_content_sha256
+        assert first.source_selection.dataset_version == passport.dataset_version
+        assert artifact_ref_identity_key(first.source_selection.source_passport_ref) == (
+            artifact_ref_identity_key(projection.passport_ref)
+        )
+        assert artifact_ref_identity_key(first.source_selection.source_receipt_ref) == (
+            artifact_ref_identity_key(projection.receipt_ref)
+        )
+        assert dict(first.selected_rows) == {
+            item: by_id[item].row_content_sha256 for item in first_ids
+        }
+        selected_id = first.selected_rows[0][0]
+        occurrence_ref = catalog_read_api.materialize_activated_measurement_occurrence(
+            store,
+            owner.overlay,
+            receipt_ref=projection.receipt_ref,
+            passport=passport,
+            authority=owner.authority,
+            observation_id=selected_id,
+        )
+        stored, replayed, selection = catalog_read_api.replay_selected_scoped_measurement_facts(
+            FileSystemCAS(store.root), occurrence_ref
+        )
+        observation = by_id[selected_id].observation
+        assert stored == replayed
+        assert selection == first.source_selection
+        assert replayed.source_scope == selection.scope_for_canonical_observation(
+            country_code=observation.country_code,
+            year=observation.year,
+            survey_year=observation.survey_year,
+            wave=observation.wave,
+            condition_json=observation.condition_json,
+        )
+
+        narrowed = select(first_scope.model_copy(update={"period_start": date(2021, 1, 1)}))
+        assert len(narrowed.selected_rows) == 2
+        assert {observation_id for observation_id, _ in narrowed.selected_rows} < first_ids
+        with pytest.raises(ValueError, match="measurement_scope_dataset_version_mismatch"):
+            select(first_scope, "wrong-version")
+        with pytest.raises(ValueError, match="measurement_scope_no_matching_observations"):
+            select(first_scope.model_copy(update={"population_ref": "population:absent"}))
+        with pytest.raises(ValueError, match="measurement_scope_time_not_supported"):
+            select(first_scope.model_copy(update={"period_start": date(2019, 2, 1)}))
+        with pytest.raises(ValueError, match="measurement_scope_invalid"):
+            select(first_scope.model_copy(update={"period_start": date(2023, 1, 1)}))
+        with pytest.raises(ValueError, match="scoped_occurrence_population_missing"):
+            first.source_selection.scope_for_canonical_observation(
+                country_code="UA",
+                year=2020,
+                survey_year=None,
+                wave=None,
+                condition_json='{"unit":"ratio","jurisdiction_ref":"UA",'
+                '"time_period_basis":"calendar_year"}',
+            )
+
+        # Keep the previous selected-manifest refusal code when factoring the
+        # source mapping out of the existing occurrence producer.
+        from polisyos.data_forge.domains.catalog.knowledge import (
+            measurement_binding as owner_module,
+        )
+        from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
+            _materialize_occurrence,
+        )
+
+        materialize_inputs = {
+            "store": store,
+            "projection": projection,
+            "observation": observation,
+            "observation_content_sha256": by_id[selected_id].row_content_sha256,
+            "receipt_ref": projection.receipt_ref,
+            "passport": passport,
+            "expected_transform": observation.unit_transform_evidence,
+        }
+
+        def fail_boundary(*_args, **_kwargs):
+            raise ValueError("controlled_boundary_parse_invalid")
+
+        with monkeypatch.context() as control:
+            control.setattr(owner_module.epoch, "load_verified_epoch_statement", fail_boundary)
+            with pytest.raises(ValueError, match="controlled_boundary_parse_invalid") as refusal:
+                _materialize_occurrence(**materialize_inputs)
+            assert type(refusal.value) is ValueError
+
+        def fail_source_mapping(*_args, **_kwargs):
+            raise ValueError("controlled_source_mapping_invalid")
+
+        with monkeypatch.context() as control:
+            control.setattr(
+                owner_module, "scoped_source_selection_from_passport_mapping", fail_source_mapping
+            )
+            with pytest.raises(
+                _AssessmentRefusal, match="source_occurrence_replay_failed"
+            ) as refusal:
+                _materialize_occurrence(**materialize_inputs)
+            assert str(refusal.value.__cause__) == "controlled_source_mapping_invalid"
+
+        def fail_late_read(*_args, **_kwargs):
+            raise _AssessmentRefusal("controlled_late_source_refusal")
+
+        with monkeypatch.context() as control:
+            control.setattr(owner_module, "read_scoped_measurement_source_body", fail_late_read)
+            with pytest.raises(
+                _AssessmentRefusal, match="source_occurrence_replay_failed"
+            ) as refusal:
+                _materialize_occurrence(**materialize_inputs)
+            assert str(refusal.value.__cause__) == "controlled_late_source_refusal"
+
+        boundary_ref = passport.semantic_boundary_candidate_ref
+        assert boundary_ref.manifest_profile_sha256 is not None
+        boundary_manifest = store._member_path(
+            ArtifactID.model_validate(boundary_ref.artifact_id),
+            "manifest",
+            boundary_ref.manifest_profile_sha256,
+        )
+        boundary_bytes = boundary_manifest.read_bytes()
+        boundary_manifest.unlink()
+        try:
+            with pytest.raises(_AssessmentRefusal, match="selected_manifest_unavailable"):
+                _materialize_occurrence(**materialize_inputs)
+        finally:
+            boundary_manifest.write_bytes(boundary_bytes)
+
+        source_blob = store._member_path(
+            ArtifactID.model_validate(passport.raw_artifact_id), "blob", None
+        )
+        source_bytes = source_blob.read_bytes()
+        source_blob.unlink()
+        try:
+            with pytest.raises(
+                catalog_read_api.OverlayAdmissionError, match="raw_cas_evidence_unresolved"
+            ):
+                select(first_scope)
+        finally:
+            source_blob.write_bytes(source_bytes)
+        assert select(first_scope) == first
+    finally:
+        owner.overlay.close()

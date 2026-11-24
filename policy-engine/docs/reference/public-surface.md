@@ -10112,7 +10112,7 @@ validate_web_evidence_source_binding
 | `polisyos.data_forge` | `src/polisyos/data_forge/__init__.py` | `lazy_facade` | 49 |
 | `polisyos.data_forge.read_api` | `src/polisyos/data_forge/read_api/__init__.py` | `lazy_facade` | 30 |
 | `polisyos.data_forge.read_api.academic` | `src/polisyos/data_forge/read_api/academic.py` | `lazy_facade` | 110 |
-| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 177 |
+| `polisyos.data_forge.read_api.catalog` | `src/polisyos/data_forge/read_api/catalog.py` | `lazy_facade` | 179 |
 | `polisyos.data_forge.read_api.legal` | `src/polisyos/data_forge/read_api/legal.py` | `lazy_facade` | 61 |
 | `polisyos.data_forge.read_api.ukraine` | `src/polisyos/data_forge/read_api/ukraine.py` | `lazy_facade` | 75 |
 
@@ -10350,7 +10350,7 @@ validate_claim_adjudication_input_batch
 - Facade: `lazy_facade`
 - Summary: Runtime-safe read API for catalog Data Forge artifacts.
 
-<details><summary>Entrypoint exports (177)</summary>
+<details><summary>Entrypoint exports (179)</summary>
 
 ```text
 AcquisitionAuthorityEntry
@@ -10363,6 +10363,7 @@ AcquisitionSupplierDeclaration
 AcquisitionSupplierDeclarationRef
 ActivatedAcquisitionObservationProjection
 ActivatedAcquisitionPassport
+ActivatedMeasurementScopeSelection
 AuthoritySchemaColumn
 BaselineIdentity
 BaselineMutationError
@@ -10524,6 +10525,7 @@ resolve_live_temporal_bounds
 resolve_proxy
 resolve_source_observation_class
 score_variable_pair
+select_activated_measurement_scope
 select_catalog_source_modules
 validate_catalog_run_profile
 validate_overlay_admission_receipt

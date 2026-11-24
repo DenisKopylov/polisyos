@@ -337,6 +337,9 @@ if TYPE_CHECKING:
         resolve_catalog_selection_policy as resolve_catalog_selection_policy,
     )
     from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
+        ActivatedMeasurementScopeSelection as ActivatedMeasurementScopeSelection,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
         assess_entity_vector_to_model_candidate as assess_entity_vector_to_model_candidate,
     )
     from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
@@ -359,6 +362,9 @@ if TYPE_CHECKING:
     )
     from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
         replay_selected_scoped_measurement_facts as replay_selected_scoped_measurement_facts,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.measurement_binding import (
+        select_activated_measurement_scope as select_activated_measurement_scope,
     )
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         DEFAULT_ACQUISITION_OVERLAY_PATH as DEFAULT_ACQUISITION_OVERLAY_PATH,
@@ -696,6 +702,9 @@ _EXPORTS = {
     "assess_entity_vector_to_model_candidate": (
         "polisyos.data_forge.domains.catalog.knowledge.measurement_binding"
     ),
+    "ActivatedMeasurementScopeSelection": (
+        "polisyos.data_forge.domains.catalog.knowledge.measurement_binding"
+    ),
     "materialize_activated_measurement_occurrence": (
         "polisyos.data_forge.domains.catalog.knowledge.measurement_binding"
     ),
@@ -706,6 +715,9 @@ _EXPORTS = {
         "polisyos.data_forge.domains.catalog.knowledge.measurement_binding"
     ),
     "replay_selected_scoped_measurement_facts": (
+        "polisyos.data_forge.domains.catalog.knowledge.measurement_binding"
+    ),
+    "select_activated_measurement_scope": (
         "polisyos.data_forge.domains.catalog.knowledge.measurement_binding"
     ),
     "read_scoped_measurement_source_body": (

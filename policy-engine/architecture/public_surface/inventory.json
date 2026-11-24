@@ -22000,8 +22000,8 @@
         {
           "module": "polisyos.data_forge.read_api.catalog",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 177,
-          "known_export_count": 177,
+          "export_count": 179,
+          "known_export_count": 179,
           "exports": [
             "AcquisitionAuthorityEntry",
             "AcquisitionAuthorityError",
@@ -22013,6 +22013,7 @@
             "AcquisitionSupplierDeclarationRef",
             "ActivatedAcquisitionObservationProjection",
             "ActivatedAcquisitionPassport",
+            "ActivatedMeasurementScopeSelection",
             "AuthoritySchemaColumn",
             "BaselineIdentity",
             "BaselineMutationError",
@@ -22174,6 +22175,7 @@
             "resolve_proxy",
             "resolve_source_observation_class",
             "score_variable_pair",
+            "select_activated_measurement_scope",
             "select_catalog_source_modules",
             "validate_catalog_run_profile",
             "validate_overlay_admission_receipt",
@@ -22205,8 +22207,8 @@
                 "path": "src/polisyos/data_forge/read_api/catalog.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 69849,
-                "sha256": "46185e2aae64b4afe2f6dd9e7a5ffe3ec0bd6e8fe690f38152b56abd7c713d5f"
+                "bytes": 70447,
+                "sha256": "be61a86845b6bc8b3b017fe46c4b956cbf501e851aadd93d6d241a5e0ecdee03"
               },
               {
                 "path": "src/polisyos/data_forge/read_api/catalog",

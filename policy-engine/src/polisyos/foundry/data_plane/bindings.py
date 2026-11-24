@@ -28,7 +28,7 @@ from decimal import (
 from io import BytesIO
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any, Literal, NoReturn, Protocol
+from typing import TYPE_CHECKING, Any, Literal, NoReturn, Protocol
 
 import jax.numpy as jnp
 import numpy as np
@@ -91,6 +91,9 @@ from polisyos.core.contracts import (
     ModelInputStepCoverage,
     ModelInputStepScope,
     ProgramGraphInputInvocation,
+    RegisteredDerivedGraphCorrespondence,
+    RegisteredDerivedInputProfileRef,
+    RegisteredSemanticBasis,
     RegisteredSQLMeasurementOccurrence,
     RegisteredSQLMeasurementSourceSelection,
     ReplayedDerivedMeasurementRole,
@@ -133,6 +136,7 @@ from polisyos.core.contracts import (
 from polisyos.core.derivations import (
     DerivationRefusalError,
     SourceSeries,
+    is_certified_derivation_reader,
     load_derivation_recipe_artifact,
     resolve_certified_derivation,
 )
@@ -198,6 +202,10 @@ _CELL_PREFIX = "cells."
 _HOUSEHOLD_CELL_PREFIX = "household_cells."
 _JSON_MEDIA_TYPE = "application/json"
 _ARROW_MEDIA_TYPE = "application/vnd.apache.arrow.stream"
+_REGISTERED_GRAPH_CORRESPONDENCE_SCHEMA = SchemaInfo(
+    name=RegisteredDerivedGraphCorrespondence.ARTIFACT_SCHEMA_NAME,
+    version=RegisteredDerivedGraphCorrespondence.ARTIFACT_SCHEMA_VERSION,
+)
 
 
 @dataclass(frozen=True)
@@ -1466,6 +1474,15 @@ class SelectedMethodInputFacts:
 @dataclass(frozen=True)
 class SelectedMethodInputResolution(SelectedMethodInputFacts):
     """Facts additionally joined to a live preflight or exact stored execution."""
+
+
+@dataclass(frozen=True)
+class _OriginalMethodRevalidationSource:
+    """Selected predecessor facts and the source limits they carry forward."""
+
+    manifest: ResolvedInputBindingManifest
+    facts: SelectedMethodInputFacts
+    limitations: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -3185,14 +3202,33 @@ def _prepare_semantic_input_binding_facts(
             encoding.shape, encoding.dtype, encoding.max_absolute_error
         )
         limitations.extend(measurement_limits)
+    revalidation_source = None
+    revalidated_graph_ports: set[str] = set()
     for selection in manifest.derivations:
         obligation = obligations[artifact_ref_identity_key(selection.model_input_obligation_ref)]
-        value, projection, derived_limits = _verify_selected_derived_input(
-            store,
-            selection,
-            obligation,
-            obligation_set_ref=manifest.model_input_obligation_set_ref,
-        )
+        if (
+            selected_set.schema_version == "1.3"
+            and store.get_manifest(selection.correspondence_ref).artifact_schema
+            == _REGISTERED_GRAPH_CORRESPONDENCE_SCHEMA
+        ):
+            if revalidation_source is None:
+                revalidation_source = _reopen_original_method_revalidation_source(
+                    store,
+                    selected_set=selected_set,
+                    predecessor=predecessor,
+                    require_registered_graph_basis=True,
+                )
+            value = _revalidated_registered_graph_value(selection, obligation, revalidation_source)
+            projection = "scalar"
+            derived_limits = revalidation_source.limitations
+            revalidated_graph_ports.add(selection.model_port_id)
+        else:
+            value, projection, derived_limits = _verify_selected_derived_input(
+                store,
+                selection,
+                obligation,
+                obligation_set_ref=manifest.model_input_obligation_set_ref,
+            )
         role = selection.payload_output_role()
         if [edge for edge in payload_manifest.inputs if edge.role == role] != [
             input_ref_from_artifact_ref(selection.output_ref, role=role)
@@ -3254,6 +3290,8 @@ def _prepare_semantic_input_binding_facts(
             predecessor=predecessor,
             method_inputs=tuple(method_inputs),
             obligations=obligations,
+            revalidation_source=revalidation_source,
+            revalidated_graph_ports=revalidated_graph_ports,
         )
     if rules is not None and rules != compiled_rules:
         raise ValueError("foundry_input_bindings_semantic_rules_mismatch")
@@ -3665,27 +3703,14 @@ def _prepare_semantic_step_input_binding_facts(
     )
 
 
-def _require_current_method_revalidation_facts(
+def _reopen_original_method_revalidation_source(
     store: CoreJSONArtifactStore,
     *,
     selected_set: ModelInputObligationSet,
-    manifest: ResolvedInputBindingManifest,
     predecessor: FoundryInputBindings,
-    method_inputs: tuple[_PreparedSelectedMethodInput, ...],
-    obligations: Mapping[tuple[str, str, str, str | None], ModelInputObligation],
-) -> None:
-    """Join original sources only for the explicit current-use reseal purpose.
-
-    This immutable fact predicate grants neither current nominal ABI admission
-    nor source/provider authority. The live preparation separately requires
-    the canonical current-use preflight. A genuine new-data transition must
-    use its own controlled materialization path, not this unchanged-source join.
-    """
-    from polisyos.core.contracts import (
-        load_native_derivation_source_projection,
-        load_registered_derived_input_correspondence,
-    )
-
+    require_registered_graph_basis: bool = False,
+) -> _OriginalMethodRevalidationSource:
+    """Reopen the exact predecessor under its own invocation and source proof."""
     if (
         selected_set.schema_version != "1.3"
         or getattr(selected_set, "purpose", None) != "current_use_method_input_revalidation"
@@ -3700,7 +3725,29 @@ def _require_current_method_revalidation_facts(
     original_set, _ = load_model_input_obligation_set(
         store, original_manifest.model_input_obligation_set_ref
     )
-    original_facts = replay_selected_method_input_facts(
+    if require_registered_graph_basis:
+        original_invocation, invocation = original_set.invocation, selected_set.invocation
+        if (
+            original_manifest.schema_version != "2.0"
+            or original_manifest.measurements
+            or original_set.schema_version != "1.1"
+            or original_set.authority_purpose != "candidate_acquisition_routing_only"
+            or len(invocation.steps) != 1
+            or original_invocation.steps != invocation.steps
+            or original_invocation.parameter_override_bundle_ref is not None
+            or invocation.parameter_override_bundle_ref is not None
+            or any(
+                artifact_ref_identity_key(previous) != artifact_ref_identity_key(current)
+                for previous, current in (
+                    (original_invocation.interface_ref, invocation.interface_ref),
+                    (original_invocation.program_graph_ref, invocation.program_graph_ref),
+                    (original_invocation.exec_plan_ref, invocation.exec_plan_ref),
+                    (original_invocation.registry_bundle_ref, invocation.registry_bundle_ref),
+                )
+            )
+        ):
+            raise ValueError("foundry_method_revalidation_graph_source_profile_mismatch")
+    original_facts, limitations = _replay_selected_method_input_with_limits(
         store,
         input_bindings_ref=original_ref,
         expected_invocation=original_set.invocation,
@@ -3709,6 +3756,64 @@ def _require_current_method_revalidation_facts(
         selected_set.prestate_ref
     ) != artifact_ref_identity_key(predecessor.bound_state_snapshot_ref):
         raise ValueError("foundry_method_revalidation_original_prestate_mismatch")
+    return _OriginalMethodRevalidationSource(original_manifest, original_facts, limitations)
+
+
+def _revalidated_registered_graph_value(
+    selection: ResolvedDerivedInput,
+    obligation: ModelInputObligation,
+    original: _OriginalMethodRevalidationSource,
+) -> Decimal:
+    """Reuse the verified graph only through its exact original port selection."""
+    original_selection = next(
+        (
+            row
+            for row in original.manifest.derivations
+            if row.model_port_id == selection.model_port_id
+        ),
+        None,
+    )
+    record = next(
+        (row for row in original.facts.records if row.port_id == selection.model_port_id), None
+    )
+    if (
+        obligation.port.carrier != "method_input"
+        or obligation.port.port_id != selection.model_port_id
+        or original_selection is None
+        or type(record) is not FoundrySelectedMethodInput
+        or record.shape
+        or artifact_ref_identity_key(original_selection.model_input_obligation_ref)
+        == artifact_ref_identity_key(selection.model_input_obligation_ref)
+        or selection
+        != original_selection.model_copy(
+            update={"model_input_obligation_ref": selection.model_input_obligation_ref}
+        )
+    ):
+        raise ValueError("foundry_method_revalidation_graph_source_selection_mismatch")
+    return record.canonical_value
+
+
+def _require_current_method_revalidation_facts(
+    store: CoreJSONArtifactStore,
+    *,
+    selected_set: ModelInputObligationSet,
+    manifest: ResolvedInputBindingManifest,
+    predecessor: FoundryInputBindings,
+    method_inputs: tuple[_PreparedSelectedMethodInput, ...],
+    obligations: Mapping[tuple[str, str, str, str | None], ModelInputObligation],
+    revalidation_source: _OriginalMethodRevalidationSource | None,
+    revalidated_graph_ports: set[str],
+) -> None:
+    """Join the resealed values, ports and physical tensors to the original input."""
+    from polisyos.core.contracts import (
+        load_native_derivation_source_projection,
+        load_registered_derived_input_correspondence,
+    )
+
+    original = revalidation_source or _reopen_original_method_revalidation_source(
+        store, selected_set=selected_set, predecessor=predecessor
+    )
+    original_manifest, original_facts = original.manifest, original.facts
     if (
         manifest.measurements
         or original_manifest.measurements
@@ -3757,8 +3862,12 @@ def _require_current_method_revalidation_facts(
             or _selected_method_tensor_digest(value.value) != record.value_sha256
             or artifact_ref_identity_key(old_selections[value.port_id].profile_ref)
             != artifact_ref_identity_key(new_selections[value.port_id].profile_ref)
-            or role_occurrences(old_selections[value.port_id])
-            != role_occurrences(new_selections[value.port_id])
+            or (
+                old_obligation.dependencies != current_obligation.dependencies
+                if value.port_id in revalidated_graph_ports
+                else role_occurrences(old_selections[value.port_id])
+                != role_occurrences(new_selections[value.port_id])
+            )
         ):
             raise ValueError("foundry_method_revalidation_original_source_mismatch")
 
@@ -3861,12 +3970,99 @@ def _replay_selected_scoped_measurement(
     return occurrence, replayed, source
 
 
+@dataclass(frozen=True)
+class _RegisteredDerivationTarget:
+    derivation_bundle_ref: ArtifactRef
+    model_input_obligation_ref: ArtifactRef
+    profile_ref: ArtifactRef
+    model_port_id: str
+
+
+class _RegisteredPlanEdge(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    role: str = Field(min_length=1, strict=True)
+    input_node_id: str = Field(min_length=1, strict=True)
+    source_basis: RegisteredSemanticBasis
+
+
+class _RegisteredPlanOperation(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    node_id: str = Field(min_length=1, strict=True)
+    operator_ref: SelectedVariableBindingRef
+    family_id: str = Field(min_length=1, strict=True)
+    method_version: str = Field(min_length=1, strict=True)
+    output_basis: RegisteredSemanticBasis
+    role_inputs: tuple[_RegisteredPlanEdge, ...]
+    registered_profile_ref: RegisteredDerivedInputProfileRef
+
+
+if TYPE_CHECKING:
+    from polisyos.core.derivations import (
+        BasisSignature,
+        CandidateSourceSeries,
+        DerivationContext,
+        DerivationDagNode,
+        DerivationEvaluationLimits,
+        TransformFamilyRegistry,
+        _CertifiedDerivationReader,
+    )
+
+
+@dataclass(frozen=True)
+class RegisteredDerivationGraphInputs:
+    """Exact candidate graph inputs reopened under the selected Foundry port."""
+
+    root_node_id: str
+    operations: tuple[_RegisteredPlanOperation, ...]
+    sources: Mapping[str, tuple[ScopedMeasurementOccurrenceRef, CandidateSourceSeries]]
+    outputs: Mapping[str, tuple[str, BasisSignature]]
+    registry_ref: SelectedVariableBindingRef
+    registry: TransformFamilyRegistry
+    context: DerivationContext
+    limits: DerivationEvaluationLimits
+
+    def dag_nodes(self, source_refs: Mapping[str, ArtifactRef]) -> tuple[DerivationDagNode, ...]:
+        """Translate the verified semantic graph to Core's ordinary arithmetic DAG."""
+        from polisyos.core.derivations import (
+            CandidateDerivationInput,
+            DerivationDagInput,
+            DerivationDagNode,
+        )
+
+        if source_refs.keys() != self.sources.keys():
+            raise ValueError("foundry_input_bindings_graph_source_selection_mismatch")
+        return tuple(
+            DerivationDagNode(
+                node_id=operation.node_id,
+                family_id=operation.family_id,
+                method_version=operation.method_version,
+                output_variable_id=self.outputs[operation.node_id][0],
+                output_basis=self.outputs[operation.node_id][1],
+                inputs=tuple(
+                    DerivationDagInput(
+                        role=edge.role,
+                        selection=CandidateDerivationInput(
+                            artifact_ref=source_refs[edge.input_node_id]
+                        ),
+                    )
+                    if edge.input_node_id in source_refs
+                    else DerivationDagInput(role=edge.role, node_id=edge.input_node_id)
+                    for edge in operation.role_inputs
+                ),
+            )
+            for operation in self.operations
+        )
+
+
 def _read_selected_derivation_bundle(
-    store: CoreJSONArtifactStore,
-    selection: ResolvedDerivedInput,
+    store: _VerifiableCoreJSONArtifactProfileReader,
+    selection: ResolvedDerivedInput | _RegisteredDerivationTarget,
     *,
     obligation_set_ref: ArtifactRef,
     registered: bool,
+    graph: bool = False,
 ) -> dict[str, Any] | None:
     """Read candidate-only N7 lineage for the exact Foundry input selection."""
     ref = selection.derivation_bundle_ref
@@ -3875,10 +4071,13 @@ def _read_selected_derivation_bundle(
     manifest = store.get_manifest(ref)
     bundle = load_core_json_artifact(store, ref)
     schema = manifest.artifact_schema
+    versions = ("1.0", "2.0") if registered else ("1.0",)
+    if graph:
+        versions = ("3.0",)
     if (
         schema is None
         or schema.name != "polisyos.runtime.quality.N7DerivationBundle"
-        or schema.version not in (("1.0", "2.0") if registered else ("1.0",))
+        or schema.version not in versions
         or not isinstance(bundle, dict)
         or bundle.get("schema_version")
         != f"policyos.runtime.n7_derivation_bundle.v{schema.version[0]}"
@@ -3956,7 +4155,713 @@ def _read_selected_derivation_bundle(
         != 1
     ):
         raise ValueError("foundry_input_bindings_composition_bundle_routing_mismatch")
+    if graph:
+        _verify_registered_graph_routing(
+            store, routing, routing_manifest, obligation_set_ref=obligation_set_ref
+        )
     return bundle
+
+
+def _verify_registered_graph_routing(
+    store: _VerifiableCoreJSONArtifactProfileReader,
+    routing: dict[str, Any],
+    routing_manifest: ArtifactManifest,
+    *,
+    obligation_set_ref: ArtifactRef,
+) -> None:
+    """Reconcile the historical report's actual invocation and compiled port inventory."""
+    from polisyos.core.contracts import (
+        ModelInputContext,
+        ModelInputPort,
+        project_model_input_requirement,
+        verify_model_input_port_semantics,
+    )
+
+    selected_set, obligations = load_model_input_obligation_set(store, obligation_set_ref)
+    invocation = selected_set.invocation
+    compilation_ref = SelectedVariableBindingRef.model_validate(
+        routing.get("compilation_report_ref")
+    )
+    compilation = load_core_json_artifact(store, compilation_ref)
+    compilation_manifest = store.get_manifest(compilation_ref)
+    if (
+        ProgramGraphInputInvocation.model_validate(routing.get("selected_invocation")) != invocation
+        or routing.get("voi_status") != "unknown"
+        or routing.get("fetch_status") != "not_attempted"
+        or compilation_ref.kind != "data_requirement.model_input_compilation"
+        or compilation_manifest.artifact_schema
+        != SchemaInfo(name="polisyos.data_requirement.ModelInputCompilationReport", version="1.0")
+        or not isinstance(compilation, dict)
+        or compilation.get("schema_version") != "1.0"
+        or compilation.get("authority_purpose") != "candidate_acquisition_routing_only"
+        or ModelInputContext.model_validate(compilation.get("context")) != invocation.context
+        or compilation.get("interface_ref") != invocation.interface_ref.model_dump(mode="json")
+        or compilation.get("obligation_set_ref") != obligation_set_ref.model_dump(mode="json")
+        or compilation_manifest.inputs
+        != [
+            input_ref_from_artifact_ref(invocation.interface_ref, role="model_input_interface"),
+            input_ref_from_artifact_ref(obligation_set_ref, role="model_input_obligation_set"),
+            *(
+                input_ref_from_artifact_ref(ref, role="model_input_obligation")
+                for ref in selected_set.obligation_refs
+            ),
+        ]
+    ):
+        raise ValueError("foundry_input_bindings_graph_routing_subject_mismatch")
+    routes, compiled = routing.get("routes"), compilation.get("requirements")
+    if (
+        not isinstance(routes, list)
+        or not isinstance(compiled, list)
+        or len(routes) != len(obligations)
+        or len(compiled) != len(obligations)
+    ):
+        raise ValueError("foundry_input_bindings_graph_routing_denominator_mismatch")
+    route_inputs = [
+        input_ref_from_artifact_ref(ref, role=role)
+        for role, ref in (
+            ("selected_obligation_set", obligation_set_ref),
+            ("model_input_compilation_report", compilation_ref),
+            ("selected_input_interface", invocation.interface_ref),
+            ("selected_program_graph", invocation.program_graph_ref),
+            ("selected_exec_plan", invocation.exec_plan_ref),
+            ("selected_registry_bundle", invocation.registry_bundle_ref),
+            ("selected_input_bindings", invocation.input_bindings_ref),
+            ("selected_candidate_source", invocation.context.candidate_source_ref),
+            ("selected_context_job", invocation.context.context_job_ref),
+            ("selected_parameter_overrides", invocation.parameter_override_bundle_ref),
+        )
+        if ref is not None
+    ]
+    refusal_reasons = {
+        "absent": "model_input_source_descriptor_unresolved",
+        "ambiguous": "model_input_source_descriptor_ambiguous",
+        "conflict": "model_input_source_descriptor_incompatible",
+    }
+    for index, (route, requirement, ref, obligation) in enumerate(
+        zip(routes, compiled, selected_set.obligation_refs, obligations, strict=True)
+    ):
+        verify_model_input_port_semantics(store, obligation.port)
+        requirement_id, scope = project_model_input_requirement(ref, obligation.port.scope)
+        expected_ref = ref.model_dump(mode="json")
+        if (
+            not isinstance(route, dict)
+            or not isinstance(requirement, dict)
+            or requirement.keys() != {"requirement_id", "obligation_ref", "port", "scope"}
+            or requirement["requirement_id"] != requirement_id
+            or requirement["obligation_ref"] != expected_ref
+            or requirement["scope"] != scope
+            or ModelInputPort.model_validate(requirement["port"]) != obligation.port
+            or route.get("requirement_id") != requirement_id
+            or route.get("obligation_ref") != expected_ref
+            or route.get("port_id") != obligation.port.port_id
+            or route.get("authority_purpose") != "candidate_acquisition_routing_only"
+            or route.get("fetch_status") != "not_attempted"
+        ):
+            raise ValueError("foundry_input_bindings_graph_routing_denominator_mismatch")
+        disposition = route.get("disposition")
+        descriptor, query = route.get("source_descriptor"), route.get("query_envelope")
+        if (
+            not isinstance(disposition, str)
+            or (routing["schema_version"] == "2.0") != isinstance(query, dict)
+            or (disposition == "resolved") != isinstance(descriptor, dict)
+            or (disposition != "resolved" and disposition not in refusal_reasons)
+            or route.get("reason_code") != refusal_reasons.get(disposition)
+        ):
+            raise ValueError("foundry_input_bindings_graph_routing_status_mismatch")
+        envelope = (
+            read_api.catalog.ModelInputSourceQueryEnvelope.model_validate(query)
+            if isinstance(query, dict)
+            else None
+        )
+        descriptor_value = (
+            read_api.catalog.ModelInputSourceDescriptorCandidate.model_validate(descriptor)
+            if isinstance(descriptor, dict)
+            else None
+        )
+        if envelope is not None:
+            refusal = envelope.route_selection_refusal(disposition, descriptor_value)
+            if refusal is not None:
+                raise ValueError(f"foundry_input_bindings_graph_routing_{refusal}")
+            if envelope.scope != obligation.port.scope:
+                raise ValueError("foundry_input_bindings_graph_routing_scope_mismatch")
+        elif descriptor_value is not None and descriptor_value.query_envelope is not None:
+            raise ValueError("foundry_input_bindings_graph_routing_status_mismatch")
+        for source in (envelope, descriptor_value):
+            if source is not None and (
+                source.model_input_port_id != obligation.port.port_id
+                or artifact_ref_identity_key(source.model_input_interface_ref)
+                != artifact_ref_identity_key(invocation.interface_ref)
+            ):
+                raise ValueError("foundry_input_bindings_graph_routing_denominator_mismatch")
+        if descriptor_value is not None:
+            route_inputs.extend(
+                (
+                    input_ref_from_artifact_ref(
+                        descriptor_value.source_semantic_definition_ref,
+                        role=f"route.{index}.source_semantic_definition",
+                    ),
+                    input_ref_from_artifact_ref(
+                        descriptor_value.source_representation_ref,
+                        role=f"route.{index}.source_representation",
+                    ),
+                )
+            )
+        scope = descriptor_value if descriptor_value is not None else envelope
+        if scope is not None:
+            prefix = f"route.{index}" if descriptor_value is not None else f"route.{index}.query"
+            route_inputs.extend(
+                input_ref_from_artifact_ref(ref, role=f"{prefix}.{role}")
+                for role, ref in (
+                    ("model_semantic_definition", scope.model_semantic_definition_ref),
+                    ("model_representation", scope.model_representation_ref),
+                    ("measurement_binding_profile", scope.binding_profile_ref),
+                )
+            )
+    status = (
+        "candidate_descriptors_resolved"
+        if all(route["disposition"] == "resolved" for route in routes)
+        else "candidate_descriptors_limited"
+    )
+    if routing.get("status") != status or routing_manifest.inputs != route_inputs:
+        raise ValueError("foundry_input_bindings_graph_routing_lineage_mismatch")
+
+
+def _require_registered_graph_bundle_lineage(
+    store: CoreJSONArtifactProfileReader,
+    *,
+    bundle_ref: ArtifactRef,
+    bundle: dict[str, Any],
+    planned_sources: Mapping[str, dict[str, Any]],
+    source_bases: Mapping[str, RegisteredSemanticBasis],
+    operations: tuple[_RegisteredPlanOperation, ...],
+) -> tuple[ArtifactRef, ...]:
+    """Reopen the selected v3 wire's complete named dependency denominator."""
+    dependencies: list[tuple[str, ArtifactRef]] = []
+
+    def add(role: str, ref: object) -> None:
+        if not isinstance(ref, ArtifactRef):
+            ref = SelectedVariableBindingRef.model_validate(ref)
+        if ref.manifest_profile_sha256 is None:
+            raise ValueError("foundry_input_bindings_graph_bundle_dependency_unselected")
+        dependencies.append((role, ref))
+
+    def basis_edges(prefix: str, basis: RegisteredSemanticBasis, *, separator: str = ".") -> None:
+        add(f"{prefix}{separator}definition", basis.semantic_definition_ref)
+        add(f"{prefix}{separator}representation", basis.representation_ref)
+        add(f"{prefix}{separator}profile", basis.binding_profile_ref)
+
+    target = RegisteredSemanticBasis.model_validate(bundle.get("target_basis"))
+    add("selected_obligation_set", bundle.get("obligation_set_ref"))
+    add("selected_model_input_obligation", bundle.get("model_input_obligation_ref"))
+    add("target_semantic_definition", target.semantic_definition_ref)
+    add("target_representation", target.representation_ref)
+    add("target_binding_profile", target.binding_profile_ref)
+    add("caller_selected_dag_budget", bundle.get("dag_budget_profile_ref"))
+    add("selected_registered_semantic_profile", bundle.get("registered_profile_ref"))
+    add("selected_model_input_routing_report", bundle.get("model_input_routing_report_ref"))
+    for node_id, node in planned_sources.items():
+        prefix = f"source.{node_id}"
+        basis = source_bases[node_id]
+        basis_edges(prefix, basis)
+        alternatives = node.get("supplier_alternatives")
+        if not isinstance(alternatives, list) or any(
+            not isinstance(row, dict)
+            or RegisteredSemanticBasis.model_validate(row.get("source_basis")) != basis
+            for row in alternatives
+        ):
+            raise ValueError("foundry_input_bindings_graph_bundle_supplier_basis_mismatch")
+        for index, row in enumerate(alternatives):
+            add(f"{prefix}.supplier.{index}", row.get("supplier_ref"))
+        for field, role in (
+            ("selected_supplier_ref", "selected_supplier"),
+            ("source_series_ref", "series"),
+            ("occurrence_ref", "occurrence"),
+            ("definition_ref", "definition"),
+            ("representation_ref", "representation"),
+            ("source_receipt_ref", "receipt"),
+        ):
+            if node.get(field) is not None:
+                add(f"{prefix}.{role}", node[field])
+    for operation in operations:
+        prefix = f"operation.{operation.node_id}"
+        add(f"{prefix}.operator", operation.operator_ref)
+        add(f"{prefix}.registered_semantic_profile", operation.registered_profile_ref)
+        basis_edges(f"{prefix}.output", operation.output_basis, separator="_")
+        for index, edge in enumerate(operation.role_inputs):
+            basis_edges(f"{prefix}.input.{index}", edge.source_basis)
+    expected = [input_ref_from_artifact_ref(ref, role=role) for role, ref in dependencies]
+    if store.get_manifest(bundle_ref).inputs != expected:
+        raise ValueError("foundry_input_bindings_graph_bundle_lineage_mismatch")
+    return tuple({artifact_ref_identity_key(ref): ref for _role, ref in dependencies}.values())
+
+
+@dataclass(frozen=True)
+class _RegisteredGraphSourceSelection:
+    occurrence_ref: ScopedMeasurementOccurrenceRef
+    supplier_ref: SelectedVariableBindingRef
+    receipt_ref: SelectedVariableBindingRef
+    passport_ref: SelectedVariableBindingRef
+
+
+def _read_registered_graph_sources(
+    store: CoreJSONArtifactProfileReader,
+    *,
+    bundle_ref: ArtifactRef,
+    collection_ref: ArtifactRef,
+    planned_sources: Mapping[str, dict[str, Any]],
+) -> dict[str, _RegisteredGraphSourceSelection]:
+    """Bind the consumer's complete source denominator to the retained collection."""
+    manifest = store.get_manifest(collection_ref)
+    value = load_core_json_artifact(store, collection_ref)
+    if (
+        collection_ref.manifest_profile_sha256 is None
+        or manifest.kind != "runtime_quality.native_derivation_input_checkpoint"
+        or manifest.artifact_schema
+        != SchemaInfo(name="polisyos.runtime.NativeDerivationInputCollection", version="1.0")
+        or manifest.producer
+        != ProducerInfo(component="polisyos.runtime.acquisition_world_growth", version="1.0")
+        or not isinstance(value, dict)
+        or value.get("schema_version") != "NativeDerivationInputCollection@1.0"
+        or value.get("input_closure_status") != "inputs_complete"
+        or value.get("target_satisfaction_status") != "unsatisfied"
+        or value.get("semantic_admissibility") != "not_established"
+        or value.get("authority_purpose") != "candidate_acquisition_routing_only"
+        or value.get("pending_actions") != []
+        or value.get("source_node_ids") != sorted(planned_sources)
+        or artifact_ref_identity_key(ArtifactRef.model_validate(value.get("derivation_bundle_ref")))
+        != artifact_ref_identity_key(bundle_ref)
+    ):
+        raise ValueError("foundry_input_bindings_graph_collection_mismatch")
+    rows = value.get("source_inputs")
+    if not isinstance(rows, list) or not all(isinstance(row, dict) for row in rows):
+        raise ValueError("foundry_input_bindings_graph_collection_mismatch")
+    if [row.get("source_node_id") for row in rows] != sorted(planned_sources):
+        raise ValueError("foundry_input_bindings_graph_collection_mismatch")
+    inputs = [input_ref_from_artifact_ref(bundle_ref, role="selected_derivation_bundle")]
+    selected = {}
+    for row in rows:
+        node_id = row["source_node_id"]
+        planned = planned_sources[node_id]
+        occurrence = ScopedMeasurementOccurrenceRef.model_validate(row.get("occurrence_ref"))
+        supplier = SelectedVariableBindingRef.model_validate(row.get("supplier_ref"))
+        receipt = SelectedVariableBindingRef.model_validate(row.get("source_receipt_ref"))
+        passport = SelectedVariableBindingRef.model_validate(row.get("source_passport_ref"))
+        if (
+            row.get("source_basis") != planned.get("source_basis")
+            or supplier.model_dump(mode="json")
+            not in [
+                alternative.get("supplier_ref") for alternative in planned["supplier_alternatives"]
+            ]
+            or planned.get("selected_supplier_ref") not in (None, supplier.model_dump(mode="json"))
+            or planned.get("occurrence_ref") not in (None, occurrence.model_dump(mode="json"))
+            or planned.get("source_receipt_ref") not in (None, receipt.model_dump(mode="json"))
+        ):
+            raise ValueError("foundry_input_bindings_graph_collection_source_mismatch")
+        inputs.extend(
+            input_ref_from_artifact_ref(ref, role=f"source.{node_id}.{role}")
+            for role, ref in (
+                ("selected_supplier", supplier),
+                ("native_occurrence", occurrence),
+                ("native_receipt", receipt),
+                ("native_passport", passport),
+            )
+        )
+        selected[node_id] = _RegisteredGraphSourceSelection(occurrence, supplier, receipt, passport)
+    if manifest.inputs != inputs:
+        raise ValueError("foundry_input_bindings_graph_collection_lineage_mismatch")
+    return selected
+
+
+def _require_registered_graph_supplier(
+    store: _VerifiableCoreJSONArtifactProfileReader, source: _RegisteredGraphSourceSelection
+) -> None:
+    """Join the original selected supplier declaration to its admitted passport."""
+    from polisyos.core.contracts import load_verified_epoch_statement
+
+    declaration = read_api.catalog.load_acquisition_supplier_declaration(store, source.supplier_ref)
+    passport = load_verified_epoch_statement(
+        store=store,
+        ref=source.passport_ref,
+        expected_kind="epoch.acquisition_passport_snapshot",
+    )
+    entry = read_api.catalog.AcquisitionAuthorityEntry.model_validate(
+        passport.get("source_authority_entry")
+    )
+    registration = passport.get("registration")
+    if (
+        entry != declaration.entry
+        or passport.get("authority_entry_id") != entry.entry_id
+        or not isinstance(registration, dict)
+        or registration.get("connector_id") != declaration.connector_id
+        or any(
+            passport.get(field) != selected
+            for field, selected in (
+                ("authority_provision_id", declaration.authority_provision_id),
+                (
+                    "authority_provision_content_sha256",
+                    declaration.authority_provision_content_sha256,
+                ),
+                ("authority_registry_content_sha256", declaration.registry_content_sha256),
+                ("baseline_content_sha256", declaration.baseline_content_sha256),
+                (
+                    "upstream_catalog_projection_sha256",
+                    declaration.upstream_catalog_projection_sha256,
+                ),
+            )
+        )
+    ):
+        raise ValueError("foundry_input_bindings_graph_supplier_passport_mismatch")
+
+
+class _RegisteredPlanBudget(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.runtime.n7_derivation_dag_budget.v1"]
+    profile_id: str = Field(min_length=1, strict=True)
+    max_nodes: int = Field(ge=1, le=128, strict=True)
+    max_edges: int = Field(ge=1, le=512, strict=True)
+    max_depth: int = Field(ge=1, le=64, strict=True)
+    max_unique_sources: int = Field(ge=1, le=128, strict=True)
+
+
+def _read_registered_graph_budget(
+    store: CoreJSONArtifactProfileReader, bundle_ref: ArtifactRef, bundle: dict[str, Any]
+) -> _RegisteredPlanBudget:
+    budget_ref = SelectedVariableBindingRef.model_validate(bundle.get("dag_budget_profile_ref"))
+    manifest = store.get_manifest(budget_ref)
+    if (
+        budget_ref.kind != "runtime.quality.n7_derivation_dag_budget_profile"
+        or manifest.artifact_schema
+        != SchemaInfo(name="polisyos.runtime.quality.N7DerivationDagBudgetProfile", version="1.0")
+        or manifest.producer
+        != ProducerInfo(component="polisyos.runtime.quality.acquisition_planner", version="1.0")
+        or manifest.inputs
+        or [
+            edge
+            for edge in store.get_manifest(bundle_ref).inputs
+            if edge.role == "caller_selected_dag_budget"
+        ]
+        != [input_ref_from_artifact_ref(budget_ref, role="caller_selected_dag_budget")]
+    ):
+        raise ValueError("foundry_input_bindings_graph_budget_mismatch")
+    budget = _RegisteredPlanBudget.model_validate(load_core_json_artifact(store, budget_ref))
+    if budget.model_dump(mode="json") != bundle.get("dag_budget_profile"):
+        raise ValueError("foundry_input_bindings_graph_budget_mismatch")
+    return budget
+
+
+def prepare_registered_derivation_graph_inputs(
+    store: _CertifiedDerivationReader,
+    *,
+    bundle_ref: ArtifactRef,
+    collection_ref: ArtifactRef,
+    profile_ref: ArtifactRef,
+    obligation_set_ref: ArtifactRef,
+    obligation_ref: ArtifactRef,
+    obligation: ModelInputObligation,
+) -> RegisteredDerivationGraphInputs:
+    """Replay the selected annual graph and its Catalog source meanings without writes."""
+    from polisyos.core.contracts import (
+        ModelInputScope,
+        load_registered_derived_input_profile,
+        recompute_registered_source_value,
+        registered_annual_flow_output_refusals,
+        registered_annual_flow_relation_refusals,
+        verify_registered_derived_family,
+    )
+    from polisyos.core.derivations import (
+        BasisSignature,
+        CandidateSourceSeries,
+        DerivationContext,
+        DerivationEvaluationLimits,
+        load_selected_transform_family_registry,
+    )
+
+    bundle = _read_selected_derivation_bundle(
+        store,
+        _RegisteredDerivationTarget(
+            bundle_ref, obligation_ref, profile_ref, obligation.port.port_id
+        ),
+        obligation_set_ref=obligation_set_ref,
+        registered=True,
+        graph=True,
+    )
+    if bundle is None:
+        raise ValueError("foundry_input_bindings_graph_bundle_missing")
+    budget = _read_registered_graph_budget(store, bundle_ref, bundle)
+    raw_sources, raw_operations = bundle.get("source_nodes"), bundle.get("operation_nodes")
+    if (
+        not isinstance(raw_sources, list)
+        or not isinstance(raw_operations, list)
+        or not raw_sources
+        or len(raw_operations) < 2
+        or len(raw_sources) > budget.max_unique_sources
+        or len(raw_sources) + len(raw_operations) > budget.max_nodes
+        or any(
+            not isinstance(row, dict) or not isinstance(row.get("node_id"), str)
+            for row in raw_sources
+        )
+    ):
+        raise ValueError("foundry_input_bindings_graph_node_set_mismatch")
+    planned_sources = {row["node_id"]: row for row in raw_sources}
+    source_bases = {
+        node_id: RegisteredSemanticBasis.model_validate(row.get("source_basis"))
+        for node_id, row in planned_sources.items()
+    }
+    operations = tuple(_RegisteredPlanOperation.model_validate(row) for row in raw_operations)
+    by_id = {row.node_id: row for row in operations}
+    root_id = bundle.get("root_node_id")
+    if (
+        len(by_id) != len(operations)
+        or len(source_bases) != len(raw_sources)
+        or by_id.keys() & source_bases.keys()
+        or not isinstance(root_id, str)
+        or root_id not in by_id
+        or sum(len(row.role_inputs) for row in operations) > budget.max_edges
+    ):
+        raise ValueError("foundry_input_bindings_graph_node_set_mismatch")
+    root = by_id[root_id]
+    port = obligation.port
+    full_bases = {
+        **source_bases,
+        **{row.node_id: row.output_basis for row in operations},
+    }
+    if (
+        port.purpose != "simulation_input"
+        or port.carrier != "method_input"
+        or port.physical_encoding is None
+        or port.physical_encoding.shape
+        or artifact_ref_identity_key(root.registered_profile_ref)
+        != artifact_ref_identity_key(profile_ref)
+        or root.output_basis != RegisteredSemanticBasis.model_validate(bundle.get("target_basis"))
+        or tuple(
+            artifact_ref_identity_key(ref)
+            for ref in (
+                root.output_basis.semantic_definition_ref,
+                root.output_basis.representation_ref,
+                root.output_basis.binding_profile_ref,
+            )
+        )
+        != tuple(
+            artifact_ref_identity_key(ref)
+            for ref in (
+                port.semantic_definition_ref,
+                port.representation_ref,
+                port.binding_profile_ref,
+            )
+        )
+    ):
+        raise ValueError("foundry_input_bindings_graph_target_mismatch")
+
+    plan_dependencies = _require_registered_graph_bundle_lineage(
+        store,
+        bundle_ref=bundle_ref,
+        bundle=bundle,
+        planned_sources=planned_sources,
+        source_bases=source_bases,
+        operations=operations,
+    )
+    selected_occurrences = _read_registered_graph_sources(
+        store, bundle_ref=bundle_ref, collection_ref=collection_ref, planned_sources=planned_sources
+    )
+    registry = load_selected_transform_family_registry(store, root.operator_ref)
+    families = {(row.family_id, row.method_version): row for row in registry.families}
+    units = load_registry_bundle_content(store, obligation.registry_bundle_ref).units_registry
+    year = port.scope.period_start.year
+    representations = {}
+    definitions = {}
+    binding_profiles = {}
+    scopes = {}
+    for node_id, basis in full_bases.items():
+        definition = validate_core_model_json_artifact(
+            VariableSemanticDefinition, store, basis.semantic_definition_ref
+        )
+        representation = load_variable_representation(store, basis.representation_ref)
+        if (
+            any(not store.verify(ref).ok for ref in definition.definition_evidence_refs)
+            or artifact_ref_identity_key(representation.semantic_definition_ref)
+            != artifact_ref_identity_key(basis.semantic_definition_ref)
+            or representation.population_ref is None
+            or representation.unit_id is None
+            or not representation.grain
+        ):
+            raise ValueError("foundry_input_bindings_graph_semantic_basis_mismatch")
+        definitions[node_id] = definition
+        representations[node_id] = representation
+        binding_profiles[node_id] = validate_core_model_json_artifact(
+            MeasurementBindingProfile, store, basis.binding_profile_ref
+        )
+        scopes[node_id] = ModelInputScope.model_validate(
+            {
+                **port.scope.model_dump(mode="python"),
+                "population_ref": representation.population_ref,
+            }
+        )
+    if scopes[root_id] != port.scope:
+        raise ValueError("foundry_input_bindings_graph_target_scope_mismatch")
+
+    outputs = {}
+    seen_inputs: set[str] = set()
+    predecessors: dict[str, str] = {}
+    for operation in operations:
+        op_id = operation.node_id
+        profile = load_registered_derived_input_profile(store, operation.registered_profile_ref)
+        expected_edges = {row.role: row.basis for row in profile.inputs}
+        family = families.get((operation.family_id, operation.method_version))
+        if (
+            profile.registry_ref != operation.operator_ref
+            or operation.operator_ref != root.operator_ref
+            or (operation.family_id, operation.method_version)
+            != (profile.family_id, profile.method_version)
+            or operation.output_basis != profile.output
+            or family is None
+            or tuple(row.role for row in operation.role_inputs) != tuple(expected_edges)
+            or any(
+                edge.source_basis != expected_edges[edge.role]
+                or edge.source_basis != full_bases.get(edge.input_node_id)
+                or (edge.input_node_id in by_id and edge.role != profile.denominator_role)
+                for edge in operation.role_inputs
+            )
+        ):
+            raise ValueError("foundry_input_bindings_graph_registered_relation_mismatch")
+        verify_registered_derived_family(
+            profile,
+            family,
+            input_kinds={
+                edge.role: "certified_derived"
+                if edge.input_node_id in by_id
+                else "candidate_source"
+                for edge in operation.role_inputs
+            },
+        )
+        by_role = {edge.role: edge.input_node_id for edge in operation.role_inputs}
+        ratio_id = by_role[profile.ratio_role]
+        denominator_id = by_role[profile.denominator_role]
+        output = representations[op_id]
+        unit = port.unit_id if op_id == root_id else output.unit_id
+        refusals = (
+            *registered_annual_flow_output_refusals(
+                target_representation=output,
+                binding_profile=binding_profiles[op_id],
+                target_scope=scopes[op_id],
+                unit_id=unit,
+            ),
+            *registered_annual_flow_relation_refusals(
+                output_definition_ref=operation.output_basis.semantic_definition_ref,
+                denominator_definition_ref=full_bases[denominator_id].semantic_definition_ref,
+                target_representation=output,
+                ratio_representation=representations[ratio_id],
+                denominator_representation=representations[denominator_id],
+                target_scope=scopes[op_id],
+                ratio_scope=scopes[ratio_id],
+                denominator_scope=scopes[denominator_id],
+                units_registry=units,
+                unit_id=unit,
+                year=year,
+            ),
+        )
+        if refusals or any(
+            representations[edge.input_node_id].grain != output.grain
+            for edge in operation.role_inputs
+        ):
+            raise ValueError(
+                "foundry_input_bindings_graph_semantic_refused:"
+                + ",".join(refusals or ("registered_grain_mismatch",))
+            )
+        output_basis = BasisSignature(quantity_kind="flow", unit=unit)
+        definition = definitions[op_id]
+        outputs[op_id] = (f"{definition.namespace}.{definition.stable_id}", output_basis)
+        seen_inputs.update(by_role.values())
+        if denominator_id in by_id:
+            predecessors[op_id] = denominator_id
+    if seen_inputs != full_bases.keys() - {root_id}:
+        raise ValueError("foundry_input_bindings_graph_dependency_set_mismatch")
+    ancestors: set[str] = set()
+    current: str | None = root_id
+    while current is not None:
+        if current in ancestors or len(ancestors) >= budget.max_depth:
+            raise ValueError("foundry_input_bindings_graph_dependency_depth_refused")
+        ancestors.add(current)
+        current = predecessors.get(current)
+    if ancestors != by_id.keys():
+        raise ValueError("foundry_input_bindings_graph_dependency_set_mismatch")
+
+    context = DerivationContext(
+        context_ref=bundle_ref,
+        scope_ref=bundle_ref,
+        years=(year,),
+        units_profile="selected_registry_bundle",
+        registry_bundle_ref=obligation.registry_bundle_ref,
+    )
+    sources = {}
+    for node_id, source in selected_occurrences.items():
+        occurrence_ref = source.occurrence_ref
+        receipt_ref, passport_ref = source.receipt_ref, source.passport_ref
+        occurrence, replayed, selection = read_api.catalog.replay_selected_scoped_measurement_facts(
+            store, occurrence_ref
+        )
+        if artifact_ref_identity_key(occurrence.source_receipt_ref) != artifact_ref_identity_key(
+            receipt_ref
+        ) or artifact_ref_identity_key(occurrence.source_passport_ref) != artifact_ref_identity_key(
+            passport_ref
+        ):
+            raise ValueError("foundry_input_bindings_graph_source_custody_mismatch")
+        basis = source_bases[node_id]
+        point = recompute_registered_source_value(
+            basis=basis,
+            scope=scopes[node_id],
+            occurrence=occurrence,
+            replayed_occurrence=replayed,
+            source_selection=selection,
+            representation=representations[node_id],
+            binding_profile=binding_profiles[node_id],
+            year=year,
+        )
+        _require_registered_graph_supplier(store, source)
+        lineage = {
+            artifact_ref_identity_key(ref): ref
+            for ref in (
+                occurrence.source_receipt_ref,
+                occurrence.source_passport_ref,
+                occurrence.source_boundary_candidate_ref,
+                occurrence.source_record_ref,
+                basis.semantic_definition_ref,
+                basis.representation_ref,
+                basis.binding_profile_ref,
+            )
+        }
+        sources[node_id] = (
+            occurrence_ref,
+            CandidateSourceSeries(
+                variable_id=occurrence.canonical_variable,
+                basis=BasisSignature(quantity_kind="flow", unit=occurrence.canonical_unit),
+                points=({"year": year, "value": point},),
+                source_occurrence_ref=occurrence_ref,
+                source_ref=occurrence.source_record_ref,
+                context_ref=bundle_ref,
+                scope_ref=bundle_ref,
+                units_profile="selected_registry_bundle",
+                registry_bundle_ref=obligation.registry_bundle_ref,
+                lineage_refs=tuple(lineage[key] for key in sorted(lineage)),
+            ),
+        )
+    if any(not store.verify(ref).ok for ref in plan_dependencies):
+        raise ValueError("foundry_input_bindings_graph_bundle_dependency_unavailable")
+    return RegisteredDerivationGraphInputs(
+        root_node_id=root_id,
+        operations=operations,
+        sources=MappingProxyType(sources),
+        outputs=MappingProxyType(outputs),
+        registry_ref=root.operator_ref,
+        registry=registry,
+        context=context,
+        limits=DerivationEvaluationLimits(
+            max_nodes=budget.max_nodes,
+            max_edges=budget.max_edges,
+            max_depth=budget.max_depth,
+            max_selected_sources=budget.max_unique_sources,
+        ),
+    )
 
 
 def _verify_selected_derived_input(
@@ -3973,7 +4878,16 @@ def _verify_selected_derived_input(
     | None = None,
 ) -> tuple[Decimal, Literal["scalar", "singleton_vector"], tuple[str, ...]]:
     """Use the one Core arithmetic replay and the separate Core semantic rule."""
-    if store.get_manifest(selection.correspondence_ref).artifact_schema in (
+    schema = store.get_manifest(selection.correspondence_ref).artifact_schema
+    if schema == _REGISTERED_GRAPH_CORRESPONDENCE_SCHEMA:
+        if expected_step_scope is not None:
+            raise ValueError("foundry_input_bindings_graph_temporal_profile_unsupported")
+        if not is_certified_derivation_reader(store):
+            raise ValueError("foundry_input_bindings_graph_profile_reader_unavailable")
+        return _verify_registered_graph_composition_input(
+            store, selection, obligation, obligation_set_ref=obligation_set_ref
+        )
+    if schema in (
         SchemaInfo(name="polisyos.catalog.RegisteredDerivedInputCorrespondence", version="2.0"),
         SchemaInfo(name="polisyos.catalog.RegisteredDerivedInputCorrespondence", version="2.1"),
     ):
@@ -4085,6 +4999,180 @@ def _verify_selected_derived_input(
         else "n7_derivation_bundle_provenance_only"
     )
     return result.value, profile.output_projection, (*result.limitation_codes, bundle_limitation)
+
+
+def _verify_registered_graph_composition_input(
+    store: _CertifiedDerivationReader,
+    selection: ResolvedDerivedInput,
+    obligation: ModelInputObligation,
+    *,
+    obligation_set_ref: ArtifactRef,
+) -> tuple[Decimal, Literal["scalar"], tuple[str, ...]]:
+    """Replay the selected graph, returning the single verified root argument."""
+    from polisyos.core.contracts import (
+        load_registered_derived_graph_correspondence,
+    )
+    from polisyos.core.derivations import (
+        CandidateSourceSeries,
+        CompositionCertificate,
+        _projection_ref,
+        _same_derivation_context,
+        load_composition_recipe_artifact,
+        resolve_certified_composition,
+    )
+
+    proof = load_registered_derived_graph_correspondence(store, selection.correspondence_ref)
+    root = proof.root
+    if (
+        selection.derivation_bundle_ref is None
+        or any(
+            artifact_ref_identity_key(actual) != artifact_ref_identity_key(expected)
+            for actual, expected in (
+                (selection.derivation_bundle_ref, proof.bundle_ref),
+                (selection.model_input_obligation_ref, proof.model_input_obligation_ref),
+                (selection.model_interface_ref, proof.model_interface_ref),
+                (obligation.interface_ref, proof.model_interface_ref),
+                (selection.profile_ref, root.profile_ref),
+                (selection.recipe_ref, root.recipe_ref),
+                (selection.certificate_ref, root.certificate_ref),
+                (selection.output_ref, root.output_ref),
+            )
+        )
+        or proof.model_port_id != selection.model_port_id
+        or proof.model_port_id != obligation.port.port_id
+        or proof.year != selection.year
+    ):
+        raise ValueError("foundry_input_bindings_graph_selection_mismatch")
+    graph = prepare_registered_derivation_graph_inputs(
+        store,
+        bundle_ref=proof.bundle_ref,
+        collection_ref=proof.collection_ref,
+        profile_ref=root.profile_ref,
+        obligation_set_ref=obligation_set_ref,
+        obligation_ref=selection.model_input_obligation_ref,
+        obligation=obligation,
+    )
+    sources = {row.node_id: row for row in proof.sources}
+    operations = {row.node_id: row for row in proof.operations}
+    if (
+        proof.root_node_id != graph.root_node_id
+        or (proof.year,) != graph.context.years
+        or sources.keys() != graph.sources.keys()
+        or operations.keys() != {row.node_id for row in graph.operations}
+    ):
+        raise ValueError("foundry_input_bindings_graph_witness_node_set_mismatch")
+    for node_id, (occurrence_ref, expected) in graph.sources.items():
+        source = sources[node_id]
+        if artifact_ref_identity_key(source.occurrence_ref) != artifact_ref_identity_key(
+            occurrence_ref
+        ) or validate_core_model_json_artifact(
+            CandidateSourceSeries, store, source.source_series_ref
+        ).model_dump(mode="json") != expected.model_dump(mode="json"):
+            raise ValueError("foundry_input_bindings_graph_source_series_mismatch")
+
+    resolution = resolve_certified_composition(
+        store,
+        certificate_ref=root.certificate_ref,
+        recipe_ref=root.recipe_ref,
+        consumer_method_id="polisyos.foundry.semantic-composition-input.v1",
+        limits=graph.limits,
+    )
+    # The Core root resolution already replays every selected ancestor. Reopen
+    # their independently named recipes and bind them to that same chain.
+    for node in graph.operations:
+        row = operations[node.node_id]
+        certificate = (
+            resolution.certificate
+            if node.node_id == graph.root_node_id
+            else validate_core_model_json_artifact(
+                CompositionCertificate, store, row.certificate_ref
+            )
+        )
+        recipe = certificate.recipe
+        if (
+            node.registered_profile_ref != row.profile_ref
+            or artifact_ref_identity_key(certificate.derived_artifact_ref)
+            != artifact_ref_identity_key(row.output_ref)
+            or (
+                node.node_id != graph.root_node_id
+                and load_composition_recipe_artifact(store, row.recipe_ref) != recipe
+            )
+            or artifact_ref_identity_key(_projection_ref(recipe.registry_artifact))
+            != artifact_ref_identity_key(graph.registry_ref)
+            or (recipe.family.family_id, recipe.family.method_version)
+            != (node.family_id, node.method_version)
+            or (recipe.output_variable_id, recipe.output_basis) != graph.outputs[node.node_id]
+            or not _same_derivation_context(recipe.context, graph.context)
+            or tuple(item.role for item in recipe.inputs)
+            != tuple(edge.role for edge in node.role_inputs)
+        ):
+            raise ValueError("foundry_input_bindings_graph_operation_mismatch")
+        for edge, recipe_input in zip(node.role_inputs, recipe.inputs, strict=True):
+            predecessor = operations.get(edge.input_node_id)
+            expected = (
+                sources[edge.input_node_id].source_series_ref
+                if predecessor is None
+                else predecessor.output_ref
+            )
+            certificate_ref = recipe_input.certificate
+            if (
+                artifact_ref_identity_key(_projection_ref(recipe_input.artifact))
+                != artifact_ref_identity_key(expected)
+                or (
+                    predecessor is None
+                    and (recipe_input.kind != "candidate_source" or certificate_ref is not None)
+                )
+                or (
+                    predecessor is not None
+                    and (
+                        recipe_input.kind != "certified_derived"
+                        or certificate_ref is None
+                        or artifact_ref_identity_key(_projection_ref(certificate_ref))
+                        != artifact_ref_identity_key(predecessor.certificate_ref)
+                    )
+                )
+            ):
+                raise ValueError("foundry_input_bindings_graph_recipe_role_mismatch")
+    series = resolution.series
+    if (
+        series.evidence_status != "not_established"
+        or series.effective_score is not None
+        or tuple(point.year for point in series.points) != (proof.year,)
+    ):
+        raise ValueError("foundry_input_bindings_graph_candidate_qualification_mismatch")
+    return (
+        series.points[0].value,
+        "scalar",
+        (
+            *series.limitations,
+            "external_empirical_context_not_established",
+            "derivation_uncertainty_not_established",
+            "source_currentness_not_established",
+        ),
+    )
+
+
+def verify_registered_derived_graph_input(
+    store: ArtifactStore | CoreJSONArtifactProfileReader,
+    selection: ResolvedDerivedInput,
+    obligation: ModelInputObligation,
+    *,
+    obligation_set_ref: ArtifactRef,
+) -> tuple[Decimal, Literal["scalar"], tuple[str, ...]]:
+    """Replay one selected registered graph through the Foundry owner boundary.
+
+    Runtime and other consumers use this facade instead of depending on the
+    binding module's private replay implementation or Foundry's reader adapter.
+    """
+    reader = resolve_verifiable_core_json_profile_reader(store)
+    if not is_certified_derivation_reader(reader):
+        raise ValueError("foundry_input_bindings_graph_profile_reader_unavailable")
+    return _verify_registered_graph_composition_input(
+        reader,
+        selection,
+        obligation,
+        obligation_set_ref=obligation_set_ref,
+    )
 
 
 def _verify_registered_composition_input(
@@ -4677,6 +5765,18 @@ def replay_selected_method_input_facts(
     Raises:
         ValueError: If immutable parents, source facts, or physical values disagree.
     """
+    facts, _limitations = _replay_selected_method_input_with_limits(
+        store, input_bindings_ref=input_bindings_ref, expected_invocation=expected_invocation
+    )
+    return facts
+
+
+def _replay_selected_method_input_with_limits(
+    store: ArtifactStore | CoreJSONArtifactProfileReader,
+    *,
+    input_bindings_ref: FoundryInputBindingsRef | ArtifactRef,
+    expected_invocation: ProgramGraphInputInvocation,
+) -> tuple[SelectedMethodInputFacts, tuple[str, ...]]:
     core_store, bindings, manifest_ref, records = _load_selected_method_input_binding(
         store, input_bindings_ref
     )
@@ -4688,7 +5788,8 @@ def replay_selected_method_input_facts(
         rules=bindings.rules,
         expected_invocation=expected_invocation,
     )
-    return _replay_selected_method_input_values(core_store, bindings, records, prepared)
+    facts = _replay_selected_method_input_values(core_store, bindings, records, prepared)
+    return facts, prepared.warnings
 
 
 def _replay_selected_method_input_values(

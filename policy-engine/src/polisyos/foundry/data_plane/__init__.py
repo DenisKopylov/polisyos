@@ -13,6 +13,7 @@ from .bindings import (
     InputBindingsPreparation,
     InputBindingValuesPreparation,
     PreparedHTEObservationalInput,
+    RegisteredDerivationGraphInputs,
     SelectedMethodInputFacts,
     SelectedMethodInputResolution,
     UkraineFoundryIntakeResult,
@@ -28,10 +29,12 @@ from .bindings import (
     prepare_hte_observational_input,
     prepare_input_bindings,
     prepare_json_input_binding_values,
+    prepare_registered_derivation_graph_inputs,
     reconcile_selected_method_input_bindings,
     reconcile_semantic_input_bindings,
     replay_selected_method_input_facts,
     resolve_bound_state_snapshot_ref,
+    verify_registered_derived_graph_input,
 )
 
 __all__ = [
@@ -45,6 +48,7 @@ __all__ = [
     "InputBindingsBuildResult",
     "InputBindingsPreparation",
     "PreparedHTEObservationalInput",
+    "RegisteredDerivationGraphInputs",
     "SelectedMethodInputFacts",
     "SelectedMethodInputResolution",
     "UkraineFoundryIntakeResult",
@@ -60,10 +64,12 @@ __all__ = [
     "prepare_hte_observational_input",
     "prepare_input_bindings",
     "prepare_json_input_binding_values",
+    "prepare_registered_derivation_graph_inputs",
     "reconcile_semantic_input_bindings",
     "reconcile_selected_method_input_bindings",
     "replay_selected_method_input_facts",
     "resolve_bound_state_snapshot_ref",
+    "verify_registered_derived_graph_input",
     "selected_tensor_value_sha256",
 ]
 

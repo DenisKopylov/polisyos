@@ -221,8 +221,64 @@ def _resolve_world_bank_wdi_source_attempts(
     from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
 
     offer = source.ordinary_offer if type(source) is VerifiedAcquisitionRouteClosure else None
+    native_provider = None
     supplier = None
-    if offer is not None:
+    if type(source) is VerifiedAcquisitionRouteClosure:
+        native_scope = source.native_derivation_leaf_scope
+        configured_native_provider = source.native_derivation_leaf_provider
+        if (native_scope is None) != (configured_native_provider is None):
+            raise LiveAcquisitionExecutionError("native_leaf_provider_scope_incomplete")
+        if native_scope is not None and configured_native_provider is not None:
+            if artifact_store is None:
+                raise LiveAcquisitionExecutionError("native_leaf_provider_store_missing")
+            from polisyos.runtime.quality.acquisition_planner import load_n7_derivation_bundle
+
+            try:
+                selected_bundle = load_n7_derivation_bundle(
+                    artifact_store, native_scope.derivation_bundle_ref
+                )
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                from polisyos.core.artifacts import raise_artifact_read_access_error
+
+                raise_artifact_read_access_error(exc)
+                raise LiveAcquisitionExecutionError(
+                    "native_leaf_provider_bundle_unavailable",
+                    type(exc).__name__,
+                ) from exc
+            if selected_bundle.schema_version != "policyos.runtime.n7_derivation_bundle.v3":
+                # The exact supplier bridge is V3-only; leave the established
+                # V1/V2 source-route behavior intact.
+                configured_native_provider = None
+            else:
+                native_provider = configured_native_provider
+        if native_provider is not None:
+            if native_scope is None:
+                raise LiveAcquisitionExecutionError("native_leaf_provider_scope_missing")
+            from polisyos.core.artifacts import artifact_ref_identity_key
+
+            if artifact_ref_identity_key(native_provider.supplier_ref) != artifact_ref_identity_key(
+                native_scope.selected_supplier_ref
+            ):
+                raise LiveAcquisitionExecutionError("native_leaf_provider_scope_mismatch")
+            try:
+                supplier = data_forge_read_api.catalog.load_acquisition_supplier_declaration(
+                    artifact_store, native_provider.supplier_ref
+                )
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                from polisyos.core.artifacts import raise_artifact_read_access_error
+
+                raise_artifact_read_access_error(exc)
+                raise LiveAcquisitionExecutionError(
+                    "native_leaf_provider_declaration_unavailable",
+                    type(exc).__name__,
+                ) from exc
+            if (
+                supplier.entry.entry_id != native_provider.authority_entry_id
+                or supplier.connector_id != native_provider.connector_id
+                or supplier.entry.target_variable != variable_id
+            ):
+                raise LiveAcquisitionExecutionError("native_leaf_provider_declaration_mismatch")
+    if supplier is None and offer is not None:
         if artifact_store is None:
             raise LiveAcquisitionExecutionError("ordinary_acquisition_offer_store_missing")
         supplier = data_forge_read_api.catalog.load_acquisition_supplier_declaration(
@@ -258,7 +314,12 @@ def _resolve_world_bank_wdi_source_attempts(
         or resolved.upstream_catalog_projection_sha256
         != supplier.upstream_catalog_projection_sha256
     ):
-        raise LiveAcquisitionExecutionError("ordinary_acquisition_offer_execution_scope_changed")
+        code = (
+            "native_leaf_authority_execution_scope_changed"
+            if native_provider is not None
+            else "ordinary_acquisition_offer_execution_scope_changed"
+        )
+        raise LiveAcquisitionExecutionError(code)
     if (
         resolved.registry_content_sha256 != registry.content_sha256
         or resolved.baseline_content_sha256 != registry.baseline_content_sha256
@@ -389,6 +450,7 @@ def _require_registered_native_role_route(
     from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
     from polisyos.runtime.quality.n7_native_derivation_resolver import (
         validate_registered_derivation_role_input_gap,
+        validate_registered_n7_v3_role_input_gap,
     )
 
     if type(closure) is not VerifiedAcquisitionRouteClosure or artifact_store is None:
@@ -402,7 +464,11 @@ def _require_registered_native_role_route(
         artifact_store, scope.configured_port_source_ref
     )
     if (
-        bundle.schema_version != "policyos.runtime.n7_derivation_bundle.v2"
+        bundle.schema_version
+        not in {
+            "policyos.runtime.n7_derivation_bundle.v2",
+            "policyos.runtime.n7_derivation_bundle.v3",
+        }
         or source.schema_version != "policyos.runtime.n7_configured_candidate_port_source.v3"
         or source.derivation_bundle_ref is None
         or artifact_ref_identity_key(source.derivation_bundle_ref)
@@ -437,6 +503,26 @@ def _require_registered_native_role_route(
         }
     ):
         raise LiveAcquisitionExecutionError("native_role_route_leaf_selection_mismatch")
+    if bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v3":
+        try:
+            return validate_registered_n7_v3_role_input_gap(
+                artifact_store,
+                bundle,
+                node,
+                gap,
+                supplier_ref=provider.supplier_ref,
+                authority_entry_id=provider.authority_entry_id,
+                connector_id=provider.connector_id,
+                expected_country_code=closure.design_problem_basis.jurisdiction_time.region,
+                expected_data_time=closure.design_problem_basis.jurisdiction_time.data_time,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            from polisyos.core.artifacts import raise_artifact_read_access_error
+
+            raise_artifact_read_access_error(exc)
+            raise LiveAcquisitionExecutionError(
+                "native_registered_graph_role_input_refused", str(exc)
+            ) from exc
     return validate_registered_derivation_role_input_gap(
         artifact_store,
         gap,

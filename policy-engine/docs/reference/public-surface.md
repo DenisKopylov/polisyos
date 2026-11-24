@@ -376,11 +376,11 @@ timestamps
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 135 |
-| `polisyos.core.artifacts` | `src/polisyos/core/artifacts/__init__.py` | `lazy_facade` | 145 |
+| `polisyos.core.artifacts` | `src/polisyos/core/artifacts/__init__.py` | `lazy_facade` | 146 |
 | `polisyos.core.canon` | `src/polisyos/core/canon/__init__.py` | `eager_exports` | 12 |
 | `polisyos.core.compiler` | `src/polisyos/core/compiler/__init__.py` | `eager_exports` | 3 |
 | `polisyos.core.components` | `src/polisyos/core/components/__init__.py` | `eager_exports` | 64 |
-| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 972 |
+| `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 981 |
 | `polisyos.core.contracts.forecast_profile_member` | `src/polisyos/core/contracts/forecast_profile_member.py` | `eager_exports` | 8 |
 | `polisyos.core.derivations` | `src/polisyos/core/derivations.py` | `eager_exports` | 72 |
 | `polisyos.core.governance` | `src/polisyos/core/governance/__init__.py` | `eager_exports` | 5 |
@@ -546,7 +546,7 @@ security
 - Facade: `lazy_facade`
 - Summary: Publish the stable CAS artifact ABI used by manifests, lineage, and signing.
 
-<details><summary>Entrypoint exports (145)</summary>
+<details><summary>Entrypoint exports (146)</summary>
 
 ```text
 AUTHORITY_ENVELOPE_ARTIFACT_KIND
@@ -644,6 +644,7 @@ SignatureVerificationStatus
 SignatureVerifyingArtifactStore
 SigningConfig
 VerifiableArtifactReader
+VerifiableCoreJSONArtifactProfileReader
 VerificationReport
 WarningRecord
 aload_core_json_artifact
@@ -822,7 +823,7 @@ validate_metadata
 - Facade: `lazy_facade`
 - Summary: Lazy facade for the stable DTOs shared across PolicyOS subsystem boundaries.
 
-<details><summary>Entrypoint exports (972)</summary>
+<details><summary>Entrypoint exports (981)</summary>
 
 ```text
 DATA_SNAPSHOT_SEMANTIC_INPUT_LINEAGE_SCHEMA_VERSION
@@ -882,6 +883,7 @@ scoped_measurement_occurrence_manifest_inputs
 scoped_source_selection_from_passport_mapping
 variable_representation_manifest_inputs
 verify_model_input_port_semantics
+project_model_input_requirement
 FetchPlan
 IngestionExecutionContext
 AcceptanceNonReceipt
@@ -1757,6 +1759,9 @@ DerivedModelInputStepDataSnapshotLineage
 EntityVectorCandidateLimitation
 EntityVectorCorrespondenceBasis
 EntityVectorCorrespondenceBasisRef
+RegisteredDerivedGraphCorrespondence
+RegisteredDerivedGraphLeaf
+RegisteredDerivedGraphOperation
 RegisteredSemanticBasis
 ReplayedCandidateDerivationRole
 ReplayedDerivedMeasurementRole
@@ -1774,9 +1779,14 @@ load_derived_input_correspondence
 load_entity_vector_correspondence_basis
 load_native_derivation_source_projection
 load_ratio_denominator_source_context
+load_registered_derived_graph_correspondence
 load_registered_derived_input_context
 load_registered_derived_input_correspondence
 load_selected_entity_vector_source_meaning
+persist_registered_derived_graph_correspondence
+recompute_registered_source_value
+registered_annual_flow_output_refusals
+registered_annual_flow_relation_refusals
 selected_entity_vector_source_meaning_manifest_inputs
 selected_method_input_tensor_identity
 MethodInputPortSource
@@ -5660,7 +5670,7 @@ world
 | `polisyos.foundry.coupling` | `src/polisyos/foundry/coupling/__init__.py` | `lazy_facade` | 20 |
 | `polisyos.foundry.analysis` | `src/polisyos/foundry/analysis/__init__.py` | `eager_exports` | 19 |
 | `polisyos.foundry.calibration` | `src/polisyos/foundry/calibration/__init__.py` | `eager_exports` | 115 |
-| `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 30 |
+| `polisyos.foundry.data_plane` | `src/polisyos/foundry/data_plane/__init__.py` | `eager_exports` | 33 |
 | `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 51 |
 | `polisyos.foundry.methods` | `src/polisyos/foundry/methods/__init__.py` | `lazy_facade` | 237 |
 | `polisyos.foundry.methods.artifacts` | `src/polisyos/foundry/methods/artifacts/__init__.py` | `eager_exports` | 15 |
@@ -5949,7 +5959,7 @@ StaticBundle
 - Facade: `eager_exports`
 - Summary: Expose input-binding helpers that bridge external data into Foundry state snapshots.
 
-<details><summary>Entrypoint exports (30)</summary>
+<details><summary>Entrypoint exports (33)</summary>
 
 ```text
 HTE_PHYSICAL_SOURCE_BINDING_KIND
@@ -5962,6 +5972,7 @@ InputBindingValuesPreparation
 InputBindingsBuildResult
 InputBindingsPreparation
 PreparedHTEObservationalInput
+RegisteredDerivationGraphInputs
 SelectedMethodInputFacts
 SelectedMethodInputResolution
 UkraineFoundryIntakeResult
@@ -5977,10 +5988,12 @@ persist_activated_observation_input_manifest
 prepare_hte_observational_input
 prepare_input_bindings
 prepare_json_input_binding_values
+prepare_registered_derivation_graph_inputs
 reconcile_semantic_input_bindings
 reconcile_selected_method_input_bindings
 replay_selected_method_input_facts
 resolve_bound_state_snapshot_ref
+verify_registered_derived_graph_input
 selected_tensor_value_sha256
 ```
 

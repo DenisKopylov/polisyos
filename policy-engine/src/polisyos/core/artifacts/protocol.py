@@ -314,6 +314,12 @@ class CoreJSONArtifactProfileReader(ArtifactReader, RawManifestBytesReader, Prot
     """
 
 
+class VerifiableCoreJSONArtifactProfileReader(
+    CoreJSONArtifactProfileReader, VerifiableArtifactReader, Protocol
+):
+    """Compose exact-profile reads with integrity verification, without writes."""
+
+
 @runtime_checkable
 class CoreJSONArtifactStore(ArtifactStore, CoreJSONArtifactProfileReader, Protocol):
     """Store with the raw-manifest capability required for semantic Core JSON reads.

@@ -8,6 +8,7 @@ input, numerical result, or protected successor selection.
 from __future__ import annotations
 
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 
@@ -18,9 +19,13 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts import DataSnapshot, FoundryInputBindingsRef
 from polisyos.core.contracts.model_input_requirements import load_model_input_obligation_set
-from polisyos.core.contracts.semantic_composition_binding import RegisteredMeasurementRole
+from polisyos.core.contracts.semantic_composition_binding import (
+    RegisteredMeasurementRole,
+    load_registered_derived_graph_correspondence,
+)
 from polisyos.core.contracts.semantic_input_binding import load_resolved_input_binding_manifest
 from polisyos.core.contracts.variable_binding import SelectedVariableBindingRef
+from polisyos.core.derivations import DerivationRefusalError
 from polisyos.foundry.data_plane import (
     load_input_bindings,
     reconcile_selected_method_input_bindings,
@@ -43,6 +48,9 @@ from tests._helpers.selected_method_input import prepare_selected_method_input_c
 from tests.integration.core_runtime.test_candidate_experiment_generations_served import (
     _forbid_retained_generation_n5,
 )
+from tests.unit.foundry.data_plane.test_registered_derivation_graph import _native_collection
+from tests.unit.foundry.data_plane.test_selected_method_input_bindings import _removed_blob
+from tests.unit.runtime.quality.test_n7_registered_derivation_plan import prepare_selected_plan_case
 
 
 def test_registered_method_reseal_replays_fresh_context_and_exact_source_views(tmp_path):
@@ -228,6 +236,130 @@ def test_registered_method_reseal_replays_fresh_context_and_exact_source_views(t
                 effective_step=0,
             )
             assert set(restored.values) == set(slots)
+            assert n5_entries == []
+    finally:
+        case.close()
+
+
+def test_registered_graph_reseal_preserves_selected_ancestors_for_current_input(
+    tmp_path: Path,
+) -> None:
+    """Revalidate the root for a new invocation using its exact historical graph."""
+    setup = prepare_selected_plan_case(
+        tmp_path / "root", role_populations={"denominator": "public-health-expenditure"}
+    )
+    case = setup["case"]
+    try:
+        with _forbid_retained_generation_n5() as n5_entries:
+            request = _native_collection(
+                tmp_path / "native", setup, foreign_scope=False, reverse=False
+            )
+            source = materialize_registered_derived_model_inputs(
+                case.store,
+                base_data_snapshot_ref=case.data_snapshot_ref,
+                obligation_set_ref=setup["obligation_set_ref"],
+                inputs=(request,),
+            )
+            old_set, (old_member,) = load_model_input_obligation_set(
+                case.store, setup["obligation_set_ref"]
+            )
+            (old_selection,) = load_resolved_input_binding_manifest(
+                case.store, source.resolved_binding_manifest_ref
+            ).derivations
+            graph = load_registered_derived_graph_correspondence(
+                case.store, old_selection.correspondence_ref
+            )
+            (upstream,) = (row for row in graph.operations if row.node_id != graph.root_node_id)
+            old_invocation = old_set.invocation
+            old_facts = replay_selected_method_input_facts(
+                case.store,
+                input_bindings_ref=source.input_bindings_ref,
+                expected_invocation=old_invocation,
+            )
+            (before,) = old_facts.records
+            assert before.canonical_value == Decimal("-2500000000")
+            context = old_invocation.context.model_copy(
+                update={"run_id": "registered-graph-reseal-component-current"}
+            )
+            current = preflight_current_use_method_input_revalidation(
+                case.store,
+                interface_ref=old_invocation.interface_ref,
+                program_graph_ref=old_invocation.program_graph_ref,
+                exec_plan_ref=old_invocation.exec_plan_ref,
+                registry_bundle_ref=old_invocation.registry_bundle_ref,
+                input_bindings_ref=FoundryInputBindingsRef.model_validate(
+                    source.input_bindings_ref.model_dump(mode="python")
+                ),
+                context=context,
+                steps=old_invocation.steps,
+            )
+            fresh_set, (fresh_member,) = load_model_input_obligation_set(
+                case.store, current.obligation_set_ref
+            )
+            (fresh_obligation_ref,) = fresh_set.obligation_refs
+            assert old_set.schema_version == "1.1"
+            assert fresh_set.schema_version == "1.3"
+            assert fresh_set.purpose == "current_use_method_input_revalidation"
+            assert fresh_set.authority_purpose == "candidate_execution_input_revalidation_only"
+            assert fresh_set.invocation.context == context != old_invocation.context
+            assert fresh_set.prestate_ref == old_set.prestate_ref
+            assert fresh_member.port == old_member.port
+            assert artifact_ref_identity_key(fresh_obligation_ref) != artifact_ref_identity_key(
+                old_selection.model_input_obligation_ref
+            )
+
+            reseal_arguments = {
+                "source_input_bindings_ref": source.input_bindings_ref,
+                "obligation_set_ref": current.obligation_set_ref,
+                "expected_invocation": current.invocation,
+            }
+            fresh = reseal_registered_method_input_bindings(case.store, **reseal_arguments)
+            reader = FileSystemCAS.open_existing_read_only(case.store.root)
+            fresh_manifest = load_resolved_input_binding_manifest(
+                reader, fresh.resolved_binding_manifest_ref
+            )
+            (fresh_selection,) = fresh_manifest.derivations
+            assert artifact_ref_identity_key(
+                fresh_manifest.model_input_obligation_set_ref
+            ) == artifact_ref_identity_key(current.obligation_set_ref)
+            assert artifact_ref_identity_key(fresh.input_bindings_ref) != artifact_ref_identity_key(
+                source.input_bindings_ref
+            )
+            assert artifact_ref_identity_key(
+                fresh_selection.model_input_obligation_ref
+            ) == artifact_ref_identity_key(fresh_obligation_ref)
+            assert fresh_selection.model_dump(exclude={"model_input_obligation_ref"}) == (
+                old_selection.model_dump(exclude={"model_input_obligation_ref"})
+            )
+
+            def read_current():
+                return replay_selected_method_input_facts(
+                    reader,
+                    input_bindings_ref=fresh.input_bindings_ref,
+                    expected_invocation=current.invocation,
+                )
+
+            fresh_facts = read_current()
+            (after,) = fresh_facts.records
+            assert fresh_facts.bindings.bound_state_snapshot_ref == (
+                old_facts.bindings.bound_state_snapshot_ref
+            )
+            assert after.port_id == before.port_id == fresh_member.port.port_id
+            assert after.slot_id == before.slot_id == fresh_member.port.slot_id
+            assert after.canonical_value == before.canonical_value
+            assert (after.dtype, after.shape, after.value_sha256) == (
+                before.dtype,
+                before.shape,
+                before.value_sha256,
+            )
+            assert set(fresh_facts.values) == {after.slot_id}
+
+            with _removed_blob(case.store, upstream.recipe_ref):
+                with pytest.raises((DerivationRefusalError, FileNotFoundError)):
+                    reseal_registered_method_input_bindings(case.store, **reseal_arguments)
+                with pytest.raises((DerivationRefusalError, FileNotFoundError)):
+                    read_current()
+            assert read_current().records == (after,)
             assert n5_entries == []
     finally:
         case.close()

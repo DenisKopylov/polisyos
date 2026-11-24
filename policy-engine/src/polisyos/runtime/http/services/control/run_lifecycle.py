@@ -10839,16 +10839,15 @@ class ControlPlaneService(
         bundle = load_n7_derivation_bundle(self._artifact_store, source.derivation_bundle_ref)
         # Planning adoption must reopen the exact selected provenance retained
         # by the post-preflight producer, not rediscover an equivalent profile.
-        if bundle.schema_version != "policyos.runtime.n7_derivation_bundle.v2":
+        if bundle.schema_version not in {
+            "policyos.runtime.n7_derivation_bundle.v2",
+            "policyos.runtime.n7_derivation_bundle.v3",
+        }:
             return ()
         if artifacts.artifact_ref_identity_key(
             bundle.model_input_routing_report_ref
         ) != artifacts.artifact_ref_identity_key(source.model_input_routing_report_ref):
             raise ValueError("native_derivation_planning_routing_report_mismatch")
-        roots = tuple(row for row in bundle.operation_nodes if row.node_id == bundle.root_node_id)
-        if len(roots) != 1 or len(bundle.operation_nodes) != 1:
-            return ()
-        root = roots[0]
         selected = []
         for planning in self.native_derivation_planning_selections(
             tenant_id=tenant_id,
@@ -10859,6 +10858,25 @@ class ControlPlaneService(
                 planning.registered_profile_ref
             ) != artifacts.artifact_ref_identity_key(bundle.registered_profile_ref):
                 continue
+            if bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v3":
+                from polisyos.runtime.quality.n7_native_derivation_resolver import (
+                    validate_registered_n7_v3_planning_selection,
+                )
+
+                validate_registered_n7_v3_planning_selection(
+                    self._artifact_store,
+                    planning,
+                    bundle,
+                )
+                selected.append((planning, bundle))
+                continue
+
+            roots = tuple(
+                row for row in bundle.operation_nodes if row.node_id == bundle.root_node_id
+            )
+            if len(roots) != 1 or len(bundle.operation_nodes) != 1:
+                return ()
+            root = roots[0]
             profile = load_registered_derived_input_profile(
                 self._artifact_store,
                 RegisteredDerivedInputProfileRef.model_validate(
@@ -10970,8 +10988,45 @@ class ControlPlaneService(
             rows[0].configured_port_source_ref
         ) != artifacts.artifact_ref_identity_key(configured_port_source_ref):
             raise ValueError("native_derivation_route_configuration_source_mismatch")
+        configured_v3_bundle = None
         if rows and rows[0].supplier_selections:
-            return rows[0].supplier_selections
+            from polisyos.runtime.quality.acquisition_planner import (
+                _n7_load_configured_candidate_port_source,
+                load_n7_derivation_bundle,
+            )
+
+            configured_source = _n7_load_configured_candidate_port_source(
+                self._artifact_store, configured_port_source_ref
+            )
+            if (
+                configured_source.tenant_id,
+                configured_source.cell_id,
+                configured_source.run_id,
+                configured_source.source_job_id,
+            ) != (tenant_id, cell_id, run_id, source_job_id):
+                raise ValueError("native_derivation_planning_source_scope_mismatch")
+            if configured_source.derivation_bundle_ref is None:
+                return ()
+            configured_bundle = load_n7_derivation_bundle(
+                self._artifact_store, configured_source.derivation_bundle_ref
+            )
+            if configured_bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v2":
+                if configured_source.schema_version not in {
+                    "policyos.runtime.n7_configured_candidate_port_source.v2",
+                    "policyos.runtime.n7_configured_candidate_port_source.v3",
+                }:
+                    return ()
+                # Preserve the established V2 explicit selection path after
+                # reopening its exact, manifest-bound source and bundle. V2
+                # derivation bundles may use either historical N7 carrier.
+                return rows[0].supplier_selections
+            if (
+                configured_source.schema_version
+                != "policyos.runtime.n7_configured_candidate_port_source.v3"
+                or configured_bundle.schema_version != "policyos.runtime.n7_derivation_bundle.v3"
+            ):
+                return ()
+            configured_v3_bundle = configured_bundle
         selected = self._native_derivation_selected_planning_sources(
             tenant_id=tenant_id,
             cell_id=cell_id,
@@ -10979,9 +11034,109 @@ class ControlPlaneService(
             source_job_id=source_job_id,
             configured_port_source_ref=configured_port_source_ref,
         )
+        v3_selected = tuple(
+            (planning, bundle)
+            for planning, bundle in selected
+            if bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v3"
+        )
+        if configured_v3_bundle is not None and (
+            len(v3_selected) != 1 or v3_selected[0][1] != configured_v3_bundle
+        ):
+            return ()
+        if v3_selected:
+            from polisyos.runtime.quality.n7_native_derivation_resolver import (
+                validate_registered_n7_v3_planning_selection,
+            )
+
+            def _provider_identity(
+                source_node_id: str,
+                supplier_ref: ArtifactRef,
+                authority_entry_id: str,
+                connector_id: str,
+            ) -> tuple[str, tuple[str, str, str, str | None], str, str]:
+                return (
+                    source_node_id,
+                    artifacts.artifact_ref_identity_key(supplier_ref),
+                    authority_entry_id,
+                    connector_id,
+                )
+
+            eligible_providers = {}
+            for planning, bundle in v3_selected:
+                eligible_rows = validate_registered_n7_v3_planning_selection(
+                    self._artifact_store,
+                    planning,
+                    bundle,
+                )
+                for row in eligible_rows:
+                    key = (
+                        row.provider.source_node_id,
+                        artifacts.artifact_ref_identity_key(row.provider.supplier_ref),
+                    )
+                    previous = eligible_providers.setdefault(key, row.provider)
+                    if _provider_identity(
+                        previous.source_node_id,
+                        previous.supplier_ref,
+                        previous.authority_entry_id,
+                        previous.connector_id,
+                    ) != _provider_identity(
+                        row.provider.source_node_id,
+                        row.provider.supplier_ref,
+                        row.provider.authority_entry_id,
+                        row.provider.connector_id,
+                    ):
+                        raise ValueError("native_derivation_planning_provider_identity_mismatch")
+
+            if rows and rows[0].supplier_selections:
+                configured = rows[0].supplier_selections
+                configured_keys = tuple(
+                    (
+                        provider.source_node_id,
+                        artifacts.artifact_ref_identity_key(provider.supplier_ref),
+                    )
+                    for provider in configured
+                )
+                if len(configured_keys) != len(set(configured_keys)):
+                    raise ValueError("native_derivation_provider_configuration_duplicate")
+                for provider, key in zip(configured, configured_keys, strict=True):
+                    eligible_provider = eligible_providers.get(key)
+                    if eligible_provider is None or _provider_identity(
+                        eligible_provider.source_node_id,
+                        eligible_provider.supplier_ref,
+                        eligible_provider.authority_entry_id,
+                        eligible_provider.connector_id,
+                    ) != _provider_identity(
+                        provider.source_node_id,
+                        provider.supplier_ref,
+                        provider.authority_entry_id,
+                        provider.connector_id,
+                    ):
+                        raise ValueError("native_derivation_provider_configuration_not_eligible")
+                return configured
+            return tuple(eligible_providers[key] for key in sorted(eligible_providers))
+
+        if configured_v3_bundle is not None:
+            return ()
+        if rows and rows[0].supplier_selections:
+            return rows[0].supplier_selections
         providers = {}
         for planning, bundle in selected:
             by_node = {node.node_id: node for node in bundle.source_nodes}
+            if bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v3":
+                for row in planning.role_suppliers:
+                    node_id = row.provider.source_node_id
+                    node = by_node.get(node_id)
+                    if node is None:
+                        raise ValueError("native_derivation_planning_provider_node_mismatch")
+                    alternatives = {
+                        artifacts.artifact_ref_identity_key(item.supplier_ref)
+                        for item in node.supplier_alternatives
+                    }
+                    key = artifacts.artifact_ref_identity_key(row.provider.supplier_ref)
+                    if key not in alternatives:
+                        raise ValueError("native_derivation_planning_provider_supplier_mismatch")
+                    providers[(node_id, key)] = row.provider
+                continue
             roots = tuple(
                 node for node in bundle.operation_nodes if node.node_id == bundle.root_node_id
             )

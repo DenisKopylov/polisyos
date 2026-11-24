@@ -2,15 +2,19 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from decimal import Decimal
 from typing import Annotated, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts import (
+    ArtifactReader,
     ArtifactRef,
     ArtifactStore,
     InputRef,
+    VerifiableArtifactReader,
     artifact_ref_identity_key,
     ensure_ir_artifact_store,
     input_ref_from_artifact_ref,
@@ -546,7 +550,7 @@ def _persist(store: ArtifactStore, value: _ModelInputArtifact) -> ArtifactRef:
 
 
 def _load[ArtifactT: _ModelInputArtifact](
-    store: ArtifactStore, ref: ArtifactRef, model: type[ArtifactT]
+    store: ArtifactReader, ref: ArtifactRef, model: type[ArtifactT]
 ) -> ArtifactT:
     if ref.manifest_profile_sha256 is None:
         raise ValueError("model_input_artifact_ref_unselected")
@@ -567,7 +571,7 @@ def persist_model_input_port_declaration(
 
 
 def load_model_input_port_declaration(
-    store: ArtifactStore, ref: ArtifactRef
+    store: ArtifactReader, ref: ArtifactRef
 ) -> ModelInputPortDeclaration:
     """Read the selected model owner's declaration and exact semantic inputs."""
     return _load(store, ref, ModelInputPortDeclaration)
@@ -584,7 +588,7 @@ def persist_program_graph_input_interface(
 
 
 def load_program_graph_input_interface(
-    store: ArtifactStore, ref: ArtifactRef
+    store: ArtifactReader, ref: ArtifactRef
 ) -> ProgramGraphInputInterface:
     """Reopen the selected model owner's interface and check its lineage."""
     interface = _load(store, ref, ProgramGraphInputInterface)
@@ -605,7 +609,7 @@ def persist_model_input_obligation(
     return ref
 
 
-def load_model_input_obligation(store: ArtifactStore, ref: ArtifactRef) -> ModelInputObligation:
+def load_model_input_obligation(store: ArtifactReader, ref: ArtifactRef) -> ModelInputObligation:
     """Reopen the selected obligation and reconcile its interface identity."""
     obligation = _load(store, ref, ModelInputObligation)
     interface = load_program_graph_input_interface(store, obligation.interface_ref)
@@ -663,7 +667,7 @@ def persist_model_input_obligation_set(
 
 
 def load_model_input_obligation_set(
-    store: ArtifactStore, ref: ArtifactRef
+    store: VerifiableArtifactReader, ref: ArtifactRef
 ) -> tuple[ModelInputObligationSet, tuple[ModelInputObligation, ...]]:
     """Reopen and reconcile membership; Runtime separately replays the dependencies."""
     obligation_set = _load(store, ref, ModelInputObligationSet)
@@ -677,7 +681,7 @@ def load_model_input_obligation_set(
 
 
 def _verify_required_step_scope_denominator(
-    store: ArtifactStore,
+    store: VerifiableArtifactReader,
     obligation_set: ModelInputObligationSet,
     members: tuple[ModelInputObligation, ...],
 ) -> None:
@@ -875,8 +879,31 @@ def verify_model_input_obligation_set_members(
             raise ValueError("model_input_obligation_set_origin_mismatch")
 
 
+def project_model_input_requirement(
+    obligation_ref: ArtifactRef, scope: ModelInputScope
+) -> tuple[str, dict[str, str]]:
+    """Derive the compiler's exact requirement identity and requested scope."""
+    encoded = json.dumps(
+        obligation_ref.model_dump(mode="json"),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    return (
+        f"model-input:sha256:{hashlib.sha256(encoded).hexdigest()}",
+        {
+            "population": scope.population_ref,
+            "geography": scope.geography_ref,
+            "jurisdiction": scope.jurisdiction_ref,
+            "time": f"{scope.period_start.isoformat()}/{scope.period_end.isoformat()}",
+            "time_role": scope.time_role,
+        },
+    )
+
+
 def verify_model_input_port_semantics(
-    store: ArtifactStore, port: ModelInputPort
+    store: ArtifactReader, port: ModelInputPort
 ) -> VariableRepresentation:
     """Reopen the selected target definition, representation and binding profile."""
     validate_core_model_json_artifact(

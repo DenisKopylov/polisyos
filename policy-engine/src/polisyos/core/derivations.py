@@ -10,7 +10,7 @@ from collections.abc import Iterable, Mapping
 from decimal import Decimal, DivisionByZero, InvalidOperation, localcontext
 from enum import StrEnum
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated, Literal, Never, Protocol, Self
+from typing import TYPE_CHECKING, Annotated, Literal, Never, Protocol, Self, TypeGuard
 
 from pydantic import (
     AfterValidator,
@@ -142,6 +142,11 @@ class _CertifiedDerivationReader(
         self,
         artifact_id: artifacts.ArtifactID | artifacts.ArtifactRef,
     ) -> artifacts.VerificationReport: ...
+
+
+def is_certified_derivation_reader(value: object) -> TypeGuard[_CertifiedDerivationReader]:
+    """Narrow to the exact read capabilities used by certificate replay."""
+    return artifacts.matches_runtime_protocol_definition(value, _CertifiedDerivationReader)
 
 
 def _reject_float(value: object) -> object:

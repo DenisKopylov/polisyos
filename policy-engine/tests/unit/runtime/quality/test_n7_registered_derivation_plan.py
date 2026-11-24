@@ -24,7 +24,10 @@ from polisyos.core.contracts.semantic_composition_binding import (
     RegisteredSemanticBasis,
     persist_registered_derived_input_profile,
 )
-from polisyos.core.contracts.variable_binding import SelectedVariableBindingRef
+from polisyos.core.contracts.variable_binding import (
+    SelectedVariableBindingRef,
+    load_variable_representation,
+)
 from polisyos.core.derivations import (
     ArithmeticExpression,
     AssumptionRule,
@@ -312,8 +315,185 @@ def prepare_selected_plan_case(
         "alternate_routing_ref": alternate_routing.report_ref,
         "profile": profile,
         "profile_ref": profile_ref,
+        "registry_bundle_ref": preflight.invocation.registry_bundle_ref,
         "budget": budget,
         "budget_ref": budget_ref,
+    }
+
+
+def prepare_two_operation_profiles(case: dict[str, Any]) -> dict[str, Any]:
+    """Build one selected registry and exact B→C / A→B relation profiles.
+
+    The target profile is the existing selected model port. The intermediate
+    output is the exact denominator basis already declared by that profile.
+    These fixtures establish typed planning inputs only; they carry no source
+    values, admission, currentness, or authority.
+    """
+    store = case["case"].store
+    target = case["target"]
+    root_profile = case["profile"]
+    intermediate_basis = next(
+        row.basis for row in root_profile.inputs if row.role == root_profile.denominator_role
+    )
+    family = TransformFamily(
+        family_id=root_profile.family_id,
+        method_id="arithmetic.ratio_times_denominator",
+        method_version=root_profile.method_version,
+        input_specs=tuple(
+            sorted(
+                (
+                    TransformInputSpec(
+                        role=root_profile.denominator_role,
+                        basis=BasisSignature(quantity_kind="flow", unit="usd"),
+                        allowed_input_kinds=("candidate_source", "certified_derived"),
+                    ),
+                    TransformInputSpec(
+                        role=root_profile.ratio_role,
+                        basis=BasisSignature(quantity_kind="flow", unit="ratio"),
+                        allowed_input_kinds=("candidate_source",),
+                    ),
+                ),
+                key=lambda row: row.role,
+            )
+        ),
+        output_basis=BasisSignature(quantity_kind="flow", unit="usd"),
+        year_domain_role=root_profile.ratio_role,
+        expression=ArithmeticExpression(
+            operator="multiply",
+            operands=(
+                ArithmeticExpression(operator="current_value", role=root_profile.denominator_role),
+                ArithmeticExpression(operator="current_value", role=root_profile.ratio_role),
+            ),
+        ),
+        assumption_rules=(AssumptionRule(name="fixture_context", literal_value="declared"),),
+    )
+    registry_ref = persist_transform_family_registry(
+        store,
+        TransformFamilyRegistry(families=(family,)),
+        registry_bundle_ref=case["registry_bundle_ref"],
+    )
+    selected_registry_ref = SelectedVariableBindingRef.model_validate(
+        registry_ref.model_dump(mode="python")
+    )
+    target_representation = load_variable_representation(store, target.port.representation_ref)
+    assert isinstance(target_representation.money_unit, MoneyUnit)
+    root_ratio_definition = next(
+        row.basis.semantic_definition_ref
+        for row in root_profile.inputs
+        if row.role == root_profile.ratio_role
+    )
+    root_ratio_representation, _ = _representation(
+        store,
+        root_ratio_definition,
+        population=target_representation.population_ref,
+        money=target_representation.money_unit,
+        numerator_ref=target.port.semantic_definition_ref,
+        denominator_ref=intermediate_basis.semantic_definition_ref,
+    )
+    selected_root_inputs = tuple(
+        row.model_copy(
+            update={
+                "basis": row.basis.model_copy(
+                    update={"representation_ref": root_ratio_representation}
+                )
+            }
+        )
+        if row.role == root_profile.ratio_role
+        else row
+        for row in root_profile.inputs
+    )
+    selected_root_profile = root_profile.model_copy(
+        update={"registry_ref": selected_registry_ref, "inputs": selected_root_inputs}
+    )
+    selected_root_profile_ref = persist_registered_derived_input_profile(
+        store, selected_root_profile
+    )
+
+    intermediate_definition = intermediate_basis.semantic_definition_ref
+    upstream_denominator_definition, _ = _definition(store, "component-upstream-denominator")
+    money = MoneyUnit(currency="USD", nominal_year=2024, price_base="current")
+    upstream_denominator_representation, _ = _representation(
+        store,
+        upstream_denominator_definition,
+        population="population:upstream-denominator",
+        money=money,
+    )
+    upstream_ratio_definition, _ = _definition(store, "component-upstream-ratio")
+    intermediate_representation = load_variable_representation(
+        store, intermediate_basis.representation_ref
+    )
+    upstream_ratio_representation, _ = _representation(
+        store,
+        upstream_ratio_definition,
+        population=intermediate_representation.population_ref,
+        money=money,
+        numerator_ref=intermediate_definition,
+        denominator_ref=upstream_denominator_definition,
+    )
+    binding_profile_ref = intermediate_basis.binding_profile_ref
+    upstream_profile = RegisteredDerivedInputProfile(
+        registry_ref=selected_registry_ref,
+        family_id=family.family_id,
+        method_version=family.method_version,
+        ratio_role=root_profile.ratio_role,
+        denominator_role=root_profile.denominator_role,
+        inputs=tuple(
+            sorted(
+                (
+                    RegisteredDerivationRoleBasis(
+                        role=root_profile.denominator_role,
+                        basis=RegisteredSemanticBasis(
+                            semantic_definition_ref=upstream_denominator_definition,
+                            representation_ref=upstream_denominator_representation,
+                            binding_profile_ref=binding_profile_ref,
+                        ),
+                    ),
+                    RegisteredDerivationRoleBasis(
+                        role=root_profile.ratio_role,
+                        basis=RegisteredSemanticBasis(
+                            semantic_definition_ref=upstream_ratio_definition,
+                            representation_ref=upstream_ratio_representation,
+                            binding_profile_ref=binding_profile_ref,
+                        ),
+                    ),
+                ),
+                key=lambda row: row.role,
+            )
+        ),
+        output=RegisteredSemanticBasis.model_validate(intermediate_basis.model_dump(mode="python")),
+    )
+    upstream_profile_ref = persist_registered_derived_input_profile(store, upstream_profile)
+    assert artifact_ref_identity_key(
+        upstream_profile.output.representation_ref
+    ) == artifact_ref_identity_key(intermediate_basis.representation_ref)
+    root_ratio_basis = next(
+        row.basis for row in selected_root_profile.inputs if row.role == root_profile.ratio_role
+    )
+    root_ratio = load_variable_representation(store, root_ratio_basis.representation_ref)
+    assert root_ratio.population_ref == target_representation.population_ref
+    assert artifact_ref_identity_key(root_ratio.numerator_ref) == artifact_ref_identity_key(
+        target.port.semantic_definition_ref
+    )
+    assert artifact_ref_identity_key(root_ratio.denominator_ref) == artifact_ref_identity_key(
+        intermediate_basis.semantic_definition_ref
+    )
+    return {
+        "root_profile": selected_root_profile,
+        "root_profile_ref": selected_root_profile_ref,
+        "upstream_profile": upstream_profile,
+        "upstream_profile_ref": upstream_profile_ref,
+        "registry_ref": registry_ref,
+        "family": family,
+        "intermediate_basis": intermediate_basis,
+        "upstream_denominator_basis": next(
+            row.basis
+            for row in upstream_profile.inputs
+            if row.role == upstream_profile.denominator_role
+        ),
+        "upstream_ratio_basis": next(
+            row.basis for row in upstream_profile.inputs if row.role == upstream_profile.ratio_role
+        ),
+        "target": target,
     }
 
 
@@ -558,3 +738,200 @@ def test_registered_plan_reopens_and_rejects_tampered_selected_profile(
     tampered_blob.write_bytes(b"tampered selected Core profile")
     with pytest.raises(ValueError):
         _persist(case, registered_profile_ref=tampered_ref)
+
+
+def test_registered_v3_plan_reopens_each_profile_and_requires_derived_denominator(
+    selected_plan_case,
+) -> None:
+    """Two registered operations remain candidate-only and exact through CAS replay."""
+    case = selected_plan_case
+    store = case["case"].store
+    profiles = prepare_two_operation_profiles(case)
+    root_profile = profiles["root_profile"]
+    upstream_profile = profiles["upstream_profile"]
+    root_id = "registered-output"
+    upstream_id = "upstream-flow"
+    source_bases = {
+        "upstream-denominator": next(
+            row.basis
+            for row in upstream_profile.inputs
+            if row.role == upstream_profile.denominator_role
+        ),
+        "upstream-ratio": next(
+            row.basis for row in upstream_profile.inputs if row.role == upstream_profile.ratio_role
+        ),
+        "root-ratio": next(
+            row.basis for row in root_profile.inputs if row.role == root_profile.ratio_role
+        ),
+    }
+    source_nodes = []
+    source_ids = {
+        "upstream-denominator": "leaf-upstream-denominator",
+        "upstream-ratio": "leaf-upstream-ratio",
+        "root-ratio": "leaf-root-ratio",
+    }
+    for label, basis in source_bases.items():
+        n7_basis = planner.N7DerivationBasis.model_validate(basis.model_dump(mode="python"))
+        gap = planner.AcquisitionRequirementGap(
+            requirement_gap_id=f"component-only:{label}",
+            requirement_family=planner.RequirementGapFamily.DATA,
+            compiled_requirement_ref=f"component-only:{label}",
+            requirement_schema_version="component_test_only.v1",
+            gap_type=planner.AcquisitionGapType.DATA_SNAPSHOT_RELEASE,
+            claim_ref=f"component-only:{label}",
+            authority_level=planner.AuthorityLevel.RESEARCH,
+            metadata={
+                "candidate_binding": {
+                    "candidate_id": case["target"].context.candidate_id,
+                    "candidate_content_hash": case["target"].context.candidate_content_hash,
+                    "design_problem_ref": case["target"].context.design_problem_ref,
+                },
+                "component_proof_only": True,
+                "role": label,
+            },
+        )
+        source_nodes.append(
+            planner.N7DerivationSourceNode(
+                node_id=source_ids[label],
+                source_basis=n7_basis,
+                requirement_gap=gap,
+            )
+        )
+
+    def operation(node_id, profile, profile_ref, role_inputs):
+        return planner.N7DerivationOperationNode(
+            node_id=node_id,
+            operator_ref=profile.registry_ref,
+            family_id=profile.family_id,
+            method_version=profile.method_version,
+            output_basis=planner.N7DerivationBasis.model_validate(
+                profile.output.model_dump(mode="python")
+            ),
+            role_inputs=tuple(
+                planner.N7DerivationRoleInput(
+                    role=role.role,
+                    input_node_id=role_inputs[role.role],
+                    source_basis=planner.N7DerivationBasis.model_validate(
+                        role.basis.model_dump(mode="python")
+                    ),
+                )
+                for role in profile.inputs
+            ),
+            registered_profile_ref=profile_ref,
+        )
+
+    upstream = operation(
+        upstream_id,
+        upstream_profile,
+        profiles["upstream_profile_ref"],
+        {
+            upstream_profile.denominator_role: source_ids["upstream-denominator"],
+            upstream_profile.ratio_role: source_ids["upstream-ratio"],
+        },
+    )
+    root = operation(
+        root_id,
+        root_profile,
+        profiles["root_profile_ref"],
+        {
+            root_profile.denominator_role: upstream_id,
+            root_profile.ratio_role: source_ids["root-ratio"],
+        },
+    )
+    bundle = N7DerivationBundle(
+        schema_version="policyos.runtime.n7_derivation_bundle.v3",
+        obligation_set_ref=case["obligation_set_ref"],
+        model_input_obligation_ref=case["target_ref"],
+        target_basis=planner.N7DerivationBasis(
+            semantic_definition_ref=case["target"].port.semantic_definition_ref,
+            representation_ref=case["target"].port.representation_ref,
+            binding_profile_ref=case["target"].port.binding_profile_ref,
+        ),
+        dag_budget_profile_ref=case["budget_ref"],
+        dag_budget_profile=case["budget"],
+        source_nodes=tuple(source_nodes),
+        operation_nodes=(upstream, root),
+        root_node_id=root_id,
+        input_closure_status="partial",
+        registered_profile_ref=ArtifactRef.model_validate(
+            profiles["root_profile_ref"].model_dump(mode="python")
+        ),
+        model_input_routing_report_ref=case["routing_ref"],
+    )
+
+    ref = persist_n7_derivation_bundle(store, bundle)
+    reopened = load_n7_derivation_bundle(store, ref)
+    assert reopened.model_dump(mode="json") == bundle.model_dump(mode="json")
+    assert all(
+        type(operation.registered_profile_ref) is ArtifactRef
+        for operation in reopened.operation_nodes
+    )
+    assert reopened.schema_version == "policyos.runtime.n7_derivation_bundle.v3"
+    assert reopened.input_closure_status == "partial"
+    assert reopened.target_satisfaction_status == "unsatisfied"
+    assert reopened.authority_purpose == "candidate_acquisition_routing_only"
+    assert reopened.root_node_id == root_id
+    assert len(reopened.source_nodes) == 3
+    assert len(planner.n7_pending_unique_derivation_source_gaps(reopened)) == 3
+    assert {node.node_id for node in reopened.operation_nodes} == {root_id, upstream_id}
+
+    manifest = store.get_manifest(ref)
+    expected_profile_roles = {
+        "selected_registered_semantic_profile": profiles["root_profile_ref"],
+        f"operation.{root_id}.registered_semantic_profile": profiles["root_profile_ref"],
+        f"operation.{upstream_id}.registered_semantic_profile": profiles["upstream_profile_ref"],
+    }
+    for role, profile_ref in expected_profile_roles.items():
+        assert input_ref_from_artifact_ref(profile_ref, role=role) in manifest.inputs
+    assert manifest.artifact_schema.version == "3.0"
+
+    root_loaded = next(node for node in reopened.operation_nodes if node.node_id == root_id)
+    replaced_denominator = next(
+        edge for edge in root_loaded.role_inputs if edge.role == root_profile.denominator_role
+    ).model_copy(update={"input_node_id": "leaf-same-basis-candidate"})
+    forged_root = root_loaded.model_copy(
+        update={
+            "role_inputs": tuple(
+                replaced_denominator if edge.role == root_profile.denominator_role else edge
+                for edge in root_loaded.role_inputs
+            )
+        }
+    )
+    same_basis_source = planner.N7DerivationSourceNode(
+        node_id="leaf-same-basis-candidate",
+        source_basis=planner.N7DerivationBasis.model_validate(
+            root_profile.inputs[0].basis.model_dump(mode="python")
+        ),
+        requirement_gap=planner.AcquisitionRequirementGap(
+            requirement_gap_id="component-only:same-basis-candidate",
+            requirement_family=planner.RequirementGapFamily.DATA,
+            compiled_requirement_ref="component-only:same-basis-candidate",
+            requirement_schema_version="component_test_only.v1",
+            gap_type=planner.AcquisitionGapType.DATA_SNAPSHOT_RELEASE,
+            claim_ref="component-only:same-basis-candidate",
+            authority_level=planner.AuthorityLevel.RESEARCH,
+            metadata={
+                "candidate_binding": {
+                    "candidate_id": case["target"].context.candidate_id,
+                    "candidate_content_hash": case["target"].context.candidate_content_hash,
+                    "design_problem_ref": case["target"].context.design_problem_ref,
+                },
+                "component_proof_only": True,
+            },
+        ),
+    )
+    forged_payload = reopened.model_dump(mode="python")
+    forged_payload["operation_nodes"] = tuple(
+        forged_root if node.node_id == root_id else node for node in reopened.operation_nodes
+    )
+    forged_payload["source_nodes"] = (*reopened.source_nodes, same_basis_source)
+    with pytest.raises(ValueError, match="n7_derivation_unreachable_node"):
+        N7DerivationBundle.model_validate(forged_payload)
+
+    upstream_path, _upstream_manifest = store._paths(profiles["upstream_profile_ref"].artifact_id)
+    upstream_bytes = upstream_path.read_bytes()
+    upstream_path.unlink()
+    with pytest.raises((OSError, ValueError)):
+        load_n7_derivation_bundle(store, ref)
+    upstream_path.write_bytes(upstream_bytes)
+    assert load_n7_derivation_bundle(store, ref) == reopened

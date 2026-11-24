@@ -388,6 +388,7 @@ def configured_native_source_case(
     request_headers: dict[str, str] | None = None,
     forbid_fetch: bool = True,
     catalog_ready: Callable[..., None] | None = None,
+    planning_selection_builder: Callable[..., NativeDerivationPlanningSelection] | None = None,
 ) -> Iterator[tuple[Any, dict[str, Any]]]:
     """Build one actual source/profile before any independently admitted leaf action."""
     problem = _problem()
@@ -481,28 +482,49 @@ def configured_native_source_case(
         )
 
     def before_dispatch(
-        *, service: Any, store: Any, claims: Any, profile: Any, **_kwargs: Any
+        *,
+        service: Any,
+        store: Any,
+        claims: Any,
+        profile: Any,
+        case: Any,
+        root: Path,
+        **_kwargs: Any,
     ) -> None:
-        budget_ref = persist_n7_derivation_dag_budget_profile(
-            store,
-            N7DerivationDagBudgetProfile(
-                profile_id="test-native-source-dag-budget",
-                max_nodes=16,
-                max_edges=32,
-                max_depth=8,
-                max_unique_sources=16,
-            ),
-        )
-        setup = holder["setup"]
-        selection = NativeDerivationPlanningSelection(
-            tenant_id=claims.tenant_id,
-            cell_id=claims.cell_id,
-            profile_selection_ref=profile.profile_selection_ref,
-            registered_profile_ref=holder["profile_ref"],
-            dag_budget_profile_ref=budget_ref,
-            binding_id="configured-native-two-leaf",
-            role_suppliers=tuple(row["selection_row"] for row in holder["rows"]),
-        )
+        budget_ref = holder.get("planning_budget_ref")
+        if budget_ref is None:
+            budget_ref = persist_n7_derivation_dag_budget_profile(
+                store,
+                N7DerivationDagBudgetProfile(
+                    profile_id="test-native-source-dag-budget",
+                    max_nodes=16,
+                    max_edges=32,
+                    max_depth=8,
+                    max_unique_sources=16,
+                ),
+            )
+        if planning_selection_builder is None:
+            selection = NativeDerivationPlanningSelection(
+                tenant_id=claims.tenant_id,
+                cell_id=claims.cell_id,
+                profile_selection_ref=profile.profile_selection_ref,
+                registered_profile_ref=holder["profile_ref"],
+                dag_budget_profile_ref=budget_ref,
+                binding_id="configured-native-two-leaf",
+                role_suppliers=tuple(row["selection_row"] for row in holder["rows"]),
+            )
+        else:
+            selection = planning_selection_builder(
+                store=store,
+                holder=holder,
+                claims=claims,
+                profile=profile,
+                case=case,
+                budget_ref=budget_ref,
+                root=root,
+            )
+            if type(selection) is not NativeDerivationPlanningSelection:
+                raise TypeError("configured_native_planning_selection_untyped")
         configuration = AcquisitionWorldGrowthConfig(
             native_derivation_planning_selections=(selection,)
         )
@@ -710,6 +732,551 @@ def test_configured_native_source_exposes_two_unpriced_leaf_routes(
             assert detail.status_code == 200, detail.text
             assert detail.json() == row
         assert served_case.semantic_kernel_entries == []
+
+
+@pytest.mark.integration
+def test_configured_native_v3_route_uses_the_selected_upstream_supplier_before_io(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+) -> None:
+    """Replay the stock configured owner and bind one exact V3 supplier arm."""
+    import json
+    from datetime import UTC, datetime
+
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+        DEFAULT_ACQUISITION_AUTHORITY_REGISTRY,
+        DEFAULT_L5_MEASUREMENT_REGISTRY,
+        CanonicalAcquisitionAuthority,
+        build_authority_registry,
+    )
+    from polisyos.data_forge.read_api import catalog as catalog_read_api
+    from polisyos.runtime.http.services import acquisition_surface_execution as surface_owner
+    from polisyos.runtime.http.services.acquisition_surface_execution import (
+        LiveAcquisitionExecutionError,
+        resolve_world_bank_wdi_route_execution_bindings,
+    )
+    from polisyos.runtime.quality.acquisition_planner import load_n7_derivation_bundle
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        NativeDerivationLeafRouteAvailability,
+        VerifiedAcquisitionRouteClosure,
+    )
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        AcquisitionWorldGrowthConfig,
+        NativeDerivationRouteConfiguration,
+    )
+    from polisyos.runtime.quality.generation_cycle import _problem_ref
+    from tests._helpers.acquisition_production import (
+        _authority_family_receipt,
+        _sha,
+        _write_family_receipt,
+        _write_provision,
+    )
+    from tests._helpers.native_derivation_quotes import _profile_for_scope
+    from tests._helpers.registered_derived_method_input import (
+        prepare_registered_method_input_preflight,
+    )
+    from tests.unit.runtime.quality.test_n7_native_derivation_resolver import (
+        _supplier_snapshot,
+        _two_operation_selection,
+    )
+
+    port_state: dict[str, Any] = {"appointments": []}
+
+    def catalog_ready(
+        *, store: Any, case: Any, root: Path, holder: dict[str, Any], **_kwargs: Any
+    ) -> None:
+        port_state["holder"] = holder
+        monkeypatch.setattr(
+            surface_owner,
+            "build_production_world_bank_wdi_execution_port",
+            _native_fixture_port_factory(port_state),
+        )
+
+        preflight = prepare_registered_method_input_preflight(case)
+        from polisyos.core.contracts import load_model_input_obligation_set
+
+        selected_set, members = load_model_input_obligation_set(store, preflight.obligation_set_ref)
+        if len(selected_set.obligation_refs) != 1 or len(members) != 1:
+            raise AssertionError("served_v3_target_denominator_changed")
+        planning_budget_ref = persist_n7_derivation_dag_budget_profile(
+            store,
+            N7DerivationDagBudgetProfile(
+                profile_id="served-native-v3-source-budget",
+                max_nodes=16,
+                max_edges=32,
+                max_depth=8,
+                max_unique_sources=16,
+            ),
+        )
+        planning_case = {
+            "case": case,
+            "obligation_set_ref": preflight.obligation_set_ref,
+            "target_ref": selected_set.obligation_refs[0],
+            "target": members[0],
+            "profile": holder["setup"].profile,
+            "profile_ref": holder["profile_ref"],
+            "registry_bundle_ref": preflight.invocation.registry_bundle_ref,
+            "budget_ref": planning_budget_ref,
+        }
+        selected_case, selection, profiles, snapshots = _two_operation_selection(
+            planning_case, tmp_path / "served-native-v3-sources"
+        )
+        selected_leaf = "leaf-upstream-ratio"
+        selected_role = profiles["upstream_profile"].ratio_role
+        alternative_root = tmp_path / "served-native-v3-alternative"
+        alternative_suffix = "selected-upstream-ratio-alternative"
+        alternative = _supplier_snapshot(
+            selected_case,
+            alternative_root,
+            requested_role=selected_role,
+            source_role=selected_role,
+            suffix=alternative_suffix,
+            source_profile=profiles["upstream_profile"],
+            source_node_id=selected_leaf,
+            operation_node_id="upstream-flow",
+        )
+        alternative_repo_root = alternative_root / alternative_suffix
+        base_key = f"upstream-flow:{selected_role}"
+        base_snapshot = snapshots[base_key]
+        base_entry = base_snapshot["entry"]
+        alternative_entry = alternative["entry"]
+        baseline_path = alternative_repo_root / "catalog" / "catalog.duckdb"
+        l5_path = alternative_repo_root / DEFAULT_L5_MEASUREMENT_REGISTRY
+        receipt_base = _write_family_receipt(
+            alternative_repo_root,
+            entry_id=base_entry.entry_id,
+            attempt_id="served-native-v3-base-owner",
+            receipt=_authority_family_receipt("served-native-v3-base-owner"),
+            receipt_path="evidence/native-v3-base-owner.json",
+        )
+        receipt_alternative = _write_family_receipt(
+            alternative_repo_root,
+            entry_id=alternative_entry.entry_id,
+            attempt_id="served-native-v3-alternative-owner",
+            receipt=_authority_family_receipt("served-native-v3-alternative-owner"),
+            receipt_path="evidence/native-v3-alternative-owner.json",
+        )
+        registry = build_authority_registry(
+            baseline_content_sha256=_sha(baseline_path),
+            l5_measurement_registry_sha256=_sha(l5_path),
+            entries=(base_entry, alternative_entry),
+        )
+        registry_path = alternative_repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY
+        registry_path.parent.mkdir(parents=True, exist_ok=True)
+        registry_path.write_text(
+            json.dumps(registry.model_dump(mode="json"), sort_keys=True, separators=(",", ":")),
+            encoding="utf-8",
+        )
+        _write_provision(
+            alternative_repo_root,
+            baseline=baseline_path,
+            l5_path=l5_path,
+            baseline_owner_ref="repo://catalog/catalog.duckdb",
+            live_harness_receipts=tuple(
+                sorted(
+                    (receipt_base, receipt_alternative),
+                    key=lambda receipt: (receipt["entry_id"], receipt["attempt_id"]),
+                )
+            ),
+        )
+        authority = CanonicalAcquisitionAuthority.from_provision(
+            repo_root=alternative_repo_root,
+            baseline_path=baseline_path,
+            l5_measurement_registry_path=l5_path,
+        )
+        base_ref = catalog_read_api.persist_acquisition_supplier_declaration(
+            store, authority, entry_id=base_entry.entry_id
+        )
+        alternative_ref = catalog_read_api.persist_acquisition_supplier_declaration(
+            store, authority, entry_id=alternative_entry.entry_id
+        )
+        base_declaration = catalog_read_api.load_acquisition_supplier_declaration(store, base_ref)
+        alternative_declaration = catalog_read_api.load_acquisition_supplier_declaration(
+            store, alternative_ref
+        )
+        base_provider = base_snapshot["provider"].model_copy(
+            update={
+                "supplier_ref": base_ref,
+                "authority_entry_id": base_entry.entry_id,
+                "connector_id": base_declaration.connector_id,
+            }
+        )
+        alternative_provider = alternative["provider"].model_copy(
+            update={
+                "supplier_ref": alternative_ref,
+                "authority_entry_id": alternative_entry.entry_id,
+                "connector_id": alternative_declaration.connector_id,
+            }
+        )
+        base_row = base_snapshot["selection_row"].model_copy(
+            update={"provider": base_provider, "source_declaration_ref": base_ref}
+        )
+        alternative_row = alternative["selection_row"].model_copy(
+            update={"provider": alternative_provider, "source_declaration_ref": alternative_ref}
+        )
+        snapshots[base_key] = {
+            **base_snapshot,
+            "ref": base_ref,
+            "declaration": base_declaration,
+            "provider": base_provider,
+            "selection_row": base_row,
+        }
+        alternative.update(
+            {
+                "ref": alternative_ref,
+                "declaration": alternative_declaration,
+                "provider": alternative_provider,
+                "selection_row": alternative_row,
+            }
+        )
+        selected_rows = (
+            *(
+                base_row if row == base_snapshot["selection_row"] else row
+                for row in selection.role_suppliers
+            ),
+            alternative_row,
+        )
+        selection = NativeDerivationPlanningSelection.model_validate(
+            selection.model_dump(mode="python") | {"role_suppliers": selected_rows}
+        )
+        holder["metadata"]["native_authority"] = authority
+        holder["planning_budget_ref"] = planning_budget_ref
+        holder["native_v3"] = {
+            "alternative": alternative,
+            "profiles": profiles,
+            "snapshots": snapshots,
+            "selection": selection,
+            "selected_leaf": selected_leaf,
+            "selected_role": selected_role,
+        }
+
+    def planning_selection_builder(
+        *,
+        holder: dict[str, Any],
+        claims: Any,
+        profile: Any,
+        budget_ref: ArtifactRef,
+        **_kwargs: Any,
+    ) -> NativeDerivationPlanningSelection:
+        selection = holder["native_v3"]["selection"]
+        return NativeDerivationPlanningSelection.model_validate(
+            selection.model_dump(mode="python")
+            | {
+                "tenant_id": claims.tenant_id,
+                "cell_id": claims.cell_id,
+                "profile_selection_ref": profile.profile_selection_ref,
+                "dag_budget_profile_ref": budget_ref,
+                "binding_id": "served-native-v3-two-operation-selection",
+            }
+        )
+
+    with configured_native_source_case(
+        tmp_path,
+        monkeypatch,
+        controlled_candidate_gateway,
+        catalog_ready=catalog_ready,
+        planning_selection_builder=planning_selection_builder,
+    ) as (served, holder):
+        response = served.client.get(f"/api/v1/runs/{served.control_run_id}/acquisition-routes")
+        assert response.status_code == 200, response.text
+        projections = tuple(
+            row
+            for row in response.json()["routes"]
+            if row["schema_version"] == "NativeDerivationLeafRouteProjection@1.0"
+        )
+        v3 = holder["native_v3"]
+        selected_leaf = v3["selected_leaf"]
+        selected_provider = v3["alternative"]["provider"]
+        selected_ref = artifact_ref_identity_key(selected_provider.supplier_ref)
+        bundle_refs = {
+            artifact_ref_identity_key(ArtifactRef.model_validate(row["derivation_bundle_ref"]))
+            for row in projections
+        }
+        assert len(bundle_refs) == 1
+        assert len(projections) == 4
+        same_leaf = tuple(row for row in projections if row["source_node_id"] == selected_leaf)
+        assert len(same_leaf) == 2
+        assert {
+            artifact_ref_identity_key(ArtifactRef.model_validate(row["selected_supplier_ref"]))
+            for row in same_leaf
+        } == {
+            artifact_ref_identity_key(
+                v3["snapshots"][f"upstream-flow:{v3['selected_role']}"]["ref"]
+            ),
+            selected_ref,
+        }
+
+        container = served.client.app.state.runtime_container
+        action_service = container.acquisition_action_service
+        control_service = container.control_service
+        with tenant_scope(
+            None,
+            tenant_id=served.claims.tenant_id,
+            cell_id=served.claims.cell_id,
+        ):
+            route_loop = action_service._route_loop(
+                tenant_id=served.claims.tenant_id,
+                cell_id=served.claims.cell_id,
+            )
+            pending = route_loop.resolve_native_derivation_leaf_routes(run_id=served.control_run_id)
+            selected_pending = tuple(
+                row
+                for row in pending
+                if type(row) is NativeDerivationLeafRouteAvailability
+                and row.source_node_id == selected_leaf
+                and artifact_ref_identity_key(row.expected_scope.selected_supplier_ref)
+                == selected_ref
+            )
+            assert len(selected_pending) == 1
+            selected_scope = selected_pending[0].expected_scope
+            assert selected_scope is not None
+
+            from polisyos.runtime.quality.n7_native_derivation_resolver import (
+                validate_registered_n7_v3_planning_selection,
+            )
+
+            selected_sources = control_service._native_derivation_selected_planning_sources(
+                tenant_id=selected_scope.tenant_id,
+                cell_id=selected_scope.cell_id,
+                run_id=selected_scope.run_id,
+                source_job_id=selected_scope.source_job_id,
+                configured_port_source_ref=selected_scope.configured_port_source_ref,
+            )
+            assert len(selected_sources) == 1, (
+                "native_v3_current_selected_source_count_mismatch:"
+                f"source_job_id={selected_scope.source_job_id}"
+            )
+            selected_planning, selected_bundle = selected_sources[0]
+            selected_provider_key = (
+                "upstream-flow",
+                v3["selected_role"],
+                selected_leaf,
+                artifact_ref_identity_key(selected_provider.supplier_ref),
+            )
+            planning_keys = tuple(
+                (
+                    row.operation_node_id,
+                    row.role,
+                    row.provider.source_node_id,
+                    artifact_ref_identity_key(row.provider.supplier_ref),
+                )
+                for row in selected_planning.role_suppliers
+            )
+            assert planning_keys.count(selected_provider_key) == 1, (
+                "native_v3_configured_provider_missing_from_current_planning_selection:"
+                f"expected={selected_provider_key!r};actual={planning_keys!r}"
+            )
+            eligible_rows = validate_registered_n7_v3_planning_selection(
+                control_service._artifact_store,
+                selected_planning,
+                selected_bundle,
+            )
+            eligible_keys = tuple(
+                (
+                    row.operation_node_id,
+                    row.role,
+                    row.provider.source_node_id,
+                    artifact_ref_identity_key(row.provider.supplier_ref),
+                )
+                for row in eligible_rows
+            )
+            eligible_provider = next(
+                (
+                    row.provider
+                    for row, key in zip(eligible_rows, eligible_keys, strict=True)
+                    if key == selected_provider_key
+                ),
+                None,
+            )
+            assert eligible_provider is not None, (
+                "native_v3_configured_provider_missing_from_current_eligible_union:"
+                f"expected={selected_provider_key!r};actual={eligible_keys!r}"
+            )
+            assert eligible_provider.model_dump(mode="json") == selected_provider.model_dump(
+                mode="json"
+            ), (
+                "native_v3_configured_provider_fields_mismatch:"
+                f"expected={eligible_provider.model_dump(mode='json')!r};"
+                f"configured={selected_provider.model_dump(mode='json')!r}"
+            )
+
+            quote_ref = _profile_for_scope(
+                control_service._artifact_store,
+                selected_scope,
+                amount_usd=0.25,
+                now=datetime.now(UTC),
+            )
+            native_route = NativeDerivationRouteConfiguration(
+                tenant_id=selected_scope.tenant_id,
+                cell_id=selected_scope.cell_id,
+                run_id=selected_scope.run_id,
+                source_job_id=selected_scope.source_job_id,
+                configured_port_source_ref=selected_scope.configured_port_source_ref,
+                owner_declared_cost_profile_refs=(quote_ref,),
+                supplier_selections=(selected_provider,),
+            )
+            configuration = AcquisitionWorldGrowthConfig.model_validate(
+                holder["configuration"].model_dump(mode="python")
+                | {"native_derivation_routes": (native_route,)}
+            )
+            wrong_connector_provider = selected_provider.model_copy(
+                update={"connector_id": "worldbank.wdi.altered"}
+            )
+            wrong_connector_route = native_route.model_copy(
+                update={"supplier_selections": (wrong_connector_provider,)}
+            )
+            wrong_connector_configuration = AcquisitionWorldGrowthConfig.model_validate(
+                configuration.model_dump(mode="python")
+                | {"native_derivation_routes": (wrong_connector_route,)}
+            )
+            control_service.bind_native_derivation_route_configuration(
+                wrong_connector_configuration
+            )
+            with pytest.raises(
+                ValueError,
+                match="native_derivation_provider_configuration_not_eligible",
+            ):
+                control_service.native_derivation_leaf_provider_selections(
+                    tenant_id=selected_scope.tenant_id,
+                    cell_id=selected_scope.cell_id,
+                    run_id=selected_scope.run_id,
+                    source_job_id=selected_scope.source_job_id,
+                    configured_port_source_ref=selected_scope.configured_port_source_ref,
+                )
+            assert holder["fetch_calls"] == []
+            assert served.semantic_kernel_entries == []
+            control_service.bind_native_derivation_route_configuration(configuration)
+            holder["configuration"] = configuration
+
+            resolved = route_loop.resolve_native_derivation_leaf_routes(
+                run_id=served.control_run_id
+            )
+            closures = tuple(
+                row
+                for row in resolved
+                if type(row) is VerifiedAcquisitionRouteClosure
+                and row.native_derivation_leaf_scope is not None
+                and row.native_derivation_leaf_scope.source_node_id == selected_leaf
+            )
+            assert len(closures) == 1
+            closure = route_loop.resolve_current_route(
+                run_id=served.control_run_id, route_id=closures[0].route_id
+            )
+            assert type(closure) is VerifiedAcquisitionRouteClosure
+            assert closure.native_derivation_leaf_provider == selected_provider
+
+            bundle = load_n7_derivation_bundle(
+                control_service._artifact_store,
+                closure.native_derivation_leaf_scope.derivation_bundle_ref,
+            )
+            assert bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v3"
+            assert closure.native_derivation_leaf_scope.source_node_id == selected_leaf
+
+            execution_owner = control_service._native_world_bank_execution_owner()
+            assert execution_owner is not None
+            same_target_entries = tuple(
+                entry
+                for entry in execution_owner._registry.entries
+                if entry.target_variable == v3["alternative"]["entry"].target_variable
+            )
+            assert {entry.entry_id for entry in same_target_entries} == {
+                v3["snapshots"][f"upstream-flow:{v3['selected_role']}"]["entry"].entry_id,
+                v3["alternative"]["entry"].entry_id,
+            }
+            bindings = resolve_world_bank_wdi_route_execution_bindings(
+                closure=closure,
+                authority=execution_owner._authority,
+                registry=execution_owner._registry,
+                provision=execution_owner._provision,
+                provision_content_sha256=execution_owner._provision_content_sha256,
+                artifact_store=execution_owner._artifact_store,
+            )
+            assert len(bindings) == 1
+            assert bindings[0].authority_entry_id == v3["alternative"]["entry"].entry_id
+            assert bindings[0].connector_id == selected_provider.connector_id
+            assert bindings[0].constraints.country_code == "UKR"
+            assert bindings[0].constraints.start_year == bindings[0].constraints.end_year == 2024
+
+            within_authority_wrong_year = closure.design_problem_basis.model_copy(
+                update={
+                    "jurisdiction_time": closure.design_problem_basis.jurisdiction_time.model_copy(
+                        update={"data_time": "2023"}
+                    )
+                }
+            )
+            assert closure.design_problem_basis.jurisdiction_time.data_time == "2024"
+            assert closure.route_source_cycle_index == closure.source_cycle.cycle_index == 0
+            assert closure.generation_run.cycles == (closure.source_cycle,)
+            assert not closure.acquisition_basis_transitions
+            assert not closure.candidate_basis_transitions
+            wrong_problem_ref = _problem_ref(within_authority_wrong_year)
+            wrong_source_cycle = closure.source_cycle.model_copy(
+                update={
+                    "design_problem_ref": wrong_problem_ref,
+                    "design_problem_basis_ref": wrong_problem_ref,
+                }
+            )
+            wrong_closure = closure.model_copy(
+                update={
+                    "design_problem": within_authority_wrong_year,
+                    "design_problem_ref": wrong_problem_ref,
+                    "generation_run": closure.generation_run.model_copy(
+                        update={
+                            "design_problem_ref": wrong_problem_ref,
+                            "cycles": (wrong_source_cycle,),
+                        }
+                    ),
+                    "source_cycle": wrong_source_cycle,
+                }
+            )
+            assert wrong_closure.design_problem_basis.jurisdiction_time.data_time == "2023"
+            with pytest.raises(LiveAcquisitionExecutionError) as wrong_year:
+                resolve_world_bank_wdi_route_execution_bindings(
+                    closure=wrong_closure,
+                    authority=execution_owner._authority,
+                    registry=execution_owner._registry,
+                    provision=execution_owner._provision,
+                    provision_content_sha256=execution_owner._provision_content_sha256,
+                    artifact_store=execution_owner._artifact_store,
+                )
+            assert wrong_year.value.code == "native_registered_graph_role_input_refused"
+
+            other_arm = v3["snapshots"][f"upstream-flow:{v3['selected_role']}"]["provider"]
+            with pytest.raises(LiveAcquisitionExecutionError) as refused:
+                resolve_world_bank_wdi_route_execution_bindings(
+                    closure=closure.model_copy(
+                        update={"native_derivation_leaf_provider": other_arm}
+                    ),
+                    authority=execution_owner._authority,
+                    registry=execution_owner._registry,
+                    provision=execution_owner._provision,
+                    provision_content_sha256=execution_owner._provision_content_sha256,
+                    artifact_store=execution_owner._artifact_store,
+                )
+            assert refused.value.code == "native_role_route_leaf_selection_mismatch"
+
+            without_planning = configuration.model_copy(
+                update={"native_derivation_planning_selections": ()}
+            )
+            control_service.bind_native_derivation_route_configuration(without_planning)
+            try:
+                assert (
+                    control_service.native_derivation_leaf_provider_selections(
+                        tenant_id=selected_scope.tenant_id,
+                        cell_id=selected_scope.cell_id,
+                        run_id=selected_scope.run_id,
+                        source_job_id=selected_scope.source_job_id,
+                        configured_port_source_ref=selected_scope.configured_port_source_ref,
+                    )
+                    == ()
+                )
+            finally:
+                control_service.bind_native_derivation_route_configuration(configuration)
+
+        assert holder["fetch_calls"] == []
+        assert served.semantic_kernel_entries == []
 
 
 def _prepare_native_epoch_owner_inputs(

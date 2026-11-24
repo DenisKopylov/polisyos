@@ -133,6 +133,9 @@ if TYPE_CHECKING:
         JointSimulationHorizonController,
         PreparedJointSimulationConfiguration,
     )
+    from polisyos.runtime.quality.model_input_routing import (
+        RegisteredDerivedGraphModelInputRequest,
+    )
     from polisyos.runtime.quality.native_source_reentry_history import (
         NativeSourceReentryCoordinator,
     )
@@ -624,15 +627,14 @@ def prepare_native_derivation_materialization_request(
     collection_ref: artifacts.ArtifactRef,
     profile_ref: artifacts.ArtifactRef,
     binding_id: str,
-) -> RegisteredDerivedModelInputRequest:
-    """Join actual leaf occurrences to the selected semantic operator's roles.
+) -> RegisteredDerivedModelInputRequest | RegisteredDerivedGraphModelInputRequest:
+    """Bind a complete native collection to its selected model input request.
 
-    The first semantic profile consumes a single registered operation whose
-    inputs are native leaves. An intermediate operation needs its own semantic
-    correspondence; it cannot be treated as if it were a source occurrence.
-    This prepares a candidate materialization request, not an execution permit.
-    The canonical materializer must still verify role scopes, binding profiles
-    and physical/semantic correspondence before producing a resolved manifest.
+    Version-one and version-two bundles use the existing single-operation
+    request with explicit occurrence roles. Version-three bundles use the
+    stock graph request for their selected root port and retain the exact full
+    collection. Neither request is an execution permit; the canonical
+    materializer still verifies role scopes, registrations and correspondence.
     """
     from polisyos.core.contracts import (
         RegisteredDerivedInputProfileRef,
@@ -640,16 +642,52 @@ def prepare_native_derivation_materialization_request(
         RegisteredMeasurementRole,
         ScopedMeasurementOccurrenceRef,
         SelectedVariableBindingRef,
+        load_model_input_obligation_set,
         load_registered_derived_input_profile,
         verify_registered_derived_family,
     )
     from polisyos.core.derivations import load_selected_transform_family_registry
     from polisyos.runtime.quality.acquisition_planner import load_n7_derivation_bundle
+    from polisyos.runtime.quality.model_input_routing import (
+        RegisteredDerivedGraphModelInputRequest,
+    )
 
     collection = replay_native_derivation_input_collection(store, collection_ref).collection
-    if collection.input_closure_status != "inputs_complete":
+    if collection.input_closure_status != "inputs_complete" or collection.pending_actions:
         raise ValueError("native_derivation_inputs_incomplete")
     bundle = load_n7_derivation_bundle(store, collection.derivation_bundle_ref)
+    if bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v3":
+        roots = tuple(row for row in bundle.operation_nodes if row.node_id == bundle.root_node_id)
+        if (
+            bundle.registered_profile_ref is None
+            or len(roots) != 1
+            or roots[0].registered_profile_ref is None
+            or collection.authority_purpose != "candidate_acquisition_routing_only"
+            or collection.semantic_admissibility != "not_established"
+            or collection.target_satisfaction_status != "unsatisfied"
+            or bundle.authority_purpose != "candidate_acquisition_routing_only"
+            or bundle.target_satisfaction_status != "unsatisfied"
+            or _native_derivation_ref_key(bundle.registered_profile_ref)
+            != _native_derivation_ref_key(profile_ref)
+            or _native_derivation_ref_key(roots[0].registered_profile_ref)
+            != _native_derivation_ref_key(profile_ref)
+        ):
+            raise ValueError("native_derivation_graph_materialization_selection_mismatch")
+        selected_set, _ = load_model_input_obligation_set(store, bundle.obligation_set_ref)
+        if len(selected_set.obligation_refs) != 1 or _native_derivation_ref_key(
+            selected_set.obligation_refs[0]
+        ) != _native_derivation_ref_key(bundle.model_input_obligation_ref):
+            raise ValueError("native_derivation_graph_materialization_target_set_unsupported")
+        return RegisteredDerivedGraphModelInputRequest(
+            model_input_obligation_ref=artifacts.ArtifactRef.model_validate(
+                bundle.model_input_obligation_ref.model_dump(mode="python")
+            ),
+            profile_ref=artifacts.ArtifactRef.model_validate(profile_ref.model_dump(mode="python")),
+            collection_ref=artifacts.ArtifactRef.model_validate(
+                collection_ref.model_dump(mode="python")
+            ),
+            binding_id=binding_id,
+        )
     roots = tuple(row for row in bundle.operation_nodes if row.node_id == bundle.root_node_id)
     if len(bundle.operation_nodes) != 1 or len(roots) != 1:
         raise ValueError("native_derivation_semantic_dag_profile_unsupported")
@@ -795,6 +833,7 @@ class NativeDerivationPlanningRoleSupplier(_Strict):
     """
 
     role: str = Field(min_length=1)
+    operation_node_id: str | None = Field(default=None, exclude_if=lambda value: value is None)
     provider: NativeDerivationLeafProviderSelection
     source_declaration_ref: artifacts.ArtifactRef
 
@@ -814,6 +853,38 @@ class NativeDerivationPlanningRoleSupplier(_Strict):
         return self
 
 
+class NativeDerivationPlanningRoleInput(_Strict):
+    """One explicitly typed role edge in a configured operation graph."""
+
+    role: str = Field(pattern=r"^[A-Za-z][A-Za-z0-9_.-]{0,63}$")
+    input_kind: Literal["candidate_source", "certified_derived"]
+    input_node_id: str = Field(min_length=1)
+
+
+class NativeDerivationPlanningOperation(_Strict):
+    """One configured relation profile and its complete role routing."""
+
+    node_id: str = Field(min_length=1)
+    registered_profile_ref: artifacts.ArtifactRef
+    role_inputs: tuple[NativeDerivationPlanningRoleInput, ...] = Field(min_length=2)
+
+    @model_validator(mode="after")
+    def _selected_operation(self) -> Self:
+        ref = self.registered_profile_ref
+        if (
+            ref.kind != "catalog.derived_input_profile"
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("native_derivation_planning_profile_unselected")
+        role_inputs = tuple(sorted(self.role_inputs, key=lambda row: row.role))
+        roles = tuple(row.role for row in role_inputs)
+        if len(roles) != len(set(roles)):
+            raise ValueError("native_derivation_planning_operation_role_duplicate")
+        object.__setattr__(self, "role_inputs", role_inputs)
+        return self
+
+
 class NativeDerivationPlanningSelection(_Strict):
     """Preknown candidate planning inputs, before any invocation set exists.
 
@@ -829,6 +900,10 @@ class NativeDerivationPlanningSelection(_Strict):
     dag_budget_profile_ref: artifacts.ArtifactRef
     binding_id: str = Field(pattern=r"^[A-Za-z0-9_-][A-Za-z0-9_.-]{0,127}$")
     role_suppliers: tuple[NativeDerivationPlanningRoleSupplier, ...] = Field(min_length=1)
+    operation_nodes: tuple[NativeDerivationPlanningOperation, ...] = Field(
+        default=(), exclude_if=lambda value: not value
+    )
+    root_node_id: str | None = Field(default=None, exclude_if=lambda value: value is None)
     authority_purpose: Literal["candidate_acquisition_routing_only"] = (
         "candidate_acquisition_routing_only"
     )
@@ -847,6 +922,7 @@ class NativeDerivationPlanningSelection(_Strict):
                 raise ValueError("native_derivation_planning_profile_unselected")
         keys = tuple(
             (
+                row.operation_node_id,
                 row.role,
                 row.provider.source_node_id,
                 artifacts.artifact_ref_identity_key(row.provider.supplier_ref),
@@ -856,6 +932,87 @@ class NativeDerivationPlanningSelection(_Strict):
         )
         if len(keys) != len(set(keys)):
             raise ValueError("native_derivation_planning_supplier_duplicate")
+
+        if not self.operation_nodes:
+            if self.root_node_id is not None or any(
+                row.operation_node_id is not None for row in self.role_suppliers
+            ):
+                raise ValueError("native_derivation_planning_legacy_shape_mismatch")
+            return self
+
+        operation_ids = tuple(row.node_id for row in self.operation_nodes)
+        if (
+            len(operation_ids) < 2
+            or len(operation_ids) != len(set(operation_ids))
+            or self.root_node_id not in set(operation_ids)
+        ):
+            raise ValueError("native_derivation_planning_operation_graph_invalid")
+        by_id = {row.node_id: row for row in self.operation_nodes}
+        root = by_id[self.root_node_id]
+        if artifacts.artifact_ref_identity_key(root.registered_profile_ref) != (
+            artifacts.artifact_ref_identity_key(self.registered_profile_ref)
+        ):
+            raise ValueError("native_derivation_planning_root_profile_mismatch")
+
+        suppliers_by_role: dict[tuple[str, str], list[NativeDerivationPlanningRoleSupplier]] = {}
+        for supplier in self.role_suppliers:
+            if supplier.operation_node_id is None or supplier.operation_node_id not in by_id:
+                raise ValueError("native_derivation_planning_operation_supplier_unbound")
+            suppliers_by_role.setdefault((supplier.operation_node_id, supplier.role), []).append(
+                supplier
+            )
+
+        source_ids: set[str] = set()
+        operation_dependencies: dict[str, set[str]] = {node_id: set() for node_id in operation_ids}
+        expected_supplier_roles: set[tuple[str, str]] = set()
+        for operation in self.operation_nodes:
+            for role_input in operation.role_inputs:
+                key = (operation.node_id, role_input.role)
+                suppliers = suppliers_by_role.get(key, [])
+                if role_input.input_kind == "candidate_source":
+                    expected_supplier_roles.add(key)
+                    if not suppliers or {row.provider.source_node_id for row in suppliers} != {
+                        role_input.input_node_id
+                    }:
+                        raise ValueError("native_derivation_planning_source_input_unbound")
+                    source_ids.add(role_input.input_node_id)
+                else:
+                    if suppliers or role_input.input_node_id not in by_id:
+                        raise ValueError("native_derivation_planning_derived_input_unbound")
+                    operation_dependencies[operation.node_id].add(role_input.input_node_id)
+        if set(suppliers_by_role) != expected_supplier_roles or source_ids.intersection(
+            operation_ids
+        ):
+            raise ValueError("native_derivation_planning_operation_source_set_mismatch")
+
+        reachable: set[str] = set()
+        pending = [self.root_node_id]
+        while pending:
+            node_id = pending.pop()
+            if node_id in reachable:
+                continue
+            reachable.add(node_id)
+            pending.extend(operation_dependencies[node_id])
+        if reachable != set(operation_ids):
+            raise ValueError("native_derivation_planning_operation_graph_unreachable")
+
+        remaining = {
+            node_id: set(dependencies) for node_id, dependencies in operation_dependencies.items()
+        }
+        ready = [node_id for node_id, dependencies in remaining.items() if not dependencies]
+        visited: set[str] = set()
+        while ready:
+            node_id = ready.pop()
+            if node_id in visited:
+                continue
+            visited.add(node_id)
+            for dependent, dependencies in remaining.items():
+                if node_id in dependencies:
+                    dependencies.remove(node_id)
+                    if not dependencies:
+                        ready.append(dependent)
+        if visited != set(operation_ids):
+            raise ValueError("native_derivation_planning_operation_cycle")
         return self
 
 
@@ -2338,12 +2495,16 @@ def _replay_native_derivation_world_bindings(
     """Share exact recorded input closure between current and historical reads."""
     from polisyos.core.contracts import (
         load_model_input_obligation_set,
+        load_registered_derived_graph_correspondence,
         load_registered_derived_input_context,
         load_registered_derived_input_correspondence,
         load_resolved_input_binding_manifest,
     )
     from polisyos.foundry.data_plane import load_input_bindings
     from polisyos.runtime.quality.acquisition_planner import load_n7_derivation_bundle
+    from polisyos.runtime.quality.model_input_routing import (
+        RegisteredDerivedGraphModelInputRequest,
+    )
     from polisyos.runtime.quality.world_model_record import world_model_artifact_views
 
     collection = replay_native_derivation_input_collection(store, collection_ref).collection
@@ -2361,7 +2522,9 @@ def _replay_native_derivation_world_bindings(
     nodes = tuple(node for node in bundle.source_nodes if node.node_id == scope.source_node_id)
     if len(nodes) != 1 or nodes[0].requirement_gap is None:
         raise ValueError("native_derivation_reentry_leaf_gap_missing")
-    selected_set, _ = load_model_input_obligation_set(store, bundle.obligation_set_ref)
+    selected_set, selected_obligations = load_model_input_obligation_set(
+        store, bundle.obligation_set_ref
+    )
     views = world_model_artifact_views(world_model)
     bindings = load_input_bindings(store, views.input_bindings_ref)
     if bindings.schema_version != "1.4" or bindings.resolved_binding_manifest_ref is None:
@@ -2393,6 +2556,54 @@ def _replay_native_derivation_world_bindings(
     expected = prepare_native_derivation_materialization_request(
         store, collection_ref=collection_ref, profile_ref=row.profile_ref, binding_id=row.binding_id
     )
+    if bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v3":
+        targets = tuple(
+            (ref, obligation)
+            for ref, obligation in zip(
+                selected_set.obligation_refs, selected_obligations, strict=True
+            )
+            if _native_derivation_ref_key(ref)
+            == _native_derivation_ref_key(bundle.model_input_obligation_ref)
+        )
+        if len(selected_set.obligation_refs) != 1 or len(targets) != 1:
+            raise ValueError("native_derivation_reentry_materialized_roles_mismatch")
+        target_ref, target_obligation = targets[0]
+        correspondence = load_registered_derived_graph_correspondence(store, row.correspondence_ref)
+        expected_sources = tuple(
+            (item.source_node_id, _native_derivation_ref_key(item.occurrence_ref))
+            for item in collection.source_inputs
+        )
+        actual_sources = tuple(
+            (item.node_id, _native_derivation_ref_key(item.occurrence_ref))
+            for item in correspondence.sources
+        )
+        if (
+            type(expected) is not RegisteredDerivedGraphModelInputRequest
+            or _native_derivation_ref_key(expected.collection_ref)
+            != _native_derivation_ref_key(collection_ref)
+            or _native_derivation_ref_key(correspondence.collection_ref)
+            != _native_derivation_ref_key(collection_ref)
+            or _native_derivation_ref_key(correspondence.bundle_ref)
+            != _native_derivation_ref_key(collection.derivation_bundle_ref)
+            or _native_derivation_ref_key(correspondence.model_input_obligation_ref)
+            != _native_derivation_ref_key(target_ref)
+            or _native_derivation_ref_key(row.model_input_obligation_ref)
+            != _native_derivation_ref_key(target_ref)
+            or _native_derivation_ref_key(correspondence.model_interface_ref)
+            != _native_derivation_ref_key(target_obligation.interface_ref)
+            or correspondence.model_port_id != target_obligation.port.port_id
+            or correspondence.root_node_id != bundle.root_node_id
+            or _native_derivation_ref_key(correspondence.root.profile_ref)
+            != _native_derivation_ref_key(row.profile_ref)
+            or _native_derivation_ref_key(expected.profile_ref)
+            != _native_derivation_ref_key(row.profile_ref)
+            or correspondence.year != row.year
+            or correspondence.authority_purpose != "candidate_simulation_input_only"
+            or actual_sources != expected_sources
+        ):
+            raise ValueError("native_derivation_reentry_materialized_roles_mismatch")
+        return nodes[0].requirement_gap
+
     correspondence = load_registered_derived_input_correspondence(store, row.correspondence_ref)
     context = load_registered_derived_input_context(store, correspondence.context_ref)
     if (
@@ -8862,7 +9073,10 @@ class AcquisitionWorldGrowthBridge:
         self,
         configuration: NativeDerivationRouteConfiguration,
         collection_ref: artifacts.ArtifactRef,
-    ) -> tuple[RegisteredDerivedModelInputRequest, ...] | None:
+    ) -> (
+        tuple[RegisteredDerivedModelInputRequest | RegisteredDerivedGraphModelInputRequest, ...]
+        | None
+    ):
         """Close the full selected obligation set before creating any input value."""
         from polisyos.core.contracts import load_model_input_obligation_set
         from polisyos.runtime.quality.acquisition_planner import load_n7_derivation_bundle
@@ -8889,7 +9103,11 @@ class AcquisitionWorldGrowthBridge:
             if _native_derivation_ref_key(port.derivation_bundle_ref)
             == _native_derivation_ref_key(collection.derivation_bundle_ref)
         )
-        if len(selected) != 1 or collection.pending_actions:
+        if (
+            len(selected) != 1
+            or collection.input_closure_status != "inputs_complete"
+            or collection.pending_actions
+        ):
             return None
         # First bounded native route has one actual selected target bundle.
         # Other targets stay open rather than silently borrowing this value.

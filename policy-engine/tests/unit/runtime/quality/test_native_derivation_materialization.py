@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -14,6 +15,7 @@ from polisyos.core.contracts import (
     load_resolved_input_binding_manifest,
 )
 from polisyos.core.contracts.semantic_composition_binding import (
+    load_registered_derived_graph_correspondence,
     persist_registered_derived_input_profile,
 )
 from polisyos.foundry.data_plane import load_input_bindings
@@ -22,6 +24,7 @@ from polisyos.runtime.quality import acquisition_planner as planner
 from polisyos.runtime.quality import acquisition_world_growth as owner
 from polisyos.runtime.quality.model_input_requirements import SelectedProgramGraphInputBasis
 from polisyos.runtime.quality.model_input_routing import (
+    RegisteredDerivedGraphModelInputRequest,
     materialize_registered_derived_model_inputs,
     plan_selected_model_input_routing,
 )
@@ -31,11 +34,15 @@ from tests._helpers.selected_method_input import prepare_selected_method_input_c
 from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority_model_input_discovery import (
     _authority_entry,
 )
+from tests.unit.foundry.data_plane.test_registered_derivation_graph import _native_collection
 from tests.unit.runtime.quality.test_n7_derivation_bundle import (
     _marker,
     _pending_source,
     _profile,
     _target_gap,
+)
+from tests.unit.runtime.quality.test_n7_registered_derivation_plan import (
+    prepare_selected_plan_case,
 )
 
 
@@ -340,5 +347,152 @@ def test_native_n7_roles_reach_registered_batch_and_incomplete_inputs_stay_pendi
                 profile_ref=foreign_profile_ref,
                 binding_id="native-n7-foreign-operator-refused",
             )
+    finally:
+        case.close()
+
+
+def test_v3_complete_collection_routes_root_port_and_replays_graph_history(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The world adapter carries one complete v3 collection to the stock root consumer."""
+    setup = prepare_selected_plan_case(
+        tmp_path / "root", role_populations={"denominator": "public-health-expenditure"}
+    )
+    case = setup["case"]
+    try:
+        initial_request = _native_collection(
+            tmp_path / "native", setup, foreign_scope=False, reverse=False
+        )
+        collection_ref = initial_request.collection_ref
+        collection = owner.replay_native_derivation_input_collection(
+            case.store, collection_ref
+        ).collection
+        bundle = planner.load_n7_derivation_bundle(case.store, collection.derivation_bundle_ref)
+        assert bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v3"
+        assert collection.input_closure_status == "inputs_complete"
+        assert collection.pending_actions == ()
+
+        configured_source = _marker(
+            case.store,
+            "selected-v3-world-source",
+            kind="runtime.quality.n7_configured_candidate_port_source",
+        )
+        configuration = owner.NativeDerivationRouteConfiguration(
+            tenant_id="native-v3-test",
+            cell_id="runtime",
+            run_id="native-v3",
+            source_job_id="source-v3",
+            configured_port_source_ref=configured_source,
+            ports=(
+                owner.NativeDerivationPortSelection(
+                    derivation_bundle_ref=collection.derivation_bundle_ref,
+                    registered_profile_ref=initial_request.profile_ref,
+                    binding_id=initial_request.binding_id,
+                ),
+            ),
+        )
+        bridge = object.__new__(owner.AcquisitionWorldGrowthBridge)
+        bridge.artifact_store = case.store
+        bridge._source_control_service = None
+
+        missing_input = collection.source_inputs[-1]
+        source_nodes = {row.node_id: row for row in bundle.source_nodes}
+        missing_node = source_nodes[missing_input.source_node_id]
+        partial = collection.model_copy(
+            update={
+                "source_inputs": collection.source_inputs[:-1],
+                "pending_actions": (
+                    owner.NativeDerivationPendingAction(
+                        source_node_id=missing_node.node_id,
+                        source_basis=missing_node.source_basis,
+                        action=(
+                            "revalidate_native_input"
+                            if missing_node.inputs_complete
+                            else "request_native_acquisition"
+                        ),
+                        requirement_gap=missing_node.requirement_gap,
+                    ),
+                ),
+                "input_closure_status": "partial",
+            }
+        )
+        partial_ref = owner.persist_native_derivation_input_collection(case.store, partial)
+        before_partial = case.store.manifest_inventory_snapshot(kind="foundry.input_bindings")
+        assert before_partial.verdict == "pass"
+        assert bridge._native_derivation_complete_requests(configuration, partial_ref) is None
+        after_partial = case.store.manifest_inventory_snapshot(kind="foundry.input_bindings")
+        assert after_partial.verdict == "pass"
+        assert after_partial.entries == before_partial.entries
+
+        (request,) = bridge._native_derivation_complete_requests(configuration, collection_ref)
+        assert type(request) is RegisteredDerivedGraphModelInputRequest
+        assert artifacts.artifact_ref_identity_key(request.model_input_obligation_ref) == (
+            artifacts.artifact_ref_identity_key(bundle.model_input_obligation_ref)
+        )
+        assert artifacts.artifact_ref_identity_key(request.profile_ref) == (
+            artifacts.artifact_ref_identity_key(initial_request.profile_ref)
+        )
+        assert artifacts.artifact_ref_identity_key(request.collection_ref) == (
+            artifacts.artifact_ref_identity_key(collection_ref)
+        )
+        assert request.binding_id == initial_request.binding_id
+        upstream_profile_ref = next(
+            row.registered_profile_ref
+            for row in bundle.operation_nodes
+            if row.node_id != bundle.root_node_id
+        )
+        wrong_profile_configuration = configuration.model_copy(
+            update={
+                "ports": (
+                    configuration.ports[0].model_copy(
+                        update={"registered_profile_ref": upstream_profile_ref}
+                    ),
+                )
+            }
+        )
+        with pytest.raises(
+            ValueError, match="native_derivation_graph_materialization_selection_mismatch"
+        ):
+            bridge._native_derivation_complete_requests(wrong_profile_configuration, collection_ref)
+
+        batch = materialize_registered_derived_model_inputs(
+            case.store,
+            base_data_snapshot_ref=case.data_snapshot_ref,
+            obligation_set_ref=setup["obligation_set_ref"],
+            inputs=(request,),
+        )
+        resolved = load_resolved_input_binding_manifest(
+            case.store, batch.resolved_binding_manifest_ref
+        )
+        (selected,) = resolved.derivations
+        proof = load_registered_derived_graph_correspondence(
+            case.store, selected.correspondence_ref
+        )
+        assert artifacts.artifact_ref_identity_key(proof.collection_ref) == (
+            artifacts.artifact_ref_identity_key(collection_ref)
+        )
+        assert artifacts.artifact_ref_identity_key(proof.root.profile_ref) == (
+            artifacts.artifact_ref_identity_key(request.profile_ref)
+        )
+
+        selected_node = bundle.source_nodes[0]
+        monkeypatch.setattr(
+            "polisyos.runtime.quality.world_model_record.world_model_artifact_views",
+            lambda _world: SimpleNamespace(
+                data_snapshot_ref=batch.data_snapshot_ref,
+                input_bindings_ref=batch.input_bindings_ref,
+            ),
+        )
+        historical_gap = owner._replay_native_derivation_world_bindings(
+            case.store,
+            scope=SimpleNamespace(
+                derivation_bundle_ref=collection.derivation_bundle_ref,
+                obligation_set_ref=bundle.obligation_set_ref,
+                source_node_id=selected_node.node_id,
+            ),
+            collection_ref=collection_ref,
+            world_model=object(),
+        )
+        assert historical_gap == selected_node.requirement_gap
     finally:
         case.close()

@@ -56,7 +56,9 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts import CoreJSONArtifactBoundedMemberReader
     from polisyos.core.contracts import (
         DerivedModelInputStepDataSnapshotLineage,
+        ModelInputObligation,
         ModelInputStepScope,
+        ProgramGraphInputInvocation,
         ResolvedDerivedInput,
     )
 
@@ -1063,15 +1065,16 @@ def _replay_derived_selection_value(
     store: ArtifactStore,
     selection: ResolvedDerivedInput,
     *,
+    obligation: ModelInputObligation,
+    obligation_set_ref: ArtifactRef,
+    invocation: ProgramGraphInputInvocation,
     expected_step_scope: ModelInputStepScope | None = None,
-    expected_obligation_set_ref: ArtifactRef | None = None,
 ) -> object:
     """Replay selected arithmetic without claiming source authority.
 
-    Temporal selections are accepted only when the caller supplies the exact
-    scope and original obligation-set reference independently resolved for the
-    current batch. The legacy one-period callers retain their established
-    correspondence schemas and replay behavior.
+    The selected obligation set comes from the snapshot owner's own inputs.
+    Temporal selections also require its independently resolved step scope.
+    Registered graphs reuse the Foundry binding owner's full replay.
     """
     from polisyos.core.contracts import (
         ModelInputStepScope,
@@ -1094,15 +1097,34 @@ def _replay_derived_selection_value(
     registered_schema_name = "polisyos.catalog.RegisteredDerivedInputCorrespondence"
     temporal_schema = SchemaInfo(name=registered_schema_name, version="2.1")
     one_period_schema = SchemaInfo(name=registered_schema_name, version="2.0")
+    if schema == SchemaInfo(name=registered_schema_name, version="3.0"):
+        from polisyos.foundry.data_plane import verify_registered_derived_graph_input
+
+        if expected_step_scope is not None or len(invocation.steps) != 1:
+            raise DataSnapshotLineageError("derived_model_input_graph_step_profile_unsupported")
+        try:
+            value, _projection, _limitations = verify_registered_derived_graph_input(
+                store,
+                selection,
+                obligation,
+                obligation_set_ref=obligation_set_ref,
+            )
+        except ValueError as exc:
+            if str(exc) == "foundry_input_bindings_graph_profile_reader_unavailable":
+                raise DataSnapshotLineageError(
+                    "derived_model_input_graph_profile_reader_unavailable"
+                ) from exc
+            raise
+        return value
     if schema in (temporal_schema, one_period_schema):
         if schema == temporal_schema:
-            if expected_step_scope is None or expected_obligation_set_ref is None:
+            if expected_step_scope is None:
                 raise DataSnapshotLineageError("derived_model_input_temporal_scope_not_established")
             if (
                 type(expected_step_scope) is not ModelInputStepScope
-                or expected_obligation_set_ref.kind != "runtime.quality.model_input_obligation_set"
-                or expected_obligation_set_ref.media_type != "application/json"
-                or expected_obligation_set_ref.manifest_profile_sha256 is None
+                or obligation_set_ref.kind != "runtime.quality.model_input_obligation_set"
+                or obligation_set_ref.media_type != "application/json"
+                or obligation_set_ref.manifest_profile_sha256 is None
             ):
                 raise DataSnapshotLineageError(
                     "derived_model_input_temporal_expected_subject_invalid"
@@ -1118,7 +1140,7 @@ def _replay_derived_selection_value(
                 or proof.step_scope != expected_step_scope
                 or context.step_scope != expected_step_scope
                 or artifact_ref_identity_key(context.obligation_set_ref)
-                != artifact_ref_identity_key(expected_obligation_set_ref)
+                != artifact_ref_identity_key(obligation_set_ref)
                 or artifact_ref_identity_key(context.model_input_obligation_ref)
                 != artifact_ref_identity_key(selection.model_input_obligation_ref)
                 or artifact_ref_identity_key(context.model_interface_ref)
@@ -1134,7 +1156,7 @@ def _replay_derived_selection_value(
             ):
                 raise DataSnapshotLineageError("derived_model_input_temporal_context_mismatch")
         else:
-            if expected_step_scope is not None or expected_obligation_set_ref is not None:
+            if expected_step_scope is not None:
                 raise DataSnapshotLineageError("derived_model_input_temporal_scope_unexpected")
             proof = load_registered_derived_input_correspondence(
                 store, selection.correspondence_ref
@@ -1157,7 +1179,7 @@ def _replay_derived_selection_value(
     elif schema == SchemaInfo(
         name="polisyos.catalog.DerivedInputCorrespondenceBasis", version="1.0"
     ):
-        if expected_step_scope is not None or expected_obligation_set_ref is not None:
+        if expected_step_scope is not None:
             raise DataSnapshotLineageError("derived_model_input_temporal_scope_unexpected")
         proof = load_derived_input_correspondence(store, selection.correspondence_ref)
         profile = load_derived_input_profile(store, proof.profile_ref)
@@ -1207,8 +1229,8 @@ def _verify_derived_model_input_owner(
 ) -> DataSnapshotLineageResult:
     """Rebuild the full candidate payload from its actual predecessor and outputs.
 
-    Arithmetic uses the existing Core certificate replay. Semantic correspondence
-    remains the Foundry binding owner's separate check; this transport verifier
+    Legacy arithmetic uses the existing Core certificate replay. Registered
+    graphs use the Foundry binding owner's verification. This transport replay
     grants neither observed-source authority nor native currentness.
     """
     from polisyos.core.artifacts import validate_core_model_json_artifact
@@ -1283,7 +1305,15 @@ def _verify_derived_model_input_owner(
         key = hashlib.sha256(selection.binding_id.encode()).hexdigest()[:20]
         if key in derived_values or selection.source_path != f"derived_inputs.{key}.value":
             raise DataSnapshotLineageError("derived_model_input_source_path_collision")
-        derived_values[key] = {"value": _replay_derived_selection_value(store, selection)}
+        derived_values[key] = {
+            "value": _replay_derived_selection_value(
+                store,
+                selection,
+                obligation=obligation,
+                obligation_set_ref=lineage.model_input_obligation_set_ref,
+                invocation=selected_set.invocation,
+            )
+        }
         payload_edges.extend(
             (
                 (selection.output_ref, selection.payload_output_role()),
@@ -1394,8 +1424,10 @@ def _verify_derived_model_input_steps_owner(
             "value": _replay_derived_selection_value(
                 store,
                 selection,
+                obligation=obligation,
+                obligation_set_ref=lineage.model_input_obligation_set_ref,
+                invocation=selected_set.invocation,
                 expected_step_scope=row.step_scope,
-                expected_obligation_set_ref=lineage.model_input_obligation_set_ref,
             )
         }
         payload_edges.extend(

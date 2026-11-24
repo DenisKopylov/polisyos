@@ -352,6 +352,7 @@ class DataRequirementCompiler:
         """
         from polisyos.core.contracts import (
             load_model_input_obligation_set,
+            project_model_input_requirement,
             verify_model_input_port_semantics,
         )
 
@@ -371,19 +372,13 @@ class DataRequirementCompiler:
         for ref, obligation in zip(obligation_set.obligation_refs, members, strict=True):
             port = obligation.port
             verify_model_input_port_semantics(store, port)
-            scope = port.scope
+            requirement_id, scope = project_model_input_requirement(ref, port.scope)
             requirements.append(
                 CompiledModelInputRequirement(
-                    requirement_id=f"model-input:{_sha256_json_value(ref.model_dump(mode='json'))}",
+                    requirement_id=requirement_id,
                     obligation_ref=ref,
                     port=port,
-                    scope=DataRequirementScope(
-                        population=scope.population_ref,
-                        geography=scope.geography_ref,
-                        jurisdiction=scope.jurisdiction_ref,
-                        time=f"{scope.period_start.isoformat()}/{scope.period_end.isoformat()}",
-                        time_role=scope.time_role,
-                    ),
+                    scope=DataRequirementScope.model_validate(scope),
                 )
             )
         return ModelInputCompilationReport(

@@ -40,6 +40,7 @@ if TYPE_CHECKING:
 
     from polisyos.ir.artifacts._lineage import InputRefLike
     from polisyos.ir.artifacts.contracts import ArtifactSelector
+    from polisyos.ir.artifacts.io import _ProfiledJSONReader
 
 
 class TrinityLoadError(ValueError):
@@ -301,7 +302,9 @@ def persist_trinity_bundle_artifact(
     return ArtifactRefModel.from_selected_write(selected_ref)
 
 
-def load_trinity_bundle_artifact(store: ArtifactStore, selector: ArtifactSelector) -> TrinityBundle:
+def load_trinity_bundle_artifact(
+    store: _ProfiledJSONReader, selector: ArtifactSelector
+) -> TrinityBundle:
     """Load a persisted Trinity bundle through exact owner and profile admission."""
     try:
         return _get_owned_json_artifact(store, selector, owner=_TRINITY_BUNDLE_OWNER)

@@ -30,7 +30,7 @@ from polisyos.ir.kernel import GenericUnit, MoneyUnit, UnitSpecType
 from .entity_axis import SelectedEntityVectorSourceDescriptor
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts import CoreJSONArtifactProfileReader, CoreJSONArtifactStore
+    from polisyos.core.artifacts import ArtifactReader, CoreJSONArtifactProfileReader
     from polisyos.core.contracts.model_input_requirements import ModelInputPort
 
 _SELECTED_PROFILE_SHA256 = r"^sha256:[0-9a-f]{64}$"
@@ -893,7 +893,7 @@ def variable_representation_manifest_inputs(value: VariableRepresentation) -> tu
 
 
 def load_variable_representation(
-    store: CoreJSONArtifactStore,
+    store: ArtifactReader,
     ref: VariableRepresentationRef,
 ) -> VariableRepresentation:
     """Load a selected representation and its v2 declared document dependencies.

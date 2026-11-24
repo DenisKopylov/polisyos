@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
     from polisyos.runtime.quality.acquisition_planner import (
         N7DerivationBasis,
+        N7DerivationOperationNode,
         N7DerivationSourceNode,
     )
 
@@ -47,14 +48,18 @@ def persist_registered_n7_derivation_plan(
     target_obligation_ref: artifacts.ArtifactRef,
     registered_profile_ref: artifacts.ArtifactRef,
     dag_budget_profile_ref: artifacts.ArtifactRef,
-    role_sources: tuple[tuple[str, N7DerivationSourceNode], ...],
+    role_sources: tuple[tuple[str, N7DerivationSourceNode], ...] | None = None,
+    operation_nodes: tuple[N7DerivationOperationNode, ...] | None = None,
+    source_nodes: tuple[N7DerivationSourceNode, ...] | None = None,
+    root_node_id: str | None = None,
 ) -> artifacts.ArtifactRef:
-    """Persist one one-operation N7 bundle joined to the selected compiler.
+    """Persist one registered N7 graph joined to the selected compiler.
 
-    The profile's exact output basis must be the selected compiled port, and
-    each registered role must have one prepared source leaf with the same
-    semantic basis. The bundle remains candidate-only and always leaves its
-    target obligation unsatisfied.
+    Calls using ``role_sources`` retain the v2 one-operation wire. The bounded
+    v3 branch accepts a pre-resolved operation graph and source leaves; the
+    canonical bundle writer replays every operation profile and edge before
+    persistence. Both branches remain candidate-only and leave the target
+    obligation unsatisfied.
 
     Args:
         store: Canonical artifact store for the selected inputs and output.
@@ -63,7 +68,10 @@ def persist_registered_n7_derivation_plan(
         target_obligation_ref: One member of that set selected for this plan.
         registered_profile_ref: Selected Core semantic derivation profile.
         dag_budget_profile_ref: Selected planner-owned graph budget.
-        role_sources: Prepared source nodes paired with their exact registered roles.
+        role_sources: Legacy v2 source nodes paired with registered roles.
+        operation_nodes: Pre-resolved v3 operations with per-operation profile refs.
+        source_nodes: Pre-resolved v3 candidate source leaves.
+        root_node_id: The v3 operation that supplies the one selected model port.
 
     Returns:
         The selected persisted N7 derivation bundle reference.
@@ -90,6 +98,76 @@ def persist_registered_n7_derivation_plan(
     from polisyos.runtime.quality.n7_input_obligation_source import (
         _selected_model_requirements,
     )
+
+    if operation_nodes is not None or source_nodes is not None or root_node_id is not None:
+        if (
+            role_sources is not None
+            or type(operation_nodes) is not tuple
+            or type(source_nodes) is not tuple
+            or type(root_node_id) is not str
+        ):
+            raise TypeError("n7_registered_derivation_v3_graph_untyped")
+        if any(type(row) is not N7DerivationOperationNode for row in operation_nodes) or any(
+            type(row) is not N7DerivationSourceNode for row in source_nodes
+        ):
+            raise TypeError("n7_registered_derivation_v3_node_untyped")
+
+        _compilation, target, _report = _selected_model_requirements(
+            store,
+            obligation_set_ref=obligation_set_ref,
+            routing_report_ref=routing_report_ref,
+            target_obligation_ref=target_obligation_ref,
+        )
+        profile_ref = RegisteredDerivedInputProfileRef.model_validate(
+            registered_profile_ref.model_dump(mode="python")
+        )
+        selected_profile_ref = _base_ref(profile_ref)
+        selected_routing_report_ref = _base_ref(routing_report_ref)
+        roots = tuple(row for row in operation_nodes if row.node_id == root_node_id)
+        if len(operation_nodes) < 2 or len(roots) != 1:
+            raise ValueError("n7_registered_derivation_v3_root_operation_required")
+        root = roots[0]
+        if root.registered_profile_ref is None or artifacts.artifact_ref_identity_key(
+            root.registered_profile_ref
+        ) != artifacts.artifact_ref_identity_key(selected_profile_ref):
+            raise ValueError("n7_registered_derivation_v3_root_profile_mismatch")
+
+        profile = load_registered_derived_input_profile(store, profile_ref)
+        if profile.relation_profile != _SUPPORTED_RELATION_PROFILE or len(profile.inputs) != 2:
+            raise ValueError("n7_registered_derivation_profile_unsupported")
+        target_basis = N7DerivationBasis(
+            semantic_definition_ref=target.port.semantic_definition_ref,
+            representation_ref=target.port.representation_ref,
+            binding_profile_ref=target.port.binding_profile_ref,
+        )
+        output_basis = N7DerivationBasis(
+            semantic_definition_ref=profile.output.semantic_definition_ref,
+            representation_ref=profile.output.representation_ref,
+            binding_profile_ref=profile.output.binding_profile_ref,
+        )
+        if _basis_identity_key(output_basis) != _basis_identity_key(target_basis):
+            raise ValueError("n7_registered_derivation_output_target_basis_mismatch")
+
+        budget = _n7_load_derivation_dag_budget_profile(store, dag_budget_profile_ref)
+        bundle = N7DerivationBundle(
+            schema_version="policyos.runtime.n7_derivation_bundle.v3",
+            obligation_set_ref=obligation_set_ref,
+            model_input_obligation_ref=target_obligation_ref,
+            target_basis=target_basis,
+            dag_budget_profile_ref=dag_budget_profile_ref,
+            dag_budget_profile=budget,
+            source_nodes=source_nodes,
+            operation_nodes=operation_nodes,
+            root_node_id=root_node_id,
+            input_closure_status=(
+                "inputs_complete"
+                if all(source.inputs_complete for source in source_nodes)
+                else "partial"
+            ),
+            registered_profile_ref=selected_profile_ref,
+            model_input_routing_report_ref=selected_routing_report_ref,
+        )
+        return persist_n7_derivation_bundle(store, bundle)
 
     if type(role_sources) is not tuple:
         raise TypeError("n7_registered_derivation_role_sources_untyped")

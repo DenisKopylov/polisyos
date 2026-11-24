@@ -101,6 +101,7 @@ from polisyos.data_forge.domains.catalog.knowledge.overlay import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactReader, VerifiableCoreJSONArtifactProfileReader
     from polisyos.core.registry import RegistryBundleContent
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         CanonicalAcquisitionAuthority,
@@ -196,7 +197,7 @@ def materialize_activated_measurement_occurrence(
 
 
 def replay_selected_scoped_measurement_facts(
-    store: CoreJSONArtifactStore,
+    store: VerifiableCoreJSONArtifactProfileReader,
     occurrence_ref: ScopedMeasurementOccurrenceRef,
 ) -> tuple[
     ScopedMeasurementOccurrence | RegisteredSQLMeasurementOccurrence,
@@ -341,7 +342,7 @@ def replay_selected_scoped_measurement_facts(
 
 
 def _read_registered_sql_measurement_source(
-    store: CoreJSONArtifactStore,
+    store: VerifiableCoreJSONArtifactProfileReader,
     *,
     registered_sql_admission_ref: ArtifactRef,
     read_limits: CoreJsonReadLimits,
@@ -855,7 +856,7 @@ def _reopen_definition_evidence(
         _read_exact_selected_bytes(store, ref)
 
 
-def _read_exact_selected_bytes(store: CoreJSONArtifactStore, ref: ArtifactRef) -> bytes:
+def _read_exact_selected_bytes(store: ArtifactReader, ref: ArtifactRef) -> bytes:
     selected_ref = _selected_exact_ref(store, ref)
     try:
         manifest = store.get_manifest(selected_ref)
@@ -871,7 +872,7 @@ def _read_exact_selected_bytes(store: CoreJSONArtifactStore, ref: ArtifactRef) -
     return raw
 
 
-def _selected_exact_ref(store: CoreJSONArtifactStore, ref: ArtifactRef) -> ArtifactRef:
+def _selected_exact_ref(store: ArtifactReader, ref: ArtifactRef) -> ArtifactRef:
     """Bind a ref to the exact manifest profile returned by its current CAS owner."""
 
     try:
@@ -894,7 +895,7 @@ def _selected_exact_ref(store: CoreJSONArtifactStore, ref: ArtifactRef) -> Artif
 
 
 def read_scoped_measurement_source_body(
-    store: CoreJSONArtifactStore,
+    store: VerifiableCoreJSONArtifactProfileReader,
     *,
     passport_mapping: Mapping[str, object],
     source_selection: ScopedSourceSelection,

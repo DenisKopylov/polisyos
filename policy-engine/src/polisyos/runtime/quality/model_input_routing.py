@@ -61,6 +61,7 @@ if TYPE_CHECKING:
         DerivedMeasurementRole,
         FoundryInputBindings,
         FoundryInputBindingsRef,
+        ModelInputObligation,
         ModelInputObligationSet,
         ModelInputStepScope,
         RatioDenominatorSourceContextRef,
@@ -279,28 +280,9 @@ class ModelInputRoutingReport(_StrictModel):
                 raise ValueError("model_input_routing_query_envelope_interface_mismatch")
             if envelope.model_input_port_id != route.port_id:
                 raise ValueError("model_input_routing_query_envelope_port_mismatch")
-            compatible_entry_ids = tuple(
-                row.entry_id for row in envelope.rows if row.disposition == "compatible"
-            )
-            if route.disposition == "resolved":
-                if (
-                    descriptor is None
-                    or descriptor.query_envelope is not None
-                    or compatible_entry_ids != (descriptor.authority_entry_id,)
-                    or envelope.model_semantic_definition_ref
-                    != descriptor.model_semantic_definition_ref
-                    or envelope.model_representation_ref != descriptor.model_representation_ref
-                    or envelope.binding_profile_ref != descriptor.binding_profile_ref
-                ):
-                    raise ValueError("model_input_routing_v2_resolved_query_invalid")
-            elif route.disposition == "absent":
-                if envelope.rows:
-                    raise ValueError("model_input_routing_v2_absence_query_not_empty")
-            elif route.disposition == "ambiguous":
-                if len(compatible_entry_ids) < 2:
-                    raise ValueError("model_input_routing_v2_ambiguity_query_incomplete")
-            elif not envelope.rows or compatible_entry_ids:
-                raise ValueError("model_input_routing_v2_conflict_query_incomplete")
+            refusal = envelope.route_selection_refusal(route.disposition, descriptor)
+            if refusal is not None:
+                raise ValueError(f"model_input_routing_v2_{refusal}")
         return self
 
 
@@ -1594,6 +1576,17 @@ class _DerivedPortOutput:
     projection: Literal["scalar", "singleton_vector"]
 
 
+def _is_registered_graph_selection(
+    store: CoreJSONArtifactProfileReader, selection: ResolvedDerivedInput
+) -> bool:
+    from polisyos.core.contracts import RegisteredDerivedGraphCorrespondence
+
+    return store.get_manifest(selection.correspondence_ref).artifact_schema == SchemaInfo(
+        name=RegisteredDerivedGraphCorrespondence.ARTIFACT_SCHEMA_NAME,
+        version=RegisteredDerivedGraphCorrespondence.ARTIFACT_SCHEMA_VERSION,
+    )
+
+
 def materialize_derived_model_input(
     store: FileSystemCAS,
     *,
@@ -1880,6 +1873,7 @@ def _verify_registered_method_reseal_namespace(
 ) -> None:
     """Reopen the complete old namespace before its method-only replacement."""
     from polisyos.core.contracts import (
+        FoundrySelectedMethodInput,
         load_model_input_obligation_set,
         load_native_derivation_source_projection,
         load_registered_derived_input_correspondence,
@@ -1957,6 +1951,7 @@ def _verify_registered_method_reseal_namespace(
     ):
         raise ValueError("registered_method_reseal_complete_port_set_required")
     old_by_port = {row.model_port_id: row for row in old_manifest.derivations}
+    old_by_binding = {row.binding_id: row for row in old_facts.records}
     if len(old_by_port) != len(outputs):
         raise ValueError("registered_method_reseal_complete_port_set_required")
     for item in outputs:
@@ -1965,6 +1960,19 @@ def _verify_registered_method_reseal_namespace(
             prior.profile_ref
         ) != artifact_ref_identity_key(item.selection.profile_ref):
             raise ValueError("registered_method_reseal_source_selection_mismatch")
+        if _is_registered_graph_selection(store, prior):
+            record = old_by_binding.get(prior.binding_id)
+            if (
+                type(record) is not FoundrySelectedMethodInput
+                or item.selection
+                != prior.model_copy(
+                    update={"model_input_obligation_ref": item.selection.model_input_obligation_ref}
+                )
+                or item.value != record.canonical_value
+                or item.projection != "scalar"
+            ):
+                raise ValueError("registered_method_reseal_source_selection_mismatch")
+            continue
         old_proof = load_registered_derived_input_correspondence(store, prior.correspondence_ref)
         new_proof = load_registered_derived_input_correspondence(
             store, item.selection.correspondence_ref
@@ -1989,12 +1997,28 @@ def _verify_registered_method_reseal_namespace(
             raise ValueError("registered_method_reseal_source_selection_mismatch")
 
 
+@dataclass(frozen=True)
+class RegisteredDerivedGraphModelInputRequest:
+    """Materialize a selected registered graph from the exact retained leaf collection."""
+
+    model_input_obligation_ref: ArtifactRef
+    profile_ref: ArtifactRef
+    collection_ref: ArtifactRef
+    binding_id: str
+
+    def __post_init__(self) -> None:
+        if re.fullmatch(r"[A-Za-z0-9_-][A-Za-z0-9_.-]{0,127}", self.binding_id) is None:
+            raise ValueError("registered_derived_model_input_invalid_binding_id")
+
+
 def materialize_registered_derived_model_inputs(
     store: FileSystemCAS,
     *,
     base_data_snapshot_ref: ArtifactRef,
     obligation_set_ref: ArtifactRef,
-    inputs: tuple[RegisteredDerivedModelInputRequest, ...],
+    inputs: tuple[
+        RegisteredDerivedModelInputRequest | RegisteredDerivedGraphModelInputRequest, ...
+    ],
 ) -> DerivedModelInputBatchMaterialization:
     """Produce one complete candidate v3 input batch from native occurrences.
 
@@ -2019,11 +2043,20 @@ def materialize_registered_derived_model_inputs(
         for ref, member in zip(selected_set.obligation_refs, obligations, strict=True)
     }
     outputs = tuple(
-        _prepare_registered_derived_port_output(
-            store,
-            obligation_set_ref=obligation_set_ref,
-            request=item,
-            obligation=members[artifact_ref_identity_key(item.model_input_obligation_ref)],
+        (
+            _prepare_registered_graph_port_output(
+                store,
+                obligation_set_ref=obligation_set_ref,
+                request=item,
+                obligation=members[artifact_ref_identity_key(item.model_input_obligation_ref)],
+            )
+            if isinstance(item, RegisteredDerivedGraphModelInputRequest)
+            else _prepare_registered_derived_port_output(
+                store,
+                obligation_set_ref=obligation_set_ref,
+                request=item,
+                obligation=members[artifact_ref_identity_key(item.model_input_obligation_ref)],
+            )
         )
         for item in sorted(inputs, key=lambda request: request.binding_id)
     )
@@ -2045,10 +2078,10 @@ def reseal_registered_method_input_bindings(
 ) -> DerivedModelInputBatchMaterialization:
     """Replay selected native sources into an exact new method-input context.
 
-    The old binding is immutable source evidence, not a supplied input for the
-    new invocation. Recipes, certificates and correspondence are freshly
-    produced by the existing registered batch owner. No acquisition, numerical
-    execution, current permission or new N7 bundle is asserted here.
+    The old binding supplies source evidence for the new obligation. Graph
+    inputs preserve the exact selected graph proof while singleton inputs use
+    the existing recipe producer. The result carries candidate-only input
+    evidence for the new invocation.
 
     Args:
         store: The caller's current, access-controlled artifact store.
@@ -2063,6 +2096,7 @@ def reseal_registered_method_input_bindings(
         ValueError: If either subject, source closure or bounded profile differs.
     """
     from polisyos.core.contracts import (
+        FoundrySelectedMethodInput,
         RegisteredDerivedModelInputRequest,
         RegisteredMeasurementRole,
         SelectedVariableBindingRef,
@@ -2156,7 +2190,9 @@ def reseal_registered_method_input_bindings(
         or any(member.port.carrier != "method_input" for member in fresh_obligations)
     ):
         raise ValueError("registered_method_reseal_complete_port_set_required")
-    requests = []
+    requests: list[RegisteredDerivedModelInputRequest] = []
+    graph_outputs: list[_DerivedPortOutput] = []
+    records_by_port = {record.port_id: record for record in facts.records}
     selected_ports = set()
     for selection in source_manifest.derivations:
         old_member = old_members.get(
@@ -2172,6 +2208,27 @@ def reseal_registered_method_input_bindings(
         ):
             raise ValueError("registered_method_reseal_port_subject_mismatch")
         selected_ports.add(selection.model_port_id)
+        obligation_ref = SelectedVariableBindingRef.model_validate(
+            selected[0].model_dump(mode="python")
+        )
+        if _is_registered_graph_selection(store, selection):
+            record = records_by_port.get(selection.model_port_id)
+            if (
+                type(record) is not FoundrySelectedMethodInput
+                or record.shape
+                or record.binding_id != selection.binding_id
+                or artifact_ref_identity_key(record.model_input_obligation_ref)
+                != artifact_ref_identity_key(selection.model_input_obligation_ref)
+            ):
+                raise ValueError("registered_method_reseal_graph_record_mismatch")
+            graph_outputs.append(
+                _DerivedPortOutput(
+                    selection.model_copy(update={"model_input_obligation_ref": obligation_ref}),
+                    record.canonical_value,
+                    "scalar",
+                )
+            )
+            continue
         proof = load_registered_derived_input_correspondence(store, selection.correspondence_ref)
         context = load_registered_derived_input_context(store, proof.context_ref)
         if proof.schema_version != "2.0" or context.schema_version != "1.0":
@@ -2189,9 +2246,7 @@ def reseal_registered_method_input_bindings(
             raise ValueError("registered_method_reseal_role_selection_mismatch")
         requests.append(
             RegisteredDerivedModelInputRequest(
-                model_input_obligation_ref=SelectedVariableBindingRef.model_validate(
-                    selected[0].model_dump(mode="python")
-                ),
+                model_input_obligation_ref=obligation_ref,
                 profile_ref=proof.profile_ref,
                 role_occurrences=roles,
                 binding_id=selection.binding_id,
@@ -2199,12 +2254,38 @@ def reseal_registered_method_input_bindings(
         )
     # Any old N7 bundle remains in the immutable source lineage. It is not
     # reissued as a planning or authority claim about this new invocation.
-    result = materialize_registered_derived_model_inputs(
-        store,
-        base_data_snapshot_ref=source.data_snapshot_ref,
-        obligation_set_ref=obligation_set_ref,
-        inputs=tuple(requests),
-    )
+    if graph_outputs:
+        fresh_members_by_ref = {
+            artifact_ref_identity_key(ref): member for ref, member in fresh_members.values()
+        }
+        outputs = [
+            *graph_outputs,
+            *(
+                _prepare_registered_derived_port_output(
+                    store,
+                    obligation_set_ref=obligation_set_ref,
+                    request=request,
+                    obligation=fresh_members_by_ref[
+                        artifact_ref_identity_key(request.model_input_obligation_ref)
+                    ],
+                )
+                for request in requests
+            ),
+        ]
+        result = _persist_derived_input_batch(
+            store,
+            base_data_snapshot_ref=source.data_snapshot_ref,
+            obligation_set_ref=obligation_set_ref,
+            selected_set=fresh_set,
+            outputs=tuple(sorted(outputs, key=lambda item: item.selection.binding_id)),
+        )
+    else:
+        result = materialize_registered_derived_model_inputs(
+            store,
+            base_data_snapshot_ref=source.data_snapshot_ref,
+            obligation_set_ref=obligation_set_ref,
+            inputs=tuple(requests),
+        )
     current = reconcile_selected_method_input_bindings(
         store,
         input_bindings_ref=result.input_bindings_ref,
@@ -2262,6 +2343,127 @@ def materialize_registered_derived_model_input(
         correspondence_ref=result.correspondence_refs[0],
         input_bindings_ref=result.input_bindings_ref,
     )
+
+
+def _prepare_registered_graph_port_output(
+    store: FileSystemCAS,
+    *,
+    obligation_set_ref: ArtifactRef,
+    request: RegisteredDerivedGraphModelInputRequest,
+    obligation: ModelInputObligation,
+) -> _DerivedPortOutput:
+    """Materialize standard Core nodes and publish only the selected root port."""
+    from polisyos.core.contracts import (
+        RegisteredDerivedGraphCorrespondence,
+        RegisteredDerivedGraphLeaf,
+        RegisteredDerivedGraphOperation,
+        ResolvedDerivedInput,
+        SelectedVariableBindingRef,
+        persist_registered_derived_graph_correspondence,
+    )
+    from polisyos.core.derivations import (
+        materialize_derivation_dag,
+        persist_candidate_source_series,
+        persist_composition_recipe_artifact,
+    )
+    from polisyos.foundry.data_plane import prepare_registered_derivation_graph_inputs
+
+    from .acquisition_planner import load_n7_derivation_bundle
+    from .acquisition_world_growth import replay_native_derivation_input_collection
+
+    collection = replay_native_derivation_input_collection(store, request.collection_ref).collection
+    bundle = load_n7_derivation_bundle(store, collection.derivation_bundle_ref)
+    if (
+        bundle.schema_version != "policyos.runtime.n7_derivation_bundle.v3"
+        or bundle.registered_profile_ref is None
+        or collection.input_closure_status != "inputs_complete"
+        or collection.pending_actions
+        or any(
+            artifact_ref_identity_key(actual) != artifact_ref_identity_key(expected)
+            for actual, expected in (
+                (bundle.registered_profile_ref, request.profile_ref),
+                (bundle.obligation_set_ref, obligation_set_ref),
+                (bundle.model_input_obligation_ref, request.model_input_obligation_ref),
+            )
+        )
+    ):
+        raise ValueError("registered_derived_model_input_graph_selection_mismatch")
+
+    graph = prepare_registered_derivation_graph_inputs(
+        store,
+        bundle_ref=collection.derivation_bundle_ref,
+        collection_ref=request.collection_ref,
+        profile_ref=request.profile_ref,
+        obligation_set_ref=obligation_set_ref,
+        obligation_ref=request.model_input_obligation_ref,
+        obligation=obligation,
+    )
+
+    def selected(ref: ArtifactRef) -> SelectedVariableBindingRef:
+        return SelectedVariableBindingRef.model_validate(ref.model_dump(mode="python"))
+
+    sources = tuple(
+        RegisteredDerivedGraphLeaf(
+            node_id=node_id,
+            occurrence_ref=graph.sources[node_id][0],
+            source_series_ref=selected(
+                persist_candidate_source_series(store, graph.sources[node_id][1])
+            ),
+        )
+        for node_id in sorted(graph.sources)
+    )
+    materializations = materialize_derivation_dag(
+        store,
+        registry=graph.registry,
+        registry_ref=graph.registry_ref,
+        nodes=graph.dag_nodes({row.node_id: row.source_series_ref for row in sources}),
+        root_node_id=graph.root_node_id,
+        context=graph.context,
+        limits=graph.limits,
+    )
+    profile_refs = {row.node_id: row.registered_profile_ref for row in graph.operations}
+    results = dict(zip(materializations.node_ids, materializations.materializations, strict=True))
+    operations = tuple(
+        RegisteredDerivedGraphOperation(
+            node_id=node_id,
+            profile_ref=profile_refs[node_id],
+            recipe_ref=selected(
+                persist_composition_recipe_artifact(store, results[node_id].recipe)
+            ),
+            certificate_ref=selected(results[node_id].certificate_artifact_ref),
+            output_ref=selected(results[node_id].derived_artifact_ref),
+        )
+        for node_id in sorted(results)
+    )
+    proof = RegisteredDerivedGraphCorrespondence(
+        model_input_obligation_ref=selected(request.model_input_obligation_ref),
+        model_interface_ref=selected(obligation.interface_ref),
+        model_port_id=obligation.port.port_id,
+        year=graph.context.years[0],
+        bundle_ref=selected(collection.derivation_bundle_ref),
+        collection_ref=selected(request.collection_ref),
+        root_node_id=graph.root_node_id,
+        sources=sources,
+        operations=operations,
+    )
+    correspondence_ref = persist_registered_derived_graph_correspondence(store, proof)
+    root = proof.root
+    source_key = hashlib.sha256(request.binding_id.encode()).hexdigest()[:20]
+    selection = ResolvedDerivedInput(
+        binding_id=request.binding_id,
+        model_input_obligation_ref=proof.model_input_obligation_ref,
+        model_interface_ref=proof.model_interface_ref,
+        model_port_id=proof.model_port_id,
+        recipe_ref=root.recipe_ref,
+        certificate_ref=root.certificate_ref,
+        output_ref=root.output_ref,
+        year=proof.year,
+        correspondence_ref=correspondence_ref,
+        profile_ref=root.profile_ref,
+        source_path=f"derived_inputs.{source_key}.value",
+        derivation_bundle_ref=proof.bundle_ref,
+    )
+    return _DerivedPortOutput(selection, materializations.root.series.points[0].value, "scalar")
 
 
 def _prepare_registered_derived_port_output(
@@ -2556,6 +2758,7 @@ __all__ = [
     "ModelInputRoutingReport",
     "ModelInputRoutingResult",
     "ModelInputRoutingUseDecision",
+    "RegisteredDerivedGraphModelInputRequest",
     "materialize_derived_model_input",
     "materialize_registered_derived_model_input",
     "materialize_registered_derived_model_inputs",

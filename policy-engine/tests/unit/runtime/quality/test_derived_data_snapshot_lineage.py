@@ -147,3 +147,70 @@ def test_derived_snapshot_replays_values_preserves_candidate_limits_and_refuses_
                 )
     finally:
         case.close()
+
+
+def test_registered_graph_snapshot_replays_only_selected_root_and_requires_ancestor_recipe(
+    tmp_path: Path,
+) -> None:
+    """A fresh snapshot reader checks the root input and its exact ancestry."""
+    from polisyos.core.contracts.semantic_composition_binding import (
+        load_registered_derived_graph_correspondence,
+    )
+    from polisyos.runtime.quality.model_input_routing import (
+        materialize_registered_derived_model_inputs,
+    )
+    from tests.unit.foundry.data_plane.test_registered_derivation_graph import _native_collection
+    from tests.unit.foundry.data_plane.test_selected_method_input_bindings import _removed_blob
+    from tests.unit.runtime.quality.test_n7_registered_derivation_plan import (
+        prepare_selected_plan_case,
+    )
+
+    setup = prepare_selected_plan_case(
+        tmp_path / "root", role_populations={"denominator": "public-health-expenditure"}
+    )
+    case = setup["case"]
+    try:
+        request = _native_collection(tmp_path, setup, foreign_scope=False, reverse=False)
+        batch = materialize_registered_derived_model_inputs(
+            case.store,
+            base_data_snapshot_ref=case.data_snapshot_ref,
+            obligation_set_ref=setup["obligation_set_ref"],
+            inputs=(request,),
+        )
+        reader = artifacts.FileSystemCAS.open_existing_read_only(case.store.root)
+        snapshot = artifacts.validate_core_model_json_artifact(
+            DataSnapshot, reader, batch.data_snapshot_ref
+        )
+        assert isinstance(snapshot.source_lineage, DerivedModelInputDataSnapshotLineage)
+        (selection,) = snapshot.source_lineage.selections
+        proof = load_registered_derived_graph_correspondence(reader, selection.correspondence_ref)
+        intermediate, root = proof.operations
+        assert proof.root == root and intermediate.node_id == "derived-b"
+        payload = artifacts.load_core_json_artifact(reader, snapshot.data_ref)
+        assert payload["derived_inputs"] == {
+            selection.source_path.split(".")[1]: {"value": Decimal("-2500000000")}
+        }
+
+        def replay():
+            fresh = artifacts.FileSystemCAS.open_existing_read_only(case.store.root)
+            return validate_data_snapshot_owner_lineage(
+                fresh, batch.data_snapshot_ref, snapshot, candidate_only=True
+            )
+
+        result = replay()
+        assert set(DERIVED_MODEL_INPUT_LIMITATIONS) <= set(result.required_admissibility_blockers)
+        assert result.acquisition_source_row_status == "not_applicable"
+        with (
+            _removed_blob(case.store, intermediate.recipe_ref),
+            pytest.raises(
+                DataSnapshotLineageError, match=r"^derived_model_input_owner_replay_failed$"
+            ) as refused,
+        ):
+            replay()
+        cause = refused.value.__cause__
+        assert isinstance(cause, derivations.DerivationRefusalError)
+        assert cause.code is derivations.DerivationRefusalCode.INPUT_ARTIFACT_DRIFT
+        assert cause.detail == "composition recipe artifact readback failed"
+        assert replay() == result
+    finally:
+        case.close()

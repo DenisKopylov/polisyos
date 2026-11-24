@@ -64,6 +64,7 @@ from polisyos.runtime.quality.substrate_registry import (
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
     from polisyos.core.contracts.control import FetchPlan
+    from polisyos.core.derivations import TransformFamilyRegistry
     from polisyos.data_forge.read_api import academic
     from polisyos.data_forge.read_api.catalog import (
         CanonicalAcquisitionAuthority,
@@ -6081,6 +6082,7 @@ _N7_DERIVATION_OCCURRENCE_KIND = "catalog.scoped_measurement_occurrence"
 _N7_DERIVATION_DEFINITION_KIND = "catalog.variable_semantic_definition"
 _N7_DERIVATION_REPRESENTATION_KIND = "catalog.variable_representation"
 _N7_DERIVATION_BINDING_PROFILE_KIND = "catalog.measurement_binding_profile"
+_N7_REGISTERED_RELATION_PROFILE = "ratio_times_denominator.annual_calendar_flow.v1"
 _N7_DERIVATION_SOURCE_RECEIPT_KIND = "epoch.activated_overlay_admission_receipt"
 
 
@@ -6276,12 +6278,19 @@ class N7DerivationOperationNode(BaseModel):
     )
     output_basis: N7DerivationBasis
     role_inputs: tuple[N7DerivationRoleInput, ...] = Field(min_length=1)
+    registered_profile_ref: artifacts.ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _selected_operator(self) -> N7DerivationOperationNode:
         _n7_derivation_selected_ref(self.operator_ref, "operator")
         if self.operator_ref.kind != _N7_DERIVATION_OPERATOR_REGISTRY_KIND:
             raise ValueError("n7_derivation_operator_registry_kind_mismatch")
+        if self.registered_profile_ref is not None:
+            _n7_derivation_selected_ref(self.registered_profile_ref, "registered_profile")
+            if self.registered_profile_ref.kind != "catalog.derived_input_profile":
+                raise ValueError("n7_derivation_registered_profile_kind_mismatch")
         object.__setattr__(
             self,
             "role_inputs",
@@ -6305,6 +6314,7 @@ class N7DerivationBundle(BaseModel):
     schema_version: Literal[
         "policyos.runtime.n7_derivation_bundle.v1",
         "policyos.runtime.n7_derivation_bundle.v2",
+        "policyos.runtime.n7_derivation_bundle.v3",
     ] = "policyos.runtime.n7_derivation_bundle.v1"
     authority_purpose: Literal["candidate_acquisition_routing_only"] = (
         "candidate_acquisition_routing_only"
@@ -6329,8 +6339,12 @@ class N7DerivationBundle(BaseModel):
     @model_validator(mode="after")
     def _replay_graph_and_limits(self) -> N7DerivationBundle:
         semantic_fields = {"registered_profile_ref", "model_input_routing_report_ref"}
+        operation_profiles_present = any(
+            "registered_profile_ref" in operation.model_fields_set
+            for operation in self.operation_nodes
+        )
         if self.schema_version == "policyos.runtime.n7_derivation_bundle.v1":
-            if semantic_fields.intersection(self.model_fields_set):
+            if semantic_fields.intersection(self.model_fields_set) or operation_profiles_present:
                 raise ValueError("n7_derivation_legacy_registered_profile_fields_forbidden")
         else:
             for name, kind in (
@@ -6345,6 +6359,23 @@ class N7DerivationBundle(BaseModel):
                     or ref.manifest_profile_sha256 is None
                 ):
                     raise ValueError("n7_derivation_registered_profile_parent_unselected")
+            if self.schema_version == "policyos.runtime.n7_derivation_bundle.v2":
+                if operation_profiles_present:
+                    raise ValueError("n7_derivation_v2_operation_profiles_forbidden")
+            else:
+                if len(self.operation_nodes) < 2 or any(
+                    operation.registered_profile_ref is None for operation in self.operation_nodes
+                ):
+                    raise ValueError("n7_derivation_v3_operation_profiles_required")
+                roots = tuple(
+                    operation
+                    for operation in self.operation_nodes
+                    if operation.node_id == self.root_node_id
+                )
+                if len(roots) != 1 or artifacts.artifact_ref_identity_key(
+                    roots[0].registered_profile_ref
+                ) != artifacts.artifact_ref_identity_key(self.registered_profile_ref):
+                    raise ValueError("n7_derivation_v3_root_profile_mismatch")
         object.__setattr__(
             self,
             "source_nodes",
@@ -6567,7 +6598,10 @@ def _n7_derivation_bundle_input_edges(
     include(bundle.target_basis.representation_ref, "target_representation")
     include(bundle.target_basis.binding_profile_ref, "target_binding_profile")
     include(bundle.dag_budget_profile_ref, "caller_selected_dag_budget")
-    if bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v2":
+    if bundle.schema_version in {
+        "policyos.runtime.n7_derivation_bundle.v2",
+        "policyos.runtime.n7_derivation_bundle.v3",
+    }:
         include(bundle.registered_profile_ref, "selected_registered_semantic_profile")
         include(bundle.model_input_routing_report_ref, "selected_model_input_routing_report")
     for source in bundle.source_nodes:
@@ -6589,6 +6623,14 @@ def _n7_derivation_bundle_input_edges(
                 include(ref, f"source.{source.node_id}.{role}")
     for operation in bundle.operation_nodes:
         include(operation.operator_ref, f"operation.{operation.node_id}.operator")
+        if (
+            bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v3"
+            and operation.registered_profile_ref is not None
+        ):
+            include(
+                operation.registered_profile_ref,
+                f"operation.{operation.node_id}.registered_semantic_profile",
+            )
         include(
             operation.output_basis.semantic_definition_ref,
             f"operation.{operation.node_id}.output_definition",
@@ -6635,9 +6677,13 @@ def _n7_derivation_bundle_write_profile(
             schema=artifacts.SchemaInfo(
                 name=_N7_DERIVATION_BUNDLE_SCHEMA,
                 version=(
-                    "2.0"
-                    if bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v2"
-                    else "1.0"
+                    "3.0"
+                    if bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v3"
+                    else (
+                        "2.0"
+                        if bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v2"
+                        else "1.0"
+                    )
                 ),
             ),
             producer=artifacts.ProducerInfo(
@@ -6650,13 +6696,96 @@ def _n7_derivation_bundle_write_profile(
     )
 
 
+def _n7_validate_registered_operation_graph_v3(
+    store: ArtifactStore,
+    bundle: N7DerivationBundle,
+    registries: Mapping[tuple[str, str, str, str | None], TransformFamilyRegistry],
+) -> None:
+    """Replay each v3 operation against its selected registered relation profile."""
+    from polisyos.core.contracts import (
+        RegisteredDerivedInputProfileRef,
+        load_registered_derived_input_profile,
+        verify_registered_derived_family,
+    )
+
+    sources = {row.node_id: row for row in bundle.source_nodes}
+    operations = {row.node_id: row for row in bundle.operation_nodes}
+    operator_keys = {
+        artifacts.artifact_ref_identity_key(row.operator_ref) for row in bundle.operation_nodes
+    }
+    if len(operator_keys) != 1:
+        raise ValueError("n7_derivation_v3_common_registry_required")
+
+    root = operations[bundle.root_node_id]
+    if root.registered_profile_ref is None or artifacts.artifact_ref_identity_key(
+        root.registered_profile_ref
+    ) != artifacts.artifact_ref_identity_key(bundle.registered_profile_ref):
+        raise ValueError("n7_derivation_v3_root_profile_mismatch")
+
+    for operation in bundle.operation_nodes:
+        profile_ref = operation.registered_profile_ref
+        if profile_ref is None:
+            raise ValueError("n7_derivation_v3_operation_profiles_required")
+        registered = load_registered_derived_input_profile(
+            store,
+            RegisteredDerivedInputProfileRef.model_validate(profile_ref.model_dump(mode="python")),
+        )
+        if (
+            registered.relation_profile != _N7_REGISTERED_RELATION_PROFILE
+            or artifacts.artifact_ref_identity_key(registered.registry_ref)
+            != artifacts.artifact_ref_identity_key(operation.operator_ref)
+            or registered.family_id != operation.family_id
+            or registered.method_version != operation.method_version
+            or _n7_derivation_basis_key(
+                N7DerivationBasis.model_validate(registered.output.model_dump(mode="python"))
+            )
+            != _n7_derivation_basis_key(operation.output_basis)
+        ):
+            raise ValueError("n7_derivation_v3_operation_profile_mismatch")
+
+        expected_roles = {row.role: row.basis for row in registered.inputs}
+        operation_roles = {row.role: row for row in operation.role_inputs}
+        if set(expected_roles) != set(operation_roles):
+            raise ValueError("n7_derivation_v3_operation_roles_mismatch")
+
+        input_kinds: dict[str, Literal["candidate_source", "certified_derived"]] = {}
+        for role, edge in operation_roles.items():
+            if _n7_derivation_basis_key(edge.source_basis) != _n7_derivation_basis_key(
+                N7DerivationBasis.model_validate(expected_roles[role].model_dump(mode="python"))
+            ):
+                raise ValueError("n7_derivation_v3_operation_role_basis_mismatch")
+            if edge.input_node_id in sources:
+                input_kinds[role] = "candidate_source"
+            elif edge.input_node_id in operations:
+                input_kinds[role] = "certified_derived"
+                if role != registered.denominator_role:
+                    raise ValueError("n7_derivation_v3_derived_input_role_unsupported")
+            else:
+                raise ValueError("n7_derivation_input_node_missing")
+
+        registry_key = artifacts.artifact_ref_identity_key(operation.operator_ref)
+        registry = registries[registry_key]
+        families = tuple(
+            family
+            for family in registry.families
+            if family.family_id == operation.family_id
+            and family.method_version == operation.method_version
+        )
+        if len(families) != 1:
+            raise ValueError("n7_derivation_operator_required_roles_mismatch")
+        verify_registered_derived_family(
+            registered,
+            families[0],
+            input_kinds=input_kinds,
+        )
+
+
 def _n7_validate_derivation_bundle_dependencies(
     store: ArtifactStore, bundle: N7DerivationBundle
 ) -> None:
     """Reopen selected target, profile, and every source/operator input."""
     from polisyos.core.contracts import load_model_input_obligation_set
     from polisyos.core.derivations import (
-        TransformFamilyRegistry,
         load_selected_transform_family_registry,
     )
 
@@ -6707,7 +6836,10 @@ def _n7_validate_derivation_bundle_dependencies(
             sorted(item.role for item in families[0].input_specs)
         ) != tuple(item.role for item in operation.role_inputs):
             raise ValueError("n7_derivation_operator_required_roles_mismatch")
-    if bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v2":
+    if bundle.schema_version in {
+        "policyos.runtime.n7_derivation_bundle.v2",
+        "policyos.runtime.n7_derivation_bundle.v3",
+    }:
         from polisyos.core.contracts import (
             RegisteredDerivedInputProfileRef,
             load_registered_derived_input_profile,
@@ -6729,40 +6861,45 @@ def _n7_validate_derivation_bundle_dependencies(
                 bundle.registered_profile_ref.model_dump(mode="python")
             ),
         )
-        roots = tuple(row for row in bundle.operation_nodes if row.node_id == bundle.root_node_id)
-        if len(bundle.operation_nodes) != 1 or len(roots) != 1:
-            raise ValueError("n7_derivation_registered_profile_graph_unsupported")
-        (root,) = roots
-        registered_output = N7DerivationBasis.model_validate(
-            registered.output.model_dump(mode="python")
-        )
-        roles = {row.role: row.basis for row in registered.inputs}
-        sources = {row.node_id: row for row in bundle.source_nodes}
-        if (
-            artifacts.artifact_ref_identity_key(root.operator_ref)
-            != artifacts.artifact_ref_identity_key(registered.registry_ref)
-            or root.family_id != registered.family_id
-            or root.method_version != registered.method_version
-            or _n7_derivation_basis_key(root.output_basis)
-            != _n7_derivation_basis_key(registered_output)
-            or set(roles) != {row.role for row in root.role_inputs}
-            or any(
-                row.input_node_id not in sources
-                or _n7_derivation_basis_key(row.source_basis)
-                != _n7_derivation_basis_key(
-                    N7DerivationBasis.model_validate(roles[row.role].model_dump(mode="python"))
-                )
-                for row in root.role_inputs
+        if bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v2":
+            roots = tuple(
+                row for row in bundle.operation_nodes if row.node_id == bundle.root_node_id
             )
-        ):
-            raise ValueError("n7_derivation_registered_profile_graph_mismatch")
-        registry = registries[artifacts.artifact_ref_identity_key(root.operator_ref)]
-        family = next(
-            item
-            for item in registry.families
-            if item.family_id == root.family_id and item.method_version == root.method_version
-        )
-        verify_registered_derived_family(registered, family)
+            if len(bundle.operation_nodes) != 1 or len(roots) != 1:
+                raise ValueError("n7_derivation_registered_profile_graph_unsupported")
+            (root,) = roots
+            registered_output = N7DerivationBasis.model_validate(
+                registered.output.model_dump(mode="python")
+            )
+            roles = {row.role: row.basis for row in registered.inputs}
+            sources = {row.node_id: row for row in bundle.source_nodes}
+            if (
+                artifacts.artifact_ref_identity_key(root.operator_ref)
+                != artifacts.artifact_ref_identity_key(registered.registry_ref)
+                or root.family_id != registered.family_id
+                or root.method_version != registered.method_version
+                or _n7_derivation_basis_key(root.output_basis)
+                != _n7_derivation_basis_key(registered_output)
+                or set(roles) != {row.role for row in root.role_inputs}
+                or any(
+                    row.input_node_id not in sources
+                    or _n7_derivation_basis_key(row.source_basis)
+                    != _n7_derivation_basis_key(
+                        N7DerivationBasis.model_validate(roles[row.role].model_dump(mode="python"))
+                    )
+                    for row in root.role_inputs
+                )
+            ):
+                raise ValueError("n7_derivation_registered_profile_graph_mismatch")
+            registry = registries[artifacts.artifact_ref_identity_key(root.operator_ref)]
+            family = next(
+                item
+                for item in registry.families
+                if item.family_id == root.family_id and item.method_version == root.method_version
+            )
+            verify_registered_derived_family(registered, family)
+        else:
+            _n7_validate_registered_operation_graph_v3(store, bundle, registries)
     for input_ref, _role in _n7_derivation_bundle_input_edges(bundle):
         manifest = store.get_manifest(input_ref)
         selected_ref = artifacts.artifact_ref_for_manifest(manifest)
@@ -6812,6 +6949,7 @@ def _n7_load_derivation_bundle(
         not in (
             artifacts.SchemaInfo(name=_N7_DERIVATION_BUNDLE_SCHEMA, version="1.0"),
             artifacts.SchemaInfo(name=_N7_DERIVATION_BUNDLE_SCHEMA, version="2.0"),
+            artifacts.SchemaInfo(name=_N7_DERIVATION_BUNDLE_SCHEMA, version="3.0"),
         )
         or manifest.producer
         != artifacts.ProducerInfo(

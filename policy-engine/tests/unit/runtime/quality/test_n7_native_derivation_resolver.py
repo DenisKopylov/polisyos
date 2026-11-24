@@ -23,6 +23,7 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.semantic_composition_binding import (
+    RegisteredDerivedInputProfile,
     persist_registered_derived_input_profile,
 )
 from polisyos.core.contracts.variable_binding import (
@@ -41,10 +42,13 @@ from polisyos.runtime.quality.acquisition_planner import (
     AuthorityLevel,
     N7DerivationDagBudgetProfile,
     load_n7_derivation_bundle,
+    n7_pending_unique_derivation_source_gaps,
     persist_n7_derivation_dag_budget_profile,
 )
 from polisyos.runtime.quality.acquisition_route_loop import NativeDerivationLeafProviderSelection
 from polisyos.runtime.quality.acquisition_world_growth import (
+    NativeDerivationPlanningOperation,
+    NativeDerivationPlanningRoleInput,
     NativeDerivationPlanningRoleSupplier,
     NativeDerivationPlanningSelection,
 )
@@ -52,8 +56,11 @@ from polisyos.runtime.quality.generic_simulation_admission import (
     GenericN5ExecutionJoinExpectation,
 )
 from polisyos.runtime.quality.n7_native_derivation_resolver import (
+    _n7_v3_query_country_code,
     resolve_configured_n7_derivation_plan,
     validate_registered_derivation_role_input_gap,
+    validate_registered_n7_v3_planning_selection,
+    validate_registered_n7_v3_role_input_gap,
 )
 from tests._helpers.acquisition_production import (
     _baseline,
@@ -68,6 +75,7 @@ from tests.unit.data_forge.domains.catalog.knowledge.test_acquisition_authority_
 )
 from tests.unit.runtime.quality.test_n7_registered_derivation_plan import (
     prepare_selected_plan_case,
+    prepare_two_operation_profiles,
 )
 
 _TENANT_ID = "tenant-component-fixture"
@@ -112,19 +120,25 @@ def _supplier_snapshot(
     declared_population: str | None = None,
     target_variable: str | None = None,
     canonical_unit: str | None = None,
+    source_profile: RegisteredDerivedInputProfile | None = None,
+    source_node_id: str | None = None,
+    operation_node_id: str | None = None,
 ) -> dict[str, Any]:
     """Persist and reopen one real owner declaration for an exact profile basis."""
     store = case["case"].store
-    profile_input = next(row for row in case["profile"].inputs if row.role == source_role)
+    selected_profile = case["profile"] if source_profile is None else source_profile
+    profile_input = next(row for row in selected_profile.inputs if row.role == source_role)
+    representation = load_variable_representation(store, profile_input.basis.representation_ref)
+    raw_unit = "percent" if representation.unit_id == "ratio" else representation.unit_id
     entry = _authority_entry(
         profile_input.basis.semantic_definition_ref,
         profile_input.basis.representation_ref,
         suffix=suffix,
+        unit_id=raw_unit,
     )
     values = entry.model_dump(mode="python", exclude={"entry_id"})
     source_scope = entry.source_measure_scope
     assert source_scope is not None
-    representation = load_variable_representation(store, profile_input.basis.representation_ref)
     target_scope = case["target"].port.scope
     population = (
         representation.population_ref if declared_population is None else declared_population
@@ -147,12 +161,11 @@ def _supplier_snapshot(
             denominator=str(representation.denominator_ref.artifact_id),
         )
     values["source_measure_scope"] = AcquisitionSourceMeasureScope.model_validate(scope_values)
-    raw_unit = "percent_gdp" if representation.unit_id == "ratio" else representation.unit_id
     declared_unit = representation.unit_id if canonical_unit is None else canonical_unit
     if raw_unit == declared_unit:
         unit_transform = "identity"
         unit_transform_ref = "fabric://units/identity/v1"
-    elif raw_unit == "percent_gdp" and declared_unit == "ratio":
+    elif raw_unit == "percent" and declared_unit == "ratio":
         unit_transform = "fixed_multiplicative"
         unit_transform_ref = "fabric://units/fixed-multiplicative/v1"
     else:
@@ -170,16 +183,23 @@ def _supplier_snapshot(
     repo_root = tmp_path / suffix
     baseline = _baseline(repo_root)
     l5_path = _write_l5(repo_root)
-    if raw_unit == "usd":
+    if raw_unit in {"usd", "percent"}:
+        title, description = (
+            (
+                "Synthetic test source in current US dollars",
+                "Test-owned declaration for a scalar USD role.",
+            )
+            if raw_unit == "usd"
+            else (
+                "Registered share (percent)",
+                "Test-owned source reports a dimensionless registered share as physical percent.",
+            )
+        )
         con = duckdb.connect(str(baseline))
         try:
             con.execute(
                 "UPDATE ds_datasets SET title = ?, description = ? WHERE id = ?",
-                [
-                    "Synthetic test source in current US dollars",
-                    "Test-owned declaration for a scalar USD role.",
-                    entry.source_catalog_dataset_id,
-                ],
+                [title, description, entry.source_catalog_dataset_id],
             )
         finally:
             con.close()
@@ -212,7 +232,9 @@ def _supplier_snapshot(
     )
     declaration = catalog_read_api.load_acquisition_supplier_declaration(store, declaration_ref)
     provider = NativeDerivationLeafProviderSelection(
-        source_node_id=f"component-source-{requested_role}",
+        source_node_id=(
+            f"component-source-{requested_role}" if source_node_id is None else source_node_id
+        ),
         supplier_ref=declaration_ref,
         authority_entry_id=entry.entry_id,
         connector_id=declaration.connector_id,
@@ -225,6 +247,7 @@ def _supplier_snapshot(
         "provider": provider,
         "selection_row": NativeDerivationPlanningRoleSupplier(
             role=requested_role,
+            operation_node_id=operation_node_id,
             provider=provider,
             source_declaration_ref=declaration_ref,
         ),
@@ -262,6 +285,87 @@ def _selection(
         binding_id="component-registered-n7",
         role_suppliers=tuple(row["selection_row"] for row in snapshots),
     )
+
+
+def _two_operation_selection(
+    case: dict[str, Any], tmp_path: Path
+) -> tuple[dict[str, Any], NativeDerivationPlanningSelection, dict[str, Any], dict[str, Any]]:
+    """Select one real source declaration for each raw leaf in A→B→C planning."""
+    profiles = prepare_two_operation_profiles(case)
+    selected_case = case | {
+        "profile": profiles["root_profile"],
+        "profile_ref": profiles["root_profile_ref"],
+    }
+    upstream_id = "upstream-flow"
+    root_id = "registered-output"
+    leaf_ids = {
+        (upstream_id, profiles["upstream_profile"].denominator_role): "leaf-upstream-denominator",
+        (upstream_id, profiles["upstream_profile"].ratio_role): "leaf-upstream-ratio",
+        (root_id, profiles["root_profile"].ratio_role): "leaf-root-ratio",
+    }
+    snapshots = {}
+    profile_by_node = {
+        upstream_id: profiles["upstream_profile"],
+        root_id: profiles["root_profile"],
+    }
+    ref_by_node = {
+        upstream_id: profiles["upstream_profile_ref"],
+        root_id: profiles["root_profile_ref"],
+    }
+    for (node_id, role), source_node_id in leaf_ids.items():
+        key = f"{node_id}:{role}"
+        snapshots[key] = _supplier_snapshot(
+            case,
+            tmp_path / key.replace(":", "-"),
+            requested_role=role,
+            source_role=role,
+            suffix=f"n7-native-v3-{node_id}-{role}",
+            source_profile=profile_by_node[node_id],
+            source_node_id=source_node_id,
+            operation_node_id=node_id,
+        )
+
+    operations = []
+    for node_id in (upstream_id, root_id):
+        profile = profile_by_node[node_id]
+        role_inputs = []
+        for profile_input in profile.inputs:
+            key = (node_id, profile_input.role)
+            if node_id == root_id and profile_input.role == profile.denominator_role:
+                role_inputs.append(
+                    NativeDerivationPlanningRoleInput(
+                        role=profile_input.role,
+                        input_kind="certified_derived",
+                        input_node_id=upstream_id,
+                    )
+                )
+            else:
+                role_inputs.append(
+                    NativeDerivationPlanningRoleInput(
+                        role=profile_input.role,
+                        input_kind="candidate_source",
+                        input_node_id=leaf_ids[key],
+                    )
+                )
+        operations.append(
+            NativeDerivationPlanningOperation(
+                node_id=node_id,
+                registered_profile_ref=ref_by_node[node_id],
+                role_inputs=tuple(role_inputs),
+            )
+        )
+    selection = NativeDerivationPlanningSelection(
+        tenant_id=_TENANT_ID,
+        cell_id=_CELL_ID,
+        profile_selection_ref=_PROFILE_SELECTION_REF,
+        registered_profile_ref=profiles["root_profile_ref"],
+        dag_budget_profile_ref=case["budget_ref"],
+        binding_id="component-registered-n7-v3",
+        role_suppliers=tuple(row["selection_row"] for row in snapshots.values()),
+        operation_nodes=tuple(operations),
+        root_node_id=root_id,
+    )
+    return selected_case, selection, profiles, snapshots
 
 
 def _expectation(case: dict[str, Any]) -> GenericN5ExecutionJoinExpectation:
@@ -339,6 +443,10 @@ def test_resolver_persists_selected_catalog_roles_as_candidate_only_plan(
     store = case["case"].store
     snapshots = _snapshots(case, tmp_path)
     selection = _selection(case, tuple(snapshots.values()))
+    legacy_wire = selection.model_dump(mode="json")
+    assert "operation_nodes" not in legacy_wire
+    assert "root_node_id" not in legacy_wire
+    assert all("operation_node_id" not in row for row in legacy_wire["role_suppliers"])
 
     bundle_ref = _resolve(case, selection)
 
@@ -452,66 +560,387 @@ def test_resolver_persists_selected_catalog_roles_as_candidate_only_plan(
             expected_routing_report_ref=case["routing_ref"],
         )
 
-    foreign_basis = _supplier_snapshot(
-        case,
-        tmp_path / "foreign-basis",
-        requested_role="denominator",
-        source_role="ratio",
-        suffix="n7-native-same-variable-foreign-basis",
-        declared_population=_ROLE_POPULATIONS["denominator"],
+
+def test_resolver_persists_two_registered_operations_and_replays_catalog_parents(
+    native_resolver_case: dict[str, Any], tmp_path: Path
+) -> None:
+    """Resolve A→B→C from real declarations while preserving candidate-only status."""
+    case = native_resolver_case
+    store = case["case"].store
+    selected_case, selection, profiles, snapshots = _two_operation_selection(
+        case, tmp_path / "valid"
     )
-    assert (
-        foreign_basis["entry"].target_variable == snapshots["denominator"]["entry"].target_variable
+
+    bundle_ref = _resolve(selected_case, selection)
+
+    assert type(bundle_ref) is ArtifactRef
+    bundle = load_n7_derivation_bundle(store, bundle_ref)
+    assert bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v3"
+    assert bundle.target_satisfaction_status == "unsatisfied"
+    assert bundle.input_closure_status == "partial"
+    assert bundle.authority_purpose == "candidate_acquisition_routing_only"
+    assert artifact_ref_identity_key(bundle.registered_profile_ref) == artifact_ref_identity_key(
+        profiles["root_profile_ref"]
     )
-    assert foreign_basis["entry"].source_semantic_definition_ref != (
-        snapshots["denominator"]["entry"].source_semantic_definition_ref
+    operations = {row.node_id: row for row in bundle.operation_nodes}
+    assert set(operations) == {"upstream-flow", "registered-output"}
+    root = operations["registered-output"]
+    root_denominator = next(
+        row for row in root.role_inputs if row.role == profiles["root_profile"].denominator_role
     )
-    with pytest.raises(ValueError, match="n7_registered_role_selected_supplier_refused"):
-        validate_registered_derivation_role_input_gap(
-            store,
-            gap,
-            supplier_ref=foreign_basis["ref"],
-            authority_entry_id=foreign_basis["entry"].entry_id,
-            connector_id=foreign_basis["declaration"].connector_id,
-            expected_registered_profile_ref=case["profile_ref"],
-            expected_obligation_set_ref=case["obligation_set_ref"],
-            expected_target_obligation_ref=case["target_ref"],
-            expected_routing_report_ref=case["routing_ref"],
+    assert root_denominator.input_node_id == "upstream-flow"
+    assert artifact_ref_identity_key(root_denominator.source_basis.representation_ref) == (
+        artifact_ref_identity_key(profiles["upstream_profile"].output.representation_ref)
+    )
+    assert len(bundle.source_nodes) == 3
+    source_nodes = {row.node_id: row for row in bundle.source_nodes}
+    assert set(source_nodes) == {
+        "leaf-upstream-denominator",
+        "leaf-upstream-ratio",
+        "leaf-root-ratio",
+    }
+    assert len(n7_pending_unique_derivation_source_gaps(bundle)) == 3
+
+    # The same exact graph and Catalog leaf owners consumed by the lifecycle
+    # selector and pre-I/O route verifier replay before a provider can be used.
+    eligible_rows = validate_registered_n7_v3_planning_selection(store, selection, bundle)
+    assert {
+        (
+            row.provider.source_node_id,
+            artifact_ref_identity_key(row.source_declaration_ref),
+        )
+        for row in eligible_rows
+    } == {
+        (snapshot["provider"].source_node_id, artifact_ref_identity_key(snapshot["ref"]))
+        for snapshot in snapshots.values()
+    }
+
+    for snapshot_key, snapshot in snapshots.items():
+        operation_id, role = snapshot_key.split(":", maxsplit=1)
+        source_node = source_nodes[snapshot["provider"].source_node_id]
+        gap = source_node.requirement_gap
+        assert gap is not None
+        assert source_node.selected_supplier_ref is None
+        assert source_node.source_series_ref is None
+        assert source_node.source_receipt_ref is None
+        assert len(source_node.supplier_alternatives) == 1
+        assert artifact_ref_identity_key(source_node.supplier_alternatives[0].supplier_ref) == (
+            artifact_ref_identity_key(snapshot["ref"])
+        )
+        bindings = gap.metadata["operation_role_bindings"]
+        assert len(bindings) == 1
+        assert bindings[0]["operation_node_id"] == operation_id
+        assert bindings[0]["role"] == role
+        assert bindings[0]["input_kind"] == "candidate_source"
+        assert artifact_ref_identity_key(
+            ArtifactRef.model_validate(bindings[0]["registered_profile_ref"])
+        ) == artifact_ref_identity_key(
+            profiles[
+                "upstream_profile_ref" if operation_id == "upstream-flow" else "root_profile_ref"
+            ]
+        )
+        assert snapshot["declaration"].semantic_authority == "not_established"
+        assert snapshot["declaration"].source_currentness == "not_established"
+        assert gap.metadata["measurement_admission"] == "not_established"
+        assert (
+            validate_registered_n7_v3_role_input_gap(
+                store,
+                bundle,
+                source_node,
+                gap,
+                supplier_ref=snapshot["ref"],
+                authority_entry_id=snapshot["entry"].entry_id,
+                connector_id=snapshot["declaration"].connector_id,
+            )
+            == snapshot["entry"].target_variable
         )
 
-    for kwargs in (
-        {"authority_entry_id": "acquisition-authority:sha256:" + "0" * 64},
-        {"connector_id": "foreign.connector"},
-    ):
-        with pytest.raises(ValueError, match="n7_registered_role_selected_supplier_refused"):
-            validate_registered_derivation_role_input_gap(
+        # A qualified geography ref is not itself a WDI country code. Resolve
+        # it through the exact Catalog declaration's source-native coordinate.
+        source_scope = snapshot["entry"].source_measure_scope
+        assert source_scope is not None
+        qualified_ref = "country:UA"
+        qualified_scope = case["target"].port.scope.model_copy(
+            update={"geography_ref": qualified_ref}
+        )
+        qualified_declaration = snapshot["declaration"].model_copy(
+            update={
+                "entry": snapshot["entry"].model_copy(
+                    update={
+                        "source_measure_scope": source_scope.model_copy(
+                            update={
+                                "geography_ref": qualified_ref,
+                                "source_geography_id": "UA",
+                            }
+                        )
+                    }
+                )
+            }
+        )
+        assert _n7_v3_query_country_code(qualified_scope, qualified_declaration) == "UKR"
+
+        with pytest.raises(ValueError, match="n7_registered_graph_query_scope_mismatch"):
+            validate_registered_n7_v3_role_input_gap(
                 store,
+                bundle,
+                source_node,
                 gap,
-                supplier_ref=snapshots["denominator"]["ref"],
-                authority_entry_id=kwargs.get(
-                    "authority_entry_id", snapshots["denominator"]["entry"].entry_id
-                ),
-                connector_id=kwargs.get(
-                    "connector_id", snapshots["denominator"]["declaration"].connector_id
-                ),
-                expected_registered_profile_ref=case["profile_ref"],
-                expected_obligation_set_ref=case["obligation_set_ref"],
-                expected_target_obligation_ref=case["target_ref"],
-                expected_routing_report_ref=case["routing_ref"],
+                supplier_ref=snapshot["ref"],
+                authority_entry_id=snapshot["entry"].entry_id,
+                connector_id=snapshot["declaration"].connector_id,
+                expected_country_code="POL",
+                expected_data_time="2024",
+            )
+        with pytest.raises(ValueError, match="n7_registered_graph_query_scope_mismatch"):
+            validate_registered_n7_v3_role_input_gap(
+                store,
+                bundle,
+                source_node,
+                gap,
+                supplier_ref=snapshot["ref"],
+                authority_entry_id=snapshot["entry"].entry_id,
+                connector_id=snapshot["declaration"].connector_id,
+                expected_country_code="UKR",
+                expected_data_time="2025",
             )
 
-    with pytest.raises(ValueError, match="n7_registered_role_gap_selected_parent_mismatch"):
-        validate_registered_derivation_role_input_gap(
-            store,
-            gap,
-            supplier_ref=snapshots["denominator"]["ref"],
-            authority_entry_id=snapshots["denominator"]["entry"].entry_id,
-            connector_id=snapshots["denominator"]["declaration"].connector_id,
-            expected_registered_profile_ref=case["profile_ref"],
-            expected_obligation_set_ref=case["target_ref"],
-            expected_target_obligation_ref=case["target_ref"],
-            expected_routing_report_ref=case["routing_ref"],
+    upstream = selection.operation_nodes[0]
+    upstream_profile = profiles["upstream_profile"]
+    source_id_by_role = {
+        role: snapshots[f"upstream-flow:{role}"]["provider"].source_node_id
+        for role in (upstream_profile.ratio_role, upstream_profile.denominator_role)
+    }
+    wrong_role_inputs = tuple(
+        row.model_copy(
+            update={
+                "input_node_id": source_id_by_role[
+                    upstream_profile.denominator_role
+                    if row.role == upstream_profile.ratio_role
+                    else upstream_profile.ratio_role
+                ]
+            }
         )
+        for row in upstream.role_inputs
+    )
+    wrong_upstream = NativeDerivationPlanningOperation(
+        node_id=upstream.node_id,
+        registered_profile_ref=upstream.registered_profile_ref,
+        role_inputs=wrong_role_inputs,
+    )
+    wrong_role_suppliers = tuple(
+        row.model_copy(
+            update={
+                "provider": row.provider.model_copy(
+                    update={
+                        "source_node_id": source_id_by_role[
+                            upstream_profile.denominator_role
+                            if row.role == upstream_profile.ratio_role
+                            else upstream_profile.ratio_role
+                        ]
+                    }
+                )
+            }
+        )
+        if row.operation_node_id == upstream.node_id
+        else row
+        for row in selection.role_suppliers
+    )
+    wrong_edge_selection = NativeDerivationPlanningSelection.model_validate(
+        selection.model_dump(mode="python")
+        | {
+            "operation_nodes": (wrong_upstream, *selection.operation_nodes[1:]),
+            "role_suppliers": wrong_role_suppliers,
+        }
+    )
+    with pytest.raises(ValueError, match="n7_registered_graph_planning_edge_mismatch"):
+        validate_registered_n7_v3_planning_selection(store, wrong_edge_selection, bundle)
+
+    manifest = store.get_manifest(bundle_ref)
+    for operation_id, profile_ref in (
+        ("upstream-flow", profiles["upstream_profile_ref"]),
+        ("registered-output", profiles["root_profile_ref"]),
+    ):
+        assert (
+            input_ref_from_artifact_ref(
+                profile_ref, role=f"operation.{operation_id}.registered_semantic_profile"
+            )
+            in manifest.inputs
+        )
+
+
+def test_v3_planning_projects_complete_eligible_supplier_union_per_leaf(
+    native_resolver_case: dict[str, Any], tmp_path: Path
+) -> None:
+    """Keep valid alternatives, skip a refused candidate, and detect a dropped arm."""
+    case = native_resolver_case
+    store = case["case"].store
+    selected_case, selection, profiles, snapshots = _two_operation_selection(
+        case, tmp_path / "base"
+    )
+    operation_node_id = "upstream-flow"
+    role = profiles["upstream_profile"].denominator_role
+    source_node_id = "leaf-upstream-denominator"
+    source_profile = profiles["upstream_profile"]
+    valid_alternative = _supplier_snapshot(
+        case,
+        tmp_path / "valid-alternative",
+        requested_role=role,
+        source_role=role,
+        suffix="n7-native-v3-valid-alternative",
+        source_profile=source_profile,
+        source_node_id=source_node_id,
+        operation_node_id=operation_node_id,
+    )
+    refused_alternative = _supplier_snapshot(
+        case,
+        tmp_path / "refused-alternative",
+        requested_role=role,
+        source_role=role,
+        suffix="n7-native-v3-refused-alternative",
+        declared_population="population:wrong-scope",
+        source_profile=source_profile,
+        source_node_id=source_node_id,
+        operation_node_id=operation_node_id,
+    )
+    rows = (
+        *selection.role_suppliers,
+        valid_alternative["selection_row"],
+        refused_alternative["selection_row"],
+    )
+    expanded_selection = NativeDerivationPlanningSelection.model_validate(
+        selection.model_dump(mode="python") | {"role_suppliers": rows}
+    )
+
+    bundle_ref = _resolve(selected_case, expanded_selection)
+
+    assert type(bundle_ref) is ArtifactRef
+    bundle = load_n7_derivation_bundle(case["case"].store, bundle_ref)
+    source_nodes = {row.node_id: row for row in bundle.source_nodes}
+    actual_alternatives = {
+        artifact_ref_identity_key(row.supplier_ref)
+        for row in source_nodes[source_node_id].supplier_alternatives
+    }
+    assert actual_alternatives == {
+        artifact_ref_identity_key(snapshots[f"{operation_node_id}:{role}"]["ref"]),
+        artifact_ref_identity_key(valid_alternative["ref"]),
+    }
+    eligible = validate_registered_n7_v3_planning_selection(
+        case["case"].store, expanded_selection, bundle
+    )
+    assert len(eligible) == 4
+    assert artifact_ref_identity_key(refused_alternative["ref"]) not in {
+        artifact_ref_identity_key(row.source_declaration_ref) for row in eligible
+    }
+
+    dropped_selection = NativeDerivationPlanningSelection.model_validate(
+        selection.model_dump(mode="python")
+    )
+    with pytest.raises(
+        ValueError,
+        match="n7_registered_graph_planning_supplier_alternatives_mismatch",
+    ):
+        validate_registered_n7_v3_planning_selection(case["case"].store, dropped_selection, bundle)
+
+    # A candidate-source alias with B's exact basis cannot silently replace the
+    # certified edge: doing so disconnects the selected upstream operation.
+    forged_operations = []
+    for operation in selection.operation_nodes:
+        payload = operation.model_dump(mode="python")
+        if operation.node_id == "registered-output":
+            payload["role_inputs"] = tuple(
+                role_input.model_dump(mode="python")
+                | (
+                    {"input_kind": "candidate_source", "input_node_id": "leaf-same-basis"}
+                    if role_input.role == profiles["root_profile"].denominator_role
+                    else {}
+                )
+                for role_input in operation.role_inputs
+            )
+        forged_operations.append(payload)
+    forged_supplier = snapshots[f"registered-output:{profiles['root_profile'].ratio_role}"][
+        "selection_row"
+    ].model_copy(
+        update={
+            "role": profiles["root_profile"].denominator_role,
+            "provider": snapshots[f"registered-output:{profiles['root_profile'].ratio_role}"][
+                "provider"
+            ].model_copy(update={"source_node_id": "leaf-same-basis"}),
+        }
+    )
+    with pytest.raises(ValueError, match="native_derivation_planning_operation_graph_unreachable"):
+        NativeDerivationPlanningSelection.model_validate(
+            selection.model_dump(mode="python")
+            | {
+                "operation_nodes": tuple(forged_operations),
+                "role_suppliers": (
+                    *selection.role_suppliers,
+                    forged_supplier.model_dump(mode="python"),
+                ),
+            }
+        )
+
+    wrong_scope = _supplier_snapshot(
+        case,
+        tmp_path / "wrong-scope",
+        requested_role=profiles["upstream_profile"].ratio_role,
+        source_role=profiles["upstream_profile"].ratio_role,
+        suffix="n7-native-v3-wrong-population",
+        declared_population="population:outside-selected-role",
+        source_profile=profiles["upstream_profile"],
+        source_node_id="leaf-upstream-ratio",
+        operation_node_id="upstream-flow",
+    )
+    wrong_snapshots = dict(snapshots)
+    wrong_snapshots[f"upstream-flow:{profiles['upstream_profile'].ratio_role}"] = wrong_scope
+    wrong_selection = selection.model_copy(
+        update={"role_suppliers": tuple(row["selection_row"] for row in wrong_snapshots.values())}
+    )
+    assert _resolve(selected_case, wrong_selection) is None
+
+    upstream_path, _upstream_manifest = store._paths(profiles["upstream_profile_ref"].artifact_id)
+    upstream_bytes = upstream_path.read_bytes()
+    upstream_path.unlink()
+    assert _resolve(selected_case, selection) is None
+    with pytest.raises((OSError, ValueError)):
+        load_n7_derivation_bundle(store, bundle_ref)
+    upstream_path.write_bytes(upstream_bytes)
+    assert load_n7_derivation_bundle(store, bundle_ref) == bundle
+
+    denominator_role = profiles["upstream_profile"].denominator_role
+    ratio_role = profiles["upstream_profile"].ratio_role
+    selected_denominator = snapshots[f"upstream-flow:{denominator_role}"]
+    denominator_representation = load_variable_representation(
+        store, selected_denominator["declaration"].entry.source_representation_ref
+    )
+    foreign_basis = _supplier_snapshot(
+        case,
+        tmp_path / "foreign-operation-role-basis",
+        requested_role=denominator_role,
+        source_role=ratio_role,
+        suffix="n7-native-same-variable-foreign-basis",
+        declared_population=denominator_representation.population_ref,
+        source_profile=profiles["upstream_profile"],
+        source_node_id=selected_denominator["provider"].source_node_id,
+        operation_node_id="upstream-flow",
+    )
+    assert foreign_basis["entry"].target_variable == selected_denominator["entry"].target_variable
+    assert foreign_basis["entry"].source_semantic_definition_ref != (
+        selected_denominator["entry"].source_semantic_definition_ref
+    )
+    foreign_rows = tuple(
+        foreign_basis["selection_row"]
+        if (row.operation_node_id, row.role) == ("upstream-flow", denominator_role)
+        else row
+        for row in selection.role_suppliers
+    )
+    assert len(foreign_rows) == len(selection.role_suppliers)
+    assert (
+        _resolve(
+            selected_case,
+            selection.model_copy(update={"role_suppliers": foreign_rows}),
+        )
+        is None
+    )
 
 
 def test_resolver_refuses_missing_or_mismatched_configuration(

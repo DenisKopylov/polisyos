@@ -17,7 +17,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts import (
     ArtifactStore,
-    CoreJSONArtifactStore,
+    CoreJSONArtifactProfileReader,
     InputRef,
     ProducerInfo,
     PutOptions,
@@ -424,6 +424,132 @@ class RegisteredDerivedInputCorrespondence(_CompositionContract):
         ]
 
 
+class RegisteredDerivedGraphLeaf(_CompositionContract):
+    """One selected Catalog occurrence and the candidate series derived from it."""
+
+    node_id: str = Field(min_length=1)
+    occurrence_ref: ScopedMeasurementOccurrenceRef
+    source_series_ref: SelectedVariableBindingRef
+
+    @model_validator(mode="after")
+    def _candidate_kind(self) -> RegisteredDerivedGraphLeaf:
+        if (
+            self.source_series_ref.kind != "polisyos.core.candidate_source_series"
+            or self.source_series_ref.media_type != "application/json"
+        ):
+            raise ValueError("composition_input_candidate_source_kind_mismatch")
+        return self
+
+    def lineage_inputs(self) -> list[InputRef]:
+        """Return both selected source dependencies."""
+        return [
+            input_ref_from_artifact_ref(
+                self.occurrence_ref, role=f"source.{self.node_id}.occurrence"
+            ),
+            input_ref_from_artifact_ref(
+                self.source_series_ref, role=f"source.{self.node_id}.series"
+            ),
+        ]
+
+
+class RegisteredDerivedGraphOperation(_CompositionContract):
+    """One operation's registered semantics and exact persisted arithmetic."""
+
+    node_id: str = Field(min_length=1)
+    profile_ref: RegisteredDerivedInputProfileRef
+    recipe_ref: SelectedVariableBindingRef
+    certificate_ref: SelectedVariableBindingRef
+    output_ref: SelectedVariableBindingRef
+
+    @model_validator(mode="after")
+    def _selected_arithmetic(self) -> RegisteredDerivedGraphOperation:
+        for ref, kind in (
+            (self.recipe_ref, "polisyos.runtime.derivation_recipe"),
+            (self.certificate_ref, "polisyos.runtime.derivation_certificate"),
+            (self.output_ref, "polisyos.runtime.derived_economic_series"),
+        ):
+            if ref.kind != kind or ref.media_type != "application/json":
+                raise ValueError("composition_input_selected_kind_mismatch")
+        return self
+
+    def lineage_inputs(self) -> list[InputRef]:
+        """Return this operation's selected registration and arithmetic parents."""
+        return [
+            input_ref_from_artifact_ref(ref, role=f"operation.{self.node_id}.{role}")
+            for role, ref in (
+                ("profile", self.profile_ref),
+                ("recipe", self.recipe_ref),
+                ("certificate", self.certificate_ref),
+                ("output", self.output_ref),
+            )
+        ]
+
+
+class RegisteredDerivedGraphCorrespondence(_CompositionContract):
+    """Candidate-only arithmetic witness for a selected registered graph and root port.
+
+    Role edges are held by the selected plan and exact recipes. The witness
+    identifies their source occurrences and arithmetic results without
+    asserting an acquisition permission or a second model obligation.
+    """
+
+    ARTIFACT_KIND: ClassVar[str] = RegisteredDerivedInputCorrespondence.ARTIFACT_KIND
+    ARTIFACT_MEDIA_TYPE: ClassVar[str] = RegisteredDerivedInputCorrespondence.ARTIFACT_MEDIA_TYPE
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = RegisteredDerivedInputCorrespondence.ARTIFACT_SCHEMA_NAME
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "3.0"
+
+    schema_version: Literal["3.0"] = "3.0"
+    model_input_obligation_ref: SelectedVariableBindingRef
+    model_interface_ref: SelectedVariableBindingRef
+    model_port_id: str = Field(min_length=1)
+    year: int = Field(ge=1900, le=2200, strict=True)
+    bundle_ref: SelectedVariableBindingRef
+    collection_ref: SelectedVariableBindingRef
+    root_node_id: str = Field(min_length=1)
+    sources: tuple[RegisteredDerivedGraphLeaf, ...] = Field(min_length=1, max_length=128)
+    operations: tuple[RegisteredDerivedGraphOperation, ...] = Field(min_length=2, max_length=128)
+    authority_purpose: Literal["candidate_simulation_input_only"] = (
+        "candidate_simulation_input_only"
+    )
+
+    @model_validator(mode="after")
+    def _selected_graph(self) -> RegisteredDerivedGraphCorrespondence:
+        for ref, kind in (
+            (self.model_input_obligation_ref, "runtime.quality.model_input_obligation"),
+            (self.model_interface_ref, "runtime.quality.program_graph_input_interface"),
+            (self.bundle_ref, "runtime.quality.n7_derivation_bundle"),
+            (self.collection_ref, "runtime_quality.native_derivation_input_checkpoint"),
+        ):
+            if ref.kind != kind or ref.media_type != "application/json":
+                raise ValueError("composition_input_selected_kind_mismatch")
+        sources = tuple(row.node_id for row in self.sources)
+        operations = tuple(row.node_id for row in self.operations)
+        if (
+            sources != tuple(sorted(set(sources)))
+            or operations != tuple(sorted(set(operations)))
+            or set(sources).intersection(operations)
+            or self.root_node_id not in operations
+        ):
+            raise ValueError("composition_input_graph_node_set_mismatch")
+        return self
+
+    @property
+    def root(self) -> RegisteredDerivedGraphOperation:
+        """Return the only operation bound to the model obligation."""
+        return next(row for row in self.operations if row.node_id == self.root_node_id)
+
+    def lineage_inputs(self) -> list[InputRef]:
+        """Return the complete selected graph dependencies."""
+        return [
+            input_ref_from_artifact_ref(self.model_input_obligation_ref, role="target.obligation"),
+            input_ref_from_artifact_ref(self.model_interface_ref, role="target.interface"),
+            input_ref_from_artifact_ref(self.bundle_ref, role="selected_derivation_bundle"),
+            input_ref_from_artifact_ref(self.collection_ref, role="selected_native_collection"),
+            *(edge for source in self.sources for edge in source.lineage_inputs()),
+            *(edge for operation in self.operations for edge in operation.lineage_inputs()),
+        ]
+
+
 @dataclass(frozen=True)
 class ReplayedCandidateDerivationRole:
     """Owner-loaded inputs for the pure source and composition predicates."""
@@ -566,6 +692,43 @@ def recompute_native_derivation_source_projection(
     ):
         raise ValueError("composition_input_native_role_context_mismatch")
     basis = selected[0].basis
+    canonical_value = recompute_registered_source_value(
+        basis=basis,
+        scope=occurrence.source_scope,
+        occurrence=occurrence,
+        replayed_occurrence=replayed_occurrence,
+        source_selection=source_selection,
+        representation=representation,
+        binding_profile=binding_profile,
+        year=context.year,
+    )
+    return NativeDerivationSourceProjection(
+        profile_ref=profile_ref,
+        context_ref=context_ref,
+        role=role,
+        occurrence_ref=occurrence_ref,
+        source_basis=basis,
+        source_variable_id=occurrence.canonical_variable,
+        year=context.year,
+        canonical_value=canonical_value,
+        unit_id=representation.unit_id,
+    )
+
+
+def recompute_registered_source_value(
+    *,
+    basis: RegisteredSemanticBasis,
+    scope: ModelInputScope,
+    occurrence: ScopedMeasurementOccurrence,
+    replayed_occurrence: ScopedMeasurementOccurrence,
+    source_selection: ScopedSourceSelection,
+    representation: VariableRepresentation,
+    binding_profile: MeasurementBindingProfile,
+    year: int,
+) -> Decimal:
+    """Require selected Catalog facts to match the registered annual source role."""
+    if scope != occurrence.source_scope:
+        raise ValueError("composition_input_native_role_context_mismatch")
     if (
         occurrence != replayed_occurrence
         or not _same_ref(
@@ -584,7 +747,7 @@ def recompute_native_derivation_source_projection(
         or source_selection.is_proxy
         or occurrence.aggregation_method != "identity"
         or len(occurrence.raw_values) != 1
-        or occurrence.year != context.year
+        or occurrence.year != year
         or occurrence.survey_year is not None
         or occurrence.wave is not None
         or occurrence.canonical_unit != representation.unit_id
@@ -614,25 +777,124 @@ def recompute_native_derivation_source_projection(
         or money.price_base != money.price_base.strip()
     ):
         raise ValueError("composition_input_native_money_basis_not_established")
-    scope = occurrence.source_scope
     if (
         scope.period_basis != "calendar_year"
-        or scope.period_start != date(context.year, 1, 1)
-        or scope.period_end != date(context.year, 12, 31)
+        or scope.period_start != date(year, 1, 1)
+        or scope.period_end != date(year, 12, 31)
         or scope.time_role != "observation_time"
     ):
         raise ValueError("composition_input_native_exact_calendar_year_required")
-    return NativeDerivationSourceProjection(
-        profile_ref=profile_ref,
-        context_ref=context_ref,
-        role=role,
-        occurrence_ref=occurrence_ref,
-        source_basis=basis,
-        source_variable_id=occurrence.canonical_variable,
-        year=context.year,
-        canonical_value=Decimal(replayed_occurrence.canonical_value),
-        unit_id=representation.unit_id,
-    )
+    return Decimal(replayed_occurrence.canonical_value)
+
+
+def registered_annual_flow_output_refusals(
+    *,
+    target_representation: VariableRepresentation,
+    binding_profile: MeasurementBindingProfile,
+    target_scope: ModelInputScope,
+    unit_id: str,
+) -> tuple[str, ...]:
+    """Check annual output axes for either a root port or a selected predecessor."""
+    refusals: list[str] = []
+    if (
+        target_representation.quantity_kind != "flow"
+        or target_representation.measure_form != "absolute"
+        or target_representation.time_support != "period_total"
+        or target_representation.temporal_granularity != "annual"
+        or target_representation.aggregation != "identity"
+        or target_representation.scale_to_unit != Decimal(1)
+        or target_representation.unit_id != unit_id
+        or target_representation.numerator_ref is not None
+        or target_representation.denominator_ref is not None
+        or target_representation.population_ref != target_scope.population_ref
+    ):
+        refusals.append("target_annual_absolute_flow_required")
+    if (
+        binding_profile.schema_version != "polisyos.catalog.measurement_binding_profile.v3"
+        or MeasurementAxis.MONEY_UNIT not in binding_profile.required_axes
+        or MeasurementAxis.METHODOLOGY_REF in binding_profile.required_axes
+        or any(
+            getattr(target_representation, axis.value) is None
+            for axis in binding_profile.required_axes
+        )
+    ):
+        refusals.append("target_required_axis_not_established")
+    return tuple(refusals)
+
+
+def registered_annual_flow_relation_refusals(
+    *,
+    output_definition_ref: ArtifactRef,
+    denominator_definition_ref: ArtifactRef,
+    target_representation: VariableRepresentation,
+    ratio_representation: VariableRepresentation,
+    denominator_representation: VariableRepresentation,
+    target_scope: ModelInputScope,
+    ratio_scope: ModelInputScope,
+    denominator_scope: ModelInputScope,
+    units_registry: UnitsRegistry | None,
+    unit_id: str,
+    year: int,
+) -> tuple[str, ...]:
+    """Check forward roles, units and scope without assigning empirical authority."""
+    refusals: list[str] = []
+    if (
+        ratio_representation.measure_form != "ratio"
+        or ratio_representation.unit_id != "ratio"
+        or not _same_ref(ratio_representation.numerator_ref, output_definition_ref)
+        or not _same_ref(
+            ratio_representation.denominator_ref,
+            denominator_definition_ref,
+        )
+    ):
+        refusals.append("registered_ratio_role_semantics_mismatch")
+    if (
+        denominator_representation.measure_form != "absolute"
+        or denominator_representation.unit_id != target_representation.unit_id
+        or denominator_representation.numerator_ref is not None
+        or denominator_representation.denominator_ref is not None
+    ):
+        refusals.append("registered_denominator_role_semantics_mismatch")
+    money = target_representation.money_unit
+    canonical_money = None if units_registry is None else units_registry.units.get(unit_id)
+    if not isinstance(canonical_money, MoneyUnit) or money is None:
+        refusals.append("canonical_money_unit_not_established")
+    elif (
+        money.currency != canonical_money.currency
+        or (
+            canonical_money.nominal_year is not None
+            and money.nominal_year != canonical_money.nominal_year
+        )
+        or (
+            canonical_money.price_base is not None
+            and money.price_base != canonical_money.price_base
+        )
+    ):
+        refusals.append("canonical_money_unit_mismatch")
+    if (
+        money is None
+        or money.nominal_year is None
+        or money.price_base is None
+        or not money.price_base.strip()
+        or money.price_base != money.price_base.strip()
+        or ratio_representation.money_unit != money
+        or denominator_representation.money_unit != money
+    ):
+        refusals.append("money_basis_not_established")
+    scopes = (target_scope, ratio_scope, denominator_scope)
+    if any(
+        scope.period_basis != "calendar_year"
+        or scope.period_start != date(year, 1, 1)
+        or scope.period_end != date(year, 12, 31)
+        or scope.time_role != "observation_time"
+        or (scope.geography_ref, scope.jurisdiction_ref)
+        != (target_scope.geography_ref, target_scope.jurisdiction_ref)
+        for scope in scopes
+    ):
+        refusals.append("exact_role_geography_calendar_scope_required")
+    if ratio_scope.population_ref != target_scope.population_ref:
+        refusals.append("numerator_population_scope_mismatch")
+    return tuple(refusals)
 
 
 def evaluate_registered_derived_input_correspondence(
@@ -719,29 +981,14 @@ def evaluate_registered_derived_input_correspondence(
         or port.physical_encoding.shape
     ):
         refusals.append("scalar_method_flow_port_required")
-    if (
-        target_representation.quantity_kind != "flow"
-        or target_representation.measure_form != "absolute"
-        or target_representation.time_support != "period_total"
-        or target_representation.temporal_granularity != "annual"
-        or target_representation.aggregation != "identity"
-        or target_representation.scale_to_unit != Decimal(1)
-        or target_representation.unit_id != port.unit_id
-        or target_representation.numerator_ref is not None
-        or target_representation.denominator_ref is not None
-        or target_representation.population_ref != target_scope.population_ref
-    ):
-        refusals.append("target_annual_absolute_flow_required")
-    if (
-        binding_profile.schema_version != "polisyos.catalog.measurement_binding_profile.v3"
-        or MeasurementAxis.MONEY_UNIT not in binding_profile.required_axes
-        or MeasurementAxis.METHODOLOGY_REF in binding_profile.required_axes
-        or any(
-            getattr(target_representation, axis.value) is None
-            for axis in binding_profile.required_axes
+    refusals.extend(
+        registered_annual_flow_output_refusals(
+            target_representation=target_representation,
+            binding_profile=binding_profile,
+            target_scope=target_scope,
+            unit_id=port.unit_id,
         )
-    ):
-        refusals.append("target_required_axis_not_established")
+    )
     expected_roles = tuple(item.role for item in profile.inputs)
     if (
         tuple(item.role for item in correspondence.roles) != expected_roles
@@ -801,62 +1048,21 @@ def evaluate_registered_derived_input_correspondence(
             refusals.append(f"{label}_candidate_source_projection_mismatch")
     ratio = by_role[profile.ratio_role]
     denominator = by_role[profile.denominator_role]
-    if (
-        ratio.representation.measure_form != "ratio"
-        or ratio.representation.unit_id != "ratio"
-        or not _same_ref(ratio.representation.numerator_ref, port.semantic_definition_ref)
-        or not _same_ref(
-            ratio.representation.denominator_ref,
-            denominator.projection.source_basis.semantic_definition_ref,
+    refusals.extend(
+        registered_annual_flow_relation_refusals(
+            output_definition_ref=port.semantic_definition_ref,
+            denominator_definition_ref=denominator.projection.source_basis.semantic_definition_ref,
+            target_representation=target_representation,
+            ratio_representation=ratio.representation,
+            denominator_representation=denominator.representation,
+            target_scope=target_scope,
+            ratio_scope=ratio.occurrence.source_scope,
+            denominator_scope=denominator.occurrence.source_scope,
+            units_registry=units_registry,
+            unit_id=port.unit_id,
+            year=context.year,
         )
-    ):
-        refusals.append("registered_ratio_role_semantics_mismatch")
-    if (
-        denominator.representation.measure_form != "absolute"
-        or denominator.representation.unit_id != target_representation.unit_id
-        or denominator.representation.numerator_ref is not None
-        or denominator.representation.denominator_ref is not None
-    ):
-        refusals.append("registered_denominator_role_semantics_mismatch")
-    money = target_representation.money_unit
-    canonical_money = None if units_registry is None else units_registry.units.get(port.unit_id)
-    if not isinstance(canonical_money, MoneyUnit) or money is None:
-        refusals.append("canonical_money_unit_not_established")
-    elif (
-        money.currency != canonical_money.currency
-        or (
-            canonical_money.nominal_year is not None
-            and money.nominal_year != canonical_money.nominal_year
-        )
-        or (
-            canonical_money.price_base is not None
-            and money.price_base != canonical_money.price_base
-        )
-    ):
-        refusals.append("canonical_money_unit_mismatch")
-    if (
-        money is None
-        or money.nominal_year is None
-        or money.price_base is None
-        or not money.price_base.strip()
-        or money.price_base != money.price_base.strip()
-        or ratio.representation.money_unit != money
-        or denominator.representation.money_unit != money
-    ):
-        refusals.append("money_basis_not_established")
-    scopes = (target_scope, *(item.occurrence.source_scope for item in roles))
-    if any(
-        scope.period_basis != "calendar_year"
-        or scope.period_start != date(context.year, 1, 1)
-        or scope.period_end != date(context.year, 12, 31)
-        or scope.time_role != "observation_time"
-        or (scope.geography_ref, scope.jurisdiction_ref)
-        != (target_scope.geography_ref, target_scope.jurisdiction_ref)
-        for scope in scopes
-    ):
-        refusals.append("exact_role_geography_calendar_scope_required")
-    if ratio.occurrence.source_scope.population_ref != target_scope.population_ref:
-        refusals.append("numerator_population_scope_mismatch")
+    )
     try:
         verify_registered_derived_family(profile, recipe.family)
     except ValueError as exc:
@@ -934,7 +1140,7 @@ def persist_registered_derived_input_profile(
 
 
 def load_registered_derived_input_profile(
-    store: CoreJSONArtifactStore, ref: RegisteredDerivedInputProfileRef
+    store: CoreJSONArtifactProfileReader, ref: RegisteredDerivedInputProfileRef
 ) -> RegisteredDerivedInputProfile:
     """Reopen the registered profile with its complete selected dependencies."""
     result = validate_core_model_json_artifact(RegisteredDerivedInputProfile, store, ref)
@@ -952,7 +1158,7 @@ def persist_registered_derived_input_context(
 
 
 def load_registered_derived_input_context(
-    store: CoreJSONArtifactStore, ref: RegisteredDerivedInputContextRef
+    store: CoreJSONArtifactProfileReader, ref: RegisteredDerivedInputContextRef
 ) -> RegisteredDerivedInputContext:
     """Reopen every exact target and role-occurrence edge in the selected context."""
     result = validate_core_model_json_artifact(RegisteredDerivedInputContext, store, ref)
@@ -970,7 +1176,7 @@ def persist_native_derivation_source_projection(
 
 
 def load_native_derivation_source_projection(
-    store: CoreJSONArtifactStore, ref: NativeDerivationSourceProjectionRef
+    store: CoreJSONArtifactProfileReader, ref: NativeDerivationSourceProjectionRef
 ) -> NativeDerivationSourceProjection:
     """Reopen the selected projection and exact source/basis dependencies."""
     result = validate_core_model_json_artifact(NativeDerivationSourceProjection, store, ref)
@@ -988,10 +1194,28 @@ def persist_registered_derived_input_correspondence(
 
 
 def load_registered_derived_input_correspondence(
-    store: CoreJSONArtifactStore, ref: DerivedInputCorrespondenceRef
+    store: CoreJSONArtifactProfileReader, ref: DerivedInputCorrespondenceRef
 ) -> RegisteredDerivedInputCorrespondence:
     """Reopen all exact selected semantic and arithmetic correspondence edges."""
     result = validate_core_model_json_artifact(RegisteredDerivedInputCorrespondence, store, ref)
+    result.require_lineage(store.get_manifest(ref))
+    return result
+
+
+def persist_registered_derived_graph_correspondence(
+    store: ArtifactStore, correspondence: RegisteredDerivedGraphCorrespondence
+) -> DerivedInputCorrespondenceRef:
+    """Persist one complete graph witness under the registered correspondence family."""
+    return DerivedInputCorrespondenceRef.model_validate(
+        _persist(store, correspondence).model_dump(mode="python")
+    )
+
+
+def load_registered_derived_graph_correspondence(
+    store: CoreJSONArtifactProfileReader, ref: DerivedInputCorrespondenceRef
+) -> RegisteredDerivedGraphCorrespondence:
+    """Reopen the exact selected graph, source and per-operation artifact edges."""
+    result = validate_core_model_json_artifact(RegisteredDerivedGraphCorrespondence, store, ref)
     result.require_lineage(store.get_manifest(ref))
     return result
 
@@ -1001,7 +1225,8 @@ def _persist(
     value: RegisteredDerivedInputProfile
     | RegisteredDerivedInputContext
     | NativeDerivationSourceProjection
-    | RegisteredDerivedInputCorrespondence,
+    | RegisteredDerivedInputCorrespondence
+    | RegisteredDerivedGraphCorrespondence,
 ) -> ArtifactRef:
     return store.put_json(
         value,

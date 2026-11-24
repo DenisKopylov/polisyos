@@ -26,7 +26,10 @@ from polisyos.runtime.quality.acquisition_planner import (
     n7_pending_unique_derivation_source_gaps,
 )
 from polisyos.runtime.quality.acquisition_route_loop import NativeDerivationLeafProviderSelection
-from polisyos.runtime.quality.acquisition_world_growth import NativeDerivationPlanningRoleSupplier
+from polisyos.runtime.quality.acquisition_world_growth import (
+    NativeDerivationPlanningRoleSupplier,
+    NativeDerivationRouteConfiguration,
+)
 from tests._helpers.control_worker import stop_embedded_control_worker
 from tests._helpers.lane01_wdi_profiles import (
     FixtureWDIRegisteredSourceSemantics,
@@ -202,12 +205,17 @@ def test_two_gdp_declarations_share_one_actual_n7_leaf_in_fresh_api(
                 )
                 assert origin.job.job_id == served.job_id
                 assert origin.configured_port_source.numerical_execution_status == "unrun"
+                assert (
+                    origin.configured_port_source.schema_version
+                    == "policyos.runtime.n7_configured_candidate_port_source.v3"
+                )
                 assert artifact_ref_identity_key(
                     origin.configured_port_source.derivation_bundle_ref
                 ) == (artifact_ref_identity_key(gdp[0].derivation_bundle_ref))
                 bundle = load_n7_derivation_bundle(
                     control._artifact_store, origin.configured_port_source.derivation_bundle_ref
                 )
+                assert bundle.schema_version == "policyos.runtime.n7_derivation_bundle.v2"
                 gdp_leaf = next(item for item in bundle.source_nodes if item.node_id == "input-b")
                 assert gdp_leaf.requirement_gap is not None
                 assert gdp_leaf.requirement_gap.requirement_gap_id == gdp[0].requirement_gap_id
@@ -248,6 +256,46 @@ def test_two_gdp_declarations_share_one_actual_n7_leaf_in_fresh_api(
                 detail = reader.get(f"{route_path}/{row['route_id']}")
                 assert detail.status_code == 200, detail.text
                 assert detail.json() == row
+
+            # The stock pre-numerical source carrier can still own the exact
+            # explicit-provider path when its reopened derivation plan is V2.
+            with tenant_scope(
+                None, tenant_id=served.claims.tenant_id, cell_id=served.claims.cell_id
+            ):
+                selected_ref = ArtifactRef.model_validate(gdp[0].selected_supplier_ref)
+                selected_declaration = catalog_read_api.load_acquisition_supplier_declaration(
+                    control._artifact_store, selected_ref
+                )
+                provider = NativeDerivationLeafProviderSelection(
+                    source_node_id=gdp[0].source_node_id,
+                    supplier_ref=selected_ref,
+                    authority_entry_id=selected_declaration.entry.entry_id,
+                    connector_id=selected_declaration.connector_id,
+                )
+                source_ref = origin.report.candidate_lineage.port_source_ref
+                route = NativeDerivationRouteConfiguration(
+                    tenant_id=served.claims.tenant_id,
+                    cell_id=served.claims.cell_id,
+                    run_id=served.control_run_id,
+                    source_job_id=origin.job.job_id,
+                    configured_port_source_ref=source_ref,
+                    supplier_selections=(provider,),
+                )
+                control.bind_native_derivation_route_configuration(
+                    holder["configuration"].model_copy(
+                        update={"native_derivation_routes": (route,)}
+                    )
+                )
+                assert control.native_derivation_leaf_provider_selections(
+                    tenant_id=served.claims.tenant_id,
+                    cell_id=served.claims.cell_id,
+                    run_id=served.control_run_id,
+                    source_job_id=origin.job.job_id,
+                    configured_port_source_ref=source_ref,
+                ) == (provider,)
+                assert holder["fetch_calls"] == []
+                assert served.semantic_kernel_entries == []
+                control.bind_native_derivation_route_configuration(holder["configuration"])
 
             # The exact previously selected declaration is an input of the
             # bundle. Missing bytes must refuse the old route; restoring the

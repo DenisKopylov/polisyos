@@ -571,6 +571,7 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "persist_program_graph_input_interface",
         "verify_model_input_port_semantics",
         "load_model_input_obligation",
+        "project_model_input_requirement",
     ),
     ".normative_arbitration": ("NormativeArbitrationResultRef",),
     ".owned_attempt_anchor": (
@@ -964,6 +965,14 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "load_native_derivation_source_projection",
         "load_registered_derived_input_context",
         "load_registered_derived_input_correspondence",
+        "RegisteredDerivedGraphCorrespondence",
+        "RegisteredDerivedGraphLeaf",
+        "RegisteredDerivedGraphOperation",
+        "load_registered_derived_graph_correspondence",
+        "persist_registered_derived_graph_correspondence",
+        "recompute_registered_source_value",
+        "registered_annual_flow_output_refusals",
+        "registered_annual_flow_relation_refusals",
     ),
     ".semantic_derived_binding": (
         "DerivedInputCorrespondenceBasis",
@@ -2017,6 +2026,7 @@ __all__ = [
     "scoped_source_selection_from_passport_mapping",
     "variable_representation_manifest_inputs",
     "verify_model_input_port_semantics",
+    "project_model_input_requirement",
     "FetchPlan",
     "IngestionExecutionContext",
     *_CHRONOLOGY_EXPORTS,
@@ -2900,6 +2910,7 @@ if TYPE_CHECKING:
     )
     from .model_input_requirements import (
         load_model_input_obligation,
+        project_model_input_requirement,
     )
     from .model_state_layout import (
         model_scalar_state_layout_digest,
@@ -2944,6 +2955,9 @@ __all__.extend(
         "EntityVectorCandidateLimitation",
         "EntityVectorCorrespondenceBasis",
         "EntityVectorCorrespondenceBasisRef",
+        "RegisteredDerivedGraphCorrespondence",
+        "RegisteredDerivedGraphLeaf",
+        "RegisteredDerivedGraphOperation",
         "RegisteredSemanticBasis",
         "ReplayedCandidateDerivationRole",
         "ReplayedDerivedMeasurementRole",
@@ -2961,9 +2975,14 @@ __all__.extend(
         "load_entity_vector_correspondence_basis",
         "load_native_derivation_source_projection",
         "load_ratio_denominator_source_context",
+        "load_registered_derived_graph_correspondence",
         "load_registered_derived_input_context",
         "load_registered_derived_input_correspondence",
         "load_selected_entity_vector_source_meaning",
+        "persist_registered_derived_graph_correspondence",
+        "recompute_registered_source_value",
+        "registered_annual_flow_output_refusals",
+        "registered_annual_flow_relation_refusals",
         "selected_entity_vector_source_meaning_manifest_inputs",
         "selected_method_input_tensor_identity",
     ]
@@ -2977,12 +2996,20 @@ if TYPE_CHECKING:
     )
     from .foundry import selected_method_input_tensor_identity
     from .semantic_composition_binding import (
+        RegisteredDerivedGraphCorrespondence,
+        RegisteredDerivedGraphLeaf,
+        RegisteredDerivedGraphOperation,
         RegisteredSemanticBasis,
         ReplayedCandidateDerivationRole,
         evaluate_registered_derived_input_correspondence,
         load_native_derivation_source_projection,
+        load_registered_derived_graph_correspondence,
         load_registered_derived_input_context,
         load_registered_derived_input_correspondence,
+        persist_registered_derived_graph_correspondence,
+        recompute_registered_source_value,
+        registered_annual_flow_output_refusals,
+        registered_annual_flow_relation_refusals,
     )
     from .semantic_derived_binding import (
         ReplayedDerivedMeasurementRole,

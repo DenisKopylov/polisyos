@@ -2,22 +2,16 @@
 
 from __future__ import annotations
 
-from typing import Protocol
-
 from polisyos.core.artifacts.ir_adapter import CoreToIRArtifactStoreAdapter
 from polisyos.core.artifacts.protocol import (
     ArtifactStore,
     CoreJSONArtifactProfileReader,
     CoreJSONArtifactStore,
-    VerifiableArtifactReader,
     matches_runtime_protocol,
 )
-
-
-class _VerifiableCoreJSONArtifactProfileReader(
-    CoreJSONArtifactProfileReader, VerifiableArtifactReader, Protocol
-):
-    """Compose exact-profile reads with the verifier required by semantic replay."""
+from polisyos.core.artifacts.protocol import (
+    VerifiableCoreJSONArtifactProfileReader as _VerifiableCoreJSONArtifactProfileReader,
+)
 
 
 def _core_json_profile_owner(store: object) -> object:

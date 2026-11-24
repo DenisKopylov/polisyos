@@ -223,6 +223,36 @@ class ModelInputSourceQueryEnvelope(_StrictModel):
             if key != "content_sha256"
         }
 
+    def route_selection_refusal(
+        self, disposition: str, descriptor: ModelInputSourceDescriptorCandidate | None
+    ) -> str | None:
+        """Reconcile a recorded route with the selected immutable query rows."""
+        compatible_entry_ids = tuple(
+            row.entry_id for row in self.rows if row.disposition == "compatible"
+        )
+        if disposition == "resolved":
+            if (
+                descriptor is None
+                or descriptor.query_envelope is not None
+                or compatible_entry_ids != (descriptor.authority_entry_id,)
+                or self.model_semantic_definition_ref != descriptor.model_semantic_definition_ref
+                or self.model_representation_ref != descriptor.model_representation_ref
+                or self.binding_profile_ref != descriptor.binding_profile_ref
+            ):
+                return "resolved_query_invalid"
+        elif disposition == "absent":
+            if self.rows:
+                return "absence_query_not_empty"
+        elif disposition == "ambiguous":
+            if len(compatible_entry_ids) < 2:
+                return "ambiguity_query_incomplete"
+        elif disposition == "conflict":
+            if not self.rows or compatible_entry_ids:
+                return "conflict_query_incomplete"
+        else:
+            return "query_disposition_unknown"
+        return None
+
 
 class AuthoritySchemaColumn(_StrictModel):
     """One declared normalized response field carried on the request."""

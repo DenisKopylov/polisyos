@@ -10854,8 +10854,8 @@
             "packets_assessed": 11,
             "requirements_assessed": 66,
             "status_counts": {
-              "CONFIRMED_LOCAL_PROFILE": 61,
-              "PARTIAL": 3,
+              "CONFIRMED_LOCAL_PROFILE": 63,
+              "PARTIAL": 1,
               "BLOCKED_EXTERNAL_INPUT": 2
             },
             "scope": "Requirement-level retained evidence for named local profiles. Original shared scenarios, independent G and the 300k operating profile keep their own acceptance.",
@@ -20678,6 +20678,14 @@
           "source_receipt_sha256": "ac5c57069105a070ebf302d00754a4fedc32169325f9398adf867bbe3cb915d0",
           "verified_boundary": "Actual guarded empty custody SQL read with stock source, effect, timing and decision observer contexts all active in distinct slots. Exact cleanup and zero application/authority/queue/provider/N5 effects. Probe joins PASS with stable archives. One distinct warm case is active on exact paid B and awaits the selected numerical witness."
         },
+        "native_r9_wall_cap_before_physical_work": {
+          "source_commit": "cba5b63849672c7e29adcc5724a76bd1f670a485",
+          "output": "Primary:policy-engine/_cache/e02/native-r9-controlled-20261124/one-paid-b-action/execution-budget/result.json",
+          "sha256": "15656a5aa6213bad927998bbc93dda2c7cf227253e875386b705d443df5da916",
+          "stages_sha256": "7fe4039c5bae0a6740b8705253631d192284550c2b3243c3c2d6d1d5cfad0ac3",
+          "source_receipt_sha256": "ac5c57069105a070ebf302d00754a4fedc32169325f9398adf867bbe3cb915d0",
+          "verified_boundary": "R9 entire group quiesces at the 6600.212-second wall cap, 1754333184 B peak. Signed and admitted worker enters joint controller; no N5 execution/result, fresh numerical reader or physical reservation. Durable candidate checkpoint, N4 source and N5 input are private to this action, without selected result progress. Ledger revision 36, 15 old spend receipts, zero invocation and compute reservations, zero new provider settlement. Lease and controlled DS9 expire. Original paid B and prior generations remain preserved."
+        },
         "native_n5_own_current_handoff_reuse_component": {
           "source_commit": "05ed9909f2534ab2f2098f7f99976421cf860fe6",
           "output": "Primary:policy-engine/_cache/e02/native-n5-current-handoff.nkdCWGA2/junit.xml",
@@ -20939,6 +20947,20 @@
           "fresh_guard_sha256": "05a2d52251b3cf83014212a4a3f15920bd5db22c742c345213bf8fdf42a6ec07",
           "verified_boundary": "Original leased attempt stops after marker fsync with zero physical work. Stock attempt 2 of same job performs exactly one N5/one settled standard unit, protected intact, zero new provider, selected F1 and result 33e55463. Resume PASS 209.673 seconds. Fresh HTTP 200 withholds B and reports integrity limitation. Persisted selected basis is not_established for acquisition_world_native_recipe_mismatch: shared action DuckDB copies both attempts' node rows into the newly named snapshot. Exact attempt-2 transaction time agrees with selected DataSnapshot. Preserve persisted numerical bytes and limitation."
         },
+        "acq01_04_same_image_clean_before_work_resume_and_fresh_r3": {
+          "source_commit": "29037fad8180564f2b348c83cbd2bf9ad620406c",
+          "published_affected_scope_commit": "1095faa9604aa65767785a33df66d32b581f9b29",
+          "actual_source_sha256": "1761f7574893245867882c13c53e2bf798391da60961d95eb80ced2c606f9f68",
+          "output": "Isolated ACQ owner checkout:policy-engine/_cache/e02/acq01-04-ordinary-fabric-source.qxx7znod/source/policy-engine/_cache/e02/acq01-04-ordinary-pre-kernel-r3.LpJ7l8Wm/fresh-read.json",
+          "sha256": "7cf5943968f5976af6e171e7bad3e929c18e24bd0c68cad508035cca69606fea",
+          "before_kernel_sha256": "f2527199cd607e10a87c2e20ac41c18fa4e2aeb04d5b6cb06d79cac0c49a8971",
+          "paired_native_worlds_sha256": "78bc1f22d3558935af6893dd154763fd7825140a7313add8e306c791dec35230",
+          "recovery_sha256": "c76ef99f333ecf5c04b3734ab11a115d2e0c4e0d7a209218f5652106793f4c8a",
+          "resume_guard_sha256": "afbd5b74fb4a803cfec64e45733405a3e8633eec4f847f528b4b1e66280c5722",
+          "wire_sha256": "16ed3370e06cc83eaa59e8435d6b52263feb4bc41bd199ceed2dd0273e055f0d",
+          "guard_sha256": "9339711a8f218af11fd97ea19b547bc67edd0d8fc0626708177d10242c960a60",
+          "verified_boundary": "First attempt stops after marker fsync before physical work. Original lease expires; same job attempt 2 proves both clean distinct Fabric snapshots with first file unchanged before kernel, settles one new standard unit and one N5, preserves protected 1 and has zero provider. Resume PASS 122.752 seconds selects F1 and result 6909aeef. Separate GET HTTP 200 two exact histories, no limitation, A 250000000000 and B 29548012454912, zero provider/work, SQL and ledger unchanged, PASS 47.763 seconds. The prior frontier comparison remains not established."
+        },
         "ordinary_signed_acquisition_routes_published": {
           "source_commit": "579e3e96e75a4734da3cc1aab815384ff5bb25f1",
           "source_tree": "a360cc2c57a77d63596d01ee12c9a90d1d0e51d1",
@@ -21065,6 +21087,13 @@
           "sha256": "a33ad4e7b72ef89453625887d07e2271b7382cfce88d5ba35168954b0d6e56be",
           "guard_sha256": "e1191114accd5ed95103aa84f920e3ea08d33750e726fb02b413cb24dcfdb831",
           "verified_boundary": "Thirteen scoped cases pass on 13 pinned working paths. Joined PASS 188.915 seconds, RSS 1494810624 B. Selected typed quota evidence preserves the blocked occurrence after 33 newer mutations. Missing proof, substituted rows, stale frontier and SQL rollback refuse. Earlier verified history is preserved without current fallback. Actual retained B custody and independent fresh API remain pending."
+        },
+        "cyc0304_signed_held_b_store_timeout_r1_r2": {
+          "source_commit": "c7daab434d060e7eef0fd0aad73f5a33a9585ba0",
+          "output": "Primary:policy-engine/_cache/e02/cyc0304-retained-custody/{denied-r2.s4O7cnVb,settle-r1.OIhCnKdp,settle-r2.s9cDikdW}/",
+          "guard_r1_sha256": "7f35c8f4f413028bb7f9d2e6577221872b1bccdcf90ff408060c5a8e3141b16d",
+          "guard_r2_sha256": "d0bde116bdc11ea8bc97518b44c441766648cd501a9ec2b1f6f585185b0ffb1d",
+          "verified_boundary": "Tampered request gets stock 403 and no SQL business or authorization effect. Exact positive B scopes stage real selected basis, witness and terminal, then hit store deadlines 1.5 and 10 seconds during full precommit replay. WAL-aware, both clones preserve all 20 non-Step-Up SQL tables, original B failure and four action heads, no frontier. Expected consumed Step-Up row replaces expired replay rows. No late terminal, original or provider/physical effect. Product verification needs a short exact transaction after full detached replay."
         },
         "cyc0304_retained_a_b_exact_second_operation_exhausted": {
           "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
@@ -37628,7 +37657,7 @@
           "binding_ids": [
             "E02-I01-B-B02"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "acq01_04_signed_offer_second_enqueue_event_collision",
             "acq01_04_two_catalog_offers_component_r4",
@@ -37637,14 +37666,15 @@
             "acq01_04_same_offer_actual_recovered_fresh_r3_wire",
             "acq01_04_bounded_ordinary_marker_and_failed_second_attempt",
             "acq01_04_same_offer_fresh_attempt_event_withdrawal",
-            "acq01_04_same_image_before_work_resume_world_snapshot_stop"
+            "acq01_04_same_image_before_work_resume_world_snapshot_stop",
+            "acq01_04_same_image_clean_before_work_resume_and_fresh_r3",
+            "acq01_04_r13_actual_stale_frontier_conflict",
+            "acq01_04_r13_cold_fresh_selection_r4",
+            "acq01_04_r13_cold_exact_prospective_withdrawal_r4"
           ],
-          "basis": "Actual R13 selects B during A's N5, retains A as diagnostics and reopens precise selection through fresh GET with a removal control. A separate same-offer worker takes a genuinely expired lease and selects the already durable B with zero extra N5 or provider requests. A fresh ordinary API returns exact B and the preceding row. The distinct bounded ordinary case proves the durable start marker and unchanged quota through actual attempt 2, which stops at the older Native-only check.",
-          "remaining_kinds": [
-            "bridge_missing",
-            "verification_missing"
-          ],
-          "remaining": "Isolate candidate-world materializations in the same action workspace and prove the exact snapshots independently. Qualify the same-image cut, actual lease expiry, the sole B N5, preserved quota and fresh selected API on the corrected producer. Preserve the existing contaminated result and its typed limitation."
+          "basis": "Actual permitted R13 updates the frontier during A's N5 and prevents stale A promotion, with fresh positive and targeted withdrawal. Post-result recovery takes the expired original job, uses the exact durable result once, and fresh selection withdraws on the missing renewed running event while F0 remains. Distinct R3 before-kernel recovery proves the clean two-attempt source, one new N5 after genuine expiry and a fresh selected result with protected quota and no repeated supplier.",
+          "remaining_kinds": [],
+          "remaining": ""
         },
         {
           "requirement_id": "REQ-ACQ-01-05",
@@ -37686,20 +37716,21 @@
           "binding_ids": [
             "E02-X03-B01"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "acq01_06_consistent_labor_pre_effect_r1",
             "scientific_c_selected_read_reconciliation",
             "gdp_producer_fresh_read_reconciliation",
             "candidate_source_metric_separation_current",
             "acq01_06_retained_governed_missing_need",
-            "acq01_06_labor_corrected_fresh_selected_read"
+            "acq01_06_labor_corrected_fresh_selected_read",
+            "acq01_04_same_image_clean_before_work_resume_and_fresh_r3",
+            "acq01_05_cpi_fresh_published_comparison_and_complete_local_profile",
+            "generic_served_sequence_r4_retained"
           ],
-          "basis": "Actual qualified GDP and corrected Labor producers give distinct scoped numerical candidates and fresh stock consumers. The Labor outcome is 0.17699999701976776 with exact selected V5 basis on revision 1. A shared candidate source owner verifies typed metric separation, and the real D5 retained resolver refusal verifies the missing need before effects.",
-          "remaining_kinds": [
-            "verification_missing"
-          ],
-          "remaining": "Complete the remaining common ACQ-01-04 prerequisite and reconcile the applicable CYC-03 sequential readback before joining both actual scoped consumers to LA-046. Preserve candidate-only authority and the original partial wrapper evidence."
+          "basis": "ACQ-01-01 through -05, shared REQ-01 local regressions and actual Generic sequential readback with Scientific C cold read provide the common contract. Actual GDP USA 2024 WDI NY.GDP.MKTP.CD USD/national economy and Labor USA 2024 WDI SL.UEM.TOTL.ZS share ratio/total labor force produce distinct selected candidate results and fresh APIs. GDP's exact same-source missing requirement refuses before effects, and restoration reopens scope. Both profiles remain candidate-only with authority/currentness limits. The adverse CYC-03-04 front, full B03 and X03 post-freeze comparison retain separate acceptance.",
+          "remaining_kinds": [],
+          "remaining": ""
         }
       ]
     },

@@ -3,11 +3,17 @@ from __future__ import annotations
 import time
 from collections.abc import Mapping
 from contextlib import contextmanager
+from dataclasses import replace
 from typing import Any, ClassVar
 
 import numpy as np
 import pytest
 
+from polisyos.calibration.diagnostics.continuous import evaluate_continuous
+from polisyos.calibration.diagnostics.multiclass import evaluate_multiclass
+from polisyos.core.artifacts import ArtifactWriteOptions
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.observability.determinism import DeterminismTier
 from polisyos.foundry.methods.backends.circuit_breaker import CircuitBreakerRegistry
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
@@ -24,6 +30,7 @@ from polisyos.foundry.methods.base import (
     MethodMetadata,
     MethodSignature,
 )
+from polisyos.foundry.methods.catalog.validation.diagnostics import CalibrationDiagnosticEstimator
 from polisyos.foundry.methods.equivalence import (
     ComparatorKind,
     CrossBackendEquivalenceCertificate,
@@ -41,6 +48,12 @@ from polisyos.foundry.methods.selection_history import (
     SelectionHistoryStore,
     get_global_selection_history,
 )
+from polisyos.ir.analytics import (
+    TruthfulnessReceipt,
+    TruthfulnessScope,
+    TruthfulnessTier,
+)
+from polisyos.ir.analytics.calibration_diagnostics import CalibrationDiagnosticsReport
 
 
 def _make_signature() -> MethodSignature:
@@ -114,6 +127,68 @@ class _RecordingRunner(MethodRunner):
                 seed=seed,
             ),
             cross_backend_equivalence_ref=self._equivalence_ref,
+        )
+
+
+class _ContinuousCalibrationReportRunner(MethodRunner):
+    """Run the canonical continuous producer and select one wire representation."""
+
+    def __init__(self, *, representation: str, sidecar: TruthfulnessReceipt) -> None:
+        self._representation = representation
+        self._sidecar = sidecar
+
+    @property
+    def supported_backends(self) -> frozenset[ComputeBackend]:
+        return frozenset({ComputeBackend.NUMPY})
+
+    def is_available(self) -> bool:
+        return True
+
+    def execute(
+        self,
+        *,
+        method_class: type,
+        signature: MethodSignature,
+        state: Any,
+        params: Mapping[str, Any],
+        seed: int,
+    ) -> MethodResult:
+        del method_class, signature, params
+        report = evaluate_continuous(y_true=state["y_true"], intervals=state["intervals"])
+        selected: Any = report
+        if self._representation in {
+            "mapping",
+            "malformed",
+            "inconsistent",
+            "unsupported_version",
+            "task_target_mismatch",
+        }:
+            selected = report.model_dump(mode="json")
+        if self._representation == "malformed":
+            selected.pop("metrics")
+        if self._representation == "unsupported_version":
+            selected["schema_version"] = "9.9"
+            selected["task"] = "binary"
+            selected["target_type"] = "probability"
+        if self._representation == "task_target_mismatch":
+            selected["task"] = "binary"
+            selected["target_type"] = "interval_set"
+        raw_selected = selected
+        if self._representation == "inconsistent":
+            raw_selected = dict(selected)
+            raw_metrics = dict(raw_selected["metrics"])
+            raw_metrics["ece"] = 0.0
+            raw_selected["metrics"] = raw_metrics
+        return MethodResult(
+            output={"result": raw_selected},
+            slot_outputs={"result": selected},
+            timing=MethodTiming(wall_time_ms=1.0),
+            reproducibility=ReproducibilityInfo(
+                backend=ComputeBackend.NUMPY,
+                determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
+                seed=seed,
+            ),
+            artifacts={"truthfulness_receipt": self._sidecar.model_dump(mode="json")},
         )
 
 
@@ -282,6 +357,319 @@ def test_dispatcher_emits_dispatch_trace_and_cost_attribution(monkeypatch) -> No
     assert metrics.foundry_dispatch_outcomes[0][0] == "success"
     assert metrics.foundry_dispatch_outcomes[0][1] >= 0.0
     assert "dispatch_contract_degraded:jax->numpy" in result.warnings
+
+
+def _positive_calibration_sidecar() -> TruthfulnessReceipt:
+    return TruthfulnessReceipt(
+        runtime_truthfulness_tier=TruthfulnessTier.APPROXIMATE_CALIBRATED,
+        truthfulness_scope=TruthfulnessScope.PREDICTIVE_CALIBRATION,
+    )
+
+
+def _continuous_report_state() -> dict[str, Any]:
+    y_true = np.arange(40, dtype=float)
+    return {
+        "predicted_probs": np.full(40, 0.5, dtype=float),
+        "observed_outcomes": np.tile(np.asarray([0.0, 1.0]), 20),
+        "y_true": y_true,
+        "intervals": {0.95: [(float(value - 1), float(value + 1)) for value in y_true]},
+    }
+
+
+def _dispatch_continuous_report(
+    *, representation: str, history: SelectionHistoryStore, monkeypatch: pytest.MonkeyPatch
+) -> MethodResult:
+    def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+        del params
+        report = evaluate_continuous(y_true=state["y_true"], intervals=state["intervals"])
+        selected: Any = report
+        if representation == "mapping":
+            selected = report.model_dump(mode="json")
+        return {
+            "result": selected,
+            "__numpy_artifacts__": {
+                "truthfulness_receipt": _positive_calibration_sidecar().model_dump(mode="json")
+            },
+        }
+
+    monkeypatch.setattr(CalibrationDiagnosticEstimator, "pure_step", staticmethod(pure_step))
+    dispatcher = MethodDispatcher(runtime_history=history, enable_runtime_selection=False)
+    signature = CalibrationDiagnosticEstimator.signature
+    return dispatcher.dispatch(
+        method_class=CalibrationDiagnosticEstimator,
+        signature=signature,
+        state=_continuous_report_state(),
+        params={},
+        seed=3,
+    )
+
+
+@pytest.mark.parametrize("representation", ["typed", "mapping"])
+def test_dispatcher_calibration_receipt_is_representation_invariant_and_reopened(
+    representation: str, monkeypatch: pytest.MonkeyPatch, tmp_path
+) -> None:
+    history = SelectionHistoryStore()
+    result = _dispatch_continuous_report(
+        representation=representation, history=history, monkeypatch=monkeypatch
+    )
+
+    receipt = TruthfulnessReceipt.model_validate(result.artifacts["truthfulness_receipt"])
+    assert receipt.runtime_truthfulness_tier is TruthfulnessTier.UNVERIFIED
+    assert "measurement_source_not_established" in receipt.degradation_reasons
+    report_value = result.output["result"]
+    if representation == "typed":
+        assert isinstance(report_value, CalibrationDiagnosticsReport)
+        serialized_report = report_value.model_dump(mode="json")
+    else:
+        assert isinstance(report_value, dict)
+        serialized_report = report_value
+    reopened_report = CalibrationDiagnosticsReport.model_validate(report_value)
+    assert reopened_report.metrics.ece == pytest.approx(0.05)
+    assert reopened_report.metadata["interval_coverage"]["n_comparisons"] == 1
+    assert reopened_report.curves["interval_coverage"][0].mean_observed == 1.0
+    assert receipt.diagnostics["candidate_numeric_tier"] == "approximate_calibrated"
+    assert receipt.diagnostics["measurement_source_assurance"] == "not_established"
+
+    persisted = {
+        "output": {"result": serialized_report},
+        "artifacts": dict(result.artifacts),
+    }
+    store = FileSystemCAS(tmp_path / "method-result-cas")
+    result_ref = store.put_json(
+        persisted,
+        ArtifactWriteOptions(kind="test.foundry.method_result", media_type="application/json"),
+        canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+        return_selected_profile=True,
+    )
+    fresh_store = FileSystemCAS(store.root)
+    assert fresh_store.verify(result_ref).ok
+    fresh_payload = from_canonical_bytes(fresh_store.get_bytes(result_ref))
+    fresh_receipt = TruthfulnessReceipt.model_validate(
+        fresh_payload["artifacts"]["truthfulness_receipt"]
+    )
+    assert fresh_receipt.model_dump(mode="json") == receipt.model_dump(mode="json")
+    fresh_report = CalibrationDiagnosticsReport.model_validate(fresh_payload["output"]["result"])
+    assert fresh_report.metrics.ece == pytest.approx(0.05)
+    telemetry = history.latest_record_for(CalibrationDiagnosticEstimator.signature.fqn)
+    assert telemetry is not None
+    assert telemetry.success is True
+    assert telemetry.runtime_truthfulness_tier == "unverified"
+
+
+@pytest.mark.parametrize("representation", ["malformed", "inconsistent"])
+def test_dispatcher_expected_calibration_contract_fails_closed(
+    representation: str,
+) -> None:
+    history = SelectionHistoryStore()
+    dispatcher = MethodDispatcher(runtime_history=history, enable_runtime_selection=False)
+    dispatcher.register_runner(
+        _ContinuousCalibrationReportRunner(
+            representation=representation,
+            sidecar=_positive_calibration_sidecar(),
+        )
+    )
+    result = dispatcher.dispatch(
+        method_class=CalibrationDiagnosticEstimator,
+        signature=CalibrationDiagnosticEstimator.signature,
+        state=_continuous_report_state(),
+        params={},
+        seed=5,
+    )
+
+    receipt = TruthfulnessReceipt.model_validate(result.artifacts["truthfulness_receipt"])
+    assert receipt.runtime_truthfulness_tier is TruthfulnessTier.UNVERIFIED
+    assert receipt.degradation_reasons == ("calibration_diagnostics_report_not_established",)
+
+
+@pytest.mark.parametrize("representation", ["unsupported_version", "task_target_mismatch"])
+def test_dispatcher_rejects_unsupported_or_cross_task_report_contract(
+    representation: str,
+) -> None:
+    history = SelectionHistoryStore()
+    dispatcher = MethodDispatcher(runtime_history=history, enable_runtime_selection=False)
+    dispatcher.register_runner(
+        _ContinuousCalibrationReportRunner(
+            representation=representation,
+            sidecar=_positive_calibration_sidecar(),
+        )
+    )
+    result = dispatcher.dispatch(
+        method_class=CalibrationDiagnosticEstimator,
+        signature=CalibrationDiagnosticEstimator.signature,
+        state=_continuous_report_state(),
+        params={},
+        seed=6,
+    )
+
+    receipt = TruthfulnessReceipt.model_validate(result.artifacts["truthfulness_receipt"])
+    assert receipt.runtime_truthfulness_tier is TruthfulnessTier.UNVERIFIED
+    assert receipt.degradation_reasons == ("calibration_diagnostics_report_not_established",)
+
+
+class _UncontractedTaskLabelRunner(MethodRunner):
+    """Return a self-labeled mapping without a declared output contract."""
+
+    @property
+    def supported_backends(self) -> frozenset[ComputeBackend]:
+        return frozenset({ComputeBackend.JAX})
+
+    def is_available(self) -> bool:
+        return True
+
+    def execute(
+        self,
+        *,
+        method_class: type,
+        signature: MethodSignature,
+        state: Any,
+        params: Mapping[str, Any],
+        seed: int,
+    ) -> MethodResult:
+        del method_class, signature, state, params
+        return MethodResult(
+            output={"result": {"task": "continuous"}},
+            timing=MethodTiming(wall_time_ms=1.0),
+            reproducibility=ReproducibilityInfo(
+                backend=ComputeBackend.JAX,
+                determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
+                seed=seed,
+            ),
+            artifacts={
+                "truthfulness_receipt": _positive_calibration_sidecar().model_dump(mode="json")
+            },
+        )
+
+
+def test_dispatcher_does_not_infer_calibration_contract_from_task_label() -> None:
+    dispatcher = MethodDispatcher(enable_runtime_selection=False)
+    dispatcher.register_runner(_UncontractedTaskLabelRunner())
+    result = dispatcher.dispatch(
+        method_class=_DummyMethod,
+        signature=_DummyMethod.signature,
+        state={},
+        params={},
+        seed=4,
+    )
+
+    receipt = TruthfulnessReceipt.model_validate(result.artifacts["truthfulness_receipt"])
+    assert receipt.runtime_truthfulness_tier is TruthfulnessTier.APPROXIMATE_CALIBRATED
+
+    mismatched = dispatcher.dispatch(
+        method_class=CalibrationDiagnosticEstimator,
+        signature=_make_signature(),
+        state={},
+        params={},
+        seed=5,
+    )
+    mismatched_receipt = TruthfulnessReceipt.model_validate(
+        mismatched.artifacts["truthfulness_receipt"]
+    )
+    assert mismatched_receipt.runtime_truthfulness_tier is TruthfulnessTier.UNVERIFIED
+    assert mismatched_receipt.degradation_reasons == (
+        "calibration_diagnostics_report_not_established",
+    )
+
+
+def test_dispatcher_preserves_valid_binary_calibration_receipt() -> None:
+    dispatcher = MethodDispatcher(enable_runtime_selection=False)
+    probabilities = np.full(40, 0.5, dtype=float)
+    outcomes = np.tile(np.asarray([0.0, 1.0]), 20)
+
+    result = dispatcher.dispatch(
+        method_class=CalibrationDiagnosticEstimator,
+        signature=CalibrationDiagnosticEstimator.signature,
+        state={"predicted_probs": probabilities, "observed_outcomes": outcomes},
+        params={},
+        seed=5,
+    )
+
+    report = result.output["result"]
+    assert isinstance(report, CalibrationDiagnosticsReport)
+    assert report.task == "binary"
+    receipt = TruthfulnessReceipt.model_validate(result.artifacts["truthfulness_receipt"])
+    assert receipt.runtime_truthfulness_tier is TruthfulnessTier.APPROXIMATE_CALIBRATED
+    assert receipt.truthfulness_scope is TruthfulnessScope.PREDICTIVE_CALIBRATION
+
+
+def test_dispatcher_preserves_valid_multiclass_calibration_report() -> None:
+    class MulticlassCalibrationMethod:
+        signature = replace(CalibrationDiagnosticEstimator.signature, name="multiclass_calibration")
+
+        @staticmethod
+        def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+            del params
+            return {
+                "result": evaluate_multiclass(
+                    y_true=state["labels"],
+                    y_prob=state["probabilities"],
+                )
+            }
+
+    labels = np.arange(40, dtype=int) % 3
+    probabilities = np.eye(3, dtype=float)[labels]
+    dispatcher = MethodDispatcher(enable_runtime_selection=False)
+    result = dispatcher.dispatch(
+        method_class=MulticlassCalibrationMethod,
+        signature=MulticlassCalibrationMethod.signature,
+        state={"labels": labels, "probabilities": probabilities},
+        params={},
+        seed=5,
+    )
+
+    report = result.output["result"]
+    assert isinstance(report, CalibrationDiagnosticsReport)
+    assert report.task == "multiclass"
+    receipt = TruthfulnessReceipt.model_validate(result.artifacts["truthfulness_receipt"])
+    assert receipt == report.to_truthfulness_receipt()
+    assert receipt.runtime_truthfulness_tier is TruthfulnessTier.APPROXIMATE_CALIBRATED
+
+
+@pytest.mark.parametrize("alias_representation", ["typed", "mapping"])
+@pytest.mark.parametrize("alias_location", ["output", "artifact"])
+def test_dispatcher_telemetry_uses_merged_receipt_not_unselected_alias(
+    alias_representation: str, alias_location: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    history = SelectionHistoryStore()
+    original_pure_step = CalibrationDiagnosticEstimator.pure_step
+
+    def pure_step_with_report_alias(
+        state: Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
+        output = original_pure_step(state, params)
+        alias_report = evaluate_continuous(y_true=state["y_true"], intervals=state["intervals"])
+        alias_report_value = (
+            alias_report.model_dump(mode="json")
+            if alias_representation == "mapping"
+            else alias_report
+        )
+        if alias_location == "output":
+            output["report"] = alias_report_value
+        else:
+            output["__numpy_artifacts__"] = {
+                "truthfulness_receipt": _positive_calibration_sidecar().model_dump(mode="json"),
+                "aux_diagnostics": alias_report_value,
+            }
+        return output
+
+    monkeypatch.setattr(
+        CalibrationDiagnosticEstimator,
+        "pure_step",
+        staticmethod(pure_step_with_report_alias),
+    )
+    dispatcher = MethodDispatcher(runtime_history=history, enable_runtime_selection=False)
+    result = dispatcher.dispatch(
+        method_class=CalibrationDiagnosticEstimator,
+        signature=CalibrationDiagnosticEstimator.signature,
+        state=_continuous_report_state(),
+        params={},
+        seed=7,
+    )
+
+    receipt = TruthfulnessReceipt.model_validate(result.artifacts["truthfulness_receipt"])
+    assert receipt.runtime_truthfulness_tier is TruthfulnessTier.APPROXIMATE_CALIBRATED
+    telemetry = history.latest_record_for(CalibrationDiagnosticEstimator.signature.fqn)
+    assert telemetry is not None
+    assert telemetry.runtime_truthfulness_tier == "approximate_calibrated"
 
 
 def test_dispatcher_retries_declared_backend_when_profile_selected_backend_fails() -> None:

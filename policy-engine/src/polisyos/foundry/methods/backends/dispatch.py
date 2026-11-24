@@ -60,7 +60,13 @@ from polisyos.foundry.methods.selection.history import (
     get_global_selection_history,
     split_advisor_execution_params,
 )
-from polisyos.ir.analytics import extract_truthfulness_receipt
+from polisyos.ir.analytics import (
+    TruthfulnessReceipt,
+    TruthfulnessScope,
+    TruthfulnessTier,
+    extract_truthfulness_receipt,
+    truthfulness_depth,
+)
 
 if TYPE_CHECKING:
     from polisyos.core.contracts.owned_attempt_anchor import OwnedAttemptAnchorDispatchContext
@@ -76,6 +82,7 @@ _OWNER_CONTEXT_METHOD_FQNS = frozenset(
         "causal.hte.forest_dr@2.0.0",
     }
 )
+_CALIBRATION_DIAGNOSTICS_SCHEMA_VERSIONS = frozenset({"1.0"})
 _USD_PER_MS = {
     ComputeBackend.NUMPY: 5.0e-7,
     ComputeBackend.JAX: 8.0e-7,
@@ -216,11 +223,18 @@ def _record_execution(
     history_store: SelectionHistoryStore | None = None,
 ) -> None:
     try:
-        receipt = (
-            extract_truthfulness_receipt({"artifacts": result.artifacts, "output": result.output})
-            if result is not None
-            else None
-        )
+        receipt = None
+        if result is not None:
+            if success and "truthfulness_receipt" in result.artifacts:
+                # Successful dispatches arrive after merge. Telemetry consumes
+                # that same selected receipt instead of rescanning raw aliases.
+                receipt = extract_truthfulness_receipt(
+                    {"truthfulness_receipt": result.artifacts["truthfulness_receipt"]}
+                )
+            if receipt is None:
+                receipt = extract_truthfulness_receipt(
+                    {"artifacts": result.artifacts, "output": result.output}
+                )
         record = MethodExecutionRecord(
             method_fqn=signature.fqn,
             timestamp=_time.time(),
@@ -412,17 +426,202 @@ def _apply_dispatch_contract_overlay(
     )
 
 
+@dataclass(frozen=True, slots=True)
+class _CalibrationReportReceiptResolution:
+    """Represent one selected, contract-bound calibration report outcome."""
+
+    contract_declared: bool
+    contract_validated: bool
+    contains_continuous: bool
+    receipt: TruthfulnessReceipt | None
+
+
+def _unverified_calibration_report_receipt() -> TruthfulnessReceipt:
+    """Return the limiting outcome when a declared report cannot be reopened."""
+    return TruthfulnessReceipt(
+        runtime_truthfulness_tier=TruthfulnessTier.UNVERIFIED,
+        truthfulness_scope=TruthfulnessScope.PREDICTIVE_CALIBRATION,
+        diagnostics={"report_contract_status": "not_established"},
+        degradation_reasons=("calibration_diagnostics_report_not_established",),
+    )
+
+
+def _resolve_calibration_report_receipt(
+    *,
+    method_class: type,
+    signature: MethodSignature,
+    result: MethodResult,
+) -> _CalibrationReportReceiptResolution:
+    """Validate the declared report slot before receipt reconciliation.
+
+    Mapping payloads are interpreted as calibration reports only when the
+    selected method ABI declares the known report contract. Both the runner's
+    canonical slot projection and its standard raw output representation are
+    revalidated when available; a disagreement cannot fall through to a
+    stronger sidecar receipt.
+    """
+    from polisyos.foundry.methods.components.io import _COMMON_OUTPUT_ALIASES
+    from polisyos.ir.analytics.calibration_diagnostics import CalibrationDiagnosticsReport
+
+    declared_signature = getattr(method_class, "signature", None)
+    selected_report_slots = tuple(
+        sorted(
+            (
+                slot
+                for slot in signature.output_slots
+                if slot.contract_id == CalibrationDiagnosticsReport.contract_id
+            ),
+            key=lambda slot: slot.name,
+        )
+    )
+    registered_report_slots = (
+        tuple(
+            slot
+            for slot in declared_signature.output_slots
+            if slot.contract_id == CalibrationDiagnosticsReport.contract_id
+        )
+        if isinstance(declared_signature, MethodSignature)
+        else ()
+    )
+    if not selected_report_slots and not registered_report_slots:
+        return _CalibrationReportReceiptResolution(False, False, False, None)
+
+    if not isinstance(declared_signature, MethodSignature) or declared_signature != signature:
+        return _CalibrationReportReceiptResolution(
+            True, False, False, _unverified_calibration_report_receipt()
+        )
+    if not selected_report_slots or not registered_report_slots:
+        return _CalibrationReportReceiptResolution(
+            True, False, False, _unverified_calibration_report_receipt()
+        )
+    report_slots = selected_report_slots
+
+    def validated_report(value: Any) -> CalibrationDiagnosticsReport:
+        payload = (
+            value.model_dump(mode="python")
+            if isinstance(value, CalibrationDiagnosticsReport)
+            else value
+        )
+        return CalibrationDiagnosticsReport.model_validate(payload)
+
+    reports: list[CalibrationDiagnosticsReport] = []
+    for slot in report_slots:
+        representations: list[Any] = []
+        projected_present = slot.name in result.slot_outputs
+        if projected_present:
+            representations.append(result.slot_outputs[slot.name])
+
+        # A custom dematerializer owns its projection. Otherwise compare its
+        # canonical selected slot with the raw source selected by the shared
+        # alias table, so a stale or grafted representation cannot win.
+        if not callable(getattr(method_class, "dematerialize_output", None)):
+            if isinstance(result.output, Mapping):
+                for key in (slot.name, *_COMMON_OUTPUT_ALIASES.get(slot.name, ())):
+                    if key in result.output:
+                        representations.append(result.output[key])
+                        break
+            elif len(signature.output_slots) == 1:
+                representations.append(result.output)
+
+        if not representations:
+            return _CalibrationReportReceiptResolution(
+                True, False, False, _unverified_calibration_report_receipt()
+            )
+        try:
+            validated = [validated_report(value) for value in representations]
+        except (TypeError, ValueError):
+            return _CalibrationReportReceiptResolution(
+                True, False, False, _unverified_calibration_report_receipt()
+            )
+        selected = validated[0]
+        if any(
+            item.model_dump(mode="json") != selected.model_dump(mode="json")
+            for item in validated[1:]
+        ):
+            return _CalibrationReportReceiptResolution(
+                True, False, False, _unverified_calibration_report_receipt()
+            )
+        if selected.schema_version not in _CALIBRATION_DIAGNOSTICS_SCHEMA_VERSIONS:
+            return _CalibrationReportReceiptResolution(
+                True, False, False, _unverified_calibration_report_receipt()
+            )
+        expected_target_types = (
+            {"predictive_distribution", "interval_set"}
+            if selected.task == "continuous"
+            else {"probability", "logit"}
+        )
+        if selected.target_type not in expected_target_types:
+            return _CalibrationReportReceiptResolution(
+                True, False, False, _unverified_calibration_report_receipt()
+            )
+        reports.append(selected)
+
+    report_receipts = [(report, report.to_truthfulness_receipt()) for report in reports]
+    continuous_receipts = [
+        receipt for report, receipt in report_receipts if report.task == "continuous"
+    ]
+    if continuous_receipts:
+        receipt = min(
+            continuous_receipts,
+            key=lambda item: truthfulness_depth(item.effective_truthfulness_tier),
+        )
+        return _CalibrationReportReceiptResolution(True, True, True, receipt)
+
+    return _CalibrationReportReceiptResolution(
+        True,
+        True,
+        False,
+        report_receipts[0][1],
+    )
+
+
+def _explicit_truthfulness_receipt(value: Any) -> TruthfulnessReceipt | None:
+    """Validate only the explicitly selected receipt field, without alias search."""
+    if not isinstance(value, Mapping) or "truthfulness_receipt" not in value:
+        return None
+    try:
+        return TruthfulnessReceipt.model_validate(value["truthfulness_receipt"])
+    except (TypeError, ValueError):
+        return None
+
+
 def _merge_dispatch_result(
     *,
     result: MethodResult,
     artifacts: Mapping[str, Any],
+    method_class: type,
+    signature: MethodSignature,
     warnings: tuple[str, ...] = (),
 ) -> MethodResult:
     merged_artifacts = {**dict(result.artifacts), **dict(artifacts)}
-    existing_receipt = extract_truthfulness_receipt(merged_artifacts)
-    truthfulness_receipt = extract_truthfulness_receipt(
-        {"artifacts": merged_artifacts, "output": result.output}
+    report_resolution = _resolve_calibration_report_receipt(
+        method_class=method_class,
+        signature=signature,
+        result=result,
     )
+    if report_resolution.contract_declared:
+        # A declared report contract bounds receipt selection to its explicit
+        # sidecar fields. Recursive discovery here would let unrelated typed
+        # diagnostics under another artifact alias override the report receipt.
+        existing_receipt = _explicit_truthfulness_receipt(merged_artifacts)
+        if not report_resolution.contract_validated:
+            truthfulness_receipt = report_resolution.receipt
+        elif report_resolution.contains_continuous:
+            # A validated continuous report is limiting evidence even when a
+            # stronger positive sidecar is present.
+            truthfulness_receipt = report_resolution.receipt
+        elif existing_receipt is not None:
+            # Preserve the established generic/binary/multiclass sidecar rule.
+            truthfulness_receipt = existing_receipt
+        else:
+            truthfulness_receipt = (
+                _explicit_truthfulness_receipt(result.output) or report_resolution.receipt
+            )
+    else:
+        existing_receipt = extract_truthfulness_receipt(merged_artifacts)
+        truthfulness_receipt = extract_truthfulness_receipt(
+            {"artifacts": merged_artifacts, "output": result.output}
+        )
     if truthfulness_receipt is not None:
         projected = truthfulness_receipt.model_dump(mode="json")
         if existing_receipt != truthfulness_receipt:
@@ -901,6 +1100,8 @@ class MethodDispatcher:
             result = _merge_dispatch_result(
                 result=result,
                 artifacts={**dispatch_artifacts, **validated_artifacts},
+                method_class=method_class,
+                signature=signature,
                 warnings=tuple(extra_warnings),
             )
             result = self._maybe_attach_equivalence_certificate(

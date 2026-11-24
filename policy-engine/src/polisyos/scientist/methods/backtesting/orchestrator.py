@@ -141,6 +141,10 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactTenantContextInfo
     from polisyos.core.artifacts.protocol import ArtifactStore as CoreArtifactStore
     from polisyos.core.run.context import RunContext
+    from polisyos.scientist.methods.backtesting.replica_budget import (
+        BacktestFoundryInvocationBudget,
+        BacktestFoundryInvocationScopeV1,
+    )
     from polisyos.ir.analytics.backtest_pooling import (
         BacktestPoolingPolicyRef,
         BacktestPoolingProjection,
@@ -220,6 +224,8 @@ class _BacktestReplicaFoundryPort:
     delegate: FoundryPort
     expected_snapshot_ref: DataSnapshotRef
     seed: int
+    invocation_budget: BacktestFoundryInvocationBudget | None = None
+    invocation_scope: BacktestFoundryInvocationScopeV1 | None = None
     request: ExecuteRequest | None = None
     result: ExecuteResult | None = None
     failure: str | None = None
@@ -263,13 +269,60 @@ class _BacktestReplicaFoundryPort:
                 deep=True,
                 update={"exec_config": exec_config},
             )
-            self.request = physical_request
-            if derived_tenant_context is None:
-                self.result = self.delegate.execute(store, physical_request)
+            if self.invocation_budget is None:
+                self.request = physical_request
+                if derived_tenant_context is None:
+                    self.result = self.delegate.execute(store, physical_request)
+                else:
+                    self.result = self.delegate.execute(
+                        store, physical_request, derived_tenant_context=derived_tenant_context
+                    )
             else:
-                self.result = self.delegate.execute(
-                    store, physical_request, derived_tenant_context=derived_tenant_context
+                if self.invocation_scope is None:
+                    raise ValueError("backtest_foundry_invocation_scope_missing")
+
+                from polisyos.scientist.methods.backtesting.replica_budget import (
+                    BacktestFoundryDispatchState,
+                    build_backtest_foundry_horizon_step_id,
+                    execute_backtest_foundry_once,
                 )
+                from polisyos.foundry.execute.executor import load_state_snapshot
+
+                bound_state = load_state_snapshot(
+                    store, snapshot_ref=bindings.bound_state_snapshot_ref
+                )
+                raw_state_step = np.asarray(bound_state.step)
+                if raw_state_step.size != 1 or not np.issubdtype(
+                    raw_state_step.dtype, np.integer
+                ):
+                    raise ValueError("backtest_foundry_state_step_not_established")
+                state_step = int(raw_state_step.item())
+                horizon_step_id = build_backtest_foundry_horizon_step_id(
+                    state_step=state_step,
+                    exec_plan_ref=physical_request.exec_plan_ref,
+                )
+                del bound_state, raw_state_step
+                dispatch_state = BacktestFoundryDispatchState()
+                invocation_scope = self.invocation_scope.model_copy(
+                    update={
+                        "horizon_step_id": f"{self.invocation_scope.horizon_step_id}:"
+                        f"{horizon_step_id}"
+                    }
+                )
+                try:
+                    self.result = execute_backtest_foundry_once(
+                        ledger=self.invocation_budget.ledger,
+                        profile=self.invocation_budget.profile,
+                        scope=invocation_scope,
+                        delegate=self.delegate,
+                        store=store,
+                        request=physical_request,
+                        derived_tenant_context=derived_tenant_context,
+                        dispatch_state=dispatch_state,
+                    )
+                finally:
+                    if dispatch_state.entered:
+                        self.request = physical_request
             if not self.result.ok:
                 self.failure = "; ".join(self.result.notes) or "foundry_execute_not_ok"
             return self.result
@@ -602,6 +655,7 @@ class BacktestOrchestrator:
         cas: BacktestStore | None = None,
         cas_root: str = ".polisyos/cas",
         store_factory: BacktestStoreFactory | None = None,
+        foundry_invocation_budget: BacktestFoundryInvocationBudget | None = None,
     ) -> None:
         if cas is not None:
             self._store = ensure_ir_artifact_store(cas)
@@ -611,6 +665,15 @@ class BacktestOrchestrator:
         self._masker = OutcomeMasker()
         self._evaluator = PredictionEvaluator()
         self._trust_scorer = TrustScorer()
+        if foundry_invocation_budget is not None:
+            from polisyos.scientist.methods.backtesting.replica_budget import (
+                BacktestFoundryInvocationBudget,
+            )
+
+            if type(foundry_invocation_budget) is not BacktestFoundryInvocationBudget:
+                raise TypeError("backtest_foundry_invocation_budget_untyped")
+            foundry_invocation_budget.validate_current()
+        self._foundry_invocation_budget = foundry_invocation_budget
 
     def run(
         self,
@@ -672,6 +735,8 @@ class BacktestOrchestrator:
             resolved_trust_screening = TrustScreeningMode(trust_screening)
         except (TypeError, ValueError) as exc:
             raise ValueError("trust_screening must be a supported typed mode") from exc
+        if self._foundry_invocation_budget is not None:
+            self._foundry_invocation_budget.validate_current()
         if (pooling_policy_ref is None) != (pooling_run_context is None):
             raise ValueError("backtest pooling requires both policy and active run context")
         pooling = None
@@ -999,7 +1064,13 @@ class BacktestOrchestrator:
             base_seed = candidate_seed
 
         execution_store = self._scientist_execution_store()
-        cohort_nonce = uuid.uuid4().hex[:12]
+        if self._foundry_invocation_budget is None:
+            cohort_nonce = uuid.uuid4().hex[:12]
+        else:
+            stable_scope = (
+                f"{self._foundry_invocation_budget.profile.profile_digest}\0{plan.plan_id}"
+            ).encode("utf-8")
+            cohort_nonce = hashlib.sha256(stable_scope).hexdigest()[:12]
         native_first_state: dict[str, Any] | None = None
         native_plan_ref: CoreArtifactRef | None = None
         if native:
@@ -1051,10 +1122,25 @@ class BacktestOrchestrator:
             replica_inputs["data_snapshot_ref"] = snapshot_payload
             replica_state["inputs"] = replica_inputs
 
+            invocation_scope = None
+            if self._foundry_invocation_budget is not None:
+                from polisyos.scientist.methods.backtesting.replica_budget import (
+                    BacktestFoundryInvocationScopeV1,
+                )
+
+                invocation_scope = BacktestFoundryInvocationScopeV1(
+                    backtest_run_id=self._foundry_invocation_budget.profile.run_binding.run_id,
+                    replica_run_id=run_id,
+                    replica_index=replica_index,
+                    replica_seed=seed,
+                    horizon_step_id="foundry_execute",
+                )
             replica_foundry = _BacktestReplicaFoundryPort(
                 delegate=DefaultFoundryPort(),
                 expected_snapshot_ref=masked_snapshot_ref,
                 seed=seed,
+                invocation_budget=self._foundry_invocation_budget,
+                invocation_scope=invocation_scope,
             )
             failure: str | None = None
             simulation_result_ref: SimulationResultRef | None = None

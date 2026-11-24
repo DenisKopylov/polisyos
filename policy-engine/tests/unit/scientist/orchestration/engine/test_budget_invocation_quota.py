@@ -23,9 +23,14 @@ from polisyos.scientist.orchestration.engine.budget import (
     BudgetState,
 )
 from polisyos.scientist.orchestration.engine.budget_ledger import (
+    BudgetBacktestInvocationQuotaV2,
     BudgetInvocationQuotaPolicy,
+    BudgetLedgerBacktestInvocationProfileV2,
+    BudgetLedgerBacktestInvocationQuotaExhaustedError,
+    BudgetLedgerBacktestInvocationUnresolvedError,
     BudgetLedgerInvocationProfile,
     BudgetLedgerInvocationQuotaExhaustedError,
+    BudgetLedgerInvocationReservation,
     BudgetLedgerProducerRunBinding,
     BudgetLedgerSettlementOutcomeUnknownError,
     FileBudgetLedger,
@@ -58,6 +63,13 @@ def _profile(
         allocation_id="fixture-allocation", total_units=total, protected_units=protected
     )
     return BudgetLedgerInvocationProfile.from_policy(_binding(run), policy)
+
+
+def _backtest_profile(
+    *, total: int = 4, run: str = "run-a"
+) -> BudgetLedgerBacktestInvocationProfileV2:
+    policy = BudgetBacktestInvocationQuotaV2(allocation_id="backtest-allocation", total_units=total)
+    return BudgetLedgerBacktestInvocationProfileV2.from_policy(_binding(run), policy)
 
 
 def _owner(path: Path) -> tuple[FileBudgetLedger, BudgetMiddleware]:
@@ -124,6 +136,61 @@ def test_old_version_cannot_hide_nonempty_new_quota_fields(tmp_path: Path) -> No
     path = tmp_path / "forged-version.json"
     path.write_text(json.dumps(wire))
     with pytest.raises(ValueError, match="invocation_fields_require_version_1_7"):
+        FileBudgetLedger(path).snapshot()
+
+
+def test_legacy_version_cannot_infer_backtest_v2_from_constructor_defaults(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "missing-backtest-version-marker.json"
+    ledger, _middleware = _owner(path)
+    wire = json.loads(path.read_bytes())
+    backtest_profile = _backtest_profile().model_dump(mode="json")
+    backtest_profile.pop("schema_version")
+    wire["invocation_profiles"] = {"run-a": backtest_profile}
+    wire["schema_version"] = "1.8"
+    path.write_text(json.dumps(wire), encoding="utf-8")
+
+    with pytest.raises(
+        ValueError,
+        match="incomplete budget ledger: missing snapshot.invocation_profiles.run-a.schema_version",
+    ):
+        FileBudgetLedger(path).snapshot()
+
+
+@pytest.mark.parametrize(
+    ("row_kind", "field"),
+    [("profile", "work_unit"), ("reservation", "work_unit"), ("reservation", "schema_version")],
+)
+def test_backtest_v2_rows_require_explicit_versioned_discriminator_fields(
+    tmp_path: Path,
+    row_kind: str,
+    field: str,
+) -> None:
+    path = tmp_path / f"missing-backtest-work-unit-{row_kind}.json"
+    ledger, _middleware = _owner(path)
+    profile = _backtest_profile(total=2)
+    ledger.configure_backtest_invocation_profile(profile)
+    reservation, created = ledger.reserve_backtest_invocation(
+        _digest("backtest-work-unit-slot"),
+        _digest("backtest-work-unit-request"),
+        profile=profile,
+    )
+    assert created
+    wire = json.loads(path.read_bytes())
+    if row_kind == "profile":
+        row = wire["invocation_profiles"]["run-a"]
+        location = "snapshot.invocation_profiles.run-a"
+    else:
+        row = wire["invocation_reservations"][reservation.operation_id]
+        location = f"snapshot.invocation_reservations.{reservation.operation_id}"
+    row.pop(field)
+    path.write_text(json.dumps(wire), encoding="utf-8")
+
+    with pytest.raises(
+        ValueError,
+        match=f"incomplete budget ledger: missing {location}.{field}",
+    ):
         FileBudgetLedger(path).snapshot()
 
 
@@ -883,3 +950,109 @@ def test_usd_and_producer_mutations_keep_the_unit_journal(tmp_path: Path) -> Non
     assert snapshot.invocation_profiles["run-a"] == profile
     assert snapshot.state.spent["run"] == Decimal("0.67")
     assert snapshot.state.provider_spent["fixture"] == Decimal("0.25")
+
+
+def test_backtest_foundry_invocation_v2_is_durable_counted_and_unit_scoped(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "ledger.json"
+    ledger, middleware = _owner(path)
+    profile = _backtest_profile(total=2)
+    ledger.configure_backtest_invocation_profile(profile)
+
+    first, created = ledger.reserve_backtest_invocation(
+        _digest("backtest-slot-1"), _digest("backtest-request-1"), profile=profile
+    )
+    assert created
+    assert (first.work_unit, first.units, first.status) == (
+        "backtest_foundry_execute",
+        1,
+        "reserved",
+    )
+    same, created = FileBudgetLedger(path).reserve_backtest_invocation(
+        _digest("backtest-slot-1"), _digest("backtest-request-1"), profile=profile
+    )
+    assert same == first and not created
+    with pytest.raises(ValueError, match="identity_conflict"):
+        ledger.reserve_backtest_invocation(
+            _digest("backtest-slot-1"), _digest("changed-backtest-request"), profile=profile
+        )
+
+    unknown = ledger.finish_backtest_invocation(
+        first.operation_id,
+        first.request_digest,
+        profile=profile,
+        outcome="unknown",
+    )
+    assert unknown.status == "unknown"
+    assert ledger.resolve_backtest_invocation(first.operation_id, profile=profile) == unknown
+    with pytest.raises(BudgetLedgerBacktestInvocationUnresolvedError):
+        ledger.reserve_backtest_invocation(
+            _digest("backtest-slot-2"), _digest("backtest-request-2"), profile=profile
+        )
+
+    foreign = _backtest_profile(total=2, run="foreign-run")
+    with pytest.raises(ValueError, match="profile_not_current"):
+        ledger.reserve_backtest_invocation(
+            _digest("foreign-slot"), _digest("foreign-request"), profile=foreign
+        )
+
+    # The existing N5 consumer is still bound to its v1 policy and cannot
+    # reinterpret this Foundry physical-call profile as an N5 allocation.
+    with pytest.raises(ValueError, match="invocation_quota_owner_binding_mismatch"):
+        ProducerBudgetObserver(
+            settlement_store=middleware,
+            producer_run_binding=profile.run_binding,
+            budget_state=BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))}),
+            invocation_quota_profile=profile,  # type: ignore[arg-type]
+        )
+
+    bounded = _backtest_profile(total=1, run="run-b")
+    ledger.configure_backtest_invocation_profile(bounded)
+    only, created = ledger.reserve_backtest_invocation(
+        _digest("bounded-slot-1"), _digest("bounded-request-1"), profile=bounded
+    )
+    assert created
+    ledger.finish_backtest_invocation(
+        only.operation_id,
+        only.request_digest,
+        profile=bounded,
+        outcome="failed",
+    )
+    with pytest.raises(BudgetLedgerBacktestInvocationQuotaExhaustedError):
+        ledger.reserve_backtest_invocation(
+            _digest("bounded-slot-2"), _digest("bounded-request-2"), profile=bounded
+        )
+
+    # Both physical-call vocabularies share the existing snapshot maps, but
+    # each run keeps its own exact profile and reservation type.
+    legacy = _profile(total=1, protected=0, run="legacy-n5-run")
+    ledger.configure_invocation_profile(legacy)
+    legacy_record, created = ledger.reserve_invocation(
+        _digest("legacy-n5-slot"),
+        _digest("legacy-n5-request"),
+        profile=legacy,
+        purpose="standard",
+    )
+    assert created
+    legacy_record = ledger.finish_invocation(
+        legacy_record.operation_id,
+        legacy_record.request_digest,
+        profile=legacy,
+        outcome="completed",
+    )
+
+    persisted = json.loads(path.read_bytes())
+    assert persisted["schema_version"] == "1.9"
+    assert persisted["invocation_profiles"]["run-a"]["price_origin"] == "unknown"
+    assert persisted["invocation_profiles"]["run-a"]["work_unit"] == "backtest_foundry_execute"
+    reopened = FileBudgetLedger(path).snapshot()
+    assert reopened.invocation_profiles["run-a"] == profile
+    assert type(reopened.invocation_profiles["legacy-n5-run"]) is BudgetLedgerInvocationProfile
+    assert reopened.invocation_profiles["legacy-n5-run"] == legacy
+    assert reopened.invocation_reservations[first.operation_id] == unknown
+    assert type(reopened.invocation_reservations[legacy_record.operation_id]) is (
+        BudgetLedgerInvocationReservation
+    )
+    assert reopened.invocation_reservations[legacy_record.operation_id] == legacy_record
+    assert reopened.state.spent == {} and reopened.state.reserved == {}

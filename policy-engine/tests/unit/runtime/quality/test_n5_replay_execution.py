@@ -282,6 +282,175 @@ def test_infrastructure_retry_keeps_charged_units_and_mismatch_is_final(tmp_path
         _begin_attempt(tmp_path, key=key, spec=spec, quota=3, limit=2)
 
 
+def test_retry_selects_only_its_v1_invocations_in_mixed_durable_ledger(tmp_path: Path) -> None:
+    """Foreign v2 work cannot block replay or become N5 protected capacity."""
+    from polisyos.runtime.quality.n5_replay_execution import (
+        _diagnostic_invocation_profile,
+        _selected_diagnostic_invocations,
+    )
+    from polisyos.scientist.orchestration.engine.budget import (
+        BudgetExhaustedError,
+        BudgetState,
+    )
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetBacktestInvocationQuotaV2,
+        BudgetLedgerBacktestInvocationProfileV2,
+        BudgetLedgerProducerRunBinding,
+        FileBudgetLedger,
+    )
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+
+    spec = _spec()
+
+    def digest(value: str) -> str:
+        return hashlib.sha256(value.encode()).hexdigest()
+
+    def backtest_profile(run_id: str) -> BudgetLedgerBacktestInvocationProfileV2:
+        return BudgetLedgerBacktestInvocationProfileV2.from_policy(
+            BudgetLedgerProducerRunBinding(
+                run_id=run_id,
+                control_job_id="backtest-job",
+                tenant_id=spec.tenant_id,
+                cell_id=spec.cell_id,
+                profile_id="backtest-v2",
+            ),
+            BudgetBacktestInvocationQuotaV2(allocation_id="backtest", total_units=1),
+        )
+
+    def complete_backtest(ledger: FileBudgetLedger, run_id: str) -> tuple[str, object]:
+        profile = backtest_profile(run_id)
+        ledger.configure_backtest_invocation_profile(profile)
+        operation, request = digest(f"{run_id}-backtest"), digest(f"{run_id}-request")
+        _, created = ledger.reserve_backtest_invocation(operation, request, profile=profile)
+        assert created
+        record = ledger.finish_backtest_invocation(
+            operation, request, profile=profile, outcome="completed"
+        )
+        return operation, record
+
+    workspace = tmp_path / "mixed"
+    first = _begin_attempt(workspace, key="a" * 64, spec=spec, quota=3, limit=2)
+    ledger_path = workspace / "diagnostic-ledger.json"
+    observer, middleware = _open_diagnostic_budget(spec, ledger_path, 3)
+    ledger = FileBudgetLedger(ledger_path)
+    foreign_id, foreign_record = complete_backtest(ledger, "other-backtest")
+    failed_id, failed_request = digest("n5-failed"), digest("n5-failed-request")
+    assert observer.reserve_invocation(failed_id, failed_request) is not None
+    observer.finish_invocation(failed_id, failed_request, "failed")
+    snapshot = ledger.snapshot()
+    profile = _diagnostic_invocation_profile(
+        run_id=spec.replay_run_id,
+        job_id=spec.replay_job_id,
+        tenant_id=spec.tenant_id,
+        cell_id=spec.cell_id,
+        quota=3,
+    )
+    selected = _selected_diagnostic_invocations(snapshot, profile)
+    assert selected is not None and set(selected) == {failed_id}
+    bad_snapshot = snapshot.model_copy(deep=True)
+    bad_snapshot.invocation_reservations[failed_id] = selected[failed_id].model_copy(
+        update={"profile_digest": "0" * 64}
+    )
+    assert _selected_diagnostic_invocations(bad_snapshot, profile) is None
+    before = ledger_path.read_bytes()
+    _settle_attempt(
+        workspace,
+        first,
+        status="infrastructure_error",
+        child_pid=42,
+        ledger_hash=security.raw_content_hash(before),
+        ledger_revision=snapshot.revision,
+    )
+    second = _begin_attempt(workspace, key="a" * 64, spec=spec, quota=3, limit=2)
+    assert second.attempt_number == 2
+    assert ledger_path.read_bytes() == before
+    reopened, middleware = _open_diagnostic_budget(spec, ledger_path, 3)
+    assert reopened.admit_diagnostic_invocation_only().protected_remaining_units == 2
+    assert middleware.snapshot_safe().invocation_reservations[foreign_id] == foreign_record
+    with pytest.raises(ValueError, match="diagnostic_ledger_binding_mismatch"):
+        _open_diagnostic_budget(spec, ledger_path, 4)
+    assert ledger_path.read_bytes() == before
+    for index in (2, 3):
+        operation, request = digest(f"n5-{index}"), digest(f"n5-request-{index}")
+        assert reopened.reserve_invocation(operation, request) is not None
+        reopened.finish_invocation(operation, request, "failed")
+    with pytest.raises(BudgetExhaustedError):
+        reopened.reserve_invocation(digest("n5-over"), digest("n5-over-request"))
+    assert ledger.snapshot().invocation_reservations[foreign_id] == foreign_record
+
+    # A v2 profile under the selected run ID cannot stand in for N5's v1 quota.
+    wrong_owner = tmp_path / "wrong-owner"
+    wrong_attempt = _begin_attempt(wrong_owner, key="b" * 64, spec=spec, quota=3, limit=2)
+    wrong_path = wrong_owner / "diagnostic-ledger.json"
+    wrong_ledger = FileBudgetLedger(wrong_path)
+    BudgetMiddleware(BudgetState(), ledger=wrong_ledger)
+    complete_backtest(wrong_ledger, spec.replay_run_id)
+    wrong_bytes = wrong_path.read_bytes()
+    _settle_attempt(
+        wrong_owner,
+        wrong_attempt,
+        status="infrastructure_error",
+        child_pid=42,
+        ledger_hash=security.raw_content_hash(wrong_bytes),
+        ledger_revision=wrong_ledger.snapshot().revision,
+    )
+    state_before = (wrong_owner / "state.json").read_bytes()
+    with pytest.raises(ValueError, match="attempt_capacity_not_established"):
+        _begin_attempt(wrong_owner, key="b" * 64, spec=spec, quota=3, limit=2)
+    with pytest.raises(ValueError, match="diagnostic_ledger_binding_mismatch"):
+        _open_diagnostic_budget(spec, wrong_path, 3)
+    assert wrong_path.read_bytes() == wrong_bytes
+    assert (wrong_owner / "state.json").read_bytes() == state_before
+
+    # A foreign completion after the sealed failure changes the exact snapshot.
+    late_owner = tmp_path / "late"
+    late_attempt = _begin_attempt(late_owner, key="d" * 64, spec=spec, quota=3, limit=2)
+    late_path = late_owner / "diagnostic-ledger.json"
+    late_observer, late_middleware = _open_diagnostic_budget(spec, late_path, 3)
+    late_id, late_request = digest("late-n5"), digest("late-n5-request")
+    assert late_observer.reserve_invocation(late_id, late_request) is not None
+    late_observer.finish_invocation(late_id, late_request, "failed")
+    sealed = late_path.read_bytes()
+    _settle_attempt(
+        late_owner,
+        late_attempt,
+        status="infrastructure_error",
+        child_pid=42,
+        ledger_hash=security.raw_content_hash(sealed),
+        ledger_revision=late_middleware.snapshot_safe().revision,
+    )
+    late_state = (late_owner / "state.json").read_bytes()
+    complete_backtest(FileBudgetLedger(late_path), "later-backtest")
+    late_bytes = late_path.read_bytes()
+    with pytest.raises(ValueError, match="attempt_ledger_changed"):
+        _begin_attempt(late_owner, key="d" * 64, spec=spec, quota=3, limit=2)
+    assert late_path.read_bytes() == late_bytes
+    assert (late_owner / "state.json").read_bytes() == late_state
+
+    # A selected but unresolved v1 reservation is never made retryable.
+    pending_owner = tmp_path / "pending"
+    pending_attempt = _begin_attempt(pending_owner, key="c" * 64, spec=spec, quota=3, limit=2)
+    pending_path = pending_owner / "diagnostic-ledger.json"
+    pending, pending_middleware = _open_diagnostic_budget(spec, pending_path, 3)
+    assert pending.reserve_invocation(digest("pending"), digest("pending-request")) is not None
+    pending_bytes = pending_path.read_bytes()
+    _settle_attempt(
+        pending_owner,
+        pending_attempt,
+        status="infrastructure_error",
+        child_pid=42,
+        ledger_hash=security.raw_content_hash(pending_bytes),
+        ledger_revision=pending_middleware.snapshot_safe().revision,
+    )
+    pending_state = (pending_owner / "state.json").read_bytes()
+    with pytest.raises(ValueError, match="attempt_capacity_not_established"):
+        _begin_attempt(pending_owner, key="c" * 64, spec=spec, quota=3, limit=2)
+    with pytest.raises(ValueError, match="diagnostic_ledger_binding_mismatch"):
+        _open_diagnostic_budget(spec, pending_path, 3)
+    assert pending_path.read_bytes() == pending_bytes
+    assert (pending_owner / "state.json").read_bytes() == pending_state
+
+
 def test_unknown_crash_never_automatically_retries(tmp_path: Path) -> None:
     spec = _spec()
     _begin_attempt(tmp_path, key="b" * 64, spec=spec, quota=2, limit=3)

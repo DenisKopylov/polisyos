@@ -23,6 +23,7 @@ from polisyos.core.contracts.foundry import (
     FoundryInputBindings,
 )
 from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.foundry.data_plane import build_input_bindings
 from polisyos.foundry.execute.executor import load_state_snapshot
 from polisyos.ir import CanonSpec
@@ -42,6 +43,17 @@ from polisyos.scientist.methods.backtesting.plan import (
     HistoricalValidationPlan,
     MaskingStrategy,
     PredictionSource,
+)
+from polisyos.scientist.methods.backtesting.replica_budget import (
+    BacktestFoundryInvocationBudget,
+)
+from polisyos.scientist.orchestration.engine.budget import BudgetState
+from polisyos.scientist.orchestration.engine.budget_ledger import (
+    BudgetBacktestInvocationQuotaV2,
+    BudgetLedgerBacktestInvocationProfileV2,
+    BudgetLedgerBacktestInvocationReservationV2,
+    BudgetLedgerProducerRunBinding,
+    FileBudgetLedger,
 )
 
 
@@ -145,6 +157,40 @@ def _bind_real_default_route(
             }
         ],
     }
+
+
+def _prepare_real_default_backtest(
+    tmp_path: Path, *, replica_count: int, tenant_id: str, cell_id: str
+):
+    """Prepare a real masked Foundry route for the physical-quota integration check."""
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        cas_path = tmp_path / "cas"
+        store = FileSystemCAS(cas_path).for_tenant(tenant_id, cell_id)
+        preparer = BacktestOrchestrator(cas=store)
+        raw_data, plan = _plan(
+            tmp_path,
+            replica_count=replica_count,
+            intervention_step=None,
+            intervention_date="t2",
+        )
+        masked_data = preparer._masker.mask(raw_data, plan)
+        masked_snapshot_ref = DataSnapshotRef.model_validate(
+            preparer._persist_masked_view(plan, masked_data)
+        )
+        registry_bundle = build_default_registry_bundle(store, return_selected_profile=True)
+        trinity_ref = _persist_trinity(
+            store,
+            data_snapshot_ref=masked_snapshot_ref,
+            registry_bundle_ref=registry_bundle.bundle_ref,
+        )
+        _bind_real_default_route(
+            plan=plan,
+            trinity_ref=trinity_ref,
+            registry_bundle_ref=registry_bundle.bundle_ref,
+        )
+        assert plan.historical_data_path is not None
+        history = Path(plan.historical_data_path)
+        return cas_path, store, plan, history, history.read_bytes()
 
 
 def test_backtest_replays_only_masked_bindings_with_distinct_real_foundry_replicas(
@@ -308,6 +354,171 @@ def test_backtest_replays_only_masked_bindings_with_distinct_real_foundry_replic
     assert fresh_cohort["requested_count"] == 3
     assert fresh_cohort["completed_count"] == 3
     assert fresh_cohort["failed_count"] == 0
+
+
+@pytest.mark.parametrize(
+    ("replica_count", "unit_limit", "expected_dispatches"),
+    [(1, 1, 1), (7, 7, 7), (3, 1, 1)],
+    ids=("n1-full", "n7-full", "low-cap-preserves-denominator"),
+)
+def test_budgeted_backtest_counts_only_admitted_real_foundry_replicas(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    replica_count: int,
+    unit_limit: int,
+    expected_dispatches: int,
+) -> None:
+    tenant_id = f"backtest-budget-tenant-{replica_count}-{unit_limit}"
+    cell_id = f"backtest-budget-cell-{replica_count}-{unit_limit}"
+    cas_path, store, plan, history, history_before = _prepare_real_default_backtest(
+        tmp_path, replica_count=replica_count, tenant_id=tenant_id, cell_id=cell_id
+    )
+    plan = plan.model_copy(update={"random_seed": 12})
+    ledger_path = tmp_path / "backtest-invocation-budget.json"
+    ledger = FileBudgetLedger(ledger_path)
+    ledger.load_or_bootstrap(BudgetState())
+    binding = BudgetLedgerProducerRunBinding(
+        run_id=f"backtest-budget-{replica_count}-{unit_limit}",
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        profile_id="real-foundry-replica-budget",
+        control_job_id=f"control-{replica_count}-{unit_limit}",
+    )
+    profile = BudgetLedgerBacktestInvocationProfileV2.from_policy(
+        binding,
+        BudgetBacktestInvocationQuotaV2(
+            allocation_id=f"allocation-{replica_count}-{unit_limit}",
+            total_units=unit_limit,
+        ),
+    )
+    ledger.configure_backtest_invocation_profile(profile)
+    invocation_budget = BacktestFoundryInvocationBudget(ledger=ledger, profile=profile)
+    orchestrator = BacktestOrchestrator(
+        cas=store,
+        foundry_invocation_budget=invocation_budget,
+    )
+
+    executed: list[ExecuteRequest] = []
+    original_execute = DefaultFoundryPort.execute
+
+    def _capture_real_dispatch(
+        self,
+        actual_store,
+        request: ExecuteRequest,
+        *,
+        derived_tenant_context=None,
+    ):
+        executed.append(request)
+        if derived_tenant_context is None:
+            return original_execute(self, actual_store, request)
+        return original_execute(
+            self,
+            actual_store,
+            request,
+            derived_tenant_context=derived_tenant_context,
+        )
+
+    monkeypatch.setattr(DefaultFoundryPort, "execute", _capture_real_dispatch)
+    with tenant_scope(None, tenant_id=binding.tenant_id, cell_id=binding.cell_id):
+        _report, report_ref = orchestrator.run_with_ref([plan])
+    fresh_reader = ensure_ir_artifact_store(FileSystemCAS(cas_path).for_tenant(tenant_id, cell_id))
+    fresh_report = load_backtest_report(fresh_reader, report_ref)
+    cohort_ref = ArtifactRef.model_validate(
+        fresh_report.scenarios[0].metadata["replica_cohort_ref"]
+    )
+    cohort = load_core_json_artifact(fresh_reader, cohort_ref)
+    reservations = tuple(
+        row
+        for row in FileBudgetLedger(ledger_path).snapshot().invocation_reservations.values()
+        if type(row) is BudgetLedgerBacktestInvocationReservationV2
+    )
+
+    assert history.read_bytes() == history_before
+    assert len(executed) == expected_dispatches
+    assert [request.exec_config.seed for request in executed] == list(
+        range(12, 12 + expected_dispatches)
+    )
+    assert len(reservations) == expected_dispatches
+    assert len({row.operation_id for row in reservations}) == expected_dispatches
+    assert len({row.request_digest for row in reservations}) == expected_dispatches
+    assert all(row.work_unit == "backtest_foundry_execute" for row in reservations)
+    assert all(row.run_id == binding.run_id and row.status == "completed" for row in reservations)
+    assert profile.price_origin == "unknown"
+    persisted_budget = FileBudgetLedger(ledger_path).snapshot()
+    assert persisted_budget.state.spent == {}
+    assert persisted_budget.state.reserved == {}
+    assert cohort["requested_count"] == replica_count
+    assert cohort["started_count"] == replica_count
+    assert cohort["foundry_execute_count"] == expected_dispatches
+    assert cohort["completed_count"] == expected_dispatches
+    assert cohort["failed_count"] == replica_count - expected_dispatches
+    assert sum(row["physical_request"] is not None for row in cohort["replicas"]) == (
+        expected_dispatches
+    )
+    assert sum(row["physical_request"] is None for row in cohort["replicas"]) == (
+        replica_count - expected_dispatches
+    )
+
+
+def test_configured_budgeted_provided_n7_plan_uses_no_foundry_units(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    tenant_id = "backtest-provided-budget-tenant"
+    cell_id = "backtest-provided-budget-cell"
+    cas_path = tmp_path / "cas"
+    store = FileSystemCAS(cas_path)
+    _raw_data, base_plan = _plan(tmp_path, replica_count=7)
+    plan = HistoricalValidationPlan.model_validate(
+        {
+            **base_plan.model_dump(mode="python"),
+            "prediction_source": PredictionSource.PROVIDED,
+            "predicted_outcomes": {"metric": [20.0, 21.0, 22.0]},
+            "random_seed": 12,
+        }
+    )
+    assert plan.historical_data_path is not None
+    history = Path(plan.historical_data_path)
+    history_before = history.read_bytes()
+
+    ledger_path = tmp_path / "provided-budget.json"
+    ledger = FileBudgetLedger(ledger_path)
+    ledger.load_or_bootstrap(BudgetState())
+    binding = BudgetLedgerProducerRunBinding(
+        run_id="backtest-provided-budget-run",
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        profile_id="real-foundry-replica-budget",
+        control_job_id="control-provided-budget",
+    )
+    profile = BudgetLedgerBacktestInvocationProfileV2.from_policy(
+        binding,
+        BudgetBacktestInvocationQuotaV2(allocation_id="provided-allocation", total_units=7),
+    )
+    ledger.configure_backtest_invocation_profile(profile)
+    orchestrator = BacktestOrchestrator(
+        cas=store,
+        foundry_invocation_budget=BacktestFoundryInvocationBudget(ledger=ledger, profile=profile),
+    )
+
+    def _unexpected_foundry_dispatch(*_args: Any, **_kwargs: Any) -> Any:
+        raise AssertionError("provided forecasts must not enter the Foundry port")
+
+    monkeypatch.setattr(DefaultFoundryPort, "execute", _unexpected_foundry_dispatch)
+    _report, report_ref = orchestrator.run_with_ref([plan])
+
+    fresh_report = load_backtest_report(
+        ensure_ir_artifact_store(FileSystemCAS(cas_path)), report_ref
+    )
+    fresh_budget = FileBudgetLedger(ledger_path).snapshot()
+    assert len(fresh_report.scenarios) == 1
+    assert fresh_report.scenarios[0].metadata["prediction_source_effective"] == "provided"
+    assert fresh_budget.invocation_profiles[binding.run_id] == profile
+    assert fresh_budget.invocation_reservations == {}
+    assert fresh_budget.state.spent == {}
+    assert fresh_budget.state.reserved == {}
+    assert profile.price_origin == "unknown"
+    assert history.read_bytes() == history_before
 
 
 @pytest.mark.parametrize(

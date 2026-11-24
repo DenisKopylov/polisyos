@@ -30,6 +30,7 @@ from polisyos.scientist.orchestration.engine.budget import BudgetState
 _CANONICAL_LEDGER_CONTRACT = "scientist.multi_host_budget_ledger.v1"
 _COORDINATION_MODE = "shared_posix_file_lock"
 _SNAPSHOT_VERSION = "1.8"
+_BACKTEST_INVOCATION_SNAPSHOT_VERSION = "1.9"
 _ENGINE_EVENT_PREFIX = "scientist.engine-invocation:"
 _LEDGER_THREAD_GATES = tuple(threading.RLock() for _ in range(64))
 
@@ -45,6 +46,11 @@ __all__ = [
     "BudgetInvocationQuotaPolicy",
     "BudgetLedgerInvocationProfile",
     "BudgetLedgerInvocationReservation",
+    "BudgetBacktestInvocationQuotaV2",
+    "BudgetLedgerBacktestInvocationProfileV2",
+    "BudgetLedgerBacktestInvocationReservationV2",
+    "BudgetLedgerBacktestInvocationQuotaExhaustedError",
+    "BudgetLedgerBacktestInvocationUnresolvedError",
     "BudgetLedgerInvocationQuotaExhaustedError",
     "BudgetLedgerReentryBudgetScope",
     "BudgetLedgerReentryBudgetWindow",
@@ -88,6 +94,9 @@ class BudgetLedgerMutation(BaseModel):
         "mark_compute_unknown",
         "configure_invocation_quota",
         "select_unconfigured_invocation_quota",
+        "configure_backtest_invocation_quota",
+        "reserve_backtest_invocation",
+        "finish_backtest_invocation",
         "open_reentry_budget_window",
         "reserve_invocation",
         "finish_invocation",
@@ -516,6 +525,76 @@ class BudgetLedgerInvocationReservation(BaseModel):
     revision: int = Field(ge=1)
 
 
+class BudgetBacktestInvocationQuotaV2(BaseModel):
+    """Owner-selected non-monetary budget for physical Foundry backtest calls."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["scientist.backtest_foundry_invocation_quota.v2"] = (
+        "scientist.backtest_foundry_invocation_quota.v2"
+    )
+    allocation_id: str = Field(min_length=1, max_length=160)
+    total_units: int = Field(ge=0, strict=True)
+    work_unit: Literal["backtest_foundry_execute"] = "backtest_foundry_execute"
+    price_origin: Literal["unknown"] = "unknown"
+
+    @model_validator(mode="after")
+    def _validate_allocation(self) -> BudgetBacktestInvocationQuotaV2:
+        if self.allocation_id != self.allocation_id.strip():
+            raise ValueError("backtest_invocation_allocation_id_invalid")
+        return self
+
+
+class BudgetLedgerBacktestInvocationProfileV2(BudgetBacktestInvocationQuotaV2):
+    """Versioned physical-call quota bound to one existing run owner."""
+
+    run_binding: BudgetLedgerProducerRunBinding
+
+    @classmethod
+    def from_policy(
+        cls,
+        run_binding: BudgetLedgerProducerRunBinding,
+        policy: BudgetBacktestInvocationQuotaV2,
+    ) -> BudgetLedgerBacktestInvocationProfileV2:
+        """Bind an owner-selected Foundry allocation to its exact run identity."""
+        if type(policy) is not BudgetBacktestInvocationQuotaV2:
+            raise TypeError("backtest_invocation_quota_policy_untyped")
+        if type(run_binding) is not BudgetLedgerProducerRunBinding:
+            raise TypeError("backtest_invocation_run_binding_untyped")
+        return cls(**policy.model_dump(mode="python"), run_binding=run_binding)
+
+    @property
+    def profile_digest(self) -> str:
+        """Hash the complete versioned Foundry allocation and run owner."""
+        return content_hash(to_canonical_bytes(self.model_dump(mode="json")))
+
+
+class BudgetLedgerBacktestInvocationReservationV2(BaseModel):
+    """One durable Foundry physical-call unit and its terminal observed outcome."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["scientist.backtest_foundry_invocation_reservation.v2"] = (
+        "scientist.backtest_foundry_invocation_reservation.v2"
+    )
+    operation_id: str = Field(pattern=r"^[0-9a-f]{64}$")
+    request_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    run_id: str = Field(min_length=1)
+    profile_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
+    work_unit: Literal["backtest_foundry_execute"] = "backtest_foundry_execute"
+    units: int = Field(default=1, ge=1, le=1, strict=True)
+    status: Literal["reserved", "completed", "failed", "unknown"] = "reserved"
+    revision: int = Field(ge=1)
+
+
+class BudgetLedgerBacktestInvocationQuotaExhaustedError(ValueError):
+    """The selected backtest invocation allocation has no physical-call unit."""
+
+
+class BudgetLedgerBacktestInvocationUnresolvedError(ValueError):
+    """A prior Foundry call is still potentially active or has unknown outcome."""
+
+
 class BudgetLedgerReentryBudgetScope(BaseModel):
     """Owner-selected acquisition action that receives one fresh USD window."""
 
@@ -612,15 +691,15 @@ class BudgetLedgerSnapshot(BaseModel):
     compute_reservations: dict[str, BudgetLedgerComputeReservation] = Field(
         default_factory=dict, json_schema_extra={"introduced_in": "1.6"}
     )
-    invocation_profiles: dict[str, BudgetLedgerInvocationProfile] = Field(
-        default_factory=dict, json_schema_extra={"introduced_in": "1.7"}
-    )
+    invocation_profiles: dict[
+        str, BudgetLedgerInvocationProfile | BudgetLedgerBacktestInvocationProfileV2
+    ] = Field(default_factory=dict, json_schema_extra={"introduced_in": "1.7"})
     invocation_unconfigured_runs: dict[str, BudgetLedgerProducerRunBinding] = Field(
         default_factory=dict, json_schema_extra={"introduced_in": "1.7"}
     )
-    invocation_reservations: dict[str, BudgetLedgerInvocationReservation] = Field(
-        default_factory=dict, json_schema_extra={"introduced_in": "1.7"}
-    )
+    invocation_reservations: dict[
+        str, BudgetLedgerInvocationReservation | BudgetLedgerBacktestInvocationReservationV2
+    ] = Field(default_factory=dict, json_schema_extra={"introduced_in": "1.7"})
     reentry_budget_windows: dict[str, BudgetLedgerReentryBudgetWindow] = Field(
         default_factory=dict, json_schema_extra={"introduced_in": "1.8"}
     )
@@ -728,9 +807,38 @@ def _require_wire_fields(
     """Require non-nullable writer fields before constructor defaults can apply."""
     if "$ref" in schema:
         schema = definitions[schema["$ref"].rsplit("/", 1)[1]]
-    alternatives = schema.get("anyOf", [])
+    alternatives = schema.get("anyOf", []) or schema.get("oneOf", [])
     if alternatives:
-        schema = next((item for item in alternatives if item.get("type") != "null"), schema)
+        candidates = [item for item in alternatives if item.get("type") != "null"]
+        matching: list[dict[str, Any]] = []
+        if isinstance(value, dict) and len(candidates) > 1:
+            for candidate in candidates:
+                candidate_schema = candidate
+                if "$ref" in candidate_schema:
+                    candidate_schema = definitions[candidate_schema["$ref"].rsplit("/", 1)[1]]
+                properties = candidate_schema.get("properties", {})
+                if candidate_schema.get("type") == "object":
+                    if candidate_schema.get("additionalProperties") is False and any(
+                        name not in properties for name in value
+                    ):
+                        continue
+                    if not set(candidate_schema.get("required", ())).issubset(value):
+                        continue
+                    if any(
+                        name in value
+                        and (
+                            ("const" in field_schema and value[name] != field_schema["const"])
+                            or ("enum" in field_schema and value[name] not in field_schema["enum"])
+                        )
+                        for name, field_schema in properties.items()
+                    ):
+                        continue
+                    matching.append(candidate)
+        schema = (
+            matching[0]
+            if len(matching) == 1
+            else next((item for item in candidates if item.get("type") != "null"), schema)
+        )
         if "$ref" in schema:
             schema = definitions[schema["$ref"].rsplit("/", 1)[1]]
     if isinstance(value, dict):
@@ -804,6 +912,7 @@ def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
         "1.6",
         "1.7",
         _SNAPSHOT_VERSION,
+        _BACKTEST_INVOCATION_SNAPSHOT_VERSION,
     }:
         raise ValueError("budget ledger schema_version is missing or unsupported")
     if (
@@ -811,14 +920,28 @@ def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
         or value.get("coordination_mode") != _COORDINATION_MODE
     ):
         raise ValueError("budget ledger contract or coordination mode is unsupported")
-    if version not in {"1.7", _SNAPSHOT_VERSION} and (
+    if version not in {"1.7", _SNAPSHOT_VERSION, _BACKTEST_INVOCATION_SNAPSHOT_VERSION} and (
         value.get("invocation_profiles")
         or value.get("invocation_unconfigured_runs")
         or value.get("invocation_reservations")
     ):
         raise ValueError("budget_ledger_invocation_fields_require_version_1_7")
-    if version != _SNAPSHOT_VERSION and value.get("reentry_budget_windows"):
+    if version not in {_SNAPSHOT_VERSION, _BACKTEST_INVOCATION_SNAPSHOT_VERSION} and value.get(
+        "reentry_budget_windows"
+    ):
         raise ValueError("budget_ledger_reentry_windows_require_version_1_8")
+    has_backtest_v2 = any(
+        isinstance(item, dict)
+        and item.get("schema_version")
+        in {
+            "scientist.backtest_foundry_invocation_quota.v2",
+            "scientist.backtest_foundry_invocation_reservation.v2",
+        }
+        for field in ("invocation_profiles", "invocation_reservations")
+        for item in (value.get(field, {}).values() if isinstance(value.get(field), dict) else ())
+    )
+    if has_backtest_v2 and version != _BACKTEST_INVOCATION_SNAPSHOT_VERSION:
+        raise ValueError("backtest_invocation_fields_require_version_1_9")
     _require_wire_fields(
         value,
         _PERSISTED_SNAPSHOT_SCHEMA,
@@ -877,7 +1000,13 @@ def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
         if snapshot.state.reserved.get(key, Decimal(0)) < amount:
             raise ValueError("identified reservations exceed aggregate reserved amount")
     invocation_usage: dict[str, tuple[int, int]] = {}
+    backtest_invocation_usage: dict[str, int] = {}
     for run_id, profile in snapshot.invocation_profiles.items():
+        if type(profile) not in {
+            BudgetLedgerInvocationProfile,
+            BudgetLedgerBacktestInvocationProfileV2,
+        }:
+            raise ValueError("invocation_quota_profile_type_invalid")
         if run_id != profile.run_binding.run_id:
             raise ValueError("invocation_quota_run_binding_mismatch")
         if run_id in snapshot.invocation_unconfigured_runs:
@@ -894,6 +1023,22 @@ def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
             or record.profile_digest != profile.profile_digest
         ):
             raise ValueError("invocation_reservation_identity_mismatch")
+        if type(record) is BudgetLedgerBacktestInvocationReservationV2:
+            if (
+                type(profile) is not BudgetLedgerBacktestInvocationProfileV2
+                or record.work_unit != profile.work_unit
+            ):
+                raise ValueError("backtest_invocation_reservation_profile_mismatch")
+            consumed = backtest_invocation_usage.get(record.run_id, 0) + record.units
+            if consumed > profile.total_units:
+                raise ValueError("backtest_invocation_quota_exceeded")
+            backtest_invocation_usage[record.run_id] = consumed
+            continue
+        if (
+            type(record) is not BudgetLedgerInvocationReservation
+            or type(profile) is not BudgetLedgerInvocationProfile
+        ):
+            raise ValueError("invocation_reservation_profile_type_mismatch")
         standard, protected = invocation_usage.get(record.run_id, (0, 0))
         if record.purpose == "standard":
             standard += record.units
@@ -1020,6 +1165,27 @@ class BudgetLedger(Protocol):
     def resolve_invocation(
         self, operation_id: str, *, profile: BudgetLedgerInvocationProfile
     ) -> BudgetLedgerInvocationReservation | None: ...
+    def configure_backtest_invocation_profile(
+        self, profile: BudgetLedgerBacktestInvocationProfileV2
+    ) -> BudgetLedgerBacktestInvocationProfileV2: ...
+    def reserve_backtest_invocation(
+        self,
+        operation_id: str,
+        request_digest: str,
+        *,
+        profile: BudgetLedgerBacktestInvocationProfileV2,
+    ) -> tuple[BudgetLedgerBacktestInvocationReservationV2, bool]: ...
+    def finish_backtest_invocation(
+        self,
+        operation_id: str,
+        request_digest: str,
+        *,
+        profile: BudgetLedgerBacktestInvocationProfileV2,
+        outcome: Literal["completed", "failed", "unknown"],
+    ) -> BudgetLedgerBacktestInvocationReservationV2: ...
+    def resolve_backtest_invocation(
+        self, operation_id: str, *, profile: BudgetLedgerBacktestInvocationProfileV2
+    ) -> BudgetLedgerBacktestInvocationReservationV2 | None: ...
     def open_reentry_budget_window(
         self,
         scope: BudgetLedgerReentryBudgetScope,
@@ -1117,6 +1283,12 @@ def _normalize_public_event_id(event_id: str, *, allow_engine_event: bool = Fals
     if not allow_engine_event and str.startswith(normalized, _ENGINE_EVENT_PREFIX):
         raise ValueError("budget_ledger_engine_event_reserved")
     return normalized
+
+
+def _require_invocation_digest(value: str, error_code: str) -> None:
+    """Require the stable lower-case SHA-256 identity used by invocation records."""
+    if type(value) is not str or re.fullmatch(r"[0-9a-f]{64}", value) is None:
+        raise ValueError(error_code)
 
 
 class FileBudgetLedger:
@@ -1684,9 +1856,13 @@ class FileBudgetLedger:
         snapshot: BudgetLedgerSnapshot,
         *,
         mutation: BudgetLedgerMutation,
-        profiles: dict[str, BudgetLedgerInvocationProfile] | None = None,
+        profiles: dict[str, BudgetLedgerInvocationProfile | BudgetLedgerBacktestInvocationProfileV2]
+        | None = None,
         unconfigured_runs: dict[str, BudgetLedgerProducerRunBinding] | None = None,
-        reservations: dict[str, BudgetLedgerInvocationReservation] | None = None,
+        reservations: dict[
+            str, BudgetLedgerInvocationReservation | BudgetLedgerBacktestInvocationReservationV2
+        ]
+        | None = None,
     ) -> BudgetLedgerSnapshot:
         """Persist invocation-unit changes in the existing locked budget snapshot."""
         return self._persist_snapshot(
@@ -1723,7 +1899,7 @@ class FileBudgetLedger:
                 raise ValueError("invocation_quota_run_already_unconfigured")
             existing = snapshot.invocation_profiles.get(run_id)
             if existing is not None:
-                if existing != profile:
+                if type(existing) is not BudgetLedgerInvocationProfile or existing != profile:
                     raise ValueError("invocation_quota_profile_conflict")
                 self._confirm_snapshot_durability(event_id, snapshot)
                 return existing
@@ -1742,7 +1918,10 @@ class FileBudgetLedger:
             self._confirm_snapshot_durability(
                 event_id, written, payload_digest=profile.profile_digest
             )
-            return written.invocation_profiles[run_id]
+            configured = written.invocation_profiles[run_id]
+            if type(configured) is not BudgetLedgerInvocationProfile:
+                raise RuntimeError("invocation_quota_profile_write_type_mismatch")
+            return configured
 
     def select_unconfigured_invocations(self, binding: BudgetLedgerProducerRunBinding) -> None:
         """Atomically select no guarantee for this exact run, before physical work.
@@ -1931,11 +2110,15 @@ class FileBudgetLedger:
             snapshot = self._load_snapshot()
             if snapshot is None:
                 raise FileNotFoundError("budget ledger requires explicit bootstrap")
-            if snapshot.invocation_profiles.get(candidate.run_id) != profile:
+            current_profile = snapshot.invocation_profiles.get(candidate.run_id)
+            if (
+                type(current_profile) is not BudgetLedgerInvocationProfile
+                or current_profile != profile
+            ):
                 raise ValueError("invocation_quota_profile_not_current")
             existing = snapshot.invocation_reservations.get(operation_id)
             if existing is not None:
-                if any(
+                if type(existing) is not BudgetLedgerInvocationReservation or any(
                     getattr(existing, field) != getattr(candidate, field)
                     for field in ("request_digest", "run_id", "profile_digest", "purpose")
                 ):
@@ -1946,7 +2129,9 @@ class FileBudgetLedger:
             consumed = sum(
                 item.units
                 for item in snapshot.invocation_reservations.values()
-                if item.run_id == candidate.run_id and (item.purpose != "standard") == protected
+                if type(item) is BudgetLedgerInvocationReservation
+                and item.run_id == candidate.run_id
+                and (item.purpose != "standard") == protected
             )
             limit = (
                 profile.protected_units
@@ -1967,7 +2152,10 @@ class FileBudgetLedger:
                 ),
             )
             self._confirm_snapshot_durability(operation_id, written, payload_digest=request_digest)
-            return written.invocation_reservations[operation_id], True
+            reserved = written.invocation_reservations[operation_id]
+            if type(reserved) is not BudgetLedgerInvocationReservation:
+                raise RuntimeError("invocation_reservation_write_type_mismatch")
+            return reserved, True
 
     def finish_invocation(
         self,
@@ -1991,8 +2179,10 @@ class FileBudgetLedger:
                 raise FileNotFoundError("budget ledger requires explicit bootstrap")
             existing = snapshot.invocation_reservations.get(operation_id)
             if (
-                snapshot.invocation_profiles.get(profile.run_binding.run_id) != profile
-                or existing is None
+                type(snapshot.invocation_profiles.get(profile.run_binding.run_id))
+                is not BudgetLedgerInvocationProfile
+                or snapshot.invocation_profiles.get(profile.run_binding.run_id) != profile
+                or type(existing) is not BudgetLedgerInvocationReservation
                 or existing.run_id != profile.run_binding.run_id
                 or existing.profile_digest != profile.profile_digest
                 or existing.request_digest != request_digest
@@ -2015,7 +2205,10 @@ class FileBudgetLedger:
                 ),
             )
             self._confirm_snapshot_durability(operation_id, written, payload_digest=request_digest)
-            return written.invocation_reservations[operation_id]
+            finished = written.invocation_reservations[operation_id]
+            if type(finished) is not BudgetLedgerInvocationReservation:
+                raise RuntimeError("invocation_reservation_write_type_mismatch")
+            return finished
 
     def resolve_invocation(
         self, operation_id: str, *, profile: BudgetLedgerInvocationProfile
@@ -2023,8 +2216,7 @@ class FileBudgetLedger:
         """Read an exact invocation record; absence never proves that work was free."""
         if type(profile) is not BudgetLedgerInvocationProfile:
             raise TypeError("invocation_quota_profile_untyped")
-        if re.fullmatch(r"[0-9a-f]{64}", operation_id) is None:
-            raise ValueError("invocation_operation_id_invalid")
+        _require_invocation_digest(operation_id, "invocation_operation_id_invalid")
         with (
             self._thread_lock,
             self._file_lock(exclusive=True, outcome_identity=(operation_id, "readback")),
@@ -2032,12 +2224,242 @@ class FileBudgetLedger:
             snapshot = self._load_snapshot()
             if snapshot is None:
                 raise FileNotFoundError("budget ledger requires explicit bootstrap")
-            if snapshot.invocation_profiles.get(profile.run_binding.run_id) != profile:
+            current_profile = snapshot.invocation_profiles.get(profile.run_binding.run_id)
+            if (
+                type(current_profile) is not BudgetLedgerInvocationProfile
+                or current_profile != profile
+            ):
                 raise ValueError("invocation_quota_profile_not_current")
             record = snapshot.invocation_reservations.get(operation_id)
+            if record is not None and type(record) is not BudgetLedgerInvocationReservation:
+                raise ValueError("invocation_reservation_owner_mismatch")
             if record is not None and record.run_id != profile.run_binding.run_id:
                 raise ValueError("invocation_reservation_owner_mismatch")
             self._confirm_snapshot_durability(operation_id, snapshot)
+            return record
+
+    def configure_backtest_invocation_profile(
+        self, profile: BudgetLedgerBacktestInvocationProfileV2
+    ) -> BudgetLedgerBacktestInvocationProfileV2:
+        """Persist one immutable Foundry physical-call allocation for its run."""
+        if type(profile) is not BudgetLedgerBacktestInvocationProfileV2:
+            raise TypeError("backtest_invocation_profile_untyped")
+        run_id = profile.run_binding.run_id
+        event_id = f"backtest-invocation-profile:{profile.profile_digest}"
+        with (
+            self._thread_lock,
+            self._file_lock(exclusive=True, outcome_identity=(event_id, profile.profile_digest)),
+        ):
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger requires explicit bootstrap")
+            if run_id in snapshot.invocation_unconfigured_runs:
+                raise ValueError("invocation_quota_run_already_unconfigured")
+            existing = snapshot.invocation_profiles.get(run_id)
+            if existing is not None:
+                if (
+                    type(existing) is not BudgetLedgerBacktestInvocationProfileV2
+                    or existing != profile
+                ):
+                    raise ValueError("backtest_invocation_profile_conflict")
+                self._confirm_snapshot_durability(event_id, snapshot)
+                return existing
+            profiles = dict(snapshot.invocation_profiles)
+            profiles[run_id] = profile
+            revision = snapshot.revision + 1
+            written = self._persist_invocation_update(
+                snapshot,
+                profiles=profiles,
+                mutation=self._build_mutation(
+                    revision=revision,
+                    operation="configure_backtest_invocation_quota",
+                    key=f"backtest-run:{run_id}",
+                ),
+            )
+            self._confirm_snapshot_durability(
+                event_id, written, payload_digest=profile.profile_digest
+            )
+            configured = written.invocation_profiles[run_id]
+            if type(configured) is not BudgetLedgerBacktestInvocationProfileV2:
+                raise RuntimeError("backtest_invocation_profile_write_type_mismatch")
+            return configured
+
+    def reserve_backtest_invocation(
+        self,
+        operation_id: str,
+        request_digest: str,
+        *,
+        profile: BudgetLedgerBacktestInvocationProfileV2,
+    ) -> tuple[BudgetLedgerBacktestInvocationReservationV2, bool]:
+        """Reserve one exact Foundry dispatch; a replay never issues a second permit."""
+        if type(profile) is not BudgetLedgerBacktestInvocationProfileV2:
+            raise TypeError("backtest_invocation_profile_untyped")
+        _require_invocation_digest(operation_id, "backtest_invocation_operation_id_invalid")
+        _require_invocation_digest(request_digest, "backtest_invocation_request_digest_invalid")
+        candidate = BudgetLedgerBacktestInvocationReservationV2(
+            operation_id=operation_id,
+            request_digest=request_digest,
+            run_id=profile.run_binding.run_id,
+            profile_digest=profile.profile_digest,
+            work_unit=profile.work_unit,
+            revision=1,
+        )
+        with (
+            self._thread_lock,
+            self._file_lock(exclusive=True, outcome_identity=(operation_id, request_digest)),
+        ):
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger requires explicit bootstrap")
+            current_profile = snapshot.invocation_profiles.get(candidate.run_id)
+            if (
+                type(current_profile) is not BudgetLedgerBacktestInvocationProfileV2
+                or current_profile != profile
+            ):
+                raise ValueError("backtest_invocation_profile_not_current")
+            existing = snapshot.invocation_reservations.get(operation_id)
+            if existing is not None:
+                if type(existing) is not BudgetLedgerBacktestInvocationReservationV2 or any(
+                    getattr(existing, field) != getattr(candidate, field)
+                    for field in ("request_digest", "run_id", "profile_digest", "work_unit")
+                ):
+                    raise ValueError("backtest_invocation_identity_conflict")
+                self._confirm_snapshot_durability(operation_id, snapshot)
+                return existing, False
+            if any(
+                type(item) is BudgetLedgerBacktestInvocationReservationV2
+                and item.run_id == candidate.run_id
+                and item.status in {"reserved", "unknown"}
+                for item in snapshot.invocation_reservations.values()
+            ):
+                raise BudgetLedgerBacktestInvocationUnresolvedError(
+                    "backtest_invocation_unresolved_prior_call"
+                )
+            consumed = sum(
+                item.units
+                for item in snapshot.invocation_reservations.values()
+                if type(item) is BudgetLedgerBacktestInvocationReservationV2
+                and item.run_id == candidate.run_id
+                and item.work_unit == candidate.work_unit
+            )
+            if consumed >= profile.total_units:
+                raise BudgetLedgerBacktestInvocationQuotaExhaustedError(
+                    "backtest_invocation_quota_exhausted"
+                )
+            revision = snapshot.revision + 1
+            record = candidate.model_copy(update={"revision": revision})
+            reservations = dict(snapshot.invocation_reservations)
+            reservations[operation_id] = record
+            written = self._persist_invocation_update(
+                snapshot,
+                reservations=reservations,
+                mutation=self._build_mutation(
+                    revision=revision,
+                    operation="reserve_backtest_invocation",
+                    key=f"backtest-run:{record.run_id}",
+                ),
+            )
+            self._confirm_snapshot_durability(operation_id, written, payload_digest=request_digest)
+            reserved = written.invocation_reservations[operation_id]
+            if type(reserved) is not BudgetLedgerBacktestInvocationReservationV2:
+                raise RuntimeError("backtest_invocation_reservation_write_type_mismatch")
+            return reserved, True
+
+    def finish_backtest_invocation(
+        self,
+        operation_id: str,
+        request_digest: str,
+        *,
+        profile: BudgetLedgerBacktestInvocationProfileV2,
+        outcome: Literal["completed", "failed", "unknown"],
+    ) -> BudgetLedgerBacktestInvocationReservationV2:
+        """Record an observed terminal outcome without returning its consumed unit."""
+        if type(profile) is not BudgetLedgerBacktestInvocationProfileV2:
+            raise TypeError("backtest_invocation_profile_untyped")
+        _require_invocation_digest(operation_id, "backtest_invocation_operation_id_invalid")
+        _require_invocation_digest(request_digest, "backtest_invocation_request_digest_invalid")
+        if outcome not in {"completed", "failed", "unknown"}:
+            raise ValueError("backtest_invocation_outcome_invalid")
+        with (
+            self._thread_lock,
+            self._file_lock(exclusive=True, outcome_identity=(operation_id, request_digest)),
+        ):
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger requires explicit bootstrap")
+            existing = snapshot.invocation_reservations.get(operation_id)
+            current_profile = snapshot.invocation_profiles.get(profile.run_binding.run_id)
+            if (
+                type(current_profile) is not BudgetLedgerBacktestInvocationProfileV2
+                or current_profile != profile
+                or type(existing) is not BudgetLedgerBacktestInvocationReservationV2
+                or existing.run_id != profile.run_binding.run_id
+                or existing.profile_digest != profile.profile_digest
+                or existing.work_unit != profile.work_unit
+                or existing.request_digest != request_digest
+            ):
+                raise ValueError("backtest_invocation_reservation_missing_or_conflicting")
+            if existing.status != "reserved":
+                if existing.status != outcome:
+                    raise ValueError("backtest_invocation_outcome_conflict")
+                self._confirm_snapshot_durability(operation_id, snapshot)
+                return existing
+            revision = snapshot.revision + 1
+            record = existing.model_copy(update={"status": outcome, "revision": revision})
+            reservations = dict(snapshot.invocation_reservations)
+            reservations[operation_id] = record
+            written = self._persist_invocation_update(
+                snapshot,
+                reservations=reservations,
+                mutation=self._build_mutation(
+                    revision=revision,
+                    operation="finish_backtest_invocation",
+                    key=f"backtest-run:{record.run_id}",
+                ),
+            )
+            self._confirm_snapshot_durability(operation_id, written, payload_digest=request_digest)
+            finished = written.invocation_reservations[operation_id]
+            if type(finished) is not BudgetLedgerBacktestInvocationReservationV2:
+                raise RuntimeError("backtest_invocation_reservation_write_type_mismatch")
+            return finished
+
+    def resolve_backtest_invocation(
+        self,
+        operation_id: str,
+        *,
+        profile: BudgetLedgerBacktestInvocationProfileV2,
+    ) -> BudgetLedgerBacktestInvocationReservationV2 | None:
+        """Read one exact backtest dispatch outcome; absence does not grant admission."""
+        if type(profile) is not BudgetLedgerBacktestInvocationProfileV2:
+            raise TypeError("backtest_invocation_profile_untyped")
+        _require_invocation_digest(operation_id, "backtest_invocation_operation_id_invalid")
+        with (
+            self._thread_lock,
+            self._file_lock(exclusive=True, outcome_identity=(operation_id, "readback")),
+        ):
+            snapshot = self._load_snapshot()
+            if snapshot is None:
+                raise FileNotFoundError("budget ledger requires explicit bootstrap")
+            current_profile = snapshot.invocation_profiles.get(profile.run_binding.run_id)
+            if (
+                type(current_profile) is not BudgetLedgerBacktestInvocationProfileV2
+                or current_profile != profile
+            ):
+                raise ValueError("backtest_invocation_profile_not_current")
+            record = snapshot.invocation_reservations.get(operation_id)
+            if record is not None and (
+                type(record) is not BudgetLedgerBacktestInvocationReservationV2
+                or record.run_id != profile.run_binding.run_id
+                or record.profile_digest != profile.profile_digest
+                or record.work_unit != profile.work_unit
+            ):
+                raise ValueError("backtest_invocation_reservation_owner_mismatch")
+            self._confirm_snapshot_durability(operation_id, snapshot)
+            if (
+                record is not None
+                and type(record) is not BudgetLedgerBacktestInvocationReservationV2
+            ):
+                raise RuntimeError("backtest_invocation_reservation_read_type_mismatch")
             return record
 
     def settle_spend(
@@ -2888,9 +3310,15 @@ class FileBudgetLedger:
         spend_receipts: dict[str, BudgetLedgerSpendReceipt] | None = None,
         producer_settlements: dict[str, BudgetLedgerProducerRecord] | None = None,
         compute_reservations: dict[str, BudgetLedgerComputeReservation] | None = None,
-        invocation_profiles: dict[str, BudgetLedgerInvocationProfile] | None = None,
+        invocation_profiles: dict[
+            str, BudgetLedgerInvocationProfile | BudgetLedgerBacktestInvocationProfileV2
+        ]
+        | None = None,
         invocation_unconfigured_runs: dict[str, BudgetLedgerProducerRunBinding] | None = None,
-        invocation_reservations: dict[str, BudgetLedgerInvocationReservation] | None = None,
+        invocation_reservations: dict[
+            str, BudgetLedgerInvocationReservation | BudgetLedgerBacktestInvocationReservationV2
+        ]
+        | None = None,
         reentry_budget_windows: dict[str, BudgetLedgerReentryBudgetWindow] | None = None,
     ) -> BudgetLedgerSnapshot:
         return BudgetLedgerSnapshot(
@@ -2954,6 +3382,9 @@ class FileBudgetLedger:
             "mark_compute_unknown",
             "configure_invocation_quota",
             "select_unconfigured_invocation_quota",
+            "configure_backtest_invocation_quota",
+            "reserve_backtest_invocation",
+            "finish_backtest_invocation",
             "open_reentry_budget_window",
             "reserve_invocation",
             "finish_invocation",
@@ -2976,12 +3407,25 @@ class FileBudgetLedger:
         )
 
     def _normalize_snapshot(self, snapshot: BudgetLedgerSnapshot) -> BudgetLedgerSnapshot:
+        has_backtest_invocations = any(
+            type(item) is BudgetLedgerBacktestInvocationProfileV2
+            for item in snapshot.invocation_profiles.values()
+        ) or any(
+            type(item) is BudgetLedgerBacktestInvocationReservationV2
+            for item in snapshot.invocation_reservations.values()
+        )
+        version = (
+            _BACKTEST_INVOCATION_SNAPSHOT_VERSION
+            if has_backtest_invocations
+            or snapshot.schema_version == _BACKTEST_INVOCATION_SNAPSHOT_VERSION
+            else _SNAPSHOT_VERSION
+        )
         return snapshot.model_copy(
             update={
                 "canonical_contract": snapshot.canonical_contract or _CANONICAL_LEDGER_CONTRACT,
                 "coordination_mode": snapshot.coordination_mode or _COORDINATION_MODE,
                 "ledger_id": snapshot.ledger_id or self._ledger_id,
-                "schema_version": _SNAPSHOT_VERSION,
+                "schema_version": version,
             }
         )
 

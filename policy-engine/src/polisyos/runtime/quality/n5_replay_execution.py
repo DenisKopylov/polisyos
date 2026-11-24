@@ -58,6 +58,10 @@ if TYPE_CHECKING:
         N5DiagnosticCapacityObservation,
         ProducerBudgetObserver,
     )
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerInvocationProfile,
+        BudgetLedgerInvocationReservation,
+    )
 
 
 class N5ReplayProducerBasis(BaseModel):
@@ -779,6 +783,63 @@ def _fenced_ledger_snapshot(path: Path) -> tuple[BudgetLedgerSnapshot, bytes]:
     return FileBudgetLedger(path).snapshot_with_raw_bytes()
 
 
+def _diagnostic_invocation_profile(
+    *, run_id: str, job_id: str, tenant_id: str, cell_id: str, quota: int
+) -> BudgetLedgerInvocationProfile:
+    """Reconstruct the exact invocation-only owner selected for this N5 job."""
+    from polisyos.scientist.orchestration.engine import (
+        BudgetInvocationQuotaPolicy,
+        BudgetLedgerInvocationProfile,
+        BudgetLedgerProducerRunBinding,
+    )
+
+    binding = BudgetLedgerProducerRunBinding(
+        run_id=run_id,
+        control_job_id=job_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        profile_id="n5-replay-diagnostic-v1",
+    )
+    policy = BudgetInvocationQuotaPolicy(
+        allocation_id=f"n5-replay-{job_id}",
+        total_units=quota,
+        protected_units=quota,
+    )
+    return BudgetLedgerInvocationProfile.from_policy(binding, policy)
+
+
+def _selected_diagnostic_invocations(
+    snapshot: BudgetLedgerSnapshot, profile: BudgetLedgerInvocationProfile
+) -> dict[str, BudgetLedgerInvocationReservation] | None:
+    """Reconcile every selected run's terminal N5 row without mixing run budgets."""
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerInvocationProfile,
+        BudgetLedgerInvocationReservation,
+    )
+
+    if type(profile) is not BudgetLedgerInvocationProfile:
+        return None
+    run_id = profile.run_binding.run_id
+    profile_digest = profile.profile_digest
+    current = snapshot.invocation_profiles.get(run_id)
+    if type(current) is not BudgetLedgerInvocationProfile or current != profile:
+        return None
+    selected: dict[str, BudgetLedgerInvocationReservation] = {}
+    for operation_id, row in snapshot.invocation_reservations.items():
+        if row.run_id != run_id:
+            continue
+        if (
+            type(row) is not BudgetLedgerInvocationReservation
+            or row.operation_id != operation_id
+            or row.profile_digest != profile_digest
+            or row.purpose != "diagnostic"
+            or row.status not in {"completed", "failed"}
+        ):
+            return None
+        selected[operation_id] = row
+    return selected
+
+
 def _process_group_quiescent(pid: int) -> bool:
     """Check the launched process group after its leader has been reaped."""
     try:
@@ -935,15 +996,18 @@ def _begin_attempt(
             snapshot, ledger_bytes = _fenced_ledger_snapshot(ledger_path)
             if prior.ledger_hash != security.raw_content_hash(ledger_bytes):
                 raise ValueError("n5_replay_attempt_ledger_changed")
-            records = tuple(snapshot.invocation_reservations.values())
+            profile = _diagnostic_invocation_profile(
+                run_id=spec.replay_run_id,
+                job_id=spec.replay_job_id,
+                tenant_id=spec.tenant_id,
+                cell_id=spec.cell_id,
+                quota=quota,
+            )
+            records = _selected_diagnostic_invocations(snapshot, profile)
             if (
                 snapshot.revision != prior.ledger_revision
-                or any(row.status not in {"completed", "failed"} for row in records)
-                or any(
-                    row.run_id != spec.replay_run_id or row.purpose != "diagnostic"
-                    for row in records
-                )
-                or quota - sum(row.units for row in records) < spec.planned_physical_units
+                or records is None
+                or quota - sum(row.units for row in records.values()) < spec.planned_physical_units
             ):
                 raise ValueError("n5_replay_attempt_capacity_not_established")
             state = prior.model_copy(
@@ -1013,9 +1077,6 @@ def _open_diagnostic_owner(
 ) -> tuple[ProducerBudgetObserver, BudgetMiddleware]:
     """Bind one actual job to the canonical invocation-only owner."""
     from polisyos.scientist.orchestration.engine import (
-        BudgetInvocationQuotaPolicy,
-        BudgetLedgerInvocationProfile,
-        BudgetLedgerProducerRunBinding,
         BudgetLimit,
         BudgetMiddleware,
         BudgetState,
@@ -1025,29 +1086,20 @@ def _open_diagnostic_owner(
 
     if ledger_path.is_symlink():
         raise ValueError("n5_replay_diagnostic_ledger_invalid")
-    binding = BudgetLedgerProducerRunBinding(
+    profile = _diagnostic_invocation_profile(
         run_id=run_id,
-        control_job_id=job_id,
+        job_id=job_id,
         tenant_id=tenant_id,
         cell_id=cell_id,
-        profile_id="n5-replay-diagnostic-v1",
+        quota=quota,
     )
-    policy = BudgetInvocationQuotaPolicy(
-        allocation_id=f"n5-replay-{job_id}",
-        total_units=quota,
-        protected_units=quota,
-    )
-    profile = BudgetLedgerInvocationProfile.from_policy(binding, policy)
+    binding = profile.run_binding
     ledger = FileBudgetLedger(ledger_path)
     if ledger_path.exists():
         snapshot = ledger.snapshot()
         if (
-            snapshot.invocation_profiles != {binding.run_id: profile}
+            _selected_diagnostic_invocations(snapshot, profile) is None
             or snapshot.producer_settlements
-            or any(
-                row.status not in {"completed", "failed"} or row.purpose != "diagnostic"
-                for row in snapshot.invocation_reservations.values()
-            )
         ):
             raise ValueError("n5_replay_diagnostic_ledger_binding_mismatch")
     middleware = BudgetMiddleware(BudgetState(), ledger=ledger)
@@ -1563,12 +1615,20 @@ def execute_blind_n5_replay(action: N5BlindReplayAction) -> N5BlindReplayExecuti
     if observation.completion.status != "recomputed":
         raise ValueError("n5_replay_child_completion_not_established")
     snapshot = middleware.snapshot_safe()
-    reservations = snapshot.invocation_reservations
+    profile = _diagnostic_invocation_profile(
+        run_id=spec.replay_run_id,
+        job_id=spec.replay_job_id,
+        tenant_id=spec.tenant_id,
+        cell_id=spec.cell_id,
+        quota=action.quota_units,
+    )
+    reservations = _selected_diagnostic_invocations(snapshot, profile)
     operation_ids = tuple(
         item.invocation_quota_operation_id for item in result.physical_work_observations
     )
     if (
-        len(operation_ids) != spec.planned_physical_units
+        reservations is None
+        or len(operation_ids) != spec.planned_physical_units
         or len(set(operation_ids)) != len(operation_ids)
         or any(item is None or item not in reservations for item in operation_ids)
         or any(
@@ -2167,8 +2227,17 @@ def run_appointed_n5_replay(
     snapshot, ledger_bytes = _fenced_ledger_snapshot(workspace / "diagnostic-ledger.json")
     ledger_manifest = store.get_manifest(execution.ledger_snapshot_ref)
     observed = replay.physical_work_observations
+    profile = _diagnostic_invocation_profile(
+        run_id=spec.replay_run_id,
+        job_id=spec.replay_job_id,
+        tenant_id=spec.tenant_id,
+        cell_id=spec.cell_id,
+        quota=appointment.allocated_capacity_units,
+    )
+    reservations = _selected_diagnostic_invocations(snapshot, profile)
     if (
-        snapshot.revision != execution.ledger_revision
+        reservations is None
+        or snapshot.revision != execution.ledger_revision
         or (
             attempt.status in {"executed", "equal", "mismatch"}
             and attempt.ledger_hash != security.raw_content_hash(ledger_bytes)
@@ -2186,25 +2255,16 @@ def run_appointed_n5_replay(
         or execution.ledger_owner
         != (snapshot.ledger_id, snapshot.canonical_contract, snapshot.coordination_mode)
         or snapshot.producer_settlements
-        or len(snapshot.invocation_reservations) > appointment.allocated_capacity_units
-        or any(
-            row.status not in {"completed", "failed"}
-            for row in snapshot.invocation_reservations.values()
-        )
+        or len(reservations) > appointment.allocated_capacity_units
         or len(observed) != spec.planned_physical_units
         or len(set(execution.operation_ids)) != len(observed)
         or set(execution.operation_ids) != {row.invocation_quota_operation_id for row in observed}
         or any(
-            row.invocation_quota_operation_id not in snapshot.invocation_reservations
-            or snapshot.invocation_reservations[row.invocation_quota_operation_id].status
-            != "completed"
-            or snapshot.invocation_reservations[row.invocation_quota_operation_id].purpose
-            != "diagnostic"
-            or snapshot.invocation_reservations[row.invocation_quota_operation_id].run_id
-            != spec.replay_run_id
-            or snapshot.invocation_reservations[row.invocation_quota_operation_id].request_digest
+            row.invocation_quota_operation_id not in reservations
+            or reservations[row.invocation_quota_operation_id].status != "completed"
+            or reservations[row.invocation_quota_operation_id].request_digest
             != row.invocation_quota_request_digest
-            or snapshot.invocation_reservations[row.invocation_quota_operation_id].profile_digest
+            or reservations[row.invocation_quota_operation_id].profile_digest
             != row.invocation_quota_profile_digest
             or _physical_invocation_binding(
                 row.invocation_id, row.physical_spec_ref, row.effective_seed

@@ -783,19 +783,17 @@ class LessonRegistry:
                         now=now,
                         source_context=source_context,
                         ttl_days=active_policy.ttl_days,
+                        for_transfer=True,
                     )
                 except TransferScopeRefusedError as exc:
                     scope_refusals.extend(exc.refusals)
                     continue
                 if card is None:
                     continue
-                evidence_anchor = self._evidence_anchor(entry, card)
-                if evidence_anchor is None:
-                    continue
                 weight = compute_provenance_weight(
                     source_context,
                     target_context,
-                    created_at=evidence_anchor,
+                    created_at=card.created_at,
                     policy=active_policy,
                 )
                 if weight <= 0.0:
@@ -806,7 +804,7 @@ class LessonRegistry:
                     card.model_copy(update={"provenance_weight": weight}),
                     resolved_context=source_context,
                 )
-                matches.append((weight, entry.last_seen, normalized))
+                matches.append((weight, card.created_at, normalized))
 
         matches.sort(key=lambda item: (item[0], item[1].timestamp()), reverse=True)
         blocking_refusals = [
@@ -860,11 +858,9 @@ class LessonRegistry:
             now=now,
             source_context=source_context,
             ttl_days=active_policy.ttl_days,
+            for_transfer=True,
         )
         if effective_card is None:
-            return None
-        evidence_anchor = self._evidence_anchor(source_entry, effective_card)
-        if evidence_anchor is None:
             return None
         # A caller may present an already-demoted candidate; never raise it.
         effective_card = effective_card.model_copy(
@@ -880,7 +876,7 @@ class LessonRegistry:
         weight = compute_provenance_weight(
             source_context,
             target_context,
-            created_at=evidence_anchor,
+            created_at=effective_card.created_at,
             policy=active_policy,
         )
         if weight <= 0.0:
@@ -1285,6 +1281,7 @@ class LessonRegistry:
         source_context: TransferContext,
         ttl_days: int | None = None,
         accessed_at: datetime | None = None,
+        for_transfer: bool = False,
     ) -> LessonCard | None:
         card = load_lesson_card(self._store, entry.artifact_ref)
         if (
@@ -1309,7 +1306,8 @@ class LessonRegistry:
         evidence_anchor = self._evidence_anchor(entry, normalized)
         if evidence_anchor is None or evidence_anchor > now:
             return None
-        age = now - evidence_anchor
+        # A transfer carries the selected card without the source aggregate's other occurrences.
+        age = now - (normalized.created_at if for_transfer else evidence_anchor)
         trust_level = normalized.trust_level
         confidence = normalized.confidence
         if age > timedelta(days=self._transfer_policy.ttl_days if ttl_days is None else ttl_days):

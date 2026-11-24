@@ -1759,7 +1759,7 @@ def test_direct_transfer_preserves_lower_candidate_grade(tmp_path) -> None:
 
 
 def test_transfer_older_selected_card_keeps_conservative_restart_age(tmp_path) -> None:
-    """A target restart does not infer an evidence update from access or transfer."""
+    """Only the selected card supplies the transferred evidence age."""
     now = datetime.now(UTC)
     store = FileSystemCAS(tmp_path / ".polisyos")
     root = tmp_path / "registry" / "lessons"
@@ -1783,17 +1783,36 @@ def test_transfer_older_selected_card_keeps_conservative_restart_age(tmp_path) -
     older = _card(created_at=now - timedelta(days=100)).model_copy(
         update={"confidence": 0.9, "tags": ["clock-gap"]}
     )
-    registry.record_local(newer, context=source)
+    newer_ref = registry.record_local(newer, context=source)
     old_ref = registry.record_local(older, context=source)
+    source_refs = (newer_ref, old_ref)
+    original_bodies = tuple(store.get_bytes(ref) for ref in source_refs)
     entry = registry.index_snapshot(context=source).entries[0]
     assert entry.last_seen == now
     assert entry.artifact_ref == old_ref
     assert load_lesson_card(store, old_ref).created_at == older.created_at
-    query = LessonQuery(task_family="policy", tags=["clock-gap"], limit=1)
+    query = LessonQuery(task_family="policy", tags=["clock-gap"], limit=1, as_of=now)
+    strict = query.model_copy(update={"min_confidence": 0.8})
+    source_snapshot_ref = registry.snapshot_ref()
+    assert registry.find_transfer_candidates(strict, target_context=target).candidates == []
+    assert registry.query_with_transfer(strict, target_context=target) == []
+    assert registry.index_snapshot(context=target).entries == []
+    assert registry.snapshot_ref() == source_snapshot_ref
+
+    preview = registry.find_transfer_candidates(query, target_context=target).candidates
+    assert len(preview) == 1
+    assert (preview[0].trust_level, preview[0].confidence) == (
+        LessonTrustLevel.LOW_CONFIDENCE,
+        0.5,
+    )
+    assert preview[0].provenance_weight == pytest.approx(0.325)
     result = registry.query_with_transfer(query, target_context=target)
     assert len(result) == 1
-    assert result[0].confidence == 0.9
-    assert result[0].provenance_weight == pytest.approx(0.65)
+    assert (result[0].trust_level, result[0].confidence) == (
+        LessonTrustLevel.LOW_CONFIDENCE,
+        0.5,
+    )
+    assert result[0].provenance_weight == pytest.approx(0.325)
     assert result[0].created_at == older.created_at
     fresh = LessonRegistry(
         root=root, store=FileSystemCAS(tmp_path / ".polisyos"), transfer_policy=policy
@@ -1804,11 +1823,15 @@ def test_transfer_older_selected_card_keeps_conservative_restart_age(tmp_path) -
         tenant_hash="tenant-a",
         tags=["clock-gap"],
         limit=1,
+        as_of=now,
     )
     reread = fresh.query(target_query)
     assert len(reread) == 1
     assert (reread[0].trust_level, reread[0].confidence) == (LessonTrustLevel.LOW_CONFIDENCE, 0.5)
+    assert reread[0].provenance_weight == pytest.approx(0.325)
     assert reread[0].created_at == older.created_at
+    assert reread[0].lesson_id == result[0].lesson_id
+    assert tuple(store.get_bytes(ref) for ref in source_refs) == original_bodies
 
 
 def test_invalidation_beats_transfer_materialization(tmp_path) -> None:

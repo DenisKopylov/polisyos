@@ -2936,6 +2936,8 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
     from pydantic import ValidationError
 
     from polisyos.core.artifacts import ensure_ir_artifact_store, profile_bound_ref
+    from polisyos.core.artifacts.store import ArtifactIntegrityError
+    from polisyos.ir import InputRef
     from polisyos.ir.analytics.causal_graph import (
         CausalEdge,
         CausalGraphModel,
@@ -2943,6 +2945,7 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
         GraphType,
         persist_causal_graph_model,
     )
+    from polisyos.ir.model_layer.canon import CanonViolation
     from polisyos.runtime.quality import (
         RealValueOwnerGateway as PublicRealValueOwnerGateway,
     )
@@ -2968,7 +2971,9 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
         region_or_jurisdiction=problem.jurisdiction_time.region,
         policy_slot_ids=("education.teaching_method", "education.learning_outcomes"),
     )
-    store = FileSystemCAS(tmp_path / "b33-selected-graph-cas")
+    cas_root = tmp_path / "b33-selected-graph-cas"
+    store = FileSystemCAS(cas_root)
+    ir_store = ensure_ir_artifact_store(store)
     candidate = SimpleNamespace(
         candidate_id="education_teaching_method_candidate",
         treatment_variable="education.teaching_method",
@@ -3027,7 +3032,7 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
     contexts = []
     gateways = []
     for graph in graphs:
-        producer_ref = persist_causal_graph_model(ensure_ir_artifact_store(store), graph)
+        producer_ref = persist_causal_graph_model(ir_store, graph)
         selected_ref = profile_bound_ref(store, producer_ref)
         selected_refs.append(selected_ref)
         context = _cycle_context(
@@ -3093,9 +3098,10 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
     second_basis = receipts[1].transport_run_basis_ref
     assert first_basis is not None
     assert second_basis is not None
+    fresh_store = FileSystemCAS(cas_root)
     first_basis_model, first_request, first_stored_diagram, first_solver_result = (
         _resolve_value_transport_run_basis(
-            store=store,
+            store=fresh_store,
             run_basis_ref=first_basis,
             candidate=candidate,
             problem=problem,
@@ -3105,7 +3111,7 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
     )
     second_basis_model, second_request, second_stored_diagram, second_solver_result = (
         _resolve_value_transport_run_basis(
-            store=store,
+            store=fresh_store,
             run_basis_ref=second_basis,
             candidate=candidate,
             problem=problem,
@@ -3113,8 +3119,12 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
             world_record=world,
         )
     )
-    assert first_basis_model.selected_graph_ref == selected_refs[0]
-    assert second_basis_model.selected_graph_ref == selected_refs[1]
+    assert first_basis_model.selected_graph_ref.model_dump(mode="json") == selected_refs[
+        0
+    ].model_dump(mode="json")
+    assert second_basis_model.selected_graph_ref.model_dump(mode="json") == selected_refs[
+        1
+    ].model_dump(mode="json")
     assert receipts[0].transport_result_ref == first_basis_model.transport_result_ref.artifact_id
     assert receipts[1].transport_result_ref == second_basis_model.transport_result_ref.artifact_id
     assert first_stored_diagram.base_graph.edges != second_stored_diagram.base_graph.edges
@@ -3164,6 +3174,62 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
     assert receipts[1].transport_mode == second_solver_result.transport_mode.value
     assert receipts[1].required_target_data == tuple(second_solver_result.required_target_data)
 
+    alternate_graph_ref = persist_causal_graph_model(
+        ir_store,
+        graphs[0],
+        inputs=[
+            InputRef(
+                artifact_id=selected_refs[1].artifact_id,
+                role="comparison_graph",
+                manifest_profile_sha256=selected_refs[1].manifest_profile_sha256,
+            )
+        ],
+        return_selected_profile=True,
+    )
+    assert alternate_graph_ref.artifact_id == selected_refs[0].artifact_id
+    assert alternate_graph_ref.manifest_profile_sha256 != selected_refs[0].manifest_profile_sha256
+    assert ir_store.get_bytes(alternate_graph_ref.model_dump(mode="python")) == ir_store.get_bytes(
+        selected_refs[0].model_dump(mode="python")
+    )
+    alternate_context = _cycle_context(
+        design_problem_ref=problem_ref,
+        registry=registry,
+        world_model_record=world,
+        transport_graph_ref=alternate_graph_ref,
+    )
+    alternate_inputs = RealValueOwnerGateway(
+        cycle_substrate_context=alternate_context,
+        artifact_store=fresh_store,
+    ).build_transport_inputs(
+        candidate=candidate,
+        problem=problem,
+        world_record=world,
+    )
+    assert alternate_inputs["selection_diagram"].base_graph == graphs[0]
+    with pytest.raises(ValueError, match="transport_run_basis_binding_mismatch"):
+        _resolve_value_transport_run_basis(
+            store=fresh_store,
+            run_basis_ref=first_basis,
+            candidate=candidate,
+            problem=problem,
+            cycle_substrate_context=alternate_context,
+            world_record=world,
+        )
+
+    foreign_problem = DesignProblem.model_validate(
+        {**problem.model_dump(mode="python"), "design_problem_id": "foreign_education_design"}
+    )
+    assert cycle_job_design_problem_ref(foreign_problem) != problem_ref
+    with pytest.raises(ValueError, match="transport_run_basis_binding_mismatch"):
+        _resolve_value_transport_run_basis(
+            store=fresh_store,
+            run_basis_ref=first_basis,
+            candidate=candidate,
+            problem=foreign_problem,
+            cycle_substrate_context=contexts[0],
+            world_record=world,
+        )
+
     with pytest.raises(ValueError, match="transport_run_basis_binding_mismatch"):
         _resolve_value_transport_run_basis(
             store=store,
@@ -3191,28 +3257,21 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
             world_record=world,
         )
 
-    original_get_bytes = store.get_bytes
-    selected_graph_id = selected_refs[0].artifact_id
-
-    def get_bytes_without_selected_graph(selector: object) -> bytes:
-        artifact_id = getattr(selector, "artifact_id", None)
-        if artifact_id is None and isinstance(selector, dict):
-            artifact_id = selector.get("artifact_id")
-        if artifact_id == selected_graph_id:
-            raise FileNotFoundError("selected_graph_payload_removed_after_run")
-        return original_get_bytes(selector)
-
-    with monkeypatch.context() as graph_payload_removed:
-        graph_payload_removed.setattr(store, "get_bytes", get_bytes_without_selected_graph)
+    graph_path = store._member_path(selected_refs[0].artifact_id, "blob", None)
+    graph_bytes = graph_path.read_bytes()
+    graph_path.unlink()
+    try:
         with pytest.raises(ValueOwnerAccessError) as graph_read_error:
             _resolve_value_transport_run_basis(
-                store=store,
+                store=fresh_store,
                 run_basis_ref=first_basis,
                 candidate=candidate,
                 problem=problem,
                 cycle_substrate_context=contexts[0],
                 world_record=world,
             )
+    finally:
+        graph_path.write_bytes(graph_bytes)
     assert graph_read_error.value.code == "acquire_data:causal_graph_artifact_unresolved"
 
     invalid_mode_inputs = dict(
@@ -3257,57 +3316,40 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
     assert error is not None
     assert "transport_selection_diagram_not_recomputed_from_selected_graph" in error
 
-    def assert_selected_payload_rejected(artifact_id: str, *, corrupt: bool) -> None:
-        reached = False
-
-        def get_bytes_with_selected_payload_unavailable(selector: object) -> bytes:
-            nonlocal reached
-            selected_id = getattr(selector, "artifact_id", None)
-            if selected_id is None and isinstance(selector, dict):
-                selected_id = selector.get("artifact_id")
-            if selected_id == artifact_id:
-                reached = True
-                if corrupt:
-                    return b"{}"
-                raise FileNotFoundError("selected_transport_payload_removed_after_run")
-            return original_get_bytes(selector)
-
-        with monkeypatch.context() as selected_payload_unavailable:
-            selected_payload_unavailable.setattr(
-                store, "get_bytes", get_bytes_with_selected_payload_unavailable
-            )
-            if corrupt:
-                with pytest.raises(ValueError, match="ir_artifact_payload_identity_mismatch"):
-                    _resolve_value_transport_run_basis(
-                        store=store,
-                        run_basis_ref=first_basis,
-                        candidate=candidate,
-                        problem=problem,
-                        cycle_substrate_context=contexts[0],
-                        world_record=world,
-                    )
-            else:
-                with pytest.raises(
-                    FileNotFoundError,
-                    match="selected_transport_payload_removed_after_run",
-                ):
-                    _resolve_value_transport_run_basis(
-                        store=store,
-                        run_basis_ref=first_basis,
-                        candidate=candidate,
-                        problem=problem,
-                        cycle_substrate_context=contexts[0],
-                        world_record=world,
-                    )
-        assert reached
+    def assert_selected_payload_rejected(
+        artifact_id: str,
+        *,
+        defect: type[FileNotFoundError] | type[ArtifactIntegrityError],
+        typed_owner: bool,
+    ) -> None:
+        path = store._member_path(ArtifactID.model_validate(artifact_id), "blob", None)
+        original_bytes = path.read_bytes()
+        if defect is FileNotFoundError:
+            path.unlink()
+        else:
+            path.write_bytes(b"{}")
+        try:
+            with pytest.raises(CanonViolation if typed_owner else defect) as refusal:
+                _resolve_value_transport_run_basis(
+                    store=fresh_store,
+                    run_basis_ref=first_basis,
+                    candidate=candidate,
+                    problem=problem,
+                    cycle_substrate_context=contexts[0],
+                    world_record=world,
+                )
+        finally:
+            path.write_bytes(original_bytes)
+        if typed_owner:
+            assert str(refusal.value) == "ir_owned_artifact_read_refused"
+            assert isinstance(refusal.value.__cause__, defect)
 
     assert first_basis.artifact_id != first_basis_model.transport_result_ref.artifact_id
-    for selected_artifact_id in (
-        first_basis.artifact_id,
-        first_basis_model.transport_result_ref.artifact_id,
-    ):
-        assert_selected_payload_rejected(selected_artifact_id, corrupt=False)
-        assert_selected_payload_rejected(selected_artifact_id, corrupt=True)
+    for defect in (FileNotFoundError, ArtifactIntegrityError):
+        assert_selected_payload_rejected(first_basis.artifact_id, defect=defect, typed_owner=False)
+        assert_selected_payload_rejected(
+            first_basis_model.transport_result_ref.artifact_id, defect=defect, typed_owner=True
+        )
 
     with pytest.raises(ValueOwnerAccessError) as store_error:
         RealValueOwnerGateway(
@@ -3340,16 +3382,18 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
     assert blob_error.value.code == "acquire_data:causal_graph_artifact_unresolved"
 
     wrong_schema_producer_ref = persist_causal_graph_model(
-        ensure_ir_artifact_store(store),
+        ir_store,
         graphs[0],
-        schema_version="2.0",
+        schema_version="1.1",
+        return_selected_profile=True,
     )
-    wrong_schema_ref = profile_bound_ref(store, wrong_schema_producer_ref)
+    assert wrong_schema_producer_ref.artifact_id == selected_refs[0].artifact_id
+    assert wrong_schema_producer_ref.manifest_profile_sha256 is not None
     wrong_schema_context = _cycle_context(
         design_problem_ref=problem_ref,
         registry=registry,
         world_model_record=world,
-        transport_graph_ref=wrong_schema_ref,
+        transport_graph_ref=wrong_schema_producer_ref,
     )
     with pytest.raises(ValueOwnerAccessError) as schema_error:
         RealValueOwnerGateway(
@@ -3464,6 +3508,15 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
             world_record=world,
         )
     assert world_error.value.code == "transport_context_world_mismatch"
+    with pytest.raises(ValueError, match="transport_run_basis_binding_mismatch"):
+        _resolve_value_transport_run_basis(
+            store=fresh_store,
+            run_basis_ref=first_basis,
+            candidate=candidate,
+            problem=problem,
+            cycle_substrate_context=contexts[0],
+            world_record=sibling_world,
+        )
 
     no_selector_problem = problem.model_copy(
         update={"runtime_hints": {"causal_graph_model": graphs[0].model_dump(mode="json")}}
@@ -3491,7 +3544,7 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
     def persist_without_selected_profile(
         store_arg: object, result_arg: object, **kwargs: Any
     ) -> object:
-        kwargs.pop("return_selected_profile", None)
+        kwargs["return_selected_profile"] = False
         return persist_transportability_result(store_arg, result_arg, **kwargs)
 
     monkeypatch.setattr(
@@ -3503,6 +3556,7 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
         candidate=candidate,
         problem=problem,
         world_record=world,
+        solver_mode="simplified",
     )
     assert receipt is None
     assert error is not None

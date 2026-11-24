@@ -12,7 +12,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1676`.
+- Total IR types: `1678`.
 - Public/root-or-package facade types: `694`.
 - ABI snapshot-backed types: `103`.
 - Export enumeration covers these public packages:
@@ -31,7 +31,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 1028 | 347 | 45 |
+| `analytics` | 1030 | 347 | 45 |
 | `artifacts` | 30 | 3 | 0 |
 | `governance` | 99 | 27 | 8 |
 | `kernel` | 60 | 54 | 0 |
@@ -1332,6 +1332,23 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `valid_from` | `str \| NoneType` | `no` | `—` | — |
 | `valid_to` | `str \| NoneType` | `no` | `—` | — |
 
+### `polisyos.ir.analytics.backtest.BacktestNumericalRange` { #polisyos-ir-analytics-backtest-backtestnumericalrange }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.backtest.BacktestResidualOverflowCell`
+- Summary: Binary64 range failures without losing representable comparison rows.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `policy_version` | `Literal[backtest.binary64.v1]` | `yes` | `—` | — |
+| `residual_overflow_cells` | `list[polisyos.ir.analytics.backtest.BacktestResidualOverflowCell]` | `no` | `—` | `polisyos.ir.analytics.backtest.BacktestResidualOverflowCell` |
+| `unavailable_error_sums` | `dict[_ErrorSumName, _RangeFailure]` | `no` | `—` | — |
+
 ### `polisyos.ir.analytics.backtest.BacktestReport` { #polisyos-ir-analytics-backtest-backtestreport }
 
 - Kind: `pydantic_model`
@@ -1345,7 +1362,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
-| `aggregation_policy` | `str \| NoneType` | `no` | `—` | — |
+| `aggregation_policy` | `Literal[micro_rmse_with_explicit_equal_scenario_macro] \| NoneType` | `no` | `—` | — |
 | `backtest_config_ref` | `str \| NoneType` | `no` | `—` | — |
 | `cas_artifact_id` | `str \| NoneType` | `no` | `—` | — |
 | `decision_packet_ref` | `str \| NoneType` | `no` | `—` | — |
@@ -1375,6 +1392,24 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `trust_grade` | `str \| NoneType` | `no` | `—` | — |
 | `trust_score` | `float \| NoneType` | `no` | `—` | — |
 
+### `polisyos.ir.analytics.backtest.BacktestResidualOverflowCell` { #polisyos-ir-analytics-backtest-backtestresidualoverflowcell }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Finite operands at an invalid requested cell whose residual overflows.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `metric_name` | `str` | `yes` | `—` | — |
+| `observation_index` | `int` | `yes` | `—` | — |
+| `y_pred` | `float` | `yes` | `—` | — |
+| `y_true` | `float` | `yes` | `—` | — |
+
 ### `polisyos.ir.analytics.backtest.BacktestScenario` { #polisyos-ir-analytics-backtest-backtestscenario }
 
 - Kind: `pydantic_model`
@@ -1383,7 +1418,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Exported from: `polisyos.ir.analytics:BacktestScenario`, `polisyos.ir:BacktestScenario`
 - ABI snapshot: `—` / `—`
 - Compatibility mode: `—`
-- References: `polisyos.ir.analytics.backtest.OutcomeComparison`
+- References: `polisyos.ir.analytics.backtest.BacktestNumericalRange`, `polisyos.ir.analytics.backtest.OutcomeComparison`
 - Summary: Historical validation scenario with per-metric forecast comparisons.
 
 | Field | Type | Required | Default | IR refs |
@@ -1409,6 +1444,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `missing_cells` | `list[tuple[str, int]]` | `no` | `—` | — |
 | `missing_count` | `int` | `no` | `0` | — |
 | `nominal_confidence_level` | `float \| NoneType` | `no` | `—` | — |
+| `numerical_range` | `polisyos.ir.analytics.backtest.BacktestNumericalRange \| NoneType` | `no` | `—` | `polisyos.ir.analytics.backtest.BacktestNumericalRange` |
 | `outcome_comparisons` | `list[polisyos.ir.analytics.backtest.OutcomeComparison]` | `no` | `—` | `polisyos.ir.analytics.backtest.OutcomeComparison` |
 | `percentage_error_count` | `int` | `no` | `0` | — |
 | `percentage_error_sum` | `float \| NoneType` | `no` | `—` | — |

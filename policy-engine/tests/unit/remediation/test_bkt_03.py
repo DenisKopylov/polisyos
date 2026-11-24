@@ -39,6 +39,65 @@ def _run_provided_report(
     return BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos")).run([plan])
 
 
+@pytest.mark.parametrize(
+    "predictions",
+    [
+        [1e16, 1.0, -1e16],
+        [1e16, -1e16, 1.0],
+        [-1e16, 1.0, 1e16],
+    ],
+    ids=["positive-middle", "positive-last", "negative-first"],
+)
+def test_cancellation_permutations_preserve_signed_bias_after_cas_readback(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    predictions: list[float],
+) -> None:
+    """Provided residual permutations retain their source-bound positive mean."""
+    from fractions import Fraction
+    from math import fsum
+
+    def _unavailable(_module_name: str) -> object:
+        raise ModuleNotFoundError("controlled scipy.stats importer denial")
+
+    monkeypatch.setattr(orchestrator_module, "import_module", _unavailable)
+    report = _run_provided_report(
+        tmp_path,
+        predictions=predictions,
+        truths=[0.0, 0.0, 0.0],
+    )
+    assert report.cas_artifact_id is not None
+    store = build_ir_artifact_store(tmp_path / ".polisyos")
+    stored_report = BacktestReport.model_validate(
+        get_json_artifact(_ensure_ir_artifact_store(store), report.cas_artifact_id)
+    )
+
+    expected_mean = float(Fraction(1, 3))
+    expected_mae = fsum(abs(value) for value in predictions) / len(predictions)
+    for observed in (report, stored_report):
+        assert observed.n_metrics_evaluated == 3
+        assert observed.scenarios[0].compared_count == 3
+        assert observed.scenarios[0].mae == pytest.approx(expected_mae)
+        assert observed.overall_mae == pytest.approx(expected_mae)
+        diagnostic = observed.metric_diagnostics[0]
+        assert diagnostic.mean_residual == pytest.approx(expected_mean, abs=1e-15)
+        assert diagnostic.magnitude == pytest.approx(expected_mean, abs=1e-15)
+        assert diagnostic.residual_sign == "positive"
+        assert diagnostic.direction_status == "not_established"
+        assert diagnostic.status == "unavailable"
+        assert diagnostic.reason == "scipy_ttest_1samp_error:ModuleNotFoundError"
+        assert observed.overall_bias_direction is BiasDirection.UNKNOWN
+        assert len(observed.detected_biases) == 1
+        bias = observed.detected_biases[0]
+        assert bias.direction is BiasDirection.UNKNOWN
+        assert bias.magnitude == pytest.approx(expected_mean, abs=1e-15)
+        assert bias.p_value is None
+        assert observed.degraded is True
+        assert observed.trust_eligible is False
+        assert observed.trust_score is None
+        assert observed.trust_grade is None
+
+
 def test_constant_nonzero_residual_keeps_descriptive_bias_without_significance(
     tmp_path: Path,
 ) -> None:
@@ -121,6 +180,98 @@ def test_small_sample_ttest_matches_scipy_reference() -> None:
     assert observed == pytest.approx(0.121690, abs=1e-6)
 
 
+def test_tiny_nonconstant_ttest_matches_ordinary_scale_scipy_reference() -> None:
+    """A tiny but distinct cohort is normalized without changing its t statistic."""
+    scipy = pytest.importorskip("scipy")
+    scipy_stats = pytest.importorskip("scipy.stats")
+    tiny_errors = np.asarray([1e-200, 2e-200, 3e-200], dtype=float)
+    ordinary_errors = np.asarray([1.0, 2.0, 3.0], dtype=float)
+    with np.errstate(under="ignore"):
+        assert float(np.std(tiny_errors, ddof=1)) == 0.0
+
+    expected = scipy_stats.ttest_1samp(
+        ordinary_errors,
+        popmean=0.0,
+        alternative="two-sided",
+    )
+    observed = BacktestOrchestrator._two_sided_ttest(tiny_errors)
+
+    assert observed.status == "available"
+    assert observed.method_id == "scipy.stats.ttest_1samp"
+    assert observed.backend_id == "scipy"
+    assert observed.backend_version == scipy.__version__
+    assert observed.statistic is not None and observed.statistic != 0.0
+    assert observed.statistic == pytest.approx(float(expected.statistic), rel=1e-10, abs=1e-10)
+    assert observed.p_value == pytest.approx(float(expected.pvalue), rel=1e-10, abs=1e-10)
+
+
+def test_cancellation_scipy_mismatch_is_unavailable_after_cas_readback(
+    tmp_path: Path,
+) -> None:
+    """A real SciPy result that loses the source mean cannot enter the report."""
+    from fractions import Fraction
+
+    scipy_stats = pytest.importorskip("scipy.stats")
+    predictions = [1e16, 1.0, -1e16]
+    raw = scipy_stats.ttest_1samp(
+        np.asarray(predictions, dtype=float),
+        popmean=0.0,
+        alternative="two-sided",
+    )
+    assert float(raw.statistic) == 0.0
+    assert float(raw.pvalue) == 1.0
+
+    report = _run_provided_report(
+        tmp_path,
+        predictions=predictions,
+        truths=[0.0, 0.0, 0.0],
+    )
+    assert report.cas_artifact_id is not None
+    store = build_ir_artifact_store(tmp_path / ".polisyos")
+    stored_report = BacktestReport.model_validate(
+        get_json_artifact(_ensure_ir_artifact_store(store), report.cas_artifact_id)
+    )
+    expected_mean = float(Fraction(1, 3))
+    for observed in (report, stored_report):
+        diagnostic = observed.metric_diagnostics[0]
+        assert diagnostic.mean_residual == pytest.approx(expected_mean, abs=1e-15)
+        assert diagnostic.magnitude == pytest.approx(expected_mean, abs=1e-15)
+        assert diagnostic.residual_sign == "positive"
+        assert diagnostic.direction_status == "not_established"
+        assert diagnostic.status == "unavailable"
+        assert diagnostic.reason == "scipy_ttest_1samp_numeric_range"
+        assert diagnostic.method_id is None
+        assert diagnostic.backend_id is None
+        assert diagnostic.backend_version is None
+        assert diagnostic.statistic is None
+        assert diagnostic.p_value is None
+        assert len(observed.detected_biases) == 1
+        bias = observed.detected_biases[0]
+        assert bias.direction is BiasDirection.UNKNOWN
+        assert bias.magnitude == pytest.approx(expected_mean, abs=1e-15)
+        assert bias.p_value is None
+        assert observed.trust_eligible is False
+
+
+def test_ttest_refuses_unrepresentable_finite_statistic_with_typed_reason() -> None:
+    """Finite source values cannot justify a statistic outside binary64 range."""
+    from fractions import Fraction
+
+    errors = np.asarray([1e308, 1e-30, -1e308], dtype=float)
+    exact_mean = sum(Fraction.from_float(float(value)) for value in errors) / len(errors)
+    assert float(exact_mean) > 0.0
+
+    observed = BacktestOrchestrator._two_sided_ttest(errors)
+
+    assert observed.status == "unavailable"
+    assert observed.reason == "scipy_ttest_1samp_numeric_range"
+    assert observed.method_id is None
+    assert observed.backend_id is None
+    assert observed.backend_version is None
+    assert observed.statistic is None
+    assert observed.p_value is None
+
+
 def test_scipy_unavailability_preserves_metrics_and_withholds_trust(
     monkeypatch,
     tmp_path: Path,
@@ -171,7 +322,11 @@ def test_scipy_unavailability_preserves_metrics_and_withholds_trust(
             "scipy_ttest_1samp_error:ModuleNotFoundError",
         ),
         ([1e-14, 1e-14, 1e-14], [0.0, 0.0, 0.0], "zero_variance"),
-        ([-1e-14, 0.0, 1e-14], [0.0, 0.0, 0.0], "zero_variance"),
+        (
+            [-1e-14, 0.0, 1e-14],
+            [0.0, 0.0, 0.0],
+            "scipy_ttest_1samp_error:ModuleNotFoundError",
+        ),
         ([1e-14], [0.0], "insufficient_observations"),
     ],
     ids=[

@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping
+from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Literal
+from statistics import mean
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -19,6 +21,145 @@ from polisyos.ir.artifacts.io import _get_owned_json_artifact, _put_owned_json_a
 from polisyos.ir.migrations.base import CompatibilityMode
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, BacktestReportRef
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+
+
+type _ErrorSumName = Literal["squared_error_sum", "absolute_error_sum", "percentage_error_sum"]
+type _RangeFailure = Literal["overflow", "underflow"]
+
+
+class BacktestResidualOverflowCell(BaseModel):
+    """Finite operands at an invalid requested cell whose residual overflows."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    metric_name: str = Field(min_length=1)
+    observation_index: int = Field(ge=0)
+    y_pred: float = Field(allow_inf_nan=False)
+    y_true: float = Field(allow_inf_nan=False)
+
+    @model_validator(mode="after")
+    def _validate_residual_range(self) -> BacktestResidualOverflowCell:
+        if math.isfinite(self.y_pred - self.y_true):
+            raise ValueError("residual overflow cell must have an unrepresentable residual")
+        return self
+
+
+class BacktestNumericalRange(BaseModel):
+    """Binary64 range failures without losing representable comparison rows."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    policy_version: Literal["backtest.binary64.v1"]
+    residual_overflow_cells: list[BacktestResidualOverflowCell] = Field(default_factory=list)
+    unavailable_error_sums: dict[_ErrorSumName, _RangeFailure] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _require_limitation(self) -> BacktestNumericalRange:
+        if not (self.residual_overflow_cells or self.unavailable_error_sums):
+            raise ValueError("numerical range record requires at least one limitation")
+        return self
+
+
+@dataclass(frozen=True)
+class _BacktestErrorSummary:
+    rmse: float | None
+    mae: float | None
+    mape: float | None
+    squared_error_sum: float | None
+    absolute_error_sum: float | None
+    percentage_error_sum: float | None
+    unavailable_error_sums: dict[_ErrorSumName, _RangeFailure]
+
+
+def backtest_mean(values: Sequence[float]) -> float | None:
+    """Calculate a mean of finite values even when their sum overflows."""
+    if len(values) == 0:
+        return None
+    try:
+        return math.fsum(values) / len(values)
+    except OverflowError:
+        # The exact-ratio reduction keeps the sign of a small residual after cancellation.
+        return mean(values)
+
+
+def backtest_sample_spread(values: Sequence[float], average: float) -> tuple[float, float]:
+    """Return the scale and dimensionless sample deviation of finite residuals."""
+    scale = max((abs(value) for value in values), default=0.0)
+    if len(values) < 2 or scale == 0.0:
+        return scale, 0.0
+
+    def centered(value: float) -> float:
+        difference = value - average
+        if math.isfinite(difference):
+            return difference / scale
+        return value / scale - average / scale
+
+    squared = math.fsum(centered(value) ** 2 for value in values)
+    return scale, math.sqrt(squared / (len(values) - 1))
+
+
+def _finite_sum(values: Iterable[float]) -> float | None:
+    try:
+        return math.fsum(values)
+    except OverflowError:
+        return None
+
+
+def summarize_backtest_errors(
+    residuals: Sequence[float], percentage_errors: Sequence[float]
+) -> _BacktestErrorSummary:
+    """Recompute error metrics and the range of raw sums from eligible finite rows."""
+    unavailable: dict[_ErrorSumName, _RangeFailure] = {}
+    absolute_sum = _finite_sum(abs(value) for value in residuals)
+    percentage_sum = _finite_sum(percentage_errors)
+    if absolute_sum is None:
+        unavailable["absolute_error_sum"] = "overflow"
+    if percentage_sum is None:
+        unavailable["percentage_error_sum"] = "overflow"
+
+    scale = max((abs(value) for value in residuals), default=0.0)
+    squared_sum: float | None = 0.0
+    rmse = 0.0 if residuals else None
+    if scale:
+        scaled_sum = math.fsum((value / scale) ** 2 for value in residuals)
+        rmse = scale * math.sqrt(scaled_sum / len(residuals))
+        mantissa, exponent = math.frexp(scale)
+        try:
+            squared_sum = math.ldexp(mantissa * mantissa * scaled_sum, 2 * exponent)
+        except OverflowError:
+            squared_sum = None
+            unavailable["squared_error_sum"] = "overflow"
+        else:
+            if squared_sum == 0.0:
+                squared_sum = None
+                unavailable["squared_error_sum"] = "underflow"
+
+    mae = None
+    if residuals:
+        mae = (
+            mean(abs(value) for value in residuals)
+            if absolute_sum is None
+            else absolute_sum / len(residuals)
+        )
+    mape = None
+    if percentage_errors:
+        mape = (
+            mean(percentage_errors)
+            if percentage_sum is None
+            else percentage_sum / len(percentage_errors)
+        )
+    return _BacktestErrorSummary(
+        rmse=rmse,
+        mae=mae,
+        mape=mape,
+        squared_error_sum=squared_sum,
+        absolute_error_sum=absolute_sum,
+        percentage_error_sum=percentage_sum,
+        unavailable_error_sums=unavailable,
+    )
 
 
 class BiasDirection(str, Enum):
@@ -238,6 +379,9 @@ class BacktestScenario(BaseModel):
     absolute_error_sum: float | None = Field(default=None, ge=0.0)
     percentage_error_sum: float | None = Field(default=None, ge=0.0)
     percentage_error_count: int = Field(default=0, ge=0)
+    numerical_range: BacktestNumericalRange | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
@@ -274,6 +418,20 @@ class BacktestScenario(BaseModel):
         ):
             if value is not None and not math.isfinite(value):
                 raise ValueError(f"{name} must be finite")
+        if self.numerical_range is not None:
+            addresses = [
+                (cell.metric_name, cell.observation_index)
+                for cell in self.numerical_range.residual_overflow_cells
+            ]
+            if len(addresses) != len(set(addresses)) or not set(addresses) <= set(
+                self.invalid_cells
+            ):
+                raise ValueError("residual overflow cells must be distinct invalid addresses")
+            if any(
+                getattr(self, name) is not None
+                for name in self.numerical_range.unavailable_error_sums
+            ):
+                raise ValueError("unavailable error sums must not claim a numerical value")
         return self
 
 
@@ -305,7 +463,7 @@ class BacktestReport(BaseModel):
     overall_r_squared: float | None = None
     n_scenarios: int = Field(default=0, ge=0)
     n_metrics_evaluated: int = Field(default=0, ge=0)
-    aggregation_policy: str | None = Field(default=None, min_length=1)
+    aggregation_policy: Literal["micro_rmse_with_explicit_equal_scenario_macro"] | None = None
 
     detected_biases: list[SystematicBias] = Field(default_factory=list)
     metric_diagnostics: list[MetricBiasDiagnostic] = Field(default_factory=list)
@@ -339,10 +497,20 @@ class BacktestReport(BaseModel):
         ):
             if value is not None and not math.isfinite(value):
                 raise ValueError(f"{name} must be finite")
+        range_limited = any(scenario.numerical_range is not None for scenario in self.scenarios)
         if "metric_diagnostics" in self.model_fields_set:
             self._assert_metric_diagnostics_match_scenarios()
         else:
+            if range_limited:
+                raise ValueError("numerical range limitations require source-bound diagnostics")
             self._refuse_unbound_legacy_trust()
+        if range_limited and (
+            not self.degraded
+            or self.trust_eligible
+            or self.trust_score is not None
+            or self.trust_grade is not None
+        ):
+            raise ValueError("numerical range limitations require degraded trust refusal")
         if any(item.direction_status == "not_established" for item in self.metric_diagnostics):
             if self.overall_bias_direction is not BiasDirection.UNKNOWN:
                 raise ValueError("unresolved metric direction requires unknown report direction")
@@ -366,14 +534,73 @@ class BacktestReport(BaseModel):
     def _close(actual: float, expected: float) -> bool:
         return math.isclose(actual, expected, rel_tol=1e-9, abs_tol=1e-12)
 
+    def _assert_scenario_errors(
+        self,
+        scenario: BacktestScenario,
+        residuals: list[float],
+        percentage_errors: list[float],
+    ) -> float | None:
+        expected = summarize_backtest_errors(residuals, percentage_errors)
+        limitation = scenario.numerical_range
+        declared = limitation.unavailable_error_sums if limitation is not None else {}
+        # Earlier reports squared first and could round a positive sum to zero.
+        legacy_rounded_square = (
+            limitation is None
+            and expected.unavailable_error_sums == {"squared_error_sum": "underflow"}
+            and scenario.squared_error_sum == 0.0
+            and scenario.rmse == 0.0
+        )
+        if declared != expected.unavailable_error_sums and not legacy_rounded_square:
+            raise ValueError("scenario numerical range does not reconcile with actual outcome rows")
+        if scenario.percentage_error_count != len(percentage_errors):
+            raise ValueError("scenario percentage-error count does not reconcile with outcome rows")
+        if not percentage_errors and scenario.percentage_error_sum not in (None, 0.0):
+            raise ValueError("scenario percentage-error sum requires source relative errors")
+        fields = [("mape", "MAPE", expected.mape)]
+        if percentage_errors:
+            fields.append(
+                ("percentage_error_sum", "percentage-error sum", expected.percentage_error_sum)
+            )
+        if residuals:
+            fields.extend(
+                (
+                    ("mae", "MAE", expected.mae),
+                    ("absolute_error_sum", "absolute-error sum", expected.absolute_error_sum),
+                    ("rmse", "RMSE", 0.0 if legacy_rounded_square else expected.rmse),
+                    (
+                        "squared_error_sum",
+                        "squared-error sum",
+                        0.0 if legacy_rounded_square else expected.squared_error_sum,
+                    ),
+                )
+            )
+        elif limitation is not None and (
+            scenario.rmse is not None
+            or scenario.mae is not None
+            or scenario.squared_error_sum not in (None, 0.0)
+            or scenario.absolute_error_sum not in (None, 0.0)
+        ):
+            raise ValueError(
+                "range-limited scenario without comparisons cannot claim error metrics"
+            )
+        abs_tol = 0.0 if limitation is not None else 1e-12
+        for field, label, value in fields:
+            actual = getattr(scenario, field)
+            if value is None and actual is None:
+                continue
+            if (
+                value is None
+                or actual is None
+                or not math.isclose(actual, value, rel_tol=1e-9, abs_tol=abs_tol)
+            ):
+                raise ValueError(f"scenario {label} does not reconcile with actual outcome rows")
+        return 0.0 if legacy_rounded_square else expected.rmse
+
     def _assert_metric_diagnostics_match_scenarios(self) -> None:
         """Reconcile every persisted diagnostic and aggregate against source rows."""
         errors_by_metric: dict[str, list[float]] = {}
-        total_absolute_error = 0.0
-        total_squared_error = 0.0
-        total_count = 0
-        total_percentage_error = 0.0
-        total_percentage_count = 0
+        scenario_rmses: list[float] = []
+        total_percentage_errors: list[float] = []
         total_interval_evaluated = 0
         total_interval_hits = 0
         coverage_values: list[float] = []
@@ -433,33 +660,12 @@ class BacktestReport(BaseModel):
                     raise ValueError("source outcome within_ci does not match interval bounds")
                 errors_by_metric.setdefault(comparison.metric_name, []).append(residual)
                 scenario_errors.append(residual)
-            expected_pct_sum = math.fsum(percentage_errors)
-            expected_pct_count = len(percentage_errors)
-            if scenario.percentage_error_count != expected_pct_count:
-                raise ValueError(
-                    "scenario percentage-error count does not reconcile with outcome rows"
-                )
-            if expected_pct_count:
-                if scenario.percentage_error_sum is None or not self._close(
-                    scenario.percentage_error_sum, expected_pct_sum
-                ):
-                    raise ValueError(
-                        "scenario percentage-error sum does not reconcile with outcome rows"
-                    )
-                expected_mape = expected_pct_sum / expected_pct_count
-            else:
-                if scenario.percentage_error_sum not in (None, 0.0):
-                    raise ValueError(
-                        "scenario percentage-error sum requires source relative errors"
-                    )
-                expected_mape = None
-            if expected_mape is None:
-                if scenario.mape is not None:
-                    raise ValueError("scenario MAPE does not reconcile with source relative errors")
-            elif scenario.mape is None or not self._close(scenario.mape, expected_mape):
-                raise ValueError("scenario MAPE does not reconcile with source relative errors")
-            total_percentage_error += expected_pct_sum
-            total_percentage_count += expected_pct_count
+            scenario_rmse = self._assert_scenario_errors(
+                scenario, scenario_errors, percentage_errors
+            )
+            if scenario_rmse is not None:
+                scenario_rmses.append(scenario_rmse)
+            total_percentage_errors.extend(percentage_errors)
             if scenario.interval_requested_count == 0 and interval_available:
                 raise ValueError("source intervals require a declared interval request")
             expected_availability = (
@@ -519,30 +725,6 @@ class BacktestReport(BaseModel):
                         "interval_hit_count": scenario.interval_hit_count,
                     }
                 )
-            if scenario_errors:
-                scenario_abs = math.fsum(abs(value) for value in scenario_errors)
-                scenario_sq = math.fsum(value * value for value in scenario_errors)
-                scenario_mae = scenario_abs / len(scenario_errors)
-                scenario_rmse = math.sqrt(scenario_sq / len(scenario_errors))
-                if scenario.mae is None or not self._close(scenario.mae, scenario_mae):
-                    raise ValueError("scenario MAE does not reconcile with actual outcome rows")
-                if scenario.rmse is None or not self._close(scenario.rmse, scenario_rmse):
-                    raise ValueError("scenario RMSE does not reconcile with actual outcome rows")
-                if scenario.absolute_error_sum is None or not self._close(
-                    scenario.absolute_error_sum, scenario_abs
-                ):
-                    raise ValueError(
-                        "scenario absolute-error sum does not reconcile with actual outcome rows"
-                    )
-                if scenario.squared_error_sum is None or not self._close(
-                    scenario.squared_error_sum, scenario_sq
-                ):
-                    raise ValueError(
-                        "scenario squared-error sum does not reconcile with actual outcome rows"
-                    )
-                total_absolute_error += scenario_abs
-                total_squared_error += scenario_sq
-                total_count += len(scenario_errors)
         recorded_intervals = self.metadata.get("interval_contracts")
         if interval_contracts:
             if recorded_intervals != interval_contracts:
@@ -551,22 +733,46 @@ class BacktestReport(BaseModel):
                 )
         elif recorded_intervals not in (None, []):
             raise ValueError("interval contracts have no matching source scenarios")
-        if self.n_metrics_evaluated != total_count:
+        residuals = [value for values in errors_by_metric.values() for value in values]
+        if self.n_metrics_evaluated != len(residuals):
             raise ValueError("n_metrics_evaluated must match the complete actual outcome-row set")
-        if total_count:
-            expected_mae = total_absolute_error / total_count
-            expected_rmse = math.sqrt(total_squared_error / total_count)
-            if self.overall_mae is None or not self._close(self.overall_mae, expected_mae):
-                raise ValueError("overall MAE does not reconcile with actual outcome rows")
-            if self.overall_rmse is None or not self._close(self.overall_rmse, expected_rmse):
-                raise ValueError("overall RMSE does not reconcile with actual outcome rows")
-        expected_mape = (
-            total_percentage_error / total_percentage_count if total_percentage_count else None
-        )
+        totals = summarize_backtest_errors(residuals, total_percentage_errors)
+        range_limited = any(scenario.numerical_range is not None for scenario in self.scenarios)
+        abs_tol = 0.0 if range_limited else 1e-12
+        if self.aggregation_policy is None:
+            if self.overall_macro_rmse is not None:
+                raise ValueError("backtest macro RMSE requires declared aggregation policy")
+        else:
+            if self.aggregation_policy != "micro_rmse_with_explicit_equal_scenario_macro":
+                raise ValueError("backtest aggregation policy is unsupported")
+            expected_macro = backtest_mean(scenario_rmses)
+            if expected_macro is None:
+                if self.overall_macro_rmse is not None:
+                    raise ValueError("backtest macro RMSE differs from source outcomes")
+            elif self.overall_macro_rmse is None or not math.isclose(
+                self.overall_macro_rmse, expected_macro, rel_tol=1e-9, abs_tol=abs_tol
+            ):
+                raise ValueError("backtest macro RMSE differs from source outcomes")
+        if residuals or range_limited:
+            for actual, expected, label in (
+                (self.overall_mae, totals.mae, "MAE"),
+                (self.overall_rmse, totals.rmse, "RMSE"),
+            ):
+                if actual is None and expected is None:
+                    continue
+                if (
+                    actual is None
+                    or expected is None
+                    or not math.isclose(actual, expected, rel_tol=1e-9, abs_tol=abs_tol)
+                ):
+                    raise ValueError(f"overall {label} does not reconcile with actual outcome rows")
+        expected_mape = totals.mape
         if expected_mape is None:
             if self.overall_mape is not None:
                 raise ValueError("overall MAPE does not reconcile with actual outcome rows")
-        elif self.overall_mape is None or not self._close(self.overall_mape, expected_mape):
+        elif self.overall_mape is None or not math.isclose(
+            self.overall_mape, expected_mape, rel_tol=1e-9, abs_tol=abs_tol
+        ):
             raise ValueError("overall MAPE does not reconcile with actual outcome rows")
         expected_coverage = (
             total_interval_hits / total_interval_evaluated
@@ -590,12 +796,14 @@ class BacktestReport(BaseModel):
         for diagnostic in diagnostics:
             values = errors_by_metric[diagnostic.metric_name]
             n = len(values)
-            mean = math.fsum(values) / n
-            magnitude = abs(mean)
+            average = backtest_mean(values)
+            if average is None:
+                raise ValueError("metric diagnostic missing source residuals")
+            magnitude = abs(average)
             exact_zero = all(value == 0.0 for value in values)
-            expected_sign = "positive" if mean > 0 else "negative" if mean < 0 else "zero"
+            expected_sign = "positive" if average > 0 else "negative" if average < 0 else "zero"
             expected_direction = "not_applicable" if exact_zero else "not_established"
-            if diagnostic.n != n or not self._close(diagnostic.mean_residual, mean):
+            if diagnostic.n != n or not self._close(diagnostic.mean_residual, average):
                 raise ValueError(
                     "metric diagnostic does not reconcile source count/mean: "
                     f"{diagnostic.metric_name}"
@@ -642,11 +850,6 @@ class BacktestReport(BaseModel):
                     "nonzero source residuals cannot be marked exact_zero: "
                     f"{diagnostic.metric_name}"
                 )
-            sample_std = (
-                math.sqrt(math.fsum((value - mean) ** 2 for value in values) / (n - 1))
-                if n > 1
-                else 0.0
-            )
             if n < 3:
                 if (
                     diagnostic.status != "not_computable"
@@ -656,19 +859,27 @@ class BacktestReport(BaseModel):
                         "metric diagnostic availability does not match source count: "
                         f"{diagnostic.metric_name}"
                     )
-            elif sample_std <= 1e-12:
+                continue
+            if all(value == values[0] for value in values):
                 if diagnostic.status != "not_computable" or diagnostic.reason != "zero_variance":
                     raise ValueError(
                         "metric diagnostic availability does not match source variance: "
                         f"{diagnostic.metric_name}"
                     )
-            elif diagnostic.status == "not_computable":
-                raise ValueError(
-                    "variable source residuals cannot be marked not_computable: "
-                    f"{diagnostic.metric_name}"
-                )
+                continue
+            if diagnostic.status == "not_computable":
+                scale, scaled_spread = backtest_sample_spread(values, average)
+                # Legacy reports could withhold inference at the old absolute variance cutoff.
+                if diagnostic.reason != "zero_variance" or scale * scaled_spread > 1e-12:
+                    raise ValueError(
+                        "variable source residuals cannot be marked not_computable: "
+                        f"{diagnostic.metric_name}"
+                    )
             elif diagnostic.status == "available":
-                expected_statistic = mean / (sample_std / math.sqrt(n))
+                scale, scaled_spread = backtest_sample_spread(values, average)
+                if scaled_spread == 0.0:
+                    raise ValueError("executed diagnostic sample re-scaling is unavailable")
+                expected_statistic = (average / scale) / (scaled_spread / math.sqrt(n))
                 if (
                     diagnostic.method_id != "scipy.stats.ttest_1samp"
                     or diagnostic.backend_id != "scipy"

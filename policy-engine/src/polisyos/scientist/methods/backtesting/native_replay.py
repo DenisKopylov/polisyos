@@ -1523,7 +1523,11 @@ def load_native_backtest_report(
     This proves the native prediction projection for selected report bytes. It
     does not establish independent empirical observations or calibration.
     """
-    from polisyos.ir.analytics.backtest import load_backtest_report_candidate
+    from polisyos.ir.analytics.backtest import (
+        backtest_mean,
+        load_backtest_report_candidate,
+        summarize_backtest_errors,
+    )
     from polisyos.ir.registry.refs import BacktestReportRef
 
     report = load_backtest_report_candidate(
@@ -1544,10 +1548,11 @@ def load_native_backtest_report(
             ):
                 raise ValueError("native report empty scenario cannot claim error metrics")
             continue
-        scenario_rmses.append(
-            math.sqrt(math.fsum((row.y_pred - row.y_true) ** 2 for row in rows) / len(rows))
-        )
-    expected_macro = math.fsum(scenario_rmses) / len(scenario_rmses) if scenario_rmses else None
+        errors = summarize_backtest_errors([row.y_pred - row.y_true for row in rows], ())
+        if errors.rmse is None:
+            raise ValueError("native report scenario is missing source residuals")
+        scenario_rmses.append(errors.rmse)
+    expected_macro = backtest_mean(scenario_rmses)
     if expected_macro is None:
         if (
             report.overall_macro_rmse is not None
@@ -1555,10 +1560,15 @@ def load_native_backtest_report(
             or report.overall_mae is not None
         ):
             raise ValueError("native report empty outcomes cannot claim error metrics")
-    elif report.overall_macro_rmse is None or not math.isclose(
-        report.overall_macro_rmse, expected_macro, rel_tol=1e-9, abs_tol=1e-12
-    ):
-        raise ValueError("native report macro RMSE differs from source outcomes")
+    else:
+        range_limited = any(scenario.numerical_range is not None for scenario in report.scenarios)
+        if report.overall_macro_rmse is None or not math.isclose(
+            report.overall_macro_rmse,
+            expected_macro,
+            rel_tol=1e-9,
+            abs_tol=0.0 if range_limited else 1e-12,
+        ):
+            raise ValueError("native report macro RMSE differs from source outcomes")
     if report.overall_r_squared is not None:
         raise ValueError("native report does not establish R-squared")
     manifest = store.get_manifest(report_ref)

@@ -1,25 +1,18 @@
-"""Behavioral witnesses for the BKT-02 backtesting contract.
-
-These tests deliberately describe the missing B167/B168/B171 behavior at the
-public backtesting seams.  They are test-first witnesses: this branch owns no
-production remediation.
-"""
+"""Exercise coverage, report completeness, and range at backtesting boundaries."""
 
 from __future__ import annotations
 
 import math
+import sys
 
 import pytest
 
-import polisyos.scientist.methods.backtesting.orchestrator as orchestrator_module
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
     BacktestScenario,
     OutcomeComparison,
 )
-from polisyos.ir.artifacts import StorePutOptions
-from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.scientist.methods.backtesting.evaluator import PredictionEvaluator
 from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator
 from polisyos.scientist.methods.backtesting.plan import (
@@ -210,6 +203,52 @@ def test_micro_rmse_is_partition_invariant_and_macro_is_explicit(tmp_path) -> No
     assert partitioned_report.aggregation_policy == "micro_rmse_with_explicit_equal_scenario_macro"
 
 
+@pytest.mark.parametrize("residual", [1e154, 1e308])
+def test_range_limited_micro_metrics_survive_partition_and_fresh_cas(
+    residual: float, tmp_path
+) -> None:
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.ir.analytics.backtest import load_backtest_report
+    from polisyos.scientist.governance.backtest_matrix import verify_backtest_trust_projection
+
+    history_path = tmp_path / "history.json"
+    history_path.write_text('{"metric": [0.0, 0.0]}', encoding="utf-8")
+
+    def plan(plan_id: str, count: int) -> HistoricalValidationPlan:
+        return HistoricalValidationPlan(
+            plan_id=plan_id,
+            historical_data_path=str(history_path),
+            ground_truth_outcomes={"metric": [0.0] * count},
+            target_metrics=["metric"],
+            prediction_source=PredictionSource.PROVIDED,
+            predicted_outcomes={"metric": [residual] * count},
+        )
+
+    for key, plans in (
+        ("whole", [plan("whole", 2)]),
+        ("partitioned", [plan("first", 1), plan("second", 1)]),
+    ):
+        root = tmp_path / key
+        _, ref = BacktestOrchestrator(cas=FileSystemCAS(root)).run_with_ref(plans)
+        result = load_backtest_report(
+            _ensure_ir_artifact_store(FileSystemCAS.open_existing_read_only(root)), ref
+        )
+        assert result.n_metrics_evaluated == 2
+        assert result.overall_rmse == pytest.approx(residual)
+        assert result.overall_mae == pytest.approx(residual)
+        assert result.overall_macro_rmse == pytest.approx(residual)
+        assert "backtest_numerical_range" in result.degraded_reasons
+        assert result.metric_diagnostics_are_source_bound()
+        assert not result.trust_eligible and result.trust_grade is None
+        projection = verify_backtest_trust_projection(result)
+        assert not projection.eligible and projection.score is None and projection.grade is None
+        expected_squares = residual == 1e154 and key == "partitioned"
+        assert all(
+            (scenario.squared_error_sum is not None) is expected_squares
+            for scenario in result.scenarios
+        )
+
+
 def test_invalid_prediction_is_counted_and_kept_out_of_valid_denominator() -> None:
     scenario = PredictionEvaluator().evaluate(
         scenario_id="invalid-prediction",
@@ -224,6 +263,93 @@ def test_invalid_prediction_is_counted_and_kept_out_of_valid_denominator() -> No
     assert scenario.missing_count == 0
     assert scenario.invalid_cells == [("metric", 0)]
     assert scenario.rmse == pytest.approx(0.0)
+
+
+@pytest.mark.parametrize(
+    ("predicted", "observed", "rmse", "mae", "squared_sum", "unavailable_sums"),
+    [
+        (
+            [1.0, 1e308],
+            [1.0, 0.0],
+            1e308 / math.sqrt(2),
+            5e307,
+            None,
+            {"squared_error_sum": "overflow"},
+        ),
+        ([1e154, 1e154], [0.0, 0.0], 1e154, 1e154, None, {"squared_error_sum": "overflow"}),
+        ([1e150, 1e150], [0.0, 0.0], 1e150, 1e150, 2e300, {}),
+        (
+            [1e308, 1e308],
+            [100.0, 100.0],
+            1e308,
+            1e308,
+            None,
+            {
+                "squared_error_sum": "overflow",
+                "absolute_error_sum": "overflow",
+                "percentage_error_sum": "overflow",
+            },
+        ),
+        ([1e-308], [0.0], 1e-308, 1e-308, None, {"squared_error_sum": "underflow"}),
+    ],
+)
+def test_unavailable_error_sum_keeps_finite_observation(
+    predicted: list[float],
+    observed: list[float],
+    rmse: float,
+    mae: float,
+    squared_sum: float | None,
+    unavailable_sums: dict[str, str],
+) -> None:
+    scenario = PredictionEvaluator().evaluate(
+        scenario_id="finite-residual",
+        scenario_label="finite residual",
+        y_pred={"metric": predicted},
+        y_true={"metric": observed},
+    )
+
+    assert scenario.requested_count == scenario.compared_count == len(observed)
+    assert scenario.invalid_cells == []
+    assert [row.absolute_error for row in scenario.outcome_comparisons] == [
+        abs(p - y) for p, y in zip(predicted, observed, strict=True)
+    ]
+    assert scenario.rmse == pytest.approx(rmse, rel=1e-15, abs=0.0)
+    assert scenario.mae == pytest.approx(mae, rel=1e-15, abs=0.0)
+    if squared_sum is None:
+        assert scenario.squared_error_sum is None
+    else:
+        assert scenario.squared_error_sum == pytest.approx(squared_sum)
+    if unavailable_sums:
+        assert scenario.numerical_range is not None
+        assert scenario.numerical_range.unavailable_error_sums == unavailable_sums
+        assert all(getattr(scenario, name) is None for name in unavailable_sums)
+        assert TrustScorer().compute(scenarios=[scenario], biases=[]) == (None, None)
+    else:
+        assert scenario.numerical_range is None
+        assert "numerical_range" not in scenario.model_dump(mode="json")
+    if "percentage_error_sum" in unavailable_sums:
+        assert scenario.percentage_error_count == 2 and scenario.mape == pytest.approx(1e308)
+    assert BacktestScenario.model_validate_json(scenario.model_dump_json()) == scenario
+
+
+def test_unrepresentable_residual_is_an_addressed_invalid_cell() -> None:
+    scenario = PredictionEvaluator().evaluate(
+        scenario_id="residual-overflow",
+        scenario_label="residual overflow",
+        y_pred={"metric": [1.0, sys.float_info.max, 6.0]},
+        y_true={"metric": [1.0, -sys.float_info.max, 4.0, 1.0]},
+    )
+
+    assert (scenario.requested_count, scenario.compared_count) == (4, 2)
+    assert scenario.missing_cells == [("metric", 3)]
+    assert scenario.invalid_cells == [("metric", 1)]
+    assert scenario.squared_error_sum == pytest.approx(4.0)
+    assert scenario.rmse == pytest.approx(math.sqrt(2))
+    assert scenario.numerical_range is not None
+    assert scenario.numerical_range.unavailable_error_sums == {}
+    (cell,) = scenario.numerical_range.residual_overflow_cells
+    assert (cell.metric_name, cell.observation_index) == ("metric", 1)
+    assert cell.y_pred == sys.float_info.max and cell.y_true == -sys.float_info.max
 
 
 def test_complete_exact_prediction_remains_a_positive_grade_control() -> None:
@@ -328,168 +454,68 @@ def test_non_default_nominal_confidence_survives_orchestrator_and_persisted_repo
     assert scenario.interval_type == "predictive"
 
 
-def test_persisted_envelope_metadata_overrides_plan_contract(monkeypatch, tmp_path) -> None:
-    history_path = tmp_path / "history.json"
-    history_path.write_text('{"metric": [0.0, 0.0, 0.0]}', encoding="utf-8")
-    orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos"))
+def test_owned_envelope_preserves_nominal_level_and_typed_semantics() -> None:
+    from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
 
-    def put_artifact(payload: dict, kind: str) -> dict[str, str]:
-        ref = orchestrator._store.put_json(
-            payload,
-            StorePutOptions(
-                kind=kind,
-                media_type="application/json",
-                schema={"name": kind, "version": "1.0"},
-            ),
-            canon_spec=CanonSpec(forbid_floats=False),
-        )
-        return {"artifact_id": str(ref.artifact_id)}
-
-    metrics_ref = put_artifact(
-        {"values": {"metric": [20.0, 21.0, 22.0]}},
-        "scientist.backtest.metrics",
-    )
-    envelope_ref = put_artifact(
-        {
-            "confidence_intervals": [[19.0, 21.0], [20.0, 22.0], [0.0, 1.0]],
-            "confidence_level": 0.80,
-            "interval_semantics": "credible_interval",
-        },
-        "scientist.backtest.envelope",
-    )
-    simulation_ref = put_artifact(
-        {"uncertainty_envelopes": {"metric": envelope_ref}},
-        "scientist.backtest.simulation",
-    )
-    monkeypatch.setattr(
-        orchestrator_module,
-        "run_experiment",
-        lambda _state: {
-            "artifacts_index": {
-                "metrics_ref": metrics_ref,
-                "simulation_result_ref": simulation_ref,
-            }
-        },
-    )
-    plan = HistoricalValidationPlan(
-        plan_id="persisted-envelope-metadata",
-        historical_data_path=str(history_path),
-        intervention_step=1,
-        ground_truth_outcomes={"metric": [20.0, 21.0, 22.0]},
-        target_metrics=["metric"],
-        prediction_source=PredictionSource.SCIENTIST,
-        scientist_state={"run_id": "BKT-02-envelope"},
-        confidence_level=0.95,
-        metadata={"interval_type": "plan_default"},
+    envelope = UncertaintyEnvelope(
+        point_estimate=1.0,
+        confidence_interval=(0.0, 2.0),
+        confidence_level=0.80,
+        interval_semantics="credible_interval",
+        source="calibration",
     )
 
-    report = orchestrator.run([plan])
+    declared, confidence, interval_type, decoded = (
+        BacktestOrchestrator._resolve_persisted_interval_metadata(envelope.model_dump(mode="json"))
+    )
 
-    scenario = report.scenarios[0]
-    assert scenario.nominal_confidence_level == pytest.approx(0.80)
-    assert scenario.interval_type == "credible_interval"
-    assert scenario.metadata["interval_metadata_source"] == "persisted_envelope"
-    assert scenario.coverage_probability == pytest.approx(2 / 3)
-    assert report.trust_score == pytest.approx(0.9167)
-    contract = report.metadata["interval_contracts"][0]
-    assert contract["nominal_confidence_level"] == pytest.approx(0.80)
-    assert contract["interval_type"] == "credible_interval"
+    assert declared
+    assert confidence == 0.80
+    assert interval_type == "credible_interval"
+    assert decoded == envelope
 
 
 @pytest.mark.parametrize(
-    "envelope_payloads",
+    ("semantics", "level"),
     [
-        [
-            {
-                "confidence_intervals": [[0.0, 2.0]],
-                "confidence_level": 0.80,
-                "interval_semantics": "bogus_semantics",
-            }
-        ],
-        [
-            {
-                "confidence_intervals": [[0.0, 2.0]],
-                "interval_semantics": "credible_interval",
-            }
-        ],
-        [
-            {
-                "confidence_intervals": [[0.0, 2.0]],
-                "confidence_level": 0.80,
-                "interval_semantics": "credible_interval",
-            },
-            {
-                "confidence_intervals": [[0.0, 2.0]],
-                "confidence_level": None,
-                "interval_semantics": "deterministic_bounds",
-            },
-        ],
+        ("bogus_semantics", 0.80),
+        ("credible_interval", None),
+        ("deterministic_bounds", 0.80),
     ],
-    ids=["bogus-semantics", "credible-missing-level", "statistical-nonstatistical-pair"],
+    ids=["bogus-semantics", "credible-missing-level", "deterministic-statistical-level"],
 )
-def test_invalid_persisted_interval_metadata_is_degraded_and_unscored(
-    monkeypatch,
-    tmp_path,
-    envelope_payloads,
+def test_malformed_interval_metadata_refuses_at_its_canonical_validator(
+    semantics: str, level: float | None
 ) -> None:
-    history_path = tmp_path / "history.json"
-    history_path.write_text(
-        '{"metric_0": [0.0, 0.0], "metric_1": [0.0, 0.0]}',
-        encoding="utf-8",
-    )
-    orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos"))
-
-    def put_artifact(payload: dict, kind: str) -> dict[str, str]:
-        ref = orchestrator._store.put_json(
-            payload,
-            StorePutOptions(
-                kind=kind,
-                media_type="application/json",
-                schema={"name": kind, "version": "1.0"},
-            ),
-            canon_spec=CanonSpec(forbid_floats=False),
-        )
-        return {"artifact_id": str(ref.artifact_id)}
-
-    metric_names = [f"metric_{index}" for index in range(len(envelope_payloads))]
-    metrics_ref = put_artifact(
-        {"values": {metric: [1.0] for metric in metric_names}},
-        "scientist.backtest.metrics",
-    )
-    envelope_refs = {
-        metric: put_artifact(payload, "scientist.backtest.envelope")
-        for metric, payload in zip(metric_names, envelope_payloads, strict=True)
-    }
-    simulation_ref = put_artifact(
-        {"uncertainty_envelopes": envelope_refs},
-        "scientist.backtest.simulation",
-    )
-    monkeypatch.setattr(
-        orchestrator_module,
-        "run_experiment",
-        lambda _state: {
-            "artifacts_index": {
-                "metrics_ref": metrics_ref,
-                "simulation_result_ref": simulation_ref,
+    with pytest.raises(ValueError):
+        BacktestOrchestrator._resolve_persisted_interval_metadata(
+            {
+                "point_estimate": 1.0,
+                "confidence_interval": (0.0, 2.0),
+                "confidence_level": level,
+                "source": "calibration",
+                "interval_semantics": semantics,
             }
-        },
+        )
+
+
+def test_mixed_statistical_and_deterministic_intervals_cannot_be_combined() -> None:
+    from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, combine_envelopes
+
+    credible = UncertaintyEnvelope(
+        point_estimate=1.0,
+        confidence_interval=(0.0, 2.0),
+        confidence_level=0.80,
+        interval_semantics="credible_interval",
+        source="calibration",
     )
-    plan = HistoricalValidationPlan(
-        plan_id="invalid-persisted-envelope",
-        historical_data_path=str(history_path),
-        intervention_step=1,
-        ground_truth_outcomes={metric: [1.0] for metric in metric_names},
-        target_metrics=metric_names,
-        prediction_source=PredictionSource.SCIENTIST,
-        scientist_state={"run_id": "BKT-02-invalid-envelope"},
+    bounded = UncertaintyEnvelope(
+        point_estimate=1.0,
+        confidence_interval=(0.0, 2.0),
+        confidence_level=None,
+        interval_semantics="deterministic_bounds",
+        source="calibration",
     )
 
-    report = orchestrator.run([plan])
-
-    scenario = report.scenarios[0]
-    assert report.degraded is True
-    assert report.trust_eligible is False
-    assert report.trust_score is None
-    assert scenario.interval_evaluated_count == 0
-    assert scenario.coverage_probability is None
-    assert any("uncertainty_envelope_metadata" in reason for reason in report.degraded_reasons)
+    with pytest.raises(ValueError, match="different interval semantics"):
+        combine_envelopes([credible, bounded])

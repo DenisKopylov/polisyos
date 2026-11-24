@@ -22,7 +22,12 @@ from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artif
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.backtest import BacktestReportRef
-from polisyos.ir.analytics.backtest import BacktestReport, BacktestScenario, persist_backtest_report
+from polisyos.ir.analytics.backtest import (
+    BacktestReport,
+    BacktestScenario,
+    backtest_mean,
+    persist_backtest_report,
+)
 from polisyos.ir.observation.bundles import BacktestPlanBundle
 from polisyos.ir.observation.contracts import ObservationFamily
 from polisyos.scientist.methods.backtesting.orchestrator import (
@@ -356,7 +361,10 @@ def verify_backtest_diagnostic_projection(
     expected_bias_metrics: set[str] = set()
     any_nonzero = False
     for metric, values in errors_by_metric.items():
-        mean = math.fsum(values) / len(values)
+        mean = backtest_mean(values)
+        if mean is None:
+            mismatched = True
+            continue
         exact_zero = all(value == 0.0 for value in values)
         if exact_zero:
             continue

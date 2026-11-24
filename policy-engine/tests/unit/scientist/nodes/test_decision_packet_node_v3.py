@@ -4623,6 +4623,154 @@ def test_s1_c5b_fresh_backtest_binding_reaches_packet_and_rejects_kept_markers(
     assert badpacket["calibration_validation"]["summary"]["eligible_for_promotion"] is False
 
 
+def test_s1_c5b_packet_preserves_provided_cancellation_diagnostic(tmp_path) -> None:
+    from fractions import Fraction
+
+    import pytest
+
+    from polisyos.ir.analytics.backtest import load_backtest_report
+    from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
+    from polisyos.scientist.governance.backtest_matrix import BacktestKind
+    from polisyos.scientist.governance.calibration import CalibrationGovernanceReport
+    from polisyos.scientist.governance.calibration_validation import (
+        CalibrationValidationRunner,
+        CalibrationValidationRunnerInput,
+        load_calibration_validation_bundle,
+    )
+    from polisyos.scientist.methods.backtesting.plan import (
+        HistoricalValidationPlan,
+        PredictionSource,
+    )
+
+    store = FileSystemCAS(tmp_path / "s1-cancellation-cas")
+    run_id = "s1-cancellation-packet"
+    roles = ("fixture_training", "fixture_validation", "fixture_holdout")
+    predictions = [1e16, 1.0, -1e16]
+    history = tmp_path / "s1-cancellation-history.json"
+    history.write_text('{"metric":[0.0,0.0,0.0]}', encoding="utf-8")
+    plan = HistoricalValidationPlan(
+        plan_id="s1-cancellation-plan",
+        historical_data_path=str(history),
+        ground_truth_outcomes={"metric": [0.0, 0.0, 0.0]},
+        target_metrics=["metric"],
+        prediction_source=PredictionSource.PROVIDED,
+        predicted_outcomes={"metric": predictions},
+        selected_training_role=roles[0],
+        selected_validation_role=roles[1],
+        selected_holdout_role=roles[2],
+        metadata={
+            "selected_training_role": roles[0],
+            "selected_validation_role": roles[1],
+            "selected_holdout_role": roles[2],
+        },
+    )
+    plan_bundle = BacktestPlanBundle(
+        contract_target=ContractCompatibilityTarget(
+            contract_id="household_bundle", contract_fqn="polisyos.tests.BacktestPlanBundle"
+        ),
+        required_fields=["metric"],
+        holdout_windows=["2025-01-01::2025-12-31"],
+        selected_training_role=roles[0],
+        selected_validation_role=roles[1],
+        selected_holdout_role=roles[2],
+        plans=[plan.model_dump(mode="json")],
+    )
+    candidate = store.put_json(
+        {"candidate": "test-owned"},
+        PutOptions(kind="scientist.calibration_candidate", media_type="application/json"),
+    )
+    result = CalibrationValidationRunner(store).run(
+        CalibrationValidationRunnerInput(
+            run_id=run_id,
+            candidate_ref=candidate,
+            governance_report=CalibrationGovernanceReport(verdict="human_gate", metadata={}),
+            backtest_plan_bundles={BacktestKind.HOUSEHOLD: plan_bundle},
+            selected_training_role=roles[0],
+            selected_validation_role=roles[1],
+            selected_holdout_role=roles[2],
+        )
+    )
+    fresh = load_calibration_validation_bundle(store, result.bundle_ref)
+    report_ref = fresh.backtest_report_ref
+    assert report_ref is not None
+    report = load_backtest_report(_ensure_ir_artifact_store(store), report_ref)
+    expected_mean = float(Fraction(1, 3))
+    diagnostic = next(item for item in report.metric_diagnostics if item.metric_name == "metric")
+    assert report.n_metrics_evaluated == 3
+    assert diagnostic.mean_residual == pytest.approx(expected_mean, abs=1e-15)
+    assert diagnostic.magnitude == pytest.approx(expected_mean, abs=1e-15)
+    assert diagnostic.residual_sign == "positive"
+    assert diagnostic.direction_status == "not_established"
+    assert diagnostic.status == "unavailable"
+    assert diagnostic.reason == "scipy_ttest_1samp_numeric_range"
+    assert diagnostic.method_id is None
+    assert diagnostic.backend_id is None
+    assert diagnostic.backend_version is None
+    assert diagnostic.statistic is None
+    assert diagnostic.p_value is None
+
+    bundle_edges = [
+        edge
+        for edge in store.get_manifest(result.bundle_ref.artifact_id).inputs
+        if edge.role == "backtest_report"
+    ]
+    assert len(bundle_edges) == 1
+    assert (
+        str(bundle_edges[0].artifact_id),
+        bundle_edges[0].manifest_profile_sha256,
+    ) == (str(report_ref.artifact_id), report_ref.manifest_profile_sha256)
+    readout = fresh.readout_summary()
+    assert readout["backtest_report_status"] == "available"
+    assert readout["backtest_metric_diagnostics_status"] == "unavailable"
+    assert readout["backtest_metric_diagnostics"][0]["mean_residual"] == pytest.approx(
+        expected_mean, abs=1e-15
+    )
+    assert readout["backtest_metric_diagnostics"][0]["p_value"] is None
+    assert readout["eligible_for_promotion"] is False
+
+    registry = build_default_registry_bundle(store).bundle_ref
+    run = RunContext.start(store=store, registry_bundle=registry, run_id=run_id)
+    ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test.s1"))
+    trinity = _persist_trinity_bundle(store, {"trinity": {}})
+    data = _persist_data_snapshot(store)
+    state = ExperimentState(
+        run_id=run_id,
+        inputs={
+            INPUT_TRINITY_BUNDLE_REF: trinity,
+            INPUT_REGISTRY_BUNDLE_REF: registry,
+            INPUT_DATA_SNAPSHOT_REF: data,
+        },
+        artifacts_index={
+            ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF: ArtifactRef(
+                artifact_id=str(result.bundle_ref.artifact_id),
+                kind="scientist.calibration_validation_bundle",
+                media_type="application/json",
+                manifest_profile_sha256=result.bundle_ref.manifest_profile_sha256,
+            ),
+            ARTIFACT_BACKTEST_REPORT_REF: ArtifactRef(
+                artifact_id=str(report_ref.artifact_id),
+                kind="ir.backtest_report",
+                media_type="application/json",
+                manifest_profile_sha256=report_ref.manifest_profile_sha256,
+            ),
+        },
+    )
+    packet_ref = BuildDecisionPacketNode().execute(ctx, state).artifacts[0]
+    packet = from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+    assert packet["backtest"]["backtest_report_status"] == "available"
+    assert packet["backtest"]["metric_diagnostics_status"] == "unavailable"
+    direct_diagnostic = packet["backtest"]["metric_diagnostics"][0]
+    nested_diagnostic = packet["calibration_validation"]["backtest_metric_diagnostics"][0]
+    assert direct_diagnostic == nested_diagnostic
+    assert direct_diagnostic["mean_residual"] == pytest.approx(expected_mean, abs=1e-15)
+    assert direct_diagnostic["magnitude"] == pytest.approx(expected_mean, abs=1e-15)
+    assert direct_diagnostic["residual_sign"] == "positive"
+    assert direct_diagnostic["direction_status"] == "not_established"
+    assert direct_diagnostic["status"] == "unavailable"
+    assert direct_diagnostic["p_value"] is None
+    assert packet["calibration_validation"]["summary"]["eligible_for_promotion"] is False
+
+
 def test_s1_exact_zero_arithmetic_is_limited_through_cas_c5b_and_packet(tmp_path) -> None:
     from polisyos.core.artifacts.manifest import InputRef as InputRefModel
     from polisyos.ir.analytics.backtest import load_backtest_report

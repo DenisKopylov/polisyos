@@ -303,3 +303,153 @@ def test_metric_bias_diagnostic_is_exposed_by_stable_ir_facades() -> None:
         "MetricBiasDiagnostic",
     )
     assert ir.MetricBiasDiagnostic is AnalyticsMetricBiasDiagnostic
+
+
+def test_range_limited_report_cas_read_recomputes_unavailable_sums(tmp_path) -> None:
+    from polisyos.core.artifacts import FileSystemCAS, ensure_ir_artifact_store
+    from polisyos.ir.analytics.backtest import (
+        BacktestReport,
+        BiasDirection,
+        MetricBiasDiagnostic,
+        load_backtest_report_candidate,
+        persist_backtest_report,
+    )
+    from polisyos.scientist.methods.backtesting.evaluator import PredictionEvaluator
+
+    scenario = PredictionEvaluator().evaluate(
+        scenario_id="extreme",
+        scenario_label="finite residuals with unrepresentable sums",
+        y_pred={"y": [1e308, 1e308]},
+        y_true={"y": [100.0, 100.0]},
+        confidence_level=None,
+    )
+    report = BacktestReport(
+        report_id="range-limited",
+        scenarios=[scenario],
+        overall_rmse=1e308,
+        overall_mae=1e308,
+        overall_mape=1e308,
+        n_metrics_evaluated=2,
+        metric_diagnostics=[
+            MetricBiasDiagnostic(
+                metric_name="y",
+                status="not_computable",
+                n=2,
+                mean_residual=1e308,
+                magnitude=1e308,
+                scope={
+                    "scenario_ids": ["extreme"],
+                    "holdout_windows": [],
+                    "selected_training_roles": [],
+                    "selected_validation_roles": [],
+                    "selected_holdout_roles": [],
+                },
+                residual_sign="positive",
+                direction_status="not_established",
+                reason="insufficient_observations",
+            )
+        ],
+        overall_bias_direction=BiasDirection.UNKNOWN,
+        degraded=True,
+        degraded_reasons=["backtest_numerical_range"],
+        trust_eligible=False,
+    )
+    root = tmp_path / "cas"
+    ref = persist_backtest_report(ensure_ir_artifact_store(FileSystemCAS(root)), report)
+    loaded = load_backtest_report_candidate(
+        ensure_ir_artifact_store(FileSystemCAS.open_existing_read_only(root)), ref
+    )
+    assert loaded.model_dump(mode="json") == report.model_dump(mode="json")
+    assert loaded.metric_diagnostics_are_source_bound() and not loaded.trust_eligible
+
+    raw = loaded.model_dump(mode="json")
+    del raw["scenarios"][0]["numerical_range"]
+    with pytest.raises(ValidationError, match="scenario numerical range does not reconcile"):
+        BacktestReport.model_validate(raw)
+
+    raw = loaded.model_dump(mode="json")
+    raw["scenarios"][0]["numerical_range"]["unavailable_error_sums"]["squared_error_sum"] = (
+        "underflow"
+    )
+    with pytest.raises(ValidationError, match="scenario numerical range does not reconcile"):
+        BacktestReport.model_validate(raw)
+
+    raw = loaded.model_dump(mode="json")
+    raw["scenarios"][0]["squared_error_sum"] = 0.0
+    with pytest.raises(ValidationError, match="unavailable error sums must not claim"):
+        BacktestReport.model_validate(raw)
+
+    raw = loaded.model_dump(mode="json")
+    raw.update(degraded=False, trust_eligible=True, trust_score=1.0, trust_grade="A")
+    with pytest.raises(ValidationError, match="numerical range limitations require degraded"):
+        BacktestReport.model_validate(raw)
+
+
+def test_declared_aggregation_policy_reconciles_actual_macro_on_fresh_cas(tmp_path) -> None:
+    from polisyos.core.artifacts import FileSystemCAS, ensure_ir_artifact_store
+    from polisyos.ir.analytics.backtest import (
+        BacktestReport,
+        load_backtest_report_candidate,
+        persist_backtest_report,
+    )
+    from polisyos.ir.artifacts import put_json_artifact
+    from polisyos.ir.model_layer.canon import CanonSpec, CanonViolation
+    from polisyos.ir.registry.refs import BacktestReportRef
+
+    base_report = _report([0.5, 1.5, 2.5])
+    report = BacktestReport.model_validate(
+        {
+            **base_report.model_dump(mode="json"),
+            "aggregation_policy": "micro_rmse_with_explicit_equal_scenario_macro",
+            "overall_macro_rmse": math.sqrt(8.75 / 3.0),
+        }
+    )
+    root = tmp_path / "cas"
+    store = ensure_ir_artifact_store(FileSystemCAS(root))
+    reader = ensure_ir_artifact_store(FileSystemCAS.open_existing_read_only(root))
+
+    selected = persist_backtest_report(store, report)
+    loaded = load_backtest_report_candidate(reader, selected)
+    assert loaded.overall_macro_rmse == pytest.approx(math.sqrt(8.75 / 3.0))
+    assert loaded.metric_diagnostics_are_source_bound()
+
+    def persist_raw(payload: dict) -> BacktestReportRef:
+        return BacktestReportRef.model_validate(
+            put_json_artifact(
+                store,
+                payload,
+                kind="ir.backtest_report",
+                schema_name="ir.backtest_report",
+                schema_version="1.0",
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
+        )
+
+    genuine_payload = report.model_dump(mode="json")
+    missing_policy = {**genuine_payload, "overall_macro_rmse": 9.0}
+    missing_policy.pop("aggregation_policy")
+    for payload, expected_error in (
+        ({**genuine_payload, "overall_macro_rmse": 9.0}, "macro RMSE differs from source outcomes"),
+        ({**genuine_payload, "aggregation_policy": "arbitrary_weighted_mean"}, "literal_error"),
+        (missing_policy, "macro RMSE requires declared aggregation policy"),
+        (
+            {**genuine_payload, "overall_macro_rmse": None},
+            "macro RMSE differs from source outcomes",
+        ),
+    ):
+        forged_ref = persist_raw(payload)
+        assert forged_ref.artifact_id != selected.artifact_id
+        with pytest.raises(CanonViolation, match="ir_owned_artifact_source_invalid") as rejected:
+            load_backtest_report_candidate(reader, forged_ref)
+        assert expected_error in str(rejected.value.__cause__)
+
+    legacy = report.model_dump(mode="json")
+    for obsolete in ("aggregation_policy", "overall_macro_rmse", "metric_diagnostics"):
+        legacy.pop(obsolete)
+    legacy.update(trust_score=1.0, trust_eligible=True, trust_grade="A")
+    historical = load_backtest_report_candidate(reader, persist_raw(legacy))
+    assert historical.scenarios == report.scenarios
+    assert historical.aggregation_policy is None and historical.overall_macro_rmse is None
+    assert not historical.metric_diagnostics_are_source_bound()
+    assert not historical.trust_eligible and historical.trust_grade is None

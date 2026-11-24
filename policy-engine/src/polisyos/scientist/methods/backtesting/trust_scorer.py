@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 
 from polisyos.core.evaluation import ThresholdBand, ThresholdMapper, WeightedScorer
-from polisyos.ir.analytics.backtest import BacktestScenario, SystematicBias
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.backtest import BacktestScenario, SystematicBias
 
 
 class TrustScorer:
@@ -31,7 +35,7 @@ class TrustScorer:
         scenarios: list[BacktestScenario],
         biases: list[SystematicBias],
     ) -> tuple[float | None, str | None]:
-        if not scenarios:
+        if not scenarios or any(scenario.numerical_range is not None for scenario in scenarios):
             return None, None
 
         coverage_values = [

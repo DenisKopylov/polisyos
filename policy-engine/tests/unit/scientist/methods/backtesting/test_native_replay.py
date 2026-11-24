@@ -795,20 +795,22 @@ def test_native_forecast_survives_persisted_report_readback(tmp_path, monkeypatc
     assert unbound_section["backtest_report_status"] == "unavailable"
     assert "overall_rmse" not in unbound_section
 
-    for field, value, reason in (
-        ("overall_macro_rmse", 0.0, "macro RMSE differs from source outcomes"),
-        ("overall_r_squared", 0.5, "does not establish R-squared"),
-    ):
-        changed = fresh.model_copy(update={field: value})
-        changed_ref = persist_backtest_report(
+    with pytest.raises(ValueError, match="macro RMSE differs from source outcomes"):
+        persist_backtest_report(
             ensure_ir_artifact_store(fresh_store),
-            changed,
+            fresh.model_copy(update={"overall_macro_rmse": 0.0}),
             inputs=fresh_store.get_manifest(report_core_ref).inputs,
         )
-        with pytest.raises(ValueError, match=reason):
-            load_native_backtest_report(
-                fresh_store, ArtifactRef.model_validate(changed_ref.model_dump(mode="json"))
-            )
+
+    changed_ref = persist_backtest_report(
+        ensure_ir_artifact_store(fresh_store),
+        fresh.model_copy(update={"overall_r_squared": 0.5}),
+        inputs=fresh_store.get_manifest(report_core_ref).inputs,
+    )
+    with pytest.raises(ValueError, match="does not establish R-squared"):
+        load_native_backtest_report(
+            fresh_store, ArtifactRef.model_validate(changed_ref.model_dump(mode="json"))
+        )
 
     changed_metadata = dict(scenario.metadata)
     changed_metadata["native_workflow_status"] = "fail" if workflow_status == "ok" else "ok"

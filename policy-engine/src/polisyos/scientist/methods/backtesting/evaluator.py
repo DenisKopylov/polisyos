@@ -5,9 +5,13 @@ from __future__ import annotations
 import math
 from typing import Any
 
-import numpy as np
-
-from polisyos.ir.analytics.backtest import BacktestScenario, OutcomeComparison
+from polisyos.ir.analytics.backtest import (
+    BacktestNumericalRange,
+    BacktestResidualOverflowCell,
+    BacktestScenario,
+    OutcomeComparison,
+    summarize_backtest_errors,
+)
 
 
 class PredictionEvaluator:
@@ -52,11 +56,11 @@ class PredictionEvaluator:
                 raise ValueError("confidence_level must be finite and between 0 and 1")
 
         comparisons: list[OutcomeComparison] = []
-        squared_errors: list[float] = []
         absolute_errors: list[float] = []
         percentage_errors: list[float] = []
         missing_cells: list[tuple[str, int]] = []
         invalid_cells: list[tuple[str, int]] = []
+        residual_overflows: list[BacktestResidualOverflowCell] = []
         requested_count = 0
         compared_count = 0
         missing_count = 0
@@ -96,12 +100,19 @@ class PredictionEvaluator:
                     continue
 
                 abs_err = float(abs(y_p - y_true_val))
-                rel_err = abs_err / abs(y_true_val) if abs(y_true_val) > 1e-12 else None
-                squared_error = abs_err**2
-                if not math.isfinite(abs_err) or not math.isfinite(squared_error):
+                if not math.isfinite(abs_err):
                     invalid_count += 1
                     invalid_cells.append((metric_name, idx))
+                    residual_overflows.append(
+                        BacktestResidualOverflowCell(
+                            metric_name=metric_name,
+                            observation_index=idx,
+                            y_pred=y_p,
+                            y_true=y_true_val,
+                        )
+                    )
                     continue
+                rel_err = abs_err / abs(y_true_val) if abs(y_true_val) > 1e-12 else None
                 if rel_err is not None and not math.isfinite(rel_err):
                     rel_err = None
                 percentage_error = rel_err * 100.0 if rel_err is not None else None
@@ -148,15 +159,19 @@ class PredictionEvaluator:
                         ci_upper=hi,
                     )
                 )
-                squared_errors.append(squared_error)
                 absolute_errors.append(abs_err)
                 if percentage_error is not None:
                     percentage_errors.append(percentage_error)
                 compared_count += 1
 
-        rmse = float(np.sqrt(np.mean(squared_errors))) if squared_errors else None
-        mae = float(np.mean(absolute_errors)) if absolute_errors else None
-        mape = float(np.mean(percentage_errors)) if percentage_errors else None
+        errors = summarize_backtest_errors(absolute_errors, percentage_errors)
+        numerical_range = None
+        if residual_overflows or errors.unavailable_error_sums:
+            numerical_range = BacktestNumericalRange(
+                policy_version="backtest.binary64.v1",
+                residual_overflow_cells=residual_overflows,
+                unavailable_error_sums=errors.unavailable_error_sums,
+            )
         coverage = (
             interval_hit_count / interval_evaluated_count if interval_evaluated_count > 0 else None
         )
@@ -180,9 +195,9 @@ class PredictionEvaluator:
             intervention_date=intervention_date,
             data_source=data_source,
             outcome_comparisons=comparisons,
-            rmse=rmse,
-            mae=mae,
-            mape=mape,
+            rmse=errors.rmse,
+            mae=errors.mae,
+            mape=errors.mape,
             coverage_probability=coverage,
             requested_count=requested_count,
             compared_count=compared_count,
@@ -198,10 +213,11 @@ class PredictionEvaluator:
             interval_hit_rate=interval_hit_rate,
             nominal_confidence_level=confidence_level,
             interval_type=interval_type,
-            squared_error_sum=float(sum(squared_errors)),
-            absolute_error_sum=float(sum(absolute_errors)),
-            percentage_error_sum=float(sum(percentage_errors)),
+            squared_error_sum=errors.squared_error_sum,
+            absolute_error_sum=errors.absolute_error_sum,
+            percentage_error_sum=errors.percentage_error_sum,
             percentage_error_count=len(percentage_errors),
+            numerical_range=numerical_range,
             metadata=metadata_payload,
         )
 

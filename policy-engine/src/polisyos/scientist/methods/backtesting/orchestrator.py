@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from enum import Enum
 from importlib import import_module
 from pathlib import Path
+from sys import float_info
 from typing import TYPE_CHECKING, Any, Literal, cast
 
 import numpy as np
@@ -63,7 +64,10 @@ from polisyos.ir.analytics.backtest import (
     BiasDirection,
     MetricBiasDiagnostic,
     SystematicBias,
+    backtest_mean,
+    backtest_sample_spread,
     persist_backtest_report,
+    summarize_backtest_errors,
 )
 from polisyos.ir.artifacts import (
     InputRef,
@@ -1827,70 +1831,30 @@ class BacktestOrchestrator:
         degraded_reasons: list[str],
         trust_screening: TrustScreeningMode = TrustScreeningMode.DEFAULT,
     ) -> BacktestReport:
-        def sufficient_statistics(
-            scenario: BacktestScenario,
-        ) -> tuple[float, float, float, int, int]:
-            if scenario.squared_error_sum is not None:
-                squared_error_sum = float(scenario.squared_error_sum)
-                absolute_error_sum = float(scenario.absolute_error_sum or 0.0)
-                percentage_error_sum = float(scenario.percentage_error_sum or 0.0)
-                compared_count = (
-                    scenario.compared_count
-                    if scenario.requested_count > 0
-                    else len(scenario.outcome_comparisons)
-                )
-                percentage_error_count = scenario.percentage_error_count
-                return (
-                    squared_error_sum,
-                    absolute_error_sum,
-                    percentage_error_sum,
-                    compared_count,
-                    percentage_error_count,
-                )
-
-            squared_error_sum = sum(
-                comparison.absolute_error**2 for comparison in scenario.outcome_comparisons
-            )
-            absolute_error_sum = sum(
-                comparison.absolute_error for comparison in scenario.outcome_comparisons
-            )
-            percentage_errors = [
-                comparison.relative_error * 100.0
-                for comparison in scenario.outcome_comparisons
-                if comparison.relative_error is not None
-            ]
-            return (
-                float(squared_error_sum),
-                float(absolute_error_sum),
-                float(sum(percentage_errors)),
-                len(scenario.outcome_comparisons),
-                len(percentage_errors),
-            )
-
-        scenario_statistics = [sufficient_statistics(item) for item in scenarios]
-        total_squared_error = sum(item[0] for item in scenario_statistics)
-        total_absolute_error = sum(item[1] for item in scenario_statistics)
-        total_percentage_error = sum(item[2] for item in scenario_statistics)
-        total_compared = sum(item[3] for item in scenario_statistics)
-        total_percentage_count = sum(item[4] for item in scenario_statistics)
-
+        comparisons = [row for scenario in scenarios for row in scenario.outcome_comparisons]
+        percentage_errors = [
+            percentage
+            for row in comparisons
+            if row.relative_error is not None
+            and math.isfinite(percentage := row.relative_error * 100.0)
+        ]
+        totals = summarize_backtest_errors(
+            [row.y_pred - row.y_true for row in comparisons], percentage_errors
+        )
         rmse_values = [item.rmse for item in scenarios if item.rmse is not None]
-        mae_values = [item.mae for item in scenarios if item.mae is not None]
-        mape_values = [item.mape for item in scenarios if item.mape is not None]
         coverage_values = [
             item.coverage_probability for item in scenarios if item.coverage_probability is not None
         ]
-
-        if total_compared > 0:
-            overall_rmse = float(np.sqrt(total_squared_error / total_compared))
-            overall_mae = float(total_absolute_error / total_compared)
-        else:
-            overall_rmse = float(np.mean(rmse_values)) if rmse_values else None
-            overall_mae = float(np.mean(mae_values)) if mae_values else None
+        overall_rmse = totals.rmse if comparisons else backtest_mean(rmse_values)
+        overall_mae = (
+            totals.mae
+            if comparisons
+            else backtest_mean([item.mae for item in scenarios if item.mae is not None])
+        )
         overall_mape = (
-            float(total_percentage_error / total_percentage_count)
-            if total_percentage_count > 0
-            else (float(np.mean(mape_values)) if mape_values else None)
+            totals.mape
+            if percentage_errors
+            else backtest_mean([item.mape for item in scenarios if item.mape is not None])
         )
         interval_evaluated = sum(item.interval_evaluated_count for item in scenarios)
         interval_hits = sum(item.interval_hit_count for item in scenarios)
@@ -1899,8 +1863,7 @@ class BacktestOrchestrator:
             if interval_evaluated > 0
             else (float(np.mean(coverage_values)) if coverage_values else None)
         )
-        macro_rmse_values = [item.rmse for item in scenarios if item.rmse is not None]
-        overall_macro_rmse = float(np.mean(macro_rmse_values)) if macro_rmse_values else None
+        overall_macro_rmse = backtest_mean(rmse_values)
         interval_contracts = [
             {
                 "scenario_id": item.scenario_id,
@@ -1926,6 +1889,10 @@ class BacktestOrchestrator:
             scenarios
         )
         all_degraded_reasons = [*degraded_reasons, *statistical_degraded_reasons]
+        if totals.unavailable_error_sums or any(
+            item.numerical_range is not None for item in scenarios
+        ):
+            all_degraded_reasons.append("backtest_numerical_range")
         if trust_profile is None:
             all_degraded_reasons.append("trust_scorer_profile_unavailable")
         if trust_screening is not TrustScreeningMode.DEFAULT:
@@ -1974,7 +1941,7 @@ class BacktestOrchestrator:
             overall_mape=overall_mape,
             overall_coverage_probability=overall_coverage,
             n_scenarios=len(scenarios),
-            n_metrics_evaluated=total_compared,
+            n_metrics_evaluated=len(comparisons),
             aggregation_policy=(
                 "micro_rmse_with_explicit_equal_scenario_macro" if scenarios else None
             ),
@@ -2007,7 +1974,9 @@ class BacktestOrchestrator:
         degraded_reasons: list[str] = []
         for metric, errors in sorted(errors_by_metric.items()):
             values = np.asarray(errors, dtype=float)
-            mean = float(np.mean(values))
+            mean = backtest_mean(errors)
+            if mean is None:
+                raise ValueError("metric diagnostic missing source residuals")
             exact_zero = bool(np.all(values == 0.0))
             test_result = self._two_sided_ttest(values)
             matching_scenarios = [
@@ -2122,8 +2091,7 @@ class BacktestOrchestrator:
                 reason="insufficient_observations",
             )
 
-        std = float(np.std(errors, ddof=1))
-        if std <= 1e-12:
+        if bool(np.all(errors == errors[0])):
             return _TTestResult(
                 p_value=None,
                 test_name=None,
@@ -2131,6 +2099,31 @@ class BacktestOrchestrator:
                 reason="zero_variance",
             )
 
+        unavailable_range = _TTestResult(
+            p_value=None,
+            test_name=None,
+            status="unavailable",
+            reason="scipy_ttest_1samp_numeric_range",
+        )
+        if not bool(np.all(np.isfinite(errors))):
+            return unavailable_range
+        residuals = errors.tolist()
+        average = backtest_mean(residuals)
+        if average is None:
+            return unavailable_range
+        scale, normalized_std = backtest_sample_spread(residuals, average)
+        if normalized_std == 0.0:
+            return unavailable_range
+        expected_statistic = (average / scale) / (normalized_std / math.sqrt(n))
+        if not math.isfinite(expected_statistic) or (expected_statistic == 0.0 and average != 0.0):
+            return unavailable_range
+
+        # Positive rescaling preserves the test while keeping the backend's raw variance finite.
+        source_std = scale * normalized_std
+        source_variance = source_std * source_std
+        backend_errors = (
+            errors if float_info.min <= source_variance <= float_info.max / n else errors / scale
+        )
         try:
             scipy_stats = import_module("scipy.stats")
             ttest_1samp = getattr(scipy_stats, "ttest_1samp", None)
@@ -2141,7 +2134,7 @@ class BacktestOrchestrator:
                     status="unavailable",
                     reason="scipy_ttest_1samp_missing",
                 )
-            result = ttest_1samp(errors, popmean=0.0, alternative="two-sided")
+            result = ttest_1samp(backend_errors, popmean=0.0, alternative="two-sided")
             p_value = float(result.pvalue)
             if not math.isfinite(p_value) or not 0.0 <= p_value <= 1.0:
                 return _TTestResult(
@@ -2159,6 +2152,13 @@ class BacktestOrchestrator:
                     status="unavailable",
                     reason="scipy_ttest_1samp_invalid_statistic",
                 )
+            if not math.isclose(
+                statistic,
+                expected_statistic,
+                rel_tol=1e-9,
+                abs_tol=0.0 if expected_statistic != 0.0 else 1e-12,
+            ):
+                return unavailable_range
             return _TTestResult(
                 p_value=p_value,
                 test_name="one-sample t-test H0(mean_error=0)",

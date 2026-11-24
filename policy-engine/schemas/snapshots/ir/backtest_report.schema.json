@@ -1,5 +1,70 @@
 {
   "$defs": {
+    "BacktestNumericalRange": {
+      "additionalProperties": false,
+      "description": "Binary64 range failures without losing representable comparison rows.",
+      "properties": {
+        "policy_version": {
+          "const": "backtest.binary64.v1",
+          "title": "Policy Version",
+          "type": "string"
+        },
+        "residual_overflow_cells": {
+          "items": {
+            "$ref": "#/$defs/BacktestResidualOverflowCell"
+          },
+          "title": "Residual Overflow Cells",
+          "type": "array"
+        },
+        "unavailable_error_sums": {
+          "additionalProperties": {
+            "$ref": "#/$defs/_RangeFailure"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/_ErrorSumName"
+          },
+          "title": "Unavailable Error Sums",
+          "type": "object"
+        }
+      },
+      "required": [
+        "policy_version"
+      ],
+      "title": "BacktestNumericalRange",
+      "type": "object"
+    },
+    "BacktestResidualOverflowCell": {
+      "additionalProperties": false,
+      "description": "Finite operands at an invalid requested cell whose residual overflows.",
+      "properties": {
+        "metric_name": {
+          "minLength": 1,
+          "title": "Metric Name",
+          "type": "string"
+        },
+        "observation_index": {
+          "minimum": 0,
+          "title": "Observation Index",
+          "type": "integer"
+        },
+        "y_pred": {
+          "title": "Y Pred",
+          "type": "number"
+        },
+        "y_true": {
+          "title": "Y True",
+          "type": "number"
+        }
+      },
+      "required": [
+        "metric_name",
+        "observation_index",
+        "y_pred",
+        "y_true"
+      ],
+      "title": "BacktestResidualOverflowCell",
+      "type": "object"
+    },
     "BacktestScenario": {
       "additionalProperties": false,
       "description": "Historical validation scenario with per-metric forecast comparisons.",
@@ -207,6 +272,17 @@
           ],
           "default": null,
           "title": "Nominal Confidence Level"
+        },
+        "numerical_range": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BacktestNumericalRange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "outcome_comparisons": {
           "items": {
@@ -582,6 +658,21 @@
       ],
       "title": "SystematicBias",
       "type": "object"
+    },
+    "_ErrorSumName": {
+      "enum": [
+        "squared_error_sum",
+        "absolute_error_sum",
+        "percentage_error_sum"
+      ],
+      "type": "string"
+    },
+    "_RangeFailure": {
+      "enum": [
+        "overflow",
+        "underflow"
+      ],
+      "type": "string"
     }
   },
   "additionalProperties": false,
@@ -590,7 +681,7 @@
     "aggregation_policy": {
       "anyOf": [
         {
-          "minLength": 1,
+          "const": "micro_rmse_with_explicit_equal_scenario_macro",
           "type": "string"
         },
         {

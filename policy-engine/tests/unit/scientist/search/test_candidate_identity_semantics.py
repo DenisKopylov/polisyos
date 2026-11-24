@@ -43,6 +43,8 @@ from polisyos.scientist.policy_design.search import (
 )
 
 from .test_contracts import _Generator, _Objective
+from .test_objective_availability import _runtime_vector
+from .test_pareto_registry_serialization import _authenticated_tenant
 from .test_pareto_transfer import _candidate, _evaluation_vector
 
 
@@ -98,6 +100,48 @@ def test_bare_semantic_keys_reach_two_incomparable_frontier_points(left, right) 
         policy_candidate_hash(right),
     }
     assert policy_candidate_hash({"a": 1, "b": 2}) == policy_candidate_hash({"b": 2, "a": 1})
+
+
+def test_fresh_registry_keeps_two_exact_subject_dates_and_tradeoff_axes(tmp_path) -> None:
+    root = tmp_path / "registry"
+    context = TransferContext(task_family="policy", domain="fiscal", run_id="dated")
+    expected = {}
+    with _authenticated_tenant("tenant-a"):
+        registry = ParetoRegistry(root)
+        for starts_at, score, employment in (
+            ("2026-01-01", 2.0, 0.5),
+            ("2026-01-02", 1.0, 0.8),
+        ):
+            subject = {"intervention": "payment", "starts_at": starts_at}
+            candidate_hash = policy_candidate_hash(subject)
+            values = {"policy_value": score, "employment": employment}
+            vector, source = _runtime_vector(values=values)
+            assert vector.frontier_objectives("global_feasible", source) == values
+            evaluation = vector.model_copy(
+                update={
+                    "candidate_id": candidate_hash,
+                    "metadata": {**vector.metadata, "candidate_hash": candidate_hash},
+                }
+            )
+            registry.update(
+                "dated",
+                candidate_hash=candidate_hash,
+                evaluation=evaluation,
+                seed_payload=subject,
+                transfer_context=context,
+            )
+            expected[candidate_hash] = (subject, values)
+
+        fresh = ParetoRegistry(root).get_snapshot("dated", transfer_context=context)
+
+    assert len(expected) == 2
+    projection = fresh.project_view(ParetoView.GLOBAL_FEASIBLE)
+    assert set(projection.candidate_frontier_hashes) == set(expected)
+    assert projection.ranked_frontier_hashes == ()
+    for key, (subject, values) in expected.items():
+        entry = fresh.entries[key]
+        assert entry.seed_payload == subject
+        assert entry.evaluation.frontier_objectives("global_feasible") == values
 
 
 def test_unexecuted_unknown_metadata_and_non_json_values_refuse() -> None:
@@ -307,55 +351,61 @@ def test_strategy_policy_identity_survives_registry_restart(tmp_path) -> None:
     reconstructed = PolicyCandidateSchema.model_validate(proposal.strategy_context.subject)
     assert policy_candidate_hash(proposal) == reconstructed.candidate_hash()
     assert materialize_candidate_proposal(proposal) == proposal.payload
-    evaluation = _evaluation_vector(reconstructed)
+    vector, source = _runtime_vector(values={"policy_value": 1.2})
+    assert vector.frontier_objectives("global_feasible", source) == {"policy_value": 1.2}
+    evaluation = vector.model_copy(
+        update={
+            "candidate_id": reconstructed.candidate_id,
+            "metadata": {**vector.metadata, "candidate_hash": reconstructed.candidate_hash()},
+        }
+    )
     scope = TransferContext(
         task_family="policy",
         domain="fiscal",
         run_id="subject-run",
-        tenant_hash="tenant-a",
     )
-    registry = ParetoRegistry(tmp_path / "registry")
-    registry.update(
-        "subject-run",
-        candidate_hash=reconstructed.candidate_hash(),
-        evaluation=evaluation,
-        seed_payload=proposal.payload,
-        candidate_proposal=proposal,
-        transfer_context=scope,
-    )
-    fresh = ParetoRegistry(tmp_path / "registry").get_snapshot(
-        "subject-run", transfer_context=scope
-    )
-    assert list(fresh.entries) == [reconstructed.candidate_hash()]
-    persisted = fresh.entries[reconstructed.candidate_hash()]
-    assert persisted.candidate_proposal is not None
-    assert persisted.candidate_proposal.payload == proposal.payload
-    assert policy_candidate_hash(persisted.candidate_proposal) == reconstructed.candidate_hash()
-    target = TransferContext(
-        task_family="policy", domain="fiscal", run_id="target", tenant_hash="tenant-a"
-    )
-    warm = ParetoRegistry(tmp_path / "registry").build_warm_start_evaluations(target)
-    assert len(warm) == 1
-    assert warm[0]["metadata"]["seed_only"] is True
-    assert (
-        CandidateProposal.model_validate(warm[0]["candidate_proposal"]).payload == proposal.payload
-    )
-    registry.update(
-        "subject-run",
-        candidate_hash=reconstructed.candidate_hash(),
-        evaluation=evaluation,
-        seed_payload=proposal.payload,
-        candidate_proposal=proposal,
-        transfer_context=scope,
-    )
-    assert (
-        len(
-            ParetoRegistry(tmp_path / "registry")
-            .get_snapshot("subject-run", transfer_context=scope)
-            .entries
+    with _authenticated_tenant("tenant-a"):
+        registry = ParetoRegistry(tmp_path / "registry")
+        registry.update(
+            "subject-run",
+            candidate_hash=reconstructed.candidate_hash(),
+            evaluation=evaluation,
+            seed_payload=proposal.payload,
+            candidate_proposal=proposal,
+            transfer_context=scope,
         )
-        == 1
-    )
+        fresh = ParetoRegistry(tmp_path / "registry").get_snapshot(
+            "subject-run", transfer_context=scope
+        )
+        assert list(fresh.entries) == [reconstructed.candidate_hash()]
+        persisted = fresh.entries[reconstructed.candidate_hash()]
+        assert persisted.candidate_proposal is not None
+        assert persisted.candidate_proposal.payload == proposal.payload
+        assert policy_candidate_hash(persisted.candidate_proposal) == reconstructed.candidate_hash()
+        target = TransferContext(task_family="policy", domain="fiscal", run_id="target")
+        warm = ParetoRegistry(tmp_path / "registry").build_warm_start_evaluations(target)
+        assert len(warm) == 1
+        assert warm[0]["metadata"]["seed_only"] is True
+        assert (
+            CandidateProposal.model_validate(warm[0]["candidate_proposal"]).payload
+            == proposal.payload
+        )
+        registry.update(
+            "subject-run",
+            candidate_hash=reconstructed.candidate_hash(),
+            evaluation=evaluation,
+            seed_payload=proposal.payload,
+            candidate_proposal=proposal,
+            transfer_context=scope,
+        )
+        assert (
+            len(
+                ParetoRegistry(tmp_path / "registry")
+                .get_snapshot("subject-run", transfer_context=scope)
+                .entries
+            )
+            == 1
+        )
 
 
 def test_rejected_run_result_preserves_real_attempt_without_champion(tmp_path) -> None:

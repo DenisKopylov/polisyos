@@ -2,14 +2,26 @@
 
 from __future__ import annotations
 
+import pytest
+
+from polisyos.scientist.methods.search.contracts import CandidateProposal, CandidateStrategyContext
 from polisyos.scientist.methods.search.frontier import (
     policy_candidate_hash,
+    strategy_candidate_payload,
     update_legacy_pareto_front,
 )
-from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
+from polisyos.scientist.methods.search.objective import EmploymentObjective, GDPGrowthObjective
 
 
-def test_policy_candidate_hash_ignores_volatile_metadata() -> None:
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"trace_id": "trace-2"},
+        {"_debug": {"attempt": 2}},
+        {"metadata": {"generated_at": "2026-04-11T11:00:00Z", "source": "agent"}},
+    ],
+)
+def test_policy_candidate_hash_includes_all_raw_subject_fields(change: dict[str, object]) -> None:
     base = {
         "candidate_id": "policy-a",
         "interventions": [{"target": "households", "rate": 0.1}],
@@ -17,79 +29,55 @@ def test_policy_candidate_hash_ignores_volatile_metadata() -> None:
         "_debug": {"attempt": 1},
         "metadata": {"generated_at": "2026-04-11T10:00:00Z", "source": "agent"},
     }
-    equivalent = {
-        "candidate_id": "policy-a",
-        "interventions": [{"target": "households", "rate": 0.1}],
-        "trace_id": "trace-2",
-        "_debug": {"attempt": 2},
-        "metadata": {"generated_at": "2026-04-11T11:00:00Z", "source": "agent"},
+
+    assert policy_candidate_hash(base) != policy_candidate_hash({**base, **change})
+    assert policy_candidate_hash(base) == policy_candidate_hash(dict(reversed(list(base.items()))))
+
+
+def test_legacy_frontier_deduplicates_only_typed_transport_for_the_same_subject() -> None:
+    source = {
+        "gdp_change": 8.0,
+        "employment_rate": 0.5,
+        "metric_units": {"gdp_change": "ratio", "employment_rate": "ratio"},
     }
-    semantic_change = {
-        "candidate_id": "policy-a",
-        "interventions": [{"target": "households", "rate": 0.2}],
-        "metadata": {"source": "agent"},
-    }
-
-    assert policy_candidate_hash(base) == policy_candidate_hash(equivalent)
-    assert policy_candidate_hash(base) != policy_candidate_hash(semantic_change)
-
-
-def test_policy_candidate_hash_preserves_semantic_dates() -> None:
-    base = {
-        "candidate_id": "policy-a",
-        "semantic": {
-            "interventions": [{"target": "households", "starts_at": "2026-04-11T10:00:00Z"}]
-        },
-        "_strategy_metadata": {
-            "trace_id": "trace-1",
-            "generated_at": "2026-04-11T10:00:00Z",
-        },
-    }
-    same_semantic_input = {
-        **base,
-        "_strategy_metadata": {
-            "trace_id": "trace-2",
-            "generated_at": "2026-04-11T11:00:00Z",
-        },
-    }
-    changed_subject_matter = {
-        **same_semantic_input,
-        "semantic": {
-            "interventions": [{"target": "households", "starts_at": "2026-04-12T10:00:00Z"}]
-        },
-    }
-
-    assert policy_candidate_hash(base) == policy_candidate_hash(same_semantic_input)
-    assert policy_candidate_hash(base) != policy_candidate_hash(changed_subject_matter)
-
-
-def test_update_legacy_pareto_front_dedupes_by_stable_candidate_hash() -> None:
     objectives = [
-        ObjectiveValue(
-            name="cost",
-            raw_value=10.0,
-            direction=OptimizationDirection.MINIMIZE,
-        ),
-        ObjectiveValue(
-            name="benefit",
-            raw_value=8.0,
-            direction=OptimizationDirection.MAXIMIZE,
-        ),
+        GDPGrowthObjective(expected_unit="ratio").evaluate(source),
+        EmploymentObjective(expected_unit="ratio").evaluate(source),
     ]
+    assert all(objective.is_satisfied for objective in objectives)
+    frontier = []
+    first_subject = {"starts_at": "2026-04-11T10:00:00Z"}
+    second_subject = {"starts_at": "2026-04-12T10:00:00Z"}
+    for transport_id, subject in (
+        ("trace-1", first_subject),
+        ("trace-2", first_subject),
+        ("trace-3", second_subject),
+    ):
+        context = CandidateStrategyContext(
+            subject=subject,
+            strategy_fields={"candidate_id": transport_id},
+        )
+        proposal = CandidateProposal(
+            candidate_id=transport_id,
+            payload=strategy_candidate_payload(context),
+            strategy_context=context,
+        )
+        frontier = update_legacy_pareto_front(
+            frontier,
+            candidate=proposal.payload,
+            objectives=objectives,
+            proposal=proposal,
+        )
 
-    frontier = update_legacy_pareto_front(
-        [],
-        candidate={"candidate_id": "a", "trace_id": "trace-1"},
-        objectives=objectives,
+    assert {point.candidate_hash for point in frontier} == {
+        policy_candidate_hash(first_subject),
+        policy_candidate_hash(second_subject),
+    }
+    assert all(
+        point.as_payload()["objectives"]
+        == [
+            {"name": "gdp_growth", "raw_value": 8.0, "direction": "maximize"},
+            {"name": "employment", "raw_value": 0.5, "direction": "maximize"},
+        ]
+        for point in frontier
     )
-    frontier = update_legacy_pareto_front(
-        frontier,
-        candidate={"candidate_id": "a", "trace_id": "trace-2"},
-        objectives=objectives,
-    )
-
-    assert len(frontier) == 1
-    assert frontier[0].as_payload()["objectives"] == [
-        {"name": "cost", "raw_value": 10.0, "direction": "minimize"},
-        {"name": "benefit", "raw_value": 8.0, "direction": "maximize"},
-    ]

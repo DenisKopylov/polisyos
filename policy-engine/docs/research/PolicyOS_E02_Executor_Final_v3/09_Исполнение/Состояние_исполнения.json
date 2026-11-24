@@ -21569,12 +21569,12 @@
     {
       "lane_id": "LANE-03",
       "sequence": 9,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "PARTIAL",
+      "implementation_status": "LOCAL_IMPLEMENTATION_COMPLETE",
+      "local_qualification": "QUALIFIED_AVAILABLE_NAMED_PROFILES",
       "capability_acceptance": "NOT_RUN",
       "current_execution": {
-        "status": "ACTIVE. Eight packets, 61 requirements and 60 test contracts. All original product defects have local repairs. 59 named local profiles qualify, 1 is partial and 1 lacks deciding qualification. Shared E02-I03-A/B and the affected DA-07 replay qualify. E02-I03-C remains open.",
-        "next": "Complete the BKT-01 physical budget and retained reports on the common E02-I03-C source profile.",
+        "status": "LOCAL COMPLETE. Eight packets, 61 requirements and 60 test contracts. All 61 named local profiles and E02-I03-A/B/C qualify. The affected DA-07 replay is complete. Independent G and the common freeze window DA-08/X03 retain their separate scopes.",
+        "next": "Track common freeze DA-08/X03 and independent G in their appointed acceptance windows.",
         "frc01_calibration_summary": {
           "scope": "REQ-FRC-01-01. S10 and G2 preserve descriptive counts while carrying only an admitted compatible floor. 10/10 limited, genuine 95/100 preserved. Removed records, tampered status and a foreign envelope refuse admission. 55 affected tests pass, with a separate exact old-mechanism failure and changed-import pass.",
           "output": "Primary:policy-engine/_cache/e02/frc01-01-envelope-green.rQmKbNmu/",
@@ -40338,7 +40338,7 @@
       "track_id": "03-B",
       "track_position": 1,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "PARTIAL",
       "assigned_executor": null,
       "base_commit": null,
@@ -40434,6 +40434,55 @@
           "result": "Actual n3 by two steps, seeds 12–14, complete-coordinate means 10/3 and 20/3 USD, exact failed cohort without a survivor mean and zero fresh calls.",
           "source_commit": "bbf226b55",
           "guard_sha256": "0b1e0be3e3f4f3a7a2db2e0758906d7a356591336a4fc2fe3eed81bd3391672b"
+        },
+        {
+          "id": "bkt01_budget_actual_n1",
+          "output": "Primary:policy-engine/_cache/e02/bkt-01-budget-n1-scoped.zxSIZjVa/",
+          "result": "Stock scoped Foundry executes one real seed-12 request. Settled quota and fresh report retain one requested, started and completed, zero failed and unknown price.",
+          "source_commit": "b7ea3c90a",
+          "guard_sha256": "bc484a1abe4bd57ae7a14248485ff01ef83cfd356a125ec0131c5462ec45aafd"
+        },
+        {
+          "id": "bkt01_budget_actual_n7",
+          "output": "Primary:policy-engine/_cache/e02/bkt-01-budget-n7-scoped.rJ7OVmh6/",
+          "result": "Stock scoped Foundry executes seven distinct requests for seeds 12–18. Observed calls, persisted cohort, seven distinct exact journal operations and freshness all reconcile. Journal check d68f2bccb589907332861abbd80cd188c5152e663d024a311e3dd3e904c7ac31.",
+          "source_commit": "b7ea3c90a",
+          "guard_sha256": "c830120eb018e952e80e2ecdbeca52d8cd21e776a6b3565ce38315ef26239fbd"
+        },
+        {
+          "id": "bkt01_budget_low_and_provided",
+          "output": "Primary:policy-engine/_cache/e02/bkt-01-budget-low-provided.0puS0teD/",
+          "result": "With quota 1 and three requested, one Foundry call completes and two budget refusals remain failed. Configured PROVIDED n7 opens the same owner and consumes no physical units.",
+          "source_commit": "b7ea3c90a",
+          "guard_sha256": "c66c25d9769dc10677ad83ae595f844898d018286a40ed94eb0072a20c8fdad7"
+        },
+        {
+          "id": "bkt01_budget_owner_atomic_history",
+          "output": "Primary:policy-engine/_cache/e02/bkt01-budget-owner-final.v5WWb4KO/",
+          "result": "Ten targeted ledger/adapter checks validate pre-effect reservation, exact scope/body, non-dispatch under replay and quota, concurrent same-operation contention, unknown, 1.6/1.7 history and version marker controls.",
+          "source_commit": "b7ea3c90a",
+          "guard_sha256": "ceb36e1c7fc060c457f7e6fb5f68f6046b79393d333c65ffad3ee7d98a866fcd"
+        },
+        {
+          "id": "bkt01_budget_native_two_step",
+          "output": "Primary:policy-engine/_cache/e02/bkt01-native-two-step-audit.zQyHe2Qc/",
+          "result": "Separate fresh CAS verifies the two admitted Native outputs [1.5,1.0] at t2,t3 and the exact completed request digests for selected state slots 0,1. The initial writer produced both steps before its erroneous test oracle. Fresh read uses zero further physical calls.",
+          "source_commit": "7ef44a893",
+          "guard_sha256": "9e81133481bf9e985d4f88d523588e391ecc1423c6fa9248a9c57340ece2914d"
+        },
+        {
+          "id": "bkt01_common_cold_final",
+          "output": "Primary:policy-engine/_cache/e02/bkt-i03c-final-cold-r1.NoWAjk44/",
+          "result": "Actual retained Native conditional interval, unsupported point, distinct complete/failed ensembles, selected C5b/packet, and six range/SciPy controls on all named common source pins. Independent fresh group makes zero physical calls.",
+          "source_commit": "b7ea3c90a",
+          "guard_sha256": "77765c3162d2c6483688e38e7f74d72c872c93241b302b88ccbece63cb367a68"
+        },
+        {
+          "id": "bkt01_n5_mixed_ledger_compatibility",
+          "output": "Primary:policy-engine/_cache/e02/n5-mixed-v1-v2-replay-20261124-r1/",
+          "result": "Five actual FileBudgetLedger N5 replay controls preserve exact v1 protection with a separate-run v2 row, same-run refusal and globally sealed raw hash.",
+          "source_commit": "b7ea3c90a",
+          "guard_sha256": "773125abd099357c4c69f6b56cdfccc275aea5b35ebd66992f90ce87af75e122"
         }
       ],
       "blockers": [],
@@ -40557,6 +40606,31 @@
           "remaining_kinds": []
         },
         {
+          "requirement_id": "REQ-BKT-01-07",
+          "test_id": "TEST-BKT-01-07",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual scoped stock runs admit n=1 and n=7 with distinct physical requests and seeds 12 and 12–18. Requested, started, completed and failed remain separate. Low-cap refusal and PROVIDED execute no denied unit. The shared durable ledger rejects repeated same-slot and ambiguous requests before Foundry; rows without physical submission cannot count as independent replicas. Observed price is unknown. Two actual horizon steps have distinct exact admissions.",
+          "criterion_pointer": "04_Трассировка/BKT-01.json#/requirements/6",
+          "test_ids": [
+            "TEST-BKT-01-07",
+            "TEST-BKT-01-08"
+          ],
+          "binding_ids": [
+            "E02-I03-C-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "bkt01_budget_actual_n1",
+            "bkt01_budget_actual_n7",
+            "bkt01_budget_low_and_provided",
+            "bkt01_budget_owner_atomic_history",
+            "bkt01_budget_native_two_step",
+            "bkt01_actual_coordinate_ensemble",
+            "bkt01_n5_mixed_ledger_compatibility"
+          ],
+          "remaining_kinds": []
+        },
+        {
           "requirement_id": "REQ-BKT-01-08",
           "test_id": "TEST-BKT-01-08",
           "status": "CONFIRMED_LOCAL_PROFILE",
@@ -40578,8 +40652,8 @@
         {
           "requirement_id": "REQ-BKT-01-09",
           "test_id": "TEST-BKT-01-09",
-          "status": "PARTIAL",
-          "basis": "Native workflow through actual Foundry/CAS and the selected forecast report and packet now has both model-conditional interval and unsupported point profiles.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual Scientist/Foundry single-run, conditional interval, supported complete trajectory ensemble and failed/unsupported results persist through CAS and the selected backtest report. A true independent fresh reader preserves their distinct values, modes and exact limitations. Seeds identify requests and do not establish statistical independence.",
           "criterion_pointer": "04_Трассировка/BKT-01.json#/requirements/8",
           "test_ids": [
             "TEST-BKT-01-02",
@@ -40591,14 +40665,14 @@
           "binding_ids": [
             "E02-I03-C-B01"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
             "bkt_exact_native_model_interval",
-            "bkt01_scoped_native_constant"
+            "bkt01_actual_coordinate_ensemble",
+            "bkt01_budget_native_two_step",
+            "bkt01_common_cold_final"
           ],
-          "remaining_kinds": [
-            "cohort_and_budget_variants_on_composed_source"
-          ]
+          "remaining_kinds": []
         }
       ]
     },
@@ -42212,16 +42286,44 @@
     },
     {
       "scenario_id": "E02-I03-C",
-      "status": "PARTIAL",
-      "commit": "6cb9dcd02",
-      "profile": "Stock native report/C5b/packet and range/comparability variants qualified. Budgeted small cohort, bounded scientific scope and final retained readback are in progress.",
+      "status": "QUALIFIED_NAMED_PROFILE",
+      "commit": "b7ea3c90a",
+      "profile": "Named native selected-prefix, physical single/seven and quota refusal, complete/partial/unsupported, exact numerical-range report, selected C5b/packet and separate intended public CV/bootstrap variants.",
       "evidence": [
         {
-          "id": "bkt01_actual_coordinate_ensemble",
-          "output": "Primary:policy-engine/_cache/e02/bkt01-ensemble-r1.2GDvSNUR/",
-          "result": "Actual n3 by two steps, seeds 12–14, complete-coordinate means 10/3 and 20/3 USD, exact failed cohort without a survivor mean and zero fresh calls.",
-          "source_commit": "bbf226b55",
-          "guard_sha256": "0b1e0be3e3f4f3a7a2db2e0758906d7a356591336a4fc2fe3eed81bd3391672b"
+          "id": "bkt01_prepared_exact_selected_history",
+          "output": "Primary:policy-engine/_cache/e02/bkt01-prepared-history-r4.vRilX5yr/",
+          "result": "4 PASS on six stable pins; one real Foundry seed 31 using reused prefix and calendar; fresh exact cohort; same-body foreign original, wrong cutoff and forged projection refuse without invoking Foundry.",
+          "source_commit": "2c9c03ea5fd2d4a1c9988e544530ec0ddda895d6",
+          "guard_sha256": "3e2961cb26b9cd28740c4f2f0fb7107077b628463f135af11a3c8234abb96a25"
+        },
+        {
+          "id": "bkt01_budget_actual_n7",
+          "output": "Primary:policy-engine/_cache/e02/bkt-01-budget-n7-scoped.rJ7OVmh6/",
+          "result": "Stock scoped Foundry executes seven distinct requests for seeds 12–18. Observed calls, persisted cohort, seven distinct exact journal operations and freshness all reconcile. Journal check d68f2bccb589907332861abbd80cd188c5152e663d024a311e3dd3e904c7ac31.",
+          "source_commit": "b7ea3c90a",
+          "guard_sha256": "c830120eb018e952e80e2ecdbeca52d8cd21e776a6b3565ce38315ef26239fbd"
+        },
+        {
+          "id": "bkt01_budget_low_and_provided",
+          "output": "Primary:policy-engine/_cache/e02/bkt-01-budget-low-provided.0puS0teD/",
+          "result": "With quota 1 and three requested, one Foundry call completes and two budget refusals remain failed. Configured PROVIDED n7 opens the same owner and consumes no physical units.",
+          "source_commit": "b7ea3c90a",
+          "guard_sha256": "c66c25d9769dc10677ad83ae595f844898d018286a40ed94eb0072a20c8fdad7"
+        },
+        {
+          "id": "bkt01_budget_native_two_step",
+          "output": "Primary:policy-engine/_cache/e02/bkt01-native-two-step-audit.zQyHe2Qc/",
+          "result": "Separate fresh CAS verifies the two admitted Native outputs [1.5,1.0] at t2,t3 and the exact completed request digests for selected state slots 0,1. The initial writer produced both steps before its erroneous test oracle. Fresh read uses zero further physical calls.",
+          "source_commit": "7ef44a893",
+          "guard_sha256": "9e81133481bf9e985d4f88d523588e391ecc1423c6fa9248a9c57340ece2914d"
+        },
+        {
+          "id": "bkt01_common_cold_final",
+          "output": "Primary:policy-engine/_cache/e02/bkt-i03c-final-cold-r1.NoWAjk44/",
+          "result": "Actual retained Native conditional interval, unsupported point, distinct complete/failed ensembles, selected C5b/packet, and six range/SciPy controls on all named common source pins. Independent fresh group makes zero physical calls.",
+          "source_commit": "b7ea3c90a",
+          "guard_sha256": "77765c3162d2c6483688e38e7f74d72c872c93241b302b88ccbece63cb367a68"
         },
         {
           "id": "bkt02_persisted_range_c5b_full_packet",
@@ -42238,11 +42340,17 @@
           "guard_sha256": "ff107e93b77dc5b4ca2c7aee3a04f9227e99156b2b25509162ad13f02d0c8fda"
         },
         {
-          "id": "bkt_c5b_native_selected_report",
-          "output": "Primary:policy-engine/_cache/e02/bkt-native-c5b-cold-r5.G72V84QC/",
-          "result": "Actual retained model-conditional native report flows through stock C5b v1.2 into the full packet. Independent cold source/edge/purpose removal and substitution controls pass, with zero physical work.",
-          "source_commit": "6a465f4ee",
-          "guard_sha256": "cc12fe141a0cce8c6f15bf8be339e367edf306a557af57a72cf418cc25c93ed9"
+          "id": "bkt03_actual_wdi_descriptive_scope",
+          "output": "Primary:policy-engine/_cache/e02/bkt03-06-wdi-scope-driver-r1/",
+          "result": "Selected WDI revision, 19 annual rolling holdouts, exact same-target paired candidate loss and forecast-minus-actual orientation, units and conservative population, dependence, effective n, multiplicity and time limits. Research result 0e6ead87f87edf5b96539451f08c3e2baa3d00a05b1c2835fee66e7dcf574976.",
+          "source_commit": "34b4f2931",
+          "guard_sha256": "e8a4c014d8b610223520e98a66226caa5deee184e112a895e448fce101c371e4"
+        },
+        {
+          "id": "bkt03_exact_symmetric_fabric_scale",
+          "output": "Primary:policy-engine/_cache/e02/bkt03-03-07-symmetric-scale-r1.BcGvwd4d/",
+          "result": "Real stock PROVIDED reports through fresh CAS and diagnostic projection. Fabric m to cm factor 100, t=0/p=1 at both scales, MAE/RMSE x100, exact zero separate and no trust. Test source SHA-256 080c541307c0542583d735603318f887b9011b5505c069bdbbf7e8782df797a6.",
+          "guard_sha256": "50ef831569c714d41bc3dc022b9bc6584ff29ff6e5954f743f513e103007118d"
         }
       ],
       "binding_ids": [

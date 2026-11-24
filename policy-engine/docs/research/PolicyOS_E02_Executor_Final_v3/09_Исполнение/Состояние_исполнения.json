@@ -21573,7 +21573,7 @@
       "local_qualification": "PARTIAL",
       "capability_acceptance": "NOT_RUN",
       "current_execution": {
-        "status": "ACTIVE. Eight packets, 61 requirements and 60 test contracts. All original product defects have local repairs. 56 named local profiles qualify, 3 are partial and 2 lack deciding qualification. Shared E02-I03-A/B and the affected DA-07 replay qualify. E02-I03-C remains open.",
+        "status": "ACTIVE. Eight packets, 61 requirements and 60 test contracts. All original product defects have local repairs. 57 named local profiles qualify, 3 are partial and 1 lacks deciding qualification. Shared E02-I03-A/B and the affected DA-07 replay qualify. E02-I03-C remains open.",
         "next": "Complete FRC-02-07 retrospective stock-owner admission and E02-I03-C physical budget, scientific scale and common retained report qualification.",
         "frc01_calibration_summary": {
           "scope": "REQ-FRC-01-01. S10 and G2 preserve descriptive counts while carrying only an admitted compatible floor. 10/10 limited, genuine 95/100 preserved. Removed records, tampered status and a foreign envelope refuse admission. 55 affected tests pass, with a separate exact old-mechanism failure and changed-import pass.",
@@ -40894,6 +40894,13 @@
           "result": "Actual retained model-conditional native report flows through stock C5b v1.2 into the full packet. Independent cold source/edge/purpose removal and substitution controls pass, with zero physical work.",
           "source_commit": "6a465f4ee",
           "guard_sha256": "cc12fe141a0cce8c6f15bf8be339e367edf306a557af57a72cf418cc25c93ed9"
+        },
+        {
+          "id": "bkt03_actual_wdi_descriptive_scope",
+          "output": "Primary:policy-engine/_cache/e02/bkt03-06-wdi-scope-driver-r1/",
+          "result": "Selected WDI revision, 19 annual rolling holdouts, exact same-target paired candidate loss and forecast-minus-actual orientation, units and conservative population, dependence, effective n, multiplicity and time limits. Research result 0e6ead87f87edf5b96539451f08c3e2baa3d00a05b1c2835fee66e7dcf574976.",
+          "source_commit": "34b4f2931",
+          "guard_sha256": "e8a4c014d8b610223520e98a66226caa5deee184e112a895e448fce101c371e4"
         }
       ],
       "blockers": [],
@@ -40993,6 +41000,26 @@
           "evidence_refs": [
             "bkt_range_and_bias_composed",
             "bkt03_backend_faults_c5b",
+            "bkt_c5b_native_selected_report"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-BKT-03-06",
+          "test_id": "TEST-BKT-03-06",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual registered ETS and last-value comparator use the same 19 selected CPI holdout rows. The annual candidate index-point unit, forecast-minus-actual sign, paired MAE and block sensitivity are recorded with unknown effective sample size, population and prospective vintage applicability. All windows overlap temporally in the study; no inferential multiplicity or normative direction is assigned. Stock fresh diagnostic and packet separately retain descriptive values as UNKNOWN direction and without trust.",
+          "criterion_pointer": "04_Трассировка/BKT-03.json#/requirements/5",
+          "test_ids": [
+            "TEST-BKT-03-07"
+          ],
+          "binding_ids": [
+            "E02-I03-C-B03"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "bkt03_actual_wdi_descriptive_scope",
+            "bkt_range_and_bias_composed",
             "bkt_c5b_native_selected_report"
           ],
           "remaining_kinds": []

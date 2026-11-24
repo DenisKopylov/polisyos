@@ -20663,8 +20663,11 @@
         "native_r7_paid_b_controlled_action": {
           "source_commit": "cba5b63849672c7e29adcc5724a76bd1f670a485",
           "source_tree": "1c95eb9309244b678b45d491bbcff87ce381a371",
-          "output": "Primary:policy-engine/_cache/e02/native-r7-controlled-20261124/r7-controlled-once/",
-          "status": "RUNNING",
+          "output": "Primary:policy-engine/_cache/e02/native-r7-controlled-20261124/r7-controlled-once/execution-result.json",
+          "sha256": "6f3d7e2de7c4c57f181e3854335aff10f78cc086c65110f14241fbe40dcfe788",
+          "guard_sha256": "40e56b754d0e6e2706b15e63ee9b099b760d339b0593a9be854ecb7bff415b5f",
+          "status": "COMMAND_FAIL",
+          "verified_boundary": "Stock DS9 POST returned HTTP 503 human_decision_custody_nonreceipt. The new same-action custody reservation is committed at 00:28:59.768517Z with record cf393364 and event evt_human_decision_336b217b04f264d109468fa8. The grant expires 02:23:44.091913Z. No new queued job, provider or physical work. Group joined after 260.884 seconds, peak 1690910720 B. Recover the same existing commitment through its owner.",
           "profile": "Fresh signed local controlled action, 115-minute DS9 window and 6600-second process cap. One exact standard reservation and one graph invocation, no supplier. Separate normal 900-second stock profile."
         },
         "native_r7_historical_guarded_cow_timing_r2": {
@@ -20825,6 +20828,21 @@
           "guard_sha256": "f25de70515b13c75ef5b72e3c1c326f56a6607d9ec398d6f6249c966b65c7f26",
           "verified_boundary": "Stock independent signed HTTP 200 keeps F0 and both real paid-quarantine rows, selects only B numerically with recomputed actual basis, and keeps A diagnostic. No work dispatch or writes to originals. PASS 62.665 seconds, RSS 1568227328 B, joined. This verifies race-and-read. Same-offer recovery remains under the canonical test."
         },
+        "acq01_04_r13_cold_exact_prospective_withdrawal_r4": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "output": "policy-engine/_cache/e02/acq01-04-ordinary-frontier-cold-r13-r4-removed.o9Sz0Rno/run-details-wire.json in the isolated ACQ owner checkout",
+          "sha256": "b6875f48e54cfd40c12b46c6e5e09228144f58ef79b68a0ef5209d4a4ff36793",
+          "guard_sha256": "a3e6f913f68c20bbf920e3cd69e36224279d8598a78aa3a103203ce3f766618a",
+          "verified_boundary": "Exact prospective basis withheld in independent private COW. Signed stock HTTP 200 keeps original F0 and degrades acquisition history with the typed integrity limitation. Zero new work and stable originals. Guard PASS 52.489 seconds, RSS 1554628608 B, joined."
+        },
+        "acq01_04_r13_composed_reader_and_preimage": {
+          "source_commit": "2fc36be1c70a2439b56507d3688a44d675b21ed7",
+          "output": "Primary:policy-engine/_cache/e02/acq01-r13-composed-history.92wTaZm7/junit.xml",
+          "sha256": "2b97c23847e687fb59cd1dd01c0c9859ec4587eb353f34a427660616097d3613",
+          "baseline_output": "Primary:policy-engine/_cache/e02/acq01-r13-history-preimage.coyTyFtv/junit.xml",
+          "baseline_sha256": "08aa906ad9a4e197c7a7276028ca91c81efe4c0ed554b6dfa40bfd69e2942c64",
+          "verified_boundary": "Working composed 6 pass, 6 fail, 9007 source pins stable. Independent immutable published cba runtime product replay reproduces all six failures and the same one passing comparator. Two show latest V5 authority reconciliation escapes the typed partial history. Separate stock R13 positive and missing prospective withdrawal are joined PASS."
+        },
         "ordinary_signed_acquisition_routes_published": {
           "source_commit": "579e3e96e75a4734da3cc1aab815384ff5bb25f1",
           "source_tree": "a360cc2c57a77d63596d01ee12c9a90d1d0e51d1",
@@ -20855,6 +20873,22 @@
           "junit_sha256": "17543a2a808620933020d649235b0ead334e98bf3606cadff413d7dc303be713",
           "corrected_source_pin_sha256": "0f75085c438ed660de7bfbc4fbe2fdb7083dfcc8281170e54a3cc57d4e0166be",
           "verified_boundary": "R1 stops before actual N5 prepare in the origin observer on a genuine CFFI alias. No SQL, ledger or physical row created. Exact ModuleSpec and concrete-type checks are independently reviewed with five refusal cases, retaining actual CFFI and zipp paths. Actual stock preflight and then one A-to-B run are separate."
+        },
+        "cyc0304_partial_stock_prepare_preflight_r2": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_pin_sha256": "0f75085c438ed660de7bfbc4fbe2fdb7083dfcc8281170e54a3cc57d4e0166be",
+          "output": "policy-engine/_cache/e02/cyc03-04-partial-b-draft.D0dlj6DE/preflight-r1.BQ8gtIX2/n5-census-envelope.json in the CPI checkout",
+          "sha256": "013307a5758b8020d23c34c712a3d367d82d7cee1964063f1f1076914650bdc3",
+          "guard_sha256": "7e2e3000fee0eeebde32441201cb380998b1ebde9655b51ae3fbc851dfbbb37d",
+          "verified_boundary": "The actual stock N5 owner prepares method causal.counterfactual.ncm_engine@1.0.0 and seeds 17/18 with 6492 qualified loaded modules. The actual batch entry is reached and held before its body, physical reservation or kernel call. Ledger has 3 standard and 1 protected available, 0 reservations, and 13 bootstrap producer settlements. PASS 132.760 seconds, RSS 1576812544 B, joined. One distinct same-pin A-to-B case remains."
+        },
+        "cyc0304_partial_producer_retained_a_import_stop": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "output": "policy-engine/_cache/e02/cyc03-04-partial-b-draft.D0dlj6DE/produce-r1.9O0RjfiM/a-ready.json in the CPI checkout",
+          "sha256": "03a9f75899e08c1a00882d937885d685d020170839988b0ac2975d739bbfdc21",
+          "guard_sha256": "f2f581e1b44b6d05edcde556de68fffd05e3208a44e2151dfaf36f44a2e8e379",
+          "junit_sha256": "cdc5993a59c448d0b5beeac3e4f8ecf902d96a7a1960c84d9494a544ed4617d6",
+          "verified_boundary": "A actual two standard completed calls recorded, 1 standard and 1 protected available. B setup stops on a non-exported verifier import before B work. Group joined COMMAND_FAIL at 131.085 seconds, RSS 1618444288 B. Reuse the retained exact A and canonical B owner."
         },
         "cyc0304_partial_n5_selected_history_component": {
           "source_commit": "080a4c57781fd0cf421bd2f9ea6a62c4c89358e5",

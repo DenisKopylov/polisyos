@@ -21197,6 +21197,21 @@
           "junit_sha256": "726a122fb20bc5b76fdcd110125017c884854145fa3f2596a838081a6f01c493",
           "verified_boundary": "Four final graph controls and three earlier unaffected sibling cases. Current use retains exact V3 graph under a new canonical obligation. Actual Foundry sees C=-2500000000; moved scope, inverse relation and exact upstream removal refuse. Targeted imports report zero additions over the published baseline. Full configured paid V3 service/worker/N5 and separate Gate B acceptance remain pending."
         },
+        "gate_b_v16_served_reentry_timeout": {
+          "source_commit": "dc58883bb1f04ec58f66d29293e57a85d4265e83",
+          "source_tree": "483e617af6715a2512de54877d81a3110e8be95d",
+          "output": "Primary:policy-engine/_cache/e02/gate-b-v16-served-pre-effect.3eOKzATl/served-v16-once/",
+          "served_selector_sha256": "6017d19cb20ca98cf8ee81aeffaf484bce215368ceda0d1e232cca3c94bd10ef",
+          "guard_sha256": "30f97ad53895457899c5eb87dfd985eb39e94644b122d9a05ddfe132d0b9decc",
+          "junit_sha256": "96b91da3ee7ffef2ad4f4df5b3dda4b8137dfaa23e125cf1a8ed8ba8f6344df0",
+          "ledger_sha256": "52a96e8acaa9883f1a7bd19ececa6bd24c632e0d5e09cea12f94b2c57bc67041",
+          "failed_job_id": "acquisition-56d3713a27fc463770e4b6bdc4508338b608b948ad1fef9707b463782c8a9034",
+          "pending_receipt_sha256": "3f863ce67bf6baabcdc43bc7d0b34a6ae25bb705e9c700684f3eee95cbe1e5d1",
+          "world_checkpoint_sha256": "5567f5c5d44c62cfb4e8b4e36451f052140f0b2cb3c62ffdfb1b7d2ba8dd5e35",
+          "verified_boundary": "Guard COMMAND_FAIL exit 1 in 4942.632 seconds. Peak sampled RSS 2249687040 B, minimum free disk 14772228096 B, observed group quiescence, no cleanup signals. Five jobs complete and two generation-2 leaf routes have terminal receipts. The final paid admission attempt 1 stops after world commit, context and start marker with reentry_recovery_required. SQL diagnostic row 151 has two nested TimeoutErrors and CancelledError, classified diagnostic_only. Exact timed await and effective deadline remain unestablished.",
+          "journal_boundary": "Final revision 21 has seven controlled producer settlements and spend receipts including the estimated USD 0.12903 settlement immediately before failure, zero invocation reservations and zero compute reservations. Both evaluation-frontier version tables are empty. The single earlier N5 execution 37657fb49ccfb052a0872a570409e392303e60824ad1142037d542bb94577d69 is simulation_blocked with null result. No new numerical result or final fresh API read.",
+          "next": "Use the already committed world and selected collection to isolate the timed re-entry boundary before another full run. Reconcile exact recovery authority with its retained start marker and ledger. The Gate B V16 acceptance remains open."
+        },
         "cyc0304_retained_a_b_exact_second_operation_exhausted": {
           "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
           "output": "policy-engine/_cache/e02/cyc03-04-partial-b-draft.D0dlj6DE/retained-a-b-r1.dQSNy6QX/execute-r1.7PfSnHC2/b-denied-operation.json in the CPI checkout",

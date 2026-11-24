@@ -54,6 +54,7 @@ class SearchRunState:
     _evaluation: _WorkAttempts = field(default_factory=_WorkAttempts)
     interrupted_phase: _SearchWorkPhase | None = None
     empty_generation_attempts: int = 0
+    empty_generation_retry_deadline: float | None = None
     evaluation_iterations: int = 0
     training_evaluations: int = 0
     budget_spent: float = 0.0
@@ -62,6 +63,7 @@ class SearchRunState:
     budget_snapshot: dict[str, float] = field(default_factory=dict)
     policy_evaluation_errors: int = 0
     generation_transition: GenerationTransition | None = None
+    generation_source_reason: str | None = None
     pareto_projection: ParetoViewProjection | None = None
 
     @property
@@ -122,6 +124,7 @@ class SearchRunState:
             return None
         return {
             "kind": self.generation_transition.value,
+            "source_reason": self.generation_source_reason,
             "generation_attempts": self.generation_attempts,
             "evaluation_iterations": self.evaluation_iterations,
             "budget_spent": self.budget_spent,

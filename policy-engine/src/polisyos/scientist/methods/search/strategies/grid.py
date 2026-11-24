@@ -4,9 +4,13 @@ from __future__ import annotations
 
 import itertools
 from collections.abc import Mapping
+from math import prod
 
 from polisyos.scientist.methods.search.strategies.base import BaseSearchStrategy
-from polisyos.scientist.methods.search.strategies.errors import StrategyExhaustedError
+from polisyos.scientist.methods.search.strategies.errors import (
+    StrategyAttemptLimitError,
+    StrategyExhaustedError,
+)
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import (
     Evaluation,
@@ -29,9 +33,11 @@ class GridSearchStrategy(BaseSearchStrategy):
         super().__init__(space=space, seed=seed)
         if points_per_dim < 2:
             raise ValueError("points_per_dim must be >= 2")
+        if type(max_candidates) is not int or max_candidates < 1:
+            raise ValueError("max_candidates must be a positive integer")
         self._points_per_dim = points_per_dim
         self._max_candidates = max_candidates
-        self._grid_params = self._build_grid_params()
+        self._grid_params, self._grid_truncated = self._build_grid_params()
         self._cursor = 0
 
     def suggest(
@@ -41,6 +47,8 @@ class GridSearchStrategy(BaseSearchStrategy):
     ) -> PolicyCandidate:
         del evaluations, pending
         if self._cursor >= len(self._grid_params):
+            if self._grid_truncated:
+                raise StrategyAttemptLimitError("grid_candidate_limit_reached")
             raise StrategyExhaustedError(
                 f"Grid exhausted after {len(self._grid_params)} candidates"
             )
@@ -52,6 +60,16 @@ class GridSearchStrategy(BaseSearchStrategy):
             params_normalized=vector,
             source_strategy="grid",
         )
+
+    def suggest_batch(
+        self,
+        evaluations: list[Evaluation],
+        batch_size: int,
+    ) -> list[PolicyCandidate]:
+        """Return the remaining grid entries before the next call reports exhaustion."""
+        remaining = len(self._grid_params) - self._cursor
+        # At exhaustion delegate a positive request to suggest() for its typed refusal.
+        return super().suggest_batch(evaluations, min(batch_size, max(1, remaining)))
 
     def get_state(self) -> StrategyState:
         state = super().get_state()
@@ -86,7 +104,7 @@ class GridSearchStrategy(BaseSearchStrategy):
         super().set_state(state)
         self._cursor = cursor
 
-    def _build_grid_params(self) -> list[dict[str, object]]:
+    def _build_grid_params(self) -> tuple[list[dict[str, object]], bool]:
         per_dim_values: list[list[object]] = []
         names: list[str] = []
         for bound in self._space.bounds:
@@ -123,4 +141,4 @@ class GridSearchStrategy(BaseSearchStrategy):
             output.append({name: value for name, value in zip(names, combo)})
             if len(output) >= self._max_candidates:
                 break
-        return output
+        return output, len(output) < prod(len(values) for values in per_dim_values)

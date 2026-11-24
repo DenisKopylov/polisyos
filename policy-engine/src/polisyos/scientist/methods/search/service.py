@@ -12,12 +12,14 @@ from __future__ import annotations
 from contextlib import nullcontext
 from copy import deepcopy
 from datetime import UTC, datetime
+from time import monotonic, sleep
 from typing import Any
 
 from polisyos.common import logger as common_logger
 from polisyos.scientist.methods.search.contracts import (
     CandidateProposal,
     EvaluationBundle,
+    GenerationNotice,
     GenerationTransition,
     SearchResult,
     SearchStatus,
@@ -28,6 +30,14 @@ from polisyos.scientist.methods.search.contracts import (
 from polisyos.scientist.methods.search.frontier import materialize_candidate_proposal
 
 logger = common_logger.get_logger(__name__)
+
+_EMPTY_RESPONSE_BACKOFF_SECONDS = 0.01
+_EMPTY_RESPONSE_RETRY_WINDOW_SECONDS = 1.0
+_TERMINAL_NOTICE_REASONS = {
+    GenerationTransition.EXHAUSTED: "generation_source_exhausted",
+    GenerationTransition.ATTEMPT_LIMIT: "generation_source_attempt_limit",
+    GenerationTransition.REPAIR_REQUIRED: "generation_repair_required",
+}
 
 
 class _NativeSearchServiceDriver:
@@ -210,6 +220,12 @@ class _NativeSearchServiceDriver:
                 self._stop(stopping_reason)
                 break
 
+            deadline = self.owner._run_state.empty_generation_retry_deadline
+            if deadline is not None and monotonic() >= deadline:
+                stopping_reason = self._reached_empty_limit("generation_retry_deadline")
+                self._stop(stopping_reason)
+                break
+
             batch, generated, stopping_reason = self._prepare_batch(
                 initial_context=initial_context,
                 initial_candidate=candidate_to_seed,
@@ -220,12 +236,10 @@ class _NativeSearchServiceDriver:
                 break
 
             if not batch:
-                stopping_reason = self._handle_empty_generation()
-                if stopping_reason is not None:
-                    break
                 continue
 
-            self._mark_nonempty_generation()
+            self.owner._run_state.empty_generation_attempts = 0
+            self.owner._run_state.empty_generation_retry_deadline = None
             stopping_reason = self._evaluate_batch(
                 batch=batch,
                 generated=generated,
@@ -245,7 +259,11 @@ class _NativeSearchServiceDriver:
             [self.owner._to_history_dict(item) for item in self.owner._history],
             self.owner._stopping_state(),
         )
-        return stop_check.reason if stop_check.should_stop else None
+        return (
+            (stop_check.reason or "search_stopping_criterion_reached")
+            if stop_check.should_stop
+            else None
+        )
 
     def _prepare_batch(
         self,
@@ -255,33 +273,56 @@ class _NativeSearchServiceDriver:
     ) -> tuple[list[dict[str, Any] | CandidateProposal], bool, str | None]:
         generated = initial_candidate is None
         attempt = self.owner._run_state.track_attempt("generation") if generated else nullcontext()
+        notice: GenerationNotice | None = None
         with attempt:
-            batch = self.owner._generate_candidates(
-                iteration=self.owner._run_state.evaluation_iterations,
-                initial_candidate=initial_candidate,
-                context=initial_context,
-            )
+            try:
+                batch = self.owner._generate_candidates(
+                    iteration=self.owner._run_state.evaluation_iterations,
+                    initial_candidate=initial_candidate,
+                    context=initial_context,
+                )
+            except GenerationNotice as exc:
+                if not generated:
+                    raise
+                notice = exc
+                batch = []
         if not generated:
             return batch, False, None
 
+        if not batch:
+            state = self.owner._run_state
+            state.generation_transition = (
+                notice.transition if notice is not None else GenerationTransition.TRANSIENT_EMPTY
+            )
+            state.generation_source_reason = notice.reason if notice is not None else None
         stopping_reason = self._stopping_reason(initial_context)
+        if stopping_reason is None and not batch:
+            stopping_reason = self._empty_generation_stop(notice)
         return batch, True, stopping_reason
 
-    def _handle_empty_generation(self) -> str | None:
-        self.owner._run_state.empty_generation_attempts += 1
-        if (
-            self.owner._run_state.empty_generation_attempts
-            < self.owner._config.max_empty_generation_attempts
-        ):
-            return None
-        self.owner._run_state.generation_transition = GenerationTransition.EXHAUSTED
-        self._stop("generation_exhausted")
-        return "generation_exhausted"
+    def _empty_generation_stop(self, notice: GenerationNotice | None) -> str | None:
+        if notice is not None and notice.transition in _TERMINAL_NOTICE_REASONS:
+            return _TERMINAL_NOTICE_REASONS[notice.transition]
 
-    def _mark_nonempty_generation(self) -> None:
-        if self.owner._run_state.empty_generation_attempts:
-            self.owner._run_state.generation_transition = GenerationTransition.TRANSIENT_EMPTY
-            self.owner._run_state.empty_generation_attempts = 0
+        state = self.owner._run_state
+        state.empty_generation_attempts += 1
+        if state.empty_generation_attempts >= self.owner._config.max_empty_generation_attempts:
+            return self._reached_empty_limit("generation_empty_attempt_limit")
+        now = monotonic()
+        if state.empty_generation_retry_deadline is None:
+            state.empty_generation_retry_deadline = now + _EMPTY_RESPONSE_RETRY_WINDOW_SECONDS
+        delay = (
+            notice.retry_after_seconds if notice is not None else _EMPTY_RESPONSE_BACKOFF_SECONDS
+        )
+        assert delay is not None
+        if now + delay >= state.empty_generation_retry_deadline:
+            return self._reached_empty_limit("generation_retry_deadline")
+        sleep(delay)
+        return None
+
+    def _reached_empty_limit(self, reason: str) -> str:
+        self.owner._run_state.generation_transition = GenerationTransition.ATTEMPT_LIMIT
+        return reason
 
     def _evaluate_batch(
         self,

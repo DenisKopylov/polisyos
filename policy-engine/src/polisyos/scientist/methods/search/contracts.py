@@ -15,6 +15,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field, fields
 from datetime import UTC, datetime
 from enum import Enum
+from math import isfinite
 from typing import TYPE_CHECKING, Any, Literal, Protocol, get_type_hints
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -486,6 +487,43 @@ class GenerationTransition(str, Enum):
 
     TRANSIENT_EMPTY = "transient_empty"
     EXHAUSTED = "exhausted"
+    ATTEMPT_LIMIT = "attempt_limit"
+    REPAIR_REQUIRED = "repair_required"
+
+
+class GenerationNotice(RuntimeError):
+    """Report a source-declared non-proposal with its reason and optional retry delay."""
+
+    def __init__(
+        self,
+        transition: GenerationTransition,
+        reason: str,
+        *,
+        retry_after_seconds: float | None = None,
+    ) -> None:
+        if not isinstance(transition, GenerationTransition):
+            raise TypeError("generation notice requires a typed transition")
+        if not isinstance(reason, str) or not reason.strip():
+            raise ValueError("generation notice requires a source reason")
+        if transition is GenerationTransition.TRANSIENT_EMPTY:
+            if type(retry_after_seconds) not in (float, int):
+                raise ValueError("transient generation notice requires a finite positive delay")
+            try:
+                delay = float(retry_after_seconds)
+            except OverflowError as exc:
+                raise ValueError(
+                    "transient generation notice requires a finite positive delay"
+                ) from exc
+            if not isfinite(delay) or delay <= 0:
+                raise ValueError("transient generation notice requires a finite positive delay")
+        elif retry_after_seconds is not None:
+            raise ValueError("terminal generation notice cannot request retry")
+        else:
+            delay = None
+        self.transition = transition
+        self.reason = reason
+        self.retry_after_seconds = delay
+        super().__init__(reason)
 
 
 class _EvaluationDisposition(str, Enum):
@@ -508,7 +546,9 @@ class _NativeSearchRunStatePort(Protocol):
 
     evaluation_iterations: int
     empty_generation_attempts: int
+    empty_generation_retry_deadline: float | None
     generation_transition: GenerationTransition | None
+    generation_source_reason: str | None
 
     def track_attempt(self, phase: _SearchWorkPhase) -> AbstractContextManager[None]: ...
 
@@ -672,6 +712,8 @@ __all__ = [
     "CandidateStrategyContext",
     "EvaluationBundle",
     "FunnelService",
+    "GenerationNotice",
+    "GenerationTransition",
     "LegacySearchServiceAdapter",
     "OrchestratorFunnelService",
     "ParetoBasisScope",

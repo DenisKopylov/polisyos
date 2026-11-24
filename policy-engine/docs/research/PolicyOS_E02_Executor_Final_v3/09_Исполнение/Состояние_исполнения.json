@@ -21706,7 +21706,7 @@
       "transition_evidence": [],
       "corrective_windows": [],
       "current_execution": {
-        "status": "ACTIVE. Sixteen packets, 68 original requirements and 68 original test contracts. Twenty-eight named local requirements qualify. OPT-01-05, OPT-02-01 and TRN-01-04 have partial evidence.",
+        "status": "ACTIVE. Sixteen packets, 68 original requirements and 68 original test contracts. Thirty-one named local requirements qualify. OPT-01-05, OPT-02-01, TRN-01-04, FUN-01-03 and FUN-03-01 have partial evidence.",
         "next": "Complete Search service custody and the composed native GP/transfer profiles, validate the exact fiscal and Funnel producer-to-reader paths, and wire the selected N9 permit with atomic Runtime effect. DA-08 and G retain separate acceptance.",
         "baseline_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4"
       }
@@ -42062,6 +42062,13 @@
           "result": "Five adjacent scalar best assertions reproduce on the exact predecessor source. Unregistered objective rules withhold best, including the AutoTune objective. The caller path overlaps the touched lifecycle, so this establishes baseline reproduction and does not qualify the larger profile.",
           "source_commit": "1cb561160",
           "guard_sha256": "77d8590821c184b34e1cbc2a029ea13f662b2f7d78db191b95e316f317247005"
+        },
+        {
+          "id": "srv-explicit-service-request",
+          "output": "Primary:policy-engine/_cache/e02/lane02-srv01-explicit-request.0CnY41Mf/qualified/",
+          "result": "37 pass and nine stable source pins. Actual traced generator authors different candidates under two explicit JSON service requests, and LegacySearchServiceAdapter.tell preserves the exact detached request without reinterpreting the evaluated subject.",
+          "source_commit": "a43991ab5e7a1883da510d2e6172a9fd8893dd73",
+          "guard_sha256": "e377d1f273e66e20df795c7fa2cd1c9b6f123dc97f170e16182cbea5f93261a0"
         }
       ],
       "blockers": [],
@@ -42083,6 +42090,24 @@
           "evidence_refs": [
             "ctl_srv_generation_claim_red",
             "ctl_srv_generation_claim_qualified"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-SRV-01-02",
+          "test_id": "TEST-SRV-01-02",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Distinct supported JSON goal and search space reach the actual producer before candidate generation and remain separate typed provenance through tell and JSON readback. Default calls remain compatible. Conflict and unsupported source refuse before owner mutation.",
+          "criterion_pointer": "04_Трассировка/SRV-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-SRV-01-02"
+          ],
+          "binding_ids": [
+            "E02-I02-A-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "srv-explicit-service-request"
           ],
           "remaining_kinds": []
         }
@@ -42674,6 +42699,13 @@
           "result": "41 pass against the actual file CAS and exact known-run index lookup. Distinguishes limiting from completed discovery and verifies current permission, immutable bytes and entry/size eviction.",
           "source_commit": "a80408aa10cd193cdd1b0af7d70533c419a03e28",
           "guard_sha256": "dc1aa87c09c2d363f26d598eb2a7e878ee0d8ce2c6333d8db02b0571e7b8286e"
+        },
+        {
+          "id": "trn-native-portable-custody",
+          "output": "Primary:policy-engine/_cache/e02/lane02-trn02-native.9D8nDrko/r3/",
+          "result": "14 passed with installed hnswlib 0.8.0. Real partial native mutation and concurrent reads observe the full prior generation. Fresh portable rows rebuild and transfer a selected exact history source; normal reads invoke no rebuild or snapshot.",
+          "source_commit": "b05dfa0479cb02abc21c9e377c361ae32f2f2548",
+          "guard_sha256": "daa29991d53e351d66a08a1bcdbffa5aca9981fe96db0f0c96c4a90583ceed23"
         }
       ],
       "blockers": [],
@@ -42714,6 +42746,43 @@
             "trn-bounded-refill-cas"
           ],
           "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-TRN-02-03",
+          "test_id": "TEST-TRN-02-03",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual installed HNSW preserves the prior generation under rollback after real partial mutation and invalid staged load. Readers see one generation. Failed rollback disables all access until a trusted exact reload.",
+          "criterion_pointer": "04_Трассировка/TRN-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-TRN-02-03"
+          ],
+          "binding_ids": [
+            "E02-I02-D-B03"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "trn-native-portable-custody"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-TRN-02-04",
+          "test_id": "TEST-TRN-02-04",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The actual portable rows producer publishes selected JSON/NPZ and history lineage to a separate interpreter. Real WarmStartBridge returns .8 for x=.5. Measured portable save, rebuild and read are 35.6, 6.69 and 3.58 ms on the tiny profile. Source/size/removal controls keep the old generation and ordinary reads do no rebuild.",
+          "criterion_pointer": "04_Трассировка/TRN-02.json#/requirements/3",
+          "test_ids": [
+            "TEST-TRN-02-04"
+          ],
+          "binding_ids": [
+            "E02-I02-D-B03",
+            "E02-X03-B03"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "trn-native-portable-custody"
+          ],
+          "remaining_kinds": []
         }
       ]
     },
@@ -42724,7 +42793,7 @@
       "track_id": "02-D",
       "track_position": 1,
       "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": null,
       "base_commit": null,
@@ -42744,9 +42813,39 @@
         "TEST-FUN-01-03",
         "TEST-FUN-01-04"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "fun-lineage-audit-fresh",
+          "output": "Primary:policy-engine/_build/.tmp/e02/fun01-fun03-qualified-r7.mhnipfym/budget/",
+          "result": "42 scoped tests pass. The real audit bundle owner and a fresh read-only CAS preserve live continuation reason, parent ticket, attempt lineage and cost without a result-reuse source. Separate historical result-reuse and legacy missing-field controls pass.",
+          "source_commit": "4f8874075eb50755a0d66f0cf30f359e4fa09517",
+          "guard_sha256": "ac19ae56913e5f3b94ce7c1bace3d776549b2a05191c31cce5cc6c507c07f5ad"
+        }
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-FUN-01-03",
+          "test_id": "TEST-FUN-01-03",
+          "status": "PARTIAL",
+          "basis": "The typed serializer and stock audit owner preserve read-only reason, parent and complete attempt cost across fresh CAS without manufacturing a result reuse. The actual new continuation producer still needs the composed stock owner qualification.",
+          "criterion_pointer": "04_Трассировка/FUN-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-FUN-01-03"
+          ],
+          "binding_ids": [
+            "E02-I02-C-B01"
+          ],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "fun-lineage-audit-fresh"
+          ],
+          "remaining_kinds": [
+            "semantic_test_missing"
+          ]
+        }
+      ]
     },
     {
       "packet_id": "FUN-02",
@@ -42877,7 +42976,7 @@
       "track_id": "02-D",
       "track_position": 3,
       "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": null,
       "base_commit": null,
@@ -42903,9 +43002,39 @@
         "TEST-FUN-03-03",
         "TEST-FUN-03-04"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "fun-retained-generation-assessment",
+          "output": "Primary:policy-engine/_cache/e02/lane02-fun03-01-retained.XFvZwR8m/late-generation-r3/",
+          "result": "Stock Runtime replay retained an actual generation-1 assessment as history after a newly persisted generation 2. Generation 2 remains unassessed. Selected-child removal and restore distinguish the source. No extra HTE work. The blueprint selected scope owner remains open.",
+          "guard_sha256": "88d21ad4ec6845d0d9767e59eea64051e69222c3ec24eca8be70e5135eecfc52"
+        }
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-FUN-03-01",
+          "test_id": "TEST-FUN-03-01",
+          "status": "PARTIAL",
+          "basis": "The stock retained Runtime receiver and actual serializer distinguish assessed current, unassessed newer generation and historical late assessment, with independent model risk retained and source-removal detection. The actual Blueprint pre-dispatch semantic scope and selected stage/method owner chain remains open.",
+          "criterion_pointer": "04_Трассировка/FUN-03.json#/requirements/0",
+          "test_ids": [
+            "TEST-FUN-03-01"
+          ],
+          "binding_ids": [
+            "E02-I02-C-B04"
+          ],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "fun-retained-generation-assessment"
+          ],
+          "remaining_kinds": [
+            "bridge_missing",
+            "semantic_test_missing"
+          ]
+        }
+      ]
     },
     {
       "packet_id": "BER-01",

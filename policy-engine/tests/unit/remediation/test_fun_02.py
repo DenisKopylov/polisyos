@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from fractions import Fraction
+from math import ulp
+from sys import float_info
 from typing import Any
 from unittest.mock import MagicMock
 
@@ -50,14 +53,14 @@ def _stage(
     return stage
 
 
-def _full_stage_result(*, ci_width: object) -> StageResult:
+def _full_stage_result(*, ci_width: object, effect: object = 2.0) -> StageResult:
     return StageResult(
         policy_candidate={"candidate_id": "fun-02"},
         objective_value=-1.0,
         is_promising=True,
         stage_name="expensive",
         simulation_results={
-            "ate": 2.0,
+            "ate": effect,
             "bootstrap": {"ci_width": ci_width},
         },
         feedback={"verdict": "APPROVE"},
@@ -163,6 +166,120 @@ def test_l4_ci_width_preserves_missing_invalid_and_true_zero_semantics(
 
     assert estimate.level == pytest.approx(expected_level)
     assert estimate.quantification_method == expected_method
+    if expected_method == "ci_width_missing":
+        assert "confidence-interval width missing" in estimate.source
+    elif expected_method == "ci_width_invalid":
+        assert "confidence-interval width invalid" in estimate.source
+
+
+def _fraction_ci_uncertainty_oracle(ci_width: float, effect: float) -> float:
+    """Round the exact binary-float ratio independently of the implementation."""
+    if effect == 0.0:
+        return 0.0 if ci_width == 0.0 else 1.0
+    exact_ratio = Fraction.from_float(ci_width) / (2 * Fraction.from_float(abs(effect)))
+    return float(min(Fraction(1), exact_ratio))
+
+
+def _l3_result(*, ci_width: object, effect: object) -> FunnelStageResult:
+    engine = MagicMock()
+    engine.run.return_value = {
+        "simulation_results": {
+            "ate": effect,
+            "bootstrap": {"ci_width": ci_width},
+            "gdp_change": 0.0,
+            "metric_units": {"gdp_change": "fixture-unit"},
+        },
+        "feedback": {"verdict": "APPROVE"},
+    }
+    return Level3MediumFidelity(
+        workflow_engine=engine,
+        expected_objective_unit="fixture-unit",
+    ).evaluate({"candidate_id": "fun-02"}, {})
+
+
+@pytest.mark.parametrize(
+    ("ci_width", "effect"),
+    [
+        (1.0e308, 1.0e308),
+        (float_info.max, float_info.max),
+        (float.fromhex("0x0.0000000000001p-1022"), float.fromhex("0x0.0000000000001p-1022")),
+        (0.4, 2.0),
+        (float_info.max, float_info.max / 2.0),
+        (float.fromhex("0x0.0000000000001p-1022"), float_info.max),
+        (0.0, 2.0),
+        (0.0, 0.0),
+        (1.0, 0.0),
+        (0.4, -2.0),
+    ],
+)
+@pytest.mark.parametrize("fidelity", ["L3", "L4"])
+def test_ci_width_ratio_matches_exact_rational_oracle_across_float_scales(
+    ci_width: float,
+    effect: float,
+    fidelity: str,
+) -> None:
+    if fidelity == "L3":
+        result = _l3_result(ci_width=ci_width, effect=effect)
+        method = "bootstrap_reduced"
+    else:
+        expensive_stage = MagicMock()
+        expensive_stage.evaluate.return_value = _full_stage_result(
+            ci_width=ci_width,
+            effect=effect,
+        )
+        result = Level4FullFidelity(expensive_stage=expensive_stage).evaluate({}, {})
+        method = "full_fidelity_bootstrap"
+
+    estimate = result.uncertainty_envelope.uncertainties[
+        next(
+            uncertainty_type
+            for uncertainty_type in result.uncertainty_envelope.uncertainties
+            if uncertainty_type.value == "statistical"
+        )
+    ]
+    expected = _fraction_ci_uncertainty_oracle(ci_width, effect)
+
+    assert abs(estimate.level - expected) <= ulp(expected)
+    assert estimate.quantification_method == method
+
+
+@pytest.mark.parametrize("fidelity", ["L3", "L4"])
+@pytest.mark.parametrize(
+    ("ci_width", "effect", "expected_method", "expected_reason"),
+    [
+        (10**400, 2.0, "ci_width_invalid", "confidence-interval width invalid"),
+        (1.0, 10**400, "effect_invalid", "effect scale invalid"),
+        (1.0, float("nan"), "effect_invalid", "effect scale invalid"),
+        (1.0, True, "effect_invalid", "effect scale invalid"),
+    ],
+)
+def test_ci_width_ratio_keeps_typed_invalid_boundaries(
+    ci_width: object,
+    effect: object,
+    expected_method: str,
+    expected_reason: str,
+    fidelity: str,
+) -> None:
+    if fidelity == "L3":
+        result = _l3_result(ci_width=ci_width, effect=effect)
+    else:
+        expensive_stage = MagicMock()
+        expensive_stage.evaluate.return_value = _full_stage_result(
+            ci_width=ci_width,
+            effect=effect,
+        )
+        result = Level4FullFidelity(expensive_stage=expensive_stage).evaluate({}, {})
+    estimate = result.uncertainty_envelope.uncertainties[
+        next(
+            uncertainty_type
+            for uncertainty_type in result.uncertainty_envelope.uncertainties
+            if uncertainty_type.value == "statistical"
+        )
+    ]
+
+    assert estimate.level == 1.0
+    assert estimate.quantification_method == expected_method
+    assert expected_reason in estimate.source
 
 
 def test_final_defer_overrides_intermediate_approve_without_erasing_stage_result() -> None:

@@ -6,7 +6,7 @@ from abc import abstractmethod
 from collections.abc import Mapping
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
-from math import isfinite
+from math import frexp, isfinite, ldexp
 from typing import TYPE_CHECKING, Any, Literal, NoReturn
 
 from pydantic import AwareDatetime, ConfigDict, Field, model_validator
@@ -286,8 +286,20 @@ def statistical_uncertainty_from_ci_width(
 
     if effect == 0.0:
         level = 0.0 if ci_width == 0.0 else 1.0
+    elif ci_width == 0.0:
+        level = 0.0
     else:
-        level = min(1.0, ci_width / (2.0 * effect))
+        width_mantissa, width_exponent = frexp(ci_width)
+        effect_mantissa, effect_exponent = frexp(effect)
+        ratio_exponent = width_exponent - effect_exponent - 1
+        if ratio_exponent >= 1:
+            level = 1.0
+        else:
+            scaled_ratio = ldexp(
+                width_mantissa / effect_mantissa,
+                ratio_exponent,
+            )
+            level = min(1.0, scaled_ratio)
     return UncertaintyEstimate(
         level=level,
         source=source,

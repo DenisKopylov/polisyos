@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import math
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -26,7 +27,13 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts import (
     ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
-from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactManifest,
+    ArtifactRef,
+    InputRef,
+    ProducerInfo,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.registry import RegistryBundlePayload
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -66,6 +73,7 @@ from polisyos.foundry.calibration import (
 from polisyos.foundry.calibration.report import CalibrationReport
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
+from polisyos.foundry.uncertainty.monte_carlo import MonteCarloDrawOutcomeLedger
 from polisyos.foundry.uncertainty.protocol import PropagationResult
 from polisyos.ir import ArtifactRefModel, get_json_artifact
 from polisyos.ir.analytics.calibration import CalibrationConfig
@@ -103,6 +111,11 @@ _PROPAGATION_LOAD_ERRORS = (
 )
 _SENSITIVITY_MAPPING_PARAM = "propagation_sensitivity"
 _RESPONSE_BASIS_PARAM = "propagation_response_basis"
+_DRAW_LEDGER_ROLE = "draw_outcome_ledger"
+_DRAW_LEDGER_PRODUCER = ProducerInfo(
+    component="scientist.node_propagate_uncertainty@1.0.0", version="1.0.0"
+)
+_MAX_REPLAY_DRAW_COUNT = PropagationConfig().mc_n_samples
 
 
 class _InvalidSensitivityMapping(ValueError):
@@ -246,8 +259,12 @@ class PropagateUncertaintyNode:
         response_intake = None
         if response_projection is not None:
             try:
+                if not isinstance(ctx.store, FileSystemCAS):
+                    raise _InvalidResponseBasis(
+                        "execute response validation requires the supported FileSystemCAS reader"
+                    )
                 response_intake = _read_calibration_response_intake(
-                    ctx,
+                    ctx.store,
                     state.inputs.get(INPUT_CALIBRATION_REPORT_REF),
                 )
             except _InvalidResponseBasis as exc:
@@ -281,8 +298,9 @@ class PropagateUncertaintyNode:
         if response_candidate is not None and response_projection is not None:
             calibration_ref = state.inputs.get(INPUT_CALIBRATION_REPORT_REF)
             try:
+                assert isinstance(ctx.store, FileSystemCAS)
                 response_source = _load_calibration_response_source(
-                    ctx,
+                    ctx.store,
                     calibration_ref,
                     response_candidate,
                     intake=response_intake,
@@ -335,8 +353,6 @@ class PropagateUncertaintyNode:
                 )
             output_metric_ids = sorted(metric_values.keys())
 
-        dispatcher = PropagationDispatcher(config)
-
         nominal_params = {name: env.point_estimate for name, env in input_envelopes.items()}
         response_status_by_metric: dict[str, str] = {}
         missing_response_parameters: list[str] = []
@@ -367,7 +383,15 @@ class PropagateUncertaintyNode:
             return _sensitivity_mapping_failure(state, exc)
         except _InvalidResponseBasis as exc:
             return _response_basis_failure(state, exc)
-        results = dispatcher.propagate(
+        results = PropagationDispatcher(
+            config,
+            capture_draw_outcome_ledger=(
+                response_candidate is not None
+                and _supports_response_draw_replay(
+                    config, inputs=len(input_envelopes), outputs=len(output_metric_ids)
+                )
+            ),
+        ).propagate(
             simulation_fn=simulation_fn,
             nominal_params=nominal_params,
             input_envelopes=input_envelopes,
@@ -822,7 +846,7 @@ def _reference_identity(ref: ArtifactRef) -> tuple[str, str, str, str | None]:
 
 
 def _selected_manifest(
-    ctx: ExecutionContext,
+    store: FileSystemCAS,
     ref: ArtifactRef,
     *,
     expected_kind: str,
@@ -831,13 +855,9 @@ def _selected_manifest(
     expected_version: str | None = None,
 ) -> Any:
     """Use the common exact source intake; source absence is not contradiction."""
-    if not isinstance(ctx.store, FileSystemCAS):
-        raise _InvalidResponseBasis(
-            "selected response reads require FileSystemCAS", source_status="not_established"
-        )
     if model is None:
         result = read_calibration_source(
-            ctx.store,
+            store,
             role=expected_kind,
             ref=ref,
             expected_kind=expected_kind,
@@ -847,7 +867,7 @@ def _selected_manifest(
         )
     else:
         result = read_calibration_model_source(
-            ctx.store,
+            store,
             role=expected_kind,
             model=model,
             ref=ref,
@@ -862,7 +882,7 @@ def _selected_manifest(
 
 
 def _optional_selected_basis_ref(
-    ctx: ExecutionContext,
+    store: FileSystemCAS,
     basis_manifest: Any,
     *,
     role: str,
@@ -878,7 +898,7 @@ def _optional_selected_basis_ref(
             source_status="mismatch",
         )
     result = read_calibration_model_source(
-        ctx.store,
+        store,
         role=role,
         model=model,
         ref=ref,
@@ -902,13 +922,13 @@ def _optional_selected_basis_ref(
 
 
 def _selected_basis_input_sha256(
-    ctx: ExecutionContext,
+    store: FileSystemCAS,
     ref: ArtifactRef,
     model_type: type[BaseModel],
 ) -> str:
     """Hash one freshly resolved source using the basis producer's typed representation."""
     result = read_calibration_model_source(
-        ctx.store,
+        store,
         role=ref.kind,
         ref=ref,
         expected_kind=ref.kind,
@@ -934,10 +954,10 @@ class _CalibrationResponseIntake:
 
 
 def _read_calibration_response_intake(
-    ctx: ExecutionContext, raw_report_ref: Any
+    store: FileSystemCAS, raw_report_ref: Any
 ) -> _CalibrationResponseIntake:
     """Qualify the complete modelled scalar intake before candidate evaluation."""
-    report_source = read_calibration_report_source(ctx.store, ref=raw_report_ref)
+    report_source = read_calibration_report_source(store, ref=raw_report_ref)
     if report_source.status != "matched":
         raise _InvalidResponseBasis(report_source.code, source_status=report_source.status)
     assert report_source.ref is not None
@@ -964,7 +984,7 @@ def _read_calibration_response_intake(
             )
 
     basis_source = read_calibration_execution_input_basis_source(
-        ctx.store, inputs=report_manifest.inputs
+        store, inputs=report_manifest.inputs
     )
     if basis_source.status != "matched":
         raise _InvalidResponseBasis(basis_source.code, source_status=basis_source.status)
@@ -978,7 +998,7 @@ def _read_calibration_response_intake(
         # an ordered-row experiment. Never reinterpret a batch as scalar v1.0.
         raise _InvalidResponseBasis("ordered_batch_response_basis_not_supported")
 
-    report_config_source = read_calibration_config_source(ctx.store, inputs=report_manifest.inputs)
+    report_config_source = read_calibration_config_source(store, inputs=report_manifest.inputs)
     if report_config_source.status != "matched":
         raise _InvalidResponseBasis(
             report_config_source.code, source_status=report_config_source.status
@@ -986,7 +1006,7 @@ def _read_calibration_response_intake(
     report_config_ref = report_config_source.ref
     assert report_config_ref is not None
     basis_config_source = read_calibration_config_source(
-        ctx.store,
+        store,
         ref=basis.calibration_config_ref,
         inputs=basis_manifest.inputs,
     )
@@ -1021,14 +1041,14 @@ def _read_calibration_response_intake(
 
 
 def _load_calibration_response_source(
-    ctx: ExecutionContext,
+    store: FileSystemCAS,
     raw_report_ref: Any,
     candidate: ExecuteResponseBasisCandidate,
     *,
     intake: _CalibrationResponseIntake | None = None,
 ) -> _CalibrationResponseSource:
     """Rebind calibration envelopes and basis identities to the response candidate."""
-    selected = intake or _read_calibration_response_intake(ctx, raw_report_ref)
+    selected = intake or _read_calibration_response_intake(store, raw_report_ref)
     report_ref, report_manifest, report = (
         selected.report_ref,
         selected.report_manifest,
@@ -1075,7 +1095,7 @@ def _load_calibration_response_source(
         basis_ref_value = getattr(basis, field_name)
         status = getattr(basis, status_name)
         selected, ref_limitations = _optional_selected_basis_ref(
-            ctx,
+            store,
             basis_manifest,
             role=basis_role,
             ref=basis_ref_value,
@@ -1124,17 +1144,17 @@ def _load_calibration_response_source(
             if status_name == "selected_source_matched":
                 raise _InvalidResponseBasis(f"calibration basis {basis_role} digest is missing")
             limitations.append(f"calibration_basis_{basis_role}_digest_not_established")
-        elif _selected_basis_input_sha256(ctx, selected, model_type) != expected_digest:
+        elif _selected_basis_input_sha256(store, selected, model_type) != expected_digest:
             raise _InvalidResponseBasis(f"calibration basis {basis_role} digest mismatch")
 
     program_graph_ref = resolved_basis_refs.get("program_graph")
     program_graph = (
         None
         if program_graph_ref is None
-        else validate_core_model_json_artifact(ProgramGraph, ctx.store, program_graph_ref)
+        else validate_core_model_json_artifact(ProgramGraph, store, program_graph_ref)
     )
     _reconcile_calibration_parameter_inputs(
-        ctx,
+        store,
         basis_manifest,
         basis,
         candidate,
@@ -1212,7 +1232,7 @@ def _load_calibration_response_source(
                 description=f"calibration uncertainty envelope {name!r}",
             )
             _selected_manifest(
-                ctx,
+                store,
                 standalone_ref,
                 expected_kind="ir.uncertainty_envelope",
                 model=UncertaintyEnvelope,
@@ -1220,7 +1240,7 @@ def _load_calibration_response_source(
                 expected_version="1.1",
             )
             persisted = load_uncertainty_envelope(
-                _ensure_ir_artifact_store(ctx.store),
+                _ensure_ir_artifact_store(store),
                 UncertaintyEnvelopeRef.model_validate(standalone_ref.model_dump(mode="python")),
             )
             if canonical_input_sha256(persisted) != envelope_digests[name]:
@@ -1300,7 +1320,7 @@ def _require_basis_source_digest(name: str, expected: str | None, actual: str) -
 
 
 def _reconcile_calibration_parameter_inputs(
-    ctx: ExecutionContext,
+    store: FileSystemCAS,
     basis_manifest: Any,
     basis: CalibrationExecutionInputBasis,
     candidate: ExecuteResponseBasisCandidate,
@@ -1405,8 +1425,8 @@ def _reconcile_calibration_parameter_inputs(
                 raise _InvalidResponseBasis(
                     f"calibration parameter input source differs from program node {row.node_id}"
                 )
-            _selected_manifest(ctx, expected_ref, expected_kind=expected_ref.kind, model=None)
-            payload = get_json_artifact(_ensure_ir_artifact_store(ctx.store), expected_ref)
+            _selected_manifest(store, expected_ref, expected_kind=expected_ref.kind, model=None)
+            payload = get_json_artifact(_ensure_ir_artifact_store(store), expected_ref)
             actual_payload_digest = canonical_input_sha256(payload)
             if row.payload_sha256 is None:
                 limitations.append(
@@ -1492,6 +1512,17 @@ def _response_lineage_inputs(
         for name, ref in sorted(source.input_envelope_refs.items())
     )
     return inputs
+
+
+def _supports_response_draw_replay(config: PropagationConfig, *, inputs: int, outputs: int) -> bool:
+    """Bound fresh per-draw verification to the scalar fixed random MC profile."""
+    return (
+        inputs == outputs == 1
+        and config.preferred_method.lower() == "monte_carlo"
+        and config.mc_sampling_method == "random"
+        and not config.adaptive_stopping.enabled
+        and config.mc_n_samples <= _MAX_REPLAY_DRAW_COUNT
+    )
 
 
 def _build_execute_response_state_projection_fn(
@@ -1844,6 +1875,7 @@ def _persist_report(
     diagnostics: list[dict[str, Any]] = []
     for item in results:
         item_diagnostics = dict(item.diagnostics)
+        item_diagnostics.pop(_DRAW_LEDGER_ROLE, None)
         if shared_provenance is not None:
             item_diagnostics.pop("draw_outcome_provenance", None)
         diagnostics.append(
@@ -1942,6 +1974,26 @@ def _persist_report(
         raise ValueError("execute response report is missing a bound source or projection")
     if shared_provenance is not None:
         payload["draw_outcome_provenance"] = shared_provenance
+    raw_ledger = results[0].diagnostics.get(_DRAW_LEDGER_ROLE) if results else None
+    if raw_ledger is not None and response_candidate is not None:
+        ledger = MonteCarloDrawOutcomeLedger.model_validate_json(
+            json.dumps(raw_ledger, allow_nan=False)
+        )
+        ledger_ref = ctx.store.put_json(
+            ledger,
+            PutOptions(
+                kind=ledger.ARTIFACT_KIND,
+                media_type=ledger.ARTIFACT_MEDIA_TYPE,
+                schema=SchemaInfo(
+                    name=ledger.ARTIFACT_SCHEMA_NAME, version=ledger.ARTIFACT_SCHEMA_VERSION
+                ),
+                producer=_DRAW_LEDGER_PRODUCER,
+                inputs=list(report_inputs),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        report_inputs.append(_input_ref(ledger_ref, role=_DRAW_LEDGER_ROLE))
     return ctx.store.put_json(
         payload,
         PutOptions(

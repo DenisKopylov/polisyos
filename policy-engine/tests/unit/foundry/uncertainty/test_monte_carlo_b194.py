@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 import struct
 from copy import deepcopy
@@ -1958,6 +1959,96 @@ def _install_fixed_symmetric_draws(
     return draws, offset
 
 
+def test_monte_carlo_draw_ledger_binds_successes_to_inputs_and_retries(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Expose actual successful draw rows, per-output sample order, and physical retries."""
+    draws, offset = _install_fixed_symmetric_draws(monkeypatch)
+    config = _config(mc_n_samples=100, mc_batch_size=100, mc_min_valid_samples=10)
+    envelopes = {"x": _normal_env(0.0, 1.0)}
+    calls: list[float] = []
+    retry_pending = True
+
+    def evaluate(x: float, offset: float) -> dict[str, float]:
+        nonlocal retry_pending
+        value = float(x)
+        calls.append(value)
+        if value == -1.0 and retry_pending:
+            retry_pending = False
+            raise PolicyOSError("temporary evaluator outage", category=ErrorCategory.TRANSIENT)
+        output = {"y": 2.0 * value + offset}
+        if value >= 0.0:
+            output["z"] = value - 0.5
+        return output
+
+    results = MonteCarloPropagator(config, capture_draw_outcome_ledger=True).propagate(
+        evaluate,
+        {"offset": 1.25, "x": 0.0},
+        envelopes,
+        ["y", "z"],
+    )
+
+    assert offset == [100]
+    assert len(calls) == 102  # one nominal call, 100 logical draws, one physical retry
+    current_provenance = results[0].diagnostics["draw_outcome_provenance"]
+    assert current_provenance["simulation_attempt_count"] == 102
+    assert current_provenance["retry_attempt_count"] == 1
+
+    from polisyos.foundry.uncertainty.monte_carlo import MonteCarloDrawOutcomeLedger
+
+    ledger = MonteCarloDrawOutcomeLedger.model_validate_json(
+        json.dumps(results[0].diagnostics["draw_outcome_ledger"], separators=(",", ":")),
+        strict=True,
+    )
+    assert MonteCarloDrawOutcomeLedger.ARTIFACT_KIND == "foundry.monte_carlo_draw_outcome_ledger"
+    assert MonteCarloDrawOutcomeLedger.ARTIFACT_MEDIA_TYPE == "application/json"
+    assert MonteCarloDrawOutcomeLedger.ARTIFACT_SCHEMA_VERSION == "1.0"
+    assert ledger.schema_version == "1.0"
+    assert results[0].envelope.gate_eligible is False
+    assert ledger.requested_draw_count == ledger.attempted_draw_count == 100
+    assert ledger.outcome_denominator_complete is True
+    assert ledger.draw_physical_attempt_count == 101
+    assert ledger.draw_retry_attempt_count == 1
+    assert ledger.input_param_names == ("x",)
+    assert ledger.evaluator_input_names == ("offset", "x")
+    np.testing.assert_array_equal(ledger.input_values_by_name["x"], draws)
+    np.testing.assert_array_equal(ledger.input_values_by_name["offset"], np.full(100, 1.25))
+    assert (
+        ledger.sampled_input_sha256[0]
+        == hashlib.sha256(
+            b"offset\x00" + struct.pack(">d", 1.25) + b"x\x00" + struct.pack(">d", -1.0)
+        ).hexdigest()
+    )
+    assert tuple(item.model_dump(mode="json") for item in ledger.physical_attempts_by_draw[0]) == (
+        {"attempt_number": 1, "outcome_code": "transient_retry", "error_type": "PolicyOSError"},
+        {"attempt_number": 2, "outcome_code": "returned", "error_type": None},
+    )
+    assert (
+        tuple(
+            tuple(item.model_dump(mode="json") for item in attempts)
+            for attempts in ledger.physical_attempts_by_draw[1:]
+        )
+        == (({"attempt_number": 1, "outcome_code": "returned", "error_type": None},),) * 99
+    )
+    assert ledger.output_success_draw_indices_by_metric["y"] == tuple(range(100))
+    assert ledger.output_success_draw_indices_by_metric["z"] == tuple(range(50, 100))
+    assert ledger.output_failure_draw_indices_by_metric["y"] == ()
+    assert ledger.output_failure_draw_indices_by_metric["z"] == tuple(range(50))
+    assert ledger.fully_successful_draw_count == 50
+    assert ledger.input_identity_status == "not_established"
+
+    changed_ledger = ledger.model_dump(mode="json")
+    changed_ledger["sampled_input_sha256"][0] = "0" * 64
+    with pytest.raises(ValidationError, match="sampled-input digest does not match"):
+        MonteCarloDrawOutcomeLedger.model_validate_json(json.dumps(changed_ledger), strict=True)
+
+    y_values = results[0].envelope.distribution_payload.samples
+    z_values = results[1].envelope.distribution_payload.samples
+    np.testing.assert_allclose(y_values, draws * 2.0 + 1.25, atol=1e-6)
+    np.testing.assert_allclose(z_values, draws[50:] - 0.5, atol=1e-6)
+    assert "draw_outcome_ledger" not in results[1].diagnostics
+
+
 def test_b194_exact_symmetric_partial_draws_stay_candidate_and_retain_control(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -1972,6 +2063,7 @@ def test_b194_exact_symmetric_partial_draws_stay_candidate_and_retain_control(
         envelopes,
         ["y"],
     )[0]
+    assert "draw_outcome_ledger" not in complete.diagnostics
     assert np.array_equal(complete_draws, draws)
     assert complete_offset == [100]
     assert complete.envelope.point_estimate == pytest.approx(0.0, abs=1e-7)

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import struct
 from decimal import Decimal
 from fractions import Fraction
 from hashlib import sha256
@@ -1808,6 +1809,145 @@ def test_native_response_calibration_report_reaches_fresh_state_slot_consumer(
     assert projection.envelope.metadata["candidate_only"] is True
     assert projection.envelope.gate_eligible is False
     if scoped_subset:
+        from polisyos.scientist.nodes.builtins.simulate.uncertainty_source_projection import (
+            VerifiedStateSlotDrawProjection,
+            load_science_simulation_result_subject_uncertainty_projection,
+        )
+
+        report_manifest = store.get_manifest(propagated_report_ref)
+        ledger_edge = next(
+            edge for edge in report_manifest.inputs if edge.role == "draw_outcome_ledger"
+        )
+        assert ledger_edge.manifest_profile_sha256 is not None
+        fresh = FileSystemCAS(tmp_path / "cas")
+        verified = load_science_simulation_result_subject_uncertainty_projection(
+            fresh,
+            output_simulation_ref,
+            subject_kind="state_slot",
+            subject_id="government.balance",
+        )
+        assert isinstance(verified, VerifiedStateSlotDrawProjection), verified.limitation_codes
+        assert verified.draw_basis_verification == "recomputed"
+        assert verified.draw_ledger_ref.manifest_profile_sha256 == (
+            ledger_edge.manifest_profile_sha256
+        )
+        assert verified.envelope == projection.envelope
+        assert verified.envelope.confidence_level == 0.95
+        assert verified.candidate_only is True
+        assert verified.gate_eligible is False
+        assert "draw_success_ledger_missing" not in verified.limitation_codes
+        assert "draw_basis_verifier_missing" not in verified.limitation_codes
+        assert "external_parameter_unit_authority_not_established" in verified.limitation_codes
+        assert "calibration_source_attestation_not_established" in verified.limitation_codes
+
+        def reselect_with_ledger(new_edge):
+            # Keep the exact real report bytes and replace only the selected ledger edge.
+            altered_report_ref = store.put_bytes(
+                store.get_bytes(propagated_report_ref),
+                PutOptions(
+                    kind=report_manifest.kind,
+                    media_type=report_manifest.media_type,
+                    schema=report_manifest.artifact_schema,
+                    producer=report_manifest.producer,
+                    canon=report_manifest.canon,
+                    inputs=[edge for edge in report_manifest.inputs if edge != ledger_edge]
+                    + ([new_edge] if new_edge is not None else []),
+                ),
+                return_selected_profile=True,
+            )
+            assert altered_report_ref.artifact_id == propagated_report_ref.artifact_id
+            assert (
+                altered_report_ref.manifest_profile_sha256
+                != propagated_report_ref.manifest_profile_sha256
+            )
+            simulation_manifest = store.get_manifest(output_simulation_ref)
+            selected = output_simulation.model_copy(
+                update={"propagation_report_ref": altered_report_ref}
+            )
+            return store.put_json(
+                selected.to_artifact_payload(),
+                PutOptions(
+                    kind=simulation_manifest.kind,
+                    media_type=simulation_manifest.media_type,
+                    schema=simulation_manifest.artifact_schema,
+                    producer=simulation_manifest.producer,
+                    inputs=[
+                        input_ref_from_artifact_ref(altered_report_ref, role=edge.role)
+                        if edge.role == "propagation_report"
+                        else edge
+                        for edge in simulation_manifest.inputs
+                    ],
+                ),
+                return_selected_profile=True,
+            )
+
+        source_ledger_ref = ArtifactRef(
+            artifact_id=ledger_edge.artifact_id,
+            kind="foundry.monte_carlo_draw_outcome_ledger",
+            media_type="application/json",
+            manifest_profile_sha256=ledger_edge.manifest_profile_sha256,
+        )
+        ledger = get_json_artifact(ensure_ir_artifact_store(fresh), source_ledger_ref)
+        assert ledger["attempted_draw_count"] == 100
+        assert ledger["output_success_draw_indices_by_metric"]["government.balance"] == list(
+            range(100)
+        )
+        ledger_manifest = store.get_manifest(source_ledger_ref)
+        foreign_ref = store.put_bytes(
+            store.get_bytes(source_ledger_ref),
+            PutOptions(
+                kind=ledger_manifest.kind,
+                media_type=ledger_manifest.media_type,
+                schema=ledger_manifest.artifact_schema,
+                producer=ledger_manifest.producer,
+                canon=ledger_manifest.canon,
+            ),
+            return_selected_profile=True,
+        )
+        assert foreign_ref.artifact_id == source_ledger_ref.artifact_id
+        assert foreign_ref.manifest_profile_sha256 != source_ledger_ref.manifest_profile_sha256
+
+        assert ledger["evaluator_input_names"] == [parameter]
+        forged_input = float(ledger["input_values_by_name"][parameter][0]) + 0.125
+        ledger["input_values_by_name"][parameter][0] = forged_input
+        ledger["sampled_input_sha256"][0] = sha256(
+            parameter.encode() + b"\x00" + struct.pack(">d", forged_input)
+        ).hexdigest()
+        forged_ref = store.put_json(
+            ledger,
+            PutOptions(
+                kind=ledger_manifest.kind,
+                media_type=ledger_manifest.media_type,
+                schema=ledger_manifest.artifact_schema,
+                producer=ledger_manifest.producer,
+                inputs=ledger_manifest.inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        for edge, limitation in (
+            (None, "draw_success_ledger_missing"),
+            (
+                input_ref_from_artifact_ref(foreign_ref, role="draw_outcome_ledger"),
+                "draw_basis_revalidation_refused",
+            ),
+            (
+                input_ref_from_artifact_ref(forged_ref, role="draw_outcome_ledger"),
+                "draw_basis_revalidation_refused",
+            ),
+        ):
+            altered = reselect_with_ledger(edge)
+            refused = load_science_simulation_result_subject_uncertainty_projection(
+                FileSystemCAS(tmp_path / "cas"),
+                altered,
+                subject_kind="state_slot",
+                subject_id="government.balance",
+            )
+            assert refused.envelope == projection.envelope
+            assert refused.gate_eligible is False
+            assert "draw_basis_verifier_missing" in refused.limitation_codes
+            assert limitation in refused.limitation_codes
+
         assert propagated_report["input_envelope_count"] == 1
         assert propagated_report["mapped_params"] == [parameter]
         assert set(
@@ -2441,7 +2581,7 @@ def test_response_reader_does_not_reinterpret_new_batch_basis_as_v1_0(tmp_path, 
         store=fresh, run=run, logger=logging.getLogger("batch-response-refusal")
     )
     with pytest.raises(_InvalidResponseBasis, match="ordered_batch_response_basis_not_supported"):
-        _load_calibration_response_source(context, report_ref, response)
+        _load_calibration_response_source(context.store, report_ref, response)
 
     state = ExperimentState(
         run_id="R_batch_response_refusal",

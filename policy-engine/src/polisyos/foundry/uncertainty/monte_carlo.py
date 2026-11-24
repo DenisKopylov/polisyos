@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 import struct
 import warnings
 from collections.abc import Callable, Mapping
@@ -14,14 +15,24 @@ from decimal import Decimal
 from enum import StrEnum
 from fractions import Fraction
 from numbers import Real
-from typing import Any, Literal
+from typing import Any, ClassVar, Literal
 
 import jax
 import jax.numpy as jnp
 import jax.random as jrandom
 import jaxlib
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StrictBool,
+    StrictFloat,
+    StrictInt,
+    StrictStr,
+    ValidationError,
+    model_validator,
+)
 
 from polisyos.common.logger import get_logger
 from polisyos.common.numeric_reductions import finite_binary64_mean
@@ -103,20 +114,39 @@ def _evaluate_with_transient_retry(
     simulation_fn: Callable[..., Any],
     params: Mapping[str, Any],
     attempts: _EvaluationAttempts,
+    *,
+    physical_attempts: list[MonteCarloPhysicalAttempt] | None = None,
 ) -> Any:
     """Retry one unchanged evaluation input once after an explicit transient error."""
     for attempt_index in range(_MAX_EVALUATION_ATTEMPTS):
         attempts.simulation_attempt_count += 1
         try:
-            return simulation_fn(**params)
+            result = simulation_fn(**params)
         except Exception as exc:
-            if (
+            should_retry = (
                 attempt_index + 1 < _MAX_EVALUATION_ATTEMPTS
                 and classify_evaluation_failure(exc).scope == "transient"
-            ):
+            )
+            if physical_attempts is not None:
+                physical_attempts.append(
+                    MonteCarloPhysicalAttempt(
+                        attempt_number=attempt_index + 1,
+                        outcome_code=("transient_retry" if should_retry else "terminal_exception"),
+                        error_type=type(exc).__name__,
+                    )
+                )
+            if should_retry:
                 attempts.retry_attempt_count += 1
                 continue
             raise
+        if physical_attempts is not None:
+            physical_attempts.append(
+                MonteCarloPhysicalAttempt(
+                    attempt_number=attempt_index + 1,
+                    outcome_code="returned",
+                )
+            )
+        return result
     raise AssertionError("bounded evaluation loop returned without a result or exception")
 
 
@@ -145,6 +175,8 @@ class _SampleBuffers:
     values: dict[str, np.ndarray]
     input_samples: dict[str, np.ndarray]
     capacity: int
+    physical_attempts: list[tuple[MonteCarloPhysicalAttempt, ...]]
+    capture_draw_outcome_ledger: bool
 
 
 @dataclass(frozen=True)
@@ -199,6 +231,164 @@ class _DrawOutcomeRecord(BaseModel):
     draw_index: int = Field(ge=0)
     sampled_input_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     output_outcomes: tuple[_DrawOutputOutcome, ...] = Field(min_length=1)
+
+
+class MonteCarloPhysicalAttempt(BaseModel):
+    """Identify one actual evaluator call within a logical Monte Carlo draw."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    attempt_number: StrictInt = Field(ge=1)
+    outcome_code: Literal["transient_retry", "returned", "terminal_exception"]
+    error_type: StrictStr | None = None
+
+    @model_validator(mode="after")
+    def validate_terminal_attempt(self) -> MonteCarloPhysicalAttempt:
+        """Require exception identity only for calls that raised."""
+        raised = self.outcome_code in {"transient_retry", "terminal_exception"}
+        if raised != (self.error_type is not None):
+            raise ValueError("physical attempt exception identity does not match its outcome")
+        return self
+
+
+class MonteCarloDrawOutcomeLedger(BaseModel):
+    """Versioned, persistable handoff for exact per-draw Monte Carlo outcomes.
+
+    This producer DTO binds sampled evaluator inputs and physical attempts to
+    logical draw indices. Output sample order is expressed as draw indices per
+    metric, so a downstream selected-envelope reader can reconcile the exact
+    successful subset without relying on implicit array order.
+    """
+
+    ARTIFACT_KIND: ClassVar[str] = "foundry.monte_carlo_draw_outcome_ledger"
+    ARTIFACT_MEDIA_TYPE: ClassVar[Literal["application/json"]] = "application/json"
+    ARTIFACT_SCHEMA_NAME: ClassVar[str] = "polisyos.foundry.MonteCarloDrawOutcomeLedger"
+    ARTIFACT_SCHEMA_VERSION: ClassVar[str] = "1.0"
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["1.0"]
+    requested_draw_count: StrictInt = Field(ge=1)
+    attempted_draw_count: StrictInt = Field(ge=1)
+    unattempted_draw_count: StrictInt = Field(ge=0)
+    outcome_denominator_complete: StrictBool
+    input_param_names: tuple[StrictStr, ...] = Field(min_length=1)
+    evaluator_input_names: tuple[StrictStr, ...] = Field(min_length=1)
+    draw_indices: tuple[StrictInt, ...] = Field(min_length=1)
+    input_values_by_name: dict[StrictStr, tuple[StrictFloat, ...]]
+    sampled_input_sha256: tuple[StrictStr, ...] = Field(min_length=1)
+    physical_attempts_by_draw: tuple[tuple[MonteCarloPhysicalAttempt, ...], ...] = Field(
+        min_length=1
+    )
+    output_metric_ids: tuple[StrictStr, ...] = Field(min_length=1)
+    output_success_draw_indices_by_metric: dict[StrictStr, tuple[StrictInt, ...]]
+    output_failure_draw_indices_by_metric: dict[StrictStr, tuple[StrictInt, ...]]
+    draw_physical_attempt_count: StrictInt = Field(ge=1)
+    draw_retry_attempt_count: StrictInt = Field(ge=0)
+    fully_successful_draw_count: StrictInt = Field(ge=0)
+    input_identity_status: Literal["content_hashed", "not_established"]
+    implementation_identity_status: Literal["not_established"]
+    draw_identity_basis: Literal["sampling_recipe+draw_index+sampled_input_sha256"]
+    sampling_recipe_sha256: StrictStr = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    failure_records_sha256: StrictStr = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def validate_draw_outcome_ledger(self) -> MonteCarloDrawOutcomeLedger:
+        """Recompute logical, per-output, input, and physical denominators."""
+        attempted = self.attempted_draw_count
+        if (
+            attempted > self.requested_draw_count
+            or self.unattempted_draw_count != self.requested_draw_count - attempted
+            or self.outcome_denominator_complete is not (attempted == self.requested_draw_count)
+            or self.draw_indices != tuple(range(attempted))
+            or len(self.sampled_input_sha256) != attempted
+            or len(self.physical_attempts_by_draw) != attempted
+        ):
+            raise ValueError("Monte Carlo draw ledger denominator is inconsistent")
+        if (
+            self.input_param_names != tuple(sorted(set(self.input_param_names)))
+            or self.evaluator_input_names != tuple(sorted(set(self.evaluator_input_names)))
+            or not set(self.input_param_names).issubset(self.evaluator_input_names)
+            or any(
+                not name.strip() for name in (*self.input_param_names, *self.evaluator_input_names)
+            )
+            or set(self.input_values_by_name) != set(self.evaluator_input_names)
+            or self.output_metric_ids != tuple(dict.fromkeys(self.output_metric_ids))
+            or any(not metric_id.strip() for metric_id in self.output_metric_ids)
+            or set(self.output_success_draw_indices_by_metric) != set(self.output_metric_ids)
+            or set(self.output_failure_draw_indices_by_metric) != set(self.output_metric_ids)
+        ):
+            raise ValueError("Monte Carlo draw ledger axes are inconsistent")
+        if any(len(values) != attempted for values in self.input_values_by_name.values()):
+            raise ValueError("Monte Carlo input draw columns do not match the denominator")
+        if any(
+            any(not math.isfinite(value) for value in values)
+            for values in self.input_values_by_name.values()
+        ):
+            raise ValueError("Monte Carlo input draws must be finite")
+        for name in set(self.evaluator_input_names) - set(self.input_param_names):
+            fixed_values = self.input_values_by_name[name]
+            if any(value != fixed_values[0] for value in fixed_values[1:]):
+                raise ValueError("fixed evaluator inputs changed across logical draws")
+
+        for index, sampled_digest in enumerate(self.sampled_input_sha256):
+            if re.fullmatch(r"[0-9a-f]{64}", sampled_digest) is None:
+                raise ValueError("Monte Carlo sampled-input digest is malformed")
+            input_row = {
+                name: self.input_values_by_name[name][index] for name in self.evaluator_input_names
+            }
+            if _sampled_input_digest(input_row) != sampled_digest:
+                raise ValueError("Monte Carlo sampled-input digest does not match its row")
+
+        physical_count = 0
+        retry_count = 0
+        for attempts in self.physical_attempts_by_draw:
+            if not attempts or len(attempts) > _MAX_EVALUATION_ATTEMPTS:
+                raise ValueError("Monte Carlo draw physical-attempt count is invalid")
+            if tuple(item.attempt_number for item in attempts) != tuple(
+                range(1, len(attempts) + 1)
+            ):
+                raise ValueError("Monte Carlo physical attempt ordinals are not contiguous")
+            if any(item.outcome_code != "transient_retry" for item in attempts[:-1]):
+                raise ValueError("only transient attempts may precede a terminal draw attempt")
+            if attempts[-1].outcome_code == "transient_retry":
+                raise ValueError("Monte Carlo draw has no terminal physical attempt")
+            physical_count += len(attempts)
+            retry_count += sum(item.outcome_code == "transient_retry" for item in attempts)
+        if (
+            self.draw_physical_attempt_count != physical_count
+            or self.draw_retry_attempt_count != retry_count
+        ):
+            raise ValueError("Monte Carlo physical-attempt totals do not match their rows")
+
+        terminal_exception_indices = {
+            draw_index
+            for draw_index, attempts in enumerate(self.physical_attempts_by_draw)
+            if attempts[-1].outcome_code == "terminal_exception"
+        }
+        fully_successful_indices: set[int] | None = None
+        for metric_id in self.output_metric_ids:
+            successes = self.output_success_draw_indices_by_metric[metric_id]
+            failures = self.output_failure_draw_indices_by_metric[metric_id]
+            if (
+                successes != tuple(sorted(set(successes)))
+                or failures != tuple(sorted(set(failures)))
+                or any(index < 0 or index >= attempted for index in (*successes, *failures))
+                or set(successes).intersection(failures)
+                or set(successes).union(failures) != set(range(attempted))
+            ):
+                raise ValueError("per-metric successful draws do not partition the denominator")
+            if not terminal_exception_indices.issubset(failures):
+                raise ValueError("terminal evaluator exceptions must fail every requested metric")
+            success_set = set(successes)
+            fully_successful_indices = (
+                success_set
+                if fully_successful_indices is None
+                else fully_successful_indices.intersection(success_set)
+            )
+        if self.fully_successful_draw_count != len(fully_successful_indices or ()):
+            raise ValueError("fully successful draw count does not match per-metric outcomes")
+        return self
 
 
 class PosteriorPushforwardOutcomeCode(StrEnum):
@@ -516,6 +706,150 @@ def _sampled_input_digest(params: Mapping[str, Any]) -> str:
         digest.update(b"\x00")
         digest.update(struct.pack(">d", float(params[name])))
     return digest.hexdigest()
+
+
+def _canonical_payload_sha256(payload: Any) -> str | None:
+    """Hash one JSON-compatible payload using the existing canonical object profile."""
+    try:
+        encoded = json.dumps(
+            payload,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return f"sha256:{hashlib.sha256(encoded).hexdigest()}"
+
+
+def _build_monte_carlo_draw_outcome_ledger(
+    *,
+    input_samples: Mapping[str, np.ndarray],
+    input_param_names: list[str],
+    output_metric_ids: list[str],
+    actual_n_samples: int,
+    requested_n_samples: int,
+    draw_physical_attempts: list[tuple[MonteCarloPhysicalAttempt, ...]],
+    draw_outcomes: list[_DrawOutcomeRecord],
+    sampling_recipe: Mapping[str, Any],
+    input_identity_status: Literal["content_hashed", "not_established"],
+) -> MonteCarloDrawOutcomeLedger | None:
+    """Build the versioned MC handoff when every draw row is exactly representable.
+
+    A capture refusal leaves the historical result path untouched. The future
+    selected-profile consumer then remains limited because this optional
+    producer evidence is absent.
+    """
+    if (
+        actual_n_samples <= 0
+        or requested_n_samples <= 0
+        or actual_n_samples > requested_n_samples
+        or len(draw_physical_attempts) != actual_n_samples
+        or len(set(output_metric_ids)) != len(output_metric_ids)
+        or not output_metric_ids
+        or not input_samples
+    ):
+        return None
+    evaluator_input_names = tuple(sorted(input_samples))
+    if not set(input_param_names).issubset(evaluator_input_names):
+        return None
+    input_values_by_name: dict[str, tuple[float, ...]] = {}
+    for name in evaluator_input_names:
+        values = tuple(float(value) for value in input_samples[name][:actual_n_samples])
+        if len(values) != actual_n_samples or any(not math.isfinite(value) for value in values):
+            return None
+        input_values_by_name[name] = values
+
+    sampled_input_sha256 = tuple(
+        _sampled_input_digest(
+            {name: input_values_by_name[name][draw_index] for name in evaluator_input_names}
+        )
+        for draw_index in range(actual_n_samples)
+    )
+    parameter_input_sha256 = tuple(
+        _sampled_input_digest(
+            {name: input_values_by_name[name][draw_index] for name in input_param_names}
+        )
+        for draw_index in range(actual_n_samples)
+    )
+    output_failure_draw_indices: dict[str, set[int]] = {
+        metric_id: set() for metric_id in output_metric_ids
+    }
+    seen_failure_draws: set[int] = set()
+    for record in draw_outcomes:
+        if (
+            record.draw_index >= actual_n_samples
+            or record.draw_index in seen_failure_draws
+            or record.sampled_input_sha256 != parameter_input_sha256[record.draw_index]
+        ):
+            return None
+        seen_failure_draws.add(record.draw_index)
+        seen_output_ids: set[str] = set()
+        for outcome in record.output_outcomes:
+            if (
+                outcome.output_metric_id not in output_failure_draw_indices
+                or outcome.output_metric_id in seen_output_ids
+            ):
+                return None
+            seen_output_ids.add(outcome.output_metric_id)
+            output_failure_draw_indices[outcome.output_metric_id].add(record.draw_index)
+
+    output_failures = {
+        metric_id: tuple(sorted(draw_indices))
+        for metric_id, draw_indices in output_failure_draw_indices.items()
+    }
+    output_successes = {
+        metric_id: tuple(
+            draw_index
+            for draw_index in range(actual_n_samples)
+            if draw_index not in output_failure_draw_indices[metric_id]
+        )
+        for metric_id in output_metric_ids
+    }
+    fully_successful_draw_count = sum(
+        all(draw_index in output_successes[metric_id] for metric_id in output_metric_ids)
+        for draw_index in range(actual_n_samples)
+    )
+    failure_payload = [record.model_dump(mode="json") for record in draw_outcomes]
+    sampling_recipe_sha256 = _canonical_payload_sha256(dict(sampling_recipe))
+    failure_records_sha256 = _canonical_payload_sha256(failure_payload)
+    if sampling_recipe_sha256 is None or failure_records_sha256 is None:
+        return None
+
+    draw_physical_attempt_count = sum(len(attempts) for attempts in draw_physical_attempts)
+    draw_retry_attempt_count = sum(
+        attempt.outcome_code == "transient_retry"
+        for attempts in draw_physical_attempts
+        for attempt in attempts
+    )
+    try:
+        return MonteCarloDrawOutcomeLedger(
+            schema_version="1.0",
+            requested_draw_count=requested_n_samples,
+            attempted_draw_count=actual_n_samples,
+            unattempted_draw_count=requested_n_samples - actual_n_samples,
+            outcome_denominator_complete=actual_n_samples == requested_n_samples,
+            input_param_names=tuple(sorted(input_param_names)),
+            evaluator_input_names=evaluator_input_names,
+            draw_indices=tuple(range(actual_n_samples)),
+            input_values_by_name=input_values_by_name,
+            sampled_input_sha256=sampled_input_sha256,
+            physical_attempts_by_draw=tuple(draw_physical_attempts),
+            output_metric_ids=tuple(output_metric_ids),
+            output_success_draw_indices_by_metric=output_successes,
+            output_failure_draw_indices_by_metric=output_failures,
+            draw_physical_attempt_count=draw_physical_attempt_count,
+            draw_retry_attempt_count=draw_retry_attempt_count,
+            fully_successful_draw_count=fully_successful_draw_count,
+            input_identity_status=input_identity_status,
+            implementation_identity_status="not_established",
+            draw_identity_basis="sampling_recipe+draw_index+sampled_input_sha256",
+            sampling_recipe_sha256=sampling_recipe_sha256,
+            failure_records_sha256=failure_records_sha256,
+        )
+    except (ValidationError, TypeError, ValueError, OverflowError):
+        return None
 
 
 def _envelope_identity_and_context_wires(
@@ -1226,8 +1560,16 @@ def _prepare_execution_inputs(
 class MonteCarloPropagator:
     """Monte carlo propagator public type."""
 
-    def __init__(self, config: PropagationConfig | None = None) -> None:
+    def __init__(
+        self,
+        config: PropagationConfig | None = None,
+        *,
+        capture_draw_outcome_ledger: bool = False,
+    ) -> None:
+        if type(capture_draw_outcome_ledger) is not bool:
+            raise TypeError("capture_draw_outcome_ledger must be a bool")
         self._config = config or PropagationConfig()
+        self._capture_draw_outcome_ledger = capture_draw_outcome_ledger
 
     @property
     def method(self) -> PropagationMethod:
@@ -1292,9 +1634,14 @@ class MonteCarloPropagator:
         batch_size = min(self._config.mc_batch_size, n_samples)
 
         sample_buffers = self._create_sample_buffers(
-            param_names=param_names,
+            evaluator_input_names=(
+                tuple(sorted(set(nominal_params) | set(param_names)))
+                if self._capture_draw_outcome_ledger
+                else tuple(param_names)
+            ),
             output_metric_ids=output_metric_ids,
             n_samples=n_samples,
+            capture_draw_outcome_ledger=self._capture_draw_outcome_ledger,
         )
         missing_outputs = dict.fromkeys(output_metric_ids, 0)
         draw_outcomes: list[_DrawOutcomeRecord] = []
@@ -1358,6 +1705,7 @@ class MonteCarloPropagator:
             nominal_params,
             nominal_outputs,
             actual_n_samples,
+            sample_buffers.physical_attempts,
             failed,
             stopped_early,
             level,
@@ -1810,15 +2158,24 @@ class MonteCarloPropagator:
         evaluation_attempts: _EvaluationAttempts,
     ) -> bool:
         sampled_inputs = {name: float(params[name]) for name in param_names}
-        for name, value in sampled_inputs.items():
-            sample_buffers.input_samples[name][sample_idx] = value
-        sampled_input_sha256: str | None = None
+        sampled_input_sha256 = _sampled_input_digest(sampled_inputs)
+        physical_attempts: list[MonteCarloPhysicalAttempt] | None = (
+            [] if sample_buffers.capture_draw_outcome_ledger else None
+        )
 
-        def input_digest() -> str:
-            nonlocal sampled_input_sha256
-            if sampled_input_sha256 is None:
-                sampled_input_sha256 = _sampled_input_digest(params)
-            return sampled_input_sha256
+        def finish_draw() -> None:
+            if not sample_buffers.capture_draw_outcome_ledger:
+                return
+            if sample_idx != len(sample_buffers.physical_attempts):
+                raise ValueError("Monte Carlo physical-attempt rows are not draw ordered")
+            assert physical_attempts is not None
+            sample_buffers.physical_attempts.append(tuple(physical_attempts))
+
+        for name in param_names:
+            sample_buffers.input_samples[name][sample_idx] = sampled_inputs[name]
+        if sample_buffers.capture_draw_outcome_ledger:
+            for name in set(sample_buffers.input_samples).difference(param_names):
+                sample_buffers.input_samples[name][sample_idx] = float(params[name])
 
         def record_failures(
             failures: Mapping[str, tuple[_DrawOutcomeCode, str | None]],
@@ -1828,7 +2185,7 @@ class MonteCarloPropagator:
             draw_outcomes.append(
                 _DrawOutcomeRecord(
                     draw_index=sample_idx,
-                    sampled_input_sha256=input_digest(),
+                    sampled_input_sha256=sampled_input_sha256,
                     output_outcomes=tuple(
                         _DrawOutputOutcome(
                             output_metric_id=metric_id,
@@ -1841,7 +2198,12 @@ class MonteCarloPropagator:
             )
 
         try:
-            result = _evaluate_with_transient_retry(simulation_fn, params, evaluation_attempts)
+            result = _evaluate_with_transient_retry(
+                simulation_fn,
+                params,
+                evaluation_attempts,
+                physical_attempts=physical_attempts,
+            )
         except Exception as exc:
             failure = classify_evaluation_failure(exc)
             if failure.scope != "unknown" or not _is_legacy_draw_local_runtime_error(
@@ -1856,6 +2218,7 @@ class MonteCarloPropagator:
                     (_DrawOutcomeCode.SIMULATION_EXCEPTION, type(exc).__name__),
                 )
             )
+            finish_draw()
             return False
 
         if not isinstance(result, Mapping):
@@ -1867,6 +2230,7 @@ class MonteCarloPropagator:
                     (_DrawOutcomeCode.INVALID_RESPONSE, type(result).__name__),
                 )
             )
+            finish_draw()
             return False
 
         parsed_values: dict[str, float] = {}
@@ -1920,6 +2284,7 @@ class MonteCarloPropagator:
             if outcome_code is _DrawOutcomeCode.MISSING_OUTPUT:
                 missing_outputs[mid] += 1
         record_failures(failures)
+        finish_draw()
         return True
 
     # ------------------------------------------------------------------
@@ -1979,17 +2344,22 @@ class MonteCarloPropagator:
     @staticmethod
     def _create_sample_buffers(
         *,
-        param_names: list[str],
+        evaluator_input_names: tuple[str, ...],
         output_metric_ids: list[str],
         n_samples: int,
+        capture_draw_outcome_ledger: bool,
     ) -> _SampleBuffers:
         return _SampleBuffers(
             values={
                 metric_id: np.full((n_samples,), np.nan, dtype=np.float64)
                 for metric_id in output_metric_ids
             },
-            input_samples={name: np.empty((n_samples,), dtype=np.float64) for name in param_names},
+            input_samples={
+                name: np.empty((n_samples,), dtype=np.float64) for name in evaluator_input_names
+            },
             capacity=n_samples,
+            physical_attempts=[],
+            capture_draw_outcome_ledger=capture_draw_outcome_ledger,
         )
 
     # ------------------------------------------------------------------
@@ -2006,6 +2376,7 @@ class MonteCarloPropagator:
         nominal_params: Mapping[str, float],
         nominal_outputs: Mapping[str, float] | None,
         actual_n_samples: int,
+        draw_physical_attempts: list[tuple[MonteCarloPhysicalAttempt, ...]],
         failed: int,
         stopped_early: bool,
         level: float,
@@ -2219,6 +2590,23 @@ class MonteCarloPropagator:
         }
         if has_output_resolution_loss:
             draw_outcome_provenance["output_numeric_profile"] = "float32_finite_support_v1"
+        draw_outcome_ledger = (
+            _build_monte_carlo_draw_outcome_ledger(
+                input_samples=input_samples,
+                input_param_names=param_names,
+                output_metric_ids=output_metric_ids,
+                actual_n_samples=actual_n_samples,
+                requested_n_samples=requested_n_samples,
+                draw_physical_attempts=draw_physical_attempts,
+                draw_outcomes=draw_outcomes,
+                sampling_recipe=sampling_recipe,
+                input_identity_status=(
+                    "content_hashed" if input_identity_complete else "not_established"
+                ),
+            )
+            if self._capture_draw_outcome_ledger
+            else None
+        )
         for metric_id in output_metric_ids:
             arr = jnp.asarray(values[metric_id][:actual_n_samples], dtype=jnp.float32)
             if declared_gaussian_joint and str(arr.dtype) not in summary_dtypes:
@@ -2644,6 +3032,11 @@ class MonteCarloPropagator:
                         **(
                             {"adaptive_stopping_profile": adaptive_profile}
                             if adaptive_profile
+                            else {}
+                        ),
+                        **(
+                            {"draw_outcome_ledger": draw_outcome_ledger.model_dump(mode="json")}
+                            if draw_outcome_ledger is not None and metric_id == output_metric_ids[0]
                             else {}
                         ),
                     },

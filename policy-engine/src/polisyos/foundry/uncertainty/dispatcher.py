@@ -37,11 +37,19 @@ logger = get_logger(__name__)
 class PropagationDispatcher:
     """Propagation dispatcher public type."""
 
-    def __init__(self, config: PropagationConfig | None = None) -> None:
+    def __init__(
+        self,
+        config: PropagationConfig | None = None,
+        *,
+        capture_draw_outcome_ledger: bool = False,
+    ) -> None:
+        """Initialize the dispatcher with optional per-draw Monte Carlo capture."""
         self._config = config or PropagationConfig()
         self._analytical = AnalyticalPropagator()
         self._delta = DeltaMethodPropagator(self._config)
-        self._mc = MonteCarloPropagator(self._config)
+        self._mc = MonteCarloPropagator(
+            self._config, capture_draw_outcome_ledger=capture_draw_outcome_ledger
+        )
 
     def propagate(
         self,

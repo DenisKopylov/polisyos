@@ -11,7 +11,7 @@ from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
-from pydantic import BaseModel, field_serializer, model_serializer
+from pydantic import BaseModel, field_serializer, model_serializer, model_validator
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -45,6 +45,38 @@ from polisyos.scientist.methods.search.stopping import (
 )
 from polisyos.scientist.orchestration.llm.cycle import preflight_execution_plan
 from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopEngine
+
+
+def test_traced_prompt_preserves_top_model_under_validation_wrapper() -> None:
+    """Permit a typed transfer context while preserving raw-value and cycle checks."""
+    from polisyos.scientist.methods.search.transfer_context import TransferContext
+
+    transfer = TransferContext(
+        task_family="policy",
+        domain="labor",
+        run_id="target",
+        timestamp=datetime(2025, 1, 2, 3, 4, tzinfo=UTC),
+    )
+    assert _search_prompt_value({"transfer_context": transfer}) == {
+        "transfer_context": transfer.model_dump(mode="json")
+    }
+
+    class WrappedModel(BaseModel):
+        payload: dict[str, Any]
+
+        @model_validator(mode="after")
+        def validate_payload(self) -> WrappedModel:
+            return self
+
+    malformed = WrappedModel(payload={"not_finite": math.nan})
+    with pytest.raises(SearchBudgetProducerUnsupportedError) as nonfinite:
+        _search_prompt_value(malformed)
+    assert nonfinite.value.reason_code == "search_prompt_contains_nonfinite_number"
+
+    cycle = WrappedModel(payload={})
+    cycle.payload["self"] = cycle
+    with pytest.raises(SearchBudgetProducerUnsupportedError):
+        _search_prompt_value(cycle)
 
 
 def test_traced_prompt_refuses_lossy_json_serializer_output_before_provider() -> None:
@@ -602,6 +634,8 @@ def test_traced_prompt_projects_owned_search_history_and_keeps_refusals() -> Non
                 "weight": 1.0,
                 "is_satisfied": True,
                 "threshold": None,
+                "score_status": "not_established",
+                "score_assessment": None,
             }
         ],
         "is_promising": True,
@@ -615,12 +649,22 @@ def test_traced_prompt_projects_owned_search_history_and_keeps_refusals() -> Non
         "timestamp": timestamp.isoformat(),
         "policy_evaluation_status": "missing",
         "policy_evaluation_error": None,
+        "score_status": "not_established",
+        "score_assessment": None,
+        "score_admission": None,
+        "candidate_proposal": None,
+        "candidate_ref": None,
+        "evaluation_ref": None,
+        "current_policy_reevaluation": False,
     }
 
     cycle: dict[str, Any] = {}
     cycle["self"] = cycle
+    malformed_score = row()
+    # Mutable historical records can be corrupted after their constructor checks.
+    malformed_score.objective_value = math.nan
     invalid_rows = (
-        ([row(objective_value=math.nan)], "search_prompt_contains_nonfinite_number"),
+        ([malformed_score], "search_prompt_contains_nonfinite_number"),
         ([row(stage_b_result=cycle)], "search_prompt_contains_cycle"),
         (
             [row(candidate={"opaque": object()})],

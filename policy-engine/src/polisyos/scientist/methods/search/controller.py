@@ -212,6 +212,7 @@ _PROMPT_OPAQUE_SCHEMA_KEYS = frozenset(
     {"metadata", "config", "function", "cls", "default", "default_factory"}
 )
 _PROMPT_SERIALIZER_TYPES = frozenset({"function-plain", "function-wrap"})
+_PROMPT_VALIDATION_WRAPPERS = frozenset({"function-before", "function-after", "function-wrap"})
 _PROMPT_SERIALIZER_CACHE: dict[type[BaseModel], tuple[Any, SchemaSerializer]] = {}
 _PROMPT_SERIALIZER_CACHE_LOCK = Lock()
 
@@ -873,6 +874,26 @@ def _prompt_copy_schema_value(
     schema_types = _prompt_core_schema_types()
     if isinstance(value, dict):
         node_type = value.get("type")
+        if node_type in _PROMPT_VALIDATION_WRAPPERS and not isinstance(
+            value.get("serialization"), dict
+        ):
+            # A validation-only callback does not serialize the already validated value.
+            # Compile its selected schema so Pydantic uses our guarded field handlers.
+            selected = value.get("schema")
+            if isinstance(selected, dict):
+                reference = value.get("ref")
+                if reference is not None:
+                    if selected.get("ref") not in (None, reference):
+                        _prompt_refuse(
+                            "search_prompt_projection_reference_unsupported",
+                            "a validation wrapper selects a different schema reference",
+                        )
+                    selected = {**selected, "ref": reference}
+                return _prompt_copy_schema_value(
+                    selected,
+                    root_model=root_model,
+                    model_extra_allowed=model_extra_allowed,
+                )
         if node_type == "definitions":
             return {
                 key: (

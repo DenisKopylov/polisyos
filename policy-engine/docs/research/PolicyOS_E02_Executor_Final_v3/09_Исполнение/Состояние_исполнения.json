@@ -20660,6 +20660,30 @@
           "ledger_sha256": "787629b0bb54dad7e433c3f2fca45589dc43f03d72241b99cad78ba40398d2a3",
           "verified_boundary": "Controlled extended signed fixture: stock execute HTTP 200, exactly one job at attempt 1, selected A+B checkpoint, preserved retained-candidate N4 source. Controller entry is 928.821 seconds after DS9 commit. Group joins RESOURCE_ABORT by wall at 3900.145 seconds and 1952448512 B peak. Two-reference progress persists, job has no terminal, ledger revision 36 has zero physical reservations and 15 unchanged spend receipts, and the two paid source journals and isolate source pin match. No new N5 input, selected numerical result or cold read. Stock stage disallows blind redispatch."
         },
+        "native_r7_historical_guarded_cow_timing_r2": {
+          "source_commit": "b9a7a4615020135b77fd117f1e87fc4aef83c04a",
+          "output": "Primary:policy-engine/_cache/e02/native-r7-controlled-20261124-r2/canary-post/result.json",
+          "sha256": "c3e1ff27ad7f7ac688b7585d51324e28327cc33ba74352165d88a3efb14a6b59",
+          "before_guard_sha256": "48735404f48d349d1a8afdebf5e0ba4aa1f46cf60560498812a13dd9ee23e4f0",
+          "after_guard_sha256": "8ad028dc0da7fe81846f2c8984346269442b96460861735aa37e02ab1f11328f",
+          "business_audit_sha256": "0b70daf31dcfd85094d34a61b564cd8b1fda8fe0be2bdb591d3d5c74f1416142",
+          "verified_boundary": "Exact paired retained R6 checkpoint/profile/N4 historical stock proofs in independently guarded private COW stores. Both non-effect stages pass and original/preserved business bytes agree. Removed lookup measures 22.5556305 seconds wall and 22.146965 seconds CPU. No live grant, new provider, N5 or reservation. End-to-end paid Native and 900-second stock remain open."
+        },
+        "native_retained_n4_exact_checkpoint_prepare_component": {
+          "source_commit": "cba5b63849672c7e29adcc5724a76bd1f670a485",
+          "source_tree": "1c95eb9309244b678b45d491bbcff87ce381a371",
+          "output": "Primary:policy-engine/_cache/e02/lane01-v16-native-ordinary-components-r1.USCYeewE/junit.xml",
+          "sha256": "dbd25468caaff166b5ce7c091b5a81a4a89767d07308f802713684b956cdbc77",
+          "guard_sha256": "35963f7f4a962b7731f47fb1da7919546f0f078de807183d92970e17bee8d3b3",
+          "verified_boundary": "Early preparation rereads exact checkpoint/profile, then delegates independently to full live selected graph owner both before and after N4 put. Actual disposable CAS profile removal after the N4 write refuses the return without N5. This exact Native case passes within mixed group; aggregate COMMAND_FAIL on two separate V16 fixture cases. Live elapsed savings and numerical acceptance still open."
+        },
+        "native_r7_historical_timing_guarded_cas_preimage_stop": {
+          "source_commit": "b9a7a4615020135b77fd117f1e87fc4aef83c04a",
+          "output": "Primary:policy-engine/_cache/e02/native-r7-controlled-20261124/canary-pre-budget/result.json",
+          "sha256": "a56f05ab79fa57d344b2570aaeb3382f3e6cf177006366a938d4d8153b4a043e",
+          "command_log_sha256": "1b0071fb7f969c421a082f62496e3aecd7435140a69594347fe814d512ed4816",
+          "verified_boundary": "Physical no-effect timing preimage joins COMMAND_FAIL in 35.559 seconds before its first true historical owner result. The historical stock route sink requires guarded CAS capabilities omitted by the trial's read-only store interface. R6 and paid originals remain read-only; no grant, new job, supplier or physical N5. Reuse the source export and qualify a separate guarded COW timing setup."
+        },
         "native_adjacent_current_proof_reuse_component": {
           "source_commit": "b9a7a4615020135b77fd117f1e87fc4aef83c04a",
           "source_tree": "29afd150208e421df51f9745ca9dbd3b854708f5",
@@ -20760,6 +20784,31 @@
           "startup_receipt_sha256": "4d10771d04bf0f2767f0606eee0406f1c3826197dc57a5962815fa190e4a645f",
           "verified_boundary": "Corrected scope order reopens both stock authenticated routes before and after the exact N4 fixture setup. Scoped tenant registry and global verifier custody recomputed while original SQL stays byte-identical. Zero queue, worker, provider, reservation or N5. PASS 51.079 seconds, 1836810240 B, 59 stable material pins. Full race pending."
         },
+        "acq01_04_r13_actual_stale_frontier_conflict": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "output": "policy-engine/_cache/e02/acq01-04-ordinary-frontier-race-r13.DUG87D1d/budget/result.json in the isolated ACQ owner checkout",
+          "sha256": "1afcb792956fa6ca077f9a30b5f5129ca6ab2b025acc89cfb41eb1b24993336c",
+          "progress_sha256": "a4be9d86bbb43b58204d25f0b229e78cb0907ee6418855d1790b7fd80f7e0ff2",
+          "sqlite_sha256": "bc1fa6e24bc5e7ca9cb844cb2fa57282947ca4c27448b13cc1646cd82a016917",
+          "verified_boundary": "Actual stock dual admission on F0 at zero N5. B effect selected once as F1 while A is inside real physical execution. A completes its two events and retains exact unselected raw result; its job fails acquisition_evaluation_frontier_conflict with no terminal selection. One controlled transport per supplier, no metered quota claim. Aggregate guard COMMAND_FAIL after 433.406 seconds, 1621721088 B, at first exact POST replay's HTTP 409 from agent_action_invocation_already_consumed. No new effect on replay. Actual fresh GET and same-profile crash-recovery still open; passive capture missed WAL cut."
+        },
+        "acq01_04_r13_cold_api_history_integrity_r2": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "output": "policy-engine/_cache/e02/acq01-04-ordinary-frontier-cold-r13-r2.69eA8k7x/run-details-wire.json in the isolated ACQ owner checkout",
+          "sha256": "25f9c29325b960ab27f370f097f7a475244eb0a484be42da5de6e1b9d44267e3",
+          "guard_sha256": "0fc096a9d1f97bdd219359edb42b42b71e859e3d33c745d771e237aca8bec6ba",
+          "verified_boundary": "Fresh stock GET with exact selected ordinary phase-kind reader correction returns 200, preserving F0 result and withholding acquisition history with acquisition_action_history_integrity_not_established. Raw R2 remains COMMAND_FAIL; original F1, R13 numerical evidence and paid histories preserved. No POST, provider, worker or physical work. The remaining caught owner failure requires exact passive diagnosis."
+        },
+        "acq01_04_r13_exact_first_acquisition_cause_r3": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "source_tree": "6978f67e4875a92eb639e058ffa1904b6e74c711",
+          "output": "policy-engine/_cache/e02/acq01-04-ordinary-frontier-cold-r13-r3.aPYsCPA2/history-exceptions.json in the isolated ACQ owner checkout",
+          "sha256": "f237a5654c01045d74f50d48d0e2620c24404ede9289a62260c29efdfa0bf5f4",
+          "guard_sha256": "a57a00d83c772c4e6f579d66a840659d0d4636059fa274529e0dda439d920e7c",
+          "verified_boundary": "After phase-map repair, passive stock observer ties the exact B terminal to first-acquisition replay mismatch: the saved prospective basis carries candidate_n5_current_declared_identity_changed alongside absent prior, while actual F1 basis is recomputed. Later model/outcome fallback requires a predecessor that this F0 action does not have. HTTP 200 with withheld history, unchanged run stores, no provider or N5. Preserve separate prospective and actual provenance."
+        },
         "ordinary_signed_acquisition_routes_published": {
           "source_commit": "579e3e96e75a4734da3cc1aab815384ff5bb25f1",
           "source_tree": "a360cc2c57a77d63596d01ee12c9a90d1d0e51d1",
@@ -20775,6 +20824,13 @@
           "sha256": "aaa94745f0f33961b7d1a44b4dbf33a1ce41ecb983317443d59b0fd68a330759",
           "junit_sha256": "3b0a89cde3248f9d0f5040402e724417d09c9aff9688ecd24afd02c483772435",
           "verified_boundary": "Four focused checks pass in 31.511 seconds at 1396129792 B on the working source. Relevant reader functions match the selective published stage. The two full revised integration mirrors remain unrun. No numerical replay or genuine two-occurrence adverse case in this wave."
+        },
+        "acq01_05_cpi_selected_f1_outer_replication_oracle_stop": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "output": "policy-engine/_cache/e02/cpi-acceptance-runner-r1/launches/launch-20261123T223241Z-1795473161287051000/launch.json in the CPI checkout",
+          "sha256": "8117d0cdcd0e63a9ed58895d0b796bc86597e86d9a3a4cea558bba48bdd7ada7",
+          "junit_sha256": "d24c2d72a1e73639a2ae59ee60fe8121adacef80cc2796d7d5686c5b9fc73e4f",
+          "verified_boundary": "Actual CPI source and one candidate N5 invocation with two configured standard replications persist and stock terminal selects F1. The completed guard exits 1 after 5617.843 seconds; outer counter expected one physical row. Stock in-process fresh owner call precedes the failed assertion, while final wrapper envelope remains partial. Source/overlay/runner pinned and 2070 module origins confirm. Exact independently restarted API with raw-to-N5 binding is still pending; do not rerun physical work."
         },
         "cyc0304_partial_n5_selected_history_component": {
           "source_commit": "080a4c57781fd0cf421bd2f9ea6a62c4c89358e5",

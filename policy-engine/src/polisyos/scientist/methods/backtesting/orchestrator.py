@@ -1132,7 +1132,6 @@ class BacktestOrchestrator:
                     raise ValueError("scientist_simulation_result_mismatch")
                 artifacts: dict[str, Any] = {
                     "metrics_ref": metrics_ref,
-                    "simulation_result_ref": simulation_result_ref.model_dump(mode="json"),
                 }
                 if native:
                     from polisyos.scientist.methods.backtesting.native_replay import (
@@ -1421,7 +1420,7 @@ class BacktestOrchestrator:
             }
 
         metrics_ref = artifacts.get("metrics_ref")
-        predictions: dict[str, list[float]] = {}
+        reason = "scientist_predictions_missing"
         if isinstance(metrics_ref, MetricsRef):
             try:
                 selector = (
@@ -1435,11 +1434,6 @@ class BacktestOrchestrator:
                     for metric in plan.target_metrics:
                         raw = values.get(metric)
                         horizon = len(plan.ground_truth_outcomes.get(metric, []))
-                        constant_profile = self._is_constant_forecast(
-                            metrics_payload,
-                            selector,
-                            horizon,
-                        )
                         if isinstance(raw, list):
                             if len(raw) != horizon:
                                 warnings.append(
@@ -1447,43 +1441,25 @@ class BacktestOrchestrator:
                                     f"{len(raw)}; expected {horizon}"
                                 )
                                 continue
-                            try:
-                                predictions[metric] = [float(item) for item in raw]
-                            except (TypeError, ValueError):
-                                warnings.append(
-                                    f"scientist trajectory for '{metric}' is not numeric"
-                                )
-                        elif (
-                            isinstance(raw, (int, float))
-                            and not isinstance(raw, bool)
-                            and constant_profile
-                        ):
-                            predictions[metric] = [float(raw)] * horizon
                         elif isinstance(raw, (int, float)) and not isinstance(raw, bool):
-                            warnings.append(
-                                f"scientist scalar for '{metric}' lacks constant_forecast profile"
-                            )
+                            if not self._is_constant_forecast(metrics_payload, selector, horizon):
+                                warnings.append(
+                                    f"scientist scalar for '{metric}' lacks constant_forecast profile"
+                                )
+                                continue
+                        else:
+                            continue
+                        # Shape and producer identity do not bind a point
+                        # trajectory to the requested outcome coordinates.
+                        reason = "scientist_forecast_scope_not_established"
+                        warnings.append(
+                            f"scientist metrics for '{metric}' have no verified outcome scope"
+                        )
             except Exception as exc:
                 warnings.append(f"failed to parse scientist metrics output: {exc}")
 
-        intervals, interval_metadata, interval_degraded_reasons = (
-            self._extract_intervals_from_simulation_result(artifacts, plan)
-        )
-        if set(predictions) != set(plan.target_metrics):
-            reason = "scientist_predictions_missing"
-            warnings.append("scientist predictions missing; using naive fallback")
-            return _naive_with_cohort(reason)
-        result = {
-            "predictions": predictions,
-            "intervals": intervals,
-            "warnings": warnings + list(interval_degraded_reasons),
-            "prediction_mode_effective": PredictionSource.SCIENTIST.value,
-            "degraded": bool(interval_degraded_reasons),
-            "degraded_reasons": list(interval_degraded_reasons),
-            "replica_cohort_ref": normalize_artifact_ref(cohort_ref),
-        }
-        result.update(interval_metadata)
-        return result
+        warnings.append("scientist predictions unavailable; using naive fallback")
+        return _naive_with_cohort(reason)
 
     def _scientist_execution_store(self) -> Any:
         """Return the underlying CAS so Foundry and backtest read the same bytes."""

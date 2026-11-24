@@ -102,11 +102,19 @@ def _favorable_leaderboard_inputs():
     )
 
 
-def _fixture(tmp_path, *, count=3, horizon=2, mechanism="income_tax", mechanism_params=None):
+def _fixture(
+    tmp_path,
+    *,
+    count=3,
+    horizon=2,
+    mechanism="income_tax",
+    mechanism_params=None,
+    last_income=2.0,
+):
     store = FileSystemCAS(tmp_path / "cas")
     registry = build_default_registry_bundle(store, return_selected_profile=True)
     history = {
-        "income": [1.0, 2.0, *[900.0 + i for i in range(horizon)]],
+        "income": [1.0, last_income, *[900.0 + i for i in range(horizon)]],
         "time_index": [f"t{i}" for i in range(2 + horizon)],
         "row_ids": [f"r{i}" for i in range(2 + horizon)],
     }
@@ -224,6 +232,69 @@ def _fixture(tmp_path, *, count=3, horizon=2, mechanism="income_tax", mechanism_
         random_seed=12,
     )
     return store, plan
+
+
+def test_native_reopens_each_coordinate_of_a_stationary_outcome(tmp_path, monkeypatch):
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.contracts import ExecuteRequest, FoundryInputBindings
+    from polisyos.foundry.execute import load_state_snapshot
+    from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+    from polisyos.scientist.methods.backtesting.native_replay import (
+        NativeForecastTarget,
+        load_native_backtest_report,
+        load_native_forecast,
+    )
+
+    store, plan = _fixture(
+        tmp_path, count=1, horizon=2, mechanism_params={"rate": Decimal("0")}, last_income=7.0
+    )
+    observed: list[ExecuteRequest] = []
+    execute = DefaultFoundryPort.execute
+
+    def observe(port, actual_store, request, **kwargs):
+        observed.append(request)
+        return execute(port, actual_store, request, **kwargs)
+
+    monkeypatch.setattr(DefaultFoundryPort, "execute", observe)
+    _, report_ref = BacktestOrchestrator(cas=store).run_with_ref([plan])
+    assert len(observed) == 2
+
+    reader = FileSystemCAS(store.root)
+    report = load_native_backtest_report(
+        reader, ArtifactRef.model_validate(report_ref.model_dump(mode="json"))
+    )
+    scenario = report.scenarios[0]
+    forecast_ref = ArtifactRef.model_validate(scenario.metadata["native_forecast_ref"])
+    request_ref = ArtifactRef.model_validate(scenario.metadata["native_request_ref"])
+    forecast, request = load_native_forecast(reader, forecast_ref, request_ref)
+    assert request.profile.origin == "t2"
+    assert request.profile.time_index == ["t2", "t3"]
+    assert request.cutoff == 2
+    assert request.profile.targets == [
+        NativeForecastTarget(
+            metric="income", slot_id="agents.income", unit_id="usd", reduction="mean"
+        )
+    ]
+    assert forecast.execution_bindings_refs == [item.input_bindings_ref for item in observed]
+    assert len({str(ref.artifact_id) for ref in forecast.simulation_refs}) == 2
+    assert len(forecast.state_snapshot_refs) == 2
+    initial = FoundryInputBindings.model_validate(
+        load_core_json_artifact(reader, forecast.execution_bindings_refs[0])
+    )
+    baseline = load_state_snapshot(reader, snapshot_ref=initial.bound_state_snapshot_ref)
+    assert np.mean(np.asarray(baseline.agents.income, dtype=float)) == 7.0
+    assert forecast.values == {"income": [7.0, 7.0]}
+    assert [row.y_pred for row in scenario.outcome_comparisons] == [7.0, 7.0]
+    assert report.prediction_mode_effective == PredictionSource.SCIENTIST.value
+    assert report.degraded and not report.trust_eligible
+    assert f"{plan.plan_id}: native_predictive_simulation_only" in report.degraded_reasons
+    cohort = load_core_json_artifact(
+        reader, ArtifactRef.model_validate(scenario.metadata["replica_cohort_ref"])
+    )
+    assert (cohort["completed_count"], cohort["failed_count"]) == (1, 0)
+    assert cohort["replicas"][0]["run_id"] == request.run_id
+    assert cohort["replicas"][0]["seed"] == request.seed == 12
+    assert len(observed) == 2
 
 
 def test_native_forecast_survives_persisted_report_readback(tmp_path, monkeypatch):
@@ -1442,6 +1513,8 @@ def test_native_registry_profiles_bind_real_compile_and_runtime_basis(tmp_path, 
         "future_binding",
         "wrong_unit",
         "wrong_time",
+        "wrong_origin",
+        "baseline_sibling",
         "hidden_param",
         "prebound",
         "profileless",
@@ -1461,6 +1534,9 @@ def test_native_admission_refuses_unscoped_inputs_before_workflow(tmp_path, monk
         profile["targets"][0]["unit_id"] = "count"
     elif escape == "wrong_time":
         profile["time_index"][1] = "t99"
+    elif escape == "wrong_origin":
+        profile["origin"] = profile["time_index"][0] = "t3"
+        profile["time_index"][1] = "t4"
     elif escape == "hidden_param":
         state["params"]["future_income"] = [900, 901]
     elif escape == "prebound":
@@ -1470,7 +1546,8 @@ def test_native_admission_refuses_unscoped_inputs_before_workflow(tmp_path, monk
     elif escape == "different_holdout":
         plan.ground_truth_outcomes["income"][0] = 42.0
     else:
-        original = ArtifactRef.model_validate(state["inputs"]["registry_bundle_ref"])
+        input_key = "data_snapshot_ref" if escape == "baseline_sibling" else "registry_bundle_ref"
+        original = ArtifactRef.model_validate(state["inputs"][input_key])
         manifest = store.get_manifest(original)
         sibling = store.put_bytes(
             store.get_bytes(original),
@@ -1486,7 +1563,7 @@ def test_native_admission_refuses_unscoped_inputs_before_workflow(tmp_path, monk
         )
         assert sibling.artifact_id == original.artifact_id
         assert sibling.manifest_profile_sha256 != original.manifest_profile_sha256
-        state["inputs"]["registry_bundle_ref"] = sibling.model_dump(mode="json")
+        state["inputs"][input_key] = sibling.model_dump(mode="json")
 
     def forbidden(*args, **kwargs):
         pytest.fail("unadmitted native source reached the workflow")
@@ -1501,6 +1578,8 @@ def test_native_admission_refuses_unscoped_inputs_before_workflow(tmp_path, monk
         "future_binding": "binding is outside the admitted historical prefix",
         "wrong_unit": "target/slot/unit mismatch",
         "wrong_time": "source row/time axis or cutoff mismatch",
+        "wrong_origin": "consistent cutoff and forecast origin",
+        "baseline_sibling": "exact lineage mismatch: world_model_data_snapshot",
         "hidden_param": "unscoped Scientist parameters",
         "prebound": "requires exactly source, Trinity and registry inputs",
         "profileless": "requires selected artifact profiles",

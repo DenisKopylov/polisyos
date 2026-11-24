@@ -866,8 +866,7 @@ def test_completed_replica_cohort_survives_prediction_fallback_fresh_report(
     loaded = load_backtest_report(fresh_reader, report_ref)
     assert loaded.scenarios[0].metadata["replica_cohort_ref"] == cohort_ref
     assert (
-        loaded.scenarios[0].metadata["prediction_source_effective"]
-        == PredictionSource.NAIVE.value
+        loaded.scenarios[0].metadata["prediction_source_effective"] == PredictionSource.NAIVE.value
     )
     assert loaded.degraded is True
     assert "bkt01-r02-cohort-fallback: scientist_predictions_missing" in loaded.degraded_reasons
@@ -891,6 +890,59 @@ def test_scientist_trajectory_length_mismatch_is_not_silently_truncated(
     assert "scientist_predictions_missing" in result["degraded_reasons"]
 
 
+def test_same_length_effect_retains_result_without_becoming_a_forecast(
+    monkeypatch, tmp_path
+) -> None:
+    from polisyos.core.artifacts import ArtifactRef, load_core_json_artifact
+    from polisyos.core.contracts.foundry import MetricsRef, SimulationResult, SimulationResultRef
+    from polisyos.ir.analytics.backtest import load_backtest_report
+
+    plan = _scientist_plan(tmp_path)
+    history = tmp_path / "scientist-history.json"
+    history.write_text(
+        json.dumps({"metric": [1.0, 2.0, 10.0, 11.0, 12.0]}),
+        encoding="utf-8",
+    )
+    store = FileSystemCAS(tmp_path / "cas")
+    orchestrator = BacktestOrchestrator(cas=store)
+    effect = {"estimand": "mean_ate", "values": {"metric": [7.0, 8.0, 9.0]}}
+    metrics_ref = MetricsRef.model_validate(
+        _put_backtest_artifact(
+            orchestrator,
+            effect,
+            "scientist.backtest.metrics",
+            return_selected_profile=True,
+        )
+    )
+    _, captured = _scientist_result_with_artifacts(
+        monkeypatch,
+        orchestrator,
+        metrics_payload=effect,
+        metrics_ref_payload=metrics_ref.model_dump(mode="json"),
+    )
+
+    _, report_ref = orchestrator.run_with_ref([plan])
+
+    reader = FileSystemCAS(tmp_path / "cas")
+    fresh = load_backtest_report(_ensure_ir_artifact_store(reader), report_ref)
+    assert fresh.prediction_mode_effective == PredictionSource.NAIVE.value
+    assert fresh.degraded and not fresh.trust_eligible
+    assert f"{plan.plan_id}: scientist_forecast_scope_not_established" in fresh.degraded_reasons
+    scenario = fresh.scenarios[0]
+    assert [row.y_pred for row in scenario.outcome_comparisons] == [1.5, 1.5, 1.5]
+    cohort_ref = ArtifactRef.model_validate(scenario.metadata["replica_cohort_ref"])
+    cohort = load_core_json_artifact(reader, cohort_ref)
+    assert cohort["foundry_execute_count"] == cohort["completed_count"] == 1
+    assert len(captured["states"]) == 1
+    replica = cohort["replicas"][0]
+    assert MetricsRef.model_validate(replica["metrics_ref"]) == metrics_ref
+    result_ref = SimulationResultRef.model_validate(replica["simulation_result_ref"])
+    assert result_ref.manifest_profile_sha256 is not None
+    simulation = SimulationResult.model_validate(load_core_json_artifact(reader, result_ref))
+    assert simulation.metrics_ref == metrics_ref
+    assert load_core_json_artifact(reader, metrics_ref) == effect
+
+
 def test_singleton_interval_without_constant_profile_is_not_repeated(monkeypatch, tmp_path) -> None:
     orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / ".polisyos"))
     plan = _scientist_plan(tmp_path)
@@ -903,12 +955,13 @@ def test_singleton_interval_without_constant_profile_is_not_repeated(monkeypatch
 
     result = orchestrator._predict_with_scientist(plan, {"metric": [1.0, 2.0]})
 
-    assert result["prediction_mode_effective"] == PredictionSource.SCIENTIST.value
-    assert result["predictions"]["metric"] == [20.0, 21.0, 22.0]
+    assert result["prediction_mode_effective"] == PredictionSource.NAIVE.value
+    assert result["predictions"]["metric"] == [1.5, 1.5, 1.5]
+    assert "scientist_forecast_scope_not_established" in result["degraded_reasons"]
     assert result["intervals"] == {}
 
 
-def test_explicit_constant_profile_refuses_unadmitted_simulation_interval(
+def test_legacy_constant_profile_stays_unprojected_and_interval_is_unadmitted(
     monkeypatch,
     tmp_path,
 ) -> None:
@@ -925,7 +978,7 @@ def test_explicit_constant_profile_refuses_unadmitted_simulation_interval(
                 "producer": {"component": "test.bkt01", "version": "1.0"},
                 "estimand": "outcome_trajectory",
                 "horizon": 3,
-                "time_index": ["t0", "t1", "t2"],
+                "time_index": ["ancient-a", "ancient-b", "ancient-c"],
             },
         },
         envelope_payload={
@@ -943,13 +996,19 @@ def test_explicit_constant_profile_refuses_unadmitted_simulation_interval(
 
     result = orchestrator._predict_with_scientist(plan, {"metric": [1.0, 2.0]})
 
-    assert result["prediction_mode_effective"] == PredictionSource.SCIENTIST.value
-    assert result["predictions"]["metric"] == [7.0, 7.0, 7.0]
+    assert result["prediction_mode_effective"] == PredictionSource.NAIVE.value
+    assert result["predictions"]["metric"] == [1.5, 1.5, 1.5]
     assert result["intervals"] == {}
     assert result["degraded"] is True
+    assert "scientist_forecast_scope_not_established" in result["degraded_reasons"]
+    cohort = get_json_artifact(orchestrator._store, result["replica_cohort_ref"]["artifact_id"])
+    intervals, _, limitations = orchestrator._extract_intervals_from_simulation_result(
+        {"simulation_result_ref": cohort["replicas"][0]["simulation_result_ref"]}, plan
+    )
+    assert not intervals
     assert any(
         reason.startswith("simulation_uncertainty_admission_limited:metric:")
-        for reason in result["degraded_reasons"]
+        for reason in limitations
     )
 
     _artifacts, _captured = _scientist_result_with_artifacts(
@@ -964,7 +1023,7 @@ def test_explicit_constant_profile_refuses_unadmitted_simulation_interval(
 
 
 @pytest.mark.parametrize(
-    ("default_component", "selected_component", "selected_admitted"),
+    ("default_component", "selected_component", "selected_producer_matches"),
     [
         ("test.foreign_metrics", "test.bkt01", True),
         ("test.bkt01", "test.foreign_metrics", False),
@@ -975,7 +1034,7 @@ def test_scientist_constant_forecast_uses_selected_metrics_manifest_profile(
     tmp_path,
     default_component: str,
     selected_component: str,
-    selected_admitted: bool,
+    selected_producer_matches: bool,
 ) -> None:
     from polisyos.core.artifacts.manifest import ArtifactID
 
@@ -1036,12 +1095,17 @@ def test_scientist_constant_forecast_uses_selected_metrics_manifest_profile(
 
     result = orchestrator._predict_with_scientist(plan, {"metric": [1.0, 2.0]})
 
-    if selected_admitted:
-        assert result["prediction_mode_effective"] == PredictionSource.SCIENTIST.value
-        assert result["predictions"] == {"metric": [7.0, 7.0, 7.0]}
-    else:
-        assert result["prediction_mode_effective"] == PredictionSource.NAIVE.value
-        assert "scientist_predictions_missing" in result["degraded_reasons"]
+    assert result["prediction_mode_effective"] == PredictionSource.NAIVE.value
+    assert result["predictions"] == {"metric": [1.5, 1.5, 1.5]}
+    reason = (
+        "scientist_forecast_scope_not_established"
+        if selected_producer_matches
+        else "scientist_predictions_missing"
+    )
+    assert result["degraded_reasons"] == [reason]
+    cohort = get_json_artifact(orchestrator._store, result["replica_cohort_ref"]["artifact_id"])
+    assert cohort["completed_count"] == 1
+    assert cohort["replicas"][0]["metrics_ref"] == selected_ref
 
 
 def test_forged_constant_profile_without_producer_is_degraded(monkeypatch, tmp_path) -> None:

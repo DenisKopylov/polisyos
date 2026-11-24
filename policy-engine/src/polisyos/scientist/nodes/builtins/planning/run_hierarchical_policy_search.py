@@ -1659,6 +1659,7 @@ def _persist_frontier_report(
             eligible_candidate_hashes=projection.eligible_candidate_hashes,
             candidate_frontier_hashes=projection.candidate_frontier_hashes,
             unassessed_candidate_hashes=projection.eligible_candidate_hashes,
+            candidate_assessment=projection.candidate_assessment,
         )
     ranked_hashes = set(projection.ranked_frontier_hashes)
     for candidate_hash in ranked_hashes & set(entries_by_hash):

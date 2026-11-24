@@ -234,6 +234,9 @@ class ParetoViewProjection(BaseModel):
     candidate_frontier_hashes: tuple[str, ...] = ()
     ranked_frontier_hashes: tuple[str, ...] = ()
     unassessed_candidate_hashes: tuple[str, ...] = ()
+    candidate_assessment: ParetoViewAssessment | None = Field(
+        default=None, exclude_if=lambda assessment: assessment is None
+    )
 
     @model_validator(mode="after")
     def _validate_projection(self) -> ParetoViewProjection:
@@ -261,6 +264,24 @@ class ParetoViewProjection(BaseModel):
             raise ValueError("Pareto candidate frontier contains an ineligible identity")
         if not set(self.assessment.unassessed_candidate_hashes) <= eligible:
             raise ValueError("Pareto assessment names an ineligible unassessed candidate identity")
+
+        candidate_assessment = self.candidate_assessment
+        if candidate_assessment is not None:
+            omitted = set(candidate_assessment.unassessed_candidate_hashes)
+            reasons = (
+                set(candidate_assessment.missing_coordinate_ids_by_candidate_hash)
+                | set(candidate_assessment.non_finite_coordinate_ids_by_candidate_hash)
+                | set(candidate_assessment.unresolved_axis_contract_candidate_hashes)
+            )
+            if (
+                candidate_assessment.input_count != len(eligible)
+                or candidate_assessment.basis_scope != self.assessment.basis_scope
+                or not omitted <= eligible
+                or reasons != omitted
+            ):
+                raise ValueError("candidate Pareto assessment does not match the view basis")
+            if set(self.candidate_frontier_hashes) & omitted:
+                raise ValueError("Pareto candidate frontier contains an unassessed candidate")
 
         status = self.assessment.status
         if status in {"partial", "no_usable_inputs"}:

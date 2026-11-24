@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from itertools import product
 
 import pytest
 
@@ -59,6 +60,101 @@ def _coordinate_ids_from_produced_front(
     assert schema is not None
     assert schema.status == "complete"
     return tuple(coordinate.coordinate_id for coordinate in schema.coordinates)
+
+
+def test_hypervolume_indicator_preserves_its_exact_or_approximate_geometry() -> None:
+    for axes, points, exact_volume, expected_value, expected_algorithm in (
+        (
+            ("first", "second"),
+            ((3, 2), (2, 3)),
+            8,
+            8,
+            "rectangle_union_2d.v1",
+        ),
+        (
+            ("first", "second", "third"),
+            ((10, 1, 1), (1, 10, 1), (1, 1, 10)),
+            28,
+            1000,
+            "bounding_box_upper_bound.v1",
+        ),
+    ):
+        promoter = ParetoPromoter(_policies(*axes))
+        evaluated = [_eval(**dict(zip(axes, point, strict=True))) for point in points]
+        # Count disjoint integer cells directly. Neither sweep line nor product
+        # of maxima decides this small oracle.
+        assert (
+            len({cell for point in points for cell in product(*(range(upper) for upper in point))})
+            == exact_volume
+        )
+        coordinates = _coordinate_ids_from_produced_front(promoter, evaluated[0])
+        origin = dict.fromkeys(coordinates, 0.0)
+        front, indicator = promoter.compute_front_with_indicator(
+            evaluated, declared_reference_point=origin
+        )
+        assert indicator is not None
+        assert indicator.algorithm == expected_algorithm
+        assert indicator.value == front.hypervolume == expected_value
+        assert indicator.coordinate_reference_point == origin
+        assert indicator.reference_source == "declared"
+        assert type(indicator).model_validate_json(indicator.model_dump_json()) == indicator
+        assert {member.candidate_ref_id for member in front.members} == {
+            str(evaluation.candidate_ref.artifact_id) for evaluation in evaluated
+        }
+
+
+def test_hypervolume_generation_comparison_requires_the_same_declared_reference() -> None:
+    promoter = ParetoPromoter(_policies("benefit", "equity"))
+    initial = [_eval(benefit=1.0, equity=1.0)]
+    updated = [_eval(benefit=2.0, equity=3.0)]
+    coordinates = _coordinate_ids_from_produced_front(promoter, initial[0])
+    origin = dict.fromkeys(coordinates, 0.0)
+    _, prior = promoter.compute_front_with_indicator(initial, declared_reference_point=origin)
+    _, next_indicator = promoter.compute_front_with_indicator(
+        updated, declared_reference_point=origin
+    )
+    _, another_reference = promoter.compute_front_with_indicator(
+        updated, declared_reference_point=dict.fromkeys(coordinates, -1.0)
+    )
+    _, observed = promoter.compute_front_with_indicator(updated)
+    assert prior is not None and next_indicator is not None
+    assert another_reference is not None and observed is not None
+    assert next_indicator.change_from(prior) == 5.0
+    with pytest.raises(ValueError, match="reference or coordinate"):
+        another_reference.change_from(prior)
+    with pytest.raises(ValueError, match="declared"):
+        observed.change_from(prior)
+
+    empty, unavailable = promoter.compute_front_with_indicator([])
+    assert unavailable is None and not empty.members
+    partial, unavailable = promoter.compute_front_with_indicator(
+        [*initial, _eval(benefit=3.0)], declared_reference_point=origin
+    )
+    assert unavailable is None and len(partial.members) == 1
+    with pytest.raises(ValueError, match="non-finite"):
+        promoter.compute_front_with_indicator(
+            [], declared_reference_point={coordinates[0]: float("inf"), coordinates[1]: 0.0}
+        )
+
+
+def test_ordinary_holdout_cannot_fill_a_hidden_holdout_axis() -> None:
+    ordinary = _eval(score=5.0).model_copy(update={"runtime_split_type": BenchmarkSplit.HOLDOUT})
+    promoter = ParetoPromoter(
+        [
+            PromotionPolicy(
+                loop_id="loop1", primary_metric="score", compare_split=BenchmarkSplit.HIDDEN_HOLDOUT
+            )
+        ]
+    )
+
+    rejected = promoter.compute_front([ordinary])
+    assert not rejected.members
+    assert rejected.input_assessment is not None
+    assert rejected.input_assessment.status == "no_usable_inputs"
+    assert rejected.coordinate_schema is not None
+    assert rejected.input_assessment.unassessed_evaluations[0].missing_coordinate_ids == [
+        rejected.coordinate_schema.coordinates[0].coordinate_id
+    ]
 
 
 def _split_eval(*, selection_score: float, holdout_score: float) -> BenchmarkEvaluation:

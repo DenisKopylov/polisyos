@@ -24,7 +24,10 @@ from polisyos.scientist.methods.autotune.models import (
     BenchmarkSplit,
     PromotionPolicy,
 )
-from polisyos.scientist.methods.autotune.pareto import ParetoPromoter
+from polisyos.scientist.methods.autotune.pareto import (
+    ParetoHypervolumeIndicator,
+    ParetoPromoter,
+)
 from polisyos.scientist.methods.autotune.registry import default_search_registry_root
 from polisyos.scientist.methods.search.contracts import (
     CandidateProposal,
@@ -132,12 +135,22 @@ class ParetoRegistrySnapshot(BaseModel):
     frontiers: dict[str, list[str]] = Field(default_factory=dict)
     hypervolume_by_view: dict[str, float] = Field(default_factory=dict)
     view_assessments: dict[str, ParetoViewAssessment] = Field(default_factory=dict)
+    candidate_assessments_by_view: dict[str, ParetoViewAssessment] = Field(
+        default_factory=dict, exclude_if=lambda assessments: not assessments
+    )
+    candidate_hypervolume_by_view: dict[str, ParetoHypervolumeIndicator] = Field(
+        default_factory=dict, exclude_if=lambda indicators: not indicators
+    )
     objective_basis_by_view: dict[str, ParetoBasisScope] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def _validate_identity_version(self) -> ParetoRegistrySnapshot:
         if (self.schema_version == "3.1") != (self.identity_rule == "candidate_subject_v2"):
             raise ValueError("pareto_identity_rule_version_mismatch")
+        if (self.candidate_assessments_by_view or self.candidate_hypervolume_by_view) and (
+            self.schema_version != "3.1" or self.loop_id.startswith("catalog::")
+        ):
+            raise ValueError("candidate Pareto assessment requires a current run snapshot")
         return self
 
     def project_view(
@@ -354,6 +367,9 @@ class ParetoRegistrySnapshot(BaseModel):
             # global rank, even if all current rows share observed coordinates.
             unassessed_hashes = tuple(eligible_hashes)
             ranked_hashes = ()
+        candidate_assessment = None
+        if not is_catalog and not identity_mismatch and not malformed_frontier:
+            candidate_assessment = self.candidate_assessments_by_view.get(view_key)
         return ParetoViewProjection(
             view=view_key,
             assessment=assessment,
@@ -361,6 +377,11 @@ class ParetoRegistrySnapshot(BaseModel):
             candidate_frontier_hashes=candidate_frontier_hashes,
             ranked_frontier_hashes=ranked_hashes,
             unassessed_candidate_hashes=unassessed_hashes,
+            candidate_assessment=(
+                candidate_assessment.model_copy(deep=True)
+                if candidate_assessment is not None
+                else None
+            ),
         )
 
     def historical_v1_payload(self) -> dict[str, Any]:
@@ -376,6 +397,8 @@ class ParetoRegistrySnapshot(BaseModel):
             },
         )
         payload.pop("view_assessments", None)
+        payload.pop("candidate_assessments_by_view", None)
+        payload.pop("candidate_hypervolume_by_view", None)
         payload.pop("objective_basis_by_view", None)
         return payload
 
@@ -1330,7 +1353,7 @@ class ParetoRegistry:
     def _recompute(self, snapshot: ParetoRegistrySnapshot) -> ParetoRegistrySnapshot:
         entries = snapshot.entries
         frontiers: dict[str, list[str]] = {}
-        hypervolume: dict[str, float] = {}
+        indicators: dict[str, ParetoHypervolumeIndicator | None] = {}
         view_assessments: dict[str, ParetoViewAssessment] = {}
 
         feasible_entries = [
@@ -1338,7 +1361,7 @@ class ParetoRegistry:
         ]
         (
             frontiers[ParetoView.GLOBAL_FEASIBLE.value],
-            hypervolume[ParetoView.GLOBAL_FEASIBLE.value],
+            indicators[ParetoView.GLOBAL_FEASIBLE.value],
             view_assessments[ParetoView.GLOBAL_FEASIBLE.value],
         ) = self._frontier_hashes(
             feasible_entries,
@@ -1347,7 +1370,7 @@ class ParetoRegistry:
         )
         (
             frontiers[ParetoView.EQUITY_AWARE.value],
-            hypervolume[ParetoView.EQUITY_AWARE.value],
+            indicators[ParetoView.EQUITY_AWARE.value],
             view_assessments[ParetoView.EQUITY_AWARE.value],
         ) = self._frontier_hashes(
             feasible_entries,
@@ -1356,7 +1379,7 @@ class ParetoRegistry:
         )
         (
             frontiers[ParetoView.LOW_RISK.value],
-            hypervolume[ParetoView.LOW_RISK.value],
+            indicators[ParetoView.LOW_RISK.value],
             view_assessments[ParetoView.LOW_RISK.value],
         ) = self._frontier_hashes(
             feasible_entries,
@@ -1365,7 +1388,7 @@ class ParetoRegistry:
         )
         (
             frontiers[ParetoView.IMPLEMENTATION_SIMPLE.value],
-            hypervolume[ParetoView.IMPLEMENTATION_SIMPLE.value],
+            indicators[ParetoView.IMPLEMENTATION_SIMPLE.value],
             view_assessments[ParetoView.IMPLEMENTATION_SIMPLE.value],
         ) = self._frontier_hashes(
             feasible_entries,
@@ -1381,7 +1404,7 @@ class ParetoRegistry:
             view_key = _view_key(ParetoView.POLICY_FAMILY, policy_family=family)
             (
                 frontiers[view_key],
-                hypervolume[view_key],
+                indicators[view_key],
                 view_assessments[view_key],
             ) = self._frontier_hashes(
                 family_entries,
@@ -1389,6 +1412,13 @@ class ParetoRegistry:
                 snapshot.objective_basis_by_view.get(view_key),
             )
 
+        # Retain exactly what the numerical comparator could assess. Source
+        # verification below still governs rank, independently of this coverage.
+        candidate_assessments = {
+            key: assessment.model_copy(deep=True)
+            for key, assessment in view_assessments.items()
+            if assessment.input_count
+        }
         source_verified = {
             entry.candidate_hash: _verified_entry_source(self._source_store, entry)
             for entry in feasible_entries
@@ -1404,8 +1434,7 @@ class ParetoRegistry:
             view_source_bound[key] = all(source_verified[item] for item in eligible)
             if not view_source_bound[key]:
                 # The stored assessment is itself a public surface: do not
-                # persist a complete label or hypervolume on unverified input.
-                hypervolume.pop(key, None)
+                # persist a complete governed label on unverified input.
                 view_assessments[key] = ParetoViewAssessment(
                     status=(
                         "no_usable_inputs"
@@ -1445,12 +1474,14 @@ class ParetoRegistry:
             )
 
         available_hypervolume: dict[str, float] = {}
-        for view_key, value in hypervolume.items():
-            if view_assessments[view_key].status != "complete":
-                continue
-            if not math.isfinite(value):
-                raise ValueError(f"complete Pareto view has non-finite hypervolume: {view_key}")
-            available_hypervolume[view_key] = value
+        candidate_hypervolume = {
+            view_key: indicator
+            for view_key, indicator in indicators.items()
+            if indicator is not None
+        }
+        for view_key, indicator in candidate_hypervolume.items():
+            if view_assessments[view_key].status == "complete":
+                available_hypervolume[view_key] = indicator.value
 
         return ParetoRegistrySnapshot(
             schema_version="3.1",
@@ -1464,6 +1495,8 @@ class ParetoRegistry:
             frontiers=frontiers,
             hypervolume_by_view=available_hypervolume,
             view_assessments=view_assessments,
+            candidate_assessments_by_view=candidate_assessments,
+            candidate_hypervolume_by_view=candidate_hypervolume,
             objective_basis_by_view=snapshot.objective_basis_by_view,
         )
 
@@ -1472,12 +1505,12 @@ class ParetoRegistry:
         entries: list[ParetoRegistryEntry],
         view_name: str,
         declared_basis: ParetoBasisScope | None = None,
-    ) -> tuple[list[str], float, ParetoViewAssessment]:
+    ) -> tuple[list[str], ParetoHypervolumeIndicator | None, ParetoViewAssessment]:
         ordered_entries = sorted(entries, key=lambda entry: entry.candidate_hash)
         if not entries:
             return (
                 [],
-                0.0,
+                None,
                 ParetoViewAssessment(
                     status=(
                         "no_usable_inputs"
@@ -1514,7 +1547,7 @@ class ParetoRegistry:
             hashes = [entry.candidate_hash for entry in ordered_entries]
             return (
                 [],
-                0.0,
+                None,
                 ParetoViewAssessment(
                     status="basis_limited",
                     coverage_status="no_usable_inputs",
@@ -1535,7 +1568,7 @@ class ParetoRegistry:
             for metric_name in axis_names
         ]
         promoter = ParetoPromoter(policies)
-        front = promoter.compute_front(evaluations)
+        front, indicator = promoter.compute_front_with_indicator(evaluations)
         hashes: list[str] = []
         for member in front.members:
             candidate_hash = member.evaluation.metadata.get("candidate_hash")
@@ -1570,7 +1603,7 @@ class ParetoRegistry:
             missing_coordinate_ids_by_candidate_hash=missing_by_hash,
             non_finite_coordinate_ids_by_candidate_hash=non_finite_by_hash,
         )
-        return hashes, float(front.hypervolume), coverage
+        return hashes, indicator, coverage
 
     def _snapshot_path(self, loop_id: str) -> Path:
         return self._root / "loops" / loop_id / "pareto_registry.json"

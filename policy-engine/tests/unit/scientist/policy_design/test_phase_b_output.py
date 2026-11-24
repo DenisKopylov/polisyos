@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -65,6 +67,7 @@ from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperato
 from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.evidence.claims.head_index import build_default_claim_ledger_owner
+from polisyos.scientist.methods.search.frontier import policy_candidate_hash
 from polisyos.scientist.methods.search.judge_stack import JudgeVerdict
 from polisyos.scientist.methods.search.pareto_registry import (
     ParetoBasisScope,
@@ -80,6 +83,7 @@ from polisyos.scientist.methods.search.readiness import (
     DecisionReadinessContract,
     persist_decision_readiness_contract,
 )
+from polisyos.scientist.methods.search.transfer_context import TransferContext
 from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
@@ -641,6 +645,166 @@ def test_policy_artifact_builder_surfaces_degraded_evidence_channels(tmp_path) -
     assert any("datasets (missing_path)" in item for item in caveats)
 
 
+def test_registry_report_keeps_candidate_only_partial_coverage(tmp_path) -> None:
+    from tests.unit.scientist.search.test_objective_availability import _runtime_vector
+
+    store = FileSystemCAS(tmp_path / "cas")
+    root = tmp_path / "registry"
+    scope = TransferContext(task_family="policy", domain="fiscal", run_id="candidate-partial")
+    registry = ParetoRegistry(root, source_store=store)
+    basis = ParetoBasisScope(
+        scope="declared",
+        coordinate_ids=["policy_value", "employment"],
+        basis_ref="test:comparative-policy-objectives",
+    )
+    candidate_hashes = {}
+    candidate_refs = set()
+
+    def record(candidate_id: str, values: dict[str, float]) -> None:
+        subject = {"candidate_id": candidate_id}
+        candidate_hash = policy_candidate_hash(subject)
+        candidate_hashes[candidate_id] = candidate_hash
+        vector, evidence = _runtime_vector(values=values)
+        assert vector.frontier_objectives("global_feasible", evidence) == values
+        vector = vector.model_copy(
+            update={
+                "candidate_id": candidate_id,
+                "metadata": {**vector.metadata, "candidate_hash": candidate_hash},
+            }
+        )
+        ref = store.put_json(
+            subject,
+            PutOptions(
+                kind="test.pareto_subject",
+                media_type="application/json",
+                schema=SchemaInfo(name="test.ParetoSubject", version="1.0"),
+            ),
+            return_selected_profile=True,
+        )
+        candidate_refs.add(str(ref.artifact_id))
+        registry.update(
+            scope.run_id,
+            candidate_hash=candidate_hash,
+            candidate_ref=ref,
+            seed_payload=subject,
+            evaluation=vector,
+            transfer_context=scope,
+            objective_basis_by_view={"global_feasible": basis},
+        )
+
+    record("impact-a", {"policy_value": 2.0, "employment": 4.0})
+    record("impact-b", {"policy_value": 2.0, "employment": 4.0})
+    record("missing-employment", {"policy_value": 3.0})
+    assert len(candidate_refs) == 3
+
+    fresh_store = FileSystemCAS(tmp_path / "cas")
+    fresh_registry = ParetoRegistry(root, source_store=fresh_store)
+    snapshot_path = fresh_registry._snapshot_path(scope.run_id)
+    persisted = fresh_registry._load_snapshot(snapshot_path)
+    selected = _candidate()
+
+    def reopen_report() -> PolicyFrontierReport:
+        snapshot = fresh_registry.get_snapshot(scope.run_id, transfer_context=scope)
+        report = PolicyArtifactBuilder()._build_frontier_report(
+            PolicyArtifactBuildInput(
+                loop_id=scope.run_id,
+                run_id=scope.run_id,
+                candidate=selected,
+                candidate_hash=selected.candidate_hash(),
+                pareto_snapshot=snapshot,
+            )
+        )
+        report_ref = persist_policy_frontier_report(store, report)
+        reopened = load_policy_frontier_report(fresh_store, report_ref)
+        manifest = fresh_store.get_manifest(report_ref)
+        assert manifest.artifact_schema is not None
+        assert manifest.artifact_schema.version == reopened.schema_version == "3.1"
+        return reopened
+
+    reopened = reopen_report()
+    projection = reopened.view_projections["global_feasible"]
+
+    winners = {candidate_hashes["impact-a"], candidate_hashes["impact-b"]}
+    omitted = candidate_hashes["missing-employment"]
+    assert {item.candidate_hash for item in reopened.candidate_frontier} == winners
+    assert not reopened.global_frontier
+    assert projection.assessment.status == "no_usable_inputs"
+    assert projection.ranked_frontier_hashes == ()
+    assert fresh_registry.get_frontier(scope.run_id, transfer_context=scope) == []
+
+    analysis = projection.candidate_assessment
+    assert analysis is not None and analysis.coverage_status == "partial"
+    assert analysis.basis_scope == basis
+    assert (analysis.input_count, analysis.assessed_count) == (3, 2)
+    assert analysis.unassessed_candidate_hashes == [omitted]
+    employment_coordinate = json.dumps(
+        {
+            "direction": "maximize",
+            "metric": "employment",
+            "split": "holdout",
+            "unit": None,
+            "unit_state": "absent",
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    expected_axis = (
+        "pareto-coordinate.v1:" + hashlib.sha256(employment_coordinate.encode("utf-8")).hexdigest()
+    )
+    assert analysis.missing_coordinate_ids_by_candidate_hash == {omitted: [expected_axis]}
+    assert not analysis.non_finite_coordinate_ids_by_candidate_hash
+    assert persisted.candidate_assessments_by_view["global_feasible"] == analysis
+    assert "global_feasible" not in reopened.candidate_hypervolume_by_view
+
+    invalid = projection.model_dump(mode="python")
+    invalid["candidate_assessment"]["unassessed_candidate_hashes"] = [candidate_hashes["impact-a"]]
+    invalid["candidate_assessment"]["missing_coordinate_ids_by_candidate_hash"] = {
+        candidate_hashes["impact-a"]: analysis.missing_coordinate_ids_by_candidate_hash[omitted],
+    }
+    with pytest.raises(ValidationError, match="candidate frontier contains an unassessed"):
+        ParetoViewProjection.model_validate(invalid)
+
+    # A later measured row covers the omitted axis and supplies the origin.
+    # A fresh consumer reads the exact tied area without receiving any rank.
+    record("missing-employment", {"policy_value": 0.0, "employment": 0.0})
+    complete_report = reopen_report()
+    indicator = complete_report.candidate_hypervolume_by_view["global_feasible"]
+    assert indicator.algorithm == "rectangle_union_2d.v1"
+    assert indicator.reference_source == "observed_minimum"
+    assert indicator.coordinate_reference_point[expected_axis] == 0.0
+    assert indicator.value == 8.0
+    assert complete_report.metadata["hypervolume_by_view"] == {}
+    assert not complete_report.global_frontier
+    assert {item.candidate_hash for item in complete_report.candidate_frontier} == winners
+    assert (
+        fresh_registry._load_snapshot(snapshot_path).candidate_hypervolume_by_view[
+            "global_feasible"
+        ]
+        == indicator
+    )
+
+    # Neither the legacy payload version nor a foreign manifest version can
+    # rename modern candidate diagnostics into the old governed projection.
+    legacy = complete_report.model_dump(mode="python")
+    legacy["schema_version"] = "3.0"
+    with pytest.raises(ValidationError, match="require a v3.1 frontier report"):
+        PolicyFrontierReport.model_validate(legacy)
+    mislabelled = store.put_json(
+        complete_report,
+        PutOptions(
+            kind="scientist.policy_frontier_report",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.policy_design.PolicyFrontierReport", version="3.0"
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError, match="manifest schema mismatch"):
+        load_policy_frontier_report(fresh_store, mislabelled)
+
+
 def test_partial_pareto_view_is_not_promoted_to_global_frontier(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     candidate = _candidate()
@@ -755,7 +919,7 @@ def test_partial_pareto_view_is_not_promoted_to_global_frontier(tmp_path) -> Non
         replayed_summary.view_projection.assessment.non_finite_coordinate_ids_by_candidate_hash
         == registry_assessment.non_finite_coordinate_ids_by_candidate_hash
     )
-    assert store.get_manifest(report_ref.artifact_id).artifact_schema.version == "3.0"
+    assert store.get_manifest(report_ref.artifact_id).artifact_schema.version == "3.1"
     assert store.get_manifest(summary_ref.artifact_id).artifact_schema.version == "3.0"
 
     finite_low = template.model_copy(

@@ -10,7 +10,11 @@ from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
-from polisyos.core.artifacts import ArtifactStore, artifact_ref_for_manifest
+from polisyos.core.artifacts import (
+    ArtifactStore,
+    artifact_ref_for_manifest,
+    read_core_manifest_profile,
+)
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
     ArtifactRef,
@@ -58,6 +62,7 @@ from polisyos.scientist.governance.calibration_validation import (
     CalibrationValidationBundle,
     NativePredictionDiagnosticBundle,
 )
+from polisyos.scientist.methods.autotune.pareto import ParetoHypervolumeIndicator
 from polisyos.scientist.methods.doe.stress_report import StressTestReport
 from polisyos.scientist.methods.search.artifact_minimality import (
     ArtifactFunction,
@@ -201,7 +206,7 @@ class PolicyFrontierReport(ArtifactMinimalityMixin):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: Literal["1.0", "3.0"] = "3.0"
+    schema_version: Literal["1.0", "3.0", "3.1"] = "3.1"
     loop_id: str = Field(min_length=1)
     artifact_functions: set[ArtifactFunction] = Field(
         default_factory=lambda: artifact_functions_field(
@@ -216,6 +221,9 @@ class PolicyFrontierReport(ArtifactMinimalityMixin):
     eligibility_unknown_candidate_hashes: tuple[str, ...] = ()
     view_membership: dict[str, list[str]] = Field(default_factory=dict)
     view_projections: dict[str, ParetoViewProjection] = Field(default_factory=dict)
+    candidate_hypervolume_by_view: dict[str, ParetoHypervolumeIndicator] = Field(
+        default_factory=dict, exclude_if=lambda indicators: not indicators
+    )
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     def historical_v1_payload(self) -> dict[str, Any]:
@@ -227,12 +235,29 @@ class PolicyFrontierReport(ArtifactMinimalityMixin):
         payload.pop("source_feasible_candidate_hashes", None)
         payload.pop("eligibility_unknown_candidate_hashes", None)
         payload.pop("view_projections", None)
+        payload.pop("candidate_hypervolume_by_view", None)
         return payload
 
     @model_validator(mode="after")
     def _validate_projection_schema(self) -> PolicyFrontierReport:
         """Require the full eligible denominator in new persisted reports."""
-        if self.schema_version == "3.0":
+        if self.schema_version != "3.1" and (
+            self.candidate_hypervolume_by_view
+            or any(
+                projection.candidate_assessment is not None
+                for projection in self.view_projections.values()
+            )
+        ):
+            raise ValueError("candidate Pareto diagnostics require a v3.1 frontier report")
+        for key in self.candidate_hypervolume_by_view:
+            projection = self.view_projections.get(key)
+            if (
+                projection is None
+                or projection.candidate_assessment is None
+                or projection.candidate_assessment.coverage_status != "complete"
+            ):
+                raise ValueError("candidate hypervolume requires complete numerical coverage")
+        if self.schema_version in {"3.0", "3.1"}:
             projection = self.view_projections.get("global_feasible")
             if projection is None:
                 raise ValueError("v3 frontier report requires the global_feasible projection")
@@ -482,6 +507,8 @@ class RejectedAlternativesSummary(ArtifactMinimalityMixin):
         projection = self.view_projection
         if projection is None or projection.view != "global_feasible":
             raise ValueError("v3 rejected alternatives requires a global_feasible view projection")
+        if projection.candidate_assessment is not None:
+            raise ValueError("candidate Pareto diagnostics belong in the frontier report")
         eligible = set(projection.eligible_candidate_hashes)
         unassessed = set(projection.unassessed_candidate_hashes)
         ranked = set(projection.ranked_frontier_hashes)
@@ -1044,6 +1071,13 @@ class PolicyArtifactBuilder:
                 for key, view_projection in all_projections.items()
             },
             view_projections=all_projections,
+            candidate_hypervolume_by_view={
+                key: indicator.model_copy(deep=True)
+                for key, indicator in snapshot.candidate_hypervolume_by_view.items()
+                if key in all_projections
+                and (analysis := all_projections[key].candidate_assessment) is not None
+                and analysis.coverage_status == "complete"
+            },
             metadata={"hypervolume_by_view": dict(snapshot.hypervolume_by_view)},
         )
 
@@ -1340,7 +1374,7 @@ class PolicyArtifactBuilder:
             loop_id=source.loop_id,
             alternatives=alternatives[:20],
             dominant_rejection_reasons=sorted(set(reasons)),
-            view_projection=projection,
+            view_projection=projection.model_copy(update={"candidate_assessment": None}),
         )
 
     def _reporting_distance_from_selected(
@@ -1942,8 +1976,20 @@ def load_policy_frontier_report(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> PolicyFrontierReport:
-    """Load policy frontier report."""
-    return _load_model(store, ref, PolicyFrontierReport)
+    """Reopen a report under its exact schema manifest."""
+    manifest, _ = read_core_manifest_profile(store, ref)
+    report = _load_model(store, ref, PolicyFrontierReport)
+    if (
+        manifest.kind != "scientist.policy_frontier_report"
+        or manifest.media_type != "application/json"
+        or manifest.artifact_schema
+        != SchemaInfo(
+            name="polisyos.scientist.policy_design.PolicyFrontierReport",
+            version=report.schema_version,
+        )
+    ):
+        raise ValueError("policy frontier report manifest schema mismatch")
+    return report
 
 
 def _resolve_run_local_candidate_frontier_report_ref(
@@ -1977,7 +2023,7 @@ def _resolve_run_local_candidate_frontier_report_ref(
         return None, "frontier_source_report_unreadable"
 
     projection = report.view_projections.get("global_feasible")
-    if report.schema_version != "3.0":
+    if report.schema_version not in {"3.0", "3.1"}:
         return None, "frontier_source_report_schema_unverified"
     if report.metadata.get("source") != "c6c_hierarchical_policy_search":
         return None, "frontier_source_report_owner_mismatch"

@@ -151,6 +151,62 @@ class ParetoInputAssessment(BaseModel):
         return self
 
 
+type HypervolumeAlgorithm = Literal[
+    "interval_union_1d.v1",
+    "rectangle_union_2d.v1",
+    "bounding_box_upper_bound.v1",
+]
+
+
+def _hypervolume_algorithm(dimensions: int) -> HypervolumeAlgorithm:
+    if dimensions == 1:
+        return "interval_union_1d.v1"
+    if dimensions == 2:
+        return "rectangle_union_2d.v1"
+    return "bounding_box_upper_bound.v1"
+
+
+class ParetoHypervolumeIndicator(BaseModel):
+    """Describe the geometry of a measured volume over the supplied candidates.
+
+    The coordinate IDs bind the metric, split, unit and direction. The
+    bounding-box result is an upper bound on the exact union volume. Coverage
+    of a candidate sequence says nothing about the completeness of the search
+    space or the authority of any member.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    algorithm: HypervolumeAlgorithm
+    value: float = Field(ge=0.0, allow_inf_nan=False)
+    reference_source: Literal["declared", "observed_minimum"]
+    coordinate_reference_point: dict[str, float] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_geometry(self) -> Self:
+        if self.algorithm != _hypervolume_algorithm(len(self.coordinate_reference_point)):
+            raise ValueError("hypervolume algorithm does not match its coordinate dimensions")
+        if any(
+            not key or not math.isfinite(value)
+            for key, value in self.coordinate_reference_point.items()
+        ):
+            raise ValueError("hypervolume requires finite reference coordinates")
+        return self
+
+    def change_from(self, prior: ParetoHypervolumeIndicator) -> float:
+        """Compare like indicators with the same declared reference and coordinate IDs."""
+        self._validate_geometry()
+        prior._validate_geometry()
+        if self.reference_source != "declared" or prior.reference_source != "declared":
+            raise ValueError("hypervolume comparison requires a declared reference")
+        if (
+            self.algorithm != prior.algorithm
+            or self.coordinate_reference_point != prior.coordinate_reference_point
+        ):
+            raise ValueError("hypervolume reference or coordinate basis differs")
+        return self.value - prior.value
+
+
 class ParetoFront(BaseModel):
     """Result of Pareto front computation."""
 
@@ -315,8 +371,15 @@ class ParetoPromoter:
             input_assessment=assessment,
         )
 
-    def compute_front(self, evaluations: list[BenchmarkEvaluation]) -> ParetoFront:
-        """Compute the Pareto front from a set of evaluations."""
+    def compute_front(
+        self,
+        evaluations: list[BenchmarkEvaluation],
+        *,
+        declared_reference_point: dict[str, float] | None = None,
+    ) -> ParetoFront:
+        """Compute a Pareto front with an optional fixed reference in normalized coordinates."""
+        if declared_reference_point is not None:
+            self._validate_reference_point(declared_reference_point)
         if not evaluations:
             return self._incomplete_front(
                 ParetoInputAssessment(
@@ -369,8 +432,17 @@ class ParetoPromoter:
             for i in non_dominated_indices
         ]
 
-        coordinate_ref_point = self._reference_point(objective_vectors)
-        ref_point = self._display_reference_point(objective_vectors)
+        coordinate_ref_point = (
+            self._reference_point(objective_vectors)
+            if declared_reference_point is None
+            else dict(declared_reference_point)
+        )
+        ref_point = {
+            display_name: coordinate_ref_point[coordinate_id]
+            for display_name, coordinate_id in zip(
+                self._display_objective_names, self._objective_names, strict=True
+            )
+        }
         hv = self._compute_hypervolume(
             [objective_vectors[i] for i in non_dominated_indices],
             coordinate_ref_point,
@@ -384,6 +456,25 @@ class ParetoPromoter:
             coordinate_reference_point=coordinate_ref_point,
             schema_version="2.0",
             input_assessment=assessment,
+        )
+
+    def compute_front_with_indicator(
+        self,
+        evaluations: list[BenchmarkEvaluation],
+        *,
+        declared_reference_point: dict[str, float] | None = None,
+    ) -> tuple[ParetoFront, ParetoHypervolumeIndicator | None]:
+        """Measure geometry only when every supplied candidate was assessed."""
+        front = self.compute_front(evaluations, declared_reference_point=declared_reference_point)
+        if front.input_assessment is None or front.input_assessment.status != "complete":
+            return front, None
+        return front, ParetoHypervolumeIndicator(
+            algorithm=_hypervolume_algorithm(len(self._objective_names)),
+            value=front.hypervolume,
+            reference_source=(
+                "observed_minimum" if declared_reference_point is None else "declared"
+            ),
+            coordinate_reference_point=dict(front.coordinate_reference_point),
         )
 
     def is_dominated(
@@ -456,8 +547,29 @@ class ParetoPromoter:
         values: list[float] = []
         missing: list[str] = []
         non_finite: list[str] = []
+        ordinary_splits = {BenchmarkSplit.SELECTION, BenchmarkSplit.HOLDOUT}
+        method_job = any((ev.method_result_ref, ev.method_evidence_ref, ev.method_job_key))
         for coordinate in self._coordinates:
-            value = ev.primary_value(split=coordinate.split, metric=coordinate.metric)
+            split = coordinate.split
+            # The shared holdout map does not establish what specialized split
+            # produced it. Historical selection/holdout aggregates remain usable.
+            needs_exact_split = (
+                method_job
+                or split not in ordinary_splits
+                or (
+                    split is BenchmarkSplit.HOLDOUT
+                    and ev.runtime_split_type is not None
+                    and ev.runtime_split_type not in ordinary_splits
+                )
+            )
+            if (needs_exact_split and ev.runtime_split_type is not split) or (
+                method_job
+                and coordinate.unit is not None
+                and ev.metadata.get("metric_unit") != coordinate.unit
+            ):
+                missing.append(coordinate.coordinate_id)
+                continue
+            value = ev.primary_value(split=split, metric=coordinate.metric)
             if value is None:
                 missing.append(coordinate.coordinate_id)
                 continue
@@ -668,17 +780,13 @@ class ParetoPromoter:
             for index, metric_name in enumerate(self._objective_names)
         }
 
-    def _display_reference_point(
-        self,
-        objectives: list[tuple[float, ...]],
-    ) -> dict[str, float]:
-        """Return the legacy display projection of the reference point."""
-        if not objectives:
-            return {}
-        return {
-            display_name: min(vector[index] for vector in objectives)
-            for index, display_name in enumerate(self._display_objective_names)
-        }
+    def _validate_reference_point(self, ref_point: dict[str, float]) -> None:
+        if not ref_point:
+            raise ValueError("hypervolume reference point is unavailable")
+        if set(ref_point) != set(self._objective_names):
+            raise ValueError("hypervolume reference keys do not match the objective schema")
+        if any(not math.isfinite(value) for value in ref_point.values()):
+            raise ValueError("hypervolume reference point contains a non-finite value")
 
     def _compute_hypervolume(
         self,
@@ -688,14 +796,8 @@ class ParetoPromoter:
         """Compute hypervolume indicator (exact for 2D, approximate for higher)."""
         if not front_objectives:
             return 0.0
-        if not ref_point:
-            raise ValueError("hypervolume reference point is unavailable")
-
+        self._validate_reference_point(ref_point)
         keys = self._objective_names
-        if set(ref_point) != set(keys):
-            raise ValueError("hypervolume reference keys do not match the objective schema")
-        if any(not math.isfinite(value) for value in ref_point.values()):
-            raise ValueError("hypervolume reference point contains a non-finite value")
         if any(
             len(objective) != len(keys) or any(not math.isfinite(value) for value in objective)
             for objective in front_objectives

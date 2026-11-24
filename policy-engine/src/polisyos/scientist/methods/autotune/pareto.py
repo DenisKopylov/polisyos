@@ -271,26 +271,25 @@ class ParetoPromoter:
     def __init__(self, policies: list[PromotionPolicy]) -> None:
         if not policies:
             raise ValueError("At least one PromotionPolicy is required")
-        self._policies = list(policies)
+        coordinates = [_coordinate_for_policy(policy) for policy in policies]
         metric_counts: dict[str, int] = {}
-        for policy in self._policies:
-            metric_counts[policy.primary_metric] = metric_counts.get(policy.primary_metric, 0) + 1
+        for coordinate in coordinates:
+            metric_counts[coordinate.metric] = metric_counts.get(coordinate.metric, 0) + 1
 
-        coordinates = [_coordinate_for_policy(policy) for policy in self._policies]
         coordinate_ids = [coordinate.coordinate_id for coordinate in coordinates]
         if len(set(coordinate_ids)) != len(coordinate_ids):
             raise ValueError("PromotionPolicy coordinates must be unique")
 
         display_names: list[str] = []
-        for policy in self._policies:
-            if metric_counts[policy.primary_metric] == 1 and policy.unit is None:
-                display_names.append(policy.primary_metric)
+        for coordinate in coordinates:
+            if metric_counts[coordinate.metric] == 1 and coordinate.unit is None:
+                display_names.append(coordinate.metric)
                 continue
-            coordinate = [policy.primary_metric, policy.compare_split.value]
-            if policy.unit is not None:
-                coordinate.append(f"unit={policy.unit}")
-            coordinate.append(f"direction={policy.direction.value}")
-            display_names.append("::".join(coordinate))
+            label = [coordinate.metric, coordinate.split.value]
+            if coordinate.unit is not None:
+                label.append(f"unit={coordinate.unit}")
+            label.append(f"direction={coordinate.direction.value}")
+            display_names.append("::".join(label))
 
         self._coordinates = tuple(coordinates)
         self._coordinate_schema = ParetoCoordinateSchema(
@@ -304,9 +303,8 @@ class ParetoPromoter:
         """Return an empty result that retains the known coordinate contract."""
         return ParetoFront(
             schema_version="2.0",
-            coordinate_schema=ParetoCoordinateSchema(
-                status="incomplete",
-                coordinates=list(self._coordinates),
+            coordinate_schema=self._coordinate_schema.model_copy(
+                update={"status": "incomplete"}, deep=True
             ),
             input_assessment=assessment,
         )
@@ -360,7 +358,7 @@ class ParetoPromoter:
                 candidate_ref_id=str(valid_evaluations[i].candidate_ref.artifact_id),
                 objectives=self._vector_to_display_objectives(objective_vectors[i]),
                 coordinate_values=self._vector_to_objectives(objective_vectors[i]),
-                evaluation=valid_evaluations[i],
+                evaluation=valid_evaluations[i].model_copy(deep=True),
             )
             for i in non_dominated_indices
         ]
@@ -376,7 +374,7 @@ class ParetoPromoter:
             members=members,
             hypervolume=hv,
             reference_point=ref_point,
-            coordinate_schema=self._coordinate_schema,
+            coordinate_schema=self._coordinate_schema.model_copy(deep=True),
             coordinate_reference_point=coordinate_ref_point,
             schema_version="2.0",
             input_assessment=assessment,
@@ -396,6 +394,14 @@ class ParetoPromoter:
         if schema is None or schema.status != "complete":
             raise ValueError("front coordinate schema does not establish comparison axes")
         _validate_coordinate_artifact(front)
+        active_axes = {coordinate.coordinate_id: coordinate for coordinate in self._coordinates}
+        supplied_axes = {coordinate.coordinate_id: coordinate for coordinate in schema.coordinates}
+        if (
+            schema.version != self._coordinate_schema.version
+            or len(schema.coordinates) != len(active_axes)
+            or supplied_axes != active_axes
+        ):
+            raise ValueError("front coordinate schema does not match the active comparison basis")
 
         cand_obj = self._vector_to_objectives(vector)
         for member in front.members:
@@ -444,8 +450,8 @@ class ParetoPromoter:
         values: list[float] = []
         missing: list[str] = []
         non_finite: list[str] = []
-        for policy, coordinate in zip(self._policies, self._coordinates, strict=True):
-            value = ev.primary_value(split=policy.compare_split, metric=policy.primary_metric)
+        for coordinate in self._coordinates:
+            value = ev.primary_value(split=coordinate.split, metric=coordinate.metric)
             if value is None:
                 missing.append(coordinate.coordinate_id)
                 continue
@@ -453,7 +459,7 @@ class ParetoPromoter:
                 non_finite.append(coordinate.coordinate_id)
                 continue
             # Normalize: higher is always better
-            if policy.direction == MetricDirection.MINIMIZE:
+            if coordinate.direction == MetricDirection.MINIMIZE:
                 value = -value
             if not math.isfinite(value):
                 non_finite.append(coordinate.coordinate_id)

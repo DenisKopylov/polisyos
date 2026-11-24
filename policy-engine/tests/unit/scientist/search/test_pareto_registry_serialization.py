@@ -9,9 +9,12 @@ from pathlib import Path
 import pytest
 from pydantic import BaseModel
 
+from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.scientist.methods.search.frontier import policy_candidate_hash
 from polisyos.scientist.methods.search.pareto_registry import (
     ParetoRegistry,
     ParetoRegistrySnapshot,
+    ParetoView,
 )
 from polisyos.scientist.methods.search.transfer_context import (
     TransferContext,
@@ -24,6 +27,8 @@ from polisyos.scientist.policy_design.objectives import (
     ObjectiveKind,
     PolicyEvaluationVector,
 )
+
+from .test_objective_availability import _runtime_vector
 
 
 def _evaluation(candidate_id: str, value: float) -> PolicyEvaluationVector:
@@ -82,6 +87,45 @@ def _assert_required_nullable_fields_are_serialized(
                         serialized[index],
                         path=f"{field_path}[{index}]",
                     )
+
+
+def test_registry_recomputes_distinct_tied_entries_with_a_shared_ref(tmp_path: Path) -> None:
+    """The diagnostic front uses entry identity even when evaluation refs tie."""
+    root = tmp_path / "pareto"
+    context = TransferContext(task_family="policy", domain="fiscal", run_id="source-run")
+    writer = ParetoRegistry(root=root)
+    shared_ref = ArtifactRef(
+        artifact_id="sha256:" + "a" * 64,
+        kind="test",
+        media_type="application/json",
+    )
+    expected = []
+    for candidate_id in ("candidate-a", "candidate-b"):
+        subject = {"candidate_id": candidate_id}
+        candidate_hash = policy_candidate_hash(subject)
+        expected.append(candidate_hash)
+        vector, source = _runtime_vector(values={"policy_value": 2.0})
+        assert vector.frontier_objectives("global_feasible", source) == {"policy_value": 2.0}
+        vector = vector.model_copy(
+            update={
+                "candidate_id": candidate_id,
+                "metadata": {**vector.metadata, "candidate_hash": candidate_hash},
+            },
+        )
+        writer.update(
+            "source-run",
+            candidate_hash=candidate_hash,
+            evaluation=vector,
+            candidate_ref=shared_ref,
+            seed_payload=subject,
+            transfer_context=context,
+        )
+
+    reopened = ParetoRegistry(root=root).get_snapshot("source-run", transfer_context=context)
+    assert reopened.frontiers["global_feasible"] == sorted(expected)
+    assert len(reopened.entries) == 2
+    assert all(entry.candidate_ref == shared_ref for entry in reopened.entries.values())
+    assert reopened.project_view(ParetoView.GLOBAL_FEASIBLE).ranked_frontier_hashes == ()
 
 
 def test_registry_round_trips_required_nullable_scope_for_local_and_catalog(

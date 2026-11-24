@@ -1526,12 +1526,10 @@ class ParetoRegistry:
                 ),
             )
 
-        evaluations_by_identity: dict[int, str] = {}
-        evaluations = []
-        for entry in ordered_entries:
-            evaluation = _benchmark_eval(entry, objective_maps[entry.candidate_hash])
-            evaluations.append(evaluation)
-            evaluations_by_identity[id(evaluation)] = entry.candidate_hash
+        evaluations = [
+            _benchmark_eval(entry, objective_maps[entry.candidate_hash])
+            for entry in ordered_entries
+        ]
         policies = [
             PromotionPolicy(loop_id=view_name, primary_metric=metric_name)
             for metric_name in axis_names
@@ -1540,8 +1538,8 @@ class ParetoRegistry:
         front = promoter.compute_front(evaluations)
         hashes: list[str] = []
         for member in front.members:
-            candidate_hash = evaluations_by_identity.get(id(member.evaluation))
-            if candidate_hash is None:
+            candidate_hash = member.evaluation.metadata.get("candidate_hash")
+            if not isinstance(candidate_hash, str) or candidate_hash not in objective_maps:
                 raise ValueError("Pareto member lost its registry-entry identity")
             hashes.append(candidate_hash)
 
@@ -1684,6 +1682,7 @@ def _benchmark_eval(
         selection_metrics=dict(objectives),
         holdout_metrics=dict(objectives),
         promotable=entry.evaluation.feasible,
+        metadata={"candidate_hash": entry.candidate_hash},
     )
 
 

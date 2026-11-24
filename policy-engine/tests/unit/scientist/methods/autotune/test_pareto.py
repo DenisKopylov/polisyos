@@ -111,6 +111,101 @@ class TestParetoFront:
         dominated = _eval(acc=0.5, speed=0.4)
         assert promoter.is_dominated(dominated, front) is True
 
+    @pytest.mark.parametrize(
+        ("changes",),
+        [
+            ({"primary_metric": "other"},),
+            ({"compare_split": BenchmarkSplit.SELECTION},),
+            ({"unit": "ratio"},),
+            ({"direction": MetricDirection.MINIMIZE},),
+        ],
+        ids=["metric", "split", "unit", "direction"],
+    )
+    def test_imported_complete_front_refuses_a_foreign_coordinate(
+        self, changes: dict[str, object]
+    ) -> None:
+        policy = PromotionPolicy(loop_id="loop1", primary_metric="score")
+        original = ParetoPromoter([policy])
+        witness = _split_eval(selection_score=2.0, holdout_score=2.0)
+        candidate = _split_eval(selection_score=1.0, holdout_score=1.0)
+        candidate.holdout_metrics["other"] = 1.0
+        imported = ParetoFront.model_validate_json(
+            original.compute_front([witness]).model_dump_json()
+        )
+
+        assert original.is_dominated(candidate, imported)
+        foreign = ParetoPromoter([policy.model_copy(update=changes)])
+        with pytest.raises(ValueError, match="active comparison"):
+            foreign.is_dominated(candidate, imported)
+
+    def test_imported_front_matches_equivalent_axis_order_and_rejects_mutated_definition(
+        self,
+    ) -> None:
+        policies = _policies("acc", "speed")
+        owner = ParetoPromoter(policies)
+        other_order = ParetoPromoter(policies[::-1])
+        known_witness = _eval(acc=2.0, speed=2.0)
+        better = _eval(acc=3.0, speed=3.0)
+        queried = _eval(acc=1.0, speed=1.0)
+        complete = ParetoFront.model_validate_json(
+            other_order.compute_front([known_witness]).model_dump_json()
+        )
+        partial = ParetoFront.model_validate_json(
+            other_order.compute_front([known_witness, _eval(acc=1.0)]).model_dump_json()
+        )
+
+        assert owner.is_dominated(queried, complete)
+        assert owner.is_dominated(better, complete) is False
+        assert owner.is_dominated(queried, partial)
+        with pytest.raises(ValueError, match="front assessment does not establish non-dominance"):
+            owner.is_dominated(better, partial)
+        assert complete.coordinate_schema is not None
+        complete.coordinate_schema.coordinates[0].metric = "foreign metric with the old ID"
+        with pytest.raises(ValueError, match="active comparison"):
+            owner.is_dominated(queried, complete)
+
+    def test_effective_policy_and_embedded_evaluation_are_detached_from_inputs(self) -> None:
+        policy = PromotionPolicy(
+            loop_id="loop1", primary_metric="score", compare_split=BenchmarkSplit.SELECTION
+        )
+        owner = ParetoPromoter([policy])
+        a = _split_eval(selection_score=2.0, holdout_score=9.0)
+        b = _split_eval(selection_score=1.0, holdout_score=5.0)
+        first = owner.compute_front([a, b])
+        original_payload = first.model_dump_json()
+
+        policy.compare_split = BenchmarkSplit.HOLDOUT
+        policy.direction = MetricDirection.MINIMIZE
+        rerun = owner.compute_front([a, b])
+        new_basis = ParetoPromoter([policy]).compute_front([a, b])
+
+        assert [m.candidate_ref_id for m in first.members] == [str(a.candidate_ref.artifact_id)]
+        assert rerun.model_dump_json() == original_payload
+        assert [m.candidate_ref_id for m in new_basis.members] == [str(b.candidate_ref.artifact_id)]
+        a.selection_metrics["score"] = 99.0
+        assert first.model_dump_json() == original_payload
+        reread = ParetoFront.model_validate_json(original_payload)
+        assert reread.members[0].evaluation.selection_metrics == {"score": 2.0}
+
+    def test_returned_coordinate_schemas_are_detached_from_owner_and_each_other(self) -> None:
+        owner = ParetoPromoter(_policies("score"))
+        candidate = _eval(score=2.0)
+        complete = owner.compute_front([candidate])
+        separate_complete = owner.compute_front([candidate])
+        incomplete = owner.compute_front([])
+        assert complete.coordinate_schema is not None
+        assert separate_complete.coordinate_schema is not None
+        assert incomplete.coordinate_schema is not None
+        expected_complete = separate_complete.model_dump_json()
+        expected_incomplete = incomplete.model_dump_json()
+
+        complete.coordinate_schema.coordinates[0].metric = "injected"
+        assert separate_complete.model_dump_json() == expected_complete
+        assert incomplete.model_dump_json() == expected_incomplete
+        incomplete.coordinate_schema.coordinates[0].metric = "other injection"
+        assert owner.compute_front([candidate]).model_dump_json() == expected_complete
+        assert owner.compute_front([]).model_dump_json() == expected_incomplete
+
     def test_unassessed_candidate_cannot_be_reported_as_not_dominated(self):
         promoter = ParetoPromoter(_policies("acc", "speed"))
         front = promoter.compute_front([_eval(acc=0.9, speed=0.8)])

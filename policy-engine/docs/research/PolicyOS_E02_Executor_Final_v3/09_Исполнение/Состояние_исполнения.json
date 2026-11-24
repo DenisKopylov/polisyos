@@ -10854,8 +10854,8 @@
             "packets_assessed": 11,
             "requirements_assessed": 66,
             "status_counts": {
-              "CONFIRMED_LOCAL_PROFILE": 63,
-              "PARTIAL": 1,
+              "CONFIRMED_LOCAL_PROFILE": 64,
+              "PARTIAL": 0,
               "BLOCKED_EXTERNAL_INPUT": 2
             },
             "scope": "Requirement-level retained evidence for named local profiles. Original shared scenarios, independent G and the 300k operating profile keep their own acceptance.",
@@ -21094,6 +21094,37 @@
           "guard_r1_sha256": "7f35c8f4f413028bb7f9d2e6577221872b1bccdcf90ff408060c5a8e3141b16d",
           "guard_r2_sha256": "d0bde116bdc11ea8bc97518b44c441766648cd501a9ec2b1f6f585185b0ffb1d",
           "verified_boundary": "Tampered request gets stock 403 and no SQL business or authorization effect. Exact positive B scopes stage real selected basis, witness and terminal, then hit store deadlines 1.5 and 10 seconds during full precommit replay. WAL-aware, both clones preserve all 20 non-Step-Up SQL tables, original B failure and four action heads, no frontier. Expected consumed Step-Up row replaces expired replay rows. No late terminal, original or provider/physical effect. Product verification needs a short exact transaction after full detached replay."
+        },
+        "cyc0304_signed_held_b_settlement_r3": {
+          "published_source_commit": "7dc50b6d70af998b8aa549079815500f8d6ce76b",
+          "published_source_tree": "6dda5d3e1af09074c96f6acaa527c6eda17792f2",
+          "output": "Primary:policy-engine/_cache/e02/cyc0304-retained-custody/settle-r3.vZbXvi7K/",
+          "terminal_sha256": "36ff2f239354a4e3d9c6326dc6c5dbfee5b98162504ce2dbfa129c29d185167a",
+          "guard_sha256": "38800fc3dbe7e4f1326f1fc85e9caf31e3acdc91c5ac27391c8af20756f1c6b8",
+          "verified_boundary": "Same-actor signed stock POST returns 200 and completes the held B job on attempt 2. Full detached replay 11.565 s, final SQL with live checks 0.099 s. A and B's earlier failure remain. Zero numerical frontier versions, new provider, worker, N5 or reservation. Three historical standard units and one protected available at original ledger revision 34. Fresh consumer checks are separate."
+        },
+        "cyc0304_published_fresh_adverse_history": {
+          "source_commit": "7dc50b6d70af998b8aa549079815500f8d6ce76b",
+          "source_tree": "6dda5d3e1af09074c96f6acaa527c6eda17792f2",
+          "output": "CPI checkout:policy-engine/_cache/e02/cyc03-04-partial-b-draft.D0dlj6DE/cold-r1.xg5Y65nY/",
+          "joined_sha256": "fc7bf675883dc08a8e4370d966d5fb4ff12748193f4e074ac902777f87184cb7",
+          "guard_sha256": "e253528d39fab6203605ebb85fd3650519b1cb4ed1aca1dc37a7df1c38264345",
+          "verified_boundary": "Separate authenticated Run Details process serves resolved historical A and the exact same candidate's cycle-1 blocked B. Three HTTP 200 cover selected, unavailable after exact manifest withdrawal, and identical restoration. Independent cycle, candidate content and root controls refuse. Zero provider, N5, worker or reservation. Original SQL including WAL/SHM, CAS, quota and Catalog are unchanged. Guard PASS 113.635 s at RSS 1600389120 B."
+        },
+        "native_r10_started_on_selected_paid_b": {
+          "base_commit": "cba5b63849672c7e29adcc5724a76bd1f670a485",
+          "selected_delta_commit": "68d6cffd021e4d73391e5f080c7fb665de0cf518",
+          "loaded_source_manifest_sha256": "f52ff086cf6a52f28ebf5081831e04c22333dde09e54a97420f0ea9d33dbd0f6",
+          "custody_probe_sha256": "40e9d74d7d807e1a5f75af0e3e9cd563aa976c636a3bc390e70bafffaaa2f88a",
+          "output": "Primary:policy-engine/_cache/e02/native-r10-controlled-20261124/",
+          "verified_boundary": "Short guarded custody and observer checks pass without side effects. One distinct action starts on the same original paid B, with a 120-minute controlled window and 6600 s guard. Numerical and independent fresh API output pending."
+        },
+        "gate_b_v16_stock_selected_supplier_r8": {
+          "base_commit": "7dc50b6d70af998b8aa549079815500f8d6ce76b",
+          "output": "Primary:policy-engine/_cache/e02/gate-b-v16-stock-route-r8.bEXLgiSv/",
+          "guard_sha256": "4ed1cd34a873fff4b8618d7c322aaeb485885059e836f3506400a587d481adaf",
+          "junit_sha256": "a0914956dcd8b9032f5b1b7e5414b793837ed6d2dc4821ee13417240496257f3",
+          "verified_boundary": "Actual authenticated V3 routes and configured upstream selection pass on seven stable working paths. Exact connector, period and selected planning inputs govern admission before supplier transport and N5. Guard joins PASS 80.173 s at RSS 1793507328 B. The paid and numerical route remains a separate scope."
         },
         "cyc0304_retained_a_b_exact_second_operation_exhausted": {
           "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
@@ -37873,7 +37904,7 @@
             "E02-I01-B-B03",
             "E02-X02-B02"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "changed_c_r2_retained_b_fresh_read",
             "lane01_r33_composed_historical_reader",
@@ -37881,14 +37912,13 @@
             "cyc0304_retained_b_partial_reentry_terminal_verifier_stop",
             "cyc0304_common_blocked_quota_proof_component",
             "cyc0304_blocked_candidate_custody_component_r2",
-            "cyc0304_rollover_owner_and_reader_component_r3"
+            "cyc0304_rollover_owner_and_reader_component_r3",
+            "cyc0304_signed_held_b_settlement_r3",
+            "cyc0304_published_fresh_adverse_history"
           ],
-          "basis": "Real same-candidate A and B now exist. A retains two historical standard units. B completes exactly one standard unit, refuses the second on the original quota and persists a typed partial result and reentry. The protected unit remains available.",
-          "remaining_kinds": [
-            "bridge_missing",
-            "verification_missing"
-          ],
-          "remaining": "Verify the exact partial B through the common owner, settle the blocked candidate terminal from the existing reentry with same-subject custody and zero additional physical work, and verify both occurrences, exact status and foreign occurrence/root controls through a fresh API."
+          "basis": "Resolved A and blocked B share the stable candidate. B uses one new standard physical unit, refuses its second and is settled by the same signed owner without new effects. Fresh published Run Details keeps A, selects exact B and refuses foreign cycle, content and root. Withdrawing the exact B manifest withholds the current occurrence without losing A; restoration returns the same projection. No numerical frontier and the protected unit remains available.",
+          "remaining_kinds": [],
+          "remaining": ""
         },
         {
           "requirement_id": "REQ-CYC-03-05",

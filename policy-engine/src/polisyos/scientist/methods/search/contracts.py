@@ -28,6 +28,8 @@ from polisyos.scientist.methods.search.objective import (
 )
 
 if TYPE_CHECKING:
+    from contextlib import AbstractContextManager
+
     from polisyos.scientist.methods.search.funnel.types import (
         FunnelOutcome,
         FunnelTicket,
@@ -500,14 +502,6 @@ class _NativeSearchConfigPort(Protocol):
     def stopping(self) -> _StoppingCriterionPort: ...
 
 
-class _NonReentrantLockPort(Protocol):
-    """Expose the nonblocking acquisition and release used for one run."""
-
-    def acquire(self, blocking: bool = True) -> bool: ...
-
-    def release(self) -> None: ...
-
-
 class _NativeSearchControllerPort(Protocol):
     """Describe controller-owned operations consumed by the native service driver."""
 
@@ -518,14 +512,21 @@ class _NativeSearchControllerPort(Protocol):
     def _history(self) -> Sequence[SearchIteration]: ...
 
     @property
-    def _run_lock(self) -> _NonReentrantLockPort: ...
-
-    @property
     def _run_state(self) -> _NativeSearchRunStatePort: ...
 
     _status: SearchStatus
 
-    def _prepare_service_run(self) -> None: ...
+    def _run_operation(self, *, full_run: bool = False) -> AbstractContextManager[None]: ...
+
+    def _prepare_service_run(self) -> tuple[int, int]: ...
+
+    def _publish_service_proposals(
+        self, generation: int, proposals: dict[str, CandidateProposal]
+    ) -> None: ...
+
+    def _claim_service_tell(
+        self, candidate_id: str, generation: int
+    ) -> AbstractContextManager[CandidateProposal]: ...
 
     def _generate_candidates(
         self,
@@ -538,15 +539,12 @@ class _NativeSearchControllerPort(Protocol):
     def _accept_tell(
         self,
         *,
-        candidate: dict[str, Any],
-        objective_value: float | None,
-        score_status: ObjectiveScoreStatus,
-        objective_details: list[Any],
+        generation: int,
+        candidate_proposal: CandidateProposal,
         is_promising: bool,
         stage_a_passed: bool,
         stage_b_result: dict[str, Any],
         duration_seconds: float,
-        candidate_proposal: CandidateProposal | None = None,
     ) -> SearchIteration: ...
 
     def _service_tell_snapshot(self) -> dict[str, Any]: ...

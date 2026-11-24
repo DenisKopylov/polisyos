@@ -5,11 +5,14 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from threading import Event
 from typing import Any
 
 import pytest
 
+from polisyos.scientist.methods.search import transfer_context
 from polisyos.scientist.methods.search.adapters import LegacySearchServiceAdapter
 from polisyos.scientist.methods.search.contracts import (
     CandidateProposal,
@@ -17,24 +20,29 @@ from polisyos.scientist.methods.search.contracts import (
 )
 from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
 from polisyos.scientist.methods.search.objective import (
+    BudgetDeficitObjective,
     CompositeObjective,
     ObjectiveValue,
-    OptimizationDirection,
 )
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
 from polisyos.scientist.methods.search.stopping import MaxIterations
+from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 
 
-class _Objective:
-    @property
-    def name(self) -> str:
-        return "cost"
+def _budget_deficit_source(value: float) -> dict[str, Any]:
+    return {
+        "budget_deficit": value,
+        "metric_units": {"budget_deficit": "EUR"},
+    }
 
-    def evaluate(self, results: dict[str, Any]) -> ObjectiveValue:
-        return ObjectiveValue(
-            name=self.name,
-            raw_value=float(results.get("objective_value", 0.0)),
-            direction=OptimizationDirection.MINIMIZE,
-        )
+
+def _budget_deficit_evaluation(value: float, *, policy_evaluation: Any = None) -> EvaluationBundle:
+    return EvaluationBundle(
+        objective_value=value,
+        is_promising=True,
+        stage_b_result={"simulation_results": _budget_deficit_source(value)},
+        policy_evaluation=policy_evaluation,
+    )
 
 
 class _Generator:
@@ -57,18 +65,20 @@ def _build_adapter(
     *,
     max_iterations: int = 4,
     enable_stage_a: bool = True,
+    pareto_registry: ParetoRegistry | None = None,
 ) -> tuple[LegacySearchServiceAdapter, _Generator]:
     generator = _Generator()
     controller = SearchController(
         config=SearchConfig(
             stopping=MaxIterations(max_iterations),
-            objective=CompositeObjective([_Objective()]),
+            objective=CompositeObjective([BudgetDeficitObjective(expected_unit="EUR")]),
             enable_stage_a=enable_stage_a,
+            pareto_registry=pareto_registry,
         ),
         candidate_generator=generator,
         stage_a_evaluator=lambda candidate, context: (0.0, True),
         stage_b_evaluator=lambda candidate, context: {
-            "simulation_results": {"objective_value": float(candidate.get("x", 1.0))},
+            "simulation_results": _budget_deficit_source(float(candidate.get("x", 1.0))),
             "feedback": {"verdict": "APPROVE"},
         },
     )
@@ -217,17 +227,7 @@ def test_ask_tell_uses_owner_transition_and_resumes_frontier() -> None:
     assert isinstance(first[0], CandidateProposal)
     first_result = adapter.tell(
         first[0].candidate_id,
-        EvaluationBundle(
-            objective_value=2.0,
-            is_promising=True,
-            objective_details=[
-                ObjectiveValue(
-                    name="cost",
-                    raw_value=2.0,
-                    direction=OptimizationDirection.MINIMIZE,
-                )
-            ],
-        ),
+        _budget_deficit_evaluation(2.0),
     )
 
     assert first_result.history_length == 1
@@ -238,17 +238,7 @@ def test_ask_tell_uses_owner_transition_and_resumes_frontier() -> None:
     second = adapter.ask(goal=None, search_space=None, context={})
     second_result = adapter.tell(
         second[0].candidate_id,
-        EvaluationBundle(
-            objective_value=1.0,
-            is_promising=True,
-            objective_details=[
-                ObjectiveValue(
-                    name="cost",
-                    raw_value=1.0,
-                    direction=OptimizationDirection.MINIMIZE,
-                )
-            ],
-        ),
+        _budget_deficit_evaluation(1.0),
     )
 
     assert second_result.history_length == 2
@@ -314,11 +304,7 @@ def test_malformed_typed_feedback_cannot_fall_back_to_scalar_best() -> None:
 
     result = adapter.tell(
         proposal.candidate_id,
-        EvaluationBundle(
-            objective_value=-100.0,
-            is_promising=True,
-            policy_evaluation={"unexpected": "typed payload"},
-        ),
+        _budget_deficit_evaluation(100.0, policy_evaluation={"unexpected": "typed payload"}),
     )
 
     assert result.best_candidate is None
@@ -339,3 +325,292 @@ def test_run_search_compatibility_path_remains_available() -> None:
     assert result.history
     assert result.stage_a_evaluations == 1
     assert result.stage_b_evaluations == 1
+
+
+def test_prior_generation_tell_leaves_replacement_run_unchanged() -> None:
+    adapter, _ = _build_adapter(max_iterations=1)
+    prior = adapter.ask(goal=None, search_space=None, context={})[0]
+    prior_state = adapter.owner._run_state
+    prior_id = prior_state.search_id
+    prior_generation = getattr(adapter.owner, "_run_generation", 0)
+
+    finished = adapter.controller.run({}, {"candidate_id": "replacement", "x": 3.0})
+    current = adapter.owner._run_state
+    assert current.search_id != prior_id
+
+    with pytest.raises(ValueError, match="stale search generation"):
+        adapter.tell(prior.candidate_id, EvaluationBundle(objective_value=1.0, is_promising=True))
+
+    assert adapter.owner._run_generation > prior_generation > 0
+    assert adapter.owner._run_state is current
+    assert [row.candidate["candidate_id"] for row in current.history] == ["replacement"]
+    assert current.stage_b_evaluations == 1
+    assert prior_state.history == []
+    assert [row.candidate["candidate_id"] for row in finished.history] == ["replacement"]
+
+
+def test_refused_full_run_keeps_same_generation_pending() -> None:
+    adapter, _ = _build_adapter(max_iterations=1)
+    pending = adapter.ask(goal=None, search_space=None, context={})[0]
+    prior_state = adapter.owner._run_state
+
+    assert adapter.owner._run_lock.acquire(blocking=False)
+    try:
+        with pytest.raises(RuntimeError, match="not reentrant"):
+            adapter.run_search(initial_context={})
+    finally:
+        adapter.owner._run_lock.release()
+
+    accepted = adapter.tell(
+        pending.candidate_id, EvaluationBundle(objective_value=1.0, is_promising=True)
+    )
+    assert adapter.owner._run_state is prior_state
+    assert accepted.registry_update["search_id"] == prior_state.search_id
+    assert accepted.history_length == 1
+
+
+def test_same_adapter_cannot_reissue_ambiguous_bare_candidate_id() -> None:
+    adapter, generator = _build_adapter(max_iterations=1)
+    old = adapter.ask(goal=None, search_space=None, context={})[0]
+    result = adapter.run_search(
+        initial_context={}, initial_candidate={"candidate_id": "replacement", "x": 3.0}
+    )
+    generator.calls = 0
+
+    with pytest.raises(ValueError, match="candidate ID was issued in an earlier search generation"):
+        adapter.ask(goal=None, search_space=None, context={})
+    with pytest.raises(ValueError, match="stale search generation"):
+        adapter.tell(old.candidate_id, EvaluationBundle(objective_value=1.0, is_promising=True))
+
+    fresh_adapter = LegacySearchServiceAdapter(adapter.controller)
+    generator.calls = 0
+    fresh = fresh_adapter.ask(goal=None, search_space=None, context={})[0]
+    assert fresh.candidate_id == old.candidate_id
+    assert fresh.payload == old.payload
+    accepted = fresh_adapter.tell(
+        fresh.candidate_id, EvaluationBundle(objective_value=1.0, is_promising=True)
+    )
+    assert accepted.registry_update["search_id"] == result.search_id
+    assert accepted.history_length == 2
+    assert len(result.history) == 1
+
+
+def test_same_candidate_overlapping_tell_is_refused_before_owner_update(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    adapter, _ = _build_adapter()
+    candidate = adapter.ask(goal=None, search_space=None, context={})[0]
+    evaluation = _budget_deficit_evaluation(2.0)
+    entered = Event()
+    release = Event()
+    evaluate = BudgetDeficitObjective.evaluate
+
+    def pause_first(self: BudgetDeficitObjective, results: dict[str, Any]) -> ObjectiveValue:
+        if not entered.is_set():
+            lock = adapter.controller._lifecycle_owner._run_lock
+            assert lock.acquire(blocking=False)
+            lock.release()
+            entered.set()
+            assert release.wait(5)
+        return evaluate(self, results)
+
+    monkeypatch.setattr(BudgetDeficitObjective, "evaluate", pause_first)
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        first = executor.submit(adapter.tell, candidate.candidate_id, evaluation)
+        try:
+            assert entered.wait(5)
+            with pytest.raises(RuntimeError, match="in flight"):
+                adapter.tell(candidate.candidate_id, evaluation)
+            with pytest.raises(RuntimeError, match="not reentrant"):
+                adapter.controller.run({}, {"candidate_id": "replacement", "x": 3.0})
+            assert adapter.owner._run_state.history == []
+        finally:
+            release.set()
+        accepted = first.result(timeout=5)
+
+    with pytest.raises(ValueError, match="duplicate search evaluation"):
+        adapter.tell(candidate.candidate_id, evaluation)
+    assert accepted.history_length == 1
+    assert adapter.owner._run_state.stage_b_evaluations == 1
+
+
+def test_reentrant_tell_from_objective_is_refused_before_mutation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    adapter, _ = _build_adapter()
+    candidate = adapter.ask(goal=None, search_space=None, context={})[0]
+    evaluation = _budget_deficit_evaluation(2.0)
+    evaluate = BudgetDeficitObjective.evaluate
+    attempted = False
+
+    def reenter_once(self: BudgetDeficitObjective, results: dict[str, Any]) -> ObjectiveValue:
+        nonlocal attempted
+        if not attempted:
+            attempted = True
+            with pytest.raises(RuntimeError, match="in flight"):
+                adapter.tell(candidate.candidate_id, evaluation)
+            assert adapter.owner._run_state.history == []
+        return evaluate(self, results)
+
+    monkeypatch.setattr(BudgetDeficitObjective, "evaluate", reenter_once)
+
+    accepted = adapter.tell(candidate.candidate_id, evaluation)
+    assert attempted
+    assert accepted.history_length == 1
+    assert adapter.owner._run_state.stage_b_evaluations == 1
+
+
+def test_precommit_failure_can_retry_after_later_candidate_completes() -> None:
+    adapter, _ = _build_adapter()
+    first = adapter.ask(goal=None, search_space=None, context={})[0]
+    second = adapter.ask(goal=None, search_space=None, context={})[0]
+    evaluation = _budget_deficit_evaluation(2.0)
+
+    with pytest.raises(TypeError, match="simulation_results must be a mapping"):
+        adapter.tell(
+            first.candidate_id,
+            EvaluationBundle(
+                objective_value=2.0,
+                is_promising=True,
+                stage_b_result={"simulation_results": []},
+            ),
+        )
+
+    assert adapter.owner._run_state.history == []
+    later = adapter.tell(second.candidate_id, evaluation)
+    earlier = adapter.tell(first.candidate_id, evaluation)
+
+    assert later.history_length == 1
+    assert earlier.history_length == 2
+    assert [row.candidate["candidate_id"] for row in adapter.owner._run_state.history] == [
+        second.candidate_id,
+        first.candidate_id,
+    ]
+    assert later.registry_update["search_id"] == earlier.registry_update["search_id"]
+
+
+def test_same_adapter_rolls_over_generated_ids_without_changing_subject(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    adapter, generator = _build_adapter(max_iterations=1)
+    monkeypatch.setattr(generator, "generate", lambda history, current_best, context: {"x": 1.0})
+    old = adapter.ask(goal=None, search_space=None, context={})[0]
+    assert old.candidate_id == "candidate_0_0"
+    next_generation = adapter.controller._lifecycle_owner._run_generation + 1
+    occupied_id = f"{old.candidate_id}_run_{next_generation}"
+    with monkeypatch.context() as explicit_generator:
+        explicit_generator.setattr(
+            generator,
+            "generate",
+            lambda history, current_best, context: {"candidate_id": occupied_id, "x": 2.0},
+        )
+        assert adapter.ask(goal=None, search_space=None, context={})[0].candidate_id == occupied_id
+
+    result = adapter.run_search(
+        initial_context={}, initial_candidate={"candidate_id": "replacement", "x": 3.0}
+    )
+    new = adapter.ask(goal=None, search_space=None, context={})[0]
+    assert new.candidate_id not in {old.candidate_id, occupied_id}
+    assert new.payload == old.payload == {"x": 1.0}
+    assert new.service_iteration == old.service_iteration == 0
+    with pytest.raises(ValueError, match="stale search generation"):
+        adapter.tell(old.candidate_id, _budget_deficit_evaluation(1.0))
+
+    accepted = adapter.tell(new.candidate_id, _budget_deficit_evaluation(1.0))
+    assert accepted.registry_update["search_id"] == result.search_id
+    assert accepted.history_length == 2
+    assert accepted.best_candidate == new.payload
+    assert result.best_objective == 3.0
+    assert len(result.history) == 1
+
+
+def test_failed_prepublication_resolution_leaves_service_evaluation_retryable(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    registry = ParetoRegistry(root=tmp_path)
+    adapter, _ = _build_adapter(pareto_registry=registry)
+    owner = adapter.controller._lifecycle_owner
+    proposal = adapter.ask(goal=None, search_space=None, context={})[0]
+    evaluation = _budget_deficit_evaluation(
+        2.0, policy_evaluation=PolicyEvaluationVector(candidate_id=proposal.candidate_id)
+    )
+
+    def fail_context_resolution(**_: Any) -> None:
+        raise RuntimeError("transfer context unavailable")
+
+    with monkeypatch.context() as faults:
+        faults.setattr(transfer_context, "resolve_transfer_context", fail_context_resolution)
+        with pytest.raises(RuntimeError, match="transfer context unavailable"):
+            adapter.tell(proposal.candidate_id, evaluation)
+
+    assert not ParetoRegistry(root=tmp_path).get_snapshot(owner._run_state.search_id).entries
+    assert owner._run_state.history == []
+    accepted = adapter.tell(proposal.candidate_id, evaluation)
+    assert accepted.history_length == 1
+    assert accepted.best_candidate is None
+    assert owner._run_state.history[0].policy_evaluation_status == "source_unverified"
+    reader = ParetoRegistry(root=tmp_path)
+    saved = list(reader.get_snapshot(owner._run_state.search_id).entries.values())
+    assert len(saved) == 1
+    assert saved[0].seed_only
+    assert saved[0].seed_payload == proposal.payload
+
+
+def test_partial_registry_publication_cannot_replay_the_claim(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    registry = ParetoRegistry(root=tmp_path)
+    adapter, _ = _build_adapter(pareto_registry=registry)
+    owner = adapter.controller._lifecycle_owner
+    proposal = adapter.ask(goal=None, search_space=None, context={})[0]
+    evaluation = _budget_deficit_evaluation(
+        2.0, policy_evaluation=PolicyEvaluationVector(candidate_id=proposal.candidate_id)
+    )
+    publish_attempts: list[str] = []
+
+    def interrupt_transfer_publish(loop_id: str, **_: Any) -> None:
+        publish_attempts.append(loop_id)
+        raise OSError("transfer publication interrupted")
+
+    monkeypatch.setattr(registry, "publish_transfer_surface", interrupt_transfer_publish)
+    run_id = owner._run_state.search_id
+    with pytest.raises(OSError, match="transfer publication interrupted"):
+        adapter.tell(proposal.candidate_id, evaluation)
+
+    reader = ParetoRegistry(root=tmp_path)
+    saved = list(reader.get_snapshot(run_id).entries.values())
+    assert len(saved) == 1
+    assert saved[0].seed_only
+    assert saved[0].seed_payload == proposal.payload
+    with pytest.raises(RuntimeError, match="publication is unconfirmed"):
+        adapter.tell(proposal.candidate_id, evaluation)
+
+    assert publish_attempts == [run_id]
+    assert list(reader.get_snapshot(run_id).entries.values()) == saved
+    assert owner._run_state.history == []
+    assert owner._run_state.stage_b_evaluations == 0
+    assert owner._run_state.best_candidate is None
+    assert owner._run_state.pareto_front == []
+
+
+def test_reply_failure_after_commit_cannot_replay_the_evaluation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    adapter, _ = _build_adapter()
+    owner = adapter.controller._lifecycle_owner
+    proposal = adapter.ask(goal=None, search_space=None, context={})[0]
+    evaluation = _budget_deficit_evaluation(2.0)
+
+    def fail_reply() -> None:
+        raise RuntimeError("reply snapshot unavailable")
+
+    with monkeypatch.context() as faults:
+        faults.setattr(owner, "_service_tell_snapshot", fail_reply)
+        with pytest.raises(RuntimeError, match="reply snapshot unavailable"):
+            adapter.tell(proposal.candidate_id, evaluation)
+
+    with pytest.raises(ValueError, match="duplicate search evaluation"):
+        adapter.tell(proposal.candidate_id, evaluation)
+    assert owner._run_state.history_size == owner._run_state.stage_b_evaluations == 1
+    assert owner._run_state.best_candidate == proposal.payload
+    assert owner._run_state.best_objective == 2.0

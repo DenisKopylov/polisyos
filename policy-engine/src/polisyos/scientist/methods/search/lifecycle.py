@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import os
 from collections.abc import Callable
+from contextlib import contextmanager
 from copy import deepcopy
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from math import isfinite
@@ -62,9 +64,20 @@ from polisyos.scientist.methods.search.run_state import SearchRunState
 from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadata
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+    from typing import Literal
+
     from polisyos.core.observability import MetricsRegistry
     from polisyos.scientist.methods.search.frontier import FrontierPoint
     from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+
+
+@dataclass(slots=True)
+class _ServiceProposal:
+    """Retain an issued proposal until its owner commits the evaluation."""
+
+    proposal: CandidateProposal | None
+    status: Literal["pending", "applying", "completed", "publication_unconfirmed"] = "pending"
 
 
 class _SearchLifecycleOwner:
@@ -73,8 +86,8 @@ class _SearchLifecycleOwner:
     Candidate generation is delegated to `CandidateGenerator`, evaluator feedback
     is captured in `SearchIteration`, optional transfer/Pareto/diversity state is
     injected into generation context, and stopping criteria terminate the loop.
-    `run()` is intentionally non-reentrant; overlapping calls on one lifecycle owner
-    raise a deterministic `RuntimeError` before replacing run state.
+    Only one run, ask, or tell operation may mutate the lifecycle at a time.
+    Overlapping operations are refused before invoking callbacks or changing state.
     """
 
     def __init__(
@@ -113,6 +126,10 @@ class _SearchLifecycleOwner:
         self._stage_b = stage_b_evaluator
 
         self._run_lock = Lock()
+        self._run_active = False
+        self._run_generation = 0
+        self._service_ask_iteration = 0
+        self._service_proposals: dict[str, _ServiceProposal] = {}
         self._run_state = SearchRunState(status=SearchStatus.NOT_STARTED)
         self._source_budget_snapshot: dict[str, Any] = {"status": "not_configured"}
         self._metrics = metrics if metrics is not None else (metrics_factory or _default_metrics)()
@@ -231,52 +248,111 @@ class _SearchLifecycleOwner:
     def _sentinel_evaluations(self, value: int) -> None:
         self._run_state.sentinel_evaluations = value
 
-    def _prepare_service_run(self) -> None:
-        """Ensure the ask/tell bridge has one explicit run-state owner.
+    @contextmanager
+    def _run_operation(self, *, full_run: bool = False) -> Iterator[None]:
+        """Admit an exclusive operation while letting callbacks run outside the mutex."""
+        reason = (
+            "SearchController.run is not reentrant"
+            if full_run
+            else "Search service operation is already in flight"
+        )
+        lock = self._run_lock
+        if not lock.acquire(blocking=False):
+            raise RuntimeError(reason)
+        try:
+            if self._run_active:
+                raise RuntimeError(reason)
+            self._run_active = True
+        finally:
+            lock.release()
+        try:
+            yield
+        finally:
+            with lock:
+                self._run_active = False
 
-        The compatibility ``run()`` path always starts a fresh state.  The
-        contract adapter, however, may receive several ask/tell transitions
-        before a full loop is invoked.  This small owner operation gives that
-        path a stable search identity and makes a later ask an explicit
-        continuation of the same state rather than an accidental new ledger.
-        """
+    def _replace_run_state(self, search_id: str) -> None:
+        """Install a fresh run after admission and invalidate its predecessor's routes."""
+        self._run_state = SearchRunState(search_id=search_id, status=SearchStatus.RUNNING)
+        self._run_generation += 1
+        self._service_ask_iteration = 0
+        self._service_proposals.clear()
+
+    def _prepare_service_run(self) -> tuple[int, int]:
+        """Open the initial service run or continue its admitted generation."""
         if self._run_state.status in {None, SearchStatus.NOT_STARTED}:
-            self._run_state = SearchRunState(
-                search_id=str(uuid4())[:8],
-                status=SearchStatus.RUNNING,
-            )
+            self._replace_run_state(str(uuid4())[:8])
             self._config.stopping.reset()
             self._reset_diversity_tracker(operation="prepare_service_run")
-            return
-        if self._run_state.status is not SearchStatus.RUNNING:
+        elif self._run_state.status is not SearchStatus.RUNNING:
             self._run_state.status = SearchStatus.RUNNING
+        return self._run_generation, self._service_ask_iteration
+
+    def _publish_service_proposals(
+        self, generation: int, proposals: dict[str, CandidateProposal]
+    ) -> None:
+        """Publish an entire validated batch under the admitted owner generation."""
+        if generation != self._run_generation:
+            raise ValueError("stale search generation while issuing proposals")
+        for candidate_id in proposals:
+            if candidate_id in self._service_proposals:
+                raise ValueError(f"duplicate search candidate id: {candidate_id}")
+        self._service_proposals.update(
+            {
+                candidate_id: _ServiceProposal(proposal)
+                for candidate_id, proposal in proposals.items()
+            }
+        )
+        self._service_ask_iteration += 1
+
+    @contextmanager
+    def _claim_service_tell(
+        self, candidate_id: str, generation: int
+    ) -> Iterator[CandidateProposal]:
+        """Reserve a pending proposal and reopen it on a precommit failure."""
+        if generation != self._run_generation:
+            raise ValueError(f"stale search generation for candidate: {candidate_id}")
+        entry = self._service_proposals[candidate_id]
+        if entry.status == "completed":
+            raise ValueError(f"duplicate search evaluation: {candidate_id}")
+        if entry.status == "publication_unconfirmed":
+            raise RuntimeError(f"search evaluation publication is unconfirmed: {candidate_id}")
+        if entry.status != "pending" or entry.proposal is None:
+            raise RuntimeError(f"search evaluation is already in flight: {candidate_id}")
+
+        entry.status = "applying"
+        try:
+            yield entry.proposal
+        finally:
+            if entry.status == "applying":
+                entry.status = "pending"
+
+    def _require_service_claim(
+        self, proposal: CandidateProposal, generation: int
+    ) -> _ServiceProposal:
+        """Check that the same proposal is still reserved before owner work or commit."""
+        if generation != self._run_generation:
+            raise ValueError(f"stale search generation for candidate: {proposal.candidate_id}")
+        entry = self._service_proposals[proposal.candidate_id]
+        if entry.status != "applying" or entry.proposal is not proposal:
+            raise RuntimeError(f"search evaluation claim is not current: {proposal.candidate_id}")
+        return entry
 
     def _accept_tell(
         self,
         *,
-        candidate: CandidatePayload,
-        objective_value: float | None,
-        score_status: ObjectiveScoreStatus,
-        objective_details: list[Any],
+        generation: int,
+        candidate_proposal: CandidateProposal,
         is_promising: bool,
         stage_a_passed: bool,
         stage_b_result: dict[str, Any],
         duration_seconds: float,
-        candidate_proposal: CandidateProposal | None = None,
     ) -> SearchIteration:
-        """Accept one ask/tell result through the lifecycle-owner transition.
-
-        This is an internal bridge for ``LegacySearchServiceAdapter``.  It
-        reuses the typed-evaluation resolver and frontier owner from the full
-        native lifecycle, preserving the distinction between absent and
-        malformed typed results (B123) without exposing private fields to the
-        adapter.
-        """
-        if candidate_proposal is not None:
-            if not candidate_payloads_equal(
-                materialize_candidate_proposal(candidate_proposal), candidate
-            ):
-                raise ValueError("candidate_proposal_payload_mismatch")
+        """Prepare and commit one claimed result through the native lifecycle owner."""
+        claimed_proposal = candidate_proposal
+        self._require_service_claim(claimed_proposal, generation)
+        candidate_proposal = deepcopy(claimed_proposal)
+        candidate = materialize_candidate_proposal(candidate_proposal)
         policy_resolution = self._resolve_policy_evaluation_with_status(
             candidate,
             stage_b_result,
@@ -289,13 +365,10 @@ class _SearchLifecycleOwner:
         candidate_ref, evaluation_ref, source_verified = self._resolve_policy_source(
             candidate_proposal, policy_evaluation, stage_b_result
         )
-        self._prepare_service_run()
         effective_objective = None
         effective_score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
         effective_assessment: ObjectiveScoreAssessment | None = None
         effective_details: list[ObjectiveValue] = []
-        if policy_resolution.status == "invalid":
-            self._run_state.policy_evaluation_errors += 1
         source_results = stage_b_result.get("simulation_results")
         if isinstance(source_results, dict):
             recomputed = self._config.objective.evaluate(source_results)
@@ -328,11 +401,13 @@ class _SearchLifecycleOwner:
         )
         is_sentinel = extract_sentinel_metadata(candidate) is not None
         policy_subject = (
-            candidate_proposal is not None
-            and candidate_proposal.strategy_context is not None
+            candidate_proposal.strategy_context is not None
             and candidate_proposal.strategy_context.policy_schema
         )
-        if (policy_subject or policy_evaluation is not None) and not source_verified:
+        unverified_policy_source = (
+            policy_subject or policy_evaluation is not None
+        ) and not source_verified
+        if unverified_policy_source:
             effective_objective = None
             effective_score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
             effective_assessment = None
@@ -343,10 +418,6 @@ class _SearchLifecycleOwner:
                 reported_status=effective_score_status,
                 reported_value=None,
             )
-            if not is_sentinel and policy_evaluation is not None:
-                self._record_candidate_only_evaluation(
-                    candidate, candidate_proposal, policy_evaluation, candidate_ref, evaluation_ref
-                )
         feedback = stage_b_result.get("feedback")
         verdict = feedback.get("verdict") if isinstance(feedback, dict) else None
         accepted = (
@@ -360,24 +431,20 @@ class _SearchLifecycleOwner:
             and selected_score_admission_status(effective_assessment, source_results)
             is ObjectiveScoreStatus.AVAILABLE
         )
-        if (
+        frontier_eligible = (
             stage_a_passed
             and not is_sentinel
             and policy_resolution.status != "invalid"
             and effective_score_status is ObjectiveScoreStatus.AVAILABLE
             and effective_objective is not None
+        )
+        new_best = None
+        if (
+            frontier_eligible
+            and effective_objective is not None
+            and effective_objective < self._best_objective
         ):
-            if effective_details:
-                self._update_policy_or_legacy_frontier(
-                    candidate=candidate,
-                    objective_details=effective_details,
-                    policy_evaluation=policy_evaluation,
-                    stage_b_result=stage_b_result,
-                    candidate_proposal=candidate_proposal,
-                )
-            if effective_objective < self._best_objective:
-                self._best_objective = effective_objective
-                self._best_candidate = deepcopy(candidate)
+            new_best = (effective_objective, deepcopy(candidate))
 
         record = SearchIteration(
             iteration=self._run_state.evaluation_iterations,
@@ -390,13 +457,11 @@ class _SearchLifecycleOwner:
             duration_seconds=float(duration_seconds),
             policy_evaluation=deepcopy(policy_evaluation),
             policy_evaluation_status=(
-                "source_unverified"
-                if (policy_subject or policy_evaluation is not None) and not source_verified
-                else policy_resolution.status
+                "source_unverified" if unverified_policy_source else policy_resolution.status
             ),
             policy_evaluation_error=(
                 "policy_evaluation_source_unverified"
-                if (policy_subject or policy_evaluation is not None) and not source_verified
+                if unverified_policy_source
                 else policy_resolution.reason
             ),
             candidate_ref=candidate_ref,
@@ -412,11 +477,38 @@ class _SearchLifecycleOwner:
             ),
             record=record,
         )
+        entry = self._require_service_claim(claimed_proposal, generation)
+        if unverified_policy_source and not is_sentinel and policy_evaluation is not None:
+            self._record_candidate_only_evaluation(
+                candidate,
+                candidate_proposal,
+                policy_evaluation,
+                candidate_ref,
+                evaluation_ref,
+                service_claim=entry,
+            )
+        elif frontier_eligible and effective_details:
+            self._update_policy_or_legacy_frontier(
+                candidate=candidate,
+                objective_details=effective_details,
+                policy_evaluation=policy_evaluation,
+                stage_b_result=stage_b_result,
+                candidate_proposal=candidate_proposal,
+                service_claim=entry,
+            )
+
         self._run_state.apply_tell_transition(
             transition,
             stage_a_evaluated=self._config.enable_stage_a,
             stage_b_evaluated=stage_a_passed,
         )
+        self._run_state.status = SearchStatus.RUNNING
+        if policy_resolution.status == "invalid":
+            self._run_state.policy_evaluation_errors += 1
+        if new_best is not None:
+            self._best_objective, self._best_candidate = new_best
+        entry.status = "completed"
+        entry.proposal = None
         return record
 
     def _service_tell_snapshot(self) -> dict[str, Any]:
@@ -440,10 +532,7 @@ class _SearchLifecycleOwner:
         start_time = datetime.now(UTC)
         search_id = str(uuid4())[:8]
         self._reset_diversity_tracker(operation="reset_diversity_tracker")
-        self._run_state = SearchRunState(
-            search_id=search_id,
-            status=SearchStatus.RUNNING,
-        )
+        self._replace_run_state(search_id)
         self._config.stopping.reset()
         self._refresh_budget_snapshot(initial_context)
         self._run_state.training_evaluations = 0
@@ -1549,6 +1638,8 @@ class _SearchLifecycleOwner:
         evaluation: PolicyEvaluationVector,
         candidate_ref: Any | None,
         evaluation_ref: Any | None,
+        *,
+        service_claim: _ServiceProposal | None = None,
     ) -> None:
         registry = self._config.pareto_registry
         if registry is None:
@@ -1556,9 +1647,12 @@ class _SearchLifecycleOwner:
         from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
 
         transfer = resolve_transfer_context(candidate=candidate, fallback_run_id=self._search_id)
+        candidate_hash = policy_candidate_hash(proposal or candidate)
+        if service_claim is not None:
+            service_claim.status = "publication_unconfirmed"
         registry.update(
             self._search_id,
-            candidate_hash=policy_candidate_hash(proposal or candidate),
+            candidate_hash=candidate_hash,
             evaluation=evaluation,
             candidate_ref=candidate_ref,
             evaluation_ref=evaluation_ref,
@@ -1576,6 +1670,7 @@ class _SearchLifecycleOwner:
         policy_evaluation: PolicyEvaluationVector | None,
         stage_b_result: dict[str, Any] | None,
         candidate_proposal: CandidateProposal | None = None,
+        service_claim: _ServiceProposal | None = None,
     ) -> None:
         registry = self._config.pareto_registry
         source_results = (
@@ -1609,6 +1704,10 @@ class _SearchLifecycleOwner:
                 stage_b_result=stage_b_result or {},
                 candidate_proposal=candidate_proposal,
             )
+            if service_claim is not None:
+                # Registry update may persist before projection returns; leave the claim
+                # unconfirmed unless the caller finishes its local commit.
+                service_claim.status = "publication_unconfirmed"
             registry.update(
                 self._search_id,
                 candidate_hash=candidate_hash,
@@ -1632,12 +1731,14 @@ class _SearchLifecycleOwner:
             )
             from polisyos.scientist.methods.search.pareto_registry import ParetoView
 
-            self._run_state.pareto_projection = registry.get_snapshot(
+            projection = registry.get_snapshot(
                 self._search_id, transfer_context=transfer_context
             ).project_view(ParetoView.GLOBAL_FEASIBLE)
-            self._pareto_front = registry.as_legacy_frontier_payload(
+            frontier = registry.as_legacy_frontier_payload(
                 self._search_id, transfer_context=transfer_context
             )
+            self._run_state.pareto_projection = projection
+            self._pareto_front = frontier
             return
 
         if objective_details:
@@ -1687,14 +1788,16 @@ class _SearchLifecycleOwner:
         candidate_proposal: CandidateProposal | None = None,
     ) -> None:
         """Update the Pareto front with a new candidate if non-dominated."""
-        self._pareto_points = update_legacy_pareto_front(
+        points = update_legacy_pareto_front(
             self._pareto_points,
             candidate=candidate,
             objectives=objectives,
             cap=100,
             proposal=candidate_proposal,
         )
-        self._pareto_front = [point.as_payload() for point in self._pareto_points]
+        frontier = [point.as_payload() for point in points]
+        self._pareto_points = points
+        self._pareto_front = frontier
 
     @staticmethod
     def _dominates(a: list[float], b: list[float]) -> bool:

@@ -35,13 +35,12 @@ class _NativeSearchServiceDriver:
     ``SearchService`` protocol.  ``run_search`` uses the same methods' owner
     seams and the owner's established evaluator path, so the autotune
     consumer no longer calls the legacy full-loop implementation directly.
+    The owner refuses overlapping calls, including reentry from an evaluator.
     """
 
     def __init__(self, lifecycle_owner: _NativeSearchControllerPort) -> None:
         self.owner = lifecycle_owner
-        self._pending_candidates: dict[str, CandidateProposal] = {}
-        self._completed_candidate_ids: set[str] = set()
-        self._ask_iteration = 0
+        self._issued_generations: dict[str, int] = {}
 
     def ask(
         self,
@@ -49,11 +48,15 @@ class _NativeSearchServiceDriver:
         search_space: dict[str, Any] | None,
         context: dict[str, Any],
     ) -> list[CandidateProposal]:
-        """Generate proposals and retain candidate-ID ownership for ``tell``."""
+        """Generate proposals for the current owner generation."""
         del goal, search_space
-        self.owner._prepare_service_run()
+        with self.owner._run_operation():
+            return self._ask(context)
+
+    def _ask(self, context: dict[str, Any]) -> list[CandidateProposal]:
+        generation, iteration = self.owner._prepare_service_run()
         payloads = self.owner._generate_candidates(
-            iteration=self._ask_iteration,
+            iteration=iteration,
             initial_candidate=None,
             context=context,
         )
@@ -63,49 +66,48 @@ class _NativeSearchServiceDriver:
         for index, payload in enumerate(payloads):
             if isinstance(payload, CandidateProposal):
                 proposal = deepcopy(payload)
-                candidate_id = proposal.candidate_id
                 materialize_candidate_proposal(proposal)
                 if proposal.metadata or proposal.service_iteration is not None:
                     raise ValueError("candidate_service_context_already_present")
-                proposal.metadata = {"iteration": self._ask_iteration}
-                proposal.service_iteration = self._ask_iteration
-                materialize_candidate_proposal(proposal)
-                if (
-                    candidate_id in pending
-                    or candidate_id in self._pending_candidates
-                    or candidate_id in self._completed_candidate_ids
-                ):
-                    raise ValueError(f"duplicate search candidate id: {candidate_id}")
-                pending[candidate_id] = proposal
-                proposals.append(deepcopy(proposal))
-                continue
-            if not isinstance(payload, dict):
-                raise TypeError("search candidate generators must return mappings")
-            if "candidate_id" not in payload:
-                candidate_id = f"candidate_{self._ask_iteration}_{index}"
+                proposal.metadata = {"iteration": iteration}
+                proposal.service_iteration = iteration
             else:
-                raw_candidate_id = payload["candidate_id"]
-                if not isinstance(raw_candidate_id, str) or not raw_candidate_id:
-                    raise ValueError("search candidate_id must be an explicit non-empty string")
-                candidate_id = raw_candidate_id
-            if (
-                candidate_id in pending
-                or candidate_id in self._pending_candidates
-                or candidate_id in self._completed_candidate_ids
-            ):
-                raise ValueError(f"duplicate search candidate id: {candidate_id}")
-            proposal = CandidateProposal(
-                candidate_id=candidate_id,
-                payload=deepcopy(payload),
-                metadata={"iteration": self._ask_iteration},
-                service_iteration=self._ask_iteration,
-            )
+                if not isinstance(payload, dict):
+                    raise TypeError("search candidate generators must return mappings")
+                if "candidate_id" in payload:
+                    candidate_id = payload["candidate_id"]
+                    if not isinstance(candidate_id, str) or not candidate_id:
+                        raise ValueError("search candidate_id must be an explicit non-empty string")
+                else:
+                    candidate_id = f"candidate_{iteration}_{index}"
+                    if self._issued_generations.get(candidate_id, generation) != generation:
+                        base_id = f"{candidate_id}_run_{generation}"
+                        candidate_id = base_id
+                        suffix = 1
+                        while candidate_id in self._issued_generations or candidate_id in pending:
+                            candidate_id = f"{base_id}_{suffix}"
+                            suffix += 1
+                proposal = CandidateProposal(
+                    candidate_id=candidate_id,
+                    payload=deepcopy(payload),
+                    metadata={"iteration": iteration},
+                    service_iteration=iteration,
+                )
             materialize_candidate_proposal(proposal)
+            candidate_id = proposal.candidate_id
+            if candidate_id in pending:
+                raise ValueError(f"duplicate search candidate id: {candidate_id}")
+            previous_generation = self._issued_generations.get(candidate_id)
+            if previous_generation is not None and previous_generation != generation:
+                # A bare tell ID cannot distinguish two generations issued by this adapter.
+                raise ValueError(
+                    f"candidate ID was issued in an earlier search generation: {candidate_id}"
+                )
             pending[candidate_id] = proposal
             proposals.append(deepcopy(proposal))
 
-        self._pending_candidates.update(pending)
-        self._ask_iteration += 1
+        self.owner._publish_service_proposals(generation, pending)
+        self._issued_generations.update(dict.fromkeys(pending, generation))
         return proposals
 
     def tell(
@@ -113,32 +115,21 @@ class _NativeSearchServiceDriver:
         candidate_id: str,
         evaluation: EvaluationBundle,
     ) -> TellResult:
-        """Accept one previously asked evaluation through lifecycle-owner state."""
+        """Accept an evaluation using its issued generation and the owner's claim."""
         if not isinstance(candidate_id, str) or not candidate_id:
             raise KeyError(candidate_id)
-        if candidate_id in self._completed_candidate_ids:
-            raise ValueError(f"duplicate search evaluation: {candidate_id}")
-        if candidate_id not in self._pending_candidates:
-            raise KeyError(candidate_id)
-
-        proposal = deepcopy(self._pending_candidates[candidate_id])
-        candidate = materialize_candidate_proposal(proposal)
-        stage_b_result = self._stage_b_result(evaluation)
-        self.owner._accept_tell(
-            candidate=candidate,
-            objective_value=evaluation.objective_value,
-            score_status=evaluation.score_status,
-            objective_details=list(evaluation.objective_details),
-            is_promising=bool(evaluation.is_promising),
-            stage_a_passed=bool(evaluation.stage_a_passed),
-            stage_b_result=stage_b_result,
-            duration_seconds=float(evaluation.duration_seconds),
-            candidate_proposal=proposal,
-        )
-
-        del self._pending_candidates[candidate_id]
-        self._completed_candidate_ids.add(candidate_id)
-        return TellResult(**self.owner._service_tell_snapshot())
+        with self.owner._run_operation():
+            generation = self._issued_generations[candidate_id]
+            with self.owner._claim_service_tell(candidate_id, generation) as proposal:
+                self.owner._accept_tell(
+                    generation=generation,
+                    candidate_proposal=proposal,
+                    is_promising=bool(evaluation.is_promising),
+                    stage_a_passed=bool(evaluation.stage_a_passed),
+                    stage_b_result=self._stage_b_result(evaluation),
+                    duration_seconds=float(evaluation.duration_seconds),
+                )
+            return TellResult(**self.owner._service_tell_snapshot())
 
     @staticmethod
     def _stage_b_result(evaluation: EvaluationBundle) -> dict[str, Any]:
@@ -181,22 +172,13 @@ class _NativeSearchServiceDriver:
         initial_candidate: dict[str, Any] | None = None,
     ) -> SearchResult:
         """Run the existing generation/evaluation lifecycle through this driver."""
-        self._pending_candidates.clear()
-        self._completed_candidate_ids.clear()
-        self._ask_iteration = 0
-
-        run_lock = self.owner._run_lock
-        if not run_lock.acquire(blocking=False):
-            raise RuntimeError("SearchController.run is not reentrant")
-        try:
-            return self._run_locked(
+        with self.owner._run_operation(full_run=True):
+            return self._run_admitted(
                 initial_context=initial_context,
                 initial_candidate=initial_candidate,
             )
-        finally:
-            run_lock.release()
 
-    def _run_locked(
+    def _run_admitted(
         self,
         *,
         initial_context: dict[str, Any],

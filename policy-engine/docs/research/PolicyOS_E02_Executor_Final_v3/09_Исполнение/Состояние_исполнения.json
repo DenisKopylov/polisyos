@@ -21706,7 +21706,7 @@
       "transition_evidence": [],
       "corrective_windows": [],
       "current_execution": {
-        "status": "ACTIVE. Sixteen packets, 68 original requirements and 68 original test contracts. Three named local requirements qualify: OPT-01-01/02 and TRN-03-01.",
+        "status": "ACTIVE. Sixteen packets, 68 original requirements and 68 original test contracts. Three named local requirements qualify. OPT-01-03 and TRN-03-03 have partial evidence.",
         "next": "Verify shared CTL-01/SRV-01 generation/claim handling on the frozen coordinate basis, and address the first remaining OPT and transfer candidate read boundaries.",
         "baseline_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4"
       }
@@ -41351,7 +41351,7 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "lane2_opt",
       "base_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4",
-      "integrated_commit": "8a26a90b5",
+      "integrated_commit": "7cb2ab63e",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
         "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
@@ -41397,6 +41397,19 @@
           "result": "47 real comparator, schema, alias, historical and file-backed registry controls. Exact independent review of all four paths.",
           "source_commit": "8a26a90b5",
           "guard_sha256": "9fbf816027958e2e5d182ec7fae728024f4c9cbd4857c8fe15720576756151c1"
+        },
+        {
+          "id": "opt01_display_collision",
+          "output": "Primary:policy-engine/_cache/e02/lane02-opt01-display-only.OOec9qms/",
+          "result": "Actual producer/JSON reread preserves all three display axes, including a literal generated label and literal canonical ID. The unchanged comparator and normal display also pass. 47 tests, independent GO.",
+          "source_commit": "7cb2ab63e",
+          "guard_sha256": "808579a3be22cc3bcb3255f0011e2657ab697db9f12ee7caa07bb5685533cfff"
+        },
+        {
+          "id": "opt01_registered_unit_source",
+          "output": "Primary:policy-engine/_cache/e02/lane02-opt01-method-source.hEViVqlj/",
+          "result": "Three actual registered MethodJob and fresh source controls preserve measured USD-per-resident and reject EUR, missing applicable unit and foreign/stale exact source edges.",
+          "source_commit": "7cb2ab63e"
         }
       ],
       "blockers": [],
@@ -41439,6 +41452,27 @@
             "opt01_frozen_coordinates_and_registry"
           ],
           "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-OPT-01-03",
+          "test_id": "TEST-OPT-01-03",
+          "status": "PARTIAL",
+          "basis": "The real Pareto producer preserves 3 canonical/display axes and reference coordinates across JSON on colliding inputs. The registered MethodJob source and unit tests pass separately. A complete two-split source→Pareto registry→fresh consumer positive is still open.",
+          "criterion_pointer": "04_Трассировка/OPT-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-OPT-01-03"
+          ],
+          "binding_ids": [
+            "E02-I02-B-B03"
+          ],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "opt01_display_collision",
+            "opt01_registered_unit_source"
+          ],
+          "remaining_kinds": [
+            "actual_registered_split_unit_frontier_join_and_fresh_consumer"
+          ]
         }
       ]
     },
@@ -41744,7 +41778,7 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "lane2_transfer",
       "base_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4",
-      "integrated_commit": "0c87d1a14",
+      "integrated_commit": "1cb561160",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
         "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
@@ -41772,6 +41806,20 @@
           "result": "Six red baseline controls became green; 115 exact scope and lesson tests pass with actual AccessScope and FileSystemCAS. Offset equivalence, naive typed/JSON refusal, exact historical bytes and fresh valid occurrence.",
           "source_commit": "0c87d1a14",
           "guard_sha256": "9a798482d5af6e22b6fc01e7a8aeb7d7e7e4677abed27f9526789c43f5c0baf9"
+        },
+        {
+          "id": "trn03_selected_older_card_clock",
+          "output": "Primary:policy-engine/_cache/e02/trn03-selected-card-clock.AqrIIwFD/",
+          "result": "Actual store and registry keep the old selected card at 0.5/low_confidence and weight 0.325. Strict 0.8 does not materialize, old bytes remain exact, invalidation and caller constraints retain their existing refusals. 115 tests plus independent review.",
+          "source_commit": "1cb561160",
+          "guard_sha256": "cbf9d79c24b4b876e9df6c9690d4d9e2a2f1be8d55b79cebd9db5978c5732734"
+        },
+        {
+          "id": "trn03_selected_clock_fresh_process",
+          "output": "Primary:policy-engine/_cache/e02/lane02-trn03-fresh-process.udGOTbnh/",
+          "result": "A separate interpreter at exact 1cb561160 source reopens the retained candidate snapshot. The selected card remains 100 days old, 0.5/low_confidence, weight 0.325 and is absent at strict threshold 0.8.",
+          "source_commit": "1cb561160",
+          "guard_sha256": "dbf41cb2456821ecc253b152203daf29d4bbb121e5ea2a0ab49a502645c65df7"
         }
       ],
       "blockers": [],
@@ -41794,6 +41842,27 @@
             "trn03_clock_and_cas"
           ],
           "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-TRN-03-03",
+          "test_id": "TEST-TRN-03-03",
+          "status": "PARTIAL",
+          "basis": "The supported conservative default is repaired and verified in both original writer and a separate process. The broader TEST-03 source-bound verified reassessment remains open.",
+          "criterion_pointer": "04_Трассировка/TRN-03.json#/requirements/2",
+          "test_ids": [
+            "TEST-TRN-03-03"
+          ],
+          "binding_ids": [
+            "E02-I02-D-B04"
+          ],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "trn03_selected_older_card_clock",
+            "trn03_selected_clock_fresh_process"
+          ],
+          "remaining_kinds": [
+            "actual_source_bound_verified_reassessment"
+          ]
         }
       ]
     },

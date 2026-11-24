@@ -3,10 +3,15 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.artifacts import (
+    artifact_ref_for_manifest,
+    load_core_json_artifact,
+    read_core_manifest_profile,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -18,11 +23,12 @@ from polisyos.scientist.methods.search.lessons import (
 )
 from polisyos.scientist.methods.search.sentinels import SentinelObservation, SentinelSet
 from polisyos.scientist.methods.search.stages import CorrelationTracker, DriftAlert
+from polisyos.scientist.methods.search.transfer_context import TransferContext
 
 _CALIBRATION_REPORT_KIND = "scientist.search.calibration_report"
 _CALIBRATION_REPORT_SCHEMA = SchemaInfo(
     name="polisyos.scientist.search.FunnelCalibrationReport",
-    version="1.0",
+    version="1.1",
 )
 
 
@@ -43,7 +49,7 @@ class FunnelCalibrationReport(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    schema_version: Literal["1.0", "1.1"] = "1.1"
     generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     current_mode: str = Field(min_length=1)
     gaps: list[str] = Field(default_factory=list)
@@ -56,6 +62,14 @@ class FunnelCalibrationReport(BaseModel):
     drift_alerts: list[DriftAlert] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+    @model_validator(mode="after")
+    def _validate_legacy_grade(self) -> FunnelCalibrationReport:
+        if self.schema_version == "1.0" and any(
+            lesson.grade_basis == "current_effective" for lesson in self.top_lessons
+        ):
+            raise ValueError("calibration report 1.0 records historical lesson grades")
+        return self
+
 
 def persist_funnel_calibration_report(
     store: FileSystemCAS,
@@ -65,7 +79,7 @@ def persist_funnel_calibration_report(
 ) -> ArtifactRef:
     """Persist funnel calibration report helper."""
     return store.put_json(
-        report,
+        report.model_copy(update={"schema_version": _CALIBRATION_REPORT_SCHEMA.version}),
         PutOptions(
             kind=_CALIBRATION_REPORT_KIND,
             media_type="application/json",
@@ -81,11 +95,13 @@ def build_calibration_report(
     *,
     correlation_tracker: CorrelationTracker | None = None,
     lesson_registry: LessonRegistry | LessonIndexSnapshot | None = None,
+    lesson_context: TransferContext | None = None,
+    as_of: datetime | None = None,
     sentinel_set: SentinelSet | None = None,
     sentinel_observations: list[SentinelObservation] | None = None,
     burn_in_report: BurnInRunReport | None = None,
 ) -> FunnelCalibrationReport:
-    """Build the funnel calibration report from tracker, lessons, and sentinels."""
+    """Build the funnel report and scope lesson grades to the requested evidence time."""
 
     tracker = correlation_tracker or CorrelationTracker()
     metrics = tracker.compute_metrics()
@@ -105,7 +121,7 @@ def build_calibration_report(
     if int(metrics.get("rolling_sample_count", 0)) < 3:
         gaps.append("insufficient_correlation_window")
 
-    top_lessons = _resolve_top_lessons(lesson_registry)
+    top_lessons = _resolve_top_lessons(lesson_registry, context=lesson_context, as_of=as_of)
     expensive_stage_load_reduction = (
         burn_in_report.expensive_stage_load_reduction if burn_in_report is not None else None
     )
@@ -223,9 +239,25 @@ def render_calibration_report(
     lines.append("## Top Lessons")
     if report.top_lessons:
         for lesson in report.top_lessons:
+            historical_confidence = (
+                lesson.historical_confidence
+                if lesson.historical_confidence is not None
+                else lesson.confidence
+            )
+            historical_trust = lesson.historical_trust_level or lesson.trust_level
+            assessment = "effective grade unavailable"
+            if lesson.grade_basis == "current_effective":
+                assert lesson.effective_as_of is not None
+                assert lesson.evidence_anchor is not None
+                assessment = (
+                    f"effective grade {lesson.confidence:g} / {lesson.trust_level.value} "
+                    f"as of {lesson.effective_as_of.isoformat()}, "
+                    f"evidence anchor {lesson.evidence_anchor.isoformat()}"
+                )
             lines.append(
                 f"- [{lesson.stage_name}] {lesson.summary} "
-                f"(occurrences={lesson.occurrence_count}, failure_type={lesson.failure_type})"
+                f"(occurrences={lesson.occurrence_count}, failure_type={lesson.failure_type}, "
+                f"{assessment}, historical grade {historical_confidence:g} / {historical_trust.value})"
             )
     else:
         lines.append("- none")
@@ -243,41 +275,35 @@ def load_funnel_calibration_report(
     store: FileSystemCAS,
     ref: ArtifactRef | str,
 ) -> FunnelCalibrationReport:
-    """Load funnel calibration report."""
-    from polisyos.core.artifacts import load_core_json_artifact
-
-    return FunnelCalibrationReport.model_validate(load_core_json_artifact(store, ref))
+    """Load the selected report with its matching manifest and payload versions."""
+    manifest, _ = read_core_manifest_profile(store, ref)
+    schema = manifest.artifact_schema
+    if (
+        manifest.kind != _CALIBRATION_REPORT_KIND
+        or manifest.media_type != "application/json"
+        or schema is None
+        or schema.name != _CALIBRATION_REPORT_SCHEMA.name
+        or schema.version not in {"1.0", "1.1"}
+    ):
+        raise ValueError("calibration_report_manifest_schema_mismatch")
+    selected_ref = artifact_ref_for_manifest(manifest)
+    report = FunnelCalibrationReport.model_validate(load_core_json_artifact(store, selected_ref))
+    if report.schema_version != schema.version:
+        raise ValueError("calibration_report_payload_schema_mismatch")
+    return report
 
 
 def _resolve_top_lessons(
     source: LessonRegistry | LessonIndexSnapshot | None,
+    *,
+    context: TransferContext | None,
+    as_of: datetime | None,
 ) -> list[LessonPattern]:
     if source is None:
         return []
     if isinstance(source, LessonRegistry):
-        return source.top_patterns(limit=5)
-    entries = sorted(
-        [entry for entry in source.entries if not entry.invalidated],
-        key=lambda item: (-item.occurrence_count, -item.last_seen.timestamp()),
-    )
-    return [
-        LessonPattern(
-            lesson_id=entry.lesson_id,
-            artifact_ref=entry.artifact_ref,
-            occurrence_count=entry.occurrence_count,
-            kind=entry.kind,
-            summary=entry.summary,
-            failure_type=entry.failure_type,
-            stage_name=entry.stage_name,
-            fidelity_level=entry.fidelity_level,
-            confidence=entry.confidence,
-            trust_level=entry.trust_level,
-            tags=list(entry.tags),
-            remediation_hint=entry.remediation_hint,
-            last_seen=entry.last_seen,
-        )
-        for entry in entries[:5]
-    ]
+        return source.top_patterns(limit=5, context=context, as_of=as_of)
+    return LessonRegistry.historical_patterns(source, limit=5, context=context, as_of=as_of)
 
 
 def _recommended_actions(alerts: list[DriftAlert], gaps: list[str]) -> list[str]:

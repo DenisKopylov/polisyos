@@ -246,6 +246,7 @@ def test_lesson_queries_write_daily_access_hints_without_index_cas(
 
 def test_gc_uses_evidence_age_for_trust_after_recent_access_and_restart(tmp_path) -> None:
     store, registry = _make_registry(tmp_path)
+    as_of = datetime.now(UTC)
     context = TransferContext(
         task_family="policy",
         domain="general",
@@ -260,7 +261,7 @@ def test_gc_uses_evidence_age_for_trust_after_recent_access_and_restart(tmp_path
         fidelity_level=1,
         candidate_hash="old-evidence",
         source_run_id="source-run",
-        created_at=datetime.now(UTC) - timedelta(days=200),
+        created_at=as_of - timedelta(days=200),
         confidence=0.9,
         tags=["gc-evidence-clock"],
     )
@@ -273,6 +274,7 @@ def test_gc_uses_evidence_age_for_trust_after_recent_access_and_restart(tmp_path
         tenant_hash=None,
         tags=["gc-evidence-clock"],
         limit=1,
+        as_of=as_of,
     )
 
     cold = registry.query(query)
@@ -281,7 +283,22 @@ def test_gc_uses_evidence_age_for_trust_after_recent_access_and_restart(tmp_path
     assert cold[0].confidence == 0.5
     access_hint = registry._access_path(index_path, source_card.lesson_id)
     assert access_hint.is_file()
-    assert registry.top_patterns(limit=1, context=context)[0].trust_level == LessonTrustLevel.LOCAL
+    access_bytes = access_hint.read_bytes()
+    index_bytes = index_path.read_bytes()
+    snapshot_ref = registry.snapshot_ref()
+    pattern = registry.top_patterns(limit=1, context=context)[0]
+    assert pattern.trust_level is LessonTrustLevel.LOW_CONFIDENCE
+    pattern = registry.top_patterns(limit=1, context=context, as_of=as_of)[0]
+    assert pattern.artifact_ref == card_ref
+    assert pattern.confidence == 0.5
+    assert pattern.historical_confidence == 0.9
+    assert pattern.historical_trust_level is LessonTrustLevel.LOCAL
+    assert pattern.grade_basis == "current_effective"
+    assert pattern.effective_as_of == as_of
+    assert pattern.evidence_anchor == source_card.created_at
+    assert access_hint.read_bytes() == access_bytes
+    assert index_path.read_bytes() == index_bytes
+    assert registry.snapshot_ref() == snapshot_ref
 
     removed = registry.garbage_collect(ttl_days=90)
     assert removed == 0
@@ -294,11 +311,13 @@ def test_gc_uses_evidence_age_for_trust_after_recent_access_and_restart(tmp_path
     pattern = registry.top_patterns(limit=1, context=context)[0]
     assert pattern.trust_level == LessonTrustLevel.LOW_CONFIDENCE
     assert pattern.last_seen == source_card.created_at
+    assert pattern.historical_confidence == 0.9
+    assert pattern.historical_trust_level is LessonTrustLevel.LOCAL
 
-    restarted = LessonRegistry(root=registry._root, store=store)
-    restarted_pattern = restarted.top_patterns(limit=1, context=context)[0]
-    assert restarted_pattern.trust_level == LessonTrustLevel.LOW_CONFIDENCE
-    assert restarted_pattern.last_seen == source_card.created_at
+    restarted = LessonRegistry(root=registry._root, store=FileSystemCAS(tmp_path / ".polisyos"))
+    restarted_pattern = restarted.top_patterns(limit=1, context=context, as_of=as_of)[0]
+    assert restarted_pattern == registry.top_patterns(limit=1, context=context, as_of=as_of)[0]
+    assert restarted_pattern.evidence_anchor == source_card.created_at
     warm = restarted.query(query)
     assert len(warm) == 1
     assert warm[0].trust_level == LessonTrustLevel.LOW_CONFIDENCE

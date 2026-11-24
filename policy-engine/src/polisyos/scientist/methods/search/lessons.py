@@ -14,7 +14,7 @@ from tempfile import NamedTemporaryFile
 from typing import Any, Literal, cast
 from uuid import uuid4
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
 from polisyos.common.timestamps import ensure_utc, parse_iso_datetime
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
@@ -188,7 +188,7 @@ class LessonTransferBundle(BaseModel):
 
 
 class LessonPattern(BaseModel):
-    """Compact lesson pattern used by reports and heuristics."""
+    """Compact lesson pattern whose grade names its evidence time basis."""
 
     model_config = ConfigDict(extra="forbid")
 
@@ -202,6 +202,11 @@ class LessonPattern(BaseModel):
     fidelity_level: int = Field(ge=0)
     confidence: float = Field(ge=0.0, le=1.0)
     trust_level: LessonTrustLevel
+    grade_basis: Literal["historical", "current_effective"] = "historical"
+    historical_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    historical_trust_level: LessonTrustLevel | None = None
+    effective_as_of: datetime | None = None
+    evidence_anchor: datetime | None = None
     task_family: str = Field(default="policy", min_length=1)
     domain: str = Field(default="general", min_length=1)
     origin_tenant_scope_status: TransferTenantScopeStatus = TransferTenantScopeStatus.UNKNOWN
@@ -210,6 +215,64 @@ class LessonPattern(BaseModel):
     remediation_hint: str | None = None
     last_seen: datetime
     last_accessed_at: datetime | None = None
+
+    @field_validator("effective_as_of", "evidence_anchor")
+    @classmethod
+    def _validate_effective_time(cls, value: datetime | None) -> datetime | None:
+        return ensure_utc(value) if value is not None else None
+
+    @model_validator(mode="after")
+    def _validate_grade_basis(self) -> LessonPattern:
+        if self.grade_basis == "current_effective":
+            if (
+                self.historical_confidence is None
+                or self.historical_trust_level is None
+                or self.effective_as_of is None
+                or self.evidence_anchor is None
+                or self.evidence_anchor > self.effective_as_of
+            ):
+                raise ValueError(
+                    "effective lesson grade requires a historical grade and evidence time"
+                )
+        elif self.effective_as_of is not None or self.evidence_anchor is not None:
+            raise ValueError("historical lesson grade has no effective assessment")
+        return self
+
+
+def _pattern_from_entry(
+    entry: LessonIndexEntry,
+    *,
+    historical: LessonCard | LessonIndexEntry,
+    effective: LessonCard | None = None,
+    as_of: datetime | None = None,
+    evidence_anchor: datetime | None = None,
+) -> LessonPattern:
+    grade = effective if effective is not None else historical
+    return LessonPattern(
+        lesson_id=entry.lesson_id,
+        artifact_ref=entry.artifact_ref,
+        occurrence_count=entry.occurrence_count,
+        kind=entry.kind,
+        summary=entry.summary,
+        failure_type=entry.failure_type,
+        stage_name=entry.stage_name,
+        fidelity_level=entry.fidelity_level,
+        confidence=grade.confidence,
+        trust_level=grade.trust_level,
+        grade_basis="current_effective" if effective is not None else "historical",
+        historical_confidence=historical.confidence,
+        historical_trust_level=historical.trust_level,
+        effective_as_of=as_of,
+        evidence_anchor=evidence_anchor,
+        task_family=entry.task_family,
+        domain=entry.domain,
+        origin_tenant_scope_status=entry.origin_tenant_scope_status,
+        provenance_weight=entry.provenance_weight,
+        tags=list(entry.tags),
+        remediation_hint=entry.remediation_hint,
+        last_seen=entry.last_seen,
+        last_accessed_at=entry.last_accessed_at,
+    )
 
 
 def _normalize_text(value: str) -> str:
@@ -926,34 +989,88 @@ class LessonRegistry:
         limit: int = 5,
         *,
         context: TransferContext | None = None,
+        as_of: datetime | None = None,
     ) -> list[LessonPattern]:
+        """Project effective grades from exact cards without recording lesson use."""
+        now = self._query_time(LessonQuery(as_of=as_of), target_context=context)
+        active_context = resolve_transfer_context(transfer_context=context)
         snapshot = self.index_snapshot(context=context)
         patterns: list[LessonPattern] = []
         for entry in self._sorted_entries(snapshot):
             if entry.invalidated:
                 continue
+            recorded = load_lesson_card(self._store, entry.artifact_ref)
+            source_context = (
+                active_context.model_copy(
+                    update={"task_family": entry.task_family, "domain": entry.domain}
+                )
+                if context is None
+                else active_context
+            )
+            effective = self._materialize_query_card(
+                entry, now=now, source_context=source_context, recorded_card=recorded
+            )
+            if effective is None and any(
+                stamp is not None and stamp > now
+                for stamp in (
+                    parse_iso_datetime(entry.last_seen),
+                    parse_iso_datetime(recorded.created_at),
+                )
+            ):
+                continue
             patterns.append(
-                LessonPattern(
-                    lesson_id=entry.lesson_id,
-                    artifact_ref=entry.artifact_ref,
-                    occurrence_count=entry.occurrence_count,
-                    kind=entry.kind,
-                    summary=entry.summary,
-                    failure_type=entry.failure_type,
-                    stage_name=entry.stage_name,
-                    fidelity_level=entry.fidelity_level,
-                    confidence=entry.confidence,
-                    trust_level=entry.trust_level,
-                    task_family=entry.task_family,
-                    domain=entry.domain,
-                    origin_tenant_scope_status=entry.origin_tenant_scope_status,
-                    provenance_weight=entry.provenance_weight,
-                    tags=list(entry.tags),
-                    remediation_hint=entry.remediation_hint,
-                    last_seen=entry.last_seen,
-                    last_accessed_at=entry.last_accessed_at,
+                _pattern_from_entry(
+                    entry,
+                    historical=recorded,
+                    effective=effective,
+                    as_of=now if effective is not None else None,
+                    evidence_anchor=(
+                        self._evidence_anchor(entry, effective) if effective is not None else None
+                    ),
                 )
             )
+            if len(patterns) >= limit:
+                break
+        return patterns
+
+    @classmethod
+    def historical_patterns(
+        cls,
+        snapshot: LessonIndexSnapshot,
+        limit: int = 5,
+        *,
+        context: TransferContext | None = None,
+        as_of: datetime | None = None,
+    ) -> list[LessonPattern]:
+        """Project a scoped index snapshot without claiming effective card grades."""
+        now = cls._query_time(LessonQuery(as_of=as_of), target_context=context)
+        if not snapshot.entries:
+            return []
+        locator = Path("lesson_index_snapshot")
+        scope = cls._bound_snapshot_scope(snapshot, locator)
+        active = resolve_transfer_context(transfer_context=context)
+        if (
+            scope.tenant_hash != active.tenant_hash
+            or scope.tenant_scope_status is not active.tenant_scope_status
+        ):
+            raise TransferScopeRefusedError(
+                [_scope_refusal(locator, TransferScopeRefusalReason.CROSS_TENANT_NOT_AUTHORIZED)]
+            )
+        if context is not None and scope != TransferSourceScope.from_context(active):
+            raise TransferScopeRefusedError(
+                [_scope_refusal(locator, TransferScopeRefusalReason.PATH_BODY_MISMATCH)]
+            )
+        patterns: list[LessonPattern] = []
+        for entry in sorted(snapshot.entries, key=cls._entry_priority):
+            if entry.invalidated or any(
+                stamp is not None and stamp > now
+                for stamp in (
+                    parse_iso_datetime(entry.first_seen),
+                    parse_iso_datetime(entry.last_seen),
+                )
+            ):
+                continue
+            patterns.append(_pattern_from_entry(entry, historical=entry))
             if len(patterns) >= limit:
                 break
         return patterns
@@ -1282,8 +1399,13 @@ class LessonRegistry:
         ttl_days: int | None = None,
         accessed_at: datetime | None = None,
         for_transfer: bool = False,
+        recorded_card: LessonCard | None = None,
     ) -> LessonCard | None:
-        card = load_lesson_card(self._store, entry.artifact_ref)
+        card = (
+            recorded_card
+            if recorded_card is not None
+            else load_lesson_card(self._store, entry.artifact_ref)
+        )
         if (
             entry.task_family != source_context.task_family
             or entry.domain != source_context.domain
@@ -1713,14 +1835,19 @@ class LessonRegistry:
                 model_type=LessonIndexSnapshot,
             ),
         )
+        cls._bound_snapshot_scope(snapshot, Path(str(ref)))
+        return snapshot
+
+    @staticmethod
+    def _bound_snapshot_scope(snapshot: LessonIndexSnapshot, locator: Path) -> TransferSourceScope:
         scope = snapshot.source_scope
         if scope is None:
             raise TransferScopeRefusedError(
-                [_scope_refusal(Path(str(ref)), TransferScopeRefusalReason.SOURCE_BINDING_MISSING)]
+                [_scope_refusal(locator, TransferScopeRefusalReason.SOURCE_BINDING_MISSING)]
             )
         if snapshot.task_family != scope.task_family or snapshot.domain != scope.domain:
             raise TransferScopeRefusedError(
-                [_scope_refusal(Path(str(ref)), TransferScopeRefusalReason.PATH_BODY_MISMATCH)]
+                [_scope_refusal(locator, TransferScopeRefusalReason.PATH_BODY_MISMATCH)]
             )
         if any(
             entry.task_family != scope.task_family
@@ -1730,9 +1857,9 @@ class LessonRegistry:
             for entry in snapshot.entries
         ):
             raise TransferScopeRefusedError(
-                [_scope_refusal(Path(str(ref)), TransferScopeRefusalReason.ENTRY_SCOPE_MISMATCH)]
+                [_scope_refusal(locator, TransferScopeRefusalReason.ENTRY_SCOPE_MISMATCH)]
             )
-        return snapshot
+        return scope
 
     @staticmethod
     def _entry_priority(entry: LessonIndexEntry) -> tuple[bool, float, int, float]:

@@ -10,13 +10,15 @@ causal-effect confidence interval or an S10 promotion.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 from collections.abc import Mapping
-from datetime import datetime
-from typing import Any, Literal
+from datetime import date, datetime
+from typing import Annotated, Any, Literal
 
 import numpy as np
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, ValidationError, model_validator
 
 from polisyos.calibration import evaluate_continuous
 from polisyos.core.artifacts import FileSystemCAS, artifact_manifest_profile_sha256
@@ -78,6 +80,9 @@ CALIBRATION_RULE_ID = "rolling-origin-residual-conformal.v1"
 CALIBRATION_RULE_KIND = "ir.forecast_calibration_rule"
 MODEL_SPEC_KIND = "ir.model_spec"
 POLICY_SPEC_KIND = "ir.policy_spec"
+SOURCE_RECEIPT_KIND = "scientist.forecast_source_receipt"
+SOURCE_RECEIPT_SCHEMA = "polisyos.scientist.ForecastSourceReceipt"
+SOURCE_RECEIPT_SCHEMA_VERSION = "1.0"
 _ETS_PARAMETER_FLOOR = 1e-6
 _MIN_TRAIN_OBSERVATIONS = 8
 
@@ -161,6 +166,250 @@ class ForecastTemporalRoles(BaseModel):
         return self
 
 
+class _SourceReceiptBase(BaseModel):
+    """Common exact source, series, unit, shape, and values binding."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"]
+    observed_source_ref: ArtifactRefModel
+    physical_data_ref: ArtifactRefModel
+    selected_projection_schema_id: str = Field(min_length=1)
+    selected_projection_schema_version: str = Field(min_length=1)
+    series_id: str = Field(min_length=1)
+    unit_id: str = Field(min_length=1)
+    selected_field_id: str = Field(min_length=1)
+    selected_period_field_id: str = Field(min_length=1)
+    selected_series_shape: tuple[Annotated[int, Field(strict=True)], ...] = Field(min_length=1)
+    selected_series_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    selected_rows_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _validate_selected_series(self) -> _SourceReceiptBase:
+        if str(self.observed_source_ref.artifact_id) == str(self.physical_data_ref.artifact_id):
+            raise ValueError("snapshot and physical data must be distinct source artifacts")
+        for ref, expected_kind in (
+            (self.observed_source_ref, "fabric.data_snapshot"),
+            (self.physical_data_ref, None),
+        ):
+            if (
+                ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+                or (expected_kind is not None and ref.kind != expected_kind)
+            ):
+                raise ValueError("source receipt references must select exact JSON views")
+        if len(self.selected_series_shape) != 1 or self.selected_series_shape[0] < 1:
+            raise ValueError("source receipt must bind one non-empty univariate series")
+        if any(type(size) is not int or size < 1 for size in self.selected_series_shape):
+            raise ValueError("source receipt series shape must contain positive integers")
+        for value in (
+            self.selected_projection_schema_id,
+            self.selected_projection_schema_version,
+            self.series_id,
+            self.unit_id,
+            self.selected_field_id,
+            self.selected_period_field_id,
+        ):
+            if value != value.strip():
+                raise ValueError("source receipt identifiers must be clean strings")
+        if self.selected_field_id == self.selected_period_field_id:
+            raise ValueError("selected value and period fields must be distinct")
+        return self
+
+
+class _PublishedVintageReceipt(_SourceReceiptBase):
+    """Typed evidence for one captured published data revision."""
+
+    source_kind: Literal["published_vintage"]
+    source_payload_ref: ArtifactRefModel
+    source_payload_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    source_capture_receipt_ref: ArtifactRefModel
+    source_capture_receipt_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    normalized_records_ref: ArtifactRefModel
+    normalized_records_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    normalized_records_schema_id: str = Field(min_length=1)
+    normalized_records_schema_version: str = Field(min_length=1)
+    source_adapter_id: str = Field(min_length=1)
+    source_adapter_version: str = Field(min_length=1)
+    source_adapter_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    calendar_years: tuple[Annotated[int, Field(strict=True)], ...] = Field(min_length=1)
+    dataset_updated_on: date
+    retrieved_at: datetime
+
+    @model_validator(mode="after")
+    def _validate_published_vintage(self) -> _PublishedVintageReceipt:
+        ref = self.source_payload_ref
+        if (
+            ref.media_type != "application/octet-stream"
+            or ref.manifest_profile_sha256 is None
+            or str(ref.artifact_id) in {
+                str(self.observed_source_ref.artifact_id),
+                str(self.physical_data_ref.artifact_id),
+            }
+            or self.source_capture_receipt_ref.media_type != "application/octet-stream"
+            or self.source_capture_receipt_ref.manifest_profile_sha256 is None
+            or str(self.source_capture_receipt_ref.artifact_id) in {
+                str(self.observed_source_ref.artifact_id),
+                str(self.physical_data_ref.artifact_id),
+                str(self.source_payload_ref.artifact_id),
+            }
+            or self.normalized_records_ref.media_type != "application/json"
+            or self.normalized_records_ref.manifest_profile_sha256 is None
+            or str(self.normalized_records_ref.artifact_id) in {
+                str(self.observed_source_ref.artifact_id),
+                str(self.physical_data_ref.artifact_id),
+                str(self.source_payload_ref.artifact_id),
+                str(self.source_capture_receipt_ref.artifact_id),
+            }
+            or self.calendar_years != tuple(sorted(set(self.calendar_years)))
+            or len(self.calendar_years) != self.selected_series_shape[0]
+            or self.calendar_years
+            != tuple(range(self.calendar_years[0], self.calendar_years[0] + len(self.calendar_years)))
+        ):
+            raise ValueError("published receipt must bind contiguous ordered calendar rows")
+        if any(type(year) is not int or year < 1 for year in self.calendar_years):
+            raise ValueError("published receipt calendar years must be positive integers")
+        if any(
+            value != value.strip()
+            for value in (
+                self.source_adapter_id,
+                self.source_adapter_version,
+                self.normalized_records_schema_id,
+                self.normalized_records_schema_version,
+            )
+        ):
+            raise ValueError("published receipt schema and adapter identifiers must be clean")
+        if self.retrieved_at.tzinfo is None or self.retrieved_at.utcoffset() is None:
+            raise ValueError("published receipt retrieval time must be timezone-aware")
+        if self.dataset_updated_on > self.retrieved_at.date():
+            raise ValueError("dataset update cannot follow its recorded retrieval")
+        return self
+
+
+class _ControlledKnownProcessReceipt(_SourceReceiptBase):
+    """Typed receipt for a separately scoped controlled known-process cohort."""
+
+    source_kind: Literal["controlled_known_process"]
+    process_spec_ref: ArtifactRefModel
+    process_spec_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    generator_id: str = Field(min_length=1)
+    generator_version: str = Field(min_length=1)
+    generator_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    parameters_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    seed: int = Field(strict=True)
+    logical_steps: tuple[Annotated[int, Field(strict=True)], ...] = Field(min_length=1)
+    generated_at: datetime
+    dataset_update_status: Literal["not_applicable"]
+    dataset_update_reason: Literal["controlled_known_process"]
+    retrieval_status: Literal["not_applicable"]
+    retrieval_reason: Literal["controlled_known_process"]
+
+    @model_validator(mode="after")
+    def _validate_controlled_process(self) -> _ControlledKnownProcessReceipt:
+        ref = self.process_spec_ref
+        if (
+            ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+            or str(ref.artifact_id) in {
+                str(self.observed_source_ref.artifact_id),
+                str(self.physical_data_ref.artifact_id),
+            }
+            or self.logical_steps != tuple(sorted(set(self.logical_steps)))
+            or len(self.logical_steps) != self.selected_series_shape[0]
+            or self.logical_steps
+            != tuple(range(self.logical_steps[0], self.logical_steps[0] + len(self.logical_steps)))
+        ):
+            raise ValueError("controlled receipt must bind contiguous ordered process steps")
+        if any(type(step) is not int or step < 0 for step in self.logical_steps):
+            raise ValueError("controlled receipt logical steps must be non-negative integers")
+        if self.generated_at.tzinfo is None or self.generated_at.utcoffset() is None:
+            raise ValueError("controlled receipt generation time must be timezone-aware")
+        return self
+
+
+_RetrospectiveSourceReceipt = Annotated[
+    _PublishedVintageReceipt | _ControlledKnownProcessReceipt,
+    Field(discriminator="source_kind"),
+]
+_RETROSPECTIVE_SOURCE_RECEIPT_ADAPTER = TypeAdapter(_RetrospectiveSourceReceipt)
+
+
+class _RetrospectiveForecastContext(BaseModel):
+    """Private source-receipt selection and explicit policy-time limitation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_vintage_receipt_ref: ArtifactRefModel
+    policy_effective_time_status: Literal["not_applicable"]
+    policy_effective_time_reason: Literal[
+        "no_policy_action_in_retrospective_predictive_screening"
+    ]
+
+    @model_validator(mode="after")
+    def _validate_receipt_ref(self) -> _RetrospectiveForecastContext:
+        ref = self.source_vintage_receipt_ref
+        if (
+            ref.kind != SOURCE_RECEIPT_KIND
+            or ref.media_type != "application/json"
+            or ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("retrospective screening requires an exact source-receipt view")
+        return self
+
+
+def _validate_common_forecast_owner_request(request: Any) -> None:
+    """Validate the shared inputs for operational and retrospective owner calls."""
+
+    if (request.value_data_profile_ref is None) != (request.value_data_unit_id is None):
+        raise ValueError("value profile ref and selected unit must be supplied as a pair")
+    if request.value_data_profile_ref is not None:
+        if (
+            request.value_data_profile_ref.kind != VALUE_DATA_PROFILE_KIND
+            or request.value_data_profile_ref.media_type != "application/json"
+            or request.value_data_profile_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("value profile ref must select an exact JSON manifest view")
+        if (
+            not request.value_data_unit_id
+            or request.value_data_unit_id != request.value_data_unit_id.strip()
+        ):
+            raise ValueError("selected value profile unit must be a clean identifier")
+        member = request.forecast_profile_member
+        if (
+            member is None
+            or member.profile_ref != request.value_data_profile_ref
+            or member.unit_id != request.value_data_unit_id
+            or member.target_metric != request.target_metric
+        ):
+            raise ValueError("selected value profile member receipt is incomplete")
+    elif request.forecast_profile_member is not None:
+        raise ValueError("profile member receipt requires an exact selected profile")
+    if request.target_metric != request.target_metric.strip():
+        raise ValueError("target_metric must not have surrounding whitespace")
+    if request.report_id != request.report_id.strip():
+        raise ValueError("report_id must not have surrounding whitespace")
+    if (request.model_spec_ref is None) != (request.policy_spec_ref is None):
+        raise ValueError("model/policy specification refs must be supplied as a complete pair")
+    if (
+        request.model_spec_ref is not None
+        and request.policy_spec_ref is not None
+        and str(getattr(request.model_spec_ref, "artifact_id", request.model_spec_ref))
+        == str(getattr(request.policy_spec_ref, "artifact_id", request.policy_spec_ref))
+    ):
+        raise ValueError("model/policy specification refs must be distinct artifacts")
+    if request.method_params.horizon != request.split.horizon:
+        raise ValueError("method horizon must match the explicit holdout horizon")
+    seen: set[tuple[str, str]] = set()
+    for item in request.manifest_inputs:
+        role = item.role
+        if not role or role != role.strip():
+            raise ValueError("manifest input role must be a non-empty clean string")
+        key = (str(item.artifact_id), role)
+        if key in seen:
+            raise ValueError("duplicate manifest input role/artifact pair")
+        seen.add(key)
+
+
 class CalibrationRuleArtifact(BaseModel):
     """Strict internal v1 rule admitted by the ETS predictive owner."""
 
@@ -221,59 +470,63 @@ class ForecastOwnerRequest(BaseModel):
 
     @model_validator(mode="after")
     def _validate_request(self) -> ForecastOwnerRequest:
-        if (self.value_data_profile_ref is None) != (self.value_data_unit_id is None):
-            raise ValueError("value profile ref and selected unit must be supplied as a pair")
-        if self.value_data_profile_ref is not None:
-            if (
-                self.value_data_profile_ref.kind != VALUE_DATA_PROFILE_KIND
-                or self.value_data_profile_ref.media_type != "application/json"
-                or self.value_data_profile_ref.manifest_profile_sha256 is None
-            ):
-                raise ValueError("value profile ref must select an exact JSON manifest view")
-            if (
-                not self.value_data_unit_id
-                or self.value_data_unit_id != self.value_data_unit_id.strip()
-            ):
-                raise ValueError("selected value profile unit must be a clean identifier")
-            member = self.forecast_profile_member
-            if (
-                member is None
-                or member.profile_ref != self.value_data_profile_ref
-                or member.unit_id != self.value_data_unit_id
-                or member.target_metric != self.target_metric
-            ):
-                raise ValueError("selected value profile member receipt is incomplete")
-        elif self.forecast_profile_member is not None:
-            raise ValueError("profile member receipt requires an exact selected profile")
-        if self.target_metric != self.target_metric.strip():
-            raise ValueError("target_metric must not have surrounding whitespace")
-        if self.report_id != self.report_id.strip():
-            raise ValueError("report_id must not have surrounding whitespace")
-        if (self.model_spec_ref is None) != (self.policy_spec_ref is None):
-            raise ValueError("model/policy specification refs must be supplied as a complete pair")
-        if (
-            self.model_spec_ref is not None
-            and self.policy_spec_ref is not None
-            and str(getattr(self.model_spec_ref, "artifact_id", self.model_spec_ref))
-            == str(getattr(self.policy_spec_ref, "artifact_id", self.policy_spec_ref))
-        ):
-            raise ValueError("model/policy specification refs must be distinct artifacts")
-        if self.method_params.horizon != self.split.horizon:
-            raise ValueError("method horizon must match the explicit holdout horizon")
-        seen: set[tuple[str, str]] = set()
-        for item in self.manifest_inputs:
-            role = item.role
-            if not role or role != role.strip():
-                raise ValueError("manifest input role must be a non-empty clean string")
-            key = (str(item.artifact_id), role)
-            if key in seen:
-                raise ValueError("duplicate manifest input role/artifact pair")
-            seen.add(key)
+        _validate_common_forecast_owner_request(self)
         return self
 
 
-class ForecastOwnerResult(BaseModel):
-    """Persisted predictive evidence and recomputed held-out suitability."""
+class _RetrospectiveForecastOwnerRequest(BaseModel):
+    """Private request variant that carries periods without fabricated instants."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    observed_source_ref: DataSnapshotRef
+    value_data_profile_ref: ArtifactRefModel | None = None
+    value_data_unit_id: str | None = None
+    forecast_profile_member: ForecastProfileMemberV1 | None = None
+    split: TrainHoldoutSplit
+    target_metric: str = Field(min_length=1)
+    method_fqn: Literal["forecasting.univariate.exponential_smoothing@1.0.0"] = METHOD_FQN
+    method_params: ForecastMethodParams
+    report_id: str = Field(min_length=1)
+    estimand: Literal["predictive_interval_coverage"] = PREDICTIVE_INTERVAL_COVERAGE
+    calibration_rule: CalibrationRuleBinding
+    retrospective_context: _RetrospectiveForecastContext
+    source_unit_id: str = Field(min_length=1)
+    model_spec_ref: ArtifactRefModel | ArtifactID | None = None
+    policy_spec_ref: ArtifactRefModel | ArtifactID | None = None
+    manifest_inputs: tuple[InputRef, ...] = ()
+    seed: int = 0
+
+    @model_validator(mode="after")
+    def _validate_request(self) -> _RetrospectiveForecastOwnerRequest:
+        _validate_common_forecast_owner_request(self)
+        context = self.retrospective_context
+        if self.source_unit_id != self.source_unit_id.strip():
+            raise ValueError("retrospective source unit ID must be a clean identifier")
+        if self.model_spec_ref is not None or self.policy_spec_ref is not None:
+            raise ValueError("retrospective predictive screening cannot bind a policy action")
+        if str(context.source_vintage_receipt_ref.artifact_id) == str(
+            self.observed_source_ref.artifact_id
+        ):
+            raise ValueError("source-vintage receipt must be distinct from the data snapshot")
+        if (
+            self.value_data_unit_id is not None
+            and self.value_data_unit_id != self.source_unit_id
+        ):
+            raise ValueError("retrospective source unit disagrees with selected value profile")
+        receipt_id = str(context.source_vintage_receipt_ref.artifact_id)
+        for item in self.manifest_inputs:
+            if (
+                str(item.artifact_id) == receipt_id
+                and item.manifest_profile_sha256
+                != context.source_vintage_receipt_ref.manifest_profile_sha256
+            ):
+                raise ValueError("manifest input selects a conflicting source-vintage profile")
+        return self
+
+
+class _ForecastOwnerResultFields(BaseModel):
+    """Common persisted evidence fields shared by private and operational results."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -301,7 +554,6 @@ class ForecastOwnerResult(BaseModel):
     backtest_report_ref: BacktestReportRef
     model_spec_ref: ArtifactRefModel | None = None
     policy_spec_ref: ArtifactRefModel | None = None
-    temporal_roles: ForecastTemporalRoles
 
     @property
     def numerator(self) -> int:
@@ -314,6 +566,18 @@ class ForecastOwnerResult(BaseModel):
         """Return the recomputed empirical coverage denominator."""
 
         return self.coverage_denominator
+
+
+class ForecastOwnerResult(_ForecastOwnerResultFields):
+    """Persisted predictive evidence and recomputed held-out suitability."""
+
+    temporal_roles: ForecastTemporalRoles
+
+
+class _RetrospectiveForecastOwnerResult(_ForecastOwnerResultFields):
+    """Persisted predictive evidence with the selected retrospective periods."""
+
+    retrospective_context: _RetrospectiveForecastContext
 
 
 def _input(ref: object, role: str) -> InputRef:
@@ -350,6 +614,59 @@ def _ref_from_payload(value: object) -> ArtifactRefModel:
     return ArtifactRefModel.model_validate(normalize_artifact_ref(value))
 
 
+def _exact_ref_key(ref: object) -> tuple[str, str, str, str | None]:
+    """Return the artifact identity including its selected manifest profile."""
+
+    normalized = _ref_from_payload(ref)
+    return (
+        str(normalized.artifact_id),
+        normalized.kind,
+        normalized.media_type,
+        normalized.manifest_profile_sha256,
+    )
+
+
+def _require_exact_manifest_edges(
+    manifest: Any,
+    required_inputs: tuple[tuple[ArtifactRefModel, str], ...],
+    *,
+    artifact_label: str,
+) -> None:
+    """Require exact selected-profile manifest edges for a typed artifact role."""
+
+    expected = sorted(
+        (
+            str(selected_ref.artifact_id),
+            role,
+            selected_ref.manifest_profile_sha256,
+        )
+        for selected_ref, role in required_inputs
+    )
+    actual = sorted(
+        (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+        for item in manifest.inputs
+    )
+    if actual != expected:
+        raise ValueError(f"{artifact_label} has non-exact dependency edges")
+
+
+def _forecast_source_rows_sha256(periods: tuple[int, ...], values: object) -> str:
+    """Hash the exact ordered period/value rows selected for retrospective scoring."""
+
+    series = _finite_series(values, field="retrospective selected series")
+    if len(periods) != int(series.size):
+        raise ValueError("retrospective selected periods do not match the value rows")
+    rows = [[period, float(value)] for period, value in zip(periods, series, strict=True)]
+    encoded = json.dumps(
+        rows,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
 def _resolve_json(
     store: ArtifactStore,
     ref: object,
@@ -384,6 +701,40 @@ def _resolve_json(
     if _manifest_for_profile(ir_store, artifact_id, selected_profile) != manifest:
         raise ValueError("selected artifact manifest changed during resolution")
     return exact_ref, get_json_artifact(ir_store, exact_ref)
+
+
+def _resolve_opaque_source_bytes(
+    store: ArtifactStore,
+    ref: object,
+) -> tuple[ArtifactRefModel, bytes]:
+    """Resolve one exact raw-source blob without applying the IR JSON codec."""
+
+    normalized = _ref_from_payload(ref)
+    if normalized.media_type != "application/octet-stream":
+        raise ValueError("raw-source artifact must use the opaque byte media type")
+    if normalized.manifest_profile_sha256 is None:
+        raise ValueError("raw-source artifact selected profile is missing")
+    artifact_id = ArtifactID.model_validate(str(normalized.artifact_id))
+    ir_store = _ensure_ir_artifact_store(store)
+    selected_profile = normalized.manifest_profile_sha256
+    manifest = _manifest_for_profile(ir_store, artifact_id, selected_profile)
+    if (
+        str(manifest.artifact_id) != str(artifact_id)
+        or manifest.kind != normalized.kind
+        or manifest.media_type != normalized.media_type
+        or _manifest_for_profile(ir_store, artifact_id, selected_profile) != manifest
+    ):
+        raise ValueError("raw-source selected manifest does not match its exact reference")
+    exact_ref = ArtifactRefModel.model_validate(
+        {
+            **normalized.model_dump(mode="python"),
+            "manifest_profile_sha256": selected_profile,
+        }
+    )
+    raw_bytes = store.get_bytes(exact_ref)
+    if hashlib.sha256(raw_bytes).hexdigest() != str(artifact_id).removeprefix("sha256:"):
+        raise ValueError("raw-source bytes do not match their content address")
+    return exact_ref, raw_bytes
 
 
 def _resolve_input_ref(store: ArtifactStore, item: InputRef) -> InputRef:
@@ -608,6 +959,7 @@ def _expected_input_pairs(
     policy_spec_ref: ArtifactRefModel | None,
     value_data_profile_ref: ArtifactRefModel | None,
     forecast_profile_member_ref: ArtifactRefModel | None,
+    source_vintage_receipt_ref: ArtifactRefModel | None = None,
 ) -> list[InputRef]:
     required = [
         _input(observed_source_ref, "observed_source"),
@@ -634,6 +986,8 @@ def _expected_input_pairs(
                 _input(forecast_profile_member_ref, "forecast_profile_member"),
             ]
         )
+    if source_vintage_receipt_ref is not None:
+        required.append(_input(source_vintage_receipt_ref, "source_vintage_receipt"))
     return required
 
 
@@ -645,6 +999,39 @@ class ForecastOwner:
 
     def run(self, request: ForecastOwnerRequest) -> ForecastOwnerResult:
         """Execute and persist one fail-closed predictive owner result."""
+
+        result = self._run(request)
+        if not isinstance(result, ForecastOwnerResult):
+            raise RuntimeError("operational forecast owner returned a retrospective result")
+        return result
+
+    def _run_retrospective(
+        self,
+        request: _RetrospectiveForecastOwnerRequest,
+    ) -> _RetrospectiveForecastOwnerResult:
+        """Execute internal predictive screening with periods and no invented instants."""
+
+        result = self._run(request)
+        if not isinstance(result, _RetrospectiveForecastOwnerResult):
+            raise RuntimeError("retrospective forecast owner returned an operational result")
+        return result
+
+    def _run(
+        self,
+        request: ForecastOwnerRequest | _RetrospectiveForecastOwnerRequest,
+    ) -> ForecastOwnerResult | _RetrospectiveForecastOwnerResult:
+        if isinstance(request, ForecastOwnerRequest):
+            retrospective_context = None
+            source_vintage_receipt_ref = None
+            temporal_metadata = {
+                "temporal_roles": request.temporal_roles.model_dump(mode="json")
+            }
+        else:
+            retrospective_context = request.retrospective_context
+            source_vintage_receipt_ref = retrospective_context.source_vintage_receipt_ref
+            temporal_metadata = {
+                "retrospective_context": retrospective_context.model_dump(mode="json")
+            }
 
         model_spec_ref, policy_spec_ref = _resolve_model_policy_pair(
             self._store,
@@ -698,6 +1085,280 @@ class ForecastOwner:
             raise ValueError("explicit train/holdout split exceeds observed source length")
         if request.split.train_end < _MIN_TRAIN_OBSERVATIONS:
             raise ValueError("training slice is too short for empirical ETS calibration")
+        if retrospective_context is not None:
+            resolved_vintage_ref, receipt_payload = _resolve_json(
+                self._store,
+                retrospective_context.source_vintage_receipt_ref,
+                expected_kind=SOURCE_RECEIPT_KIND,
+            )
+            if resolved_vintage_ref != retrospective_context.source_vintage_receipt_ref:
+                raise ValueError("source-vintage receipt did not resolve to its exact selected view")
+            try:
+                source_receipt = _RETROSPECTIVE_SOURCE_RECEIPT_ADAPTER.validate_python(
+                    receipt_payload
+                )
+            except (TypeError, ValueError, ValidationError) as exc:
+                raise ValueError("source-vintage receipt violates its strict versioned schema") from exc
+            receipt_profile = resolved_vintage_ref.manifest_profile_sha256
+            if receipt_profile is None:
+                raise ValueError("source-vintage receipt selected profile is missing")
+            receipt_manifest = _manifest_for_profile(
+                _ensure_ir_artifact_store(self._store),
+                ArtifactID.model_validate(str(resolved_vintage_ref.artifact_id)),
+                receipt_profile,
+            )
+            if receipt_manifest.artifact_schema is None or (
+                receipt_manifest.artifact_schema.name,
+                receipt_manifest.artifact_schema.version,
+            ) != (SOURCE_RECEIPT_SCHEMA, SOURCE_RECEIPT_SCHEMA_VERSION):
+                raise ValueError("source-vintage receipt manifest has the wrong schema")
+            snapshot_profile = observed_source_ref.manifest_profile_sha256
+            if snapshot_profile is None:
+                raise ValueError("observed source snapshot selected profile is missing")
+            snapshot_manifest = _manifest_for_profile(
+                _ensure_ir_artifact_store(self._store),
+                ArtifactID.model_validate(str(observed_source_ref.artifact_id)),
+                snapshot_profile,
+            )
+            _require_exact_manifest_edges(
+                snapshot_manifest,
+                ((observed_data_ref, "physical_data"),),
+                artifact_label="observed source snapshot",
+            )
+            expected_receipt_inputs = [
+                (source_receipt.observed_source_ref, "observed_source"),
+                (source_receipt.physical_data_ref, "physical_data"),
+            ]
+            if isinstance(source_receipt, _PublishedVintageReceipt):
+                expected_receipt_inputs.append(
+                    (source_receipt.source_payload_ref, "source_payload")
+                )
+                expected_receipt_inputs.append(
+                    (source_receipt.source_capture_receipt_ref, "source_capture_receipt")
+                )
+                expected_receipt_inputs.append(
+                    (source_receipt.normalized_records_ref, "normalized_records")
+                )
+                source_payload_ref, payload_bytes = _resolve_opaque_source_bytes(
+                    self._store,
+                    source_receipt.source_payload_ref,
+                )
+                if (
+                    source_payload_ref != source_receipt.source_payload_ref
+                    or hashlib.sha256(payload_bytes).hexdigest()
+                    != source_receipt.source_payload_sha256
+                ):
+                    raise ValueError("published receipt raw-source digest does not match CAS bytes")
+                capture_receipt_ref, capture_receipt_bytes = _resolve_opaque_source_bytes(
+                    self._store,
+                    source_receipt.source_capture_receipt_ref,
+                )
+                if (
+                    capture_receipt_ref != source_receipt.source_capture_receipt_ref
+                    or hashlib.sha256(capture_receipt_bytes).hexdigest()
+                    != source_receipt.source_capture_receipt_sha256
+                ):
+                    raise ValueError(
+                        "published capture-receipt digest does not match CAS bytes"
+                    )
+                normalized_records_ref, normalized_records_payload = _resolve_json(
+                    self._store,
+                    source_receipt.normalized_records_ref,
+                )
+                normalized_records_bytes = self._store.get_bytes(normalized_records_ref)
+                normalized_records_manifest = _manifest_for_profile(
+                    _ensure_ir_artifact_store(self._store),
+                    ArtifactID.model_validate(str(normalized_records_ref.artifact_id)),
+                    normalized_records_ref.manifest_profile_sha256,
+                )
+                _require_exact_manifest_edges(
+                    normalized_records_manifest,
+                    ((source_receipt.source_payload_ref, "raw_source_payload"),),
+                    artifact_label="published normalized records",
+                )
+                normalized_records_schema = normalized_records_manifest.artifact_schema
+                if (
+                    normalized_records_ref != source_receipt.normalized_records_ref
+                    or hashlib.sha256(normalized_records_bytes).hexdigest()
+                    != source_receipt.normalized_records_sha256
+                    or not isinstance(normalized_records_payload, list)
+                    or normalized_records_schema is None
+                    or (
+                        normalized_records_schema.name,
+                        normalized_records_schema.version,
+                    )
+                    != (
+                        source_receipt.normalized_records_schema_id,
+                        source_receipt.normalized_records_schema_version,
+                    )
+                ):
+                    raise ValueError(
+                        "published normalized-record source does not match its receipt"
+                    )
+                selected_periods = source_receipt.calendar_years
+                period_kind = "calendar_year"
+                source_time_metadata = {
+                    "dataset_updated_on": source_receipt.dataset_updated_on.isoformat(),
+                    "retrieved_at": source_receipt.retrieved_at.isoformat(),
+                    "dataset_update_status": "observed",
+                    "retrieval_status": "observed",
+                    "source_adapter_id": source_receipt.source_adapter_id,
+                    "source_adapter_version": source_receipt.source_adapter_version,
+                    "source_adapter_sha256": source_receipt.source_adapter_sha256,
+                    "source_payload_ref": source_receipt.source_payload_ref.model_dump(
+                        mode="json"
+                    ),
+                    "source_payload_sha256": source_receipt.source_payload_sha256,
+                    "source_capture_receipt_ref": (
+                        source_receipt.source_capture_receipt_ref.model_dump(mode="json")
+                    ),
+                    "source_capture_receipt_sha256": (
+                        source_receipt.source_capture_receipt_sha256
+                    ),
+                    "normalized_records_ref": source_receipt.normalized_records_ref.model_dump(
+                        mode="json"
+                    ),
+                    "normalized_records_sha256": source_receipt.normalized_records_sha256,
+                    "normalized_records_schema_id": (
+                        source_receipt.normalized_records_schema_id
+                    ),
+                    "normalized_records_schema_version": (
+                        source_receipt.normalized_records_schema_version
+                    ),
+                }
+            else:
+                expected_receipt_inputs.append((source_receipt.process_spec_ref, "process_spec"))
+                process_spec_ref, process_spec_payload = _resolve_json(
+                    self._store,
+                    source_receipt.process_spec_ref,
+                )
+                process_spec_bytes = self._store.get_bytes(process_spec_ref)
+                process_parameters = (
+                    process_spec_payload.get("parameters")
+                    if isinstance(process_spec_payload, Mapping)
+                    else None
+                )
+                try:
+                    process_parameters_digest = hashlib.sha256(
+                        json.dumps(
+                            process_parameters,
+                            sort_keys=True,
+                            separators=(",", ":"),
+                        ensure_ascii=False,
+                            allow_nan=False,
+                        ).encode("utf-8")
+                    ).hexdigest()
+                except (TypeError, ValueError):
+                    process_parameters_digest = None
+                process_steps = (
+                    process_spec_payload.get("logical_steps")
+                    if isinstance(process_spec_payload, Mapping)
+                    else None
+                )
+                if (
+                    process_spec_ref != source_receipt.process_spec_ref
+                    or hashlib.sha256(process_spec_bytes).hexdigest()
+                    != source_receipt.process_spec_sha256
+                    or not isinstance(process_spec_payload, Mapping)
+                    or process_spec_payload.get("schema_version") != "1.0"
+                    or process_spec_payload.get("generator_id") != source_receipt.generator_id
+                    or process_spec_payload.get("generator_version")
+                    != source_receipt.generator_version
+                    or process_spec_payload.get("generator_sha256")
+                    != source_receipt.generator_sha256
+                    or process_parameters_digest != source_receipt.parameters_sha256
+                    or type(process_spec_payload.get("seed")) is not int
+                    or process_spec_payload.get("seed") != source_receipt.seed
+                    or not isinstance(process_steps, (list, tuple))
+                    or any(type(step) is not int for step in process_steps)
+                    or tuple(process_steps) != source_receipt.logical_steps
+                ):
+                    raise ValueError(
+                        "controlled-process specification does not match its receipt"
+                    )
+                selected_periods = source_receipt.logical_steps
+                period_kind = "controlled_step"
+                source_time_metadata = {
+                    "generated_at": source_receipt.generated_at.isoformat(),
+                    "dataset_update_status": source_receipt.dataset_update_status,
+                    "dataset_update_reason": source_receipt.dataset_update_reason,
+                    "retrieval_status": source_receipt.retrieval_status,
+                    "retrieval_reason": source_receipt.retrieval_reason,
+                }
+            _require_exact_manifest_edges(
+                receipt_manifest,
+                tuple(expected_receipt_inputs),
+                artifact_label="source-vintage receipt",
+            )
+            if observed_data_ref.manifest_profile_sha256 is None:
+                raise ValueError("normalized data selected profile is missing")
+            data_manifest = _manifest_for_profile(
+                _ensure_ir_artifact_store(self._store),
+                ArtifactID.model_validate(str(observed_data_ref.artifact_id)),
+                observed_data_ref.manifest_profile_sha256,
+            )
+            data_schema = data_manifest.artifact_schema
+            if isinstance(source_receipt, _PublishedVintageReceipt):
+                _require_exact_manifest_edges(
+                    data_manifest,
+                    ((source_receipt.normalized_records_ref, "normalized_records"),),
+                    artifact_label="published selected projection",
+                )
+            if data_schema is None or (
+                data_schema.name,
+                data_schema.version,
+            ) != (
+                source_receipt.selected_projection_schema_id,
+                source_receipt.selected_projection_schema_version,
+            ):
+                raise ValueError("source receipt does not match the normalized data schema")
+            raw_periods = observed_payload.get(source_receipt.selected_period_field_id)
+            if not isinstance(raw_periods, (list, tuple)) or any(
+                type(period) is not int for period in raw_periods
+            ):
+                raise ValueError("selected source periods are missing or malformed")
+            if tuple(raw_periods) != selected_periods:
+                raise ValueError("source receipt periods do not match normalized source rows")
+            if (
+                _exact_ref_key(source_receipt.observed_source_ref)
+                != _exact_ref_key(observed_source_ref)
+                or _exact_ref_key(source_receipt.physical_data_ref)
+                != _exact_ref_key(observed_data_ref)
+                or source_receipt.series_id != request.target_metric
+                or source_receipt.unit_id != request.source_unit_id
+                or source_receipt.selected_field_id != request.target_metric
+                or source_receipt.selected_series_shape != (int(values.size),)
+                or source_receipt.selected_series_sha256
+                != forecast_profile_observed_series_sha256(values.tolist())
+                or source_receipt.selected_rows_sha256
+                != _forecast_source_rows_sha256(selected_periods, values.tolist())
+                or len(selected_periods) != int(values.size)
+            ):
+                raise ValueError("source-vintage receipt does not bind the selected rows")
+            temporal_metadata = {
+                "retrospective_context": {
+                    **retrospective_context.model_dump(mode="json"),
+                    "source_kind": source_receipt.source_kind,
+                    "period_kind": period_kind,
+                    "observation_periods": list(selected_periods),
+                    "logical_origin_period": selected_periods[request.split.train_end - 1],
+                    "target_periods": list(
+                        selected_periods[request.split.holdout_start : request.split.holdout_end]
+                    ),
+                    "series_id": source_receipt.series_id,
+                    "unit_id": source_receipt.unit_id,
+                    "selected_field_id": source_receipt.selected_field_id,
+                    "selected_series_shape": list(source_receipt.selected_series_shape),
+                    "selected_series_sha256": source_receipt.selected_series_sha256,
+                    "selected_projection_schema_id": (
+                        source_receipt.selected_projection_schema_id
+                    ),
+                    "selected_projection_schema_version": (
+                        source_receipt.selected_projection_schema_version
+                    ),
+                    **source_time_metadata,
+                }
+            }
 
         calibration_rule_ref, rule_payload = _resolve_json(
             self._store,
@@ -807,7 +1468,7 @@ class ForecastOwner:
                     "estimand": request.estimand,
                     "authority_scope": "predictive_only",
                     "bridge_status": "bridge_pending",
-                    "temporal_roles": request.temporal_roles.model_dump(mode="json"),
+                    **temporal_metadata,
                 },
             }
         )
@@ -844,7 +1505,7 @@ class ForecastOwner:
                     "method_fqn": request.method_fqn,
                     "method_params": request.method_params.model_dump(mode="json"),
                     "values": train.tolist(),
-                    "temporal_roles": request.temporal_roles.model_dump(mode="json"),
+                    **temporal_metadata,
                     "authority_scope": "predictive_only",
                     "profile_join_status": (
                         "joined_candidate"
@@ -878,6 +1539,11 @@ class ForecastOwner:
                             _input(forecast_profile_member_ref, "forecast_profile_member"),
                         ]
                     ),
+                    *(
+                        []
+                        if source_vintage_receipt_ref is None
+                        else [_input(source_vintage_receipt_ref, "source_vintage_receipt")]
+                    ),
                 ],
                 canon_spec=CanonSpec(forbid_floats=False),
                 return_selected_profile=True,
@@ -904,6 +1570,11 @@ class ForecastOwner:
                 _input(calibration_rule_ref, "calibration_rule"),
                 *(
                     []
+                    if source_vintage_receipt_ref is None
+                    else [_input(source_vintage_receipt_ref, "source_vintage_receipt")]
+                ),
+                *(
+                    []
                     if value_data_profile_ref is None
                     else [
                         _input(value_data_profile_ref, "value_data_profile"),
@@ -920,6 +1591,11 @@ class ForecastOwner:
             raise ValueError("persisted uncertainty bundle lost its method binding")
         if persisted_bundle.target_id != request.target_metric:
             raise ValueError("persisted uncertainty bundle lost its target binding")
+        if any(
+            persisted_bundle.metadata.get(key) != value
+            for key, value in temporal_metadata.items()
+        ):
+            raise ValueError("persisted uncertainty bundle lost its temporal context")
         pit_ref = persisted_bundle.coverage_diagnostic.pit_summary_ref
         if pit_ref is None:
             raise ValueError("ETS uncertainty bundle lacks persisted PIT evidence")
@@ -999,7 +1675,7 @@ class ForecastOwner:
             "coverage_numerator": coverage_numerator,
             "coverage_denominator": coverage_denominator,
             "nominal_coverage": nominal_coverage,
-            "temporal_roles": request.temporal_roles.model_dump(mode="json"),
+            **temporal_metadata,
             "profile_join_status": (
                 "joined_candidate" if value_data_profile_ref is not None else "profileless_legacy"
             ),
@@ -1030,6 +1706,11 @@ class ForecastOwner:
                     _input(bundle_ref, "uncertainty_bundle"),
                     *(
                         []
+                        if source_vintage_receipt_ref is None
+                        else [_input(source_vintage_receipt_ref, "source_vintage_receipt")]
+                    ),
+                    *(
+                        []
                         if value_data_profile_ref is None
                         else [
                             _input(value_data_profile_ref, "value_data_profile"),
@@ -1055,6 +1736,7 @@ class ForecastOwner:
             policy_spec_ref=policy_spec_ref,
             value_data_profile_ref=value_data_profile_ref,
             forecast_profile_member_ref=forecast_profile_member_ref,
+            source_vintage_receipt_ref=source_vintage_receipt_ref,
         )
         resolved_manifest_inputs = [
             _resolve_input_ref(self._store, item) for item in request.manifest_inputs
@@ -1091,7 +1773,11 @@ class ForecastOwner:
         }
         plan = HistoricalValidationPlan(
             plan_id=f"{request.report_id}:ets",
-            plan_label="FRC-02 empirical ETS predictive calibration",
+            plan_label=(
+                "FRC-02 empirical ETS predictive calibration"
+                if retrospective_context is None
+                else "FRC-02 retrospective ETS predictive screening"
+            ),
             historical_data_ref=str(observed_data_ref.artifact_id),
             intervention_step=request.split.train_end,
             ground_truth_outcomes={request.target_metric: holdout.tolist()},
@@ -1116,7 +1802,7 @@ class ForecastOwner:
                     }
                 ),
                 "observed_source_ref": observed_source_ref.model_dump(mode="json"),
-                "temporal_roles": request.temporal_roles.model_dump(mode="json"),
+                **temporal_metadata,
                 "profile_join_status": (
                     "joined_candidate"
                     if value_data_profile_ref is not None
@@ -1154,7 +1840,7 @@ class ForecastOwner:
                 ),
                 "calibration_diagnostics_ref": calibration_diagnostics_ref.model_dump(mode="json"),
                 "uncertainty_bundle_ref": uncertainty_bundle_ref.model_dump(mode="json"),
-                "temporal_roles": request.temporal_roles.model_dump(mode="json"),
+                **temporal_metadata,
                 "profile_join_status": (
                     "joined_candidate"
                     if value_data_profile_ref is not None
@@ -1191,6 +1877,11 @@ class ForecastOwner:
             raise ValueError("persisted backtest report lost its model specification binding")
         if persisted_report.policy_spec_ref != expected_policy_id:
             raise ValueError("persisted backtest report lost its policy specification binding")
+        if any(
+            persisted_report.metadata.get(key) != value
+            for key, value in temporal_metadata.items()
+        ):
+            raise ValueError("persisted backtest report lost its temporal context")
         for field_name, expected_id in (
             ("model_spec_ref", expected_model_id),
             ("policy_spec_ref", expected_policy_id),
@@ -1218,6 +1909,12 @@ class ForecastOwner:
                 if forecast_profile_member_ref is None
                 else str(forecast_profile_member_ref.artifact_id),
             ),
+            (
+                "source_vintage_receipt",
+                None
+                if source_vintage_receipt_ref is None
+                else str(source_vintage_receipt_ref.artifact_id),
+            ),
         ):
             actual_edges = [
                 (str(item.artifact_id), item.role, item.manifest_profile_sha256)
@@ -1229,6 +1926,7 @@ class ForecastOwner:
                 "policy_spec": policy_spec_ref,
                 "value_data_profile": value_data_profile_ref,
                 "forecast_profile_member": forecast_profile_member_ref,
+                "source_vintage_receipt": source_vintage_receipt_ref,
             }[role]
             expected_edges = (
                 []
@@ -1260,30 +1958,38 @@ class ForecastOwner:
             else:
                 suitability = "limited"
 
-        return ForecastOwnerResult(
-            report_id=request.report_id,
-            method_fqn=METHOD_FQN,
-            estimand=request.estimand,
-            target_metric=request.target_metric,
-            point_forecast=point_forecast,
-            predictive_intervals=tuple(predictive_intervals),
-            nominal_coverage=nominal_coverage,
-            coverage_numerator=coverage_numerator,
-            coverage_denominator=coverage_denominator,
-            empirical_coverage=empirical_coverage,
-            empirical_suitability=suitability,
-            observed_source_ref=observed_source_ref,
-            value_data_profile_ref=value_data_profile_ref,
-            forecast_profile_member_ref=forecast_profile_member_ref,
-            training_slice_ref=training_slice_ref,
-            method_artifact_ref=method_artifact_ref,
-            calibration_rule_ref=calibration_rule_ref,
-            uncertainty_bundle_ref=uncertainty_bundle_ref,
-            calibration_diagnostics_ref=calibration_diagnostics_ref,
-            backtest_report_ref=report_ref,
-            model_spec_ref=model_spec_ref,
-            policy_spec_ref=policy_spec_ref,
-            temporal_roles=request.temporal_roles,
+        result_fields: dict[str, object] = {
+            "report_id": request.report_id,
+            "method_fqn": METHOD_FQN,
+            "estimand": request.estimand,
+            "target_metric": request.target_metric,
+            "point_forecast": point_forecast,
+            "predictive_intervals": tuple(predictive_intervals),
+            "nominal_coverage": nominal_coverage,
+            "coverage_numerator": coverage_numerator,
+            "coverage_denominator": coverage_denominator,
+            "empirical_coverage": empirical_coverage,
+            "empirical_suitability": suitability,
+            "observed_source_ref": observed_source_ref,
+            "value_data_profile_ref": value_data_profile_ref,
+            "forecast_profile_member_ref": forecast_profile_member_ref,
+            "training_slice_ref": training_slice_ref,
+            "method_artifact_ref": method_artifact_ref,
+            "calibration_rule_ref": calibration_rule_ref,
+            "uncertainty_bundle_ref": uncertainty_bundle_ref,
+            "calibration_diagnostics_ref": calibration_diagnostics_ref,
+            "backtest_report_ref": report_ref,
+            "model_spec_ref": model_spec_ref,
+            "policy_spec_ref": policy_spec_ref,
+        }
+        if isinstance(request, ForecastOwnerRequest):
+            return ForecastOwnerResult(
+                **result_fields,
+                temporal_roles=request.temporal_roles,
+            )
+        return _RetrospectiveForecastOwnerResult(
+            **result_fields,
+            retrospective_context=request.retrospective_context,
         )
 
 

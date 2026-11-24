@@ -8,6 +8,7 @@ effect-confidence interval or an S10 promotion.
 from __future__ import annotations
 
 import hashlib
+import inspect
 import json
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
@@ -41,16 +42,22 @@ from polisyos.core.artifacts.manifest import ArtifactAuthorityInfo, ArtifactRef
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.ir.analytics.backtest import BacktestReport, load_backtest_report
 from polisyos.ir.analytics.forecasting_uncertainty import load_forecasting_uncertainty_bundle
-from polisyos.ir.artifacts import InputRef, get_json_artifact
+from polisyos.ir.artifacts import InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, BacktestReportRef
 from polisyos.runtime.http.dependencies import get_runtime_api_context
 from polisyos.scientist.methods.backtesting.forecast_owner import (
+    SOURCE_RECEIPT_KIND,
+    SOURCE_RECEIPT_SCHEMA,
+    SOURCE_RECEIPT_SCHEMA_VERSION,
     CalibrationRuleBinding,
     ForecastOwner,
     ForecastOwnerRequest,
     ForecastTemporalRoles,
     TrainHoldoutSplit,
+    _ControlledKnownProcessReceipt,
+    _RetrospectiveForecastContext,
+    _RetrospectiveForecastOwnerRequest,
 )
 
 METHOD_FQN = "forecasting.univariate.exponential_smoothing@1.0.0"
@@ -119,6 +126,229 @@ def _source(
         kind=snapshot_ref.kind,
         media_type=snapshot_ref.media_type,
         manifest_profile_sha256=snapshot_ref.manifest_profile_sha256,
+    )
+
+
+_RETROSPECTIVE_DATA_SCHEMA = "test.forecast.normalized_series"
+_RETROSPECTIVE_DATA_SCHEMA_VERSION = "1.0"
+
+
+def _selected_ref(ref: ArtifactRef) -> ArtifactRefModel:
+    return ArtifactRefModel(
+        artifact_id=ref.artifact_id,
+        kind=ref.kind,
+        media_type=ref.media_type,
+        manifest_profile_sha256=ref.manifest_profile_sha256,
+    )
+
+
+def _retrospective_source(
+    store: FileSystemCAS,
+    *,
+    values: list[float],
+    periods: list[int],
+    snapshot_label: str = "accepted",
+    extra_data: dict[str, object] | None = None,
+    schema_name: str = _RETROSPECTIVE_DATA_SCHEMA,
+) -> tuple[DataSnapshotRef, ArtifactRefModel]:
+    assert len(values) == len(periods)
+    payload: dict[str, object] = {"metric": values, "periods": periods}
+    payload.update(extra_data or {})
+    data_ref = _put_json(
+        store,
+        payload,
+        kind="test.forecast.retrospective_normalized_data",
+        schema=SchemaInfo(name=schema_name, version=_RETROSPECTIVE_DATA_SCHEMA_VERSION),
+    )
+    selected_data_ref = _selected_ref(data_ref)
+    return _snapshot_for_data(store, selected_data_ref, label=snapshot_label), selected_data_ref
+
+
+def _snapshot_for_data(
+    store: FileSystemCAS,
+    physical_data_ref: ArtifactRefModel,
+    *,
+    label: str,
+) -> DataSnapshotRef:
+    snapshot = DataSnapshot(
+        data_ref=ArtifactRef.model_validate(physical_data_ref.model_dump(mode="python")),
+        stats={"source": label},
+    )
+    snapshot_ref = ArtifactRefModel.from_selected_write(
+        put_json_artifact(
+            _ensure_ir_artifact_store(store),
+            snapshot.model_dump(mode="json"),
+            kind=DataSnapshot.ARTIFACT_KIND,
+            schema_name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+            schema_version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            inputs=(
+                InputRef(
+                    artifact_id=physical_data_ref.artifact_id,
+                    role="physical_data",
+                    manifest_profile_sha256=physical_data_ref.manifest_profile_sha256,
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+    )
+    return DataSnapshotRef(
+        artifact_id=snapshot_ref.artifact_id,
+        kind=snapshot_ref.kind,
+        media_type=snapshot_ref.media_type,
+        manifest_profile_sha256=snapshot_ref.manifest_profile_sha256,
+    )
+
+
+def _constant_known_process(*, level: float, steps: int) -> list[float]:
+    return [float(level) for _ in range(steps)]
+
+
+def _sha256_json(payload: object) -> str:
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _controlled_receipt(
+    store: FileSystemCAS,
+    *,
+    source_ref: DataSnapshotRef,
+    physical_data_ref: ArtifactRefModel,
+    periods: list[int],
+    values: list[float],
+    receipt_periods: list[int] | None = None,
+    selected_projection_schema_id: str = _RETROSPECTIVE_DATA_SCHEMA,
+) -> ArtifactRefModel:
+    selected_periods = periods if receipt_periods is None else receipt_periods
+    parameters = {"level": 100.0, "steps": len(values)}
+    generator_sha256 = hashlib.sha256(
+        inspect.getsource(_constant_known_process).encode("utf-8")
+    ).hexdigest()
+    parameters_sha256 = _sha256_json(parameters)
+    process_spec = {
+        "schema_version": "1.0",
+        "generator_id": "test.constant_process",
+        "generator_version": "1.0",
+        "generator_sha256": generator_sha256,
+        "parameters": parameters,
+        "parameters_sha256": parameters_sha256,
+        "seed": 20261124,
+        "logical_steps": selected_periods,
+    }
+    process_spec_ref = _put_json(
+        store,
+        process_spec,
+        kind="test.forecast.known_process_spec",
+        schema=SchemaInfo(name="test.forecast.KnownProcessSpec", version="1.0"),
+    )
+    selected_process_spec_ref = _selected_ref(process_spec_ref)
+    process_spec_bytes = store.get_bytes(selected_process_spec_ref)
+    selected_values_hash = _sha256_json([float(value) for value in values])
+    selected_rows_hash = _sha256_json(
+        [[period, float(value)] for period, value in zip(selected_periods, values, strict=True)]
+    )
+    receipt = _ControlledKnownProcessReceipt(
+        schema_version="1.0",
+        observed_source_ref=ArtifactRefModel.model_validate(source_ref.model_dump(mode="python")),
+        physical_data_ref=physical_data_ref,
+        selected_projection_schema_id=selected_projection_schema_id,
+        selected_projection_schema_version=_RETROSPECTIVE_DATA_SCHEMA_VERSION,
+        series_id="metric",
+        unit_id="fixture-index",
+        selected_field_id="metric",
+        selected_period_field_id="periods",
+        selected_series_shape=(len(values),),
+        selected_series_sha256=selected_values_hash,
+        selected_rows_sha256=selected_rows_hash,
+        source_kind="controlled_known_process",
+        process_spec_ref=selected_process_spec_ref,
+        process_spec_sha256=hashlib.sha256(process_spec_bytes).hexdigest(),
+        generator_id="test.constant_process",
+        generator_version="1.0",
+        generator_sha256=generator_sha256,
+        parameters_sha256=parameters_sha256,
+        seed=20261124,
+        logical_steps=tuple(selected_periods),
+        generated_at=datetime(2026, 11, 24, tzinfo=UTC),
+        dataset_update_status="not_applicable",
+        dataset_update_reason="controlled_known_process",
+        retrieval_status="not_applicable",
+        retrieval_reason="controlled_known_process",
+    )
+    receipt_inputs = (
+        InputRef(
+            artifact_id=source_ref.artifact_id,
+            role="observed_source",
+            manifest_profile_sha256=source_ref.manifest_profile_sha256,
+        ),
+        InputRef(
+            artifact_id=physical_data_ref.artifact_id,
+            role="physical_data",
+            manifest_profile_sha256=physical_data_ref.manifest_profile_sha256,
+        ),
+        InputRef(
+            artifact_id=selected_process_spec_ref.artifact_id,
+            role="process_spec",
+            manifest_profile_sha256=selected_process_spec_ref.manifest_profile_sha256,
+        ),
+    )
+    selected_receipt = put_json_artifact(
+        _ensure_ir_artifact_store(store),
+        receipt.model_dump(mode="json"),
+        kind=SOURCE_RECEIPT_KIND,
+        schema_name=SOURCE_RECEIPT_SCHEMA,
+        schema_version=SOURCE_RECEIPT_SCHEMA_VERSION,
+        inputs=receipt_inputs,
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    return ArtifactRefModel.from_selected_write(selected_receipt)
+
+
+def _retrospective_request(
+    source_ref: DataSnapshotRef,
+    receipt_ref: ArtifactRefModel,
+    rule_ref: ArtifactRef,
+    *,
+    report_id: str,
+) -> _RetrospectiveForecastOwnerRequest:
+    return _RetrospectiveForecastOwnerRequest(
+        observed_source_ref=source_ref,
+        split=TrainHoldoutSplit(
+            train_start=0,
+            train_end=16,
+            holdout_start=16,
+            holdout_end=18,
+            horizon=2,
+        ),
+        target_metric="metric",
+        method_fqn=METHOD_FQN,
+        method_params={"horizon": 2, "alpha": 0.3, "beta": 0.1},
+        report_id=report_id,
+        estimand=ESTIMAND,
+        calibration_rule=CalibrationRuleBinding(
+            rule_id=RULE_ID,
+            artifact_ref={
+                "artifact_id": str(rule_ref.artifact_id),
+                "kind": rule_ref.kind,
+                "media_type": rule_ref.media_type,
+                "manifest_profile_sha256": rule_ref.manifest_profile_sha256,
+            },
+        ),
+        retrospective_context=_RetrospectiveForecastContext(
+            source_vintage_receipt_ref=receipt_ref,
+            policy_effective_time_status="not_applicable",
+            policy_effective_time_reason=(
+                "no_policy_action_in_retrospective_predictive_screening"
+            ),
+        ),
+        source_unit_id="fixture-index",
     )
 
 
@@ -210,6 +440,8 @@ def test_real_ets_owner_persists_content_bound_predictive_evidence(tmp_path: Pat
     assert result.estimand == ESTIMAND
     assert result.authority_scope == "predictive_only"
     assert result.bridge_status == "bridge_pending"
+    assert "temporal_roles" in result.model_dump(mode="json")
+    assert "retrospective_context" not in result.model_dump(mode="json")
     assert result.denominator == 4
     assert 0.0 <= result.empirical_coverage <= 1.0
     assert result.nominal_coverage == pytest.approx(0.90)
@@ -295,6 +527,388 @@ def test_real_ets_owner_persists_content_bound_predictive_evidence(tmp_path: Pat
     assert report.trust_eligible is False
     assert report.trust_score is None
     assert "trust_screening:predictive_only_bridge_pending" in report.degraded_reasons
+
+
+def test_retrospective_owner_persists_typed_source_receipt_and_known_process(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    values = _constant_known_process(level=100.0, steps=18)
+    periods = list(range(2000, 2018))
+    source_ref, physical_data_ref = _retrospective_source(
+        store,
+        values=values,
+        periods=periods,
+    )
+    receipt_ref = _controlled_receipt(
+        store,
+        source_ref=source_ref,
+        physical_data_ref=physical_data_ref,
+        periods=periods,
+        values=values,
+    )
+    rule_ref = _rule(store)
+    request = _retrospective_request(
+        source_ref,
+        receipt_ref,
+        rule_ref,
+        report_id="frc-owner-retrospective-known-process",
+    )
+
+    result = ForecastOwner(store)._run_retrospective(request)
+
+    assert result.point_forecast == pytest.approx((100.0, 100.0))
+    assert result.denominator == 2
+    assert result.numerator == 2
+    assert result.empirical_coverage == 1.0
+    assert result.authority_scope == "predictive_only"
+    assert result.bridge_status == "bridge_pending"
+    assert result.retrospective_context == request.retrospective_context
+    assert "temporal_roles" not in result.model_dump(mode="json")
+    assert ForecastOwnerRequest.model_fields["temporal_roles"].is_required()
+    assert "retrospective_context" not in ForecastOwnerRequest.model_fields
+
+    fresh_store = FileSystemCAS(tmp_path / "cas")
+    ir_store = _ensure_ir_artifact_store(fresh_store)
+    receipt = _ControlledKnownProcessReceipt.model_validate(
+        get_json_artifact(ir_store, receipt_ref)
+    )
+    assert receipt.observed_source_ref == ArtifactRefModel.model_validate(
+        source_ref.model_dump(mode="python")
+    )
+    assert receipt.physical_data_ref == physical_data_ref
+    assert receipt.logical_steps == tuple(periods)
+    assert receipt.selected_series_shape == (18,)
+    assert receipt.selected_rows_sha256 == _sha256_json(
+        [[period, value] for period, value in zip(periods, values, strict=True)]
+    )
+
+    persisted_training = get_json_artifact(ir_store, result.training_slice_ref)
+    persisted_context = persisted_training["retrospective_context"]
+    assert persisted_context["source_vintage_receipt_ref"] == receipt_ref.model_dump(
+        mode="json"
+    )
+    assert persisted_context["observation_periods"] == periods
+    assert persisted_context["logical_origin_period"] == periods[15]
+    assert persisted_context["target_periods"] == periods[16:18]
+    assert persisted_context["policy_effective_time_status"] == "not_applicable"
+    assert "temporal_roles" not in persisted_training
+    training_manifest = fresh_store.get_manifest_by_profile(
+        result.training_slice_ref.artifact_id,
+        result.training_slice_ref.manifest_profile_sha256,
+    )
+    receipt_edges = [
+        item for item in training_manifest.inputs if item.role == "source_vintage_receipt"
+    ]
+    assert [
+        (str(item.artifact_id), item.manifest_profile_sha256)
+        for item in receipt_edges
+    ] == [(str(receipt_ref.artifact_id), receipt_ref.manifest_profile_sha256)]
+
+    bundle = load_forecasting_uncertainty_bundle(ir_store, result.uncertainty_bundle_ref)
+    assert bundle.metadata["retrospective_context"] == persisted_context
+    diagnostics = get_json_artifact(ir_store, result.calibration_diagnostics_ref)
+    assert diagnostics["metadata"]["retrospective_context"] == persisted_context
+    assert "temporal_roles" not in diagnostics["metadata"]
+    report = load_backtest_report(ir_store, result.backtest_report_ref)
+    assert report.metadata["retrospective_context"] == persisted_context
+    assert "temporal_roles" not in report.metadata
+    assert report.trust_eligible is False
+    assert report.trust_score is None
+    assert report.metadata["authority_scope"] == "predictive_only"
+    assert report.metadata["bridge_status"] == "bridge_pending"
+
+    for ref in (
+        result.uncertainty_bundle_ref,
+        result.calibration_diagnostics_ref,
+        result.backtest_report_ref,
+    ):
+        manifest = fresh_store.get_manifest_by_profile(
+            ref.artifact_id,
+            ref.manifest_profile_sha256,
+        )
+        matching_edges = [
+            item for item in manifest.inputs if item.role == "source_vintage_receipt"
+        ]
+        assert [
+            (str(item.artifact_id), item.manifest_profile_sha256)
+            for item in matching_edges
+        ] == [(str(receipt_ref.artifact_id), receipt_ref.manifest_profile_sha256)]
+
+
+def test_retrospective_owner_rejects_same_bytes_under_foreign_snapshot(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    values = _constant_known_process(level=100.0, steps=18)
+    periods = list(range(2000, 2018))
+    source_ref, physical_data_ref = _retrospective_source(
+        store,
+        values=values,
+        periods=periods,
+        snapshot_label="original-source",
+    )
+    foreign_source_ref = _snapshot_for_data(
+        store,
+        physical_data_ref,
+        label="foreign-source-same-data",
+    )
+    assert foreign_source_ref != source_ref
+    receipt_ref = _controlled_receipt(
+        store,
+        source_ref=source_ref,
+        physical_data_ref=physical_data_ref,
+        periods=periods,
+        values=values,
+    )
+
+    request = _retrospective_request(
+        foreign_source_ref,
+        receipt_ref,
+        _rule(store),
+        report_id="frc-owner-retrospective-foreign-source",
+    )
+    with pytest.raises(ValueError, match="does not bind the selected rows"):
+        ForecastOwner(store)._run_retrospective(request)
+
+
+def test_retrospective_owner_rejects_same_bytes_with_wrong_snapshot_input_profile(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    values = _constant_known_process(level=100.0, steps=18)
+    periods = list(range(2000, 2018))
+    source_ref, physical_data_ref = _retrospective_source(
+        store,
+        values=values,
+        periods=periods,
+    )
+    receipt_ref = _controlled_receipt(
+        store,
+        source_ref=source_ref,
+        physical_data_ref=physical_data_ref,
+        periods=periods,
+        values=values,
+    )
+
+    same_bytes_wrong_profile = _selected_ref(
+        store.put_bytes(
+            store.get_bytes(physical_data_ref),
+            PutOptions(
+                kind=physical_data_ref.kind,
+                media_type=physical_data_ref.media_type,
+                schema=SchemaInfo(name="test.forecast.same_bytes_wrong_view", version="1.0"),
+            ),
+            return_selected_profile=True,
+        )
+    )
+    assert same_bytes_wrong_profile.artifact_id == physical_data_ref.artifact_id
+    assert (
+        same_bytes_wrong_profile.manifest_profile_sha256
+        != physical_data_ref.manifest_profile_sha256
+    )
+
+    ir_store = _ensure_ir_artifact_store(store)
+    snapshot_payload = get_json_artifact(ir_store, source_ref)
+    wrong_snapshot_ref = ArtifactRefModel.from_selected_write(
+        put_json_artifact(
+            ir_store,
+            snapshot_payload,
+            kind=DataSnapshot.ARTIFACT_KIND,
+            schema_name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+            schema_version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            inputs=(
+                InputRef(
+                    artifact_id=same_bytes_wrong_profile.artifact_id,
+                    role="physical_data",
+                    manifest_profile_sha256=(
+                        same_bytes_wrong_profile.manifest_profile_sha256
+                    ),
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+    )
+    wrong_snapshot = DataSnapshotRef.model_validate(wrong_snapshot_ref.model_dump(mode="python"))
+    assert wrong_snapshot.artifact_id == source_ref.artifact_id
+    assert wrong_snapshot.manifest_profile_sha256 != source_ref.manifest_profile_sha256
+
+    rule_ref = _rule(store)
+    artifact_blobs = tmp_path / "cas" / "artifacts"
+    blobs_before = len(list(artifact_blobs.rglob("*.blob")))
+    with pytest.raises(
+        ValueError,
+        match="observed source snapshot has non-exact dependency edges",
+    ):
+        ForecastOwner(store)._run_retrospective(
+            _retrospective_request(
+                wrong_snapshot,
+                receipt_ref,
+                rule_ref,
+                report_id="frc-owner-retrospective-wrong-snapshot-input-profile",
+            )
+        )
+    assert len(list(artifact_blobs.rglob("*.blob"))) == blobs_before
+
+
+def test_retrospective_owner_rejects_wrong_physical_data_and_periods(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    values = _constant_known_process(level=100.0, steps=18)
+    periods = list(range(2000, 2018))
+    source_ref, physical_data_ref = _retrospective_source(
+        store,
+        values=values,
+        periods=periods,
+    )
+    wrong_source_ref, wrong_data_ref = _retrospective_source(
+        store,
+        values=values,
+        periods=periods,
+        snapshot_label="wrong-selected-data",
+        extra_data={"unselected": "different-content"},
+    )
+    wrong_data_receipt = _controlled_receipt(
+        store,
+        source_ref=wrong_source_ref,
+        physical_data_ref=physical_data_ref,
+        periods=periods,
+        values=values,
+    )
+    assert wrong_data_ref != physical_data_ref
+    with pytest.raises(ValueError, match="does not bind the selected rows"):
+        ForecastOwner(store)._run_retrospective(
+            _retrospective_request(
+                wrong_source_ref,
+                wrong_data_receipt,
+                _rule(store),
+                report_id="frc-owner-retrospective-wrong-data",
+            )
+        )
+
+    periods_receipt = _controlled_receipt(
+        store,
+        source_ref=source_ref,
+        physical_data_ref=physical_data_ref,
+        periods=periods,
+        values=values,
+        receipt_periods=list(range(2100, 2118)),
+    )
+    with pytest.raises(ValueError, match="periods do not match normalized source rows"):
+        ForecastOwner(store)._run_retrospective(
+            _retrospective_request(
+                source_ref,
+                periods_receipt,
+                _rule(store),
+                report_id="frc-owner-retrospective-wrong-periods",
+            )
+        )
+
+
+def test_retrospective_owner_rejects_schema_not_bound_by_source_receipt(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    values = _constant_known_process(level=100.0, steps=18)
+    periods = list(range(2000, 2018))
+    source_ref, physical_data_ref = _retrospective_source(
+        store,
+        values=values,
+        periods=periods,
+        schema_name="test.forecast.unrelated_schema",
+    )
+    receipt_ref = _controlled_receipt(
+        store,
+        source_ref=source_ref,
+        physical_data_ref=physical_data_ref,
+        periods=periods,
+        values=values,
+        selected_projection_schema_id=_RETROSPECTIVE_DATA_SCHEMA,
+    )
+
+    with pytest.raises(ValueError, match="does not match the normalized data schema"):
+        ForecastOwner(store)._run_retrospective(
+            _retrospective_request(
+                source_ref,
+                receipt_ref,
+                _rule(store),
+                report_id="frc-owner-retrospective-wrong-schema",
+            )
+        )
+
+
+def test_retrospective_owner_rejects_receipt_with_undeclared_dependency(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    values = _constant_known_process(level=100.0, steps=18)
+    periods = list(range(2000, 2018))
+    source_ref, physical_data_ref = _retrospective_source(
+        store,
+        values=values,
+        periods=periods,
+    )
+    valid_receipt_ref = _controlled_receipt(
+        store,
+        source_ref=source_ref,
+        physical_data_ref=physical_data_ref,
+        periods=periods,
+        values=values,
+    )
+    ir_store = _ensure_ir_artifact_store(store)
+    valid_receipt = _ControlledKnownProcessReceipt.model_validate(
+        get_json_artifact(ir_store, valid_receipt_ref)
+    )
+    extra_ref = _selected_ref(
+        _put_json(store, {"unused": "unbound"}, kind="test.unexpected_dependency")
+    )
+    wrong_receipt_ref = ArtifactRefModel.from_selected_write(
+        put_json_artifact(
+            ir_store,
+            valid_receipt.model_dump(mode="json"),
+            kind=SOURCE_RECEIPT_KIND,
+            schema_name=SOURCE_RECEIPT_SCHEMA,
+            schema_version=SOURCE_RECEIPT_SCHEMA_VERSION,
+            inputs=(
+                InputRef(
+                    artifact_id=source_ref.artifact_id,
+                    role="observed_source",
+                    manifest_profile_sha256=source_ref.manifest_profile_sha256,
+                ),
+                InputRef(
+                    artifact_id=physical_data_ref.artifact_id,
+                    role="physical_data",
+                    manifest_profile_sha256=physical_data_ref.manifest_profile_sha256,
+                ),
+                InputRef(
+                    artifact_id=valid_receipt.process_spec_ref.artifact_id,
+                    role="process_spec",
+                    manifest_profile_sha256=(
+                        valid_receipt.process_spec_ref.manifest_profile_sha256
+                    ),
+                ),
+                InputRef(
+                    artifact_id=extra_ref.artifact_id,
+                    role="unexpected",
+                    manifest_profile_sha256=extra_ref.manifest_profile_sha256,
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+    )
+
+    with pytest.raises(ValueError, match="non-exact dependency edges"):
+        ForecastOwner(store)._run_retrospective(
+            _retrospective_request(
+                source_ref,
+                wrong_receipt_ref,
+                _rule(store),
+                report_id="frc-owner-retrospective-extra-edge",
+            )
+        )
 
 
 def test_real_ets_owner_persists_cas_bound_pair_in_report_metadata_and_manifest(

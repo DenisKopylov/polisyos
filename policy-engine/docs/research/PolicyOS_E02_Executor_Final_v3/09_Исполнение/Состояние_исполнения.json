@@ -20678,6 +20678,13 @@
           "source_receipt_sha256": "ac5c57069105a070ebf302d00754a4fedc32169325f9398adf867bbe3cb915d0",
           "verified_boundary": "Actual guarded empty custody SQL read with stock source, effect, timing and decision observer contexts all active in distinct slots. Exact cleanup and zero application/authority/queue/provider/N5 effects. Probe joins PASS with stable archives. One distinct warm case is active on exact paid B and awaits the selected numerical witness."
         },
+        "native_n5_own_current_handoff_reuse_component": {
+          "source_commit": "05ed9909f2534ab2f2098f7f99976421cf860fe6",
+          "output": "Primary:policy-engine/_cache/e02/native-n5-current-handoff.nkdCWGA2/junit.xml",
+          "sha256": "8444fc9f08f19b2c0f33ae702c3f5fef23ca26cc7a63bbda5deece38e842f533",
+          "guard_sha256": "4d308bff62de01cdb57a9b45d547c9b5443c5c24f0065fcaf7557b634d7e526c",
+          "verified_boundary": "One focused test passes with pinned working source, 24.327 seconds, RSS 1392410624 B. Same bound controller, problem and handoff prepare identical selected input with one fewer manifest reopen; withdrawn proof and foreign controller refuse. Subsequent separate live checks remain. R9 runs its original source; no new elapsed-time claim."
+        },
         "native_r8_warm_instrumentation_stop": {
           "source_commit": "cba5b63849672c7e29adcc5724a76bd1f670a485",
           "output": "Primary:policy-engine/_cache/e02/native-r8-controlled-20261124/one-paid-b-action/execution-result.json",
@@ -20900,7 +20907,7 @@
           "seed_guard_sha256": "7fd63c1d687b0f8d7393e4dfaef2461489c6e79a77d98f00d78c48da5e50c7f5",
           "start_guard_sha256": "5b31779c62519f50df6bc9da450e2493112819512d6b54e97b7a1dc37c56e588",
           "resume_guard_sha256": "f2ef35fb0f0cf4d37546079776aaf7eb5c875c37f888bfe2be926558a8817aef",
-          "verified_boundary": "A settles one standard unit. Paid B deliberately exits after stock directory fsync and before physical entry (76). On genuine expiry the same job acquires attempt 2, proves the unchanged original window and persists its context before a Native-only readiness guard refuses ordinary work. Exact ledger stays revision 31, no B reserve, supplier work or N5 in attempt 2, protected available. Terminal failed job requires fresh same-subject authorization with the exact no-work evidence."
+          "verified_boundary": "A settles one standard unit. Paid B deliberately exits after stock directory fsync and before physical entry (76). On genuine expiry the same job acquires attempt 2, proves the unchanged original window and persists its context before a Native-only readiness guard refuses ordinary work. Exact ledger stays revision 31, no B reserve, supplier work or N5 in attempt 2, protected available. A's complete 2933-file production image includes the affected owners, so the past selected basis must remain pinned. A new bounded A and both B phases use the same exact corrected source."
         },
         "acq01_04_same_offer_actual_recovered_fresh_r3_wire": {
           "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
@@ -20910,7 +20917,17 @@
           "body_sha256": "c0f8d649eea3780826f43d24624fe520f90779892cc57bbde84a38239304ebcb",
           "guard_sha256": "a347f0c807ec1c879b4f4d295add01a1edc5c4997379bfc8675729505fcafb40",
           "component_junit_sha256": "23d075edd8b9547b375e8dd404afa09b4fe88477fdfca4c42aac66329c6bb1fe",
-          "verified_boundary": "Signed HTTP 200 ordinary history.v2, two verified rows and no limitation. B is reentry_completed with exact execution and result, two trajectories at 29548012454912 and original F0 preserved. SQL independently selects revision 1. Only three private GET audit entries are new; SQL, original CAS and provider journals match. Raw guard COMMAND_FAIL 49.264 seconds on the incorrect V5 wrapper oracle. Twenty-two focused history checks pass. Exact attempt-event withdrawal remains pending."
+          "verified_boundary": "Signed HTTP 200 ordinary history.v2, two verified rows and no limitation. B is reentry_completed with exact execution and result, two trajectories at 29548012454912 and original F0 preserved. SQL independently selects revision 1. Only three private GET audit entries are new; SQL, original CAS and provider journals match. Raw guard COMMAND_FAIL 49.264 seconds on the incorrect V5 wrapper oracle. Twenty-two focused history checks pass."
+        },
+        "acq01_04_same_offer_fresh_attempt_event_withdrawal": {
+          "source_commit": "05ed9909f2534ab2f2098f7f99976421cf860fe6",
+          "source_tree": "04b5ec924b67084981eb07d72180bde790f9641d",
+          "output": "Isolated ACQ owner checkout:policy-engine/_cache/e02/acq01-04-ordinary-same-offer-cold-r3-Z4950JkO/fresh-wire.json",
+          "sha256": "256fd0f6fc94ba577d446f6dcad7e5e149966ef77b75b4db45b6704abbf02f9b",
+          "body_sha256": "fba70cff41293fa2c9823b8df750490832c5ed8c513acf0c7d3029e2828a4cb5",
+          "reason_sha256": "bfc027d1802c6ad97fe9858cd3cc045851f1668c0687a89a140bee72d56956ad",
+          "guard_sha256": "a093552ede505190acfffa66ddf22cc1c4574842290b5dc0cf9e3df3c9ca581a",
+          "verified_boundary": "One signed fresh HTTP 200 after removing only private job_running event 10 for attempt 2. Both original F0 numerical trajectories remain visible at 250000000000 and B history is withheld with the typed integrity limitation despite retained SQL F1. All 21 SQL tables differ by that one row only, CAS by the three GET audit entries only. Original hashes and provider journals match and no work is entered. Raw COMMAND_FAIL in 51.001 seconds is the wrapper's private byte comparison across its own deletion checkpoint."
         },
         "ordinary_signed_acquisition_routes_published": {
           "source_commit": "579e3e96e75a4734da3cc1aab815384ff5bb25f1",
@@ -20952,6 +20969,22 @@
           "wire_sha256": "fd8d3460cf53b8cbc0c883a8ae4a1e6cc072de39ab53df3d0d82d2d7415fdc86",
           "guard_sha256": "9ec1336e4546e91d1f82a4b692321dd1d0a32d9dd65603d2a191287078e0f06b",
           "verified_boundary": "Canonical saved N5 profile and exact tenant-owned verifier bootstrap pass. One signed GET returns HTTP 400 candidate_experiment_terminal_action_owner_not_composed, requests no provider, worker or N5, and preserves original SQL/CAS/pinned source. Joined COMMAND_FAIL 46.222 seconds, RSS 1394212864 B. Correct cold app composition and reuse the numerical result."
+        },
+        "acq01_05_cpi_fresh_original_window_resource_r7": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "output": "CPI checkout:policy-engine/_cache/e02/cpi-fresh-reader-r4-cow/receipts/fresh-get-r7/receipt.json",
+          "sha256": "3a1f39c1fe02fa184200d3fddb70b07ae9a34dfc124ea1014a13dd7aaf2a58a5",
+          "wire_sha256": "cb2f9f9ca1755c7151f5cfd59752b919b5040205b7281b3d9cf7c86e97d888e1",
+          "guard_sha256": "84a670ff6eda3de482e79b330e9031f1436c21baef8d7bc85ed31815dc9b0c75",
+          "verified_boundary": "Exact internal control job and tenant payload verified, maintained candidate action owner composed, ambient scope reset at signed GET. HTTP 400 reentry_budget_window_conflict because identical COW ledger bytes have a different directory/lock identity from the original saved resource. One GET and zero worker, N5 or provider; originals unchanged. Joined COMMAND_FAIL in 33.926 seconds. Reopen exact original ledger read-only before claiming a numerical consumer result."
+        },
+        "acq01_05_cpi_fresh_selected_result_r8": {
+          "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
+          "output": "CPI checkout:policy-engine/_cache/e02/cpi-fresh-reader-r5-cow/receipts/fresh-get-r8/receipt.json",
+          "sha256": "13ba5c72595dc00b229f89dc703601c93a6f052f77b9764fb5b4bd5a608c1b22",
+          "wire_sha256": "77fb5fb05a7cfc62fc099234fca5fdb60b77ea78c7258f4401886375e799e34e",
+          "guard_sha256": "71779d2385ce0ac3f6d6b04125042ceb60a53bb25beb73a22009df4a5be4723d",
+          "verified_boundary": "One fresh signed HTTP 200 selects V5 frontier 1 and exact nested N4, N5 input, execution and result. Both trajectories yield 456.5909729003906 with effect -0.5. No provider/worker/N5 and original SQL/CAS/physical budget owner unchanged. Raw COMMAND_FAIL in 54.516 seconds from top-level historical N4 oracle. The archived reader separately limits effective current candidate run due to its older run-ID comparison; reconcile with the published reader before full closure."
         },
         "acq01_05_cpi_selected_f1_outer_replication_oracle_stop": {
           "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
@@ -20997,6 +21030,20 @@
           "sha256": "29c59ea46a5c1fb6a0f4e73f58d68f9b859433d6a8f7742f16c760892e311cf6",
           "guard_sha256": "5b518d0e50fa89258abea863d07c80dc6f8404d71a96f197fe93ed7b505f4b00",
           "verified_boundary": "Six focused cases pass in 25.734 seconds on pinned working source. A typed no-trajectory blocked result requires its exact work input and resource-bound quota window. The bounded open/reserve/complete suffix reconstruction distinguishes a previously pending same-content operation. Actual sealed B replay and terminal custody remain pending."
+        },
+        "cyc0304_blocked_candidate_custody_component_r2": {
+          "source_commit": "b3f1b8fc075d5bde56c0035c2873e27c39de6235",
+          "output": "Primary:policy-engine/_cache/e02/cyc0304-custody-component-r2.1KjKaRsF/junit.xml",
+          "sha256": "a439eb88074a07b242410fb70531cab92eee212d68e803fc3288c24801033551",
+          "guard_sha256": "b153adf9d839eee48d1e5db1d071ce0d6c9e69360afb66ec3096a113922e4611",
+          "verified_boundary": "Twenty-three SQL and request-boundary checks pass on eight verified working source pins. Joined PASS 115.553 seconds at RSS 1736818688 B. This is the initial blocked custody slice. Historical tail rollover and selected fresh reader require the subsequent semantic changes and real saved B replay."
+        },
+        "cyc0304_rollover_owner_and_reader_component_r3": {
+          "source_commit": "05ed9909f2534ab2f2098f7f99976421cf860fe6",
+          "output": "Primary:policy-engine/_cache/e02/cyc0304-quota-history-r3.jZm2ojPb/junit.xml",
+          "sha256": "a33ad4e7b72ef89453625887d07e2271b7382cfce88d5ba35168954b0d6e56be",
+          "guard_sha256": "e1191114accd5ed95103aa84f920e3ea08d33750e726fb02b413cb24dcfdb831",
+          "verified_boundary": "Thirteen scoped cases pass on 13 pinned working paths. Joined PASS 188.915 seconds, RSS 1494810624 B. Selected typed quota evidence preserves the blocked occurrence after 33 newer mutations. Missing proof, substituted rows, stale frontier and SQL rollback refuse. Earlier verified history is preserved without current fallback. Actual retained B custody and independent fresh API remain pending."
         },
         "cyc0304_retained_a_b_exact_second_operation_exhausted": {
           "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
@@ -37567,14 +37614,15 @@
             "generic_served_sequence_r4_retained",
             "lane01_r33_composed_historical_reader",
             "acq01_04_same_offer_actual_recovered_fresh_r3_wire",
-            "acq01_04_bounded_ordinary_marker_and_failed_second_attempt"
+            "acq01_04_bounded_ordinary_marker_and_failed_second_attempt",
+            "acq01_04_same_offer_fresh_attempt_event_withdrawal"
           ],
           "basis": "Actual R13 selects B during A's N5, retains A as diagnostics and reopens precise selection through fresh GET with a removal control. A separate same-offer worker takes a genuinely expired lease and selects the already durable B with zero extra N5 or provider requests. A fresh ordinary API returns exact B and the preceding row. The distinct bounded ordinary case proves the durable start marker and unchanged quota through actual attempt 2, which stops at the older Native-only check.",
           "remaining_kinds": [
             "bridge_missing",
             "verification_missing"
           ],
-          "remaining": "Withdraw the exact renewed running event in the post-result reader control. Provide scoped same-subject failed-job continuation from the confirmed ordinary no-work window, then prove exactly one new N5 and fresh selected API result with protected quota preserved. Ordinary unmetered replay refuses when no settled result proves the boundary."
+          "remaining": "Exercise the confirmed ordinary no-work window and genuine lease expiry on one corrected production image, then prove exactly one new N5 and fresh selected API result with protected quota preserved. The old full production image stays pinned; ordinary unmetered replay refuses when no settled result proves the boundary."
         },
         {
           "requirement_id": "REQ-ACQ-01-05",
@@ -37595,13 +37643,14 @@
             "acq01_05_retained_cpi_r9_raw_cas_audit",
             "p06_transport_served_reconciliation",
             "gdp_producer_fresh_read_reconciliation",
-            "candidate_source_metric_separation_current"
+            "candidate_source_metric_separation_current",
+            "acq01_05_cpi_fresh_selected_result_r8"
           ],
-          "basis": "Transport and stock GDP confirm concrete results under existing owners. CPI uses the generic metadata-selected one-row WDI profile with a configured candidate path, actual changed numerical result, fresh read and separate wrong-indicator Catalog refusal.",
+          "basis": "The current controlled one-row CPI producer and fresh signed stock V5 return the exact selected changed CPI result at frontier 1, with raw, source metadata and N4/N5 identity matched. Pre-N5 controls independently reject incompatible scope and unsupported aggregation. The archived reader still limits the separate current effective candidate front.",
           "remaining_kinds": [
             "verification_missing"
           ],
-          "remaining": "Qualify the changed-query/source-basis controls and preparation on a supported second-resource profile. CPI R10 exact original writer input was not found in the inspected location. One-row GDP provides a retained alternative. Multi-row consumption needs explicit units, time, population and aggregation evidence when supported."
+          "remaining": "Close the exact current-front reader on the published same-owner comparison and reconcile preparation counts, the accepted scalar source and independent metadata/unsupported multirow controls on the actual CPI case."
         },
         {
           "requirement_id": "REQ-ACQ-01-06",
@@ -37777,7 +37826,9 @@
             "lane01_r33_composed_historical_reader",
             "r33_independent_fresh_reader_r6",
             "cyc0304_retained_b_partial_reentry_terminal_verifier_stop",
-            "cyc0304_common_blocked_quota_proof_component"
+            "cyc0304_common_blocked_quota_proof_component",
+            "cyc0304_blocked_candidate_custody_component_r2",
+            "cyc0304_rollover_owner_and_reader_component_r3"
           ],
           "basis": "Real same-candidate A and B now exist. A retains two historical standard units. B completes exactly one standard unit, refuses the second on the original quota and persists a typed partial result and reentry. The protected unit remains available.",
           "remaining_kinds": [

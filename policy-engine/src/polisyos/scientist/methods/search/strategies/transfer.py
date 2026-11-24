@@ -10,10 +10,12 @@ import json
 import logging
 import math
 from collections import OrderedDict
+from dataclasses import replace
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 
+from polisyos.common.timestamps import ensure_utc, parse_iso_datetime
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.scientist.methods.search.objective import (
@@ -289,6 +291,8 @@ class TransferLearningManager:
     @staticmethod
     def _serialize_evaluation(evaluation: Evaluation) -> dict[str, Any]:
         """Persist the typed evaluation fields needed for faithful rehydration."""
+        if evaluation.timestamp is None:
+            raise ValueError("transfer history requires an evidence timestamp")
         return {
             "history_schema_version": "5",
             "candidate_id": evaluation.candidate_id,
@@ -321,7 +325,7 @@ class TransferLearningManager:
             "stage_a_passed": evaluation.stage_a_passed,
             "stage_b_result": evaluation.stage_b_result,
             "status": evaluation.status.value,
-            "timestamp": evaluation.timestamp.isoformat(),
+            "timestamp": ensure_utc(evaluation.timestamp).isoformat(),
             "wall_time_seconds": evaluation.wall_time_seconds,
             "provenance_ref": evaluation.provenance_ref,
             "metadata": dict(evaluation.metadata),
@@ -556,8 +560,15 @@ class TransferLearningManager:
         metadata.setdefault("source_run_id", run_id)
         metadata.setdefault("source_candidate_id", candidate_id)
         provenance_ref = row.get("provenance_ref")
+        raw_timestamp = row.get("timestamp")
+        timestamp = parse_iso_datetime(raw_timestamp)
 
         try:
+            if raw_timestamp is not None and timestamp is None:
+                raise ValueError("transfer history timestamp must be timezone-aware ISO-8601")
+            stage_a_passed = row.get("stage_a_passed")
+            if type(stage_a_passed) is not bool:
+                raise TypeError("stage_a_passed must be a boolean")
             params = row.get("params", {})
             if not isinstance(params, dict):
                 raise TypeError("params must be an object")
@@ -610,6 +621,17 @@ class TransferLearningManager:
                     "selected_objective_rule_not_reconciled"
                 )
                 metadata["transfer_score_assessment"] = "selected_objective_rule_not_reconciled"
+            if timestamp is None:
+                metadata["transfer_timestamp_status"] = "historical_time_unknown"
+                assessment = _unestablished_score_assessment("historical_time_unknown")
+                objectives = [
+                    replace(
+                        item,
+                        score_status=ObjectiveScoreStatus.NOT_ESTABLISHED,
+                        score_assessment=assessment,
+                    )
+                    for item in objectives
+                ]
             score_status = (
                 assessment.status
                 if assessment is not None
@@ -626,9 +648,10 @@ class TransferLearningManager:
                 params_normalized=tuple(normalized),
                 objectives=objectives,
                 scalar_score=scalar_score,
-                stage_a_passed=bool(row.get("stage_a_passed", False)),
+                stage_a_passed=stage_a_passed,
                 stage_b_result=source_result,
                 status=status,
+                timestamp=timestamp,
                 provenance_ref=provenance_ref,
                 wall_time_seconds=float(row.get("wall_time_seconds", 0.0)),
                 metadata=metadata,
@@ -649,6 +672,7 @@ class TransferLearningManager:
                 scalar_score=None,
                 stage_a_passed=False,
                 status=EvaluationStatus.STAGE_B_ERROR,
+                timestamp=timestamp,
                 provenance_ref=provenance_ref,
                 metadata=metadata,
             )

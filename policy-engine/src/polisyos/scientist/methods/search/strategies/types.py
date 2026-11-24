@@ -114,7 +114,7 @@ class Evaluation:
     stage_a_passed: bool
     stage_b_result: dict[str, Any] | None = None
     status: EvaluationStatus = EvaluationStatus.SUCCESS
-    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+    timestamp: datetime | None = field(default_factory=lambda: datetime.now(UTC))
     wall_time_seconds: float = 0.0
     provenance_ref: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)

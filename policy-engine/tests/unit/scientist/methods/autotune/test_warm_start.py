@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
+from datetime import UTC, datetime, timedelta, timezone
 from typing import Any
 from unittest.mock import MagicMock
 
@@ -125,6 +126,7 @@ def _stored_eval(
         "params_normalized": [0.5],
         "scalar_score": score,
         "stage_a_passed": True,
+        "timestamp": "2001-01-01T00:00:00+00:00",
         "status": EvaluationStatus.SUCCESS.value,
         "objectives": [
             {
@@ -339,6 +341,77 @@ class TestWarmStartBridge:
 
 
 class TestTransferLearningManagerWarmStart:
+    def test_history_reopens_original_evidence_time_and_strict_stage_outcomes(self, tmp_path):
+        store = FileSystemCAS(tmp_path / "cas")
+        index = _MemoryVectorIndex()
+        writer = TransferLearningManager(store, index)
+        source = _complete_fingerprint("source-time", embedding=[])
+        target = source.model_copy(update={"run_id": "target-time"})
+        recorded = datetime(2001, 1, 1, tzinfo=UTC)
+        restored_offset = recorded.astimezone(timezone(timedelta(hours=3)))
+        selected = replace(
+            _make_eval(_artifact_id("a"), 1.0, source.run_id, provenance_ref=_artifact_id("b")),
+            timestamp=restored_offset,
+        )
+        ref = writer.register_run(source, [selected])
+        assert ref is not None and ref.manifest_profile_sha256 is not None
+        reader = TransferLearningManager(FileSystemCAS(store.root), index)
+        bridge = WarmStartBridge(reader, max_evals=20)
+        [from_writer] = bridge.load_warm_start(
+            target, similar_runs=[source.model_copy(update={"history_ref": ref})]
+        )
+        assert from_writer.timestamp == recorded
+        assert from_writer.timestamp.tzinfo is UTC
+        assert from_writer.is_valid
+        assert from_writer.provenance_ref == selected.provenance_ref
+
+        original = reader._load_run_evaluations(source.model_copy(update={"history_ref": ref}))[0]
+        rows = [original]
+        for name, outcome in (
+            ("genuine-false", False),
+            ("string-false", "false"),
+            ("integer-0", 0),
+            ("integer-1", 1),
+            ("null", None),
+        ):
+            rows.append({**original, "candidate_id": name, "stage_a_passed": outcome})
+        missing_stage = {**original, "candidate_id": "missing-stage"}
+        del missing_stage["stage_a_passed"]
+        rows.append(missing_stage)
+        missing_time = {**original, "candidate_id": "legacy-time"}
+        del missing_time["timestamp"]
+        rows.append(missing_time)
+        rows.append({**original, "candidate_id": "naive-time", "timestamp": "2001-01-01T00:00:00"})
+        fixture_ref = store.put_json(
+            _history_document(source, rows),
+            PutOptions(kind="search.transfer.history", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+            return_selected_profile=True,
+        )
+        with_negatives = bridge.load_warm_start(
+            target, similar_runs=[source.model_copy(update={"history_ref": fixture_ref})]
+        )
+        by_id = {row.candidate_id: row for row in with_negatives}
+        assert len(by_id) == len(rows)
+        assert by_id[selected.candidate_id].is_valid
+        assert not by_id["genuine-false"].is_valid
+        assert by_id["genuine-false"].stage_a_passed is False
+        assert by_id["genuine-false"].timestamp == recorded
+        for name in ("string-false", "integer-0", "integer-1", "null", "missing-stage"):
+            assert not by_id[name].is_valid
+            assert by_id[name].timestamp == recorded
+            assert by_id[name].metadata["transfer_status"] == "rejected"
+            assert by_id[name].metadata["transfer_error"] == "stage_a_passed must be a boolean"
+        assert by_id["naive-time"].metadata["transfer_status"] == "rejected"
+        assert by_id["naive-time"].timestamp is None
+        legacy = by_id["legacy-time"]
+        assert legacy.timestamp is None
+        assert legacy.metadata["transfer_timestamp_status"] == "historical_time_unknown"
+        assert legacy.objectives[0].raw_value == 1.0
+        assert legacy.objectives[0].direction is OptimizationDirection.MINIMIZE
+        assert legacy.score_status is ObjectiveScoreStatus.NOT_ESTABLISHED
+        assert not legacy.is_valid
+
     def test_register_run_persistence_rehydrates_native_fields(self, tmp_path):
         candidate_id = _artifact_id("a")
         provenance_ref = _artifact_id("b")

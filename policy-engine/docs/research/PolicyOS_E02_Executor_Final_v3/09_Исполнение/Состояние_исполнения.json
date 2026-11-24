@@ -9080,8 +9080,8 @@
       "lane_id": "LANE-01",
       "current_execution": {
         "status": "ACTIVE. Scientific C revision 4 and fresh API verified. CYC-03-04 completes the local requirement matrix at 64 confirmed, zero partial, and two dependent on the loaded LANE-12 build. Strict paid Native B R10 has one signed item in the stock worker. Its selected numeric output, fresh API, and common-reader reconciliation remain open. Gate B retains separate acceptance.",
-        "main_commit": "4b6edb2116cb32c9bdfa25a29786997737913cb0",
-        "main_tree": "a27faa371b3f63d3e90321f5014931f971f9052d",
+        "main_commit": "dc58883bb1f04ec58f66d29293e57a85d4265e83",
+        "main_tree": "483e617af6715a2512de54877d81a3110e8be95d",
         "native_memory_r51_r53": {
           "status": "full_currentness_verified_on_exact_paid_fixture_without_effect",
           "runtime_commit": "8f8576eb0f5bcff10083a553b5d0851755b76bee",
@@ -21139,6 +21139,14 @@
           "guard_sha256": "4ed1cd34a873fff4b8618d7c322aaeb485885059e836f3506400a587d481adaf",
           "junit_sha256": "a0914956dcd8b9032f5b1b7e5414b793837ed6d2dc4821ee13417240496257f3",
           "verified_boundary": "Actual authenticated V3 routes and configured upstream selection pass on seven stable working paths. Exact connector, period and selected planning inputs govern admission before supplier transport and N5. Guard joins PASS 80.173 s at RSS 1793507328 B. The paid and numerical route remains a separate scope."
+        },
+        "gate_b_v16_published_current_use_bridge": {
+          "source_commit": "dc58883bb1f04ec58f66d29293e57a85d4265e83",
+          "source_tree": "483e617af6715a2512de54877d81a3110e8be95d",
+          "output": "Primary:policy-engine/_cache/e02/gate-b-v16-current-use-composed.VtEfJ6Xn/",
+          "guard_sha256": "e04c513ff6954d32f13a80d68a229a1adf62917d4dbb56dfa3ff14eb02296da4",
+          "junit_sha256": "726a122fb20bc5b76fdcd110125017c884854145fa3f2596a838081a6f01c493",
+          "verified_boundary": "Four final graph controls and three earlier unaffected sibling cases. Current use retains exact V3 graph under a new canonical obligation. Actual Foundry sees C=-2500000000; moved scope, inverse relation and exact upstream removal refuse. Targeted imports report zero additions over the published baseline. Full configured paid V3 service/worker/N5 and separate Gate B acceptance remain pending."
         },
         "cyc0304_retained_a_b_exact_second_operation_exhausted": {
           "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",

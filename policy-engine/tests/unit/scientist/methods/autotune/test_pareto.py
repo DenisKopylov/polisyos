@@ -560,6 +560,31 @@ class TestParetoFront:
         assert absent_member["objectives"] == {"score": 1.0}
         assert set(absent_member["coordinate_values"]) == {absent_axis["coordinate_id"]}
 
+    def test_legacy_display_collision_preserves_every_canonical_axis(self) -> None:
+        policy = PromotionPolicy(loop_id="loop1", primary_metric="risk", unit="usd")
+        ordinary = ParetoPromoter([policy]).compute_front([_eval(risk=2.0)])
+        label = "risk::holdout::unit=usd::direction=maximize"
+        assert ordinary.members[0].objectives == {label: 2.0}
+        assert ordinary.coordinate_schema is not None
+        coordinate_id = ordinary.coordinate_schema.coordinates[0].coordinate_id
+        # Both a genuine legacy label and a canonical coordinate ID can be
+        # used literally as another metric's name.
+        promoter = ParetoPromoter([policy, *_policies(label, coordinate_id)])
+        values = {"risk": 2.0, label: 3.0, coordinate_id: 4.0}
+        front = promoter.compute_front([_eval(**values)])
+        reopened = ParetoFront.model_validate_json(front.model_dump_json())
+        assert reopened.coordinate_schema is not None
+        expected = {
+            coordinate.coordinate_id: values[coordinate.metric]
+            for coordinate in reopened.coordinate_schema.coordinates
+        }
+
+        assert len(expected) == 3
+        assert reopened.members[0].coordinate_values == expected
+        assert reopened.members[0].objectives == expected
+        assert reopened.reference_point == reopened.coordinate_reference_point == expected
+        assert promoter.is_dominated(_eval(**dict.fromkeys(values, 1.0)), reopened)
+
     def test_coordinate_schema_round_trips_and_labels_reference_point(self):
         """One typed coordinate schema labels values and reference-point data."""
         # Catches fixing member output while leaving reference-point construction

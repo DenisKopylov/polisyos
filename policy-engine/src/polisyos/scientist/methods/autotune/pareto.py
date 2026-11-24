@@ -297,7 +297,13 @@ class ParetoPromoter:
             coordinates=coordinates,
         )
         self._objective_names = tuple(coordinate_ids)
-        self._display_objective_names = tuple(display_names)
+        # Fall back as a set: a metric can also be named like another axis's
+        # canonical ID, so mixing display labels with replacement IDs can collide.
+        self._display_objective_names = (
+            tuple(display_names)
+            if len(set(display_names)) == len(display_names)
+            else self._objective_names
+        )
 
     def _incomplete_front(self, assessment: ParetoInputAssessment) -> ParetoFront:
         """Return an empty result that retains the known coordinate contract."""

@@ -24398,6 +24398,10 @@ def _s10_empirical_projection(
     evidence: object,
 ) -> tuple[dict[str, object] | None, str | None]:
     """Project only loader-validated neutral evidence into the S10 shape."""
+    from polisyos.calibration.forecast_bridge import (
+        LEGACY_EVIDENCE_SCHEMA_VERSION,
+        PREVIOUS_EVIDENCE_SCHEMA_VERSION,
+    )
 
     if _object_get(evidence, "authority_scope") != "predictive_only":
         return None, "empirical_evidence_authority_scope_mismatch"
@@ -24411,6 +24415,11 @@ def _s10_empirical_projection(
             if "backtest_source_not_established" in failure_codes
             else "empirical_observations_not_available"
         )
+    if _object_get(evidence, "schema_version") in (
+        LEGACY_EVIDENCE_SCHEMA_VERSION,
+        PREVIOUS_EVIDENCE_SCHEMA_VERSION,
+    ):
+        return None, "historical_empirical_evidence_not_current"
 
     scalar_refs = {
         "observed_outcome_ref": _s10_artifact_ref_id(_object_get(evidence, "observed_outcome_ref")),

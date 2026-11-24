@@ -487,8 +487,9 @@ def _produce_empirical_calibration_evidence(
     *,
     context: EmpiricalCalibrationContext | None,
     schema_version: _EvidenceSchemaVersion,
+    replay_historical_source_rule: bool = False,
 ) -> EmpiricalCalibrationEvidence:
-    """Recompute evidence under its versioned input-lineage and count rules."""
+    """Recompute evidence under its versioned input-lineage, source, and count rules."""
 
     require_selected_profiles = schema_version in PROFILED_EVIDENCE_SCHEMA_VERSIONS
     validated_report_ref, report = _load_verified_report(store, report_ref)
@@ -507,7 +508,9 @@ def _produce_empirical_calibration_evidence(
 
     # The selected-row join is narrower than source authority. Even an exact
     # row match cannot establish issuer, population, source time, or causality.
-    issues = [*observation_issues, "backtest_source_not_established"]
+    issues = list(observation_issues)
+    if not replay_historical_source_rule:
+        issues.append("backtest_source_not_established")
     if require_selected_profiles:
         row_status = _reconcile_backtest_rows(store, validated_report_ref, report)
         if row_status == "not_established":
@@ -520,15 +523,19 @@ def _produce_empirical_calibration_evidence(
         else ()
     )
     issues.extend(report_profile_issues)
-    nominal_confidence_level, nominal_confidence_issues = _nominal_confidence_level(report)
-    issues.extend(nominal_confidence_issues)
+    nominal_confidence_level = None
+    if not replay_historical_source_rule or schema_version != LEGACY_EVIDENCE_SCHEMA_VERSION:
+        nominal_confidence_level, nominal_confidence_issues = _nominal_confidence_level(report)
+        issues.extend(nominal_confidence_issues)
     binding_issues: tuple[str, ...] = ()
     provenance_issues: tuple[str, ...] = ()
     provenance_payloads: dict[str, tuple[object, ...]] = {}
     if context is None:
         issues.append("explicit_context_missing")
     else:
-        binding_issues = _binding_issues(report, context)
+        binding_issues = _binding_issues(
+            report, context, require_report_temporal_roles=not replay_historical_source_rule
+        )
         provenance_issues, provenance_payloads = _context_reference_issues(
             store,
             validated_report_ref,
@@ -783,11 +790,18 @@ def _reproduce_evidence(
     """
 
     context = _context_from_evidence(store, evidence)
+    # The original profileless writers did not assert the later source limitation.
+    # Retain the more restrictive replay when the artifact already carries it.
+    replay_historical_source_rule = (
+        evidence.schema_version in _PROFILELESS_EVIDENCE_SCHEMA_VERSIONS
+        and "backtest_source_not_established" not in evidence.failure_codes
+    )
     expected = _produce_empirical_calibration_evidence(
         store,
         evidence.report_ref,
         context=context,
         schema_version=evidence.schema_version,
+        replay_historical_source_rule=replay_historical_source_rule,
     )
     if expected.model_dump(mode="json") != evidence.model_dump(mode="json"):
         raise ValueError("empirical evidence payload is not reproducible from its report")
@@ -1808,6 +1822,8 @@ def _recompute_and_reconcile(
 def _binding_issues(
     report: BacktestReport,
     context: EmpiricalCalibrationContext,
+    *,
+    require_report_temporal_roles: bool,
 ) -> tuple[str, ...]:
     """Check report identity and complete scope against the caller context."""
 
@@ -1900,7 +1916,9 @@ def _binding_issues(
             expected = expected_values[field_name.removesuffix("s")]
             if len(values) != 1 or values[0] != expected:
                 issues.append(f"mixed_{field_name}")
-    issues.extend(_report_temporal_role_issues(report, context))
+    # The oldest reports did not record these roles again in their metadata.
+    if require_report_temporal_roles or "temporal_roles" in metadata:
+        issues.extend(_report_temporal_role_issues(report, context))
     return _dedupe(issues)
 
 

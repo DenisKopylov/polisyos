@@ -881,6 +881,93 @@ def test_legacy_profileless_evidence_keeps_historical_id_role_semantics(
     assert loaded.context_bound is True
 
 
+@pytest.mark.parametrize(("version", "nominal"), [("1.0", None), ("1.1", 0.95)])
+def test_positive_historical_evidence_reopens_without_current_s10_support(
+    tmp_path: Path, version: str, nominal: float | None
+) -> None:
+    """Read the historical positive disposition while keeping today's S10 boundary."""
+    from polisyos.runtime.quality.generation_cycle import _resolve_s10_empirical_evidence
+
+    store, report_ref, report, refs = _persist_report(
+        tmp_path, label="legacy-positive", observations=(True, False)
+    )
+    metadata = dict(report.metadata)
+    del metadata["temporal_roles"]
+    legacy_report_ref = _persist_report_with_metadata(store, report_ref, report, metadata)
+    legacy_refs = {
+        role: {key: value for key, value in ref.items() if key != "manifest_profile_sha256"}
+        for role, ref in refs.items()
+    }
+
+    # The 1.0/1.1 authors recorded one hit in two rows and the threshold
+    # passed at 0.5. Their report omitted the duplicate time roles, while
+    # the evidence itself retained the six bound times.
+    payload = {
+        **_context(legacy_refs).model_dump(mode="json"),
+        "schema_version": version,
+        "report_id": report.report_id,
+        "report_ref": legacy_report_ref.model_dump(
+            mode="json", exclude={"manifest_profile_sha256"}
+        ),
+        "evidence_kind": "observed_interval_comparisons",
+        "empirical_observations_available": True,
+        "context_bound": True,
+        "usable_for_calibration": True,
+        "floor_passed": True,
+        "recomputed_numerator": 1,
+        "recomputed_denominator": 2,
+        "recomputed_pass_rate": 0.5,
+        "within_ci_numerator": 1,
+        "within_ci_denominator": 2,
+        "persisted_numerator": 1,
+        "persisted_denominator": 2,
+        "failure_codes": [],
+    }
+    if nominal is not None:
+        payload["nominal_confidence_level"] = nominal
+
+    bridge = _bridge()
+    evidence_ref = bridge.EmpiricalCalibrationEvidenceRef.model_validate(
+        put_json_artifact(
+            _ensure_ir_artifact_store(store),
+            payload,
+            kind=bridge.EVIDENCE_KIND,
+            schema_name=bridge.EVIDENCE_SCHEMA_NAME,
+            schema_version=version,
+            inputs=[
+                InputRef(artifact_id=legacy_report_ref.artifact_id, role="backtest_report"),
+                *(
+                    InputRef(artifact_id=ref["artifact_id"], role=role)
+                    for role, ref in refs.items()
+                ),
+            ],
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+    )
+    before = store.get_bytes(evidence_ref.artifact_id)
+    reader = FileSystemCAS.open_existing_read_only(store.root)
+    loaded = bridge.load_empirical_calibration_evidence(reader, evidence_ref)
+    assert loaded.model_dump(mode="json") == {**payload, "nominal_confidence_level": nominal}
+
+    resolved, reason = _resolve_s10_empirical_evidence(
+        raw_ref=evidence_ref,
+        resolver=lambda ref: bridge.load_empirical_calibration_evidence(reader, ref),
+        selected_method_fqn=f"{METHOD_REF}@{METHOD_VERSION}",
+        expected_rule_version_ref=RULE_VERSION_REF,
+        expected_temporal_roles=_temporal_roles(),
+        artifact_store=reader,
+    )
+    assert resolved is not None
+    assert resolved.projection is None
+    assert resolved.interval_support is None
+    assert reason == "historical_empirical_evidence_not_current"
+    with pytest.raises(
+        ValueError, match="legacy empirical calibration evidence must not be repersisted"
+    ):
+        bridge.persist_empirical_calibration_evidence(reader, loaded)
+    assert reader.get_bytes(evidence_ref.artifact_id) == before
+
+
 def test_persisted_backtest_report_readback_produces_neutral_empirical_interval_hit_evidence(
     tmp_path: Path,
 ) -> None:

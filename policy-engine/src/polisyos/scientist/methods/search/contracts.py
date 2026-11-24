@@ -491,8 +491,11 @@ class GenerationTransition(str, Enum):
     REPAIR_REQUIRED = "repair_required"
 
 
+_GenerationReuse = Literal["reuse_current_best", "reuse_history"]
+
+
 class GenerationNotice(RuntimeError):
-    """Report a source-declared non-proposal with its reason and optional retry delay."""
+    """Report a source transition together with any candidates already produced."""
 
     def __init__(
         self,
@@ -500,6 +503,8 @@ class GenerationNotice(RuntimeError):
         reason: str,
         *,
         retry_after_seconds: float | None = None,
+        candidates: tuple[dict[str, Any] | CandidateProposal, ...] = (),
+        reuse: _GenerationReuse | None = None,
     ) -> None:
         if not isinstance(transition, GenerationTransition):
             raise TypeError("generation notice requires a typed transition")
@@ -520,10 +525,31 @@ class GenerationNotice(RuntimeError):
             raise ValueError("terminal generation notice cannot request retry")
         else:
             delay = None
+        if not isinstance(candidates, tuple) or not all(
+            isinstance(candidate, (dict, CandidateProposal)) for candidate in candidates
+        ):
+            raise TypeError("generation notice requires a tuple of candidate payloads")
+        if candidates and transition not in (
+            GenerationTransition.EXHAUSTED,
+            GenerationTransition.ATTEMPT_LIMIT,
+        ):
+            raise ValueError("only source exhaustion or an attempt limit can carry candidates")
+        if reuse is not None and (
+            transition is not GenerationTransition.REPAIR_REQUIRED
+            or reuse not in ("reuse_current_best", "reuse_history")
+        ):
+            raise ValueError(
+                "generation reuse requires a repair transition and a reuse disposition"
+            )
         self.transition = transition
         self.reason = reason
         self.retry_after_seconds = delay
+        self.candidates = candidates
+        self.reuse = reuse
         super().__init__(reason)
+
+
+_GeneratedCandidates = tuple[list[dict[str, Any] | CandidateProposal], GenerationNotice | None]
 
 
 class _EvaluationDisposition(str, Enum):
@@ -549,6 +575,7 @@ class _NativeSearchRunStatePort(Protocol):
     empty_generation_retry_deadline: float | None
     generation_transition: GenerationTransition | None
     generation_source_reason: str | None
+    generation_reuse: _GenerationReuse | None
 
     def track_attempt(self, phase: _SearchWorkPhase) -> AbstractContextManager[None]: ...
 
@@ -619,7 +646,7 @@ class _NativeSearchControllerPort(Protocol):
         iteration: int,
         initial_candidate: dict[str, Any] | None,
         context: dict[str, Any],
-    ) -> list[dict[str, Any] | CandidateProposal]: ...
+    ) -> _GeneratedCandidates: ...
 
     def _accept_tell(
         self,

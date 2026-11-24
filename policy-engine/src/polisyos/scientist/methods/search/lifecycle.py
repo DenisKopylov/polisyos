@@ -19,6 +19,7 @@ from polisyos.scientist.methods.search.contracts import (
     CandidatePayload,
     CandidateProposal,
     EvaluationBundle,
+    GenerationNotice,
     SearchInterruption,
     SearchIteration,
     SearchResult,
@@ -27,6 +28,7 @@ from polisyos.scientist.methods.search.contracts import (
     StageBEvaluator,
     _EvaluationDisposition,
     _EvaluationTransition,
+    _GeneratedCandidates,
     _SearchEvaluatorPorts,
     _SearchLifecycleConfig,
 )
@@ -67,7 +69,7 @@ from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadat
 from polisyos.scientist.methods.search.stopping import _finite_cost_amount
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Sequence
     from typing import Literal
 
     from polisyos.core.observability import MetricsRegistry
@@ -1011,9 +1013,9 @@ class _SearchLifecycleOwner:
         iteration: int,
         initial_candidate: dict[str, Any] | None,
         context: dict[str, Any],
-    ) -> list[dict[str, Any] | CandidateProposal]:
+    ) -> _GeneratedCandidates:
         if iteration == 0 and initial_candidate is not None:
-            return [initial_candidate]
+            return [initial_candidate], None
 
         effective_context = context
         if self._diversity_enabled:
@@ -1055,42 +1057,50 @@ class _SearchLifecycleOwner:
         generate_proposal = getattr(self._generator, "generate_proposal", None)
         generate_batch_proposals = getattr(self._generator, "generate_batch_proposals", None)
         if batch_size > 1 and callable(generate_batch_proposals):
-            proposals = generate_batch_proposals(
-                self._history, self._best_candidate, effective_context, batch_size
+            return self._call_candidate_source(
+                generate_batch_proposals, effective_context, batch_size=batch_size, typed=True
             )
-            if not all(isinstance(item, CandidateProposal) for item in proposals):
-                raise TypeError("search_candidate_proposal_required")
-            self._admit_generated_proposals(proposals)
-            return proposals
         if callable(generate_proposal):
-            proposal = generate_proposal(self._history, self._best_candidate, effective_context)
-            if not isinstance(proposal, CandidateProposal):
-                raise TypeError("search_candidate_proposal_required")
-            self._admit_generated_proposals([proposal])
-            return [proposal]
-        generate_batch = None
-        if hasattr(self._generator, "generate_batch"):
-            generate_batch = self._generator.generate_batch
+            return self._call_candidate_source(generate_proposal, effective_context, typed=True)
+        generate_batch = getattr(self._generator, "generate_batch", None)
         if batch_size > 1 and callable(generate_batch):
-            return generate_batch(
-                self._history,
-                self._best_candidate,
-                effective_context,
-                batch_size,
+            return self._call_candidate_source(
+                generate_batch, effective_context, batch_size=batch_size
             )
-        return [
-            self._generator.generate(
-                self._history,
-                self._best_candidate,
-                effective_context,
-            )
-        ]
+        return self._call_candidate_source(self._generator.generate, effective_context)
 
-    def _admit_generated_proposals(self, proposals: list[CandidateProposal]) -> None:
+    def _call_candidate_source(
+        self,
+        source: Callable[..., Any],
+        context: dict[str, Any],
+        *,
+        batch_size: int | None = None,
+        typed: bool = False,
+    ) -> _GeneratedCandidates:
+        args = (self._history, self._best_candidate, context)
+        try:
+            candidates = [source(*args)] if batch_size is None else source(*args, batch_size)
+        except GenerationNotice as notice:
+            if len(notice.candidates) > (batch_size or 1):
+                raise ValueError("generation_notice_exceeds_requested_candidates") from notice
+            if typed:
+                self._admit_generated_proposals(notice.candidates)
+            elif not all(isinstance(item, dict) for item in notice.candidates):
+                raise TypeError("search_candidate_payload_required") from notice
+            return list(notice.candidates), notice
+        if typed:
+            self._admit_generated_proposals(candidates)
+        return candidates, None
+
+    def _admit_generated_proposals(
+        self, proposals: Sequence[dict[str, Any] | CandidateProposal]
+    ) -> None:
         """Admit producer context only from the actual StrategyAdapter boundary."""
         from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
 
         for proposal in proposals:
+            if not isinstance(proposal, CandidateProposal):
+                raise TypeError("search_candidate_proposal_required")
             if (
                 proposal.strategy_context is not None
                 and type(self._generator) is not StrategyAdapter

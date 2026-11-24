@@ -20,7 +20,7 @@ from polisyos.scientist.methods.search.contracts import (
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-    from polisyos.scientist.methods.search.contracts import _SearchWorkPhase
+    from polisyos.scientist.methods.search.contracts import _GenerationReuse, _SearchWorkPhase
 
 
 _CANCELLATION_ERRORS = (CancelledError, FutureCancelledError, KeyboardInterrupt)
@@ -64,6 +64,7 @@ class SearchRunState:
     policy_evaluation_errors: int = 0
     generation_transition: GenerationTransition | None = None
     generation_source_reason: str | None = None
+    generation_reuse: _GenerationReuse | None = None
     pareto_projection: ParetoViewProjection | None = None
 
     @property
@@ -122,7 +123,7 @@ class SearchRunState:
         """Return a detached, typed transition payload for a public result."""
         if self.generation_transition is None:
             return None
-        return {
+        payload = {
             "kind": self.generation_transition.value,
             "source_reason": self.generation_source_reason,
             "generation_attempts": self.generation_attempts,
@@ -136,6 +137,9 @@ class SearchRunState:
             "scientific_evaluations": self.scientific_evaluations,
             "sentinel_evaluations": self.sentinel_evaluations,
         }
+        if self.generation_reuse is not None:
+            payload["reuse"] = self.generation_reuse
+        return payload
 
     def apply_evaluation_transition(self, transition: _EvaluationTransition) -> None:
         """Apply one candidate disposition to the sole run-state owner.

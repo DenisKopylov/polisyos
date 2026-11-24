@@ -67,11 +67,13 @@ class _NativeSearchServiceDriver:
 
     def _ask(self, context: dict[str, Any]) -> list[CandidateProposal]:
         generation, iteration = self.owner._prepare_service_run()
-        payloads = self.owner._generate_candidates(
+        payloads, notice = self.owner._generate_candidates(
             iteration=iteration,
             initial_candidate=None,
             context=context,
         )
+        if notice is not None:
+            raise notice
 
         proposals: list[CandidateProposal] = []
         pending: dict[str, CandidateProposal] = {}
@@ -247,6 +249,11 @@ class _NativeSearchServiceDriver:
             )
             if stopping_reason is not None:
                 break
+            transition = self.owner._run_state.generation_transition
+            if transition in _TERMINAL_NOTICE_REASONS:
+                stopping_reason = _TERMINAL_NOTICE_REASONS[transition]
+                self._stop(stopping_reason)
+                break
 
         return self.owner._finish_native_run(
             start_time=start_time,
@@ -273,28 +280,22 @@ class _NativeSearchServiceDriver:
     ) -> tuple[list[dict[str, Any] | CandidateProposal], bool, str | None]:
         generated = initial_candidate is None
         attempt = self.owner._run_state.track_attempt("generation") if generated else nullcontext()
-        notice: GenerationNotice | None = None
         with attempt:
-            try:
-                batch = self.owner._generate_candidates(
-                    iteration=self.owner._run_state.evaluation_iterations,
-                    initial_candidate=initial_candidate,
-                    context=initial_context,
-                )
-            except GenerationNotice as exc:
-                if not generated:
-                    raise
-                notice = exc
-                batch = []
+            batch, notice = self.owner._generate_candidates(
+                iteration=self.owner._run_state.evaluation_iterations,
+                initial_candidate=initial_candidate,
+                context=initial_context,
+            )
         if not generated:
             return batch, False, None
 
-        if not batch:
+        if notice is not None or not batch:
             state = self.owner._run_state
             state.generation_transition = (
                 notice.transition if notice is not None else GenerationTransition.TRANSIENT_EMPTY
             )
             state.generation_source_reason = notice.reason if notice is not None else None
+            state.generation_reuse = notice.reuse if notice is not None else None
         stopping_reason = self._stopping_reason(initial_context)
         if stopping_reason is None and not batch:
             stopping_reason = self._empty_generation_stop(notice)

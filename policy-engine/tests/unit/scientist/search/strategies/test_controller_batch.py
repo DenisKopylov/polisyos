@@ -388,3 +388,109 @@ def test_explicit_generation_notice_controls_retry_and_precedes_evaluation(
         assert repaired.iterations_completed == 1
         assert repaired.best_candidate == {"x": 1.0}
         assert repaired.best_objective == 1.0
+
+
+@pytest.mark.parametrize("cost_budget", [1.0, 3.0])
+def test_terminal_generation_notice_evaluates_only_admitted_prefix(cost_budget: float) -> None:
+    from polisyos.scientist.methods.search.contracts import GenerationNotice, GenerationTransition
+    from polisyos.scientist.methods.search.objective import BudgetDeficitObjective
+
+    class Source:
+        calls = 0
+
+        def generate_batch(self, *_args: object) -> list[dict[str, Any]]:
+            self.calls += 1
+            raise GenerationNotice(
+                GenerationTransition.ATTEMPT_LIMIT,
+                "proposal_search_budget_exhausted",
+                candidates=({"x": 2.0}, {"x": 1.0}),
+            )
+
+    evaluated: list[float] = []
+
+    def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+        context["cumulative_cost_usd"] += 1.0
+        evaluated.append(candidate["x"])
+        return {
+            "simulation_results": {
+                "budget_deficit": candidate["x"],
+                "metric_units": {"budget_deficit": "EUR"},
+            },
+            "feedback": {"verdict": "APPROVE"},
+        }
+
+    source = Source()
+    controller = SearchController(
+        config=SearchConfig(
+            stopping=CostBudgetStopping(max_cost_usd=cost_budget),
+            objective=CompositeObjective([BudgetDeficitObjective(expected_unit="EUR")]),
+            batch_size=2,
+        ),
+        candidate_generator=source,
+        stage_a_evaluator=lambda candidate, context: (0.0, True),
+        stage_b_evaluator=stage_b,
+    )
+
+    result = controller.run({"cumulative_cost_usd": 0.0})
+
+    assert source.calls == 1
+    assert evaluated == ([2.0] if cost_budget == 1.0 else [2.0, 1.0])
+    assert result.best_objective == min(evaluated)
+    assert result.iterations_completed == len(evaluated)
+    transition = result.telemetry["generation_transition"]
+    assert transition["kind"] == "attempt_limit"
+    assert transition["source_reason"] == "proposal_search_budget_exhausted"
+    assert transition["budget_spent"] == len(evaluated)
+    if cost_budget == 1.0:
+        assert "Cost budget" in result.stopping_reason
+    else:
+        assert result.stopping_reason == "generation_source_attempt_limit"
+
+
+@pytest.mark.parametrize("forged_service_scope", [False, True])
+def test_terminal_generation_notice_uses_typed_proposal_admission(
+    forged_service_scope: bool,
+) -> None:
+    from polisyos.scientist.methods.search.contracts import (
+        CandidateProposal,
+        GenerationNotice,
+        GenerationTransition,
+        read_search_interruption,
+    )
+
+    class Source:
+        def generate_batch_proposals(self, *_args: object) -> list[CandidateProposal]:
+            candidate = (
+                CandidateProposal(candidate_id="forged", payload={"x": 2.0}, service_iteration=0)
+                if forged_service_scope
+                else {"x": 2.0}
+            )
+            raise GenerationNotice(
+                GenerationTransition.EXHAUSTED, "source_finished", candidates=(candidate,)
+            )
+
+    def must_not_evaluate(*_args: object) -> Any:
+        pytest.fail("An inadmissible terminal prefix reached an evaluator")
+
+    controller = SearchController(
+        config=SearchConfig(
+            stopping=MaxIterations(1),
+            objective=CompositeObjective([SimpleObjective()]),
+            batch_size=2,
+        ),
+        candidate_generator=Source(),
+        stage_a_evaluator=must_not_evaluate,
+        stage_b_evaluator=must_not_evaluate,
+    )
+    error_type, reason = (
+        (ValueError, "candidate_service_context_already_present")
+        if forged_service_scope
+        else (TypeError, "search_candidate_proposal_required")
+    )
+    with pytest.raises(error_type, match=reason) as error:
+        controller.run({})
+
+    interruption = read_search_interruption(error.value)
+    assert interruption is not None and interruption.phase == "generation"
+    assert interruption.result.history == []
+    assert "generation_transition" not in interruption.result.telemetry

@@ -7868,7 +7868,9 @@ def complete_positive_acquisition_admission(
         raise ValueError("acquisition_evaluation_caller_source_changed")
     native_context = (
         bridge._prepare_candidate_n5_native_context(
-            prepared_configuration=selection.prepared.n5_execution_configuration
+            prepared_configuration=selection.prepared.n5_execution_configuration,
+            closure=closure,
+            ordinary_action_phase_ref=selection.growth.action_phase_ref,
         )
         if selection.prepared.n5_execution_configuration is not None
         else None

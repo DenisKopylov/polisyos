@@ -993,6 +993,7 @@ class AcquisitionWorldGrowthActionOutcomeSelector(_Strict):
         "AcquisitionWorldGrowthActionOutcomeSelector@1.1",
         "AcquisitionWorldGrowthActionOutcomeSelector@1.2",
         "AcquisitionWorldGrowthActionOutcomeSelector@1.3",
+        "AcquisitionWorldGrowthActionOutcomeSelector@1.4",
     ] = "AcquisitionWorldGrowthActionOutcomeSelector@1.1"
     route_id: str = Field(pattern=_SHA)
     action_phase_ref: str = Field(pattern=_SHA)
@@ -1021,6 +1022,15 @@ class AcquisitionWorldGrowthActionOutcomeSelector(_Strict):
     native_budget_window_state: Literal["issuing", "selected"] | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    ordinary_budget_window_id: str | None = Field(
+        default=None, pattern=r"^[0-9a-f]{64}$", exclude_if=lambda value: value is None
+    )
+    ordinary_budget_window_digest: str | None = Field(
+        default=None, pattern=r"^[0-9a-f]{64}$", exclude_if=lambda value: value is None
+    )
+    ordinary_budget_window_state: Literal["issuing", "selected"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _selector_state_matches_receipt(self) -> Self:
@@ -1031,6 +1041,7 @@ class AcquisitionWorldGrowthActionOutcomeSelector(_Strict):
             "AcquisitionWorldGrowthActionOutcomeSelector@1.1",
             "AcquisitionWorldGrowthActionOutcomeSelector@1.2",
             "AcquisitionWorldGrowthActionOutcomeSelector@1.3",
+            "AcquisitionWorldGrowthActionOutcomeSelector@1.4",
         }:
             raise ValueError("acquisition_action_outcome_selector_schema_version_mismatch")
         if self.receipt_kind == _CANDIDATE_ACTION_KIND and self.schema_version != (
@@ -1082,6 +1093,16 @@ class AcquisitionWorldGrowthActionOutcomeSelector(_Strict):
             self.receipt_kind is not None and self.native_budget_window_state != "selected"
         ):
             raise ValueError("acquisition_native_budget_outcome_window_not_selected")
+        ordinary_state = self.ordinary_budget_window_state
+        ordinary_selected = self.ordinary_budget_window_id is not None
+        if (
+            (self.schema_version == "AcquisitionWorldGrowthActionOutcomeSelector@1.4")
+            != (ordinary_state is not None)
+            or ordinary_selected != (self.ordinary_budget_window_digest is not None)
+            or ordinary_selected != (ordinary_state == "selected")
+            or (ordinary_state == "issuing" and self.receipt_kind is not None)
+        ):
+            raise ValueError("acquisition_ordinary_budget_window_state_mismatch")
         candidate = self.candidate_receipt_ref
         if self.receipt_kind == _CANDIDATE_ACTION_KIND:
             if (
@@ -3530,6 +3551,7 @@ class AcquisitionWorldGrowthBridge:
         origin: VerifiedCandidateExperimentOrigin | None = None,
         closure: VerifiedAcquisitionRouteClosure | None = None,
         candidate_action_ref: artifacts.ArtifactRef | None = None,
+        ordinary_action_phase_ref: str | None = None,
     ) -> CandidateN5NativeContext:
         """Create the actual operation-local N5 port before comparison.
 
@@ -3550,7 +3572,16 @@ class AcquisitionWorldGrowthBridge:
         scope = None
         if origin is not None and closure is not None:
             raise ValueError("candidate_n5_native_action_scope_invalid")
-        if origin is not None:
+        if ordinary_action_phase_ref is not None:
+            if closure is None or candidate_action_ref is not None or origin is not None:
+                raise ValueError("ordinary_source_budget_native_context_mismatch")
+            ordinary = self._ordinary_reentry_budget_binding(
+                closure=closure, action_phase_ref=ordinary_action_phase_ref
+            )
+            if ordinary is not None:
+                window, state, observer = ordinary
+                scope = window.scope
+        elif origin is not None:
             if candidate_action_ref is None or self._source_control_service is None:
                 raise ValueError("candidate_n5_native_action_not_established")
             action_context = self._resolve_candidate_experiment_reentry_action_context(
@@ -4091,21 +4122,26 @@ class AcquisitionWorldGrowthBridge:
         if selected is None:
             raise ValueError("acquisition_world_growth_selection_missing")
         self._validate_action_phase(closure, selected, action_phase_ref)
+        ordinary_profile = self._ordinary_reentry_budget_profile(closure)
         overlay_path, _ = self._paths(selected)
         with data_forge_read_api.catalog.acquisition_overlay_admission_fence(overlay_path):
             pointer = self._action_selector_path(selected, action_phase_ref)
             if pointer.exists():
                 _path, prior = self._read_action_selector(closure, selected, action_phase_ref)
-                if prior.state == "executing":
-                    return
-                raise ValueError("acquisition_action_outcome_already_selected")
-            self._write_action_selector(
-                pointer,
-                AcquisitionWorldGrowthActionOutcomeSelector(
-                    route_id=selected.route_id,
-                    action_phase_ref=action_phase_ref,
-                    state="executing",
-                ),
+                if prior.state != "executing":
+                    raise ValueError("acquisition_action_outcome_already_selected")
+            else:
+                self._write_action_selector(
+                    pointer,
+                    AcquisitionWorldGrowthActionOutcomeSelector(
+                        route_id=selected.route_id,
+                        action_phase_ref=action_phase_ref,
+                        state="executing",
+                    ),
+                )
+        if ordinary_profile is not None:
+            self._source_reentry_budget_window(
+                closure=closure, action_phase_ref=action_phase_ref, create=True, family="ordinary"
             )
 
     def _source_reentry_budget_window(
@@ -4114,7 +4150,7 @@ class AcquisitionWorldGrowthBridge:
         closure: VerifiedAcquisitionRouteClosure,
         action_phase_ref: str,
         create: bool,
-        native: bool,
+        family: Literal["candidate", "native", "ordinary"],
     ) -> BudgetLedgerReentryBudgetWindow:
         """Select one source-ledger window under the actual action and worker fence."""
         from polisyos.runtime.quality.candidate_acquisition_action import _current_action
@@ -4130,18 +4166,26 @@ class AcquisitionWorldGrowthBridge:
             ControlJobExecutionAdmission,
             str,
         ]:
-            if native:
+            if family == "native":
                 selected, phase, admission = self._current_native_reentry_action(
                     closure=closure, action_phase_ref=action_phase_ref
                 )
                 _n5, profile_key = self._native_derivation_budget_profile(closure)
+            elif family == "ordinary":
+                selected, phase, admission = self._current_ordinary_reentry_action(
+                    closure=closure, action_phase_ref=action_phase_ref
+                )
+                profile = self._ordinary_reentry_budget_profile(closure)
+                if profile is None:
+                    raise ValueError("ordinary_source_budget_profile_not_established")
+                profile_key = profile.profile_selection_ref
             else:
                 selected, phase, admission = _current_action(self, closure, action_phase_ref)
                 profile_key = selected.profile_selection_ref
             return selected, phase, admission, profile_key
 
-        family = "native" if native else "candidate"
-        schema_version = f"AcquisitionWorldGrowthActionOutcomeSelector@1.{3 if native else 2}"
+        version = {"candidate": 2, "native": 3, "ordinary": 4}[family]
+        schema_version = f"AcquisitionWorldGrowthActionOutcomeSelector@1.{version}"
         prefix = f"{family}_budget_window_"
         selected, phase, admission, profile_key = current_action()
         service = self._source_control_service
@@ -4241,7 +4285,7 @@ class AcquisitionWorldGrowthBridge:
         create: bool,
     ) -> BudgetLedgerReentryBudgetWindow:
         return self._source_reentry_budget_window(
-            closure=closure, action_phase_ref=action_phase_ref, create=create, native=False
+            closure=closure, action_phase_ref=action_phase_ref, create=create, family="candidate"
         )
 
     def _native_derivation_budget_window(
@@ -4252,7 +4296,7 @@ class AcquisitionWorldGrowthBridge:
         create: bool,
     ) -> BudgetLedgerReentryBudgetWindow:
         return self._source_reentry_budget_window(
-            closure=closure, action_phase_ref=action_phase_ref, create=create, native=True
+            closure=closure, action_phase_ref=action_phase_ref, create=create, family="native"
         )
 
     def prepare_candidate_source_budget_window(
@@ -7737,8 +7781,23 @@ class AcquisitionWorldGrowthBridge:
             event_id = "evt_acquisition_reentry_" + growth_refs[0].removeprefix("sha256:")
             fence = pointer.with_suffix(".started")
             started = fence.exists()
-            if started and (not native_collections or fence.read_text() != growth_refs[0]):
+            ordinary_budget = (
+                self._ordinary_reentry_budget_binding(
+                    closure=closure,
+                    action_phase_ref=growth.action_phase_ref,
+                    native_context=native_context,
+                )
+                if native_configuration is None
+                else None
+            )
+            if started and (
+                (not native_collections and ordinary_budget is None)
+                or fence.read_text() != growth_refs[0]
+            ):
                 raise ValueError("acquisition_reentry_outcome_not_established")
+            if started and ordinary_budget is not None:
+                window, _state, observer = ordinary_budget
+                self._require_ordinary_reentry_before_physical_work(observer, window)
             draft_fence = None
             if draft_recovery is not None:
                 if (
@@ -7797,8 +7856,16 @@ class AcquisitionWorldGrowthBridge:
             )
             native_budget_window = None
             native_budget_observer = None
-            reentry_budget_state = BudgetState.model_validate(
-                {"limits": {"run": {"key": "run", "max_usd": growth.selection.reentry_budget_usd}}}
+            reentry_budget_state = (
+                ordinary_budget[1]
+                if ordinary_budget is not None
+                else BudgetState.model_validate(
+                    {
+                        "limits": {
+                            "run": {"key": "run", "max_usd": growth.selection.reentry_budget_usd}
+                        }
+                    }
+                )
             )
             if native_collections:
                 native_budget_window = self._native_derivation_budget_window(
@@ -7822,6 +7889,9 @@ class AcquisitionWorldGrowthBridge:
             controller_kwargs: dict[str, object] = {}
             if native_budget_observer is not None:
                 controller_kwargs["_producer_budget_reconciler"] = native_budget_observer
+            ordinary_budget_observer = ordinary_budget[2] if ordinary_budget is not None else None
+            if ordinary_budget_observer is not None:
+                controller_kwargs["_producer_budget_reconciler"] = ordinary_budget_observer
             native_reentry_coordinator = None
             if native_collections:
                 context, handoff, context_owner, currentness_resolver = (
@@ -7896,6 +7966,7 @@ class AcquisitionWorldGrowthBridge:
                     )
                 )
                 controller_kwargs = {
+                    **controller_kwargs,
                     "cycle_substrate_context": context,
                     "candidate_simulation_handoff": handoff,
                     "candidate_simulation_currentness_resolver": currentness_resolver,
@@ -7905,7 +7976,7 @@ class AcquisitionWorldGrowthBridge:
                     if (
                         type(native_context) is not CandidateN5NativeContext
                         or native_context.prepared_configuration != prepared_n5_configuration
-                        or native_context.budget_observer is not None
+                        or native_context.budget_observer is not ordinary_budget_observer
                     ):
                         raise ValueError("acquisition_n5_native_context_mismatch")
                     _ = native_context.controller
@@ -7926,7 +7997,9 @@ class AcquisitionWorldGrowthBridge:
             )
             controller = GenerationCycleController(
                 repo_root=self.repo_root,
-                model_id=model,
+                # This bounded ordinary route reissues the existing same-problem
+                # N4 proposal. It has no grant for another paid generation.
+                model_id=model if ordinary_budget is None else None,
                 promotion_runtime=self.promotion_runtime,
                 **controller_kwargs,
             )
@@ -7962,6 +8035,9 @@ class AcquisitionWorldGrowthBridge:
                     growth_ref=growth_refs[0],
                     started=started,
                     native_configuration=native_configuration,
+                    ordinary_admission=(ordinary_budget[2], ordinary_budget[0])
+                    if ordinary_budget is not None
+                    else None,
                     draft_recovery_fence=(
                         (draft_fence, str(draft_recovery.event.event_id))
                         if draft_fence is not None and draft_recovery is not None
@@ -8048,6 +8124,21 @@ class AcquisitionWorldGrowthBridge:
         return marker
 
     @staticmethod
+    def _require_ordinary_reentry_before_physical_work(
+        observer: ProducerBudgetObserver, window: BudgetLedgerReentryBudgetWindow
+    ) -> None:
+        """An interrupted ordinary marker is usable only before any reservation."""
+        from polisyos.scientist.orchestration.engine import (
+            ProducerBudgetObserver,
+            ProducerBudgetSourceError,
+        )
+
+        try:
+            ProducerBudgetObserver.require_reentry_before_physical_work(observer, window)
+        except ProducerBudgetSourceError as exc:
+            raise ValueError("acquisition_reentry_outcome_not_established") from exc
+
+    @staticmethod
     def _run_active_overlay_reentry(
         *,
         fence: Path,
@@ -8056,13 +8147,26 @@ class AcquisitionWorldGrowthBridge:
         native_configuration: NativeDerivationRouteConfiguration | None,
         reenter: Callable[[], Awaitable[AcquisitionOverlayReentryReceipt]],
         draft_recovery_fence: tuple[Path, str] | None = None,
+        ordinary_admission: tuple[ProducerBudgetObserver, BudgetLedgerReentryBudgetWindow]
+        | None = None,
     ) -> AcquisitionOverlayReentryReceipt:
         """Start the selected re-entry once within the caller's admitted scopes."""
+        if ordinary_admission is not None:
+            from polisyos.scientist.orchestration.engine import ProducerBudgetObserver
+
+            observer, window = ordinary_admission
+            if started:
+                AcquisitionWorldGrowthBridge._require_ordinary_reentry_before_physical_work(
+                    observer, window
+                )
+            ProducerBudgetObserver.admit(observer)
         if not started:
             with fence.open("x") as stream:
                 stream.write(growth_ref)
                 stream.flush()
                 os.fsync(stream.fileno())
+            if ordinary_admission is not None:
+                AcquisitionWorldGrowthBridge._sync_directory(fence.parent)
         if draft_recovery_fence is not None:
             recovery_path, event_id = draft_recovery_fence
             with recovery_path.open("x") as stream:
@@ -8190,6 +8294,148 @@ class AcquisitionWorldGrowthBridge:
         if current != closure:
             raise AcquisitionRouteClosureError("native_reentry_budget_source_changed")
         return selected, phase, admission
+
+    def _current_ordinary_reentry_action(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        action_phase_ref: str,
+    ) -> tuple[
+        AcquisitionWorldGrowthRoute, AcquisitionRoutePhaseReceipt, ControlJobExecutionAdmission
+    ]:
+        """Bind the budget window to the same authenticated action and executing ancestry."""
+        if closure.ordinary_offer is None or self._source_control_service is None:
+            raise ValueError("ordinary_source_budget_owner_not_established")
+        selected = self.selection(closure)
+        if selected is None or self.action_head_sink is None:
+            raise ValueError("ordinary_source_budget_route_missing")
+        phase = self._validate_action_phase(closure, selected, action_phase_ref)
+        admission = self.control_store.current_execution_job_admission()
+        if (
+            admission.job.kind != "acquisition"
+            or admission.job.state != "running"
+            or admission.job.job_id != phase.job_id
+            or admission.job.run_id != closure.run_id
+            or admission.scope.status != "established"
+            or admission.scope.actor_authenticated is not True
+            or (admission.scope.tenant_id, admission.scope.cell_id)
+            != (closure.tenant_id, closure.cell_id)
+        ):
+            raise ValueError("ordinary_source_budget_action_not_current")
+        current = AcquisitionRouteLoop(
+            control_store=self.control_store,
+            artifact_store=self.artifact_store,
+            event_log=self.event_log,
+            core_source_resolver=(
+                self._source_control_service.resolve_completed_control_job_core_run_source
+            ),
+            tenant_id=closure.tenant_id,
+            cell_id=closure.cell_id,
+            action_outcome_reader=self.action_head_sink,
+        ).resolve_current_ordinary_route(
+            run_id=closure.run_id, route_id=closure.route_id, action_job_id=phase.job_id
+        )
+        if current != closure:
+            raise ValueError("ordinary_source_budget_route_changed")
+        return selected, phase, admission
+
+    def _ordinary_reentry_budget_profile(
+        self, closure: VerifiedAcquisitionRouteClosure
+    ) -> CandidateSimulationScenarioProfile | None:
+        """Use the original finite candidate allocation on the configured offer path."""
+        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.runtime.quality.cycle_substrate import (
+            ConfiguredCandidateSimulationContextAdmissionOwner,
+        )
+
+        if (
+            closure.ordinary_offer is None
+            or closure.native_derivation_leaf_scope is not None
+            or self.candidate_source_selection(closure) is not None
+        ):
+            return None
+        payload = load_core_json_artifact(self.artifact_store, closure.source_payload_ref)
+        if not isinstance(payload, dict):
+            raise ValueError("ordinary_source_budget_payload_unverified")
+        if payload.get("run_budget_scope") != "metered_paid_producers_and_bounded_candidate":
+            return None
+        key = closure.tenant_id, closure.cell_id, closure.run_id, closure.route_id
+        refresh = next(
+            (item for item in self.config.candidate_world_refreshes if item.key == key), None
+        )
+        if refresh is None:
+            raise ValueError("ordinary_source_budget_profile_not_established")
+        owner = self.cycle_substrate_context_admission_owner
+        service = self._source_control_service
+        if (
+            type(owner) is not ConfiguredCandidateSimulationContextAdmissionOwner
+            or owner.store is not self.artifact_store
+            or service is None
+        ):
+            raise ValueError("ordinary_source_budget_profile_owner_not_established")
+        profile = owner.configured_profile_for_selection_ref(refresh.profile_selection_ref)
+        simulation = closure.route_source_cycle.simulation
+        if (
+            type(profile) is not CandidateSimulationScenarioProfile
+            or candidate_simulation_profile_ref(profile)
+            != simulation.candidate_simulation_profile_config_ref
+            or profile.profile_selection_ref
+            != simulation.candidate_simulation_profile_selection_ref
+        ):
+            raise ValueError("ordinary_source_budget_profile_changed")
+        if (
+            profile.n5.invocation_quota_policy is None
+            or profile.n5.invocation_purpose != "standard"
+        ):
+            raise ValueError("ordinary_source_budget_standard_policy_not_established")
+        service.verify_candidate_unpriced_budget_scope(closure=closure)
+        return profile
+
+    def _ordinary_reentry_budget_binding(
+        self,
+        *,
+        closure: VerifiedAcquisitionRouteClosure,
+        action_phase_ref: str | None,
+        native_context: CandidateN5NativeContext | None = None,
+    ) -> tuple[BudgetLedgerReentryBudgetWindow, BudgetState, ProducerBudgetObserver] | None:
+        """Reopen the exact ordinary action window without installing a new quota."""
+        from polisyos.scientist.orchestration.engine import ProducerBudgetObserver
+
+        profile = self._ordinary_reentry_budget_profile(closure)
+        if profile is None:
+            return None
+        service = self._source_control_service
+        policy = profile.n5.invocation_quota_policy
+        if action_phase_ref is None or service is None or policy is None:
+            raise ValueError("ordinary_source_budget_window_not_established")
+        window = self._source_reentry_budget_window(
+            closure=closure, action_phase_ref=action_phase_ref, create=False, family="ordinary"
+        )
+        if native_context is None:
+            state = BudgetState.model_validate(
+                {"limits": {"run": {"key": "run", "max_usd": window.effective_limit_usd}}}
+            )
+            observer = service.build_acquisition_source_budget_observer(
+                closure=closure, budget_state=state, reentry_budget_scope=window.scope
+            )
+        else:
+            state = native_context.budget_state
+            observer = native_context.budget_observer
+            if native_context.budget_scope != window.scope or native_context.action_ref is not None:
+                raise ValueError("ordinary_source_budget_native_context_mismatch")
+        if (
+            type(state) is not BudgetState
+            or type(observer) is not ProducerBudgetObserver
+            or observer.reentry_budget_window != window
+            or observer._store is not service._llm_producer_settlement_store
+            or observer._binding != window.scope.run_binding
+        ):
+            raise ValueError("ordinary_source_budget_observer_mismatch")
+        ProducerBudgetObserver.require_bound_state(observer, state)
+        ProducerBudgetObserver.bind_existing_invocation_policy_from_selected_owner(
+            observer, policy, purpose="standard"
+        )
+        return window, state, observer
 
     def _native_derivation_budget_profile(
         self, closure: VerifiedAcquisitionRouteClosure

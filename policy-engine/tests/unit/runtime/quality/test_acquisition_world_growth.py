@@ -3,6 +3,7 @@
 import asyncio
 import time
 from datetime import UTC, datetime
+from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -16,6 +17,15 @@ from polisyos.runtime.quality import acquisition_world_growth as growth
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRoutePhaseReceipt,
     VerifiedAcquisitionRouteClosure,
+)
+from polisyos.scientist import BudgetState
+from polisyos.scientist.orchestration.engine import (
+    BudgetInvocationQuotaPolicy,
+    BudgetLedgerProducerRunBinding,
+    BudgetLedgerReentryBudgetScope,
+    BudgetMiddleware,
+    FileBudgetLedger,
+    ProducerBudgetObserver,
 )
 
 
@@ -305,3 +315,117 @@ def test_settled_draft_reentry_writes_one_new_marker_and_keeps_original(
     assert observed == ["event-1"]  # noqa: S101
     assert original.read_text() == growth_ref  # noqa: S101
     assert retry.read_text() == "event-1"  # noqa: S101
+
+
+def test_ordinary_reentry_uses_the_exact_window_and_refuses_a_second_physical_permit(
+    tmp_path: Path,
+) -> None:
+    """The physical owner distinguishes a durable marker from a consumed invocation."""
+    ledger_path = tmp_path / "budget.json"
+    store = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+    binding = BudgetLedgerProducerRunBinding(
+        run_id="ordinary-run",
+        tenant_id="tenant",
+        cell_id="cell",
+        profile_id="dev",
+        control_job_id="original-nl-job",
+    )
+    cap = Decimal("1")
+    limits = {"run": {"key": "run", "max_usd": cap}}
+    with store.producer_run_binding_scope(binding, control_job_attempt=1):
+        store.settle_producer_event_safe(
+            "original-nl-settlement",
+            "a" * 64,
+            "b" * 64,
+            key=f"nl-run:{binding.run_id}",
+            model="fixture-model",
+            provider="fixture-provider",
+            amount=Decimal("0.1"),
+            cost_origin="reported",
+        )
+    policy = BudgetInvocationQuotaPolicy(
+        allocation_id="ordinary-standard", total_units=3, protected_units=1
+    )
+    initial_observer = ProducerBudgetObserver(
+        settlement_store=store,
+        producer_run_binding=binding,
+        budget_state=BudgetState.model_validate({"limits": limits}),
+        invocation_selection_pending=True,
+    )
+    initial_observer.bind_invocation_policy_from_selected_owner(policy)
+    scope = BudgetLedgerReentryBudgetScope(
+        run_binding=binding,
+        action_job_id="ordinary-action-job",
+        route_id="sha256:" + "1" * 64,
+        action_generation=2,
+        action_phase_ref="sha256:" + "2" * 64,
+        source_payload_ref="sha256:" + "3" * 64,
+        profile_selection_ref="sha256:" + "4" * 64,
+    )
+    window = store.open_reentry_budget_window_safe(scope, fresh_limit_usd=cap, global_limit_usd=cap)
+
+    def reopen() -> ProducerBudgetObserver:
+        reopened_store = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+        observer = ProducerBudgetObserver(
+            settlement_store=reopened_store,
+            producer_run_binding=binding,
+            budget_state=BudgetState.model_validate({"limits": limits}),
+            reentry_budget_scope=scope,
+        )
+        observer.bind_existing_invocation_policy_from_selected_owner(policy)
+        return observer
+
+    fence = tmp_path / "ordinary.reentry.started"
+    growth_ref = "sha256:" + "5" * 64
+    operation_id, request_digest = "6" * 64, "7" * 64
+    receipt = growth.AcquisitionOverlayReentryReceipt.model_construct()
+
+    async def interrupted() -> growth.AcquisitionOverlayReentryReceipt:
+        assert fence.read_text() == growth_ref  # noqa: S101
+        assert store.snapshot_safe().revision == window.revision  # noqa: S101
+        raise RuntimeError("interrupted before first reservation")
+
+    with pytest.raises(RuntimeError, match="interrupted before first reservation"):
+        growth.AcquisitionWorldGrowthBridge._run_active_overlay_reentry(
+            fence=fence,
+            growth_ref=growth_ref,
+            started=False,
+            native_configuration=None,
+            reenter=interrupted,
+            ordinary_admission=(reopen(), window),
+        )
+    assert not store.snapshot_safe().invocation_reservations  # noqa: S101
+
+    resumed = reopen()
+
+    async def one_work_unit() -> growth.AcquisitionOverlayReentryReceipt:
+        reservation = resumed.reserve_invocation(operation_id, request_digest)
+        assert reservation is not None and reservation.units == 1  # noqa: S101
+        resumed.finish_invocation(operation_id, request_digest, "completed")
+        return receipt
+
+    assert (  # noqa: S101
+        growth.AcquisitionWorldGrowthBridge._run_active_overlay_reentry(
+            fence=fence,
+            growth_ref=growth_ref,
+            started=True,
+            native_configuration=None,
+            reenter=one_work_unit,
+            ordinary_admission=(resumed, window),
+        )
+        is receipt
+    )
+    snapshot = store.snapshot_safe()
+    assert tuple(snapshot.invocation_reservations) == (operation_id,)  # noqa: S101
+    completed = snapshot.invocation_reservations[operation_id]
+    assert (completed.status, completed.purpose) == ("completed", "standard")  # noqa: S101
+    with pytest.raises(ValueError, match="acquisition_reentry_outcome_not_established"):
+        growth.AcquisitionWorldGrowthBridge._run_active_overlay_reentry(
+            fence=fence,
+            growth_ref=growth_ref,
+            started=True,
+            native_configuration=None,
+            reenter=one_work_unit,
+            ordinary_admission=(reopen(), window),
+        )
+    assert store.snapshot_safe() == snapshot  # noqa: S101

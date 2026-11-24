@@ -21573,7 +21573,7 @@
       "local_qualification": "PARTIAL",
       "capability_acceptance": "NOT_RUN",
       "current_execution": {
-        "status": "ACTIVE. Eight packets, 61 requirements and 60 test contracts. All original product defects have local repairs. 30 named local profiles qualify, 10 are partially verified and 21 lack deciding qualification. Shared E02-I03-A/B/C remain open.",
+        "status": "ACTIVE. Eight packets, 61 requirements and 60 test contracts. All original product defects have local repairs. 35 named local profiles qualify, 11 are partial and 15 lack deciding qualification. Shared E02-I03-A/B/C remain open.",
         "next": "Qualify exact temporal source selection, scope-bound measured observations, declared unit comparability, positive predictive interval and served calibration. Preserve existing owner limits and verify all three common-source scenarios.",
         "frc01_calibration_summary": {
           "scope": "REQ-FRC-01-01. S10 and G2 preserve descriptive counts while carrying only an admitted compatible floor. 10/10 limited, genuine 95/100 preserved. Removed records, tampered status and a foreign envelope refuse admission. 55 affected tests pass, with a separate exact old-mechanism failure and changed-import pass.",
@@ -39343,6 +39343,32 @@
           "id": "emp01_stock_registry_same_coordinate",
           "output": "Primary:policy-engine/_cache/e02/emp01-b31-registry-fixture-20261124-r1/",
           "result": "Actual DiD and SyntheticControl owner/run basis preserve the same selected coordinate with a fresh reader; genuine method results and negatives."
+        },
+        {
+          "id": "emp01_country_scope_before_sql_cap",
+          "output": "Primary:policy-engine/_cache/e02/emp01-country-order-limit-final.7JumxBOl/",
+          "result": "6 PASS on three stable owner/catalog-test paths. Actual DuckDB country before ORDER/LIMIT, foreign >20000 rows, in-scope cap+1, empty, ambiguity and scoped identity controls.",
+          "source_commit": "74df3a2af5444c8b4e68a4f1821ae649b7c75268",
+          "guard_sha256": "6104ac67a5394f9a94b1ea102cbebf2a63fa6e60bec8d6c6aa996a70cb258864"
+        },
+        {
+          "id": "emp01_real_scoped_catalog_owner",
+          "output": "Primary:policy-engine/_cache/e02/emp01-active-source-scope-20261124-r1/",
+          "result": "PASS on real signed selected epoch with two equally valued populations, exact IDs and years, typed scope/version refusals and physical selected raw removal/recovery. N8 SQL bridge pending.",
+          "guard_sha256": "a434a2baeda5ecbc978466fe116dd8f1d4984b250990842dccb462878bd2ceba"
+        },
+        {
+          "id": "emp01_native_selected_transport",
+          "output": "Primary:policy-engine/_cache/e02/emp01-transport-selected-replay-20261124-r5/",
+          "result": "PASS 1 actual selected pair of transport solver cases, fresh CAS, preserved measured S nodes, exact graph/profile/problem/world and physical withdrawal/corruption controls.",
+          "source_commit": "753e396655f4833b0ffc5748489dacfb53e1874e",
+          "guard_sha256": "e8ac830cfb5add39f96481867f4cfeba7622773ef9f8b3500f60eee154145557"
+        },
+        {
+          "id": "emp01_current_and_genuine_legacy_width",
+          "output": "Primary:policy-engine/_cache/e02/emp01-retained-selected-legacy-20261124-r1/",
+          "result": "PASS exact selected stock v1 R12 outer width 16, actual old tiny width and current N8 v2, 7 width/version/endpoint/removal controls, 18 matching SHA pins. No provider, N5 or original writes.",
+          "guard_sha256": "d6e3e4664f666f30ed96902afb619b9c93a14b76c52c0ae4f3307724534ebbcd"
         }
       ],
       "blockers": [],
@@ -39406,10 +39432,65 @@
           "remaining_kinds": []
         },
         {
+          "requirement_id": "REQ-EMP-01-04",
+          "test_id": "TEST-EMP-01-04",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Stock country-bound Native Catalog query checks scope before cap, cap+1 versus empty, ambiguous source/unit-period rejection and exact selected row identity. Extended bound measurement scope tracks REQ05.",
+          "criterion_pointer": "04_Трассировка/EMP-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-EMP-01-04",
+            "TEST-EMP-01-05"
+          ],
+          "binding_ids": [
+            "E02-I03-A-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "emp01_country_scope_before_sql_cap"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-EMP-01-05",
+          "test_id": "TEST-EMP-01-05",
+          "status": "PARTIAL",
+          "basis": "The signed scoped Catalog owner selects different physical membership for equal numerical summaries. Fresh replays exact original occurrence, wrong version/missing scope/raw refuse.",
+          "criterion_pointer": "04_Трассировка/EMP-01.json#/requirements/4",
+          "test_ids": [
+            "TEST-EMP-01-05"
+          ],
+          "binding_ids": [
+            "E02-I03-A-B01"
+          ],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "emp01_real_scoped_catalog_owner"
+          ],
+          "remaining_kinds": [
+            "exact_scope_through_N8_SQL_before_cap_and_cold_reader"
+          ]
+        },
+        {
+          "requirement_id": "REQ-EMP-01-06",
+          "test_id": "TEST-EMP-01-06",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Two actual same-node graphs yield distinct transport roles/formulas and keep S-node role unresolved. Fresh exact CAS profile replay, wrong profile/problem/WMR/query and actual removal/refusal controls pass.",
+          "criterion_pointer": "04_Трассировка/EMP-01.json#/requirements/5",
+          "test_ids": [
+            "TEST-EMP-01-06"
+          ],
+          "binding_ids": [],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "emp01_native_selected_transport"
+          ],
+          "remaining_kinds": []
+        },
+        {
           "requirement_id": "REQ-EMP-01-08",
           "test_id": "TEST-EMP-01-08",
-          "status": "PARTIAL",
-          "basis": "Current and legacy checksum constraints are explicit and tested across selected CAS and N6.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The stock old R12 selected profile and legacy tiny rounded bytes replay by historical checksum; current exact profile uses its declared rule, wrong version, endpoint, width or selected input refuse, no current promotion.",
           "criterion_pointer": "04_Трассировка/EMP-01.json#/requirements/7",
           "test_ids": [
             "TEST-EMP-01-01",
@@ -39417,13 +39498,12 @@
             "TEST-EMP-01-08"
           ],
           "binding_ids": [],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
+            "emp01_current_and_genuine_legacy_width",
             "emp01_scope_width_checksum"
           ],
-          "remaining_kinds": [
-            "historical_N8_N9_same_bytes_reopen"
-          ]
+          "remaining_kinds": []
         }
       ]
     },
@@ -39478,6 +39558,12 @@
           "output": "Primary:policy-engine/_cache/e02/frc01-v6-served.XIkZSRn8/",
           "result": "COMMAND_FAIL before calibration POST; SQL 120-second job closure, late N4 return at about 193s from entry, no operation intents or provider/N5.",
           "guard_sha256": "541fa82a3b919d83f5b70c20c32664b7ff40c1bfab5bc482e1a5b42e72efb183"
+        },
+        {
+          "id": "frc01_bounded_retained_job",
+          "output": "Primary:policy-engine/_cache/e02/frc01-v6-bounded-served-r2.2qLu069i/",
+          "result": "COMMAND_FAIL after SQLite completed candidate job. Exact ordinary N4 returned in 1.567s, candidate N4 in .229s. Owner deadline unchanged. Test-only path string/object assertion before POST and 3 transitive source pins changed. Reuse immutable selected complete source from actual job without physical repeat.",
+          "guard_sha256": "5a59850744e34ef038ab61f41290cb7e5f139b5585d88882003ed7481598ec9e"
         }
       ],
       "blockers": [],
@@ -39526,7 +39612,7 @@
           "requirement_id": "REQ-FRC-01-06",
           "test_id": "TEST-FRC-01-06",
           "status": "PARTIAL",
-          "basis": "Current local support and actual historic v3 bytes reopen. Stock served v6 failed at ordinary candidate N4 before POST.",
+          "basis": "Current local v6 and genuine v3 historical read qualify. Bounded ordinary N4 actual SQLite job completes; wrapper stops before POST. Dedicated retained-job HTTP check in progress.",
           "criterion_pointer": "04_Трассировка/FRC-01.json#/requirements/5",
           "test_ids": [
             "TEST-FRC-01-06"
@@ -39537,7 +39623,8 @@
           "assessment": "selected_profile_partial",
           "evidence_refs": [
             "frc01_selected_support_v6",
-            "frc01_served_n4_deadline"
+            "frc01_served_n4_deadline",
+            "frc01_bounded_retained_job"
           ],
           "remaining_kinds": [
             "current_HTTP_POST_event_fresh_GET"
@@ -39780,6 +39867,13 @@
           "output": "Primary:policy-engine/_cache/e02/frc02-07-empirical-20261124/",
           "result": "Actual registered Foundry ETS and conformal outputs on one WDI vintage. 19 complete held-out years, 11 hits, mean width 70.3333, MAE 34.2306 versus 21.3899. Paired 2000 moving-block draws and all source rows independently reconciled.",
           "guard_sha256": "18750b3fb9588e86a66b130508d3d98a3ff5c060ffbc5fbee5e87a0b32af6d2a"
+        },
+        {
+          "id": "frc02_selected_observed_level_owner",
+          "output": "Primary:policy-engine/_cache/e02/frc02-observed-level-producer-r5.cK9RU7nJ/",
+          "result": "1 PASS exact registered configured N4→effective WMR→selected full annual GDP outcome relation. Shared Data Forge owner resolves fiscal revenue representation. Same-byte selected ref, wrong definition, rescaled/short range, monthly and share negatives. Four observed years with controlled N4 and lease fixture.",
+          "source_commit": "bd3d971bc973e0c2df5e5367a739d52009697b09",
+          "guard_sha256": "b1e6f2adaef824b4432153ef05c7e6960d0518286d13ba360f10d78497a7f1d2"
         }
       ],
       "blockers": [],
@@ -39806,6 +39900,49 @@
             "frc02_legacy_counter_replay"
           ],
           "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-FRC-02-04",
+          "test_id": "TEST-FRC-02-04",
+          "status": "PARTIAL",
+          "basis": "Stock N4 source and actual model/world and Catalog owners bind the selected annual observable GDP profile. Exact candidate, period/location, unit and denials remain visible.",
+          "criterion_pointer": "04_Трассировка/FRC-02.json#/requirements/3",
+          "test_ids": [
+            "TEST-FRC-02-05",
+            "TEST-FRC-02-06"
+          ],
+          "binding_ids": [
+            "E02-I03-B-B03",
+            "E02-X04-B04"
+          ],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "frc02_selected_observed_level_owner"
+          ],
+          "remaining_kinds": [
+            "served_selected_relation_and_partial_removal"
+          ]
+        },
+        {
+          "requirement_id": "REQ-FRC-02-05",
+          "test_id": "TEST-FRC-02-05",
+          "status": "PARTIAL",
+          "basis": "Source/profile owner remains authoritative over candidate hypothesis. Exact observed role and disposition do not infer issuer, population completeness or release time. Shared annual representation resolves GDP and fiscal revenues.",
+          "criterion_pointer": "04_Трассировка/FRC-02.json#/requirements/4",
+          "test_ids": [
+            "TEST-FRC-02-05",
+            "TEST-FRC-02-06"
+          ],
+          "binding_ids": [
+            "E02-I03-B-B03"
+          ],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "frc02_selected_observed_level_owner"
+          ],
+          "remaining_kinds": [
+            "second_producer_metric_via_served_ForecastOwner"
+          ]
         },
         {
           "requirement_id": "REQ-FRC-02-07",
@@ -39841,7 +39978,7 @@
       "integration_qualification": "PARTIAL",
       "assigned_executor": null,
       "base_commit": null,
-      "integrated_commit": "2c9c03ea5fd2d4a1c9988e544530ec0ddda895d6",
+      "integrated_commit": "42e4f0b328a023fa054473f51151e19c15e26519",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/methods/backtesting/masking.py",
         "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
@@ -39912,6 +40049,13 @@
           "result": "4 PASS on six stable pins; one real Foundry seed 31 using reused prefix and calendar; fresh exact cohort; same-body foreign original, wrong cutoff and forged projection refuse without invoking Foundry.",
           "source_commit": "2c9c03ea5fd2d4a1c9988e544530ec0ddda895d6",
           "guard_sha256": "3e2961cb26b9cd28740c4f2f0fb7107077b628463f135af11a3c8234abb96a25"
+        },
+        {
+          "id": "bkt01_scoped_native_constant",
+          "output": "Primary:policy-engine/_cache/e02/bkt01-outcome-scope-r1.YixxAIjy/",
+          "result": "14 PASS; actual two steps t2/t3 from exact source/seed yield [7,7] USD, fresh CAS adds zero calls. Ordinary shape-only effect refuses as outcome and retains selected cohort. Exact original mechanism reproduced before repair.",
+          "source_commit": "42e4f0b328a023fa054473f51151e19c15e26519",
+          "guard_sha256": "8bfa15c610bc1f02609bd349617c2ea1f67aa81b24a954fa99086b86b9753e1e"
         }
       ],
       "blockers": [],
@@ -39993,6 +40137,24 @@
           "evidence_refs": [
             "bkt01_selected_metrics_and_fallback",
             "bkt_range_and_bias_composed"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-BKT-01-05",
+          "test_id": "TEST-BKT-01-05",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Stock Native constant comes from two explicit verified coordinates. Unit, origin, cutoff, prestate, provenance and replica agree; shape-only matched-length output falls back with exact original cohort retained.",
+          "criterion_pointer": "04_Трассировка/BKT-01.json#/requirements/4",
+          "test_ids": [
+            "TEST-BKT-01-05"
+          ],
+          "binding_ids": [
+            "E02-I03-C-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "bkt01_scoped_native_constant"
           ],
           "remaining_kinds": []
         }
@@ -40243,6 +40405,13 @@
           "result": "61 PASS with 11 stable pins. Source-bound signed reduction, real SciPy range, fresh C5b and packet controls.",
           "source_commit": "ec767b75180736df3e8e9b2ef6d0787b2b5ed50e",
           "guard_sha256": "6e7e4bd8b213e33a63dc53aa34d1f17b9bd3fdc75767b25460a8e5e5f10225b2"
+        },
+        {
+          "id": "bkt03_backend_faults_c5b",
+          "output": "Primary:policy-engine/_cache/e02/bkt03-04-fault-matrix-20261124-r2/",
+          "result": "6 PASS. Controlled invalid/missing backend results traverse stock report producer, exact CAS, and fresh C5b. Descriptive source count, mean, magnitude and sign remain. Statistical identity/p and trust are withheld.",
+          "source_commit": "9ec9ccbe6aa2d08241fbd59b26536cea4224e107",
+          "guard_sha256": "cd0afe58a9962970e593a79ac492f81261aa0e1d37f63237780d3d89df1e0eee"
         }
       ],
       "blockers": [],
@@ -40308,8 +40477,8 @@
         {
           "requirement_id": "REQ-BKT-03-04",
           "test_id": "TEST-BKT-03-04",
-          "status": "PARTIAL",
-          "basis": "Genuine SciPy reference, import denial, source-range mismatch and fresh statistical tamper are verified.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual installed SciPy numerical/method backend and exact fresh tamper peers passed in the composed group. Absent method, nonfinite/out-of-range and raised backend cases each preserve only descriptive results through fresh C5b.",
           "criterion_pointer": "04_Трассировка/BKT-03.json#/requirements/3",
           "test_ids": [
             "TEST-BKT-03-04",
@@ -40318,13 +40487,12 @@
           "binding_ids": [
             "E02-I03-C-B03"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
-            "bkt_range_and_bias_composed"
+            "bkt_range_and_bias_composed",
+            "bkt03_backend_faults_c5b"
           ],
-          "remaining_kinds": [
-            "remaining_backend_fault_matrix"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-BKT-03-05",

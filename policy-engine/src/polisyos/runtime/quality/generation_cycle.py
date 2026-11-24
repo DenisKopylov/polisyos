@@ -2529,9 +2529,9 @@ def _derived_value_data_modalities(
 class ValueDataProfile(_StrictModel):
     """Method-neutral owner rows and their still-missing treatment knowledge."""
 
-    schema_version: Literal["policyos.runtime.value_data_profile.v2"] = (
-        "policyos.runtime.value_data_profile.v2"
-    )
+    schema_version: Literal[
+        "policyos.runtime.value_data_profile.v2", "policyos.runtime.value_data_profile.v3"
+    ] = "policyos.runtime.value_data_profile.v2"
     outcome: str = Field(min_length=1)
     measurement_unit: str = Field(min_length=1)
     rows: tuple[ValueOwnerRow, ...] = Field(min_length=4)
@@ -2545,9 +2545,16 @@ class ValueDataProfile(_StrictModel):
     owner_access_ref: str = Field(min_length=1)
     owner_rows_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    scope_selection_content_sha256: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$", exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _verify_profile_content(self) -> ValueDataProfile:
+        if (self.schema_version == "policyos.runtime.value_data_profile.v3") != (
+            self.scope_selection_content_sha256 is not None
+        ):
+            raise ValueError("value_data_profile_scope_version_mismatch")
         if not self.measurement_unit.strip():
             raise ValueError("value_data_profile_measurement_unit_missing")
         if any(row.measurement_unit != self.measurement_unit for row in self.rows):
@@ -8957,7 +8964,10 @@ class RealValueOwnerGateway:
         data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection | None
     ) = None
     source_projection_request: (
-        ValueOwnerSourceProjectionRequestV1 | None | _ValueOwnerSourceProjectionRequestUnset
+        ValueOwnerSourceProjectionRequestV1
+        | ValueOwnerSourceProjectionRequestV2
+        | None
+        | _ValueOwnerSourceProjectionRequestUnset
     ) = _VALUE_OWNER_SOURCE_PROJECTION_REQUEST_UNSET
 
     def load_value_data_profile(
@@ -9045,6 +9055,24 @@ class RealValueOwnerGateway:
             _object_get(jurisdiction_time, "region"),
             owner_access_ref=owner_access_ref,
         )
+        measurement_scope = None
+        dataset_version = None
+        if isinstance(self.source_projection_request, ValueOwnerSourceProjectionRequestV2):
+            scoped_request = _verified_value_source_request(self.source_projection_request)
+            if type(scoped_request) is not ValueOwnerSourceProjectionRequestV2:
+                raise ValueError("value_owner_source_request_version_mismatch")
+            outcome_binding = next(
+                item for item in scoped_request.variable_projections if item.role == "outcome"
+            )
+            if (
+                outcome_binding.variable_id != outcome
+                or self.activated_observation_projection is None
+                or self.activated_observation_projection.model_dump(mode="json")
+                != outcome_binding.projection_payload
+            ):
+                raise ValueError("value_owner_source_outcome_projection_conflict")
+            measurement_scope = scoped_request.measurement_scope
+            dataset_version = outcome_binding.dataset_version
         profile = _load_value_data_profile_from_l1_dcat(
             repo_root=repo_root,
             outcome=outcome,
@@ -9053,6 +9081,8 @@ class RealValueOwnerGateway:
             scope_region=scope_region,
             artifact_store=self.artifact_store,
             activated_observation_projection=self.activated_observation_projection,
+            measurement_scope=measurement_scope,
+            expected_dataset_version=dataset_version,
         )
         if profile is None:
             raise ValueOwnerAccessError(
@@ -9082,11 +9112,7 @@ class RealValueOwnerGateway:
             return None
         if request is None:
             raise ValueError("value_owner_source_request_explicit_null")
-        if not isinstance(request, ValueOwnerSourceProjectionRequestV1):
-            raise ValueError("value_owner_source_request_untyped")
-        request = ValueOwnerSourceProjectionRequestV1.model_validate(
-            request.model_dump(mode="python")
-        )
+        request = _verified_value_source_request(request)
         return _value_owner_source_projection_intent(
             gateway=self,
             candidate=candidate,
@@ -9777,7 +9803,7 @@ class FoundryValuePort:
                     and self._owner_gateway is not None
                     and type(self._owner_gateway) is RealValueOwnerGateway
                     and type(self._owner_gateway.source_projection_request)
-                    is ValueOwnerSourceProjectionRequestV1
+                    in (ValueOwnerSourceProjectionRequestV1, ValueOwnerSourceProjectionRequestV2)
                 ),
             )
             if not builtin_scope_limited:
@@ -23294,6 +23320,56 @@ def _read_active_source_projection_in_catalog_scope(
     return owner_projection, passport, passport_content_hash
 
 
+def _select_active_value_source_scope(
+    *,
+    repo_root: Path,
+    overlay_path: Path | None,
+    artifact_store: ArtifactStore,
+    projection: data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection,
+    passport: AdmissionPassport,
+    measurement_scope: core_contracts.ModelInputScope,
+    expected_dataset_version: str,
+) -> data_forge_read_api.catalog.ActivatedMeasurementScopeSelection:
+    """Recompute one explicit scope through the active Catalog owner."""
+    from polisyos.runtime.quality.substrate_registry import (
+        current_catalog_serving_source,
+        default_substrate_catalog_paths,
+    )
+
+    root = repo_root.resolve()
+    selected_source = current_catalog_serving_source()
+    if selected_source is not None:
+        if selected_source.repo_root.resolve() != root:
+            raise ValueError("value_owner_source_projection_repo_root_mismatch")
+        baseline_path = selected_source.substrate_paths.l1_dcat_path.resolve()
+        active_overlay_path = selected_source.overlay_path.resolve()
+        if overlay_path is not None and overlay_path.resolve() != active_overlay_path:
+            raise ValueError("value_owner_source_projection_overlay_mismatch")
+    else:
+        baseline_path = default_substrate_catalog_paths(root).l1_dcat_path.resolve()
+        active_overlay_path = (
+            overlay_path or data_forge_read_api.catalog.default_acquisition_overlay_path(root)
+        ).resolve()
+    authority = data_forge_read_api.catalog.CanonicalAcquisitionAuthority.from_provision(
+        repo_root=root, baseline_path=baseline_path
+    )
+    overlay = data_forge_read_api.catalog.CatalogAcquisitionOverlay(
+        baseline_path, active_overlay_path
+    )
+    selected = data_forge_read_api.catalog.select_activated_measurement_scope(
+        artifact_store,
+        overlay,
+        receipt_ref=projection.receipt_ref,
+        passport=passport,
+        authority=authority,
+        requested_scope=measurement_scope,
+        dataset_version=expected_dataset_version,
+    )
+    if selected.projection_content_sha256 != projection.projection_content_sha256:
+        raise ValueError("value_owner_source_scope_projection_changed")
+    return selected
+
+
 def _load_value_data_profile_from_l1_dcat(
     *,
     repo_root: Path,
@@ -23305,6 +23381,9 @@ def _load_value_data_profile_from_l1_dcat(
     activated_observation_projection: (
         data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection | None
     ) = None,
+    measurement_scope: core_contracts.ModelInputScope | None = None,
+    expected_dataset_version: str | None = None,
+    owner_row_limit: int = 20_000,
 ) -> ValueDataProfile | None:
     """Reconstruct a complete profile inside one guarded Catalog read scope."""
 
@@ -23321,6 +23400,9 @@ def _load_value_data_profile_from_l1_dcat(
                 scope_region=scope_region,
                 artifact_store=artifact_store,
                 activated_observation_projection=activated_observation_projection,
+                measurement_scope=measurement_scope,
+                expected_dataset_version=expected_dataset_version,
+                owner_row_limit=owner_row_limit,
             )
     except SubstrateRegistryError as exc:
         raise ValueOwnerAccessError(
@@ -23340,17 +23422,27 @@ def _load_value_data_profile_from_catalog_reader(
     activated_observation_projection: (
         data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection | None
     ) = None,
+    measurement_scope: core_contracts.ModelInputScope | None = None,
+    expected_dataset_version: str | None = None,
+    owner_row_limit: int = 20_000,
 ) -> ValueDataProfile | None:
     """Load deterministic owner rows without deriving an exposure assignment."""
 
     normalized_scope_region = _optional_text(scope_region)
-    owner_row_limit = 20_000
+    if type(owner_row_limit) is not int or not 1 <= owner_row_limit <= 20_000:
+        raise ValueError("value_owner_row_limit_invalid")
+    if (measurement_scope is None) != (expected_dataset_version is None):
+        raise ValueError("value_owner_scope_request_incomplete")
+    if measurement_scope is not None and activated_observation_projection is None:
+        raise ValueError("value_owner_scope_active_projection_missing")
     parameters: list[object] = [outcome]
     observation_projection = None
     registered_dataset_id: str | None = None
     registered_canonical_unit: str | None = None
     selected_wdi_observation_ids: tuple[str, ...] = ()
     projected_observation_ids: tuple[str, ...] | None = None
+    scope_selection = None
+    scope_selected_ids: frozenset[str] | None = None
     registered_measurement_units_by_id: dict[str, str] = {}
     if activated_observation_projection is not None:
         projection_type = data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
@@ -23426,6 +23518,27 @@ def _load_value_data_profile_from_catalog_reader(
                 "Data Forge active rows differ from their passport registration dataset",
                 owner_access_ref=(f"{owner_access_ref}#activated-observation-projection"),
             )
+        if measurement_scope is not None:
+            if expected_dataset_version is None:
+                raise ValueError("value_owner_scope_request_incomplete")
+            try:
+                scope_selection = _select_active_value_source_scope(
+                    repo_root=repo_root,
+                    overlay_path=overlay_path,
+                    artifact_store=artifact_store,
+                    projection=observation_projection,
+                    passport=passport,
+                    measurement_scope=measurement_scope,
+                    expected_dataset_version=expected_dataset_version,
+                )
+            except (OSError, TypeError, ValueError, RuntimeError) as exc:
+                code = getattr(exc, "code", "measurement_scope_owner_unresolved")
+                raise ValueOwnerAccessError(
+                    f"acquire_data:{code}",
+                    f"The active Catalog owner could not resolve the requested scope: {exc}",
+                    owner_access_ref=f"{owner_access_ref}#measurement-scope",
+                ) from exc
+            scope_selected_ids = frozenset(item[0] for item in scope_selection.selected_rows)
         if normalized_scope_region:
             from polisyos.data_forge.read_api.catalog import (
                 iso2_to_iso3,
@@ -23443,6 +23556,11 @@ def _load_value_data_profile_from_catalog_reader(
             selected_ids: list[str] = []
             for row in observation_projection.observations:
                 observation = row.observation
+                if (
+                    scope_selected_ids is not None
+                    and observation.observation_id not in scope_selected_ids
+                ):
+                    continue
                 if observation.country_code == normalized_scope_region:
                     continue
                 if normalize_country_code(observation.country_code) != normalized_scope_region:
@@ -23477,11 +23595,25 @@ def _load_value_data_profile_from_catalog_reader(
             row.observation.observation_id
             for row in observation_projection.observations
             if (
-                not normalized_scope_region
-                or row.observation.country_code == normalized_scope_region
-                or row.observation.observation_id in selected_wdi_observation_ids
+                (
+                    not normalized_scope_region
+                    or row.observation.country_code == normalized_scope_region
+                    or row.observation.observation_id in selected_wdi_observation_ids
+                )
+                and (
+                    scope_selected_ids is None
+                    or row.observation.observation_id in scope_selected_ids
+                )
             )
         )
+        if scope_selection is not None and len(projected_observation_ids) != len(
+            scope_selection.selected_rows
+        ):
+            raise ValueOwnerAccessError(
+                "acquire_data:measurement_scope_region_mismatch",
+                "The selected Catalog scope does not match the declared problem region.",
+                owner_access_ref=f"{owner_access_ref}#measurement-scope",
+            )
     parameters.extend(
         (
             normalized_scope_region,
@@ -23562,6 +23694,11 @@ def _load_value_data_profile_from_catalog_reader(
             physical_rows_by_id.setdefault(str(raw_row[4]), []).append(raw_row)
         for projected in observation_projection.observations:
             observation = projected.observation
+            if (
+                scope_selected_ids is not None
+                and observation.observation_id not in scope_selected_ids
+            ):
+                continue
             projected_unit = observation.country_code
             if normalized_scope_region:
                 if (
@@ -23674,6 +23811,9 @@ def _load_value_data_profile_from_catalog_reader(
         "owner_access_ref": owner_access_ref,
         "owner_rows_content_hash": gy_content_hash(rows_payload),
     }
+    if scope_selection is not None:
+        payload["schema_version"] = "policyos.runtime.value_data_profile.v3"
+        payload["scope_selection_content_sha256"] = scope_selection.selection_content_sha256
     return ValueDataProfile.model_validate({**payload, "content_hash": gy_content_hash(payload)})
 
 
@@ -28129,7 +28269,9 @@ __all__ = [
     "ValueCalibrationReceipt",
     "ValueGateReceipt",
     "ValueOwnerSourceProjectionRequestV1",
+    "ValueOwnerSourceProjectionRequestV2",
     "ValueOwnerSourceVariableProjectionV1",
+    "ValueOwnerSourceVariableProjectionV2",
     "ValuePortObservation",
     "ValueTransportReceipt",
     "ValueTransportRunReceiptV1",
@@ -28272,6 +28414,91 @@ class ValueOwnerSourceProjectionRequestV1(_StrictModel):
             "value_owner_source_method_parameters_invalid",
         )
         return self
+
+
+class ValueOwnerSourceVariableProjectionV2(ValueOwnerSourceVariableProjectionV1):
+    """One selected source with an explicitly expected dataset version."""
+
+    dataset_version: str = Field(min_length=1, strict=True)
+
+    @field_validator("dataset_version")
+    @classmethod
+    def _canonical_dataset_version(cls, value: str) -> str:
+        if value != value.strip():
+            raise ValueError("value_owner_source_dataset_version_invalid")
+        return value
+
+
+class ValueOwnerSourceProjectionRequestV2(ValueOwnerSourceProjectionRequestV1):
+    """Explicit candidate scope over each version-bound active source role."""
+
+    schema_version: Literal["policyos.runtime.value_owner_source_projection_request.v2"] = (
+        "policyos.runtime.value_owner_source_projection_request.v2"
+    )
+    variable_projections: tuple[ValueOwnerSourceVariableProjectionV2, ...] = Field(min_length=3)
+    measurement_scope: core_contracts.ModelInputScope
+
+    @field_validator("measurement_scope", mode="before")
+    @classmethod
+    def _read_scope(cls, value: object) -> object:
+        if not isinstance(value, Mapping):
+            return value
+        from datetime import date
+
+        normalized = dict(value)
+        for name in ("period_start", "period_end"):
+            raw = normalized.get(name)
+            if type(raw) is str:
+                parsed = date.fromisoformat(raw)
+                if parsed.isoformat() != raw:
+                    raise ValueError("value_owner_source_scope_date_invalid")
+                normalized[name] = parsed
+        return core_contracts.ModelInputScope.model_validate(normalized)
+
+    @model_validator(mode="after")
+    def _verify_source_request(self) -> ValueOwnerSourceProjectionRequestV2:
+        estimand = _typed_value_estimand_spec(self.estimand_spec_json)
+        if estimand.population != self.measurement_scope.population_ref:
+            raise ValueError("value_owner_source_estimand_scope_mismatch")
+        if (
+            self.measurement_scope.time_role != "observation_time"
+            or self.measurement_scope.period_basis != "calendar_year"
+            or (self.measurement_scope.period_start.month, self.measurement_scope.period_start.day)
+            != (1, 1)
+            or (self.measurement_scope.period_end.month, self.measurement_scope.period_end.day)
+            != (12, 31)
+        ):
+            raise ValueError("value_owner_source_scope_time_unsupported")
+        # Reuse the v1 role, method, support, and parameter checks while
+        # preserving the original v2 estimand and its separately bound scope.
+        normalized_estimand = json.loads(self.estimand_spec_json)
+        normalized_estimand["population"] = "unspecified"
+        payload = self.model_dump(mode="python", exclude={"measurement_scope"})
+        payload["schema_version"] = "policyos.runtime.value_owner_source_projection_request.v1"
+        payload["estimand_spec_json"] = json.dumps(
+            normalized_estimand, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+        )
+        payload["variable_projections"] = [
+            {
+                "role": binding.role,
+                "variable_id": binding.variable_id,
+                "projection_payload": binding.projection_payload,
+            }
+            for binding in self.variable_projections
+        ]
+        ValueOwnerSourceProjectionRequestV1.model_validate(payload)
+        return self
+
+
+def _verified_value_source_request(
+    request: object,
+) -> ValueOwnerSourceProjectionRequestV1 | ValueOwnerSourceProjectionRequestV2:
+    """Select the declared wire once; never infer a scope from legacy data."""
+    if isinstance(request, ValueOwnerSourceProjectionRequestV2):
+        return ValueOwnerSourceProjectionRequestV2.model_validate(request.model_dump(mode="python"))
+    if isinstance(request, ValueOwnerSourceProjectionRequestV1):
+        return ValueOwnerSourceProjectionRequestV1.model_validate(request.model_dump(mode="python"))
+    raise ValueError("value_owner_source_request_untyped")
 
 
 class ValueOwnerSourceRoleProfileV1(_StrictModel):
@@ -28860,7 +29087,7 @@ def _value_owner_source_projection_intent(
     world_record: WorldModelRecord,
     outcome_profile: ValueDataProfile,
     selected_method_fqn: str,
-    request: ValueOwnerSourceProjectionRequestV1,
+    request: ValueOwnerSourceProjectionRequestV1 | ValueOwnerSourceProjectionRequestV2,
     selected_method_class: type | None = None,
 ) -> ValueOwnerMethodRunIntentV1:
     """Resolve, bind, and persist the explicit source-role profiles for N8."""
@@ -28871,9 +29098,7 @@ def _value_owner_source_projection_intent(
         l1_dcat_variable_availability,
     )
 
-    if not isinstance(request, ValueOwnerSourceProjectionRequestV1):
-        raise ValueError("value_owner_source_request_untyped")
-    request = ValueOwnerSourceProjectionRequestV1.model_validate(request.model_dump(mode="python"))
+    request = _verified_value_source_request(request)
     if selected_method_fqn != request.selected_method_fqn:
         raise ValueError("value_owner_source_selected_method_mismatch")
     if gateway.artifact_store is None:
@@ -28961,11 +29186,28 @@ def _value_owner_source_projection_intent(
                 scope_region=scope_region,
                 artifact_store=gateway.artifact_store,
                 activated_observation_projection=projection,
+                measurement_scope=(
+                    request.measurement_scope
+                    if type(request) is ValueOwnerSourceProjectionRequestV2
+                    else None
+                ),
+                expected_dataset_version=(
+                    binding.dataset_version
+                    if type(binding) is ValueOwnerSourceVariableProjectionV2
+                    else None
+                ),
             )
             if profile is None:
                 raise ValueError("value_owner_source_variable_rows_missing")
         if profile.outcome != binding.variable_id:
             raise ValueError("value_owner_source_profile_variable_mismatch")
+        expected_profile_version = (
+            "policyos.runtime.value_data_profile.v3"
+            if type(request) is ValueOwnerSourceProjectionRequestV2
+            else "policyos.runtime.value_data_profile.v2"
+        )
+        if profile.schema_version != expected_profile_version:
+            raise ValueError("value_owner_source_profile_scope_version_mismatch")
         projection_ref_raw = put_json_artifact(
             ir_store,
             projection.model_dump(mode="json"),
@@ -28980,8 +29222,16 @@ def _value_owner_source_projection_intent(
             ir_store,
             profile.model_dump(mode="json"),
             kind="runtime.value_data_profile",
-            schema_name="runtime.value_data_profile.v2",
-            schema_version="2.0",
+            schema_name=(
+                "runtime.value_data_profile.v3"
+                if profile.schema_version == "policyos.runtime.value_data_profile.v3"
+                else "runtime.value_data_profile.v2"
+            ),
+            schema_version=(
+                "3.0"
+                if profile.schema_version == "policyos.runtime.value_data_profile.v3"
+                else "2.0"
+            ),
             inputs=[_value_input_ref(projection_ref, role="activated_source_projection")],
             canon_spec=IRCanonSpec(forbid_floats=False),
             return_selected_profile=True,
@@ -29106,6 +29356,24 @@ def _value_source_profiles_from_store(
         profile = ValueDataProfile.model_validate(
             _value_load_ref_payload(ir_store, binding.profile_ref)
         )
+        selected_manifest = ir_store.get_manifest_by_profile(
+            binding.profile_ref.artifact_id, binding.profile_ref.manifest_profile_sha256
+        )
+        expected_schema = (
+            ("runtime.value_data_profile.v3", "3.0")
+            if profile.schema_version == "policyos.runtime.value_data_profile.v3"
+            else ("runtime.value_data_profile.v2", "2.0")
+        )
+        profile_schema = selected_manifest.artifact_schema
+        if (
+            profile_schema is None
+            or (
+                profile_schema.name,
+                profile_schema.version,
+            )
+            != expected_schema
+        ):
+            raise ValueError("value_owner_source_profile_schema_mismatch")
         projection_payload = _value_load_ref_payload(ir_store, binding.projection_ref)
         projection = (
             data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection.model_validate(
@@ -29342,9 +29610,7 @@ def _value_owner_reloaded_source_profiles(
     if not isinstance(raw_request, ValueOwnerSourceProjectionRequestV1):
         raise ValueError("value_owner_source_fresh_request_missing")
     try:
-        request = ValueOwnerSourceProjectionRequestV1.model_validate(
-            raw_request.model_dump(mode="python")
-        )
+        request = _verified_value_source_request(raw_request)
     except Exception as exc:
         raise ValueError("value_owner_source_fresh_request_invalid") from exc
     estimand = _typed_value_estimand_spec(request.estimand_spec_json)
@@ -29419,6 +29685,16 @@ def _value_owner_reloaded_source_profiles(
             scope_region=current_scope_region,
             artifact_store=gateway.artifact_store,
             activated_observation_projection=projection,
+            measurement_scope=(
+                request.measurement_scope
+                if type(request) is ValueOwnerSourceProjectionRequestV2
+                else None
+            ),
+            expected_dataset_version=(
+                declared.dataset_version
+                if type(declared) is ValueOwnerSourceVariableProjectionV2
+                else None
+            ),
         )
         if profile is None:
             raise ValueError("value_owner_source_fresh_rows_missing")

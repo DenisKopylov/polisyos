@@ -8,6 +8,7 @@ Simulation draws are never supplied to an observational method.
 from __future__ import annotations
 
 import time
+from collections import Counter
 from collections.abc import Mapping
 from contextlib import ExitStack, contextmanager
 from typing import TYPE_CHECKING, Literal, Protocol
@@ -39,6 +40,7 @@ if TYPE_CHECKING:
         RealValueOwnerGateway,
         SimulationPortObservation,
         ValueOwnerSourceProjectionRequestV1,
+        ValueOwnerSourceProjectionRequestV2,
         ValuePortObservation,
         _DefaultSimulationBoundFoundryValuePort,
     )
@@ -226,14 +228,18 @@ def _reconcile_selected_outer_set(
 
 def persist_candidate_value_source_request(
     store: ArtifactStore,
-    request: ValueOwnerSourceProjectionRequestV1,
+    request: ValueOwnerSourceProjectionRequestV1 | ValueOwnerSourceProjectionRequestV2,
 ) -> ArtifactRef:
     """Persist explicit candidate role inputs without granting source authority."""
     from polisyos.data_forge import read_api
     from polisyos.ir import CanonSpec, put_json_artifact
-    from polisyos.runtime.quality.generation_cycle import ValueOwnerSourceProjectionRequestV1
+    from polisyos.runtime.quality.generation_cycle import (
+        ValueOwnerSourceProjectionRequestV2,
+        _verified_value_source_request,
+    )
 
-    request = ValueOwnerSourceProjectionRequestV1.model_validate(request.model_dump(mode="python"))
+    request = _verified_value_source_request(request)
+    scoped = type(request) is ValueOwnerSourceProjectionRequestV2
     inputs = []
     for binding in request.variable_projections:
         projection = read_api.catalog.ActivatedAcquisitionObservationProjection.model_validate(
@@ -247,8 +253,12 @@ def persist_candidate_value_source_request(
             ensure_ir_artifact_store(store),
             request.model_dump(mode="json"),
             kind=_REQUEST_KIND,
-            schema_name="policyos.runtime.value_owner_source_projection_request.v1",
-            schema_version="1.0",
+            schema_name=(
+                "policyos.runtime.value_owner_source_projection_request.v2"
+                if scoped
+                else "policyos.runtime.value_owner_source_projection_request.v1"
+            ),
+            schema_version="2.0" if scoped else "1.0",
             canon_spec=CanonSpec(forbid_floats=False),
             inputs=inputs,
             return_selected_profile=True,
@@ -256,10 +266,62 @@ def persist_candidate_value_source_request(
     )
 
 
+def _load_selected_value_source_request(
+    store: ArtifactStore, ref: ArtifactRef
+) -> ValueOwnerSourceProjectionRequestV1 | ValueOwnerSourceProjectionRequestV2:
+    """Read the exact selected source-request schema without guessing a version."""
+    from polisyos.data_forge import read_api
+    from polisyos.runtime.quality.generation_cycle import (
+        ValueOwnerSourceProjectionRequestV1,
+        ValueOwnerSourceProjectionRequestV2,
+    )
+
+    selected_ref = _selected_ref(ref)
+    manifest = store.get_manifest(selected_ref)
+    schema = manifest.artifact_schema
+    schema_identity = (schema.name, schema.version) if schema is not None else None
+    models = {
+        ("policyos.runtime.value_owner_source_projection_request.v1", "1.0"): (
+            ValueOwnerSourceProjectionRequestV1
+        ),
+        ("policyos.runtime.value_owner_source_projection_request.v2", "2.0"): (
+            ValueOwnerSourceProjectionRequestV2
+        ),
+    }
+    model = models.get(schema_identity)
+    if manifest.kind != _REQUEST_KIND or model is None:
+        raise ValueError("candidate_value_method_source_request_profile_invalid")
+    request = model.model_validate(load_core_json_artifact(store, selected_ref))
+    if type(request) is ValueOwnerSourceProjectionRequestV2:
+        expected = Counter()
+        for binding in request.variable_projections:
+            projection = read_api.catalog.ActivatedAcquisitionObservationProjection.model_validate(
+                binding.projection_payload
+            )
+            for name in ("receipt_ref", "passport_ref"):
+                source_ref = _selected_ref(getattr(projection, name))
+                expected[
+                    (
+                        str(source_ref.artifact_id),
+                        source_ref.manifest_profile_sha256,
+                        f"{binding.role}:{name}",
+                    )
+                ] += 1
+        observed = Counter(
+            (str(edge.artifact_id), edge.manifest_profile_sha256, edge.role)
+            for edge in manifest.inputs
+        )
+        if observed != expected:
+            raise ValueError("candidate_value_method_source_request_lineage_mismatch")
+    return request
+
+
 def _profile_and_request(
     store: ArtifactStore, simulation: SimulationPortObservation
-) -> tuple[GenericCycleSimulationProfileV1 | None, ValueOwnerSourceProjectionRequestV1 | None]:
-    from polisyos.runtime.quality.generation_cycle import ValueOwnerSourceProjectionRequestV1
+) -> tuple[
+    GenericCycleSimulationProfileV1 | None,
+    ValueOwnerSourceProjectionRequestV1 | ValueOwnerSourceProjectionRequestV2 | None,
+]:
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationProfileV1,
     )
@@ -272,10 +334,7 @@ def _profile_and_request(
     ref = profile.candidate_value_source_request_ref
     if ref is None:
         return profile, None
-    request = ValueOwnerSourceProjectionRequestV1.model_validate(
-        load_core_json_artifact(store, ref)
-    )
-    return profile, request
+    return profile, _load_selected_value_source_request(store, ref)
 
 
 class _GatewayContext(Protocol):
@@ -288,7 +347,9 @@ class _GatewayContext(Protocol):
 
 
 def _gateway(
-    *, port: _GatewayContext, request: ValueOwnerSourceProjectionRequestV1
+    *,
+    port: _GatewayContext,
+    request: ValueOwnerSourceProjectionRequestV1 | ValueOwnerSourceProjectionRequestV2,
 ) -> RealValueOwnerGateway:
     from polisyos.data_forge import read_api
     from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway

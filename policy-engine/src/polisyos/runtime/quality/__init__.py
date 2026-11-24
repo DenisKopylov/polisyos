@@ -851,7 +851,9 @@ if TYPE_CHECKING:
         CandidateSourceCurrentProjection,
         RealValueOwnerGateway,
         ValueOwnerSourceProjectionRequestV1,
+        ValueOwnerSourceProjectionRequestV2,
         ValueOwnerSourceVariableProjectionV1,
+        ValueOwnerSourceVariableProjectionV2,
         ValueTransportRunReceiptV1,
         project_candidate_source_current_occurrences,
     )
@@ -1739,7 +1741,9 @@ __all__ = [
     "ValueLossDisclosure",
     "ValueOfInformationAllocation",
     "ValueOwnerSourceProjectionRequestV1",
+    "ValueOwnerSourceProjectionRequestV2",
     "ValueOwnerSourceVariableProjectionV1",
+    "ValueOwnerSourceVariableProjectionV2",
     "ValueScheduleReviewStatus",
     "ValueSourceClass",
     "ValueTradeoffDisclosureRecord",
@@ -4895,9 +4899,17 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.runtime.quality.generation_cycle",
         "ValueOwnerSourceProjectionRequestV1",
     ),
+    "ValueOwnerSourceProjectionRequestV2": (
+        "polisyos.runtime.quality.generation_cycle",
+        "ValueOwnerSourceProjectionRequestV2",
+    ),
     "ValueOwnerSourceVariableProjectionV1": (
         "polisyos.runtime.quality.generation_cycle",
         "ValueOwnerSourceVariableProjectionV1",
+    ),
+    "ValueOwnerSourceVariableProjectionV2": (
+        "polisyos.runtime.quality.generation_cycle",
+        "ValueOwnerSourceVariableProjectionV2",
     ),
     "ValueTransportRunReceiptV1": (
         "polisyos.runtime.quality.generation_cycle",

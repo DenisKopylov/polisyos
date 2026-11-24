@@ -98,7 +98,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.scientist` | `public_stable` | `lazy_facade` | 49 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
-| `polisyos.runtime.quality` | `public_experimental` | `lazy_facade` | 976 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
+| `polisyos.runtime.quality` | `public_experimental` | `lazy_facade` | 978 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
 | `polisyos.lex` | `public_stable` | `lazy_facade` | 61 | `team-polisyos` | `src/polisyos/lex/README.md` |
 | `polisyos.scholar` | `public_experimental` | `lazy_facade` | 30 | `team-polisyos` | `src/polisyos/scholar/README.md` |
 | `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
@@ -7835,7 +7835,7 @@ verify_replay
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.runtime.quality` | `src/polisyos/runtime/quality/__init__.py` | `lazy_facade` | 976 |
+| `polisyos.runtime.quality` | `src/polisyos/runtime/quality/__init__.py` | `lazy_facade` | 978 |
 
 #### `polisyos.runtime.quality`
 
@@ -7843,7 +7843,7 @@ verify_replay
 - Facade: `lazy_facade`
 - Summary: Expose runtime-quality contracts without importing unrelated owners eagerly.
 
-<details><summary>Entrypoint exports (976)</summary>
+<details><summary>Entrypoint exports (978)</summary>
 
 ```text
 ACQUISITION_PLANNER_GATE_LAYER
@@ -8450,7 +8450,9 @@ ValueDisposition
 ValueLossDisclosure
 ValueOfInformationAllocation
 ValueOwnerSourceProjectionRequestV1
+ValueOwnerSourceProjectionRequestV2
 ValueOwnerSourceVariableProjectionV1
+ValueOwnerSourceVariableProjectionV2
 ValueScheduleReviewStatus
 ValueSourceClass
 ValueTradeoffDisclosureRecord
@@ -8826,7 +8828,7 @@ write_authority_envelope_json_schema
 
 </details>
 
-<details><summary>Supported exports (976)</summary>
+<details><summary>Supported exports (978)</summary>
 
 ```text
 ACQUISITION_PLANNER_GATE_LAYER
@@ -9433,7 +9435,9 @@ ValueDisposition
 ValueLossDisclosure
 ValueOfInformationAllocation
 ValueOwnerSourceProjectionRequestV1
+ValueOwnerSourceProjectionRequestV2
 ValueOwnerSourceVariableProjectionV1
+ValueOwnerSourceVariableProjectionV2
 ValueScheduleReviewStatus
 ValueSourceClass
 ValueTradeoffDisclosureRecord

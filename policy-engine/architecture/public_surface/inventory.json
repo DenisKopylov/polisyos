@@ -6583,6 +6583,12 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/ir/analytics/backtest_pooling.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/ir/analytics/calibration.py",
                 "operation": "is_file",
                 "status": "present",
@@ -15512,6 +15518,12 @@
                 "result": true
               },
               {
+                "path": "src/polisyos/scientist/methods/backtesting/pooling.py",
+                "operation": "is_file",
+                "status": "present",
+                "result": true
+              },
+              {
                 "path": "src/polisyos/scientist/methods/backtesting/strategic_suite.py",
                 "operation": "is_file",
                 "status": "present",
@@ -17502,8 +17514,8 @@
         "polisyos.runtime.quality"
       ],
       "major_subsystem": false,
-      "export_count": 976,
-      "known_export_count": 976,
+      "export_count": 978,
+      "known_export_count": 978,
       "exports": [
         "ACQUISITION_PLANNER_GATE_LAYER",
         "ACQUISITION_PLANNER_GATE_PHASE",
@@ -18109,7 +18121,9 @@
         "ValueLossDisclosure",
         "ValueOfInformationAllocation",
         "ValueOwnerSourceProjectionRequestV1",
+        "ValueOwnerSourceProjectionRequestV2",
         "ValueOwnerSourceVariableProjectionV1",
+        "ValueOwnerSourceVariableProjectionV2",
         "ValueScheduleReviewStatus",
         "ValueSourceClass",
         "ValueTradeoffDisclosureRecord",
@@ -18491,8 +18505,8 @@
         {
           "module": "polisyos.runtime.quality",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 976,
-          "known_export_count": 976,
+          "export_count": 978,
+          "known_export_count": 978,
           "exports": [
             "ACQUISITION_PLANNER_GATE_LAYER",
             "ACQUISITION_PLANNER_GATE_PHASE",
@@ -19098,7 +19112,9 @@
             "ValueLossDisclosure",
             "ValueOfInformationAllocation",
             "ValueOwnerSourceProjectionRequestV1",
+            "ValueOwnerSourceProjectionRequestV2",
             "ValueOwnerSourceVariableProjectionV1",
+            "ValueOwnerSourceVariableProjectionV2",
             "ValueScheduleReviewStatus",
             "ValueSourceClass",
             "ValueTradeoffDisclosureRecord",
@@ -19495,8 +19511,8 @@
                 "path": "src/polisyos/runtime/quality/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 225266,
-                "sha256": "a42c906dd1aa7de4d1f3d6f70b31f9b37a2af29c22f9df8631b994e49db71956"
+                "bytes": 225750,
+                "sha256": "425f6a23e4d8acb6798dbd808f08ec448fe67c609331e7241c1e2aedb683f641"
               },
               {
                 "path": "src/polisyos/runtime/quality",

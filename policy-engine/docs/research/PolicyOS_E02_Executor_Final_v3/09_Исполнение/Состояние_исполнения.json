@@ -21573,7 +21573,7 @@
       "local_qualification": "PARTIAL",
       "capability_acceptance": "NOT_RUN",
       "current_execution": {
-        "status": "ACTIVE. Eight packets, 61 requirements and 60 test contracts. All original product defects have local repairs. 35 named local profiles qualify, 11 are partial and 15 lack deciding qualification. Shared E02-I03-A/B/C remain open.",
+        "status": "ACTIVE. Eight packets, 61 requirements and 60 test contracts. All original product defects have local repairs. 40 named local profiles qualify, 12 are partial and 9 lack deciding qualification. Shared E02-I03-A/B/C remain open.",
         "next": "Qualify exact temporal source selection, scope-bound measured observations, declared unit comparability, positive predictive interval and served calibration. Preserve existing owner limits and verify all three common-source scenarios.",
         "frc01_calibration_summary": {
           "scope": "REQ-FRC-01-01. S10 and G2 preserve descriptive counts while carrying only an admitted compatible floor. 10/10 limited, genuine 95/100 preserved. Removed records, tampered status and a foreign envelope refuse admission. 55 affected tests pass, with a separate exact old-mechanism failure and changed-import pass.",
@@ -39564,6 +39564,32 @@
           "output": "Primary:policy-engine/_cache/e02/frc01-v6-bounded-served-r2.2qLu069i/",
           "result": "COMMAND_FAIL after SQLite completed candidate job. Exact ordinary N4 returned in 1.567s, candidate N4 in .229s. Owner deadline unchanged. Test-only path string/object assertion before POST and 3 transitive source pins changed. Reuse immutable selected complete source from actual job without physical repeat.",
           "guard_sha256": "5a59850744e34ef038ab61f41290cb7e5f139b5585d88882003ed7481598ec9e"
+        },
+        {
+          "id": "frc_holdout_and_temporal_owner",
+          "output": "Primary:policy-engine/_cache/e02/lane03-frc-holdout-context-final.ARApMPeY/",
+          "result": "24 PASS with six pins through stock forecast owner, independent measured holdouts, canonical bridge role comparison and S10 limiting semantics.",
+          "guard_sha256": "038b6bd8f6461e5f8613b3b00c482d9d1cc0c95a62ee889c685183b6f1e4443a"
+        },
+        {
+          "id": "frc01_v6_persisted_http_cold_409",
+          "output": "Primary:policy-engine/_cache/e02/frc01-v6-retained-suffix-r3.njhpowMa/",
+          "result": "WRITE POST201, typed selected interval and durable one intent/event, auth/foreign/missing/time refusal controls pass. Independent new Python GET returned 409 predictive_calibration_target_metric_missing. 61 named source and 400 seed pins intact; one ForecastOwner, no new physical N4/N5/provider.",
+          "guard_sha256": "60a5ae3d326e7a6cf4768982d0fb9d491e6f6fb616bb8861c2ed16a635243666"
+        },
+        {
+          "id": "frc_v6_cold_resolved_target",
+          "output": "Primary:policy-engine/_cache/e02/frc01-v6-retained-target-read.Qk0z6c02/",
+          "result": "PASS 22 mirrors and separate actual Python reader of original v6 POST association. Cold HTTP200, exact retry201, altered intent409, missing selected bundle409, restore200. 223 CAS and prior jobs/events/intents unchanged. Zero effect counters.",
+          "source_commit": "f16ccc51af7b1ea9500a3125970e25769d8f1b18",
+          "guard_sha256": "24bbd840813bbd5e05e80aa52a3d9ab9bd1e3b556d2e380064c9198134289d39"
+        },
+        {
+          "id": "frc_v6_dashboard_exact_wire",
+          "output": "Primary:policy-engine/_cache/e02/frc-dashboard-v6.eu5eEOyS/release/",
+          "result": "137 PASS, package typecheck and lint. Dashboard parses exact served v6 body with limited observations; same-byte foreign ref refuses, v2-v5 canonical compatibility preserved.",
+          "source_commit": "9c1f3047400d6affd19afc233fba43b1466e0fc4",
+          "guard_sha256": "396f0f617cd7910d16aa9cfe303e119bdb246a831b2ef9d7b27fa4424e0070b1"
         }
       ],
       "blockers": [],
@@ -39590,6 +39616,42 @@
           "remaining_kinds": []
         },
         {
+          "requirement_id": "REQ-FRC-01-02",
+          "test_id": "TEST-FRC-01-02",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Finite estimator shape and nominal level cannot establish observed coverage; equal nominal bounds produce different actual corpus hits, and missing report stays blocked.",
+          "criterion_pointer": "04_Трассировка/FRC-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-FRC-01-02"
+          ],
+          "binding_ids": [
+            "E02-I03-A-B02"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "frc01_selected_support_v6",
+            "frc_holdout_and_temporal_owner"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-FRC-01-03",
+          "test_id": "TEST-FRC-01-03",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Real owner report persists the six source-aware instants and bridge compares each against selected context. Missing, naive, equal, misordered and role substitutions refuse; preservation checked at S10.",
+          "criterion_pointer": "04_Трассировка/FRC-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-FRC-01-03"
+          ],
+          "binding_ids": [],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "frc01_selected_support_v6",
+            "frc_holdout_and_temporal_owner"
+          ],
+          "remaining_kinds": []
+        },
+        {
           "requirement_id": "REQ-FRC-01-04",
           "test_id": "TEST-FRC-01-04",
           "status": "CONFIRMED_LOCAL_PROFILE",
@@ -39609,10 +39671,34 @@
           "remaining_kinds": []
         },
         {
+          "requirement_id": "REQ-FRC-01-05",
+          "test_id": "TEST-FRC-01-05",
+          "status": "PARTIAL",
+          "basis": "Useful fixed-v6 conditional interval survives served projection while the unestablished outcome and source keep authority blocked. Existing actual S10/G2 checks keep independent purpose denials.",
+          "criterion_pointer": "04_Трассировка/FRC-01.json#/requirements/4",
+          "test_ids": [
+            "TEST-FRC-01-02",
+            "TEST-FRC-01-03",
+            "TEST-FRC-01-05",
+            "TEST-FRC-01-06"
+          ],
+          "binding_ids": [
+            "E02-I03-A-B02"
+          ],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "frc01_selected_support_v6",
+            "frc_v6_cold_resolved_target"
+          ],
+          "remaining_kinds": [
+            "v7_actual_outcome_relation_withdrawal"
+          ]
+        },
+        {
           "requirement_id": "REQ-FRC-01-06",
           "test_id": "TEST-FRC-01-06",
-          "status": "PARTIAL",
-          "basis": "Current local v6 and genuine v3 historical read qualify. Bounded ordinary N4 actual SQLite job completes; wrapper stops before POST. Dedicated retained-job HTTP check in progress.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Stock HTTP write, event/intent and distinct Python reader reproduce original v6 selected interval and limited S10; exact retry and switched/missing refs and restored read verified.",
           "criterion_pointer": "04_Трассировка/FRC-01.json#/requirements/5",
           "test_ids": [
             "TEST-FRC-01-06"
@@ -39620,15 +39706,31 @@
           "binding_ids": [
             "E02-I03-B-B04"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
-            "frc01_selected_support_v6",
-            "frc01_served_n4_deadline",
-            "frc01_bounded_retained_job"
+            "frc01_v6_persisted_http_cold_409",
+            "frc_v6_cold_resolved_target"
           ],
-          "remaining_kinds": [
-            "current_HTTP_POST_event_fresh_GET"
-          ]
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-FRC-01-07",
+          "test_id": "TEST-FRC-01-07",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The temporal suite rejects raw maps and role/window drift. Actual bound POST refuses wrong temporal order and the cold canonical loader reads the original roles on the exact persisted v6 association.",
+          "criterion_pointer": "04_Трассировка/FRC-01.json#/requirements/6",
+          "test_ids": [
+            "TEST-FRC-01-03",
+            "TEST-FRC-01-06"
+          ],
+          "binding_ids": [],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "frc_holdout_and_temporal_owner",
+            "frc01_v6_persisted_http_cold_409",
+            "frc_v6_cold_resolved_target"
+          ],
+          "remaining_kinds": []
         }
       ]
     },
@@ -39874,6 +39976,33 @@
           "result": "1 PASS exact registered configured N4→effective WMR→selected full annual GDP outcome relation. Shared Data Forge owner resolves fiscal revenue representation. Same-byte selected ref, wrong definition, rescaled/short range, monthly and share negatives. Four observed years with controlled N4 and lease fixture.",
           "source_commit": "bd3d971bc973e0c2df5e5367a739d52009697b09",
           "guard_sha256": "b1e6f2adaef824b4432153ef05c7e6960d0518286d13ba360f10d78497a7f1d2"
+        },
+        {
+          "id": "frc_holdout_and_temporal_owner",
+          "output": "Primary:policy-engine/_cache/e02/lane03-frc-holdout-context-final.ARApMPeY/",
+          "result": "24 PASS. Identical training gives equal forecasts/intervals and distinct observed hits on two stock owner cohorts; source-time substitutions and nominal-only claims refuse.",
+          "guard_sha256": "038b6bd8f6461e5f8613b3b00c482d9d1cc0c95a62ee889c685183b6f1e4443a"
+        },
+        {
+          "id": "frc_v6_cold_resolved_target",
+          "output": "Primary:policy-engine/_cache/e02/frc01-v6-retained-target-read.Qk0z6c02/",
+          "result": "PASS 22 mirrors and separate actual Python reader of original v6 POST association. Cold HTTP200, exact retry201, altered intent409, missing selected bundle409, restore200. 223 CAS and prior jobs/events/intents unchanged. Zero effect counters.",
+          "source_commit": "f16ccc51af7b1ea9500a3125970e25769d8f1b18",
+          "guard_sha256": "24bbd840813bbd5e05e80aa52a3d9ab9bd1e3b556d2e380064c9198134289d39"
+        },
+        {
+          "id": "frc02_exact_observed_denominator",
+          "output": "Primary:policy-engine/_cache/e02/lane03-frc02-observed-denominator-r3.3oZzrgh3/",
+          "result": "13 PASS, including stock generic report with no interval, 1/2 available, 1/2 and 2/2 hits; .80 and .95 leave recomputed data/hits and admission separate.",
+          "source_commit": "d25b73c1f54b9427e8e3758ad226d51eabd5ff8d",
+          "guard_sha256": "13984321ee784d275d096182b22d4ac4e0e5942820df3c661b71ca320b4b36bf"
+        },
+        {
+          "id": "frc02_typed_full_horizon_owner_refusal",
+          "output": "Primary:policy-engine/_cache/e02/lane03-frc-owner-horizon.hu57WlKB/",
+          "result": "PASS. A controlled omitted interval after stock real dispatch makes ForecastOwner refuse at actual full horizon check.",
+          "source_commit": "d25b73c1f54b9427e8e3758ad226d51eabd5ff8d",
+          "guard_sha256": "e743517cbb7239eced6525b6684f496fb02ea602bc05ce28136a834689c7ea79"
         }
       ],
       "blockers": [],
@@ -39900,6 +40029,49 @@
             "frc02_legacy_counter_replay"
           ],
           "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-FRC-02-02",
+          "test_id": "TEST-FRC-02-02",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Two actual ETS runs from identical training keep points and intervals and independently differ on holdout hits. Generic no/missing bounds remain limited with exact measured denominator; actual owner refuses incomplete horizon. Nominal changes alone cannot grant evidence.",
+          "criterion_pointer": "04_Трассировка/FRC-02.json#/requirements/1",
+          "test_ids": [
+            "TEST-FRC-02-02",
+            "TEST-FRC-02-03"
+          ],
+          "binding_ids": [
+            "E02-I03-B-B02"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "frc_holdout_and_temporal_owner",
+            "frc02_exact_observed_denominator",
+            "frc02_typed_full_horizon_owner_refusal"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-FRC-02-03",
+          "test_id": "TEST-FRC-02-03",
+          "status": "PARTIAL",
+          "basis": "The actual stock forecast owner, native CAS, canonical evidence loader and fresh HTTP v6 association are verified in a predictive-only limited profile.",
+          "criterion_pointer": "04_Трассировка/FRC-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-FRC-02-03",
+            "TEST-FRC-02-04"
+          ],
+          "binding_ids": [
+            "E02-I03-B-B02"
+          ],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "frc_holdout_and_temporal_owner",
+            "frc_v6_cold_resolved_target"
+          ],
+          "remaining_kinds": [
+            "served_source_reconciled_v7_and_shared_mutation_matrix"
+          ]
         },
         {
           "requirement_id": "REQ-FRC-02-04",

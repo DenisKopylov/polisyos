@@ -499,6 +499,7 @@ def _build_policy_simulation_results_impl(
         "ate": ate,
         "bootstrap": {
             "ci_width": ci_width,
+            "interval_origin": "heuristic_proxy",
             "evaluation_attempt_id": execution.get("evaluation_attempt_id"),
             "requested_draw_count": execution.get("requested_draw_count"),
             "requested_draw_source": execution.get("requested_draw_source", "unavailable"),

@@ -173,9 +173,7 @@ class Level4FullFidelity(FunnelStage):
             {
                 UncertaintyType.STATISTICAL: statistical_uncertainty_from_ci_width(
                     simulation_results,
-                    source="full bootstrap/full estimator stack",
-                    quantification_method="full_fidelity_bootstrap",
-                    recommended_action="Run refutation and holdout checks before promotion.",
+                    recommended_action="Resolve the interval source and run refutation and holdout checks.",
                 ),
                 UncertaintyType.MODEL: UncertaintyEstimate(
                     level=0.25,

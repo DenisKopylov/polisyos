@@ -144,8 +144,8 @@ def test_executed_zero_objective_remains_a_valid_result() -> None:
         (float("inf"), 1.0, "ci_width_invalid"),
         (-0.1, 1.0, "ci_width_invalid"),
         (True, 1.0, "ci_width_invalid"),
-        (0.0, 0.0, "full_fidelity_bootstrap"),
-        (0.4, 0.1, "full_fidelity_bootstrap"),
+        (0.0, 0.0, "ci_width_source_unverified"),
+        (0.4, 0.1, "ci_width_source_unverified"),
     ],
 )
 def test_l4_ci_width_preserves_missing_invalid_and_true_zero_semantics(
@@ -170,6 +170,35 @@ def test_l4_ci_width_preserves_missing_invalid_and_true_zero_semantics(
         assert "confidence-interval width missing" in estimate.source
     elif expected_method == "ci_width_invalid":
         assert "confidence-interval width invalid" in estimate.source
+
+
+@pytest.mark.parametrize(
+    "raw_metadata",
+    [
+        {"draw_execution_status": "not_instrumented"},
+        {
+            "interval_origin": "source_owned_interval",
+            "draw_execution_status": "instrumented",
+            "successful_draw_count": 500,
+            "quantification_method": "bootstrap",
+        },
+    ],
+)
+def test_l4_requires_a_source_to_name_an_interval_method(
+    raw_metadata: dict[str, object],
+) -> None:
+    expensive_stage = MagicMock()
+    stage_result = _full_stage_result(ci_width=0.4)
+    stage_result.simulation_results["bootstrap"].update(raw_metadata)
+    expensive_stage.evaluate.return_value = stage_result
+    result = Level4FullFidelity(expensive_stage=expensive_stage).evaluate({}, {})
+    estimate = result.uncertainty_envelope.uncertainties[
+        next(u for u in result.uncertainty_envelope.uncertainties if u.value == "statistical")
+    ]
+
+    assert estimate.level == pytest.approx(0.1)
+    assert estimate.quantification_method == "ci_width_source_unverified"
+    assert "bootstrap" not in estimate.source
 
 
 def _fraction_ci_uncertainty_oracle(ci_width: float, effect: float) -> float:
@@ -220,7 +249,7 @@ def test_ci_width_ratio_matches_exact_rational_oracle_across_float_scales(
 ) -> None:
     if fidelity == "L3":
         result = _l3_result(ci_width=ci_width, effect=effect)
-        method = "bootstrap_reduced"
+        method = "ci_width_source_unverified"
     else:
         expensive_stage = MagicMock()
         expensive_stage.evaluate.return_value = _full_stage_result(
@@ -228,7 +257,7 @@ def test_ci_width_ratio_matches_exact_rational_oracle_across_float_scales(
             effect=effect,
         )
         result = Level4FullFidelity(expensive_stage=expensive_stage).evaluate({}, {})
-        method = "full_fidelity_bootstrap"
+        method = "ci_width_source_unverified"
 
     estimate = result.uncertainty_envelope.uncertainties[
         next(

@@ -200,7 +200,7 @@ class Level3MediumFidelity(FunnelStage):
             terminal_action = "reject" if score_status is ObjectiveScoreStatus.INVALID else "defer"
             feedback["selected_objective_admission"] = score_status.value
 
-        # Build uncertainty envelope from reduced bootstrap.
+        # Keep the interval-width diagnostic separate from its source method.
         envelope = self._build_uncertainty_envelope(sim_results)
 
         # Enforce cardinal rule: tag output as routing-only.
@@ -310,17 +310,14 @@ class Level3MediumFidelity(FunnelStage):
         self,
         sim_results: dict[str, Any],
     ) -> UncertaintyEnvelope:
-        """Build envelope from reduced bootstrap results."""
+        """Build the medium-fidelity routing uncertainty envelope."""
         envelope = UncertaintyEnvelope.unknown(source="L3 medium fidelity")
 
-        # Statistical uncertainty from bootstrap (if available).
         envelope = envelope.with_update(
             UncertaintyType.STATISTICAL,
             statistical_uncertainty_from_ci_width(
                 sim_results,
-                source=f"reduced bootstrap ({self._bootstrap_draws} draws)",
-                quantification_method="bootstrap_reduced",
-                recommended_action="Advance to L4 for full bootstrap.",
+                recommended_action="Advance to L4 for source-qualified assessment.",
             ),
         )
 

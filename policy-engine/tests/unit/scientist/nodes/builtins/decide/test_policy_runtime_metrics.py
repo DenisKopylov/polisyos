@@ -1,14 +1,24 @@
 from __future__ import annotations
 
 import math
+from unittest.mock import MagicMock
 
+import pytest
+
+from polisyos.ir import UncertaintyType
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
+from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
 from polisyos.scientist.methods.search.objective import (
     BudgetDeficitObjective,
     ObjectiveScoreStatus,
+)
+from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_reporting import (
+    _serialize_funnel_outcome,
 )
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_metrics import (
     _build_evidence_driven_simulation_metrics,
@@ -136,6 +146,58 @@ def test_runtime_projection_binds_configured_count_without_claiming_executed_dra
     assert projected["bootstrap"]["successful_draw_count"] is None
     assert projected["bootstrap"]["failed_draw_count"] is None
     assert projected["bootstrap"]["unattempted_draw_count"] is None
+
+
+@pytest.mark.parametrize(
+    ("fidelity", "stage_type", "width"),
+    [
+        ("selection", Level3MediumFidelity, 0.12),
+        ("full", Level4FullFidelity, 0.1),
+    ],
+)
+def test_runtime_interval_width_remains_a_proxy_in_funnel_projection(
+    fidelity: str,
+    stage_type: type[Level3MediumFidelity] | type[Level4FullFidelity],
+    width: float,
+) -> None:
+    candidate = _candidate()
+    produced = _build_policy_simulation_results_impl(
+        PolicyEvaluationVector(candidate_id=candidate.candidate_id),
+        fidelity=fidelity,
+        uncertainty=None,
+        base_metrics={"ate": 1.0},
+        runtime_execution=_policy_runtime_execution_metadata(
+            evaluation_attempt_id="attempt:proxy",
+            effective_estimation_config={"n_bootstrap": 500},
+        ),
+    )
+    workflow = MagicMock()
+    workflow.run.return_value = {
+        "simulation_results": produced,
+        "feedback": {"verdict": "APPROVE"},
+    }
+    stage = stage_type(workflow_engine=workflow)
+    funnel = FunnelOrchestrator([stage])
+    outcome = funnel.advance(funnel.submit({"candidate_id": candidate.candidate_id}, {}))
+    fresh_projection = _serialize_funnel_outcome(outcome)
+    statistical = fresh_projection["uncertainty_historical_max"]["uncertainties"]["statistical"]
+
+    assert statistical["level"] == pytest.approx(width / 2)
+    assert statistical["quantification_method"] == "heuristic_proxy"
+    assert "bootstrap" not in statistical["source"]
+    assert outcome.final_result is not None
+    assert (
+        outcome.final_result.uncertainty_envelope.uncertainties[
+            UncertaintyType.STATISTICAL
+        ].quantification_method
+        == "heuristic_proxy"
+    )
+    assert produced["bootstrap"]["ci_width"] == width
+    assert produced["bootstrap"]["interval_origin"] == "heuristic_proxy"
+    assert produced["bootstrap"]["draw_execution_status"] == "not_instrumented"
+    assert produced["bootstrap"]["requested_draw_count"] == 500
+    assert produced["bootstrap"]["successful_draw_count"] is None
+    assert fresh_projection["uncertainty_current"] is None
 
 
 def test_runtime_projection_does_not_infer_draw_requests_from_fidelity() -> None:

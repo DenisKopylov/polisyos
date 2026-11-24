@@ -191,18 +191,20 @@ def parse_funnel_work_packet_feedback(
 def statistical_uncertainty_from_ci_width(
     simulation_results: dict[str, Any],
     *,
-    source: str,
-    quantification_method: str,
     recommended_action: str | None = None,
 ) -> UncertaintyEstimate:
-    """Build a statistical estimate without laundering missing CI data.
+    """Normalize a diagnostic width without inferring its method from fidelity.
 
-    A missing, malformed, non-finite, or negative confidence-interval width is
-    unassessed uncertainty.  A finite zero width remains a measured zero-width
-    interval, including when the effect itself is zero.
+    Finite zero is a valid width. Raw widths support candidate routing only
+    until the owning interval source has been resolved separately.
     """
 
     bootstrap = simulation_results.get("bootstrap")
+    is_heuristic = (
+        isinstance(bootstrap, Mapping) and bootstrap.get("interval_origin") == "heuristic_proxy"
+    )
+    source = "heuristic interval-width proxy" if is_heuristic else "unverified interval width"
+    quantification_method = "heuristic_proxy" if is_heuristic else "ci_width_source_unverified"
     if not isinstance(bootstrap, Mapping) or "ci_width" not in bootstrap:
         return UncertaintyEstimate(
             level=1.0,

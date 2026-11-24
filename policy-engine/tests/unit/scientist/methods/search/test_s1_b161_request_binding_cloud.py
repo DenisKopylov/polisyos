@@ -995,3 +995,115 @@ def test_native_zero_reference_retains_interval_and_unavailable_score(admitted_c
     assert measured.routing_score.score is None
     assert observed["routing_score"]["unavailable_reason"] == "zero_reference_scale"
     assert native.authority_status == "candidate"
+
+
+def _assert_l4_source_owned_interval(c, native, measured) -> dict[str, Any]:
+    """Verify the fresh candidate report against one already completed fit."""
+    from dataclasses import replace
+    from unittest.mock import MagicMock
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
+    from polisyos.scientist.methods.search.funnel.types import FunnelTicket
+    from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_reporting import (
+        _serialize_funnel_outcome,
+    )
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_metrics import (
+        _build_policy_simulation_results_impl,
+    )
+    from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+
+    assert native.kind == "interval_estimate"
+    assert measured.unit_binding_status == "bound"
+    assert measured.unit_scope_ref == c["unit"]
+    assert measured.inference_basis_ref is not None
+
+    produced = _build_policy_simulation_results_impl(
+        PolicyEvaluationVector(candidate_id="interval-candidate"),
+        fidelity="full",
+        uncertainty=None,
+        base_metrics={"ate": 1.0},
+    )
+    workflow = MagicMock()
+    workflow.run.return_value = {
+        "simulation_results": produced,
+        "feedback": {"verdict": "REJECT"},
+    }
+    candidate = {"candidate_id": "interval-candidate"}
+    result = Level4FullFidelity(workflow_engine=workflow).evaluate(candidate, {})
+    # Carry a forged label to prove the output does not trust stage feedback.
+    result.feedback["source_owned_interval"] = {
+        "origin": "source_owned_interval",
+        "method_fqn": "forged",
+        "lower_bound": -999.0,
+    }
+    ticket = FunnelTicket(
+        ticket_id="source-interval-view",
+        candidate_hash="fixture",
+        candidate=candidate,
+        context={"store": c["store"], "policy_candidate_ref": c["basis"].subject_ref},
+        search_uncertainty_ticket_id=c["ticket"],
+        search_uncertainty_generation=measured.ticket_generation,
+        search_uncertainty_task_binding_ref=c["binding_ref"],
+        stage_results={4: result},
+    )
+
+    def project(view: FunnelTicket):
+        outcome = _fresh_funnel(c).get_outcome(view)
+        report = _serialize_funnel_outcome(outcome)
+        proxy = report["uncertainty_historical_max"]["uncertainties"]["statistical"]
+        assert proxy["quantification_method"] == "heuristic_proxy"
+        assert proxy["level"] == pytest.approx(0.05)
+        assert report["uncertainty_current"] is None
+        return report["stage_results"]["4"]["feedback"]
+
+    with tenant_scope(None, tenant_id=c["tenant"], cell_id=c["cell"]):
+        reported = project(ticket)["source_owned_interval"]
+        assert reported["origin"] == "source_owned_interval"
+        assert reported["verification"] == "recomputed"
+        assert reported["authority_status"] == "candidate"
+        assert reported["as_of_status"] == "pinned_task_epoch"
+        assert reported["method_fqn"] == c["basis"].selected_method_fqn
+        assert reported["method_abi_digest"] == c["basis"].selected_method_abi_digest
+        assert reported["inference_profile_id"] == measured.inference_profile_id
+        assert reported["method_input_ref"] == c["source"].model_dump(mode="json")
+        assert reported["unit_scope_ref"] == c["unit"].model_dump(mode="json")
+        assert reported["point"] == native.point_estimate.value
+        assert reported["lower_bound"] == native.lower_bound
+        assert reported["upper_bound"] == native.upper_bound
+        assert reported["confidence_level"] == native.confidence_level
+        assert reported["target_relation"]["estimand_status"] == "not_established"
+        assert "source_owner_issuance_not_established" in reported["limitations"]
+
+        foreign = replace(ticket, context={**ticket.context, "policy_candidate_ref": c["source"]})
+        assert "source_owned_interval" not in project(foreign)
+        stale = replace(ticket, search_uncertainty_generation=measured.ticket_generation + 1)
+        assert "source_owned_interval" not in project(stale)
+        other_profile = c["binding_ref"].model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "1" * 64}
+        )
+        rebound = replace(ticket, search_uncertainty_task_binding_ref=other_profile)
+        assert "source_owned_interval" not in project(rebound)
+
+        fixture_store = FileSystemCAS(c["store"].root)
+        path = fixture_store._member_path(c["source"].artifact_id, "blob", None)
+        saved = path.with_suffix(".held")
+        path.rename(saved)
+        try:
+            assert "source_owned_interval" not in project(ticket)
+        finally:
+            saved.rename(path)
+        assert project(ticket)["source_owned_interval"] == reported
+
+    assert result.feedback["source_owned_interval"]["method_fqn"] == "forged"
+    assert produced["bootstrap"]["ci_width"] == 0.1
+    workflow.run.assert_called_once()
+    return reported
+
+
+def test_l4_reports_only_its_resolved_source_owned_interval(admitted_case):
+    """A native interval remains source-bound alongside L4's raw routing proxy."""
+    pytest.importorskip("econml", reason="actual HTE backend unavailable")
+    native, measured, _ = _run_one_owned_hte_and_report(admitted_case)
+    _assert_l4_source_owned_interval(admitted_case, native, measured)

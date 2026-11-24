@@ -6164,7 +6164,9 @@ class SearchUncertaintyTicketState:
             replay_routing_profile_ref=routing_profile_ref,
             replay_admitted_at=successor.admitted_at,
         )
-        if replayed != successor:
+        # Runtime supplies specialized ref DTOs. CAS restores the declared
+        # Search ref types, so compare the full payload instead of Python classes.
+        if replayed.model_dump(mode="json") != successor.model_dump(mode="json"):
             raise ValueError("current assessment differs from its recomputed source join")
         return replayed
 

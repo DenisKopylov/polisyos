@@ -17,6 +17,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir import TypedFailureCard
 from polisyos.scientist.methods.search.contracts import EvaluationBundle
+from polisyos.scientist.methods.search.funnel.interval_source import project_source_owned_interval
 from polisyos.scientist.methods.search.funnel.types import (
     CheapSignalVector,
     DegradationMode,
@@ -977,6 +978,20 @@ class FunnelOrchestrator:
             )
         if any(result.uncertainty_observation_ref is not None for result in ordered_results):
             intake_failures.append("legacy_v1_observations_route_only")
+        full_result = outcome_stage_results.get(4)
+        if full_result is not None:
+            interval = project_source_owned_interval(
+                current_read,
+                subject_ref=subject_ref if isinstance(subject_ref, ArtifactRef) else None,
+                task_binding_ref=resolved_ticket.search_uncertainty_task_binding_ref,
+                ticket_generation=resolved_ticket.search_uncertainty_generation,
+            )
+            if interval is not None or "source_owned_interval" in (full_result.feedback or {}):
+                full_feedback = dict(full_result.feedback or {})
+                full_feedback.pop("source_owned_interval", None)
+                if interval is not None:
+                    full_feedback["source_owned_interval"] = interval.model_dump(mode="json")
+                outcome_stage_results[4] = replace(full_result, feedback=full_feedback)
         final_level = max(outcome_stage_results) if outcome_stage_results else None
         final_result = outcome_stage_results[final_level] if final_level is not None else None
         if final_result is not None:

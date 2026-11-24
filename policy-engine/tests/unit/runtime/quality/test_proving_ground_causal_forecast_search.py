@@ -2921,6 +2921,123 @@ def test_g2_observable_calibration_report_preserves_s10_time_roles_and_maturity(
     assert report["authority_envelope_refs"] == [_dump(binding)["authority_envelope_ref"]]
 
 
+@pytest.mark.parametrize(
+    ("numerator", "denominator", "upstream_status", "floor_passed", "report_status"),
+    [
+        (10, 10, "limit", False, "fail"),
+        (95, 100, "pass", True, "pass"),
+    ],
+)
+def test_g2_calibration_consumers_preserve_governed_floor(
+    numerator: int,
+    denominator: int,
+    upstream_status: str,
+    floor_passed: bool,
+    report_status: str,
+) -> None:
+    g2 = _g2()
+    pass_rate = numerator / denominator
+    binding = _g2_forecast_binding(
+        calibration_payload=_g2_calibration_payload(
+            numerator=numerator,
+            denominator=denominator,
+            pass_rate=pass_rate,
+            calibration_status=upstream_status,
+            floor_passed=floor_passed,
+        )
+    )
+
+    payload = _dump(binding)
+    integrity = payload["integrity_summary"]
+    report = _dump(g2.build_g2_observable_calibration_report((binding,)))
+
+    assert integrity["observable_subset_calibration_status"] == upstream_status
+    assert integrity["observable_subset_calibration_floor_passed"] is floor_passed
+    assert report["status"] == report_status
+    assert report["calibration_floor_passed"] is floor_passed
+    for summary in (integrity, report):
+        assert summary["observable_subset_calibration_numerator"] == numerator
+        assert summary["observable_subset_calibration_denominator"] == denominator
+        assert summary["observable_subset_calibration_pass_rate"] == pass_rate
+    assert report["calibration_record_refs"] == [payload["calibration_record_ref"]]
+    assert "claim_authority" in integrity["may_not_use_for"]
+    assert "claim_authority" in payload["may_not_use_for"]
+    if floor_passed:
+        threshold_ref = payload["calibration_record"]["calibration_threshold_ref"]
+        assert integrity["observable_subset_calibration_threshold_ref"] == threshold_ref
+        assert report["calibration_threshold_ref"] == threshold_ref
+        assert report["adapter_maturity"] == "calibrated"
+    else:
+        assert "s10_calibration_not_admitted" in integrity["issue_codes"]
+        assert "s10_calibration_not_admitted" in report["issue_codes"]
+        assert report["adapter_maturity"] != "calibrated"
+
+
+def test_g2_observable_calibration_attempt_remains_descriptive_after_record_removal() -> None:
+    g2 = _g2()
+    binding = _g2_forecast_binding(calibration_payload=_g2_calibration_payload())
+    report = _dump(g2.build_g2_observable_calibration_report((binding,)))
+    assert report["status"] == "pass"
+    assert report["calibration_floor_passed"] is True
+    removed_record = binding.model_copy(update={"calibration_record": {}})
+
+    report = _dump(g2.build_g2_observable_calibration_report((removed_record,)))
+
+    assert report["status"] == "fail"
+    assert report["calibration_floor_passed"] is False
+    assert report["observable_subset_calibration_numerator"] == 4
+    assert report["observable_subset_calibration_denominator"] == 4
+    assert report["calibration_record_refs"] == [_dump(binding)["calibration_record_ref"]]
+    assert "layer3_g2_calibration_attempt_not_admitted" in report["issue_codes"]
+
+
+def test_g2_observable_calibration_cannot_override_a_blocked_authority_envelope() -> None:
+    g2 = _g2()
+    binding = _g2_forecast_binding(
+        calibration_payload=_g2_calibration_payload(
+            denominator=10,
+            numerator=10,
+            calibration_status="limit",
+            floor_passed=False,
+        )
+    )
+    assert binding.authority_envelope["envelope_status"] == "blocked"
+    assert binding.authority_envelope["calibration_status"] == "limit"
+    promoted_record = {
+        **binding.calibration_record,
+        "calibration_status": "pass",
+        "floor_passed": True,
+    }
+    corrupted = binding.model_copy(update={"calibration_record": promoted_record})
+
+    report = _dump(g2.build_g2_observable_calibration_report((corrupted,)))
+
+    assert report["status"] == "fail"
+    assert report["calibration_floor_passed"] is False
+    assert report["observable_subset_calibration_numerator"] == 10
+    assert report["observable_subset_calibration_denominator"] == 10
+    assert report["calibration_record_refs"] == [binding.calibration_record_ref]
+    assert "layer3_g2_calibration_authority_envelope_mismatch" in report["issue_codes"]
+
+
+def test_g2_observable_calibration_rejects_foreign_authority_envelope_support() -> None:
+    g2 = _g2()
+    binding = _g2_forecast_binding(calibration_payload=_g2_calibration_payload())
+    assert binding.authority_envelope["envelope_status"] == "pass"
+    foreign_envelope = {
+        **binding.authority_envelope,
+        "forecast_support_ref": "pdc://layer3/g2/foreign-forecast-support",
+    }
+    corrupted = binding.model_copy(update={"authority_envelope": foreign_envelope})
+
+    report = _dump(g2.build_g2_observable_calibration_report((corrupted,)))
+
+    assert report["status"] == "fail"
+    assert report["calibration_floor_passed"] is False
+    assert report["calibration_record_refs"] == [binding.calibration_record_ref]
+    assert "layer3_g2_calibration_authority_envelope_mismatch" in report["issue_codes"]
+
+
 def test_g2_observable_calibration_report_fails_without_denominator_or_evidence() -> None:
     g2 = _g2()
     binding = _g2_forecast_binding(

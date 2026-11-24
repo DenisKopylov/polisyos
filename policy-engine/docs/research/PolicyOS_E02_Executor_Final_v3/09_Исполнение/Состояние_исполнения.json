@@ -21558,12 +21558,24 @@
       "local_qualification": "NOT_RUN",
       "capability_acceptance": "NOT_RUN",
       "current_execution": {
-        "status": "ACTIVE. Original eight packets, 61 requirements and 60 tests. Primary lane and E02-I03-A/B/C integration contracts reviewed. The first BKT-04 public helper change declares first-axis observations and verifies multivariate fold isolation. FRC-01-01 and the independent historical-input and empirical owners are in progress.",
-        "next": "Preserve admitted calibration disposition through the S10 and G2 summary owners and qualify the distinguishing negative and positive. Continue the existing historical-input and empirical owners in the original readiness sequence. Plan DA-07 only for changed consumers.",
+        "status": "ACTIVE. Original eight packets, 61 requirements and 60 tests. Primary lane and E02-I03-A/B/C integration contracts reviewed. FRC-01-01 and the BKT-04 public CV shape/isolation scope verify. A real BKT-01 replay exposes a future-derived feature in the historical binding. EMP-01 numerical custody and source scope audits identify the existing owners.",
+        "next": "Repair the typed BKT-01 as-of feature input and the version-aware EMP-01 value bounds in their canonical owners. Extend exact forecast support references from the existing producer and follow the original readiness sequence. Plan DA-07 only for changed consumers.",
+        "frc01_calibration_summary": {
+          "scope": "REQ-FRC-01-01. S10 and G2 preserve descriptive counts while carrying only an admitted compatible floor. 10/10 limited, genuine 95/100 preserved. Removed records, tampered status and a foreign envelope refuse admission. 55 affected tests pass, with a separate exact old-mechanism failure and changed-import pass.",
+          "output": "Primary:policy-engine/_cache/e02/frc01-01-envelope-green.rQmKbNmu/",
+          "guard_sha256": "977b5ae57f0e73de25d419f7c5bf8ab16529e9069c2f6fde995d158dc9d64828"
+        },
         "bkt04_public_cv_shape": {
           "scope": "REQ-BKT-04-02 first observation axis, preserved trailing features, isolated selected callback arrays. Baseline 41 CV/bootstrap tests and 19 affected CV tests pass. Runtime activation remains unestablished in the named census of 3460 tracked Python files under src and tools.",
           "output": "Primary:policy-engine/_cache/e02/lane03-bkt04-cv-shape.mmmC04lO/",
           "guard_sha256": "8aada775c5251c9e0a60106e4461bcafae340e20cad6e2fafe4b1351964039f0"
+        },
+        "bkt01_actual_feature_leak_baseline": {
+          "source_commit": "5ed6d689dfd4450cd269efbd0f3a8de855db9786",
+          "output": "Primary:policy-engine/_cache/e02/bkt01-actual-feature-leak-r2.1aPUWpwA/",
+          "receipt_sha256": "b122c22cc3874ad55c48cb87222785cc110b0ee4b56cad2ff95f4bf2d8804867",
+          "guard_sha256": "c048d9507fa186978d1668ad9747e6ba72b4cfa3d253f51963a519c5423dff6d",
+          "verified_boundary": "Actual Foundry ingests the exact selected historical snapshot, target 1 and 2, and a feature derived from the full target series. Bound income contains 451 and 451 and one stock invocation returns a result. The downstream governed report refuses invocation-source custody. This establishes the historical feature-view defect at the executed boundary."
         }
       },
       "transition_evidence": [],

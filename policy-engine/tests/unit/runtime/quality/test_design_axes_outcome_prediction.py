@@ -222,6 +222,182 @@ def test_forecast_support_requires_s5_s6_s8_authority_inputs() -> None:
             build_forecast_support(**_forecast_support_payload(**{broken_field: broken_value}))
 
 
+def test_forecast_integrity_preserves_limited_perfect_counts() -> None:
+    calibration = _s10("build_forecast_calibration_record")(
+        **_calibration_payload(
+            denominator=10,
+            numerator=10,
+            calibration_status="limit",
+            floor_passed=False,
+        )
+    )
+    support = _s10("build_forecast_support")(**_forecast_support_payload(forecast_tier="blocked"))
+
+    report = _s10("summarize_forecast_support_integrity")(
+        forecast_supports=(support,), calibration_records=(calibration,)
+    )
+
+    assert report.observable_subset_calibration_status == "limit"
+    assert report.observable_subset_calibration_floor_passed is False
+    assert report.observable_subset_calibration_denominator == 10
+    assert report.observable_subset_calibration_numerator == 10
+    assert report.observable_subset_calibration_pass_rate == 1.0
+    assert report.forecast_support_refs == [support.support_ref]
+    assert report.forecast_calibration_record_refs == [calibration.calibration_ref]
+    assert "s10_calibration_not_admitted" in report.issue_codes
+    assert "claim_authority" in report.may_not_use_for
+    assert "claim_authority" in report.authority_boundary.may_not_use_for
+
+
+@pytest.mark.parametrize("threshold", [0.90, 0.95])
+def test_forecast_integrity_preserves_admitted_nonperfect_counts(threshold: float) -> None:
+    threshold_ref = f"calibration-threshold://observable/{threshold:.2f}"
+    build_support = _s10("build_forecast_support")
+    support = build_support(**_forecast_support_payload())
+    unrelated = build_support(
+        **_forecast_support_payload(
+            forecast_tier="blocked",
+            support_ref="pdc://layer2/s10/another-support",
+            observable_subset_ref=None,
+            calibration_record_ref=None,
+        )
+    )
+    calibration = _s10("build_forecast_calibration_record")(
+        **_calibration_payload(
+            denominator=100,
+            numerator=95,
+            pass_rate=0.95,
+            calibration_threshold_ref=threshold_ref,
+        )
+    )
+
+    report = _s10("summarize_forecast_support_integrity")(
+        forecast_supports=(unrelated, support),
+        calibration_records=(calibration,),
+        threshold_ref=threshold_ref,
+    )
+
+    assert report.observable_subset_calibration_status == "pass"
+    assert report.observable_subset_calibration_floor_passed is True
+    assert report.observable_subset_calibration_threshold_ref == threshold_ref
+    assert report.observable_subset_calibration_denominator == 100
+    assert report.observable_subset_calibration_numerator == 95
+    assert report.observable_subset_calibration_pass_rate == 0.95
+    assert report.forecast_support_refs == [unrelated.support_ref, support.support_ref]
+    assert report.non_observable_downgrade_count == 1
+    assert report.issue_codes == []
+    assert {"claim_authority", "closeout_authority", "s11_calibration"} <= set(
+        report.may_not_use_for
+    )
+
+
+@pytest.mark.parametrize(
+    ("changes", "expected_issue"),
+    [
+        ({}, None),
+        ({"calibration_status": "limit", "floor_passed": False}, "s10_calibration_not_admitted"),
+        (
+            {
+                "denominator": 0,
+                "numerator": 0,
+                "pass_rate": 0.0,
+                "calibration_status": "insufficient_history",
+                "floor_passed": False,
+            },
+            "s10_calibration_not_admitted",
+        ),
+        (
+            {"calibration_threshold_ref": "calibration-threshold://incompatible"},
+            "s10_calibration_threshold_mismatch",
+        ),
+        ({"rule_version_ref": "policyos.s10.forecast.other.v1"}, "s10_calibration_rule_mismatch"),
+        (
+            {"observable_subset_ref": "observable-subset://foreign"},
+            "s10_calibration_scope_mismatch",
+        ),
+        ({"case_id": "case-mismatch"}, "s10_calibration_support_mismatch"),
+    ],
+)
+def test_forecast_integrity_reduces_only_a_compatible_governed_group(
+    changes: dict[str, object],
+    expected_issue: str | None,
+) -> None:
+    build_support = _s10("build_forecast_support")
+    build_calibration = _s10("build_forecast_calibration_record")
+    support = build_support(**_forecast_support_payload())
+    sibling = build_support(
+        **_forecast_support_payload(
+            support_id="layer2.s10.forecast-support.sibling",
+            support_ref="pdc://layer2/s10/ua-msme/forecast-support/sibling",
+            calibration_record_ref="pdc://layer2/s10/ua-msme/calibration/sibling",
+            observable_subset_ref=changes.get(
+                "observable_subset_ref", support.observable_subset_ref
+            ),
+        )
+    )
+    first = build_calibration(**_calibration_payload())
+    second = build_calibration(
+        **_calibration_payload(
+            forecast_support_ref=sibling.support_ref,
+            calibration_id="layer2.s10.calibration.sibling",
+            calibration_ref=sibling.calibration_record_ref,
+            **changes,
+        )
+    )
+    summarize = _s10("summarize_forecast_support_integrity")
+
+    report = summarize(forecast_supports=(support, sibling), calibration_records=(first, second))
+    reversed_report = summarize(
+        forecast_supports=(sibling, support), calibration_records=(second, first)
+    )
+
+    assert report.observable_subset_calibration_status == ("limit" if expected_issue else "pass")
+    assert report.observable_subset_calibration_floor_passed is (expected_issue is None)
+    assert report.observable_subset_calibration_numerator == first.numerator + second.numerator
+    assert (
+        report.observable_subset_calibration_denominator == first.denominator + second.denominator
+    )
+    assert report.forecast_calibration_record_refs == [
+        first.calibration_ref,
+        second.calibration_ref,
+    ]
+    assert reversed_report.issue_codes == report.issue_codes
+    assert (
+        reversed_report.observable_subset_calibration_status
+        == report.observable_subset_calibration_status
+    )
+    assert (
+        reversed_report.observable_subset_calibration_threshold_ref
+        == report.observable_subset_calibration_threshold_ref
+    )
+    if expected_issue:
+        assert expected_issue in report.issue_codes
+    else:
+        assert report.issue_codes == []
+        assert report.observable_subset_calibration_threshold_ref == first.calibration_threshold_ref
+
+
+def test_forecast_integrity_cannot_admit_empty_or_conflicting_threshold() -> None:
+    support = _s10("build_forecast_support")(**_forecast_support_payload())
+    calibration = _s10("build_forecast_calibration_record")(**_calibration_payload())
+    summarize = _s10("summarize_forecast_support_integrity")
+
+    empty = summarize(forecast_supports=(support,))
+    different_threshold = summarize(
+        forecast_supports=(support,),
+        calibration_records=(calibration,),
+        threshold_ref="calibration-threshold://different",
+    )
+
+    assert empty.observable_subset_calibration_status == "limit"
+    assert empty.observable_subset_calibration_floor_passed is False
+    assert empty.observable_subset_calibration_denominator == 0
+    assert "s10_calibration_missing" in empty.issue_codes
+    assert different_threshold.observable_subset_calibration_status == "limit"
+    assert different_threshold.observable_subset_calibration_floor_passed is False
+    assert "s10_calibration_threshold_mismatch" in different_threshold.issue_codes
+
+
 def test_ets_forecast_support_is_predictive_family_with_source_denials() -> None:
     """ETS support uses its own family and cannot launder producer denials."""
 

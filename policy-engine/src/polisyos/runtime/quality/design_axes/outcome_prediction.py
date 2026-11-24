@@ -596,10 +596,13 @@ def summarize_forecast_support_integrity(
     threshold_ref: str | None = None,
     rule_version_ref: str = LAYER2_S10_OUTCOME_PREDICTION_RULE_VERSION,
 ) -> ForecastSupportIntegrityReport:
-    """Summarize S10 support rows and negative-control counters."""
+    """Summarize S10 support rows and retain their governed calibration disposition."""
 
     supports = [_as_forecast_support(item) for item in forecast_supports]
-    calibrations = [_as_calibration_record(item) for item in calibration_records]
+    calibrations = [ForecastCalibrationRecord.model_validate(item) for item in calibration_records]
+    selected_threshold_ref, calibration_issues = _reduce_observable_calibration(
+        supports, calibrations, threshold_ref=threshold_ref, rule_version_ref=rule_version_ref
+    )
     denominator = sum(record.denominator for record in calibrations)
     numerator = sum(record.numerator for record in calibrations)
     pass_rate = numerator / denominator if denominator else 0.0
@@ -620,10 +623,7 @@ def summarize_forecast_support_integrity(
     simulation_blocks = sum(
         support.forecast_tier == "simulation_only_advisory" for support in supports
     )
-    status: ObservableSubsetCalibrationStatus = (
-        "pass" if denominator and numerator == denominator else "limit"
-    )
-    floor_passed = bool(denominator and numerator == denominator)
+    floor_passed = not calibration_issues
     return ForecastSupportIntegrityReport(
         report_id=report_id,
         report_ref=report_ref,
@@ -633,15 +633,15 @@ def summarize_forecast_support_integrity(
         observable_subset_calibration_denominator=denominator,
         observable_subset_calibration_numerator=numerator,
         observable_subset_calibration_pass_rate=pass_rate,
-        observable_subset_calibration_status=status,
-        observable_subset_calibration_threshold_ref=threshold_ref,
+        observable_subset_calibration_status="pass" if floor_passed else "limit",
+        observable_subset_calibration_threshold_ref=selected_threshold_ref,
         observable_subset_calibration_floor_passed=floor_passed,
         non_observable_downgrade_count=non_observable,
         equilibrium_contested_single_forecast_block_count=equilibrium_blocks,
         simulation_only_evidence_block_count=simulation_blocks,
         weakest_boundary_inheritance_count=len(supports),
         false_clear_counts=dict.fromkeys(S10_FALSE_CLEAR_FIELDS, 0),
-        issue_codes=[],
+        issue_codes=calibration_issues,
         authority_boundary=build_prediction_authority_boundary(
             authoritative_for=["forecast_support_integrity"],
             posture="shadow",
@@ -650,6 +650,74 @@ def summarize_forecast_support_integrity(
         may_not_use_for=list(_S10_MAY_NOT_USE_FOR),
         rule_version_ref=rule_version_ref,
     )
+
+
+def _reduce_observable_calibration(
+    supports: Sequence[ForecastSupport],
+    calibrations: Sequence[ForecastCalibrationRecord],
+    *,
+    threshold_ref: str | None = None,
+    rule_version_ref: str = LAYER2_S10_OUTCOME_PREDICTION_RULE_VERSION,
+) -> tuple[str | None, list[str]]:
+    """Reconcile the selected threshold and already admitted observable records."""
+
+    if not calibrations:
+        return None, ["s10_calibration_missing"]
+
+    issues: set[str] = set()
+    thresholds = {record.calibration_threshold_ref for record in calibrations}
+    selected_threshold = next(iter(thresholds)) if len(thresholds) == 1 else None
+    if not selected_threshold or (
+        threshold_ref is not None and threshold_ref != selected_threshold
+    ):
+        issues.add("s10_calibration_threshold_mismatch")
+        selected_threshold = None
+    if len({record.observable_subset_ref for record in calibrations}) != 1:
+        issues.add("s10_calibration_scope_mismatch")
+    if len({record.calibration_ref for record in calibrations}) != len(calibrations):
+        issues.add("s10_calibration_record_duplicate")
+
+    supports_by_ref: dict[str, ForecastSupport] = {}
+    repeated_support_refs: set[str] = set()
+    for support in supports:
+        if support.support_ref in supports_by_ref:
+            repeated_support_refs.add(support.support_ref)
+        supports_by_ref[support.support_ref] = support
+
+    for record in calibrations:
+        if (
+            record.calibration_status != "pass"
+            or not record.floor_passed
+            or record.denominator <= 0
+            or "observable_subset_calibration" not in record.authority_boundary.authoritative_for
+            or record.authority_boundary.source_authority.startswith("llm_")
+        ):
+            issues.add("s10_calibration_not_admitted")
+        if (
+            record.rule_version_ref != rule_version_ref
+            or rule_version_ref not in record.authority_boundary.rule_version_refs
+        ):
+            issues.add("s10_calibration_rule_mismatch")
+        support = supports_by_ref.get(record.forecast_support_ref)
+        if (
+            support is None
+            or support.support_ref in repeated_support_refs
+            or record.case_id != support.case_id
+            or record.calibration_ref != support.calibration_record_ref
+            or support.forecast_tier != "observable_calibrated"
+        ):
+            issues.add("s10_calibration_support_mismatch")
+            continue
+        if support.observable_subset_ref != record.observable_subset_ref:
+            issues.add("s10_calibration_scope_mismatch")
+        if (
+            support.rule_version_ref != rule_version_ref
+            or rule_version_ref not in support.authority_boundary.rule_version_refs
+        ):
+            issues.add("s10_calibration_rule_mismatch")
+        issues.update(_prediction_issue_codes(support, record))
+
+    return selected_threshold, sorted(issues)
 
 
 def _require_forecast_support_inputs(payload: Mapping[str, object]) -> None:

@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, get_args
 
 import duckdb
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.core.contracts import SearchCandidate, SearchFrontier
 from polisyos.data_forge.read_api.catalog import (
@@ -3687,20 +3687,74 @@ def build_g2_observable_calibration_report(
 ) -> Layer3G2ObservableCalibrationReport:
     """Summarize observable calibration from G2 bindings and S10 records."""
 
+    from polisyos.runtime.quality.design_axes.outcome_prediction import (
+        ForecastCalibrationRecord,
+        ForecastSupport,
+        _reduce_observable_calibration,
+    )
+
     bindings = [_mapping(binding) for binding in forecast_support_bindings]
-    calibration_records = [
-        _mapping(binding.get("calibration_record")) or _mapping(binding.get("calibration_attempt"))
-        for binding in bindings
-    ]
-    calibration_records = [record for record in calibration_records if record]
+    calibration_records: list[Mapping[str, Any]] = []
+    verified_records: list[ForecastCalibrationRecord] = []
+    verified_supports: list[ForecastSupport] = []
+    issue_codes: list[str] = []
+    for binding in bindings:
+        issue_codes.extend(_string_tuple(binding.get("issue_codes", ())))
+        record = _mapping(binding.get("calibration_record"))
+        attempted_record = _mapping(binding.get("calibration_attempt"))
+        if not record:
+            if attempted_record:
+                calibration_records.append(attempted_record)
+                issue_codes.append("layer3_g2_calibration_attempt_not_admitted")
+            continue
+        calibration_records.append(record)
+        support = _mapping(binding.get("s10_forecast_support"))
+        if (
+            binding.get("status") != "pass"
+            or binding.get("s10_forecast_support_ref") != support.get("support_ref")
+            or binding.get("calibration_record_ref") != record.get("calibration_ref")
+            or record.get("forecast_support_ref") != support.get("support_ref")
+        ):
+            issue_codes.append("layer3_g2_calibration_binding_invalid")
+            continue
+        try:
+            typed_record = ForecastCalibrationRecord.model_validate(record)
+            typed_support = ForecastSupport.model_validate(support)
+        except ValidationError:
+            issue_codes.append("layer3_g2_calibration_binding_invalid")
+            continue
+        verified_records.append(typed_record)
+        verified_supports.append(typed_support)
+        if typed_record.calibration_status != "pass":
+            continue
+        envelope = _mapping(binding.get("authority_envelope"))
+        envelope_ref = binding.get("authority_envelope_ref")
+        if (
+            not _g2_authority_envelope_is_bounded(envelope)
+            or envelope.get("denies_s11_authority") is not True
+            or not envelope_ref
+            or envelope.get("envelope_ref") != envelope_ref
+            or envelope.get("forecast_support_ref") != typed_support.support_ref
+            or envelope.get("case_id") != typed_support.case_id
+            or envelope.get("forecast_tier") != typed_support.forecast_tier
+            or envelope.get("rule_version_ref") != typed_support.rule_version_ref
+            or envelope.get("observable_subset_ref") != typed_record.observable_subset_ref
+            or envelope.get("calibration_record_ref") != typed_record.calibration_ref
+            or envelope.get("calibration_status") != typed_record.calibration_status
+        ):
+            issue_codes.append("layer3_g2_calibration_authority_envelope_mismatch")
+
+    threshold_ref = None
+    if verified_records:
+        threshold_ref, calibration_issues = _reduce_observable_calibration(
+            verified_supports, verified_records
+        )
+        issue_codes.extend(calibration_issues)
     denominator = sum(int(record.get("denominator") or 0) for record in calibration_records)
     numerator = sum(int(record.get("numerator") or 0) for record in calibration_records)
     pass_rate = numerator / denominator if denominator else 0.0
     evidence_refs = _refs_from_records(calibration_records, "credible_evaluation_evidence_ref")
     observed_refs = _refs_from_records(calibration_records, "observed_outcome_ref")
-    threshold_ref = _first_or_none(
-        _refs_from_records(calibration_records, "calibration_threshold_ref")
-    )
     time_roles = tuple(
         role
         for role in (
@@ -3713,9 +3767,6 @@ def build_g2_observable_calibration_report(
         )
         if any(record.get(role) for record in calibration_records)
     )
-    issue_codes: list[str] = []
-    for binding in bindings:
-        issue_codes.extend(_string_tuple(binding.get("issue_codes", ())))
     if denominator <= 0:
         issue_codes.append("layer3_g2_observable_calibration_denominator_missing")
     if not evidence_refs:
@@ -3760,7 +3811,7 @@ def build_g2_observable_calibration_report(
         observable_subset_calibration_numerator=numerator,
         observable_subset_calibration_pass_rate=pass_rate,
         calibration_threshold_ref=threshold_ref,
-        calibration_floor_passed=bool(denominator and numerator == denominator and not issue_tuple),
+        calibration_floor_passed=status == "pass",
         issue_codes=issue_tuple,
     )
 

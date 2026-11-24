@@ -42,7 +42,7 @@ from polisyos.scientist.methods.backtesting.masking import OutcomeMasker
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 if TYPE_CHECKING:
-    from polisyos.ir.analytics.backtest import BacktestReport
+    from polisyos.ir.analytics.backtest import BacktestReport, BacktestScenario
     from polisyos.ir.registry.refs import ArtifactRefModel
     from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
@@ -50,6 +50,8 @@ if TYPE_CHECKING:
 PROFILE_KEY = "backtest_native_forecast"
 REQUEST_KEY = "backtest_native_forecast_request_ref"
 FORECAST_KEY = "backtest_native_forecast_ref"
+NATIVE_INTERVAL_REF = "native_prediction_interval_ref"
+NATIVE_INTERVAL_LIMITATION = "native_predictive_interval_not_established"
 type NativeLimitation = Literal[
     "native_external_source_provenance_not_established",
     "native_model_provenance_not_established",
@@ -82,6 +84,14 @@ class NativeForecastTarget(BaseModel):
     reduction: Literal["mean", "sum", "identity"]
 
 
+class NativePredictionIntervalProfile(BaseModel):
+    """Declare a registered conditional prediction law and requested nominal level."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+    law_version: Literal["labor_market.uniform_one_agent_income.v1"]
+    nominal_level: float = Field(gt=0.0, lt=1.0)
+
+
 class NativeForecastProfile(BaseModel):
     """Ordered model-simulation coordinates and permitted history columns."""
 
@@ -91,6 +101,9 @@ class NativeForecastProfile(BaseModel):
     time_index: list[str] = Field(min_length=1)
     history_columns: list[str] = Field(min_length=1)
     targets: list[NativeForecastTarget] = Field(min_length=1)
+    prediction_interval: NativePredictionIntervalProfile | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def validate_axes(self) -> NativeForecastProfile:
@@ -100,6 +113,10 @@ class NativeForecastProfile(BaseModel):
                 raise ValueError("native forecast axes and target metrics must be unique")
         if self.origin != self.time_index[0]:
             raise ValueError("native forecast origin must be the first future coordinate")
+        if self.prediction_interval is not None and (
+            len(self.targets) != 1 or len(self.time_index) != 1
+        ):
+            raise ValueError("native forecast interval requires one target and coordinate")
         return self
 
 
@@ -503,6 +520,13 @@ def prepare_native_replay(
     if plan.masking_strategy.value not in {"drop_post", "truncate"}:
         raise ValueError("native replay requires a finite historical prefix")
     profile = NativeForecastProfile.model_validate(params[PROFILE_KEY])
+    if profile.prediction_interval is not None and (
+        plan.n_simulation_runs != 1
+        or profile.prediction_interval.nominal_level != plan.confidence_level
+    ):
+        raise ValueError(
+            "native outcome interval disagrees with plan replica count or nominal level"
+        )
     if set(target.metric for target in profile.targets) != set(plan.target_metrics):
         raise ValueError("native replay target metrics differ from plan")
     if set(plan.target_metrics) != set(plan.ground_truth_outcomes):
@@ -1142,6 +1166,11 @@ def _check_native_plan_request(
     base_seed = plan.random_seed if plan.random_seed is not None else params.get("random_seed", 0)
     if type(base_seed) is not int or request.seed != base_seed + index - 1:
         raise ValueError("native replica plan seed mismatch")
+    declared_interval = request.profile.prediction_interval
+    if declared_interval is not None and (
+        plan.n_simulation_runs != 1 or declared_interval.nominal_level != plan.confidence_level
+    ):
+        raise ValueError("native outcome interval differs from the selected plan law")
     if (
         cas.ArtifactRef.model_validate(inputs["data_snapshot_ref"]) != request.source_snapshot_ref
         or cas.ArtifactRef.model_validate(inputs["trinity_bundle_ref"])
@@ -1515,6 +1544,139 @@ def _verify_unavailable_native_cohort(
         _require_shared_native_execution(forecasts)
 
 
+def _build_native_interval_prediction(
+    store: cas.CoreJSONArtifactStore,
+    forecast_ref: cas.ArtifactRef,
+    request_ref: cas.ArtifactRef,
+    request: NativeForecastRequest,
+    *,
+    workflow_completed: bool,
+) -> tuple[dict[str, Any], tuple[str, ...]]:
+    """Add an interval to the evaluated cell only after the owner admits it."""
+    declared = request.profile.prediction_interval
+    if declared is None:
+        return {}, ()
+    target, coordinate = request.profile.targets[0], request.profile.time_index[0]
+    payload: dict[str, Any] = {
+        "intervals": {target.metric: []},
+        "confidence_level": declared.nominal_level,
+        "interval_type": "prediction_interval",
+    }
+    if not workflow_completed or not isinstance(store, cas.FileSystemCAS):
+        return payload, (NATIVE_INTERVAL_LIMITATION,)
+    from polisyos.scientist.nodes.builtins.simulate.native_predictive_interval import (
+        load_native_model_prediction,
+        persist_native_model_prediction,
+    )
+
+    try:
+        selected = persist_native_model_prediction(
+            store,
+            forecast_ref,
+            request_ref,
+            metric=target.metric,
+            coordinate=coordinate,
+            nominal_level=declared.nominal_level,
+        )
+        result = load_native_model_prediction(
+            store,
+            selected,
+            forecast_ref,
+            request_ref,
+            metric=target.metric,
+            coordinate=coordinate,
+            nominal_level=declared.nominal_level,
+        )
+    except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        return payload, (NATIVE_INTERVAL_LIMITATION,)
+    payload.update(
+        {
+            "intervals": {target.metric: [(result.interval.lower, result.interval.upper)]},
+            "interval_metadata_source": "native_model_prediction",
+            NATIVE_INTERVAL_REF: selected.model_dump(mode="json"),
+        }
+    )
+    return payload, ()
+
+
+def _verify_native_interval_comparisons(
+    store: cas.CoreJSONArtifactStore,
+    report_ref: cas.ArtifactRef,
+    cohort_ref: cas.ArtifactRef,
+    scenario: BacktestScenario,
+    forecast_ref: cas.ArtifactRef,
+    request_ref: cas.ArtifactRef,
+    request: NativeForecastRequest,
+    scenario_reasons: list[str],
+    *,
+    workflow_status: str | None,
+) -> str | None:
+    """Reopen a selected conditional law and verify its evaluated comparison."""
+    raw_ref = scenario.metadata.get(NATIVE_INTERVAL_REF)
+    declared = request.profile.prediction_interval
+    rows = scenario.outcome_comparisons
+    if declared is not None:
+        plan_ref = _edge_ref(store, cohort_ref, "native_plan", _NATIVE_PLAN_KIND)
+        plan = _load_native_plan(store, plan_ref)
+        if plan.plan_id != scenario.scenario_id:
+            raise ValueError("native interval plan differs from the scenario")
+        _check_native_plan_request(store, plan, request, index=1)
+        if scenario.nominal_confidence_level != declared.nominal_level:
+            raise ValueError("native outcome interval nominal level differs from the plan")
+    if raw_ref is None:
+        if any(
+            row.ci_lower is not None or row.ci_upper is not None or row.within_ci is not None
+            for row in rows
+        ):
+            raise ValueError("native replay does not establish predictive intervals")
+        if declared is not None and (
+            NATIVE_INTERVAL_LIMITATION not in scenario_reasons
+            or scenario.interval_requested_count != 1
+            or scenario.interval_available_count != 0
+            or scenario.interval_type != "prediction_interval"
+        ):
+            raise ValueError("native requested interval lacks its explicit limitation")
+        return None
+    if declared is None or workflow_status != "ok" or not isinstance(store, cas.FileSystemCAS):
+        raise ValueError(
+            "native outcome interval is outside the selected plan or completed workflow"
+        )
+    from polisyos.scientist.nodes.builtins.simulate.native_predictive_interval import (
+        load_native_model_prediction,
+    )
+
+    interval_role = f"native_prediction_interval:{scenario.scenario_id}"
+    selected = SimulationResultRef.model_validate(raw_ref)
+    _edge(store, report_ref, selected, interval_role)
+    target, coordinate = request.profile.targets[0], request.profile.time_index[0]
+    result = load_native_model_prediction(
+        store,
+        selected,
+        forecast_ref,
+        request_ref,
+        metric=target.metric,
+        coordinate=coordinate,
+        nominal_level=declared.nominal_level,
+    )
+    if (
+        len(rows) != 1
+        or rows[0].metric_name != target.metric
+        or rows[0].y_pred != result.interval.point
+        or rows[0].ci_lower != result.interval.lower
+        or rows[0].ci_upper != result.interval.upper
+        or rows[0].within_ci
+        is not (result.interval.lower <= rows[0].y_true <= result.interval.upper)
+        or scenario.interval_type != result.interval_semantics
+        or scenario.metadata.get("interval_metadata_source") != "native_model_prediction"
+        or scenario.interval_requested_count != 1
+        or scenario.interval_available_count != 1
+        or scenario.interval_evaluated_count != 1
+        or NATIVE_INTERVAL_LIMITATION in scenario_reasons
+    ):
+        raise ValueError("native outcome interval comparison differs from selected law")
+    return interval_role
+
+
 def load_native_backtest_report(
     store: cas.CoreJSONArtifactStore, report_ref: cas.ArtifactRef
 ) -> BacktestReport:
@@ -1575,6 +1737,9 @@ def load_native_backtest_report(
     native_roles = [
         edge.role for edge in manifest.inputs if edge.role.startswith("native_forecast:")
     ]
+    interval_roles = [
+        edge.role for edge in manifest.inputs if edge.role.startswith("native_prediction_interval:")
+    ]
     scenario_ids = [scenario.scenario_id for scenario in report.scenarios]
     if len(set(scenario_ids)) != len(scenario_ids):
         raise ValueError("native report scenario identifiers are not unique")
@@ -1594,10 +1759,11 @@ def load_native_backtest_report(
         "native_randomness_scope",
         "native_limitations",
     }
-    native_fields = single_native_fields | {"native_replica_projection"}
+    native_fields = single_native_fields | {"native_replica_projection", NATIVE_INTERVAL_REF}
     native_count = 0
     unavailable_count = 0
     verified_roles: list[str] = []
+    verified_intervals: list[str] = []
     for scenario in report.scenarios:
         forecast_role = f"native_forecast:{scenario.scenario_id}"
         cohort_role = f"replica_cohort:{scenario.scenario_id}"
@@ -1697,6 +1863,8 @@ def load_native_backtest_report(
             continue
         projection_payload = scenario.metadata.get("native_replica_projection")
         if projection_payload is not None:
+            if NATIVE_INTERVAL_REF in scenario.metadata:
+                raise ValueError("native replica mean does not establish predictive intervals")
             cohort_ref = cas.ArtifactRef.model_validate(scenario.metadata.get("replica_cohort_ref"))
             _edge(store, report_ref, cohort_ref, cohort_role)
             verified_roles.extend(
@@ -1756,8 +1924,6 @@ def load_native_backtest_report(
             raise ValueError("native report declared limitations are incomplete")
         actual: dict[str, list[float]] = {}
         for row in scenario.outcome_comparisons:
-            if row.ci_lower is not None or row.ci_upper is not None or row.within_ci is not None:
-                raise ValueError("native replay does not establish predictive intervals")
             actual.setdefault(row.metric_name, []).append(row.y_pred)
         if actual != forecast.values or scenario.compared_count != sum(
             len(values) for values in forecast.values.values()
@@ -1771,12 +1937,27 @@ def load_native_backtest_report(
             actual_truth.setdefault(row.metric_name, []).append(row.y_true)
         if actual_truth != _source_holdout(source_data, request.profile, request.cutoff):
             raise ValueError("native report outcomes differ from selected source holdout")
+        interval_role = _verify_native_interval_comparisons(
+            store,
+            report_ref,
+            cohort_ref,
+            scenario,
+            forecast_ref,
+            request_ref,
+            request,
+            scenario_reasons,
+            workflow_status=replica.workflow_status,
+        )
+        if interval_role is not None:
+            verified_intervals.append(interval_role)
         native_count += 1
         verified_roles.append(forecast_role)
     if not native_count and not unavailable_count:
         raise ValueError("native report has no selected native forecast or unavailable scenario")
     if sorted(native_roles) != sorted(verified_roles):
         raise ValueError("native report forecast edge census differs from scenarios")
+    if sorted(interval_roles) != sorted(verified_intervals):
+        raise ValueError("native report interval edge census differs from scenarios")
     modes = [scenario.metadata.get("prediction_source_effective") for scenario in report.scenarios]
     if any(not isinstance(mode, str) or not mode for mode in modes):
         raise ValueError("native report scenario prediction mode is missing")

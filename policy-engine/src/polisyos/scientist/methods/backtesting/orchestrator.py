@@ -561,6 +561,14 @@ def _scenario_report_inputs(scenarios: Sequence[BacktestScenario]) -> list[Input
                 if isinstance(forecast_payload, Mapping)
                 else []
             )
+        interval_payload = scenario.metadata.get("native_prediction_interval_ref")
+        if interval_payload is not None:
+            roles.append(
+                (
+                    CoreArtifactRef.model_validate(interval_payload),
+                    f"native_prediction_interval:{scenario.scenario_id}",
+                )
+            )
         edges.extend(
             InputRef.model_validate(
                 input_ref_from_artifact_ref(ref, role=role).model_dump(mode="json")
@@ -726,6 +734,7 @@ class BacktestOrchestrator:
             ),
             "degraded": bool(prediction_payload.get("degraded", False)),
         }
+        scenario_metadata.pop("native_prediction_interval_ref", None)
         if "interval_type" in prediction_payload:
             scenario_metadata["interval_type"] = prediction_payload["interval_type"]
         if "interval_metadata_source" in prediction_payload:
@@ -744,6 +753,7 @@ class BacktestOrchestrator:
             "native_foundry_step_count",
             "native_randomness_scope",
             "native_limitations",
+            "native_prediction_interval_ref",
             "native_requested_replicas",
             "native_started_replicas",
             "native_requested_count_status",
@@ -941,6 +951,7 @@ class BacktestOrchestrator:
         native_plan_ref: CoreArtifactRef | None = None
         if native:
             from polisyos.scientist.methods.backtesting.native_replay import (
+                NativeForecastProfile,
                 _persist_native_plan,
                 prepare_native_replay,
             )
@@ -955,7 +966,10 @@ class BacktestOrchestrator:
                     seed=base_seed,
                 )
                 snapshot_payload = native_first_state["inputs"]["data_snapshot_ref"]
-                if plan.n_simulation_runs > 1:
+                profile = NativeForecastProfile.model_validate(
+                    params_template["backtest_native_forecast"]
+                )
+                if plan.n_simulation_runs > 1 or profile.prediction_interval is not None:
                     native_plan_ref = _persist_native_plan(execution_store, plan)
             except Exception as exc:
                 reason = f"native_forecast_unavailable:{type(exc).__name__}:{exc}"
@@ -1378,24 +1392,35 @@ class BacktestOrchestrator:
 
         if native:
             from polisyos.scientist.methods.backtesting.native_replay import (
+                _build_native_interval_prediction,
                 _load_selected_native_cohort,
                 _verify_native_replica,
             )
 
             selected_cohort_ref = cohort_ref
             selected_cohort = _load_selected_native_cohort(execution_store, selected_cohort_ref)
+            forecast_ref = CoreArtifactRef.model_validate(artifacts["native_forecast_ref"])
+            request_ref = CoreArtifactRef.model_validate(artifacts["native_request_ref"])
             forecast, request, _ = _verify_native_replica(
                 execution_store,
                 selected_cohort_ref,
                 selected_cohort,
                 selected_cohort.replicas[0],
-                CoreArtifactRef.model_validate(artifacts["native_forecast_ref"]),
-                CoreArtifactRef.model_validate(artifacts["native_request_ref"]),
+                forecast_ref,
+                request_ref,
                 index=1,
+            )
+            interval_payload, interval_reasons = _build_native_interval_prediction(
+                execution_store,
+                forecast_ref,
+                request_ref,
+                request,
+                workflow_completed=not partial_native_result,
             )
             return {
                 "predictions": forecast.values,
                 "intervals": {},
+                **interval_payload,
                 "warnings": warnings,
                 "prediction_mode_effective": (
                     "scientist_candidate"
@@ -1406,6 +1431,7 @@ class BacktestOrchestrator:
                 "degraded_reasons": [
                     "native_predictive_simulation_only",
                     *request.limitations,
+                    *interval_reasons,
                     *(["scientist_replica_cohort_incomplete"] if partial_native_result else []),
                 ],
                 "replica_cohort_ref": normalize_artifact_ref(cohort_ref),

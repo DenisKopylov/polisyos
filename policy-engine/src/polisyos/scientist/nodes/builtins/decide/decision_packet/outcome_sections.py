@@ -327,6 +327,23 @@ def _build_backtest_section(
                 "trust_grade": trust_projection.grade,
             }
         )
+        model_intervals = [
+            {
+                "scenario_id": scenario.scenario_id,
+                "interval_type": scenario.interval_type,
+                "nominal_confidence_level": scenario.nominal_confidence_level,
+                "interval_evaluated_count": scenario.interval_evaluated_count,
+                "interval_hit_count": scenario.interval_hit_count,
+                "simulation_result_ref": scenario.metadata["native_prediction_interval_ref"],
+                "scope": "compiled_model_conditional_on_selected_state",
+                "observational_calibration": "not_established",
+            }
+            for scenario in report.scenarios
+            if "native_forecast_ref" in scenario.metadata
+            and "native_prediction_interval_ref" in scenario.metadata
+        ]
+        if model_intervals:
+            payload["model_conditional_prediction_intervals"] = model_intervals
     except _DECISION_PACKET_LOAD_ERRORS as exc:
         payload["backtest_report_status"] = "unavailable"
         payload["metric_diagnostics_status"] = "unavailable"

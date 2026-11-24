@@ -4771,6 +4771,124 @@ def test_s1_c5b_packet_preserves_provided_cancellation_diagnostic(tmp_path) -> N
     assert packet["calibration_validation"]["summary"]["eligible_for_promotion"] is False
 
 
+def test_s1_c5b_packet_retains_selected_range_limited_backtest(tmp_path, monkeypatch) -> None:
+    import json
+    import math
+    from sys import float_info
+
+    import pytest
+
+    from polisyos.ir.analytics.backtest import load_backtest_report
+    from polisyos.ir.observation.bundles import BacktestPlanBundle, ContractCompatibilityTarget
+    from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+    from polisyos.scientist.governance.calibration import CalibrationGovernanceReport
+    from polisyos.scientist.governance.calibration_validation import (
+        CalibrationValidationRunner,
+        CalibrationValidationRunnerInput,
+        load_calibration_validation_bundle,
+    )
+    from polisyos.scientist.methods.backtesting.plan import (
+        HistoricalValidationPlan,
+        PredictionSource,
+    )
+    from tests.unit.scientist.nodes.builtins.simulate.test_native_predictive_interval import (
+        _issue_packet,
+    )
+
+    def unexpected_dispatch(*args, **kwargs):
+        pytest.fail("a provided forecast or its fresh packet read must not dispatch Foundry")
+
+    monkeypatch.setattr(DefaultFoundryPort, "execute", unexpected_dispatch)
+    store = FileSystemCAS(tmp_path / "cas")
+    history = tmp_path / "history.json"
+    observed = [0.0, -1e308, -float_info.max, 1.0]
+    history.write_text(json.dumps({"metric": observed}), encoding="utf-8")
+    plan = HistoricalValidationPlan(
+        plan_id="range-limited-holdout",
+        historical_data_path=str(history),
+        ground_truth_outcomes={"metric": observed},
+        target_metrics=["metric"],
+        prediction_source=PredictionSource.PROVIDED,
+        predicted_outcomes={"metric": [0.0, 0.0, float_info.max]},
+        selected_training_role="fixture_training",
+        selected_validation_role="fixture_validation",
+        selected_holdout_role="fixture_holdout",
+    )
+    plan_bundle = BacktestPlanBundle(
+        contract_target=ContractCompatibilityTarget(
+            contract_id="range_limited_holdout",
+            contract_fqn="polisyos.tests.BacktestPlanBundle",
+        ),
+        required_fields=["metric"],
+        holdout_windows=["2025-01-01::2025-12-31"],
+        selected_training_role=plan.selected_training_role,
+        selected_validation_role=plan.selected_validation_role,
+        selected_holdout_role=plan.selected_holdout_role,
+        plans=[plan.model_dump(mode="json")],
+    )
+    candidate = store.put_json(
+        {"candidate": "range-limited-holdout"},
+        PutOptions(kind="scientist.calibration_candidate", media_type="application/json"),
+    )
+    run_id = "s1-range-limited-packet"
+    result = CalibrationValidationRunner(store).run(
+        CalibrationValidationRunnerInput(
+            run_id=run_id,
+            candidate_ref=candidate,
+            governance_report=CalibrationGovernanceReport(verdict="human_gate", metadata={}),
+            backtest_plan_bundles={BacktestKind.HOUSEHOLD: plan_bundle},
+            selected_training_role=plan.selected_training_role,
+            selected_validation_role=plan.selected_validation_role,
+            selected_holdout_role=plan.selected_holdout_role,
+        ),
+        return_selected_profile=True,
+    )
+    bundle_ref = ArtifactRef.model_validate(result.bundle_ref.model_dump(mode="json"))
+    reader = FileSystemCAS.open_existing_read_only(store.root)
+    c5b = load_calibration_validation_bundle(reader, bundle_ref)
+    report_ref = c5b.backtest_report_ref
+    assert report_ref is not None and report_ref.manifest_profile_sha256 is not None
+    report = load_backtest_report(_ensure_ir_artifact_store(reader), report_ref)
+    (scenario,) = report.scenarios
+    assert (scenario.requested_count, scenario.compared_count) == (4, 2)
+    assert scenario.invalid_cells == [("metric", 2)]
+    assert scenario.missing_cells == [("metric", 3)]
+    assert [row.absolute_error for row in scenario.outcome_comparisons] == [0.0, 1e308]
+    assert scenario.rmse == pytest.approx(1e308 / math.sqrt(2))
+    assert scenario.mae == 5e307
+    assert scenario.squared_error_sum is None
+    assert scenario.numerical_range is not None
+    assert scenario.numerical_range.unavailable_error_sums == {"squared_error_sum": "overflow"}
+    (invalid,) = scenario.numerical_range.residual_overflow_cells
+    assert (invalid.metric_name, invalid.observation_index) == ("metric", 2)
+    assert c5b.readout_summary()["backtest_trust_score"] is None
+
+    registry_ref = build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
+    packet = _issue_packet(
+        store,
+        registry_ref,
+        ArtifactRef.model_validate(report_ref.model_dump(mode="json")),
+        run_id=run_id,
+        calibration_ref=bundle_ref,
+    )
+    direct = packet["backtest"]
+    assert direct["report_ref"] == str(report_ref.artifact_id)
+    assert direct["backtest_report_status"] == "available"
+    assert direct["n_metrics_evaluated"] == 2
+    assert direct["overall_rmse"] == pytest.approx(1e308 / math.sqrt(2))
+    assert direct["overall_mae"] == 5e307
+    assert direct["overall_coverage_probability"] is None
+    assert "backtest_numerical_range" in direct["degraded_reasons"]
+    assert direct["trust_score_status"] == "not_established"
+    assert direct["trust_score_reason"] == "backtest_source_not_established"
+    assert direct["trust_score"] is None and direct["trust_eligible"] is False
+    nested = packet["calibration_validation"]
+    assert nested["backtest_report_ref"] == direct["report_ref"]
+    assert nested["backtest_report_status"] == "available"
+    assert nested["summary"]["backtest_trust_score"] is None
+    assert nested["summary"]["eligible_for_promotion"] is False
+
+
 def test_s1_exact_zero_arithmetic_is_limited_through_cas_c5b_and_packet(tmp_path) -> None:
     from polisyos.core.artifacts.manifest import InputRef as InputRefModel
     from polisyos.ir.analytics.backtest import load_backtest_report

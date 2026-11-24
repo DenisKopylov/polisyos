@@ -21125,6 +21125,8 @@ export interface components {
         | null;
       /** Limitation Codes */
       limitation_codes: string[];
+      /** @description Selected measurement limits of a reopened candidate source-row result. */
+      measurement_scope?: components["schemas"]["ModelInputScope"] | null;
       /** Measurement Unit */
       measurement_unit?: string | null;
       method_selection_receipt_ref?:

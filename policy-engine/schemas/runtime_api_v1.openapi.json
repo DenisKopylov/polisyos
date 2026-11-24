@@ -43762,6 +43762,17 @@
             "title": "Limitation Codes",
             "type": "array"
           },
+          "measurement_scope": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelInputScope"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Selected measurement limits of a reopened candidate source-row result."
+          },
           "measurement_unit": {
             "anyOf": [
               {

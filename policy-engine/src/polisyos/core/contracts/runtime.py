@@ -62,6 +62,7 @@ from .owned_attempt_anchor import (
 )
 from .policy_design_case_projection import PolicyDesignCaseProjection
 from .value_outer_set import ValueOuterSet
+from .variable_binding import ModelInputScope
 
 SourceKind = Literal["core_run"]
 NodeStatus = Literal["ok", "skip", "fail", "unknown"]
@@ -5253,6 +5254,11 @@ class RunCandidateValueMethodProjection(BaseModel):
     native_report_ref: ArtifactRef | None = None
     method_selection_receipt_ref: ArtifactRef | None = None
     measurement_unit: str | None = Field(default=None, min_length=1)
+    measurement_scope: ModelInputScope | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+        description="Selected measurement limits of a reopened candidate source-row result.",
+    )
     point_estimate: float | None = Field(default=None, allow_inf_nan=False)
     statistical_interval: tuple[float, float] | None = None
     value_outer_set: ValueOuterSet | None = None
@@ -5313,6 +5319,7 @@ class RunCandidateValueMethodProjection(BaseModel):
                 self.value_outer_set,
                 self.point_estimate,
                 self.statistical_interval,
+                self.measurement_scope,
             )
         ):
             raise ValueError("run_candidate_value_method_unverified_output_present")

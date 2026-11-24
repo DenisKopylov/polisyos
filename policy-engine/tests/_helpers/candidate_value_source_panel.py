@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
+    from polisyos.core.contracts import ModelInputScope
 
 
 def build_candidate_value_source_panel(
@@ -19,6 +20,7 @@ def build_candidate_value_source_panel(
     store: ArtifactStore,
     target_variable: str = "cells.distress_score",
     one_arm_control: bool = False,
+    measurement_scope: ModelInputScope | None = None,
 ) -> SimpleNamespace:
     """Build actual active source projections and a candidate AIPW request.
 
@@ -33,6 +35,8 @@ def build_candidate_value_source_panel(
         tmp_path: Test-owned parent for the source and companion artifacts.
         store: Runtime artifact store shared with the served route.
         target_variable: Candidate binary treatment variable identifier.
+        one_arm_control: Select the existing one-arm refusal panel.
+        measurement_scope: Sign a compact 120-row cohort and one unselected population row.
 
     Returns:
         A namespace containing the native source, selected and resolved Catalog
@@ -44,7 +48,9 @@ def build_candidate_value_source_panel(
     from polisyos.foundry.methods.causal import HTEObservationalData
     from polisyos.runtime.quality import (
         ValueOwnerSourceProjectionRequestV1,
+        ValueOwnerSourceProjectionRequestV2,
         ValueOwnerSourceVariableProjectionV1,
+        ValueOwnerSourceVariableProjectionV2,
     )
     from polisyos.runtime.quality.intervention_substrate import default_l6_bundle_paths
     from polisyos.runtime.quality.substrate_registry import (
@@ -107,9 +113,20 @@ def build_candidate_value_source_panel(
         encoding="utf-8",
     )
 
+    if measurement_scope is None:
+        condition = {"fixture": "candidate_value_source_panel", "time_role": "synthetic_index"}
+    else:
+        condition = {
+            "population_ref": measurement_scope.population_ref,
+            "geography_ref": measurement_scope.geography_ref,
+            "jurisdiction_ref": measurement_scope.jurisdiction_ref,
+            "time_period_basis": "calendar_year",
+        }
+    condition_json = json.dumps(condition, sort_keys=True, separators=(",", ":"))
     source_rows: list[dict[str, object]] = []
     treatment_values = (0,) if one_arm_control else (0, 1)
-    rows_per_cell = 100 if one_arm_control else 50
+    selected_row_count = 120 if measurement_scope is not None else 200
+    rows_per_cell = selected_row_count // (2 * len(treatment_values))
     for covariate in (0, 1):
         for treatment in treatment_values:
             for _ in range(rows_per_cell):
@@ -122,22 +139,19 @@ def build_candidate_value_source_panel(
                         "income": float(outcome),
                         "treatment": float(treatment),
                         "baseline_covariate": float(covariate),
-                        "condition_json": (
-                            '{"fixture":"candidate_value_source_panel",'
-                            '"time_role":"synthetic_index"}'
-                        ),
+                        "condition_json": condition_json,
                     }
                 )
 
     cell_counts = Counter(
         (int(row["treatment"]), int(row["baseline_covariate"])) for row in source_rows
     )
-    expected_cells = (
-        {(0, covariate): 100 for covariate in (0, 1)}
-        if one_arm_control
-        else {(treatment, covariate): 50 for treatment in (0, 1) for covariate in (0, 1)}
-    )
-    if len(source_rows) != 200 or cell_counts != expected_cells:
+    expected_cells = {
+        (treatment, covariate): rows_per_cell
+        for treatment in treatment_values
+        for covariate in (0, 1)
+    }
+    if len(source_rows) != selected_row_count or cell_counts != expected_cells:
         raise AssertionError("candidate_value_source_panel_denominator_mismatch")
 
     variable_specs = (
@@ -172,9 +186,16 @@ def build_candidate_value_source_panel(
             "valid_max": 1.0,
         },
     )
+    signed_rows = source_rows
+    if measurement_scope is not None:
+        other_condition = {**condition, "population_ref": "population:outside-declared-panel"}
+        signed_rows = [
+            *source_rows,
+            {**source_rows[0], "condition_json": json.dumps(other_condition, sort_keys=True)},
+        ]
     native_source = make_native_multivariable_active_projections(
         source_root,
-        source_rows=source_rows,
+        source_rows=signed_rows,
         variable_specs=variable_specs,
         condition_units_by_raw_field={
             "income": "usd",
@@ -182,6 +203,7 @@ def build_candidate_value_source_panel(
             "baseline_covariate": "binary",
         },
         artifact_store=cast("FileSystemCAS", store),
+        return_selected_raw_profile=measurement_scope is not None,
     )
     if native_source.repo_root != native_repo_root:
         raise AssertionError("candidate_value_source_panel_companion_root_mismatch")
@@ -190,7 +212,7 @@ def build_candidate_value_source_panel(
     for variable_id in variable_ids:
         projection = projections[variable_id]
         if (
-            len(projection.observations) != 200
+            len(projection.observations) != len(signed_rows)
             or projection.source_time_status != "not_established"
         ):
             raise AssertionError("candidate_value_source_panel_projection_mismatch")
@@ -259,6 +281,27 @@ def build_candidate_value_source_panel(
         ),
         seed=7,
     )
+    if measurement_scope is not None:
+        estimand = json.loads(estimand_spec_json)
+        estimand["population"] = measurement_scope.population_ref
+        request = ValueOwnerSourceProjectionRequestV2.model_validate(
+            {
+                **request.model_dump(mode="python", exclude={"schema_version"}),
+                "measurement_scope": measurement_scope,
+                "estimand_spec_json": json.dumps(estimand, sort_keys=True, separators=(",", ":")),
+                "variable_projections": tuple(
+                    ValueOwnerSourceVariableProjectionV2(
+                        role=binding.role,
+                        variable_id=binding.variable_id,
+                        projection_payload=binding.projection_payload,
+                        dataset_version=projections[binding.variable_id]
+                        .observations[0]
+                        .observation.dataset_version,
+                    )
+                    for binding in request.variable_projections
+                ),
+            }
+        )
 
     cell_means = {
         (treatment, covariate): Fraction(

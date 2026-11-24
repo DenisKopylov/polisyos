@@ -6,11 +6,16 @@ import json
 import uuid
 from collections.abc import Callable, Mapping
 from copy import deepcopy
+from datetime import date
 from decimal import Decimal
+from functools import partial
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pytest
+
+if TYPE_CHECKING:
+    from polisyos.core.contracts import ModelInputScope
 
 
 @pytest.fixture
@@ -38,6 +43,7 @@ async def _prepare_source_candidate(
     *,
     one_arm_control: bool = False,
     total_n5_units: int = 5,
+    measurement_scope: ModelInputScope | None = None,
 ) -> tuple[Any, Any]:
     """Declare compact external inputs before real N4; never mutate emitted atoms."""
     from polisyos.core.security.tenant_context import tenant_scope
@@ -141,6 +147,7 @@ async def _prepare_source_candidate(
             tmp_path / "source",
             store=context.store,
             one_arm_control=one_arm_control,
+            measurement_scope=measurement_scope,
         )
 
     def actual_compiler_problem(_recording: dict[str, Any], **kwargs: Any) -> Any:
@@ -570,6 +577,28 @@ def _assert_source_method_reader_suffix(
         fresh_observation = fresh_generic["n5_observations"][0]
         assert fresh_observation["candidate_value_method"] == method
         assert len(physical_n5) == n5_calls_before
+        with monkeypatch.context() as cap:
+            cap.setattr(
+                gc,
+                "_load_value_data_profile_from_l1_dcat",
+                partial(gc._load_value_data_profile_from_l1_dcat, owner_row_limit=119),
+            )
+            truncated = fresh_client.get(f"/api/v1/runs/{run_id}")
+        assert truncated.status_code == 200, truncated.text
+        (fallback,) = truncated.json()["run"]["generic_cycle_simulation"]["n5_observations"]
+        assert fallback["candidate_id"] == fresh_observation["candidate_id"]
+        assert fallback["n8_status"] == "value_conditional"
+        assert fallback["n8_value_ref"] == fresh_observation["n8_value_ref"]
+        assert fallback["simulation_result_ref"] == fresh_observation["simulation_result_ref"]
+        assert fallback["simulation_result_body"] == fresh_observation["simulation_result_body"]
+        limited_method = fallback["candidate_value_method"]
+        assert limited_method["record_ref"] == method["record_ref"]
+        assert limited_method["status"] == "not_established"
+        assert limited_method["limitation_codes"] == ["acquire_data:value_owner_rows_truncated"]
+        assert "measurement_scope" not in limited_method
+        assert limited_method["point_estimate"] is None
+        assert limited_method["statistical_interval"] is None
+        assert limited_method["publication_authority"] is False
         with tenant_scope(None, tenant_id=prepared.tenant_id, cell_id=prepared.cell_id):
             record = CandidateValueMethodRecord.model_validate(
                 load_core_json_artifact(
@@ -934,13 +963,30 @@ async def test_ordinary_candidate_executes_source_rows_persists_and_fresh_gets(
     """A local N8 mismatch preserves N5, tries its ranked sibling, and survives fresh GET."""
     from fastapi.testclient import TestClient
 
+    from polisyos.core.contracts import ModelInputScope
     from polisyos.foundry.methods.catalog.causal.treatment_effects import AIPWEstimator
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.quality import candidate_value_method as method_owner
+    from polisyos.runtime.quality import generation_cycle as gc
     from tests._helpers.control_worker import dispatch_one_control_job
 
+    scope = ModelInputScope(
+        population_ref="population:declared-candidate-panel",
+        geography_ref="UA",
+        jurisdiction_ref="UA",
+        period_start=date(1800, 1, 1),
+        period_end=date(1919, 12, 31),
+        time_role="observation_time",
+        period_basis="calendar_year",
+    )
     prepared, panel = await _prepare_source_candidate(
-        tmp_path, monkeypatch, controlled_candidate_gateway
+        tmp_path, monkeypatch, controlled_candidate_gateway, measurement_scope=scope
+    )
+    assert len(panel.source.projections["agents.income"].observations) == 121
+    monkeypatch.setattr(
+        gc,
+        "_load_value_data_profile_from_l1_dcat",
+        partial(gc._load_value_data_profile_from_l1_dcat, owner_row_limit=120),
     )
     projector_calls: list[dict[str, Any]] = []
     actual_projector = method_owner.project_candidate_value_method
@@ -1016,6 +1062,7 @@ async def test_ordinary_candidate_executes_source_rows_persists_and_fresh_gets(
         expected_ate=panel.expected_ate,
         expected_bounds=panel.expected_bounds,
     )
+    assert method["measurement_scope"] == scope.model_dump(mode="json")
     assert [
         (call.replications, call.intervention_atoms[0].target_world_slots)
         for call in observed["physical_n5"]

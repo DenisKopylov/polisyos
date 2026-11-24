@@ -19620,6 +19620,8 @@ export interface components {
             failure_kind?: ("input_refused" | "environment_unavailable" | "not_established") | null;
             /** Limitation Codes */
             limitation_codes: string[];
+            /** @description Selected measurement limits of a reopened candidate source-row result. */
+            measurement_scope?: components["schemas"]["ModelInputScope"] | null;
             /** Measurement Unit */
             measurement_unit?: string | null;
             method_selection_receipt_ref?: components["schemas"]["ArtifactRef-Output"] | null;

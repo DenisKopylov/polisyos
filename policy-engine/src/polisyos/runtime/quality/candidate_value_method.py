@@ -582,6 +582,7 @@ def project_candidate_value_method(
     )
     from polisyos.runtime.quality.generation_cycle import (
         FoundryValuePort,
+        ValueOwnerSourceProjectionRequestV2,
         _candidate_content_hash,
         _candidate_id,
         _problem_ref,
@@ -773,6 +774,13 @@ def project_candidate_value_method(
         owner_profile = ValueDataProfile.model_validate(
             _value_load_ref_payload(ir_store, _value_artifact_ref(basis["profile_ref"]))
         )
+        measurement_scope = (
+            request.measurement_scope
+            if isinstance(request, ValueOwnerSourceProjectionRequestV2)
+            else None
+        )
+        if (measurement_scope is None) != (owner_profile.scope_selection_content_sha256 is None):
+            raise ValueError("candidate_value_method_measurement_scope_mismatch")
         runner_ref = _value_artifact_ref(basis["runner_request_ref"])
         runner_manifest = ir_store.get_manifest_by_profile(
             runner_ref.artifact_id,
@@ -802,6 +810,7 @@ def project_candidate_value_method(
             native_report_ref=report_ref,
             method_selection_receipt_ref=selection_ref,
             measurement_unit=owner_profile.measurement_unit,
+            measurement_scope=measurement_scope,
             point_estimate=native_report.point_estimate,
             statistical_interval=native_report.confidence_interval,
             limitation_codes=record.limitation_codes,

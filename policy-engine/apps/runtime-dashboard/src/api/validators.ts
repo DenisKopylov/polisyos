@@ -4445,6 +4445,18 @@ const candidateValueMethodOuterSetSchema = z
     }
   });
 
+const calendarObservationScopeSchema = z
+  .object({
+    population_ref: z.string().min(1),
+    geography_ref: z.string().min(1),
+    jurisdiction_ref: z.string().min(1),
+    period_start: z.iso.date(),
+    period_end: z.iso.date(),
+    time_role: z.literal("observation_time"),
+    period_basis: z.literal("calendar_year"),
+  })
+  .strict();
+
 const runCandidateValueMethodProjectionSchema = z
   .object({
     assignment_provenance: z.literal("consumer_asserted"),
@@ -4455,6 +4467,10 @@ const runCandidateValueMethodProjectionSchema = z
       .nullable()
       .optional(),
     limitation_codes: z.array(z.string()).min(1),
+    measurement_scope: calendarObservationScopeSchema
+      .refine((scope) => scope.period_start <= scope.period_end)
+      .nullable()
+      .optional(),
     measurement_unit: z.string().min(1).nullable().optional(),
     method_selection_receipt_ref: coreArtifactRefSchema.nullable().optional(),
     native_report_ref: coreArtifactRefSchema.nullable().optional(),
@@ -4550,7 +4566,8 @@ const runCandidateValueMethodProjectionSchema = z
     } else if (
       method.value_outer_set != null ||
       method.point_estimate != null ||
-      method.statistical_interval != null
+      method.statistical_interval != null ||
+      method.measurement_scope != null
     ) {
       context.addIssue({
         code: "custom",
@@ -8793,17 +8810,7 @@ const predictiveCalibrationOutcomeLevelSupportSchema = z
     n4_metric_id: z.string().min(1),
     observed_target_metric: z.string().min(1),
     measurement_unit: z.string().min(1),
-    observed_series_scope: z
-      .object({
-        population_ref: z.string().min(1),
-        geography_ref: z.string().min(1),
-        jurisdiction_ref: z.string().min(1),
-        period_start: z.iso.date(),
-        period_end: z.iso.date(),
-        time_role: z.literal("observation_time"),
-        period_basis: z.literal("calendar_year"),
-      })
-      .strict(),
+    observed_series_scope: calendarObservationScopeSchema,
     holdout_years: z.array(z.number().int().min(1).max(9999)).min(1),
     authority_scope: z.literal("predictive_only"),
     issuer_status: z.literal("not_established"),

@@ -794,6 +794,16 @@ function genericCandidateValueMethodProjection() {
   };
 }
 
+const candidateMeasurementScope = {
+  population_ref: "population:declared-candidate-panel",
+  geography_ref: "UA",
+  jurisdiction_ref: "UA",
+  period_start: "1800-01-01",
+  period_end: "1999-12-31",
+  period_basis: "calendar_year",
+  time_role: "observation_time",
+} as const;
+
 function genericCycleWithCandidateValueMethodPayload() {
   const payload = runDetailsPayload("candidate value method projection");
   const projection = mutableRecord(
@@ -1325,7 +1335,28 @@ describe("runtime API validators", () => {
     expect(observation?.candidate_value_method?.value_outer_set?.width).toEqual(
       [0.5],
     );
+    expect(observation?.candidate_value_method).not.toHaveProperty(
+      "measurement_scope",
+    );
     expect(parsed?.publication_authority).toBe(false);
+  });
+
+  it("preserves the selected measurement scope with a candidate-only result", () => {
+    const payload = genericCycleWithCandidateValueMethodPayload();
+    const projection = mutableRecord(
+      mutableRecord(payload.run).generic_cycle_simulation,
+    );
+    const observation = firstMutableRecord(
+      projection.n5_observations,
+      "n5_observations",
+    );
+    mutableRecord(observation.candidate_value_method).measurement_scope =
+      candidateMeasurementScope;
+    const method =
+      runDetailsSchema.parse(payload).run.generic_cycle_simulation
+        ?.n5_observations[0]?.candidate_value_method;
+    expect(method?.measurement_scope).toEqual(candidateMeasurementScope);
+    expect(method?.publication_authority).toBe(false);
   });
 
   it("preserves generic N5 payloads that omit the optional value-method projection", () => {
@@ -1465,8 +1496,9 @@ describe("runtime API validators", () => {
     "point_estimate",
     "statistical_interval",
     "value_outer_set",
+    "measurement_scope",
   ] as const)(
-    "refuses candidate-method numeric output while status is unverified: %s",
+    "refuses candidate-method result details while status is unverified: %s",
     (field) => {
       const payload = genericCycleWithCandidateValueMethodPayload();
       const projection = mutableRecord(
@@ -1493,6 +1525,9 @@ describe("runtime API validators", () => {
       if (field === "value_outer_set") {
         method.value_outer_set =
           genericCandidateValueMethodProjection().value_outer_set;
+      }
+      if (field === "measurement_scope") {
+        method.measurement_scope = candidateMeasurementScope;
       }
 
       expect(runDetailsSchema.safeParse(payload).success).toBe(false);

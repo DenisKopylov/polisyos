@@ -24,6 +24,7 @@ import {
   runNativeGenericAcquisitionHistoryEntryV1Schema,
   runNativeGenericBlockedAcquisitionHistoryEntryV1Schema,
   runCandidateSourceCurrentProjectionSchema,
+  supportsPredictiveCalibrationSourceReconciliation,
 } from "@/api/validators";
 import { isRuntimeApiNotFound } from "@/api/http";
 import { usePermission } from "@/app/authz/AuthzProvider";
@@ -2941,17 +2942,17 @@ function PredictiveCalibrationPanel({
   };
 
   const { association } = query.data ?? {};
-  const associationSchemaVersion = association
-    ? String(association.schema_version)
-    : null;
+  const sourceReconciliationSupported =
+    supportsPredictiveCalibrationSourceReconciliation(
+      association?.schema_version,
+    );
   const backtestSourceNotEstablished = Boolean(
     association?.evidence_reason_codes?.includes(
       "backtest_source_not_established",
     ),
   );
   const observedCoverage =
-    associationSchemaVersion ===
-      "polisyos.runtime.predictive_calibration_association.v5" &&
+    sourceReconciliationSupported &&
     !backtestSourceNotEstablished &&
     typeof association?.observed_numerator === "number" &&
     Number.isFinite(association.observed_numerator) &&
@@ -2969,8 +2970,7 @@ function PredictiveCalibrationPanel({
     observedCoverage === null && association
       ? backtestSourceNotEstablished
         ? "Observed forecast outcomes are unavailable because the backtest source has not been established."
-        : associationSchemaVersion !==
-            "polisyos.runtime.predictive_calibration_association.v5"
+        : !sourceReconciliationSupported
           ? "This historical diagnostic has no source-reconciliation status; its stored counts are unverified and are not reported as observed."
           : "Verified observed outcome counts and hit rate are unavailable."
       : null;

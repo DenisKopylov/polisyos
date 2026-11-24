@@ -8739,6 +8739,30 @@ const predictiveCalibrationArtifactRefSchema = z
   })
   .strict();
 
+const predictiveCalibrationJsonArtifactRefSchema =
+  predictiveCalibrationArtifactRefSchema.extend({
+    media_type: z.literal("application/json"),
+  });
+
+const predictiveCalibrationIntervalSupportSchema = z
+  .object({
+    bundle_ref: predictiveCalibrationJsonArtifactRefSchema.extend({
+      kind: z.literal("ir.forecasting_uncertainty_bundle"),
+    }),
+    observed_source_ref: predictiveCalibrationJsonArtifactRefSchema.extend({
+      kind: z.literal("fabric.data_snapshot"),
+    }),
+    method_fqn: z.literal("forecasting.univariate.exponential_smoothing@1.0.0"),
+    target_metric: z.string().min(1).max(200),
+    estimand: z.literal("predictive_interval_coverage").optional(),
+    nominal_coverage: z.number().gt(0).lt(1),
+    forecast_profile_member_ref: predictiveCalibrationJsonArtifactRefSchema
+      .extend({ kind: z.literal("runtime.forecast_profile_member") })
+      .nullish(),
+    measurement_unit: z.string().min(1).nullish(),
+  })
+  .strict();
+
 // These are declared wire locators, not resolved or verified calibration evidence.
 const predictiveCalibrationEvidenceLocatorSchema = z.union([
   z
@@ -8840,6 +8864,7 @@ const predictiveCalibrationS10Schema = z
     denominator: z.number().int().nonnegative().nullable(),
     observed_pass_rate: z.number().min(0).max(1).nullable(),
     calibration_record_ref: z.string().nullable(),
+    interval_support: predictiveCalibrationIntervalSupportSchema.nullish(),
     outcome_binding_status: z.literal("not_established").nullable().optional(),
     limitation_refs: z.array(z.string()).optional(),
     authority_boundary: predictiveCalibrationAuthorityBoundarySchema
@@ -8849,13 +8874,29 @@ const predictiveCalibrationS10Schema = z
   })
   .strict();
 
+const predictiveCalibrationAssociationV5 =
+  "polisyos.runtime.predictive_calibration_association.v5";
+const predictiveCalibrationAssociationV6 =
+  "polisyos.runtime.predictive_calibration_association.v6";
+
+/** Identify wire versions that can distinguish unavailable observations. */
+export function supportsPredictiveCalibrationSourceReconciliation(
+  schemaVersion: string | undefined,
+): boolean {
+  return (
+    schemaVersion === predictiveCalibrationAssociationV5 ||
+    schemaVersion === predictiveCalibrationAssociationV6
+  );
+}
+
 const predictiveCalibrationAssociationSchema = z
   .object({
     schema_version: z.enum([
       "polisyos.runtime.predictive_calibration_association.v2",
       "polisyos.runtime.predictive_calibration_association.v3",
       "polisyos.runtime.predictive_calibration_association.v4",
-      "polisyos.runtime.predictive_calibration_association.v5",
+      predictiveCalibrationAssociationV5,
+      predictiveCalibrationAssociationV6,
     ]),
     event_id: z.string().min(1),
     intent_id: z.string().min(1).max(120),
@@ -8903,9 +8944,12 @@ const predictiveCalibrationAssociationSchema = z
   .superRefine((association, ctx) => {
     const reject = (message: string) =>
       ctx.addIssue({ code: "custom", message });
-    const isCurrent =
-      association.schema_version ===
-      "polisyos.runtime.predictive_calibration_association.v5";
+    const supportsInterval =
+      association.schema_version === predictiveCalibrationAssociationV6;
+    const supportsUnavailableObservations =
+      supportsPredictiveCalibrationSourceReconciliation(
+        association.schema_version,
+      );
     const sourceUnavailable = association.evidence_reason_codes.includes(
       "backtest_source_not_established",
     );
@@ -8915,7 +8959,7 @@ const predictiveCalibrationAssociationSchema = z
       association.observed_hit_rate,
     ];
     if (
-      isCurrent &&
+      supportsUnavailableObservations &&
       sourceUnavailable &&
       observed.some((value) => value !== null)
     ) {
@@ -8926,7 +8970,7 @@ const predictiveCalibrationAssociationSchema = z
         reject("Observed values must be a complete tuple");
       }
       if (
-        !isCurrent ||
+        !supportsUnavailableObservations ||
         !sourceUnavailable ||
         !association.s10.limitation_refs?.includes(
           "s10://calibration/fail-closed/backtest_source_not_established",
@@ -8969,7 +9013,32 @@ const predictiveCalibrationAssociationSchema = z
     ) {
       reject("Profileless association cannot claim a profile join");
     }
-    // v2 remains readable as historical diagnostics; it does not gain v5 observations.
+
+    const interval = association.s10.interval_support;
+    if (
+      (!supportsInterval && interval !== undefined) ||
+      (interval &&
+        (!sameCoreArtifactRefView(
+          interval.bundle_ref,
+          association.uncertainty_bundle_ref,
+        ) ||
+          !sameCoreArtifactRefView(
+            interval.observed_source_ref,
+            association.observed_source_ref,
+          ) ||
+          (member == null
+            ? interval.forecast_profile_member_ref != null
+            : !sameCoreArtifactRefView(
+                interval.forecast_profile_member_ref,
+                member,
+              )) ||
+          (member == null) !== (interval.measurement_unit == null) ||
+          interval.nominal_coverage !== association.nominal_confidence_level))
+    ) {
+      reject("Invalid selected forecast interval binding");
+    }
+
+    // v2 retains its historical diagnostic shape.
     if (
       association.schema_version !==
       "polisyos.runtime.predictive_calibration_association.v2"

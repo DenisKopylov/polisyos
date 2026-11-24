@@ -8,11 +8,15 @@ import actualPartialCapacityRunDetails from "@/api/__fixtures__/partial-capacity
 import actualModelInputUseCurrentC from "@/api/__fixtures__/model-input-use-current-c.json";
 import actualModelInputUseRetainedB from "@/api/__fixtures__/model-input-use-retained-b.json";
 import { runN5InteractionEvidenceFixture } from "@/test/fixtures/runN5InteractionEvidence";
-import { predictiveCalibrationResponseFixture } from "@/test/fixtures/predictiveCalibrationResponse";
+import {
+  createNullablePredictiveCalibrationResponseFixture,
+  predictiveCalibrationResponseFixture,
+} from "@/test/fixtures/predictiveCalibrationResponse";
 import { c41JointParentObservation } from "@/test/fixtures/c41JointParent";
 import * as performanceTelemetry from "@/shared/telemetry/performance";
 import { renderWithProviders } from "@/test/render";
 import {
+  predictiveCalibrationResponseSchema,
   runModelInputUseN5SuccessorResponseSchema,
   type RunModelInputUseActionsProjection,
   type RunModelInputUseN5SuccessorResponse,
@@ -1745,6 +1749,47 @@ describe("OverviewTab", () => {
       `sha256:${"c".repeat(64)}`,
     ]);
   });
+
+  it.each([
+    {
+      sourceAvailable: true,
+      expectedCoverage: "3 / 4",
+    },
+    {
+      sourceAvailable: false,
+      expectedCoverage: "backtest source has not been established",
+    },
+  ])(
+    "renders v6 by observed-source availability ($sourceAvailable)",
+    ({ sourceAvailable, expectedCoverage }) => {
+      const response = createNullablePredictiveCalibrationResponseFixture();
+      const association = response.association;
+      association.schema_version =
+        "polisyos.runtime.predictive_calibration_association.v6";
+      if (sourceAvailable) {
+        association.evidence_reason_codes = ["calibration_floor_not_met"];
+        association.observed_numerator = 3;
+        association.observed_denominator = 4;
+        association.observed_hit_rate = 0.75;
+        association.s10.limitation_refs = [
+          "s10://calibration/fail-closed/n4_outcome_target_binding_not_established",
+        ];
+      }
+      overviewState.predictiveCalibrationQuery = {
+        isPending: false,
+        error: undefined,
+        data: predictiveCalibrationResponseSchema.parse(response),
+      };
+
+      renderWithProviders(<OverviewTab />);
+
+      const panel = screen.getByTestId("overview-predictive-calibration");
+      expect(panel).toHaveTextContent(expectedCoverage);
+      expect(panel).toHaveTextContent("predictive_only");
+      expect(panel).not.toHaveTextContent("This historical diagnostic");
+      expect(Boolean(within(panel).queryByText("75%"))).toBe(sourceAvailable);
+    },
+  );
 
   it("withholds populated diagnostic counts when the v5 source is not established", () => {
     overviewState.predictiveCalibrationQuery = {

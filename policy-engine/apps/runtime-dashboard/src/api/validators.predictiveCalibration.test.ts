@@ -7,6 +7,154 @@ const n4Limitation =
 const sourceLimitation =
   "s10://calibration/fail-closed/backtest_source_not_established";
 
+function intervalResponse() {
+  const response = currentResponse();
+  const association = response.association;
+  return {
+    ...response,
+    association: {
+      ...association,
+      schema_version: "polisyos.runtime.predictive_calibration_association.v6",
+      s10: {
+        ...association.s10,
+        interval_support: {
+          bundle_ref: { ...association.uncertainty_bundle_ref },
+          observed_source_ref: { ...association.observed_source_ref },
+          method_fqn: "forecasting.univariate.exponential_smoothing@1.0.0",
+          target_metric: "policy_outcome",
+          estimand: "predictive_interval_coverage",
+          nominal_coverage: 0.9,
+          forecast_profile_member_ref: null,
+          measurement_unit: null,
+        },
+      },
+    },
+  };
+}
+
+describe("predictive calibration v6 interval support", () => {
+  it("reads selected interval support while measured coverage remains unavailable", () => {
+    const response = intervalResponse();
+    const parsed = predictiveCalibrationResponseSchema.parse(response);
+    expect(parsed).toEqual(response);
+    expect(parsed.association.observed_hit_rate).toBeNull();
+    expect(parsed.association.s10.calibration_status).toBe("blocked");
+    expect(parsed.association.s10.outcome_binding_status).toBe(
+      "not_established",
+    );
+  });
+
+  it("accepts source-limited v6 when no interval can be resolved", () => {
+    const response = currentResponse();
+    response.association.schema_version =
+      "polisyos.runtime.predictive_calibration_association.v6";
+    expect(predictiveCalibrationResponseSchema.parse(response)).toEqual(
+      response,
+    );
+  });
+
+  it("keeps the exact profile-backed measurement and rejects a sibling manifest with the same bytes", () => {
+    const response = intervalResponse();
+    const profile = {
+      ...response.association.model_spec_ref,
+      kind: "runtime.value_data_profile",
+    };
+    const member = {
+      ...response.association.policy_spec_ref,
+      kind: "runtime.forecast_profile_member",
+    };
+    Object.assign(response.association, {
+      value_data_profile_ref: profile,
+      forecast_profile_member_ref: member,
+      profile_join_status: "joined_candidate",
+    });
+    const support = response.association.s10.interval_support;
+    Object.assign(support, {
+      forecast_profile_member_ref: { ...member },
+      measurement_unit: "USD",
+    });
+    expect(predictiveCalibrationResponseSchema.parse(response)).toEqual(
+      response,
+    );
+    Object.assign(support, {
+      forecast_profile_member_ref: {
+        ...member,
+        manifest_profile_sha256: `sha256:${"c".repeat(64)}`,
+      },
+    });
+    expect(
+      predictiveCalibrationResponseSchema.safeParse(response).success,
+    ).toBe(false);
+    Object.assign(support, { forecast_profile_member_ref: null });
+    expect(
+      predictiveCalibrationResponseSchema.safeParse(response).success,
+    ).toBe(false);
+  });
+
+  it.each([
+    "foreign_bundle",
+    "foreign_source_profile",
+    "unit_without_member",
+    "wrong_nominal",
+    "wrong_method",
+    "wrong_estimand",
+    "historical_version",
+    "historical_null_interval",
+    "unknown_interval_authority",
+    "missing_bundle_profile",
+    "numeric_source_unavailable",
+  ])("rejects %s on a limited interval", (corruption) => {
+    const response = intervalResponse();
+    const association = response.association;
+    const support = association.s10.interval_support;
+    switch (corruption) {
+      case "foreign_bundle":
+        support.bundle_ref.artifact_id = `sha256:${"c".repeat(64)}`;
+        break;
+      case "foreign_source_profile":
+        support.observed_source_ref.manifest_profile_sha256 = `sha256:${"c".repeat(64)}`;
+        break;
+      case "unit_without_member":
+        Object.assign(support, { measurement_unit: "USD" });
+        break;
+      case "wrong_nominal":
+        support.nominal_coverage = 0.8;
+        break;
+      case "wrong_method":
+        support.method_fqn = "forecasting.univariate.another_method@1.0.0";
+        break;
+      case "wrong_estimand":
+        support.estimand = "causal_effect";
+        break;
+      case "historical_version":
+        association.schema_version =
+          "polisyos.runtime.predictive_calibration_association.v5";
+        break;
+      case "historical_null_interval":
+        association.schema_version =
+          "polisyos.runtime.predictive_calibration_association.v5";
+        Object.assign(association.s10, { interval_support: null });
+        break;
+      case "unknown_interval_authority":
+        Object.assign(support, { publication_authority: true });
+        break;
+      case "missing_bundle_profile":
+        Reflect.deleteProperty(support.bundle_ref, "manifest_profile_sha256");
+        break;
+      case "numeric_source_unavailable":
+        Object.assign(association, {
+          observed_numerator: 3,
+          observed_denominator: 4,
+          observed_hit_rate: 0.75,
+        });
+        break;
+    }
+    expect(
+      predictiveCalibrationResponseSchema.safeParse(response).success,
+    ).toBe(false);
+  });
+});
+
 describe("predictive calibration v5 wire contract", () => {
   it("accepts the nullable source-limited response with the complete S10 boundary", () => {
     const response = currentResponse();
@@ -214,7 +362,7 @@ describe("predictive calibration v5 wire contract", () => {
           break;
         case "unknown_version":
           response.association.schema_version =
-            "polisyos.runtime.predictive_calibration_association.v6";
+            "polisyos.runtime.predictive_calibration_association.v7";
           break;
       }
       expect(response.association.assessment).toBe("limited");

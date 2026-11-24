@@ -128,6 +128,7 @@ def _read(monkeypatch: pytest.MonkeyPatch, events: list[_Event]) -> tuple[Any, A
         uncertainty_bundle_ref=SimpleNamespace(artifact_id=_artifact_id("uncertainty")),
         value_data_profile_ref=None,
         forecast_profile_member_ref=None,
+        observed_outcome_relation_ref=None,
     )
     event_log = _EventLog(events)
     monkeypatch.setattr(service, "_require_event_scope", lambda *args, **kwargs: None)

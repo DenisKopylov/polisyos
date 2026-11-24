@@ -11381,6 +11381,84 @@ export interface components {
             horizon: number;
         };
         /**
+         * ForecastObservedOutcomeLevelSupport
+         * @description Observed holdout coverage for an exact candidate-level identity relation.
+         */
+        ForecastObservedOutcomeLevelSupport: {
+            /**
+             * Authority Scope
+             * @default predictive_only
+             * @constant
+             */
+            authority_scope: "predictive_only";
+            /**
+             * Counterfactual Credibility
+             * @default not_established
+             * @constant
+             */
+            counterfactual_credibility: "not_established";
+            /** Holdout Years */
+            holdout_years: number[];
+            /**
+             * Issuer Status
+             * @default not_established
+             * @constant
+             */
+            issuer_status: "not_established";
+            /** Measurement Unit */
+            measurement_unit: string;
+            /** N4 Metric Id */
+            n4_metric_id: string;
+            observed_series_scope: components["schemas"]["ModelInputScope"];
+            /** Observed Target Metric */
+            observed_target_metric: string;
+            /**
+             * Population Scope Status
+             * @default not_established
+             * @constant
+             */
+            population_scope_status: "not_established";
+            relation_ref: components["schemas"]["ArtifactRefModel"];
+            /**
+             * Source Time Status
+             * @default not_established
+             * @constant
+             */
+            source_time_status: "not_established";
+            /** Target Variable */
+            target_variable: string;
+        };
+        /**
+         * ForecastObservedSeriesCoverage
+         * @description Recomputed predictive coverage of held-out interval rows.
+         */
+        ForecastObservedSeriesCoverage: {
+            /**
+             * Authority Scope
+             * @default predictive_only
+             * @constant
+             */
+            authority_scope: "predictive_only";
+            /**
+             * Estimand
+             * @default predictive_interval_coverage
+             * @constant
+             */
+            estimand: "predictive_interval_coverage";
+            /**
+             * Evidence Status
+             * @default recomputed
+             * @constant
+             */
+            evidence_status: "recomputed";
+            /** Holdout Coverage */
+            holdout_coverage: number;
+            /** Holdout Denominator */
+            holdout_denominator: number;
+            /** Holdout Numerator */
+            holdout_numerator: number;
+        };
+        /**
          * ForecastTemporalRoles
          * @description Six distinct timezone-aware times carried across the predictive handoff.
          */
@@ -14631,6 +14709,39 @@ export interface components {
             };
         };
         /**
+         * ModelInputScope
+         * @description Exact population, geography, jurisdiction, and time scope of one port.
+         *
+         *     ``period_basis`` is optional for legacy wire compatibility. A semantic
+         *     measurement match must provide a supported basis explicitly; annual labels
+         *     alone do not identify calendar versus fiscal periods.
+         */
+        ModelInputScope: {
+            /** Geography Ref */
+            geography_ref: string;
+            /** Jurisdiction Ref */
+            jurisdiction_ref: string;
+            /** Period Basis */
+            period_basis?: ("calendar_year" | "fiscal_year" | "unknown") | null;
+            /**
+             * Period End
+             * Format: date
+             */
+            period_end: string;
+            /**
+             * Period Start
+             * Format: date
+             */
+            period_start: string;
+            /** Population Ref */
+            population_ref: string;
+            /**
+             * Time Role
+             * @enum {string}
+             */
+            time_role: "observation_time" | "valid_time";
+        };
+        /**
          * ModelInputSuccessorActionRequest
          * @description Exact blocked N5, routing report, and activated input selected for a new action.
          */
@@ -16757,6 +16868,7 @@ export interface components {
             observed_hit_rate?: number | null;
             /** Observed Numerator */
             observed_numerator?: number | null;
+            observed_outcome_relation_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             observed_source_ref: components["schemas"]["ArtifactRef-Output"];
             /**
              * Owner Suitability
@@ -16787,7 +16899,7 @@ export interface components {
              * @default polisyos.runtime.predictive_calibration_association.v6
              * @enum {string}
              */
-            schema_version: "polisyos.runtime.predictive_calibration_association.v2" | "polisyos.runtime.predictive_calibration_association.v3" | "polisyos.runtime.predictive_calibration_association.v4" | "polisyos.runtime.predictive_calibration_association.v5" | "polisyos.runtime.predictive_calibration_association.v6";
+            schema_version: "polisyos.runtime.predictive_calibration_association.v2" | "polisyos.runtime.predictive_calibration_association.v3" | "polisyos.runtime.predictive_calibration_association.v4" | "polisyos.runtime.predictive_calibration_association.v5" | "polisyos.runtime.predictive_calibration_association.v6" | "polisyos.runtime.predictive_calibration_association.v7";
             /**
              * Source Time Status
              * @default not_established
@@ -16798,6 +16910,18 @@ export interface components {
             tenant_id: string;
             uncertainty_bundle_ref: components["schemas"]["ArtifactRef-Output"];
             value_data_profile_ref?: components["schemas"]["ArtifactRef-Output"] | null;
+        };
+        /**
+         * PredictiveCalibrationObservedOutcomeLevel
+         * @description Current scope result for the association's separately retained relation.
+         */
+        PredictiveCalibrationObservedOutcomeLevel: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "matched_candidate" | "not_established";
+            support?: components["schemas"]["ForecastObservedOutcomeLevelSupport"] | null;
         };
         /**
          * PredictiveCalibrationRequest
@@ -16832,6 +16956,7 @@ export interface components {
             association: components["schemas"]["PredictiveCalibrationAssociation"];
             association_ref: components["schemas"]["ArtifactRef-Output"];
             meta: components["schemas"]["ApiMeta"];
+            observed_outcome_level?: components["schemas"]["PredictiveCalibrationObservedOutcomeLevel"] | null;
         };
         /**
          * PredictiveCalibrationS10Summary
@@ -16867,6 +16992,7 @@ export interface components {
             numerator?: number | null;
             /** Observed Pass Rate */
             observed_pass_rate?: number | null;
+            observed_series_coverage?: components["schemas"]["ForecastObservedSeriesCoverage"] | null;
             /** Outcome Binding Status */
             outcome_binding_status?: "not_established" | null;
         };

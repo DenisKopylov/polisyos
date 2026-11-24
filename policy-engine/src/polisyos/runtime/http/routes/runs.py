@@ -9717,7 +9717,7 @@ if router is not None:
                 ),
             )
         try:
-            association_ref, association = _run_predictive_calibration_with_service_source(
+            resolved = _run_predictive_calibration_with_service_source(
                 control_service,
                 produce_run_predictive_calibration,
                 store=ctx.store,
@@ -9744,8 +9744,9 @@ if router is not None:
             raise unprocessable_entity(str(exc), code=exc.code) from exc
         return PredictiveCalibrationResponse(
             meta=build_meta(request, source_kinds=[_as_source_kind(run.source_kind)]),
-            association_ref=association_ref,
-            association=association,
+            association_ref=resolved.association_ref,
+            association=resolved.association,
+            observed_outcome_level=resolved.observed_outcome_level,
         )
 
     @router.get(
@@ -9795,7 +9796,7 @@ if router is not None:
                 ),
             )
         try:
-            association_ref, association = _run_predictive_calibration_with_service_source(
+            resolved = _run_predictive_calibration_with_service_source(
                 control_service,
                 load_run_predictive_calibration,
                 store=ctx.store,
@@ -9817,15 +9818,16 @@ if router is not None:
             raise conflict(str(exc), code=exc.code) from exc
         record_data_access_audit(
             request,
-            resource_id=str(association_ref.artifact_id),
+            resource_id=str(resolved.association_ref.artifact_id),
             resource_kind="runtime.run.predictive_calibration",
             tenant_id=run.details.tenant_id,
             outcome="predictive_diagnostic_read",
         )
         return PredictiveCalibrationResponse(
             meta=build_meta(request, source_kinds=[_as_source_kind(run.source_kind)]),
-            association_ref=association_ref,
-            association=association,
+            association_ref=resolved.association_ref,
+            association=resolved.association,
+            observed_outcome_level=resolved.observed_outcome_level,
         )
 
     @router.get("/{run_id}/live", include_in_schema=False)

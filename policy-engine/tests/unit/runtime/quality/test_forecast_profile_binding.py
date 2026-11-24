@@ -367,7 +367,17 @@ def _persist_selected_definition(store, *, variable: str, revision: str):
     )
 
 
-def _persist_selected_representation(store, *, definition, scale, temporal_granularity="annual"):
+def _persist_selected_representation(
+    store,
+    *,
+    definition,
+    scale,
+    temporal_granularity="annual",
+    quantity_kind="outcome",
+    time_support="period_total",
+    aggregation="sum",
+    population_ref="national_economy",
+):
     from polisyos.core.artifacts import PutOptions, SchemaInfo
     from polisyos.core.contracts.variable_binding import (
         VariableRepresentation,
@@ -379,15 +389,15 @@ def _persist_selected_representation(store, *, definition, scale, temporal_granu
         representation_id="forecast.annual-national-account",
         revision="fixture",
         semantic_definition_ref=definition,
-        quantity_kind="outcome",
+        quantity_kind=quantity_kind,
         measure_form="absolute",
         unit_id="usd",
         scale_to_unit=scale,
-        time_support="period_total",
+        time_support=time_support,
         temporal_granularity=temporal_granularity,
-        aggregation="sum",
+        aggregation=aggregation,
         grain=("geography", "calendar_year"),
-        population_ref="national_economy",
+        population_ref=population_ref,
     )
     return VariableRepresentationRef.model_validate(
         store.put_json(

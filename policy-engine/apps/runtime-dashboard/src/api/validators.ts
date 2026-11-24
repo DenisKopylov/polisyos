@@ -8763,6 +8763,82 @@ const predictiveCalibrationIntervalSupportSchema = z
   })
   .strict();
 
+const predictiveCalibrationOutcomeRelationRefSchema =
+  predictiveCalibrationJsonArtifactRefSchema.extend({
+    kind: z.literal("runtime.forecast_outcome_level_relation"),
+  });
+
+const predictiveCalibrationObservedSeriesCoverageSchema = z
+  .object({
+    holdout_numerator: z.number().int().nonnegative(),
+    holdout_denominator: z.number().int().positive(),
+    holdout_coverage: z.number().min(0).max(1),
+    estimand: z.literal("predictive_interval_coverage"),
+    evidence_status: z.literal("recomputed"),
+    authority_scope: z.literal("predictive_only"),
+  })
+  .strict()
+  .refine(
+    (coverage) =>
+      coverage.holdout_numerator <= coverage.holdout_denominator &&
+      coverage.holdout_coverage ===
+        coverage.holdout_numerator / coverage.holdout_denominator,
+    "Observed series coverage must use the recomputed holdout counts",
+  );
+
+const predictiveCalibrationOutcomeLevelSupportSchema = z
+  .object({
+    relation_ref: predictiveCalibrationOutcomeRelationRefSchema,
+    target_variable: z.string().min(1),
+    n4_metric_id: z.string().min(1),
+    observed_target_metric: z.string().min(1),
+    measurement_unit: z.string().min(1),
+    observed_series_scope: z
+      .object({
+        population_ref: z.string().min(1),
+        geography_ref: z.string().min(1),
+        jurisdiction_ref: z.string().min(1),
+        period_start: z.iso.date(),
+        period_end: z.iso.date(),
+        time_role: z.literal("observation_time"),
+        period_basis: z.literal("calendar_year"),
+      })
+      .strict(),
+    holdout_years: z.array(z.number().int().min(1).max(9999)).min(1),
+    authority_scope: z.literal("predictive_only"),
+    issuer_status: z.literal("not_established"),
+    source_time_status: z.literal("not_established"),
+    population_scope_status: z.literal("not_established"),
+    counterfactual_credibility: z.literal("not_established"),
+  })
+  .strict()
+  .refine((support) => {
+    const scope = support.observed_series_scope;
+    const start = Number(scope.period_start.slice(0, 4));
+    const end = Number(scope.period_end.slice(0, 4));
+    const first = support.holdout_years[0];
+    return (
+      scope.period_start <= scope.period_end &&
+      first !== undefined &&
+      support.holdout_years.every(
+        (year, index) => year === first + index && year >= start && year <= end,
+      )
+    );
+  }, "Outcome level support must use the selected consecutive holdout years");
+
+const predictiveCalibrationObservedOutcomeLevelSchema = z.discriminatedUnion(
+  "status",
+  [
+    z
+      .object({
+        status: z.literal("matched_candidate"),
+        support: predictiveCalibrationOutcomeLevelSupportSchema,
+      })
+      .strict(),
+    z.object({ status: z.literal("not_established") }).strict(),
+  ],
+);
+
 // These are declared wire locators, not resolved or verified calibration evidence.
 const predictiveCalibrationEvidenceLocatorSchema = z.union([
   z
@@ -8865,6 +8941,8 @@ const predictiveCalibrationS10Schema = z
     observed_pass_rate: z.number().min(0).max(1).nullable(),
     calibration_record_ref: z.string().nullable(),
     interval_support: predictiveCalibrationIntervalSupportSchema.nullish(),
+    observed_series_coverage:
+      predictiveCalibrationObservedSeriesCoverageSchema.optional(),
     outcome_binding_status: z.literal("not_established").nullable().optional(),
     limitation_refs: z.array(z.string()).optional(),
     authority_boundary: predictiveCalibrationAuthorityBoundarySchema
@@ -8878,6 +8956,8 @@ const predictiveCalibrationAssociationV5 =
   "polisyos.runtime.predictive_calibration_association.v5";
 const predictiveCalibrationAssociationV6 =
   "polisyos.runtime.predictive_calibration_association.v6";
+const predictiveCalibrationAssociationV7 =
+  "polisyos.runtime.predictive_calibration_association.v7";
 
 /** Identify wire versions that can distinguish unavailable observations. */
 export function supportsPredictiveCalibrationSourceReconciliation(
@@ -8885,7 +8965,8 @@ export function supportsPredictiveCalibrationSourceReconciliation(
 ): boolean {
   return (
     schemaVersion === predictiveCalibrationAssociationV5 ||
-    schemaVersion === predictiveCalibrationAssociationV6
+    schemaVersion === predictiveCalibrationAssociationV6 ||
+    schemaVersion === predictiveCalibrationAssociationV7
   );
 }
 
@@ -8897,6 +8978,7 @@ const predictiveCalibrationAssociationSchema = z
       "polisyos.runtime.predictive_calibration_association.v4",
       predictiveCalibrationAssociationV5,
       predictiveCalibrationAssociationV6,
+      predictiveCalibrationAssociationV7,
     ]),
     event_id: z.string().min(1),
     intent_id: z.string().min(1).max(120),
@@ -8924,6 +9006,8 @@ const predictiveCalibrationAssociationSchema = z
     profile_join_status: z
       .enum(["joined_candidate", "profileless_legacy"])
       .optional(),
+    observed_outcome_relation_ref:
+      predictiveCalibrationOutcomeRelationRefSchema.optional(),
     assessment: z.literal("limited"),
     authority_scope: z.literal("predictive_only"),
     issuer_status: z.literal("not_established"),
@@ -8944,8 +9028,11 @@ const predictiveCalibrationAssociationSchema = z
   .superRefine((association, ctx) => {
     const reject = (message: string) =>
       ctx.addIssue({ code: "custom", message });
+    const isOutcomeLevelVersion =
+      association.schema_version === predictiveCalibrationAssociationV7;
     const supportsInterval =
-      association.schema_version === predictiveCalibrationAssociationV6;
+      association.schema_version === predictiveCalibrationAssociationV6 ||
+      isOutcomeLevelVersion;
     const supportsUnavailableObservations =
       supportsPredictiveCalibrationSourceReconciliation(
         association.schema_version,
@@ -9038,6 +9125,18 @@ const predictiveCalibrationAssociationSchema = z
       reject("Invalid selected forecast interval binding");
     }
 
+    if (
+      (association.observed_outcome_relation_ref !== undefined &&
+        (!isOutcomeLevelVersion || member == null)) ||
+      (association.s10.observed_series_coverage !== undefined &&
+        (!isOutcomeLevelVersion ||
+          interval == null ||
+          association.evidence_reason_codes.length !== 1 ||
+          !sourceUnavailable))
+    ) {
+      reject("Invalid selected observed series coverage or outcome relation");
+    }
+
     // v2 retains its historical diagnostic shape.
     if (
       association.schema_version !==
@@ -9073,5 +9172,33 @@ export const predictiveCalibrationResponseSchema = z
       .strict(),
     association_ref: predictiveCalibrationArtifactRefSchema,
     association: predictiveCalibrationAssociationSchema,
+    observed_outcome_level:
+      predictiveCalibrationObservedOutcomeLevelSchema.optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((response, ctx) => {
+    const { association, observed_outcome_level: outcome } = response;
+    const isOutcomeLevelVersion =
+      association.schema_version === predictiveCalibrationAssociationV7;
+    const support =
+      outcome?.status === "matched_candidate" ? outcome.support : null;
+    const interval = association.s10.interval_support;
+    if (
+      isOutcomeLevelVersion !== (outcome !== undefined) ||
+      (support !== null &&
+        (!sameCoreArtifactRefView(
+          support.relation_ref,
+          association.observed_outcome_relation_ref,
+        ) ||
+          support.holdout_years.length !==
+            association.s10.observed_series_coverage?.holdout_denominator ||
+          interval == null ||
+          support.observed_target_metric !== interval.target_metric ||
+          support.measurement_unit !== interval.measurement_unit))
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Invalid outcome level projection",
+      });
+    }
+  });

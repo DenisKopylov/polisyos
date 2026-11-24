@@ -978,6 +978,12 @@ export type ForecastIntervalSupport =
 export type ForecastMethodParams =
   RuntimeApiComponents["schemas"]["ForecastMethodParams"];
 
+export type ForecastObservedOutcomeLevelSupport =
+  RuntimeApiComponents["schemas"]["ForecastObservedOutcomeLevelSupport"];
+
+export type ForecastObservedSeriesCoverage =
+  RuntimeApiComponents["schemas"]["ForecastObservedSeriesCoverage"];
+
 export type ForecastTemporalRoles =
   RuntimeApiComponents["schemas"]["ForecastTemporalRoles"];
 
@@ -1277,6 +1283,9 @@ export type MobilityEstimateResponse =
 export type MobilityReportResponse =
   RuntimeApiComponents["schemas"]["MobilityReportResponse"];
 
+export type ModelInputScope =
+  RuntimeApiComponents["schemas"]["ModelInputScope"];
+
 export type ModelInputSuccessorActionRequest =
   RuntimeApiComponents["schemas"]["ModelInputSuccessorActionRequest"];
 
@@ -1473,6 +1482,9 @@ export type PredictableScheduleProfile =
 
 export type PredictiveCalibrationAssociation =
   RuntimeApiComponents["schemas"]["PredictiveCalibrationAssociation"];
+
+export type PredictiveCalibrationObservedOutcomeLevel =
+  RuntimeApiComponents["schemas"]["PredictiveCalibrationObservedOutcomeLevel"];
 
 export type PredictiveCalibrationRequest =
   RuntimeApiComponents["schemas"]["PredictiveCalibrationRequest"];

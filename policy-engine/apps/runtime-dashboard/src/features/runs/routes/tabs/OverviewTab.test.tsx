@@ -10,6 +10,7 @@ import actualModelInputUseRetainedB from "@/api/__fixtures__/model-input-use-ret
 import { runN5InteractionEvidenceFixture } from "@/test/fixtures/runN5InteractionEvidence";
 import {
   createNullablePredictiveCalibrationResponseFixture,
+  createObservedOutcomeLevelResponseFixture,
   predictiveCalibrationResponseFixture,
 } from "@/test/fixtures/predictiveCalibrationResponse";
 import { c41JointParentObservation } from "@/test/fixtures/c41JointParent";
@@ -1790,6 +1791,123 @@ describe("OverviewTab", () => {
       expect(Boolean(within(panel).queryByText("75%"))).toBe(sourceAvailable);
     },
   );
+
+  it("shows the current outcome relation, scope, and measured holdout rows", () => {
+    const wire = createObservedOutcomeLevelResponseFixture();
+    overviewState.predictiveCalibrationQuery = {
+      isPending: false,
+      error: undefined,
+      data: predictiveCalibrationResponseSchema.parse(wire),
+    };
+    renderWithProviders(<OverviewTab />);
+
+    const panel = screen.getByTestId("overview-predictive-calibration");
+    const support = screen.getByTestId(
+      "overview-predictive-calibration-outcome-level",
+    );
+    expect(support).toHaveTextContent(
+      "economic.gdp matched the model outcome global.gdp (usd)",
+    );
+    expect(support).toHaveTextContent("2021–2024");
+    expect(panel).toHaveTextContent("Observed series holdout coverage");
+    expect(panel).toHaveTextContent("3 / 4");
+    expect(panel).toHaveTextContent("75%");
+    expect(panel).toHaveTextContent("blocked");
+    const link = screen.getByTestId(
+      "overview-predictive-calibration-outcome-relation",
+    ) as HTMLAnchorElement;
+    const relation = wire.association.observed_outcome_relation_ref;
+    expect(
+      JSON.parse(
+        new URL(link.href).searchParams.get("artifactRefKey") ?? "null",
+      ),
+    ).toEqual([
+      relation.artifact_id,
+      relation.kind,
+      relation.media_type,
+      relation.manifest_profile_sha256,
+    ]);
+  });
+
+  it("retains the observed fiscal metric, unit, and coverage after the relation is withdrawn", () => {
+    const wire = createObservedOutcomeLevelResponseFixture();
+    wire.association.s10.interval_support.target_metric = "fiscal.balance";
+    Object.assign(wire.observed_outcome_level.support, {
+      observed_target_metric: "fiscal.balance",
+      target_variable: "government.balance",
+      n4_metric_id: "annual_fiscal_balance",
+    });
+    overviewState.predictiveCalibrationQuery = {
+      isPending: false,
+      error: undefined,
+      data: predictiveCalibrationResponseSchema.parse(wire),
+    };
+    const view = renderWithProviders(<OverviewTab />);
+    expect(
+      screen.getByTestId("overview-predictive-calibration-outcome-level"),
+    ).toHaveTextContent(
+      "fiscal.balance matched the model outcome government.balance (usd)",
+    );
+
+    overviewState.predictiveCalibrationQuery = {
+      isPending: false,
+      error: undefined,
+      data: predictiveCalibrationResponseSchema.parse({
+        ...wire,
+        observed_outcome_level: { status: "not_established" },
+      }),
+    };
+    view.rerender(<OverviewTab />);
+
+    const panel = screen.getByTestId("overview-predictive-calibration");
+    expect(
+      screen.getByTestId("overview-predictive-calibration-outcome-unresolved"),
+    ).toHaveTextContent(
+      "relation between the observed series and the model outcome",
+    );
+    expect(
+      screen.queryByTestId("overview-predictive-calibration-outcome-relation"),
+    ).not.toBeInTheDocument();
+    const seriesMetric = within(panel).getByTestId(
+      "overview-predictive-calibration-series-metric",
+    );
+    expect(
+      within(seriesMetric).getByText("Observed metric"),
+    ).toBeInTheDocument();
+    expect(
+      within(seriesMetric).getByText("fiscal.balance (usd)"),
+    ).toBeInTheDocument();
+    expect(panel).toHaveTextContent("3 / 4");
+    expect(panel).not.toHaveTextContent("government.balance");
+    expect(panel).not.toHaveTextContent("2021–2024");
+    expect(
+      screen.getByTestId("overview-predictive-uncertainty-bundle"),
+    ).toBeInTheDocument();
+  });
+
+  it("withholds a prior outcome match when its fresh query is refused", () => {
+    overviewState.predictiveCalibrationQuery = {
+      isPending: false,
+      error: new Error("Read refused"),
+      data: predictiveCalibrationResponseSchema.parse(
+        createObservedOutcomeLevelResponseFixture(),
+      ),
+    };
+    renderWithProviders(<OverviewTab />);
+
+    expect(
+      screen.getByTestId("overview-predictive-calibration-refused"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("overview-predictive-calibration-outcome-level"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("overview-predictive-calibration-series-metric"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId("overview-predictive-calibration"),
+    ).not.toHaveTextContent("3 / 4");
+  });
 
   it("withholds populated diagnostic counts when the v5 source is not established", () => {
     overviewState.predictiveCalibrationQuery = {

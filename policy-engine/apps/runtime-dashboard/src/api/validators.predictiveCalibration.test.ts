@@ -1,4 +1,7 @@
-import { createNullablePredictiveCalibrationResponseFixture as currentResponse } from "@/test/fixtures/predictiveCalibrationResponse";
+import {
+  createNullablePredictiveCalibrationResponseFixture as currentResponse,
+  createObservedOutcomeLevelResponseFixture,
+} from "@/test/fixtures/predictiveCalibrationResponse";
 
 import { predictiveCalibrationResponseSchema } from "./validators";
 
@@ -362,7 +365,7 @@ describe("predictive calibration v5 wire contract", () => {
           break;
         case "unknown_version":
           response.association.schema_version =
-            "polisyos.runtime.predictive_calibration_association.v7";
+            "polisyos.runtime.predictive_calibration_association.v8";
           break;
       }
       expect(response.association.assessment).toBe("limited");
@@ -372,4 +375,71 @@ describe("predictive calibration v5 wire contract", () => {
       ).toBe(false);
     },
   );
+});
+
+describe("selected observed outcome level", () => {
+  it("retains exact scoped support and separate observed series coverage", () => {
+    const value = createObservedOutcomeLevelResponseFixture();
+    const parsed = predictiveCalibrationResponseSchema.parse(value);
+    expect(parsed).toEqual(value);
+    expect(parsed.association.s10.forecast_tier).toBe("blocked");
+    expect(parsed.association.observed_hit_rate).toBeNull();
+    expect(parsed.observed_outcome_level?.status).toBe("matched_candidate");
+  });
+
+  it("preserves the same candidate series and interval after losing only scope proof", () => {
+    const warm = createObservedOutcomeLevelResponseFixture();
+    const limited = predictiveCalibrationResponseSchema.parse({
+      ...warm,
+      observed_outcome_level: { status: "not_established" },
+    });
+    expect(limited.association).toEqual(warm.association);
+    expect(limited.observed_outcome_level).toEqual({
+      status: "not_established",
+    });
+  });
+
+  it.each([
+    "foreign_selected_relation",
+    "wrong_series_metric",
+    "gap_in_holdout",
+    "unknown_issuer_claimed",
+    "misstated_numeric_coverage",
+    "v6_with_v7_scope",
+    "support_under_refusal",
+    "missing_v7_projection",
+  ])("rejects %s with predictive markers intact", (fault) => {
+    const value = createObservedOutcomeLevelResponseFixture();
+    const support = value.observed_outcome_level.support;
+    switch (fault) {
+      case "foreign_selected_relation":
+        support.relation_ref.manifest_profile_sha256 = `sha256:${"f".repeat(64)}`;
+        break;
+      case "wrong_series_metric":
+        support.observed_target_metric = "fiscal.balance";
+        break;
+      case "gap_in_holdout":
+        support.holdout_years = [2021, 2021, 2023, 2024];
+        break;
+      case "unknown_issuer_claimed":
+        support.issuer_status = "established";
+        break;
+      case "misstated_numeric_coverage":
+        value.association.s10.observed_series_coverage.holdout_coverage = 0.5;
+        break;
+      case "v6_with_v7_scope":
+        value.association.schema_version =
+          "polisyos.runtime.predictive_calibration_association.v6";
+        break;
+      case "support_under_refusal":
+        value.observed_outcome_level.status = "not_established";
+        break;
+      case "missing_v7_projection":
+        Reflect.deleteProperty(value, "observed_outcome_level");
+        break;
+    }
+    expect(predictiveCalibrationResponseSchema.safeParse(value).success).toBe(
+      false,
+    );
+  });
 });

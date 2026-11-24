@@ -37,6 +37,7 @@ from polisyos.runtime.http.routes import runs as runs_routes
 from polisyos.runtime.http.services.channel_contracts import RunDetailSnapshot
 from polisyos.runtime.http.services.predictive_calibration import (
     PredictiveCalibrationAssociation,
+    PredictiveCalibrationResolution,
     PredictiveCalibrationS10Summary,
 )
 from polisyos.runtime.http.services.run_index import RunIndexService
@@ -1973,7 +1974,7 @@ def test_get_run_predictive_calibration_exposes_only_the_typed_limited_attachmen
                 type(event_log).__name__,
             )
         )
-        return association_ref, association
+        return PredictiveCalibrationResolution(association_ref, association)
 
     monkeypatch.setattr(
         runs_routes,

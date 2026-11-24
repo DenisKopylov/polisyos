@@ -2942,6 +2942,26 @@ function PredictiveCalibrationPanel({
   };
 
   const { association } = query.data ?? {};
+  const outcomeLevel = query.error
+    ? undefined
+    : query.data?.observed_outcome_level;
+  const seriesCoverage = query.error
+    ? undefined
+    : association?.s10.observed_series_coverage;
+  const seriesInterval =
+    seriesCoverage && outcomeLevel?.status === "not_established"
+      ? association?.s10.interval_support
+      : undefined;
+  const selectedOutcome =
+    outcomeLevel?.status === "matched_candidate"
+      ? outcomeLevel.support
+      : undefined;
+  const lastHoldoutYear = selectedOutcome?.holdout_years.at(-1);
+  const firstHoldoutYear = selectedOutcome?.holdout_years[0];
+  const holdoutYears =
+    firstHoldoutYear === lastHoldoutYear
+      ? String(firstHoldoutYear ?? "")
+      : `${firstHoldoutYear}–${lastHoldoutYear}`;
   const sourceReconciliationSupported =
     supportsPredictiveCalibrationSourceReconciliation(
       association?.schema_version,
@@ -2951,7 +2971,7 @@ function PredictiveCalibrationPanel({
       "backtest_source_not_established",
     ),
   );
-  const observedCoverage =
+  const observedSourceCoverage =
     sourceReconciliationSupported &&
     !backtestSourceNotEstablished &&
     typeof association?.observed_numerator === "number" &&
@@ -2966,6 +2986,13 @@ function PredictiveCalibrationPanel({
           numerator: association.observed_numerator,
         }
       : null;
+  const observedCoverage = seriesCoverage
+    ? {
+        denominator: seriesCoverage.holdout_denominator,
+        hitRate: seriesCoverage.holdout_coverage,
+        numerator: seriesCoverage.holdout_numerator,
+      }
+    : observedSourceCoverage;
   const observedCoverageLimitation =
     observedCoverage === null && association
       ? backtestSourceNotEstablished
@@ -2997,7 +3024,11 @@ function PredictiveCalibrationPanel({
         <>
           <div className="grid gap-3 md:grid-cols-2">
             <MetricCard
-              label={t("pages.runs.predictiveCalibration.observedCoverage")}
+              label={t(
+                seriesCoverage
+                  ? "pages.runs.predictiveCalibration.seriesCoverage"
+                  : "pages.runs.predictiveCalibration.observedCoverage",
+              )}
               value={
                 observedCoverage
                   ? t("pages.runs.predictiveCalibration.coverageCount", {
@@ -3012,6 +3043,20 @@ function PredictiveCalibrationPanel({
               value={association.s10.calibration_status}
             />
           </div>
+          {seriesInterval ? (
+            <dl
+              className="text-muted flex flex-wrap gap-x-2 text-sm"
+              data-testid="overview-predictive-calibration-series-metric"
+            >
+              <dt>{t("pages.runs.predictiveCalibration.targetMetric")}</dt>
+              <dd>
+                {seriesInterval.target_metric}
+                {seriesInterval.measurement_unit
+                  ? ` (${seriesInterval.measurement_unit})`
+                  : ""}
+              </dd>
+            </dl>
+          ) : null}
           {observedCoverageLimitation ? (
             <p
               className="text-muted text-sm"
@@ -3019,6 +3064,46 @@ function PredictiveCalibrationPanel({
               role="status"
             >
               {observedCoverageLimitation}
+            </p>
+          ) : null}
+          {selectedOutcome ? (
+            <div
+              className="space-y-1 text-sm"
+              data-testid="overview-predictive-calibration-outcome-level"
+            >
+              <p>
+                {t("pages.runs.predictiveCalibration.selectedOutcomeLevel", {
+                  observed: selectedOutcome.observed_target_metric,
+                  target: selectedOutcome.target_variable,
+                  unit: selectedOutcome.measurement_unit,
+                })}
+              </p>
+              <p className="text-muted">
+                {t("pages.runs.predictiveCalibration.holdoutYears", {
+                  years: holdoutYears,
+                })}
+              </p>
+              <Link
+                to={buildArtifactHref(
+                  selectedOutcome.relation_ref.artifact_id,
+                  {
+                    tab: "content",
+                    artifactRef: selectedOutcome.relation_ref,
+                  },
+                )}
+                className="text-accent font-semibold underline"
+                data-testid="overview-predictive-calibration-outcome-relation"
+              >
+                {t("pages.runs.predictiveCalibration.outcomeRelationRef")}
+              </Link>
+            </div>
+          ) : outcomeLevel?.status === "not_established" ? (
+            <p
+              className="text-muted text-sm"
+              role="status"
+              data-testid="overview-predictive-calibration-outcome-unresolved"
+            >
+              {t("pages.runs.predictiveCalibration.outcomeRelationUnavailable")}
             </p>
           ) : null}
           <dl className="grid gap-2 text-sm md:grid-cols-2">
@@ -3036,7 +3121,11 @@ function PredictiveCalibrationPanel({
             </div>
             <div>
               <dt className="text-muted">
-                {t("pages.runs.predictiveCalibration.observedRate")}
+                {t(
+                  seriesCoverage
+                    ? "pages.runs.predictiveCalibration.seriesRate"
+                    : "pages.runs.predictiveCalibration.observedRate",
+                )}
               </dt>
               <dd>
                 {observedCoverage

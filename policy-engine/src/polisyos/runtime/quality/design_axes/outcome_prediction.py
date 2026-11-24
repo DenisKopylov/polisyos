@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from typing import Any, Literal, get_args
+from itertools import pairwise
+from typing import TYPE_CHECKING, Annotated, Any, Literal, get_args
 
 from pydantic import AwareDatetime, BaseModel, Field, model_validator
 
 from polisyos.core.contracts.forecast_profile_member import FORECAST_PROFILE_MEMBER_KIND
+from polisyos.core.contracts.variable_binding import ModelInputScope  # noqa: TC001
 from polisyos.ir import ArtifactRefModel, ForecastingUncertaintyBundleRef, normalize_artifact_ref
 from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
 from polisyos.runtime.quality.design_axes.coupling_composition import (  # noqa: TC001
@@ -15,6 +17,11 @@ from polisyos.runtime.quality.design_axes.coupling_composition import (  # noqa:
     ForecastSupportBaseOrigin,
     SystemEffectSupportLabel,
 )
+
+if TYPE_CHECKING:
+    from polisyos.calibration.forecast_bridge import EmpiricalCalibrationEvidence
+    from polisyos.runtime.quality.forecast_profile_binding import ForecastOutcomeLevelRelationV1
+
 
 LAYER2_S10_OUTCOME_PREDICTION_SCHEMA_VERSION = (
     "policyos.policy_design_case.layer2_s10_outcome_prediction.v1"
@@ -131,6 +138,122 @@ class ForecastIntervalSupport(Layer2ReadinessModel):
                 "forecast interval measurement unit requires a selected profile member"
             )
         return self
+
+
+class ForecastObservedSeriesCoverage(Layer2ReadinessModel):
+    """Recomputed predictive coverage of held-out interval rows."""
+
+    holdout_numerator: int = Field(ge=0, strict=True)
+    holdout_denominator: int = Field(ge=1, strict=True)
+    holdout_coverage: float = Field(ge=0.0, le=1.0)
+    estimand: Literal["predictive_interval_coverage"] = "predictive_interval_coverage"
+    evidence_status: Literal["recomputed"] = "recomputed"
+    authority_scope: Literal["predictive_only"] = "predictive_only"
+
+    @model_validator(mode="after")
+    def _validate_observed_counts(self) -> ForecastObservedSeriesCoverage:
+        if (
+            self.holdout_numerator > self.holdout_denominator
+            or self.holdout_coverage != self.holdout_numerator / self.holdout_denominator
+        ):
+            raise ValueError("forecast observed series coverage is inconsistent")
+        return self
+
+
+def project_forecast_observed_series_coverage(
+    *,
+    interval: ForecastIntervalSupport | None,
+    evidence: EmpiricalCalibrationEvidence,
+) -> ForecastObservedSeriesCoverage | None:
+    """Retain qualified row counts without claiming upstream source authority."""
+    from polisyos.calibration.forecast_bridge import PREDICTIVE_ESTIMAND
+
+    if (
+        interval is None
+        or evidence.schema_version != "1.3"
+        or evidence.estimand != PREDICTIVE_ESTIMAND
+        or interval.nominal_coverage != evidence.nominal_confidence_level
+        or not evidence.context_bound
+        or evidence.failure_codes != ("backtest_source_not_established",)
+        or evidence.recomputed_denominator <= 0
+        or evidence.recomputed_pass_rate is None
+    ):
+        return None
+    return ForecastObservedSeriesCoverage(
+        holdout_numerator=evidence.recomputed_numerator,
+        holdout_denominator=evidence.recomputed_denominator,
+        holdout_coverage=evidence.recomputed_pass_rate,
+    )
+
+
+class ForecastObservedOutcomeLevelSupport(Layer2ReadinessModel):
+    """Observed holdout coverage for an exact candidate-level identity relation."""
+
+    relation_ref: ArtifactRefModel
+    target_variable: str
+    n4_metric_id: str
+    observed_target_metric: str
+    measurement_unit: str
+    observed_series_scope: ModelInputScope
+    holdout_years: tuple[Annotated[int, Field(ge=1, le=9999, strict=True)], ...] = Field(
+        min_length=1
+    )
+    authority_scope: Literal["predictive_only"] = "predictive_only"
+    issuer_status: Literal["not_established"] = "not_established"
+    source_time_status: Literal["not_established"] = "not_established"
+    population_scope_status: Literal["not_established"] = "not_established"
+    counterfactual_credibility: Literal["not_established"] = "not_established"
+
+    @model_validator(mode="after")
+    def _validate_observed_holdout_coverage(self) -> ForecastObservedOutcomeLevelSupport:
+        if (
+            self.relation_ref.kind != "runtime.forecast_outcome_level_relation"
+            or self.relation_ref.media_type != "application/json"
+            or self.relation_ref.manifest_profile_sha256 is None
+            or self.holdout_years[0] < self.observed_series_scope.period_start.year
+            or self.holdout_years[-1] > self.observed_series_scope.period_end.year
+            or any(now != following - 1 for now, following in pairwise(self.holdout_years))
+        ):
+            raise ValueError("forecast observed outcome level coverage is inconsistent")
+        return self
+
+
+def project_forecast_observed_outcome_level_support(
+    *,
+    relation_ref: ArtifactRefModel,
+    relation: ForecastOutcomeLevelRelationV1,
+    interval: ForecastIntervalSupport | None,
+    evidence: EmpiricalCalibrationEvidence,
+    coverage: ForecastObservedSeriesCoverage,
+    holdout_years: tuple[int, ...],
+) -> ForecastObservedOutcomeLevelSupport | None:
+    """Join the replayed relation to S10's verified interval and held-out rows.
+
+    Callers supply evidence reproduced by the calibration owner and a relation
+    rederived from the selected N4 and Catalog owners. The data can describe
+    predictive coverage conditional on the declared series scope.
+    """
+    if (
+        interval is None
+        or interval.forecast_profile_member_ref
+        != ArtifactRefModel.model_validate(normalize_artifact_ref(relation.observed_member_ref))
+        or interval.observed_source_ref
+        != ArtifactRefModel.model_validate(normalize_artifact_ref(relation.observed_source_ref))
+        or interval.target_metric != relation.observed_target_metric
+        or interval.measurement_unit != relation.measurement_unit
+        or evidence.model_spec_ref != str(relation.model_spec_ref.artifact_id)
+        or len(holdout_years) != coverage.holdout_denominator
+    ):
+        return None
+    return ForecastObservedOutcomeLevelSupport(
+        relation_ref=relation_ref,
+        target_variable=relation.target_variable,
+        n4_metric_id=relation.n4_metric_id,
+        observed_target_metric=relation.observed_target_metric,
+        measurement_unit=relation.measurement_unit,
+        observed_series_scope=relation.observed_scope,
+        holdout_years=holdout_years,
+    )
 
 
 class ForecastSupport(Layer2ReadinessModel):

@@ -45,6 +45,7 @@ from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomB
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactRef
     from polisyos.ir.kernel import SlotSpec
 
 
@@ -1484,6 +1485,7 @@ def _materialize_controlled_world_model_build(
     candidate_outcome_state_paths: Mapping[str, str] | None = None,
     candidate_model_unit_ids: Mapping[str, str] | None = None,
     candidate_model_time_semantics: Any | None = None,
+    candidate_model_port_declaration_ref: ArtifactRef | None = None,
     candidate_population_scope: str | None = None,
     candidate_resolution: str | None = None,
 ) -> Any:
@@ -1753,6 +1755,16 @@ def _materialize_controlled_world_model_build(
         time_semantics=candidate_model_time_semantics,
         notes=["controlled candidate-only source fixture"],
     )
+    if candidate_model_port_declaration_ref is not None:
+        model_spec = ModelSpec.model_validate(
+            {
+                **model_spec.model_dump(mode="json"),
+                "schema_version": "1.1",
+                "model_input_port_declaration_ref": (
+                    candidate_model_port_declaration_ref.model_dump(mode="json")
+                ),
+            }
+        )
 
     skg_version_id = selected_skg_source.version_id
     skg_snapshot_ref = selected_skg_source.snapshot_ref
@@ -1981,6 +1993,7 @@ def _build_configured_procurement_profile(
     prepared_substrate_registry: Any | None = None,
     use_prepared_substrate_registry_as_is: bool = False,
     candidate_model_time_semantics: Any | None = None,
+    candidate_model_port_declaration_ref: ArtifactRef | None = None,
     candidate_outcome_state_path: str | None = None,
     candidate_outcome_unit_id: str | None = None,
     candidate_outcome_noise_stddev: float = 0.01,
@@ -2128,6 +2141,7 @@ def _build_configured_procurement_profile(
         candidate_outcome_state_paths=candidate_outcome_state_paths,
         candidate_model_unit_ids=model_unit_ids,
         candidate_model_time_semantics=candidate_model_time_semantics,
+        candidate_model_port_declaration_ref=candidate_model_port_declaration_ref,
         candidate_population_scope=candidate_population_scope,
         candidate_resolution=candidate_resolution,
     )

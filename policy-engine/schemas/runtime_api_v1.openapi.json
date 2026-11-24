@@ -23449,6 +23449,132 @@
         "title": "ForecastMethodParams",
         "type": "object"
       },
+      "ForecastObservedOutcomeLevelSupport": {
+        "additionalProperties": false,
+        "description": "Observed holdout coverage for an exact candidate-level identity relation.",
+        "properties": {
+          "authority_scope": {
+            "const": "predictive_only",
+            "default": "predictive_only",
+            "title": "Authority Scope",
+            "type": "string"
+          },
+          "counterfactual_credibility": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Counterfactual Credibility",
+            "type": "string"
+          },
+          "holdout_years": {
+            "items": {
+              "maximum": 9999.0,
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "minItems": 1,
+            "title": "Holdout Years",
+            "type": "array"
+          },
+          "issuer_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Issuer Status",
+            "type": "string"
+          },
+          "measurement_unit": {
+            "title": "Measurement Unit",
+            "type": "string"
+          },
+          "n4_metric_id": {
+            "title": "N4 Metric Id",
+            "type": "string"
+          },
+          "observed_series_scope": {
+            "$ref": "#/components/schemas/ModelInputScope"
+          },
+          "observed_target_metric": {
+            "title": "Observed Target Metric",
+            "type": "string"
+          },
+          "population_scope_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Population Scope Status",
+            "type": "string"
+          },
+          "relation_ref": {
+            "$ref": "#/components/schemas/ArtifactRefModel"
+          },
+          "source_time_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Source Time Status",
+            "type": "string"
+          },
+          "target_variable": {
+            "title": "Target Variable",
+            "type": "string"
+          }
+        },
+        "required": [
+          "relation_ref",
+          "target_variable",
+          "n4_metric_id",
+          "observed_target_metric",
+          "measurement_unit",
+          "observed_series_scope",
+          "holdout_years"
+        ],
+        "title": "ForecastObservedOutcomeLevelSupport",
+        "type": "object"
+      },
+      "ForecastObservedSeriesCoverage": {
+        "additionalProperties": false,
+        "description": "Recomputed predictive coverage of held-out interval rows.",
+        "properties": {
+          "authority_scope": {
+            "const": "predictive_only",
+            "default": "predictive_only",
+            "title": "Authority Scope",
+            "type": "string"
+          },
+          "estimand": {
+            "const": "predictive_interval_coverage",
+            "default": "predictive_interval_coverage",
+            "title": "Estimand",
+            "type": "string"
+          },
+          "evidence_status": {
+            "const": "recomputed",
+            "default": "recomputed",
+            "title": "Evidence Status",
+            "type": "string"
+          },
+          "holdout_coverage": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Holdout Coverage",
+            "type": "number"
+          },
+          "holdout_denominator": {
+            "minimum": 1.0,
+            "title": "Holdout Denominator",
+            "type": "integer"
+          },
+          "holdout_numerator": {
+            "minimum": 0.0,
+            "title": "Holdout Numerator",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "holdout_numerator",
+          "holdout_denominator",
+          "holdout_coverage"
+        ],
+        "title": "ForecastObservedSeriesCoverage",
+        "type": "object"
+      },
       "ForecastTemporalRoles": {
         "additionalProperties": false,
         "description": "Six distinct timezone-aware times carried across the predictive handoff.",
@@ -31092,6 +31218,71 @@
         "title": "MobilityReportResponse",
         "type": "object"
       },
+      "ModelInputScope": {
+        "additionalProperties": false,
+        "description": "Exact population, geography, jurisdiction, and time scope of one port.\n\n``period_basis`` is optional for legacy wire compatibility. A semantic\nmeasurement match must provide a supported basis explicitly; annual labels\nalone do not identify calendar versus fiscal periods.",
+        "properties": {
+          "geography_ref": {
+            "minLength": 1,
+            "title": "Geography Ref",
+            "type": "string"
+          },
+          "jurisdiction_ref": {
+            "minLength": 1,
+            "title": "Jurisdiction Ref",
+            "type": "string"
+          },
+          "period_basis": {
+            "anyOf": [
+              {
+                "enum": [
+                  "calendar_year",
+                  "fiscal_year",
+                  "unknown"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Period Basis"
+          },
+          "period_end": {
+            "format": "date",
+            "title": "Period End",
+            "type": "string"
+          },
+          "period_start": {
+            "format": "date",
+            "title": "Period Start",
+            "type": "string"
+          },
+          "population_ref": {
+            "minLength": 1,
+            "title": "Population Ref",
+            "type": "string"
+          },
+          "time_role": {
+            "enum": [
+              "observation_time",
+              "valid_time"
+            ],
+            "title": "Time Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "population_ref",
+          "geography_ref",
+          "jurisdiction_ref",
+          "period_start",
+          "period_end",
+          "time_role"
+        ],
+        "title": "ModelInputScope",
+        "type": "object"
+      },
       "ModelInputSuccessorActionRequest": {
         "additionalProperties": false,
         "description": "Exact blocked N5, routing report, and activated input selected for a new action.",
@@ -36101,6 +36292,16 @@
             ],
             "title": "Observed Numerator"
           },
+          "observed_outcome_relation_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRef-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "observed_source_ref": {
             "$ref": "#/components/schemas/ArtifactRef-Output"
           },
@@ -36154,7 +36355,8 @@
               "polisyos.runtime.predictive_calibration_association.v3",
               "polisyos.runtime.predictive_calibration_association.v4",
               "polisyos.runtime.predictive_calibration_association.v5",
-              "polisyos.runtime.predictive_calibration_association.v6"
+              "polisyos.runtime.predictive_calibration_association.v6",
+              "polisyos.runtime.predictive_calibration_association.v7"
             ],
             "title": "Schema Version",
             "type": "string"
@@ -36207,6 +36409,35 @@
           "created_at"
         ],
         "title": "PredictiveCalibrationAssociation",
+        "type": "object"
+      },
+      "PredictiveCalibrationObservedOutcomeLevel": {
+        "additionalProperties": false,
+        "description": "Current scope result for the association's separately retained relation.",
+        "properties": {
+          "status": {
+            "enum": [
+              "matched_candidate",
+              "not_established"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "support": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ForecastObservedOutcomeLevelSupport"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "PredictiveCalibrationObservedOutcomeLevel",
         "type": "object"
       },
       "PredictiveCalibrationRequest": {
@@ -36312,6 +36543,16 @@
           },
           "meta": {
             "$ref": "#/components/schemas/ApiMeta"
+          },
+          "observed_outcome_level": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PredictiveCalibrationObservedOutcomeLevel"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -36439,6 +36680,16 @@
               }
             ],
             "title": "Observed Pass Rate"
+          },
+          "observed_series_coverage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ForecastObservedSeriesCoverage"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "outcome_binding_status": {
             "anyOf": [

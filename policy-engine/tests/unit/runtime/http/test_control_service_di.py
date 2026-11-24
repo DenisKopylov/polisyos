@@ -10,7 +10,7 @@ from pathlib import Path
 from shutil import copyfile
 from threading import Condition, Event
 from types import SimpleNamespace
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 from uuid import uuid4
 
 import pytest
@@ -106,6 +106,10 @@ def _explicit_simulation_execution_context(problem: object) -> EvaluationExecuti
         simulation=_simulation(_world_record()),
         problem=problem,
     )
+
+
+if TYPE_CHECKING:
+    from polisyos.core.contracts.model_input_requirements import ModelInputPort
 
 
 def _fixture_claims(
@@ -2418,6 +2422,7 @@ async def _run_controlled_simulate_only_job_fixture(
     cell_id: str = "cell-fixture",
     stage_diagnostic_path: Path | None = None,
     diagnostic_stop_before_n5: bool = False,
+    forecast_outcome_port: ModelInputPort | None = None,
 ) -> SimpleNamespace:
     """Run the controlled candidate N5 path; sibling mode is local mechanism only.
 
@@ -2569,6 +2574,28 @@ async def _run_controlled_simulate_only_job_fixture(
             ).model_dump(mode="python"),
         }
     )
+    if forecast_outcome_port is not None:
+        if not registered_ncm_outcome or forecast_outcome_port.purpose != "outcome_validation":
+            raise ValueError("controlled_forecast_registered_outcome_port_required")
+        from polisyos.runtime.quality.forecast_profile_binding import (
+            OBSERVED_OUTCOME_LEVEL_ESTIMAND,
+        )
+
+        metric = forecast_outcome_port.port_id
+        outcome = forecast_outcome_port.slot_id
+        statement = (
+            f"Compare a candidate tax-rate change against a forecast of the annual {outcome} "
+            f"level in {forecast_outcome_port.unit_id}."
+        )
+        problem_payload["problem_statement"] = statement
+        problem_payload["nl_provenance"]["raw_request"] = statement
+        problem_payload["outcome_of_interest"].update(
+            target_variable=outcome,
+            metric_id=metric,
+            estimand=OBSERVED_OUTCOME_LEVEL_ESTIMAND,
+            measurement_unit=forecast_outcome_port.unit_id,
+        )
+        problem_payload["objectives"][0].update(description=statement, metric_id=metric)
     # Revalidation through the current union owner materializes the strict v3
     # qualified outcome type required for a dotted canonical target.
     problem = type(original_problem).model_validate(problem_payload)
@@ -2625,6 +2652,30 @@ async def _run_controlled_simulate_only_job_fixture(
         "basis_repo_root": basis_repo_root,
         "l6_source_owner_root": l6_source_owner_root,
     }
+    if forecast_outcome_port is not None:
+        from polisyos.core.contracts.model_input_requirements import (
+            ModelInputPortDeclaration,
+            persist_model_input_port_declaration,
+        )
+        from polisyos.ir.kernel.time_semantics import TimeSemantics
+        from polisyos.ir.model_layer.types import TimeFrequency
+
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            declaration_ref = persist_model_input_port_declaration(
+                store, ModelInputPortDeclaration(ports=(forecast_outcome_port,))
+            )
+        scope = forecast_outcome_port.scope
+        profile_args.update(
+            candidate_model_port_declaration_ref=declaration_ref,
+            candidate_model_time_semantics=TimeSemantics(
+                frequency=TimeFrequency.YEAR,
+                start_date=scope.period_start.isoformat(),
+                step_count=scope.period_end.year - scope.period_start.year + 1,
+            ),
+            candidate_outcome_unit_id=forecast_outcome_port.unit_id,
+            candidate_population_scope=scope.population_ref,
+            candidate_resolution="country_year",
+        )
     if registered_ncm_outcome:
         profile, model_declaration, _ = _build_configured_procurement_profile(
             **profile_args,
@@ -2784,6 +2835,15 @@ async def _run_controlled_simulate_only_job_fixture(
         started_core_contexts.append(context)
         if root_input_factory is not None:
             root_input_factory(context)
+        if forecast_outcome_port is not None:
+            from polisyos.core.artifacts import artifact_ref_for_manifest
+            from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+
+            configured_world = profile.context_inputs.world_model_record
+            configured_model = world_model_artifact_views(configured_world).model_spec_ref
+            context.add_input(
+                artifact_ref_for_manifest(context.store.get_manifest(configured_model))
+            )
         return context
 
     monkeypatch.setattr(RunContext, "start", classmethod(record_core_start))

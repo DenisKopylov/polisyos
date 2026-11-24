@@ -8,7 +8,8 @@ import logging
 import uuid
 from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
+from itertools import pairwise
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple, Protocol, cast
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
@@ -24,9 +25,15 @@ from polisyos.calibration import (
 from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactRef,
+    CanonInfo,
+    ProducerInfo,
+    PutOptions,
+    SchemaInfo,
     artifact_manifest_profile_sha256,
     artifact_ref_identity_key,
     ensure_ir_artifact_store,
+    load_core_json_artifact,
+    read_core_manifest_profile,
 )
 from polisyos.core.canon import CanonSpec as CoreCanonSpec
 from polisyos.core.canon import to_canonical_bytes
@@ -58,20 +65,33 @@ from polisyos.runtime.http.services.run_operation_idempotency import (
     RuntimeOperationIntentKey,
     RuntimeOperationIntentStore,
 )
-from polisyos.runtime.quality.design_axes.outcome_prediction import ForecastIntervalSupport
+from polisyos.runtime.quality.design_axes.outcome_prediction import (
+    ForecastIntervalSupport,
+    ForecastObservedOutcomeLevelSupport,
+    ForecastObservedSeriesCoverage,
+    project_forecast_observed_outcome_level_support,
+    project_forecast_observed_series_coverage,
+)
 from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
 from polisyos.runtime.quality.event_log import DiagnosticEventPayloadPolicy
 from polisyos.runtime.quality.forecast_profile_binding import (
+    FORECAST_OUTCOME_LEVEL_RELATION_KIND,
+    FORECAST_OUTCOME_LEVEL_RELATION_SCHEMA,
+    FORECAST_OUTCOME_LEVEL_RELATION_VERSION,
     FORECAST_PROFILE_MEMBER_KIND,
     FORECAST_PROFILE_MEMBER_SCHEMA,
     FORECAST_PROFILE_MEMBER_SCHEMA_VERSION,
+    OBSERVED_OUTCOME_LEVEL_ESTIMAND,
     VALUE_DATA_PROFILE_KIND,
     VALUE_DATA_PROFILE_SCHEMA,
     VALUE_DATA_PROFILE_SCHEMA_VERSION,
     VALUE_OWNER_PROJECTION_KIND,
     VALUE_OWNER_PROJECTION_SCHEMA,
     VALUE_OWNER_PROJECTION_SCHEMA_VERSION,
+    ForecastOutcomeLevelRelationV1,
     ResolvedValueProfileProjection,
+    build_forecast_outcome_level_relation,
+    forecast_outcome_level_relation_inputs,
     join_profile_member_to_observed_series,
     validate_profile_projection_binding,
 )
@@ -86,11 +106,14 @@ from polisyos.scientist.methods.backtesting import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.calibration.forecast_bridge import EmpiricalCalibrationEvidence
     from polisyos.core.artifacts import ArtifactManifest, ArtifactStore
     from polisyos.runtime.http.services.control_plane_store import (
         ControlDiagnosticEventRecord,
     )
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
+    from polisyos.runtime.quality.generation_source import N4CandidateScenarioSourceRecordV3
+    from polisyos.runtime.quality.world_model_record import WorldModelRecord
 
 _ASSOCIATION_KIND = "runtime.predictive_calibration_association"
 _LEGACY_ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_association.v2"
@@ -103,12 +126,23 @@ _V5_ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_association.v5
 _V5_ASSOCIATION_VERSION = "5.0"
 _ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_association.v6"
 _ASSOCIATION_VERSION = "6.0"
+_OUTCOME_LEVEL_ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_association.v7"
+_OUTCOME_LEVEL_ASSOCIATION_VERSION = "7.0"
+_INTERVAL_ASSOCIATION_SCHEMAS = {_ASSOCIATION_SCHEMA, _OUTCOME_LEVEL_ASSOCIATION_SCHEMA}
+_SOURCE_LIMITATION_ASSOCIATION_SCHEMAS = _INTERVAL_ASSOCIATION_SCHEMAS | {_V5_ASSOCIATION_SCHEMA}
+_N4_BINDING_ASSOCIATION_SCHEMAS = _SOURCE_LIMITATION_ASSOCIATION_SCHEMAS | {
+    _PREVIOUS_ASSOCIATION_SCHEMA,
+    _PRIOR_ASSOCIATION_SCHEMA,
+}
+_OUTCOME_LEVEL_RELATION_CANON = CoreCanonSpec()
+_OUTCOME_LEVEL_RELATION_ROLE = "observed_outcome_relation"
 _ASSOCIATION_SCHEMA_BY_VERSION = {
     _LEGACY_ASSOCIATION_VERSION: _LEGACY_ASSOCIATION_SCHEMA,
     _PRIOR_ASSOCIATION_VERSION: _PRIOR_ASSOCIATION_SCHEMA,
     _PREVIOUS_ASSOCIATION_VERSION: _PREVIOUS_ASSOCIATION_SCHEMA,
     _V5_ASSOCIATION_VERSION: _V5_ASSOCIATION_SCHEMA,
     _ASSOCIATION_VERSION: _ASSOCIATION_SCHEMA,
+    _OUTCOME_LEVEL_ASSOCIATION_VERSION: _OUTCOME_LEVEL_ASSOCIATION_SCHEMA,
 }
 _ASSOCIATION_VERSION_BY_SCHEMA = {
     schema: version for version, schema in _ASSOCIATION_SCHEMA_BY_VERSION.items()
@@ -275,6 +309,9 @@ class PredictiveCalibrationS10Summary(BaseModel):
     interval_support: ForecastIntervalSupport | None = Field(
         default=None, exclude_if=lambda value: value is None
     )
+    observed_series_coverage: ForecastObservedSeriesCoverage | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     outcome_binding_status: Literal["not_established"] | None = None
     limitation_refs: tuple[str, ...] = ()
     authority_boundary: AuthorityBoundary | None = None
@@ -292,6 +329,7 @@ class PredictiveCalibrationAssociation(BaseModel):
         "polisyos.runtime.predictive_calibration_association.v4",
         "polisyos.runtime.predictive_calibration_association.v5",
         "polisyos.runtime.predictive_calibration_association.v6",
+        "polisyos.runtime.predictive_calibration_association.v7",
     ] = _ASSOCIATION_SCHEMA
     event_id: str = Field(min_length=1)
     intent_id: str = Field(min_length=1, max_length=120)
@@ -313,6 +351,9 @@ class PredictiveCalibrationAssociation(BaseModel):
     value_data_profile_ref: ArtifactRef | None = None
     forecast_profile_member_ref: ArtifactRef | None = None
     profile_join_status: Literal["joined_candidate", "profileless_legacy"] = "profileless_legacy"
+    observed_outcome_relation_ref: ArtifactRef | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     assessment: Literal["limited"] = "limited"
     authority_scope: Literal["predictive_only"] = "predictive_only"
     issuer_status: Literal["not_established"] = "not_established"
@@ -338,7 +379,7 @@ class PredictiveCalibrationAssociation(BaseModel):
         observed = (self.observed_numerator, self.observed_denominator, self.observed_hit_rate)
         source_unestablished = "backtest_source_not_established" in self.evidence_reason_codes
         if (
-            self.schema_version in {_ASSOCIATION_SCHEMA, _V5_ASSOCIATION_SCHEMA}
+            self.schema_version in _SOURCE_LIMITATION_ASSOCIATION_SCHEMAS
             and source_unestablished
             and any(value is not None for value in observed)
         ):
@@ -346,7 +387,7 @@ class PredictiveCalibrationAssociation(BaseModel):
         if any(value is None for value in observed):
             if any(value is not None for value in observed):
                 raise ValueError("predictive_calibration_observations_incomplete")
-            if self.schema_version not in {_ASSOCIATION_SCHEMA, _V5_ASSOCIATION_SCHEMA}:
+            if self.schema_version not in _SOURCE_LIMITATION_ASSOCIATION_SCHEMAS:
                 raise ValueError("predictive_calibration_legacy_observations_missing")
             if not source_unestablished or (
                 "s10://calibration/fail-closed/backtest_source_not_established"
@@ -378,9 +419,24 @@ class PredictiveCalibrationAssociation(BaseModel):
             or self.forecast_profile_member_ref.manifest_profile_sha256 is None
         ):
             raise ValueError("predictive_calibration_profile_member_binding_invalid")
+        relation_ref = self.observed_outcome_relation_ref
+        if relation_ref is not None and (
+            self.schema_version != _OUTCOME_LEVEL_ASSOCIATION_SCHEMA
+            or self.forecast_profile_member_ref is None
+            or relation_ref.kind != FORECAST_OUTCOME_LEVEL_RELATION_KIND
+            or relation_ref.media_type != "application/json"
+            or relation_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("predictive_calibration_observed_outcome_relation_invalid")
         interval = self.s10.interval_support
+        if self.s10.observed_series_coverage is not None and (
+            self.schema_version != _OUTCOME_LEVEL_ASSOCIATION_SCHEMA
+            or interval is None
+            or self.evidence_reason_codes != ("backtest_source_not_established",)
+        ):
+            raise ValueError("predictive_calibration_observed_series_coverage_invalid")
         if interval is not None and (
-            self.schema_version != _ASSOCIATION_SCHEMA
+            self.schema_version not in _INTERVAL_ASSOCIATION_SCHEMAS
             or ArtifactRef.model_validate(interval.bundle_ref) != self.uncertainty_bundle_ref
             or ArtifactRef.model_validate(interval.observed_source_ref) != self.observed_source_ref
             or (
@@ -394,13 +450,7 @@ class PredictiveCalibrationAssociation(BaseModel):
         ):
             raise ValueError("predictive_calibration_s10_interval_binding_mismatch")
         if (
-            self.schema_version
-            in {
-                _ASSOCIATION_SCHEMA,
-                _V5_ASSOCIATION_SCHEMA,
-                _PREVIOUS_ASSOCIATION_SCHEMA,
-                _PRIOR_ASSOCIATION_SCHEMA,
-            }
+            self.schema_version in _N4_BINDING_ASSOCIATION_SCHEMAS
             or self.candidate_source_ref.kind == "runtime.quality.n4_candidate_scenario_source"
         ) and (
             self.s10.outcome_binding_status != "not_established"
@@ -415,6 +465,23 @@ class PredictiveCalibrationAssociation(BaseModel):
         return self
 
 
+class PredictiveCalibrationObservedOutcomeLevel(BaseModel):
+    """Current scope result for the association's separately retained relation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["matched_candidate", "not_established"]
+    support: ForecastObservedOutcomeLevelSupport | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+
+    @model_validator(mode="after")
+    def _validate_support_status(self) -> PredictiveCalibrationObservedOutcomeLevel:
+        if (self.status == "matched_candidate") != (self.support is not None):
+            raise ValueError("predictive_calibration_observed_outcome_support_mismatch")
+        return self
+
+
 class PredictiveCalibrationResponse(BaseModel):
     """API wrapper for a durable, freshly resolved predictive association."""
 
@@ -423,10 +490,43 @@ class PredictiveCalibrationResponse(BaseModel):
     meta: ApiMeta
     association_ref: ArtifactRef
     association: PredictiveCalibrationAssociation
+    observed_outcome_level: PredictiveCalibrationObservedOutcomeLevel | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+
+    @model_validator(mode="after")
+    def _validate_observed_outcome_level(self) -> PredictiveCalibrationResponse:
+        projected = self.observed_outcome_level
+        if (self.association.schema_version == _OUTCOME_LEVEL_ASSOCIATION_SCHEMA) != (
+            projected is not None
+        ):
+            raise ValueError("predictive_calibration_observed_outcome_projection_mismatch")
+        if projected is not None and projected.support is not None:
+            relation_ref = self.association.observed_outcome_relation_ref
+            coverage = self.association.s10.observed_series_coverage
+            if (
+                relation_ref is None
+                or coverage is None
+                or projected.support.relation_ref != _as_ir_artifact_ref(relation_ref)
+                or len(projected.support.holdout_years) != coverage.holdout_denominator
+            ):
+                raise ValueError("predictive_calibration_observed_outcome_ref_mismatch")
+        return self
+
+
+class PredictiveCalibrationResolution(NamedTuple):
+    """Exact durable association and its current optional candidate projection."""
+
+    association_ref: ArtifactRef
+    association: PredictiveCalibrationAssociation
+    observed_outcome_level: PredictiveCalibrationObservedOutcomeLevel | None = None
 
 
 def _s10_summary_from_owner(
-    record: object | None, support: object
+    record: object | None,
+    support: object,
+    *,
+    observed_series_evidence: EmpiricalCalibrationEvidence | None = None,
 ) -> PredictiveCalibrationS10Summary:
     """Copy the real S10 support boundary into the persisted API projection."""
     from polisyos.runtime.quality.design_axes.outcome_prediction import ForecastSupport
@@ -454,6 +554,13 @@ def _s10_summary_from_owner(
         ),
         calibration_record_ref=getattr(record, "calibration_ref", None),
         interval_support=support.interval_support,
+        observed_series_coverage=(
+            None
+            if observed_series_evidence is None
+            else project_forecast_observed_series_coverage(
+                interval=support.interval_support, evidence=observed_series_evidence
+            )
+        ),
         outcome_binding_status="not_established",
         limitation_refs=tuple(
             dict.fromkeys(
@@ -473,7 +580,7 @@ def produce_run_predictive_calibration(
     event_log: _DiagnosticEventLog,
     event_scope: Mapping[str, str],
     actor_subject: str,
-) -> tuple[ArtifactRef, PredictiveCalibrationAssociation]:
+) -> PredictiveCalibrationResolution:
     """Run the real owner, bridge, S10 consumer, and append-only association path."""
 
     run_details = getattr(run, "details", None)
@@ -629,8 +736,12 @@ def produce_run_predictive_calibration(
             )
         candidate = candidate_source.candidate
         problem = candidate_source.problem
-        context_inputs = getattr(candidate_source.profile, "context_inputs", None)
-        world_record = getattr(context_inputs, "world_model_record", None)
+        has_observed_level_target = problem.outcome_of_interest.estimand == (
+            OBSERVED_OUTCOME_LEVEL_ESTIMAND
+        )
+        world_record = _forecast_candidate_world(
+            store, candidate_source, observed_level=has_observed_level_target
+        )
         if candidate is None or world_record is None:
             raise PredictiveCalibrationError("predictive_calibration_candidate_context_incomplete")
         n4_outcome_binding = _n4_outcome_target_binding_record(
@@ -820,12 +931,46 @@ def produce_run_predictive_calibration(
             )
 
         created_at = datetime.now(UTC).replace(microsecond=0)
-        s10_summary = _s10_summary_from_owner(s10_record, s10_support)
+        s10_summary = _s10_summary_from_owner(
+            s10_record,
+            s10_support,
+            observed_series_evidence=evidence if has_observed_level_target else None,
+        )
+        relation = (
+            _build_observed_outcome_relation(
+                store,
+                source_ref=request.candidate_source_ref,
+                source=candidate_source,
+                model_spec_ref=request.model_spec_ref,
+                profile_ref=request.value_data_profile_ref,
+                member_ref=(
+                    None
+                    if owner_result.forecast_profile_member_ref is None
+                    else ArtifactRef.model_validate(owner_result.forecast_profile_member_ref)
+                ),
+                binding=selected_profile_binding,
+            )
+            if has_observed_level_target
+            else None
+        )
+        relation_ref = (
+            None if relation is None else _persist_observed_outcome_relation(store, relation)
+        )
+        observed_outcome_level = (
+            _project_observed_outcome_level(store, relation_ref, relation, s10_summary, evidence)
+            if has_observed_level_target
+            else None
+        )
         nominal = evidence.nominal_confidence_level
         observed_numerator, observed_denominator, observed_hit_rate = _admitted_observations(
             evidence
         )
         association = PredictiveCalibrationAssociation(
+            schema_version=(
+                _OUTCOME_LEVEL_ASSOCIATION_SCHEMA
+                if has_observed_level_target
+                else _ASSOCIATION_SCHEMA
+            ),
             event_id=event_id,
             intent_id=request.intent_id,
             request_sha256=request_sha256,
@@ -858,6 +1003,7 @@ def produce_run_predictive_calibration(
                 if owner_result.value_data_profile_ref is not None
                 else "profileless_legacy"
             ),
+            observed_outcome_relation_ref=relation_ref,
             observed_numerator=observed_numerator,
             observed_denominator=observed_denominator,
             observed_hit_rate=observed_hit_rate,
@@ -902,6 +1048,7 @@ def produce_run_predictive_calibration(
                     final_report_ref,
                     evidence_ref,
                     owner_result.uncertainty_bundle_ref,
+                    *(() if relation_ref is None else (relation_ref,)),
                     *(
                         ()
                         if owner_result.value_data_profile_ref is None
@@ -913,7 +1060,7 @@ def produce_run_predictive_calibration(
                 ),
             ),
         )
-        return association_ref, association
+        return PredictiveCalibrationResolution(association_ref, association, observed_outcome_level)
     except BaseException as exc:
         reason_code = (
             exc.code
@@ -976,7 +1123,7 @@ def load_run_predictive_calibration(
     run: IndexedRunRecord,
     event_log: _DiagnosticEventLog,
     event_scope: Mapping[str, str],
-) -> tuple[ArtifactRef, PredictiveCalibrationAssociation]:
+) -> PredictiveCalibrationResolution:
     """Resolve an append-only association and recompute its complete S10 seam."""
 
     run_details = getattr(run, "details", None)
@@ -1061,8 +1208,10 @@ def load_run_predictive_calibration(
         raise PredictiveCalibrationError(
             "predictive_calibration_event_association_binding_mismatch"
         )
-    _validate_current_run_binding(store, run_details, association, event_log=event_log)
-    return association_ref, association
+    outcome_level = _validate_current_run_binding(
+        store, run_details, association, event_log=event_log
+    )
+    return PredictiveCalibrationResolution(association_ref, association, outcome_level)
 
 
 def _n4_outcome_target_binding_record(
@@ -1161,11 +1310,11 @@ def _operation_intent_store(
 
 def _claim_result_matches(
     claim: RuntimeOperationIntentClaim,
-    replay: tuple[ArtifactRef, PredictiveCalibrationAssociation],
+    replay: PredictiveCalibrationResolution,
 ) -> bool:
     """Require database custody and the reopened event to name the same full ref."""
 
-    ref, association = replay
+    ref, association = replay.association_ref, replay.association
     stored_json = claim.record.result_ref_json
     if stored_json is None or claim.record.event_id != association.event_id:
         return False
@@ -1188,7 +1337,7 @@ def _load_existing_intent(
     intent_id: str,
     request_sha256: str,
     run_manifest_ref: ArtifactRef,
-) -> tuple[ArtifactRef, PredictiveCalibrationAssociation] | None:
+) -> PredictiveCalibrationResolution | None:
     """Reopen an exact previously published intent after retry or lost response."""
 
     run_details = getattr(run, "details", None)
@@ -1256,8 +1405,10 @@ def _load_existing_intent(
         or association.control_run_id != control_run_id
     ):
         raise PredictiveCalibrationError("predictive_calibration_intent_association_mismatch")
-    _validate_current_run_binding(store, run_details, association, event_log=event_log)
-    return association_ref, association
+    outcome_level = _validate_current_run_binding(
+        store, run_details, association, event_log=event_log
+    )
+    return PredictiveCalibrationResolution(association_ref, association, outcome_level)
 
 
 def _persist_evidence_role_refs(
@@ -1472,6 +1623,11 @@ def _persist_association(
         (association.uncertainty_bundle_ref, "uncertainty_bundle"),
         *(
             ()
+            if association.observed_outcome_relation_ref is None
+            else ((association.observed_outcome_relation_ref, _OUTCOME_LEVEL_RELATION_ROLE),)
+        ),
+        *(
+            ()
             if association.value_data_profile_ref is None
             else (
                 (association.value_data_profile_ref, "value_data_profile"),
@@ -1496,8 +1652,8 @@ def _persist_association(
         ensure_ir_artifact_store(store),
         association.model_dump(mode="json"),
         kind=_ASSOCIATION_KIND,
-        schema_name=_ASSOCIATION_SCHEMA,
-        schema_version=_ASSOCIATION_VERSION,
+        schema_name=association.schema_version,
+        schema_version=_association_event_version(association.schema_version),
         inputs=edges,
         canon_spec=IRCanonSpec(forbid_floats=False),
         return_selected_profile=True,
@@ -1552,7 +1708,7 @@ def _append_association_event(
     return event_log.append(
         event,
         payload={
-            "schema_version": _ASSOCIATION_VERSION,
+            "schema_version": _association_event_version(association.schema_version),
             "intent_id": association.intent_id,
             "request_sha256": request_sha256,
             "association_ref": association_ref.model_dump(mode="json"),
@@ -1572,7 +1728,10 @@ def _load_association_for_event(
     if str(association_ref.artifact_id) not in event.artifact_refs:
         raise PredictiveCalibrationError("predictive_calibration_event_ref_mismatch")
     association = _load_association(store, association_ref)
-    if _association_event_version(association.schema_version) != payload.get("schema_version"):
+    relation_ref = association.observed_outcome_relation_ref
+    if _association_event_version(association.schema_version) != payload.get("schema_version") or (
+        relation_ref is not None and str(relation_ref.artifact_id) not in event.input_refs
+    ):
         raise PredictiveCalibrationError(
             "predictive_calibration_event_association_binding_mismatch"
         )
@@ -1639,6 +1798,11 @@ def _validate_association_input_edges(
             (association.uncertainty_bundle_ref, "uncertainty_bundle"),
             *(
                 ()
+                if association.observed_outcome_relation_ref is None
+                else ((association.observed_outcome_relation_ref, _OUTCOME_LEVEL_RELATION_ROLE),)
+            ),
+            *(
+                ()
                 if association.value_data_profile_ref is None
                 else (
                     (association.value_data_profile_ref, "value_data_profile"),
@@ -1653,7 +1817,15 @@ def _validate_association_input_edges(
     actual = {
         (str(item.artifact_id), item.role, item.manifest_profile_sha256) for item in manifest.inputs
     }
-    if not expected.issubset(actual):
+    relation_edges = tuple(
+        (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+        for item in manifest.inputs
+        if item.role == _OUTCOME_LEVEL_RELATION_ROLE
+    )
+    expected_relation_edges = tuple(
+        edge for edge in expected if edge[1] == _OUTCOME_LEVEL_RELATION_ROLE
+    )
+    if not expected.issubset(actual) or relation_edges != expected_relation_edges:
         raise PredictiveCalibrationError("predictive_calibration_association_edges_mismatch")
 
 
@@ -1821,7 +1993,7 @@ def _revalidate_profile_member_binding(
     report: BacktestReport,
     *,
     target_metric: str | None,
-) -> None:
+) -> ResolvedValueProfileProjection | None:
     """Recompute the profile/member join from exact current CAS bytes on fresh GET."""
     profile_ref = association.value_data_profile_ref
     member_ref = association.forecast_profile_member_ref
@@ -1830,7 +2002,7 @@ def _revalidate_profile_member_binding(
             raise PredictiveCalibrationError("predictive_calibration_profileless_status_mismatch")
         if (
             association.schema_version
-            in {_ASSOCIATION_SCHEMA, _V5_ASSOCIATION_SCHEMA, _PREVIOUS_ASSOCIATION_SCHEMA}
+            in _SOURCE_LIMITATION_ASSOCIATION_SCHEMAS | {_PREVIOUS_ASSOCIATION_SCHEMA}
             and report.metadata.get("profile_join_status") != "profileless_legacy"
         ):
             raise PredictiveCalibrationError("predictive_calibration_profileless_report_mismatch")
@@ -1928,6 +2100,7 @@ def _revalidate_profile_member_binding(
         raise PredictiveCalibrationError(
             "predictive_calibration_profile_member_reopen_mismatch"
         ) from exc
+    return binding
 
 
 def _reopen_report_target_metric(
@@ -1994,7 +2167,7 @@ def _validate_current_run_binding(
     association: PredictiveCalibrationAssociation,
     *,
     event_log: _DiagnosticEventLog,
-) -> None:
+) -> PredictiveCalibrationObservedOutcomeLevel | None:
     """Require the reopened association to remain attached to this exact run view."""
 
     run_manifest_ref = _selected_run_manifest(run_details)
@@ -2063,7 +2236,9 @@ def _validate_current_run_binding(
             bundle_ref=association.uncertainty_bundle_ref,
         )
     )
-    _revalidate_profile_member_binding(store, association, report, target_metric=target_metric)
+    profile_binding = _revalidate_profile_member_binding(
+        store, association, report, target_metric=target_metric
+    )
     try:
         evidence = load_empirical_calibration_evidence(
             store,
@@ -2086,8 +2261,13 @@ def _validate_current_run_binding(
         or evidence.failure_codes != association.evidence_reason_codes
     ):
         raise PredictiveCalibrationError("predictive_calibration_evidence_reopen_mismatch")
-    recomputed_s10 = _recompute_s10(
-        store, association, target_metric=target_metric, report=report, evidence=evidence
+    recomputed_s10, outcome_level = _recompute_s10(
+        store,
+        association,
+        target_metric=target_metric,
+        report=report,
+        evidence=evidence,
+        profile_binding=profile_binding,
     )
     if not _s10_summary_matches(
         association.s10,
@@ -2096,6 +2276,7 @@ def _validate_current_run_binding(
         candidate_source_kind=association.candidate_source_ref.kind,
     ):
         raise PredictiveCalibrationError("predictive_calibration_s10_reopen_mismatch")
+    return outcome_level
 
 
 def _s10_summary_matches(
@@ -2122,7 +2303,7 @@ def _s10_summary_matches(
         return all(
             getattr(stored, field) == getattr(recomputed, field) for field in legacy_grade_fields
         )
-    if association_schema_version != _ASSOCIATION_SCHEMA:
+    if association_schema_version not in _INTERVAL_ASSOCIATION_SCHEMAS:
         from polisyos.runtime.quality.generation_cycle import _S10_SUPPORT_LIMITATION_PREFIX
 
         recomputed = recomputed.model_copy(
@@ -2144,8 +2325,9 @@ def _recompute_s10(
     *,
     target_metric: str | None,
     report: BacktestReport | None = None,
-    evidence: object | None = None,
-) -> PredictiveCalibrationS10Summary:
+    evidence: EmpiricalCalibrationEvidence | None = None,
+    profile_binding: ResolvedValueProfileProjection | None = None,
+) -> tuple[PredictiveCalibrationS10Summary, PredictiveCalibrationObservedOutcomeLevel | None]:
     """Recompute S10 from freshly resolved report and evidence artifacts."""
 
     from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
@@ -2169,8 +2351,12 @@ def _recompute_s10(
     if type(candidate_source) is not N4CandidateScenarioSourceRecordV3:
         raise PredictiveCalibrationError("predictive_calibration_candidate_source_profile_mismatch")
     candidate = candidate_source.candidate
-    context_inputs = getattr(candidate_source.profile, "context_inputs", None)
-    world_record = getattr(context_inputs, "world_model_record", None)
+    observed_level = association.schema_version == _OUTCOME_LEVEL_ASSOCIATION_SCHEMA
+    if observed_level and candidate_source.problem.outcome_of_interest.estimand != (
+        OBSERVED_OUTCOME_LEVEL_ESTIMAND
+    ):
+        raise PredictiveCalibrationError("predictive_calibration_observed_outcome_target_mismatch")
+    world_record = _forecast_candidate_world(store, candidate_source, observed_level=observed_level)
     if candidate is None or world_record is None:
         raise PredictiveCalibrationError("predictive_calibration_candidate_context_incomplete")
     report = report or load_backtest_report(
@@ -2228,7 +2414,229 @@ def _recompute_s10(
         raise PredictiveCalibrationError("predictive_calibration_s10_record_missing")
     if not evidence.empirical_observations_available and record is not None:
         raise PredictiveCalibrationError("predictive_calibration_unavailable_observations_claimed")
-    return _s10_summary_from_owner(record, support)
+    summary = _s10_summary_from_owner(
+        record,
+        support,
+        observed_series_evidence=evidence if observed_level else None,
+    )
+    if not observed_level:
+        return summary, None
+    relation = _reopen_observed_outcome_relation(
+        store,
+        association=association,
+        source=candidate_source,
+        binding=profile_binding,
+    )
+    return summary, _project_observed_outcome_level(
+        store, association.observed_outcome_relation_ref, relation, summary, evidence
+    )
+
+
+def _forecast_candidate_world(
+    store: ArtifactStore,
+    source: N4CandidateScenarioSourceRecordV3,
+    *,
+    observed_level: bool,
+) -> WorldModelRecord:
+    """Use the selected effective job context only for the new relation profile."""
+    if not observed_level:
+        return source.profile.context_inputs.world_model_record
+
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
+
+    try:
+        context = (
+            CycleSubstrateContextArtifactOwner(store=store)
+            .resolve_historical_job_artifact(
+                source.context_job_ref,
+                problem=source.problem,
+                expected_job_id=source.job_id,
+                expected_run_id=source.run_id,
+                expected_tenant_id=source.tenant_id,
+                expected_cell_id=source.cell_id,
+            )
+            .context
+        )
+    except (OSError, TypeError, ValueError) as exc:
+        raise PredictiveCalibrationError(
+            "predictive_calibration_observed_outcome_world_unresolved"
+        ) from exc
+    world = context.world_model_record
+    if (
+        context.content_hash != source.context_hash
+        or world.content_hash != source.world_model_record_hash
+        or world.world_model_record_id != source.world_model_record_id
+        or world.world_model_record_id != source.candidate.atom.world_model_record_ref
+    ):
+        raise PredictiveCalibrationError("predictive_calibration_observed_outcome_world_mismatch")
+    return world
+
+
+def _build_observed_outcome_relation(
+    store: ArtifactStore,
+    *,
+    source_ref: ArtifactRef,
+    source: N4CandidateScenarioSourceRecordV3,
+    model_spec_ref: ArtifactRef,
+    profile_ref: ArtifactRef | None,
+    member_ref: ArtifactRef | None,
+    binding: ResolvedValueProfileProjection | None,
+) -> ForecastOutcomeLevelRelationV1 | None:
+    if profile_ref is None or member_ref is None or binding is None:
+        return None
+    try:
+        return build_forecast_outcome_level_relation(
+            store,
+            candidate_source_ref=source_ref,
+            candidate_source=source,
+            model_spec_ref=model_spec_ref,
+            observed_member_ref=member_ref,
+            value_data_profile_ref=profile_ref,
+            resolved_profile=binding,
+        )
+    except (OSError, TypeError, ValueError):
+        return None
+
+
+def _outcome_level_relation_write_options(
+    relation: ForecastOutcomeLevelRelationV1,
+) -> PutOptions:
+    return PutOptions(
+        kind=FORECAST_OUTCOME_LEVEL_RELATION_KIND,
+        media_type="application/json",
+        schema=SchemaInfo(
+            name=FORECAST_OUTCOME_LEVEL_RELATION_SCHEMA,
+            version=FORECAST_OUTCOME_LEVEL_RELATION_VERSION,
+        ),
+        canon=CanonInfo.from_spec(_OUTCOME_LEVEL_RELATION_CANON),
+        producer=ProducerInfo(
+            component="polisyos.runtime.quality.forecast_profile_binding", version="1.0"
+        ),
+        inputs=list(forecast_outcome_level_relation_inputs(relation)),
+    )
+
+
+def _persist_observed_outcome_relation(
+    store: ArtifactStore,
+    relation: ForecastOutcomeLevelRelationV1,
+) -> ArtifactRef:
+    return store.put_bytes(
+        to_canonical_bytes(relation, _OUTCOME_LEVEL_RELATION_CANON),
+        _outcome_level_relation_write_options(relation),
+        return_selected_profile=True,
+    )
+
+
+def _reopen_observed_outcome_relation(
+    store: ArtifactStore,
+    *,
+    association: PredictiveCalibrationAssociation,
+    source: N4CandidateScenarioSourceRecordV3,
+    binding: ResolvedValueProfileProjection | None,
+) -> ForecastOutcomeLevelRelationV1 | None:
+    """A missing optional relation limits its projection alone."""
+    selected = association.observed_outcome_relation_ref
+    if selected is None or binding is None:
+        return None
+    try:
+        manifest, _ = read_core_manifest_profile(store, selected)
+        raw = store.get_bytes(selected)
+        persisted = ForecastOutcomeLevelRelationV1.model_validate(
+            load_core_json_artifact(store, selected, raw_payload_bytes=raw)
+        )
+        options = _outcome_level_relation_write_options(persisted)
+        inputs = options.inputs or ()
+        if (
+            manifest.artifact_schema != options.schema
+            or manifest.canon != options.canon
+            or manifest.producer != options.producer
+            or len(manifest.inputs) != len(inputs)
+            or any(edge not in manifest.inputs for edge in inputs)
+        ):
+            return None
+    except (OSError, TypeError, ValueError):
+        return None
+    recomputed = _build_observed_outcome_relation(
+        store,
+        source_ref=association.candidate_source_ref,
+        source=source,
+        model_spec_ref=association.model_spec_ref,
+        profile_ref=association.value_data_profile_ref,
+        member_ref=association.forecast_profile_member_ref,
+        binding=binding,
+    )
+    if recomputed is None or raw != to_canonical_bytes(recomputed, _OUTCOME_LEVEL_RELATION_CANON):
+        return None
+    return recomputed
+
+
+def _consecutive_forecast_holdout_years(
+    store: ArtifactStore,
+    relation: ForecastOutcomeLevelRelationV1,
+    evidence: EmpiricalCalibrationEvidence,
+) -> tuple[int, ...]:
+    """Resolve exact train-to-holdout calendar years from the verified report inputs."""
+    try:
+        report_manifest = store.get_manifest(ArtifactRef.model_validate(evidence.report_ref))
+        train_edges = tuple(
+            edge for edge in report_manifest.inputs if edge.role == "training_slice"
+        )
+        if len(train_edges) != 1 or train_edges[0].manifest_profile_sha256 is None:
+            return ()
+        (train_edge,) = train_edges
+        training_ref = ArtifactRef(
+            artifact_id=train_edge.artifact_id,
+            kind="ir.forecast_training_slice",
+            media_type="application/json",
+            manifest_profile_sha256=train_edge.manifest_profile_sha256,
+        )
+        training = get_json_artifact(
+            ensure_ir_artifact_store(store), _as_ir_artifact_ref(training_ref)
+        )
+        split = TrainHoldoutSplit.model_validate(training["split"])
+        member = ForecastProfileMemberV1.model_validate(
+            load_core_json_artifact(store, relation.observed_member_ref)
+        )
+        if (
+            member.target_metric != relation.observed_target_metric
+            or split.holdout_end > len(member.period_ids)
+            or split.horizon != evidence.recomputed_denominator
+        ):
+            return ()
+        used_years = member.period_ids[split.train_start : split.holdout_end]
+        if any(year != next_year - 1 for year, next_year in pairwise(used_years)):
+            return ()
+        return member.period_ids[split.holdout_start : split.holdout_end]
+    except (KeyError, OSError, TypeError, ValueError):
+        return ()
+
+
+def _project_observed_outcome_level(
+    store: ArtifactStore,
+    relation_ref: ArtifactRef | None,
+    relation: ForecastOutcomeLevelRelationV1 | None,
+    s10: PredictiveCalibrationS10Summary,
+    evidence: EmpiricalCalibrationEvidence,
+) -> PredictiveCalibrationObservedOutcomeLevel:
+    support = None
+    if (
+        relation_ref is not None
+        and relation is not None
+        and s10.observed_series_coverage is not None
+    ):
+        years = _consecutive_forecast_holdout_years(store, relation, evidence)
+        if years:
+            support = project_forecast_observed_outcome_level_support(
+                relation_ref=_as_ir_artifact_ref(relation_ref),
+                relation=relation,
+                interval=s10.interval_support,
+                evidence=evidence,
+                coverage=s10.observed_series_coverage,
+                holdout_years=years,
+            )
+    return PredictiveCalibrationObservedOutcomeLevel(
+        status="not_established" if support is None else "matched_candidate", support=support
+    )
 
 
 def _read_event_payload(
@@ -2509,6 +2917,7 @@ __all__ = [
     "PredictiveCalibrationAssociation",
     "PredictiveCalibrationError",
     "PredictiveCalibrationRequest",
+    "PredictiveCalibrationResolution",
     "PredictiveCalibrationResponse",
     "load_run_predictive_calibration",
     "produce_run_predictive_calibration",

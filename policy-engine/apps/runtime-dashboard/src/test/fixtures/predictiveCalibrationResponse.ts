@@ -152,3 +152,70 @@ export function createNullablePredictiveCalibrationResponseFixture() {
     },
   };
 }
+
+export function createObservedOutcomeLevelResponseFixture() {
+  const diagnostic = createNullablePredictiveCalibrationResponseFixture();
+  const profileRef = artifactRef("a", "runtime.value_data_profile");
+  const memberRef = artifactRef("b", "runtime.forecast_profile_member");
+  const relationRef = artifactRef(
+    "c",
+    "runtime.forecast_outcome_level_relation",
+  );
+  return {
+    ...diagnostic,
+    association: {
+      ...diagnostic.association,
+      schema_version: "polisyos.runtime.predictive_calibration_association.v7",
+      value_data_profile_ref: profileRef,
+      forecast_profile_member_ref: memberRef,
+      observed_outcome_relation_ref: relationRef,
+      profile_join_status: "joined_candidate",
+      s10: {
+        ...diagnostic.association.s10,
+        interval_support: {
+          bundle_ref: diagnostic.association.uncertainty_bundle_ref,
+          observed_source_ref: diagnostic.association.observed_source_ref,
+          method_fqn: "forecasting.univariate.exponential_smoothing@1.0.0",
+          target_metric: "economic.gdp",
+          estimand: "predictive_interval_coverage",
+          nominal_coverage: 0.9,
+          forecast_profile_member_ref: memberRef,
+          measurement_unit: "usd",
+        },
+        observed_series_coverage: {
+          holdout_numerator: 3,
+          holdout_denominator: 4,
+          holdout_coverage: 0.75,
+          estimand: "predictive_interval_coverage",
+          evidence_status: "recomputed",
+          authority_scope: "predictive_only",
+        },
+      },
+    },
+    observed_outcome_level: {
+      status: "matched_candidate",
+      support: {
+        relation_ref: { ...relationRef },
+        target_variable: "global.gdp",
+        n4_metric_id: "annual_gdp_level",
+        observed_target_metric: "economic.gdp",
+        measurement_unit: "usd",
+        observed_series_scope: {
+          population_ref: "national_economy",
+          geography_ref: "UA",
+          jurisdiction_ref: "UA",
+          period_start: "2010-01-01",
+          period_end: "2024-12-31",
+          time_role: "observation_time",
+          period_basis: "calendar_year",
+        },
+        holdout_years: [2021, 2022, 2023, 2024],
+        authority_scope: "predictive_only",
+        issuer_status: "not_established",
+        source_time_status: "not_established",
+        population_scope_status: "not_established",
+        counterfactual_credibility: "not_established",
+      },
+    },
+  };
+}

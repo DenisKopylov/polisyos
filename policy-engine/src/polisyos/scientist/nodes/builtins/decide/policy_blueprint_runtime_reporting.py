@@ -723,13 +723,14 @@ def _serialize_funnel_outcome(outcome: FunnelOutcome) -> dict[str, Any]:
         ],
     }
 
+    if outcome.parent_ticket_id is not None:
+        payload["parent_ticket_id"] = outcome.parent_ticket_id
+    if outcome.lineage:
+        payload["lineage"] = list(outcome.lineage)
+    if outcome.continuation_reason is not None:
+        payload["continuation_reason"] = outcome.continuation_reason
     if outcome.result_reuse_source_ticket_id is not None:
-        payload.update(
-            parent_ticket_id=outcome.parent_ticket_id,
-            lineage=list(outcome.lineage),
-            continuation_reason=outcome.continuation_reason,
-            result_reuse_source_ticket_id=outcome.result_reuse_source_ticket_id,
-        )
+        payload["result_reuse_source_ticket_id"] = outcome.result_reuse_source_ticket_id
     return payload
 
 

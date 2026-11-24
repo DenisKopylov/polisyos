@@ -1148,6 +1148,113 @@ def test_build_policy_output_bundle_mismatched_frontier_run_does_not_block_candi
     assert limited_projection.assessment.basis_scope.scope == "not_established"
 
 
+@pytest.mark.parametrize("projection_profile", ["live_split", "retained_reuse", "legacy"])
+def test_policy_output_audit_retains_funnel_continuation_after_state_roundtrip(
+    tmp_path: Path,
+    execution_context: ExecutionContext,
+    minimal_state: ExperimentState,
+    cas_store: FileSystemCAS,
+    projection_profile: str,
+) -> None:
+    from dataclasses import replace
+
+    from polisyos.scientist.methods.search.funnel.level2_causal import Level2CausalPlausibility
+    from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
+    from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_reporting import (
+        _serialize_funnel_outcome,
+    )
+
+    candidate = _candidate()
+    subject = {"candidate_id": candidate.candidate_id}
+    funnel = FunnelOrchestrator([Level2CausalPlausibility()])
+    first = funnel.submit(subject, {"dataset_version": "v1"})
+    historical = funnel.advance(first)
+    next_context = {"dataset_version": "v2"}
+    linked = funnel.submit(subject, next_context, _prior_attempt_id=first.ticket_id)
+    funnel.advance(linked)
+    assert linked is funnel.submit(subject, next_context, _prior_attempt_id=linked.ticket_id)
+    live = funnel.advance(linked)
+
+    assert live.parent_ticket_id == first.ticket_id
+    assert live.lineage == (first.ticket_id, linked.ticket_id)
+    assert live.continuation_reason == "live_split_gates_rechecked"
+    assert live.result_reuse_source_ticket_id is None
+    assert len(historical.trace) == len(live.prior_attempt_trace) == 1
+    assert len(live.trace) == 2
+    assert live.compute_cost_usd == sum(step.compute_cost_usd or 0.0 for step in live.trace)
+    assert historical.compute_cost_usd is not None and historical.compute_cost_usd > 0.0
+    assert [attempt.ticket_id for attempt in live.prior_attempt_history] == [first.ticket_id]
+
+    if projection_profile == "retained_reuse":
+        # Read a historical reuse record through the current projection contract.
+        live = replace(
+            live,
+            trace=historical.trace,
+            stage_results=historical.stage_results,
+            final_result=historical.final_result,
+            compute_cost_usd=None,
+            compute_cost_origin="unknown",
+            continuation_reason="compatible_result_reused",
+            result_reuse_source_ticket_id=first.ticket_id,
+        )
+    projection = _serialize_funnel_outcome(live)
+    if projection_profile == "legacy":
+        for key in ("parent_ticket_id", "lineage", "continuation_reason"):
+            projection.pop(key, None)
+
+    state = minimal_state.model_copy(deep=True)
+    state.params.update(
+        {
+            "workflow_id": "scientist_policy_design",
+            "policy_mode": True,
+            "policy_candidate_schema": candidate.model_dump(mode="json"),
+            "policy_evaluation": _evaluation_vector(candidate).model_dump(mode="json"),
+            "decision_readiness_contract": _readiness_contract().model_dump(mode="json"),
+            "policy_brief": _policy_brief().model_dump(mode="json"),
+            "translator_compliance": _translator_compliance().model_dump(mode="json"),
+            "judge_verdict": _passing_judge_verdict(),
+            "funnel_outcome": projection,
+        }
+    )
+    welfare_ref, ambiguity_ref = _phase3_ready_refs(cas_store)
+    state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
+    state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
+    restored_state = ExperimentState.model_validate_json(state.model_dump_json())
+    output = BuildPolicyOutputBundleNode().execute(
+        _claim_capable_context(execution_context), restored_state
+    )
+    assert output.status == "ok", output.error
+
+    fresh_reader = FileSystemCAS.open_existing_read_only(tmp_path)
+    bundle = load_policy_artifact_bundle(
+        fresh_reader, output.state.artifacts_index[ARTIFACT_POLICY_OUTPUT_BUNDLE_REF]
+    )
+    audit = load_replayable_audit_bundle(fresh_reader, bundle.replayable_audit_bundle_ref)
+    retained = audit.runtime_params_snapshot["funnel_outcome"]
+    assert retained == projection
+    assert retained["prior_attempt_ticket_id"] == first.ticket_id
+    assert retained["prior_attempt_history_status"] == "complete"
+    assert retained["prior_attempt_history"] == [
+        {"ticket_id": first.ticket_id, "trace": retained["prior_attempt_trace"]}
+    ]
+    assert retained["prior_attempt_trace"][0]["compute_cost_usd"] == historical.compute_cost_usd
+    assert retained["compute_cost_usd"] == live.compute_cost_usd
+    assert len(retained["trace"]) == len(live.trace)
+
+    if projection_profile == "legacy":
+        assert all(
+            key not in retained for key in ("parent_ticket_id", "lineage", "continuation_reason")
+        )
+    else:
+        assert retained["parent_ticket_id"] == first.ticket_id
+        assert retained["lineage"] == [first.ticket_id, linked.ticket_id]
+        assert retained["continuation_reason"] == live.continuation_reason
+    if projection_profile == "retained_reuse":
+        assert retained["result_reuse_source_ticket_id"] == first.ticket_id
+    else:
+        assert "result_reuse_source_ticket_id" not in retained
+
+
 def test_build_policy_output_bundle_propagates_actionable_side_information(
     execution_context,
     minimal_state,

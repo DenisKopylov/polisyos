@@ -21573,7 +21573,7 @@
       "local_qualification": "PARTIAL",
       "capability_acceptance": "NOT_RUN",
       "current_execution": {
-        "status": "ACTIVE. Eight packets, 61 requirements and 60 test contracts. All original product defects have local repairs. 40 named local profiles qualify, 12 are partial and 9 lack deciding qualification. Shared E02-I03-A/B/C remain open.",
+        "status": "ACTIVE. Eight packets, 61 requirements and 60 test contracts. All original product defects have local repairs. 43 named local profiles qualify, 12 are partial and 6 lack deciding qualification. Shared E02-I03-A/B/C remain open.",
         "next": "Qualify exact temporal source selection, scope-bound measured observations, declared unit comparability, positive predictive interval and served calibration. Preserve existing owner limits and verify all three common-source scenarios.",
         "frc01_calibration_summary": {
           "scope": "REQ-FRC-01-01. S10 and G2 preserve descriptive counts while carrying only an admitted compatible floor. 10/10 limited, genuine 95/100 preserved. Removed records, tampered status and a foreign envelope refuse admission. 55 affected tests pass, with a separate exact old-mechanism failure and changed-import pass.",
@@ -21682,6 +21682,16 @@
           "guard_sha256": "2d5d516d949cbb67aaaa3f17d268da23aa1e5271a67ea0a7ff12187c5cbec02d",
           "junit_sha256": "6ae939e83b6cd2471167520363dda1dda6d907548ea4d8d3bd665e8740417590",
           "scope": "114 PASS with actual registered NumPy dispatch, canonical report CAS readback, binary/multiclass/generic and malformed/foreign report controls, continuous numerical diagnostics and alias identity. No independent empirical or causal authority."
+        },
+        "openai_emp07_synthetic_hypothesis": {
+          "actual_model": "gpt-6-luna",
+          "http_status": 200,
+          "stored": false,
+          "total_tokens": 526,
+          "hypothesis_sha256": "c1b1254a21331dd92e56d964ad82f68912a81fdf8b08419c34aab9817587b8a3",
+          "utc": "2026-11-24T09:03:28.570763+00:00",
+          "output": "Primary:policy-engine/_cache/e02/lane03-emp07-luna.p1oc55ln/",
+          "scope": "Synthetic candidate graph only. Exact output refused by stock native authority owner without selected graph evidence."
         }
       },
       "transition_evidence": [],
@@ -39369,6 +39379,19 @@
           "output": "Primary:policy-engine/_cache/e02/emp01-retained-selected-legacy-20261124-r1/",
           "result": "PASS exact selected stock v1 R12 outer width 16, actual old tiny width and current N8 v2, 7 width/version/endpoint/removal controls, 18 matching SHA pins. No provider, N5 or original writes.",
           "guard_sha256": "d6e3e4664f666f30ed96902afb619b9c93a14b76c52c0ae4f3307724534ebbcd"
+        },
+        {
+          "id": "emp01_exact_catalog_scope_owner",
+          "output": "Primary:policy-engine/_cache/e02/emp01-active-source-scope-20261124-r2/",
+          "result": "2 PASS with 8 stable pins. Existing signed v2/v3 scope owners, exact rows and versions, legacy preamble/mapping/source-read refusal partitions, actual withdrawal and cold readback.",
+          "source_commit": "bd05f57af48bdb6dbc7fd0d02163f82719f9948d",
+          "guard_sha256": "056a33b50f58cd1075be0bf38638128f8cdf046c9a1f36e9c95c1522483ba8c4"
+        },
+        {
+          "id": "emp01_live_luna_candidate_gate",
+          "output": "Primary:policy-engine/_cache/e02/emp01-llm-hypothesis-20261124-r2/",
+          "result": "PASS exact real synthetic GPT-6 Luna candidate raw bytes fail without selected graph custody; retained 200-row AIPW point and interval remain search_only and consumer_asserted, authority marker controls fail. No offline provider/solver/N8 calls.",
+          "guard_sha256": "e20ab07cfe133636cae1d1615109b59b62a2bebf22a2a934bcfc4bc3d9a5e00d"
         }
       ],
       "blockers": [],
@@ -39454,7 +39477,7 @@
           "requirement_id": "REQ-EMP-01-05",
           "test_id": "TEST-EMP-01-05",
           "status": "PARTIAL",
-          "basis": "The signed scoped Catalog owner selects different physical membership for equal numerical summaries. Fresh replays exact original occurrence, wrong version/missing scope/raw refuse.",
+          "basis": "Current signed v2/v3 Catalog scope owner selects exact active physical rows, source version, scope and source graph. Scope, bytes and refused inputs replay correctly.",
           "criterion_pointer": "04_Трассировка/EMP-01.json#/requirements/4",
           "test_ids": [
             "TEST-EMP-01-05"
@@ -39464,7 +39487,7 @@
           ],
           "assessment": "selected_profile_partial",
           "evidence_refs": [
-            "emp01_real_scoped_catalog_owner"
+            "emp01_exact_catalog_scope_owner"
           ],
           "remaining_kinds": [
             "exact_scope_through_N8_SQL_before_cap_and_cold_reader"
@@ -39483,6 +39506,27 @@
           "assessment": "selected_profile_qualified",
           "evidence_refs": [
             "emp01_native_selected_transport"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-EMP-01-07",
+          "test_id": "TEST-EMP-01-07",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual candidate method/transport artifacts preserve useful values through selected fresh resolution. Real LLM hypothesis without verified artifact cannot promote; added finite observations and self-asserted authority fields refuse. Stronger empirical authority remains unestablished.",
+          "criterion_pointer": "04_Трассировка/EMP-01.json#/requirements/6",
+          "test_ids": [
+            "TEST-EMP-01-03",
+            "TEST-EMP-01-06",
+            "TEST-EMP-01-07"
+          ],
+          "binding_ids": [
+            "E02-I03-A-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "emp01_native_selected_transport",
+            "emp01_live_luna_candidate_gate"
           ],
           "remaining_kinds": []
         },
@@ -40228,6 +40272,13 @@
           "result": "14 PASS; actual two steps t2/t3 from exact source/seed yield [7,7] USD, fresh CAS adds zero calls. Ordinary shape-only effect refuses as outcome and retains selected cohort. Exact original mechanism reproduced before repair.",
           "source_commit": "42e4f0b328a023fa054473f51151e19c15e26519",
           "guard_sha256": "8bfa15c610bc1f02609bd349617c2ea1f67aa81b24a954fa99086b86b9753e1e"
+        },
+        {
+          "id": "bkt_exact_native_model_interval",
+          "output": "Primary:policy-engine/_cache/e02/bkt-native-predictive-integrated-r1.zGn27Blx/",
+          "result": "PASS. Two actual stock one-step Foundry cases; t2 point 0 USD and exact [0,10] .95 model-conditional interval, verified miss for 900, and unsupported tax point retained with unavailable interval. Fresh exact report and packet, removed selected edge refusal, zero extra physical calls.",
+          "source_commit": "6cbdb5644122bb7c581c61f6d1da6de497a56f6c",
+          "guard_sha256": "67a3933d35479062f90f62fe1525855e862eb12ec57c6a7e6cb0fc93c5388b7d"
         }
       ],
       "blockers": [],
@@ -40329,6 +40380,51 @@
             "bkt01_scoped_native_constant"
           ],
           "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-BKT-01-06",
+          "test_id": "TEST-BKT-01-06",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Existing selected SimulationResult and PropagationReport use the explicit one-step model-predictive law. Exact units/coordinates, nominal and role reach evaluator and fresh selected report. Unsupported/mean-effect/foreign outcomes do not replace the valid point.",
+          "criterion_pointer": "04_Трассировка/BKT-01.json#/requirements/5",
+          "test_ids": [
+            "TEST-BKT-01-05",
+            "TEST-BKT-01-06"
+          ],
+          "binding_ids": [
+            "E02-I03-C-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "bkt_exact_native_model_interval",
+            "bkt_range_and_bias_composed"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-BKT-01-09",
+          "test_id": "TEST-BKT-01-09",
+          "status": "PARTIAL",
+          "basis": "Native workflow through actual Foundry/CAS and the selected forecast report and packet now has both model-conditional interval and unsupported point profiles.",
+          "criterion_pointer": "04_Трассировка/BKT-01.json#/requirements/8",
+          "test_ids": [
+            "TEST-BKT-01-02",
+            "TEST-BKT-01-06",
+            "TEST-BKT-01-07",
+            "TEST-BKT-01-08",
+            "TEST-BKT-01-09"
+          ],
+          "binding_ids": [
+            "E02-I03-C-B01"
+          ],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "bkt_exact_native_model_interval",
+            "bkt01_scoped_native_constant"
+          ],
+          "remaining_kinds": [
+            "cohort_and_budget_variants_on_composed_source"
+          ]
         }
       ]
     },
@@ -40380,6 +40476,13 @@
           "output": "Primary:policy-engine/_cache/e02/lane03-bkt02-macro-pair-native.ys3JEE8c/",
           "result": "2 PASS. Stock Native forecast persists and reopens; raw CAS rejects parameter omission and forged macro. Legacy unbound report remains limited.",
           "source_commit": "ec767b75180736df3e8e9b2ef6d0787b2b5ed50e"
+        },
+        {
+          "id": "bkt_exact_native_model_interval",
+          "output": "Primary:policy-engine/_cache/e02/bkt-native-predictive-integrated-r1.zGn27Blx/",
+          "result": "PASS. Two actual stock one-step Foundry cases; t2 point 0 USD and exact [0,10] .95 model-conditional interval, verified miss for 900, and unsupported tax point retained with unavailable interval. Fresh exact report and packet, removed selected edge refusal, zero extra physical calls.",
+          "source_commit": "6cbdb5644122bb7c581c61f6d1da6de497a56f6c",
+          "guard_sha256": "67a3933d35479062f90f62fe1525855e862eb12ec57c6a7e6cb0fc93c5388b7d"
         }
       ],
       "blockers": [],
@@ -40449,8 +40552,8 @@
         {
           "requirement_id": "REQ-BKT-02-04",
           "test_id": "TEST-BKT-02-04",
-          "status": "PARTIAL",
-          "basis": "Owned nominal, type, hit and availability cases and actual selected SimulationResult/PropagationReport refusal preserve the point.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Owned nominal, type, hit and availability remain distinct through the selected actual Native output and fresh report. Supported real miss and unavailable interval preserve known point and deny empirical authority.",
           "criterion_pointer": "04_Трассировка/BKT-02.json#/requirements/3",
           "test_ids": [
             "TEST-BKT-02-04",
@@ -40459,14 +40562,12 @@
           "binding_ids": [
             "E02-I03-C-B02"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
             "bkt_range_and_bias_composed",
-            "bkt_native_macro_read"
+            "bkt_exact_native_model_interval"
           ],
-          "remaining_kinds": [
-            "admitted_predictive_interval"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-BKT-02-05",
@@ -40494,7 +40595,7 @@
           "requirement_id": "REQ-BKT-02-07",
           "test_id": "TEST-BKT-02-07",
           "status": "PARTIAL",
-          "basis": "Stale envelopes corrected and actual selected simulation reader removal/foreign controls run.",
+          "basis": "Actual selected simulation, propagation, evaluator, report and packet preserve an admitted model-conditional interval; numerical-range and selected missing/foreign cases remain limited.",
           "criterion_pointer": "04_Трассировка/BKT-02.json#/requirements/6",
           "test_ids": [
             "TEST-BKT-02-07",
@@ -40506,11 +40607,10 @@
           "assessment": "selected_profile_partial",
           "evidence_refs": [
             "bkt_range_and_bias_composed",
-            "bkt_native_macro_read"
+            "bkt_exact_native_model_interval"
           ],
           "remaining_kinds": [
-            "admitted_predictive_interval",
-            "positive_shared_E02_I03_C"
+            "stock_C5b_intake_and_fresh_selected_bundle"
           ]
         },
         {

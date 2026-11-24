@@ -1129,6 +1129,211 @@ class TestOptimizationFlow:
             assert result.telemetry["budget_available"] is False
             assert result.telemetry["budget_spent"] is None
 
+    @pytest.mark.parametrize("outcome", ["failed", "cancelled", "keyboard", "pre_dispatch"])
+    def test_interrupted_generation_retains_settlement_and_partial_search(
+        self, tmp_path, monkeypatch: pytest.MonkeyPatch, outcome: str
+    ) -> None:
+        """Reconcile exact provider work and read a detached interruption after a new run."""
+        import json
+        from asyncio import CancelledError
+        from decimal import Decimal
+
+        from polisyos.core import llm
+        from polisyos.core.llm.traced_client import TracedLLMClient
+        from polisyos.scientist.methods.search.adapters import LegacySearchServiceAdapter
+        from polisyos.scientist.methods.search.objective import BudgetDeficitObjective
+        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+        from polisyos.scientist.orchestration.engine.budget_ledger import (
+            BudgetLedgerProducerRunBinding,
+            FileBudgetLedger,
+        )
+        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+        from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
+
+        run_id = f"search-interruption-{outcome}"
+        budget_key = f"nl-run:{run_id}"
+        binding = BudgetLedgerProducerRunBinding(
+            run_id=run_id,
+            tenant_id="tenant-search-test",
+            cell_id="cell-search-test",
+            profile_id="search-profile-test",
+            control_job_id=f"control-{run_id}",
+        )
+        ledger_path = tmp_path / "interruption-budget.json"
+        owner = BudgetMiddleware(
+            BudgetState(limits={budget_key: BudgetLimit(key=budget_key, max_usd=Decimal("2.00"))}),
+            ledger=FileBudgetLedger(ledger_path),
+        )
+
+        class Response:
+            status = 200
+            headers: dict[str, str] = {}
+
+            def __init__(self, content: str) -> None:
+                self.content = content
+
+            async def __aenter__(self) -> Response:
+                return self
+
+            async def __aexit__(self, *_args: object) -> None:
+                return None
+
+            async def text(self) -> str:
+                return json.dumps(
+                    {
+                        "model": "fixture-model",
+                        "choices": [{"message": {"role": "assistant", "content": self.content}}],
+                        "usage": {
+                            "prompt_tokens": 2,
+                            "completion_tokens": 1,
+                            "total_cost_usd": 0.125,
+                        },
+                    }
+                )
+
+        class Transport:
+            closed = False
+            requests = 0
+
+            def post(self, *_args: object, **_kwargs: object) -> Response:
+                self.requests += 1
+                content = (
+                    "{"
+                    if outcome == "failed" and self.requests == 2
+                    else json.dumps({"x": self.requests})
+                )
+                return Response(content)
+
+            async def close(self) -> None:
+                self.closed = True
+
+        gateway = GatewayLLMClient(
+            base_url="http://test.local",
+            api_key="fixture-key",
+            model="fixture-model",
+            max_retries=0,
+        )
+        transport = Transport()
+        gateway._session = transport
+        traced = TracedLLMClient(
+            gateway,
+            model_name="fixture-model",
+            producer_settlement_store=owner,
+            producer_budget_key=budget_key,
+        )
+        was_cancelled = outcome in {"cancelled", "keyboard"}
+        cancelled = (
+            KeyboardInterrupt("interrupt after acknowledged provider settlement")
+            if outcome == "keyboard"
+            else CancelledError("cancel after acknowledged provider settlement")
+        )
+        extract = llm.extract_llm_response_data
+
+        def decode(response: Any, **kwargs: Any) -> Any:
+            decoded = extract(response, **kwargs)
+            if was_cancelled and transport.requests == 2:
+                records = FileBudgetLedger(ledger_path).snapshot().producer_settlements.values()
+                assert sorted(record.amount for record in records) == [Decimal("0.125")] * 2
+                raise cancelled
+            return decoded
+
+        monkeypatch.setattr(llm, "extract_llm_response_data", decode)
+
+        def stage_b(candidate: dict[str, Any], _context: dict[str, Any]) -> dict[str, Any]:
+            return {
+                "simulation_results": {
+                    "budget_deficit": candidate["x"],
+                    "metric_units": {"budget_deficit": "EUR"},
+                },
+                "feedback": {"verdict": "APPROVE"},
+            }
+
+        controller = SearchController(
+            config=SearchConfig(
+                stopping=MaxIterations(2),
+                objective=CompositeObjective([BudgetDeficitObjective(expected_unit="EUR")]),
+                producer_settlement_store=owner,
+                producer_run_binding=binding,
+            ),
+            candidate_generator=TracedLLMCandidateGenerator(
+                client=traced, system_prompt="Return one search candidate as a JSON object."
+            ),
+            stage_a_evaluator=lambda candidate, context: (0.0, True),
+            stage_b_evaluator=stage_b,
+        )
+        context = {"invalid_prompt": float("nan")} if outcome == "pre_dispatch" else {}
+        with pytest.raises(
+            type(cancelled) if was_cancelled else SearchBudgetProducerUnsupportedError
+        ) as raised:
+            controller.run(context)
+
+        assert controller._status.value == ("cancelled" if was_cancelled else "failed")
+        from polisyos.scientist.methods.search.contracts import read_search_interruption
+
+        interrupted = read_search_interruption(raised.value)
+        assert interrupted is not None
+        assert interrupted.phase == "generation"
+        partial = interrupted.result
+        was_dispatched = outcome != "pre_dispatch"
+        expected_completed = int(was_dispatched)
+        expected_spent = Decimal("0.250") if was_dispatched else Decimal(0)
+        assert len(partial.history) == expected_completed
+        if was_dispatched:
+            assert partial.history[0].candidate == partial.best_candidate == {"x": 1}
+            assert partial.best_objective == 1.0
+        assert partial.iterations_completed == expected_completed
+        assert partial.telemetry["work_attempts"] == {
+            "generation": {
+                "started": 1 + expected_completed,
+                "completed": expected_completed,
+                "failed": int(not was_cancelled),
+                "cancelled": int(was_cancelled),
+            },
+            "evaluation": {
+                "started": expected_completed,
+                "completed": expected_completed,
+                "failed": 0,
+                "cancelled": 0,
+            },
+        }
+        assert partial.stopping_reason == (
+            "generation_cancelled" if was_cancelled else "generation_failed"
+        )
+        records = list(FileBudgetLedger(ledger_path).snapshot().producer_settlements.values())
+        assert len(records) == transport.requests == 2 * expected_completed
+        assert all(
+            record.status == "committed" and record.run_binding == binding for record in records
+        )
+        assert sum((record.amount for record in records), Decimal(0)) == expected_spent
+        assert Decimal(partial.telemetry["producer_budget_owner"]["spent"]) == expected_spent
+        assert partial.telemetry["budget_spent"] == float(expected_spent)
+        if was_cancelled:
+            assert raised.value is cancelled
+        else:
+            assert raised.value.reason_code == (
+                "traced_candidate_response_is_not_json"
+                if was_dispatched
+                else "search_prompt_contains_nonfinite_number"
+            )
+
+        if was_dispatched:
+            partial.history[0].candidate["x"] = -5
+        with pytest.raises(
+            RuntimeError, match="interrupted search requires a fresh run"
+        ) as refused:
+            LegacySearchServiceAdapter(controller).ask(goal=None, search_space=None, context={})
+        assert read_search_interruption(refused.value) is None
+        assert transport.requests == 2 * expected_completed
+        restarted = controller.run({"fresh": True}, initial_candidate={"x": 9})
+        reread = read_search_interruption(raised.value)
+        assert reread is not None
+        assert reread.result.search_id == partial.search_id != restarted.search_id
+        assert [record.candidate for record in reread.result.history] == (
+            [{"x": 1}] if was_dispatched else []
+        )
+        assert restarted.history[0].candidate == {"x": 9}
+        assert Decimal(reread.result.telemetry["producer_budget_owner"]["spent"]) == expected_spent
+
     @pytest.mark.parametrize(
         ("wire_cost", "expected_owner_status", "expected_evaluations"),
         [("0.25", "resolved", 1), ("true", "unavailable", 0)],

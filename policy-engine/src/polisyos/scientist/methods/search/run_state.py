@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+from asyncio import CancelledError
+from concurrent.futures import CancelledError as FutureCancelledError
+from contextlib import contextmanager
 from copy import deepcopy
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.scientist.methods.search.contracts import (
     GenerationTransition,
@@ -13,6 +16,24 @@ from polisyos.scientist.methods.search.contracts import (
     _EvaluationDisposition,
     _EvaluationTransition,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from polisyos.scientist.methods.search.contracts import _SearchWorkPhase
+
+
+_CANCELLATION_ERRORS = (CancelledError, FutureCancelledError, KeyboardInterrupt)
+
+
+@dataclass
+class _WorkAttempts:
+    """Count logical driver operations independently of settlement and saved rows."""
+
+    started: int = 0
+    completed: int = 0
+    failed: int = 0
+    cancelled: int = 0
 
 
 @dataclass
@@ -29,16 +50,46 @@ class SearchRunState:
     stage_a_evaluations: int = 0
     stage_b_evaluations: int = 0
     sentinel_evaluations: int = 0
-    generation_attempts: int = 0
+    _generation: _WorkAttempts = field(default_factory=_WorkAttempts)
+    _evaluation: _WorkAttempts = field(default_factory=_WorkAttempts)
+    interrupted_phase: _SearchWorkPhase | None = None
     empty_generation_attempts: int = 0
     evaluation_iterations: int = 0
     training_evaluations: int = 0
     budget_spent: float = 0.0
     budget_available: bool = False
+    budget_required: bool | None = None
     budget_snapshot: dict[str, float] = field(default_factory=dict)
     policy_evaluation_errors: int = 0
     generation_transition: GenerationTransition | None = None
     pareto_projection: ParetoViewProjection | None = None
+
+    @property
+    def generation_attempts(self) -> int:
+        """Retain the existing completed generator-call counter."""
+        return self._generation.completed
+
+    @contextmanager
+    def track_attempt(self, phase: _SearchWorkPhase) -> Iterator[None]:
+        """Record one entered call and classify its actual return or exception."""
+        counts = self._generation if phase == "generation" else self._evaluation
+        counts.started += 1
+        try:
+            yield
+        except _CANCELLATION_ERRORS:
+            counts.cancelled += 1
+            self.interrupted_phase = phase
+            raise
+        except BaseException:
+            counts.failed += 1
+            self.interrupted_phase = phase
+            raise
+        else:
+            counts.completed += 1
+
+    def work_attempt_payload(self) -> dict[str, dict[str, int]]:
+        """Project attempt counters without asserting physical work or spend."""
+        return {"generation": asdict(self._generation), "evaluation": asdict(self._evaluation)}
 
     @property
     def history_size(self) -> int:

@@ -29,11 +29,12 @@ from polisyos.scientist.methods.search.contracts import EvaluationBundle, Search
 from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
 from polisyos.scientist.methods.search.lifecycle import _SearchLifecycleOwner
 from polisyos.scientist.methods.search.objective import (
+    BudgetDeficitObjective,
     CompositeObjective,
     ObjectiveValue,
     OptimizationDirection,
 )
-from polisyos.scientist.methods.search.stopping import MaxIterations
+from polisyos.scientist.methods.search.stopping import CostBudgetStopping, MaxIterations
 
 # The repository's test suite uses assert-based pytest witnesses by design.
 # ruff: noqa: S101
@@ -161,8 +162,11 @@ def test_current_controller_trace_preserves_warm_sentinel_empty_error_resume(
     assert [state["history_length"] for state in generator.context_history] == [1, 1, 2]
 
 
-def test_lifecycle_owner_propagates_evaluator_exception_without_failed_transition() -> None:
-    """Preserve the current raise path without synthesizing a FAILED SearchResult."""
+@pytest.mark.parametrize("boundary", ["evaluator", "feedback", "budget_read"])
+def test_lifecycle_owner_propagates_evaluator_exception_with_failed_partial(
+    boundary: str,
+) -> None:
+    """Read the interrupted outcome without admitting the failed evaluation."""
 
     class _OneCandidate:
         def generate(
@@ -174,25 +178,71 @@ def test_lifecycle_owner_propagates_evaluator_exception_without_failed_transitio
             del history, current_best, context
             return {"candidate_id": "stage-b-failure", "cost": 1.0}
 
-    def fail_stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
-        del candidate, context
-        raise RuntimeError("stage_b_failed")
+    error = RuntimeError("stage_b_failed")
+    budget_reader_failed = False
+
+    class _BudgetCriterion(CostBudgetStopping):
+        def state_keys(self) -> tuple[str, ...]:
+            if budget_reader_failed:
+                raise RuntimeError("budget view unavailable")
+            return super().state_keys()
+
+    def stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+        nonlocal budget_reader_failed
+        del context
+        if candidate["cost"] == 1.0 and boundary != "feedback":
+            budget_reader_failed = boundary == "budget_read"
+            raise error
+        return {
+            "simulation_results": {
+                "budget_deficit": candidate["cost"],
+                "metric_units": {"budget_deficit": "EUR"},
+            },
+            "feedback": {"verdict": "APPROVE"} if candidate["cost"] == 2.0 else None,
+        }
 
     owner = _SearchLifecycleOwner(
         config=SearchConfig(
-            stopping=MaxIterations(1),
-            objective=CompositeObjective([_CostObjective()]),
+            stopping=_BudgetCriterion(max_cost_usd=1.0),
+            objective=CompositeObjective([BudgetDeficitObjective(expected_unit="EUR")]),
         ),
         candidate_generator=_OneCandidate(),
         stage_a_evaluator=lambda candidate, context: (0.0, True),
-        stage_b_evaluator=fail_stage_b,
+        stage_b_evaluator=stage_b,
     )
 
-    with pytest.raises(RuntimeError, match="stage_b_failed"):
-        owner.run({"run_id": "srv03-stage-b-failure"})
+    with pytest.raises(AttributeError if boundary == "feedback" else RuntimeError) as raised:
+        owner.run(
+            {"run_id": "srv03-stage-b-failure", "cumulative_cost_usd": 0.25},
+            initial_candidate={"candidate_id": "prior", "cost": 2.0},
+        )
 
-    assert owner._status is SearchStatus.RUNNING
-    assert owner._run_state.evaluation_iterations == 0
+    if boundary != "feedback":
+        assert raised.value is error
+    assert owner._status is SearchStatus.FAILED
+    from polisyos.scientist.methods.search.contracts import read_search_interruption
+
+    interrupted = read_search_interruption(raised.value)
+    assert interrupted is not None
+    assert interrupted.phase == "evaluation"
+    partial = interrupted.result
+    assert partial.stopping_reason == "evaluation_failed"
+    assert partial.status is SearchStatus.FAILED
+    assert [record.candidate for record in partial.history] == [
+        {"candidate_id": "prior", "cost": 2.0}
+    ]
+    assert partial.best_candidate == partial.history[0].candidate
+    assert partial.best_objective == 2.0
+    assert [point["candidate"] for point in partial.pareto_front] == [partial.best_candidate]
+    assert partial.telemetry["budget_available"] is (boundary != "budget_read")
+    assert partial.telemetry["budget_spent"] == (None if boundary == "budget_read" else 0.25)
+    assert partial.telemetry["work_attempts"]["evaluation"] == {
+        "started": 2,
+        "completed": 1,
+        "failed": 1,
+        "cancelled": 0,
+    }
+    assert owner._run_state.evaluation_iterations == 1
     assert owner._run_lock.acquire(blocking=False)
     owner._run_lock.release()
 

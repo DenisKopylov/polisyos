@@ -9,7 +9,9 @@ framework: the lifecycle owner owns evaluation semantics and
 
 from __future__ import annotations
 
+from contextlib import nullcontext
 from copy import deepcopy
+from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.common import logger as common_logger
@@ -173,18 +175,29 @@ class _NativeSearchServiceDriver:
     ) -> SearchResult:
         """Run the existing generation/evaluation lifecycle through this driver."""
         with self.owner._run_operation(full_run=True):
-            return self._run_admitted(
-                initial_context=initial_context,
-                initial_candidate=initial_candidate,
-            )
+            previous_generation = self.owner._run_generation
+            start_time = datetime.now(UTC)
+            try:
+                self.owner._begin_native_run(initial_context)
+                return self._run_admitted(
+                    start_time=start_time,
+                    initial_context=initial_context,
+                    initial_candidate=initial_candidate,
+                )
+            except BaseException as error:
+                if self.owner._run_generation != previous_generation:
+                    self.owner._record_native_interruption(
+                        error, start_time=start_time, context=initial_context
+                    )
+                raise
 
     def _run_admitted(
         self,
         *,
+        start_time: datetime,
         initial_context: dict[str, Any],
         initial_candidate: dict[str, Any] | None,
     ) -> SearchResult:
-        start_time = self.owner._begin_native_run(initial_context)
         stopping_reason: str | None = None
         candidate_to_seed = initial_candidate
 
@@ -241,15 +254,16 @@ class _NativeSearchServiceDriver:
         initial_candidate: dict[str, Any] | None,
     ) -> tuple[list[dict[str, Any] | CandidateProposal], bool, str | None]:
         generated = initial_candidate is None
-        batch = self.owner._generate_candidates(
-            iteration=self.owner._run_state.evaluation_iterations,
-            initial_candidate=initial_candidate,
-            context=initial_context,
-        )
+        attempt = self.owner._run_state.track_attempt("generation") if generated else nullcontext()
+        with attempt:
+            batch = self.owner._generate_candidates(
+                iteration=self.owner._run_state.evaluation_iterations,
+                initial_candidate=initial_candidate,
+                context=initial_context,
+            )
         if not generated:
             return batch, False, None
 
-        self.owner._run_state.generation_attempts += 1
         stopping_reason = self._stopping_reason(initial_context)
         return batch, True, stopping_reason
 
@@ -282,12 +296,13 @@ class _NativeSearchServiceDriver:
                 >= self.owner._config.max_iterations_hard_limit
             ):
                 break
-            transition = self.owner._evaluate_candidate(
-                candidate,
-                iteration=self.owner._run_state.evaluation_iterations,
-                context=initial_context,
-            )
-            self.owner._run_state.apply_evaluation_transition(transition)
+            with self.owner._run_state.track_attempt("evaluation"):
+                transition = self.owner._evaluate_candidate(
+                    candidate,
+                    iteration=self.owner._run_state.evaluation_iterations,
+                    context=initial_context,
+                )
+                self.owner._run_state.apply_evaluation_transition(transition)
             self.owner._refresh_budget_snapshot(initial_context)
 
             if transition.disposition is _EvaluationDisposition.SENTINEL and not generated:

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import importlib
 from collections.abc import Callable, Sequence
+from copy import deepcopy
 from dataclasses import dataclass, field, fields
 from datetime import UTC, datetime
 from enum import Enum
@@ -327,6 +328,7 @@ class SearchStatus(str, Enum):
     CONVERGED = "converged"
     STOPPED = "stopped"
     FAILED = "failed"
+    CANCELLED = "cancelled"
 
 
 @dataclass
@@ -440,6 +442,24 @@ class SearchResult:
     pareto_projection: ParetoViewProjection | None = None
 
 
+_SearchWorkPhase = Literal["generation", "evaluation"]
+_SEARCH_INTERRUPTION_ATTR = "_polisyos_search_interruption"
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class SearchInterruption:
+    """Carry a terminal partial result with the phase that raised the original error."""
+
+    phase: Literal["run", "generation", "evaluation"]
+    result: SearchResult
+
+
+def read_search_interruption(error: BaseException) -> SearchInterruption | None:
+    """Read a detached partial result carried by the original error or cancellation."""
+    interruption = vars(error).get(_SEARCH_INTERRUPTION_ATTR)
+    return deepcopy(interruption) if type(interruption) is SearchInterruption else None
+
+
 class GenerationTransition(str, Enum):
     """Typed transitions emitted by the candidate-generation boundary."""
 
@@ -466,9 +486,10 @@ class _NativeSearchRunStatePort(Protocol):
     """Expose only the run-state fields used by the native driver."""
 
     evaluation_iterations: int
-    generation_attempts: int
     empty_generation_attempts: int
     generation_transition: GenerationTransition | None
+
+    def track_attempt(self, phase: _SearchWorkPhase) -> AbstractContextManager[None]: ...
 
     def apply_evaluation_transition(self, transition: _EvaluationTransition) -> None: ...
 
@@ -514,6 +535,9 @@ class _NativeSearchControllerPort(Protocol):
     @property
     def _run_state(self) -> _NativeSearchRunStatePort: ...
 
+    @property
+    def _run_generation(self) -> int: ...
+
     _status: SearchStatus
 
     def _run_operation(self, *, full_run: bool = False) -> AbstractContextManager[None]: ...
@@ -549,7 +573,7 @@ class _NativeSearchControllerPort(Protocol):
 
     def _service_tell_snapshot(self) -> dict[str, Any]: ...
 
-    def _begin_native_run(self, initial_context: dict[str, Any]) -> datetime: ...
+    def _begin_native_run(self, initial_context: dict[str, Any]) -> None: ...
 
     def _finish_native_run(
         self,
@@ -557,6 +581,14 @@ class _NativeSearchControllerPort(Protocol):
         start_time: datetime,
         stopping_reason: str | None,
     ) -> SearchResult: ...
+
+    def _record_native_interruption(
+        self,
+        error: BaseException,
+        *,
+        start_time: datetime,
+        context: dict[str, Any],
+    ) -> None: ...
 
     def _refresh_budget_snapshot(self, context: dict[str, Any]) -> None: ...
 
@@ -624,6 +656,8 @@ __all__ = [
     "ParetoBasisScope",
     "ParetoViewAssessment",
     "ParetoViewProjection",
+    "SearchInterruption",
     "SearchService",
     "TellResult",
+    "read_search_interruption",
 ]

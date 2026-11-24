@@ -15,9 +15,11 @@ from typing import TYPE_CHECKING, Any, cast
 from uuid import uuid4
 
 from polisyos.scientist.methods.search.contracts import (
+    _SEARCH_INTERRUPTION_ATTR,
     CandidatePayload,
     CandidateProposal,
     EvaluationBundle,
+    SearchInterruption,
     SearchIteration,
     SearchResult,
     SearchStatus,
@@ -60,7 +62,7 @@ from polisyos.scientist.methods.search.objective import (
     score_assessment_matches_source,
     selected_score_admission_status,
 )
-from polisyos.scientist.methods.search.run_state import SearchRunState
+from polisyos.scientist.methods.search.run_state import _CANCELLATION_ERRORS, SearchRunState
 from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadata
 
 if TYPE_CHECKING:
@@ -280,6 +282,8 @@ class _SearchLifecycleOwner:
 
     def _prepare_service_run(self) -> tuple[int, int]:
         """Open the initial service run or continue its admitted generation."""
+        if self._run_state.status in {SearchStatus.FAILED, SearchStatus.CANCELLED}:
+            raise RuntimeError("interrupted search requires a fresh run")
         if self._run_state.status in {None, SearchStatus.NOT_STARTED}:
             self._replace_run_state(str(uuid4())[:8])
             self._config.stopping.reset()
@@ -526,10 +530,9 @@ class _SearchLifecycleOwner:
             "pareto_projection": snapshot.pareto_projection,
         }
 
-    def _begin_native_run(self, initial_context: dict[str, Any]) -> datetime:
+    def _begin_native_run(self, initial_context: dict[str, Any]) -> None:
         """Initialize one native service run and seed its warm history."""
         self._validate_transfer_basis()
-        start_time = datetime.now(UTC)
         search_id = str(uuid4())[:8]
         self._reset_diversity_tracker(operation="reset_diversity_tracker")
         self._replace_run_state(search_id)
@@ -637,7 +640,6 @@ class _SearchLifecycleOwner:
                 self._best_candidate = deepcopy(record.candidate)
 
         controller_logger.info(f"Starting search {search_id}")
-        return start_time
 
     def _validate_transfer_basis(self) -> None:
         """Reconcile transferable numeric history against the actual producer."""
@@ -696,7 +698,62 @@ class _SearchLifecycleOwner:
             stopping_reason = (
                 f"Hard iteration limit ({self._config.max_iterations_hard_limit}) reached"
             )
+        return self._make_run_result(start_time=start_time, stopping_reason=stopping_reason)
 
+    def _record_native_interruption(
+        self,
+        error: BaseException,
+        *,
+        start_time: datetime,
+        context: dict[str, Any],
+    ) -> None:
+        """Attach completed work to an interruption without replacing the original error."""
+        status = (
+            SearchStatus.CANCELLED
+            if isinstance(error, _CANCELLATION_ERRORS)
+            else SearchStatus.FAILED
+        )
+        self._status = status
+        phase = self._run_state.interrupted_phase or "run"
+        try:
+            budget_refresh_error = self._reconcile_interrupted_budget(context)
+            partial = self._make_run_result(
+                start_time=start_time,
+                stopping_reason=f"{phase}_{status.value}",
+                interrupted=True,
+            )
+            if budget_refresh_error is not None:
+                partial.telemetry["budget_snapshot_error"] = budget_refresh_error
+            vars(error)[_SEARCH_INTERRUPTION_ATTR] = SearchInterruption(phase=phase, result=partial)
+        except BaseException as finalization_error:
+            BaseException.add_note(
+                error,
+                f"Search interruption snapshot unavailable: {type(finalization_error).__name__}",
+            )
+
+    def _reconcile_interrupted_budget(self, context: dict[str, Any]) -> str | None:
+        """Recover a current owner reading even if the local budget view is unavailable."""
+        try:
+            self._refresh_budget_snapshot(context)
+        except BaseException as error:
+            self._run_state.budget_snapshot = {}
+            self._run_state.budget_available = False
+            # The source owner can still be read independently of the criterion.
+            try:
+                self._source_budget_snapshot = self._read_source_budget_snapshot()
+            except BaseException:
+                self._source_budget_snapshot = {"status": "unavailable"}
+            return type(error).__name__
+        return None
+
+    def _make_run_result(
+        self,
+        *,
+        start_time: datetime,
+        stopping_reason: str | None,
+        interrupted: bool = False,
+    ) -> SearchResult:
+        """Project the selected run without a second mutable or budget ledger."""
         total_duration = (datetime.now(UTC) - start_time).total_seconds()
         snapshot = self._run_state.snapshot()
         telemetry: dict[str, Any] = {
@@ -706,8 +763,9 @@ class _SearchLifecycleOwner:
             "evaluation_count": snapshot.evaluation_count,
             "scientific_evaluations": snapshot.scientific_evaluations,
             "sentinel_evaluations": snapshot.sentinel_evaluations,
+            "work_attempts": snapshot.work_attempt_payload(),
             "policy_evaluation_errors": snapshot.policy_evaluation_errors,
-            "budget_required": bool(self._config.stopping.state_keys()),
+            "budget_required": snapshot.budget_required,
             "budget_available": snapshot.budget_available,
             "budget_snapshot": deepcopy(snapshot.budget_snapshot),
             "budget_spent": (snapshot.budget_spent if snapshot.budget_available else None),
@@ -720,9 +778,13 @@ class _SearchLifecycleOwner:
                 self._diversity_tracker.unique_mechanisms_total
             )
             telemetry["diversity_ratio"] = self._diversity_tracker.diversity_ratio
-        if self._config.transfer_manager is not None and self._config.transfer_fingerprint is None:
+        if interrupted and self._config.transfer_manager is not None:
+            telemetry["transfer_history"] = {"status": "not_persisted_interrupted"}
+        elif (
+            self._config.transfer_manager is not None and self._config.transfer_fingerprint is None
+        ):
             telemetry["transfer_history"] = {"status": "fingerprint_missing"}
-        if self._config.transfer_fingerprint is not None:
+        elif self._config.transfer_fingerprint is not None:
             try:
                 telemetry["transfer_history"] = self._persist_transfer_history(snapshot)
             except (OSError, RuntimeError, TypeError, ValueError) as exc:
@@ -739,15 +801,15 @@ class _SearchLifecycleOwner:
         return SearchResult(
             search_id=snapshot.search_id,
             status=cast("SearchStatus", snapshot.status),
-            best_candidate=deepcopy(snapshot.best_candidate),
+            best_candidate=snapshot.best_candidate,
             best_objective=snapshot.best_objective,
             iterations_completed=snapshot.evaluation_iterations,
-            history=deepcopy(snapshot.history),
+            history=snapshot.history,
             stopping_reason=stopping_reason,
             total_duration_seconds=total_duration,
             stage_a_evaluations=snapshot.stage_a_evaluations,
             stage_b_evaluations=snapshot.stage_b_evaluations,
-            pareto_front=deepcopy(snapshot.pareto_front),
+            pareto_front=snapshot.pareto_front,
             pareto_projection=snapshot.pareto_projection,
             telemetry=deepcopy(telemetry),
         )
@@ -834,6 +896,7 @@ class _SearchLifecycleOwner:
         final report observe the same owner contract without creating a ledger.
         """
         required_keys = self._config.stopping.state_keys()
+        self._run_state.budget_required = bool(required_keys)
         source_budget_key = "_source_budget_remaining_usd"
         context_required_keys = tuple(key for key in required_keys if key != source_budget_key)
         snapshot: dict[str, float] = {}
@@ -1168,14 +1231,6 @@ class _SearchLifecycleOwner:
                 score_status = ObjectiveScoreStatus.INVALID
             elif (policy_subject or policy_evaluation is not None) and not source_verified:
                 score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
-                if not is_sentinel and policy_evaluation is not None:
-                    self._record_candidate_only_evaluation(
-                        candidate,
-                        candidate_proposal,
-                        policy_evaluation,
-                        candidate_ref,
-                        evaluation_ref,
-                    )
             elif policy_evaluation is not None:
                 selected = self._config.objective.evaluate(sim_results)
                 score_status = selected.score_status
@@ -1202,26 +1257,6 @@ class _SearchLifecycleOwner:
                         score_status = ObjectiveScoreStatus.NOT_ESTABLISHED
                 elif score_status is not ObjectiveScoreStatus.NOT_ESTABLISHED:
                     objective_value = None
-
-            if (
-                not is_sentinel
-                and policy_resolution.status != "invalid"
-                and score_status is ObjectiveScoreStatus.AVAILABLE
-                and objective_value is not None
-            ):
-                self._update_policy_or_legacy_frontier(
-                    candidate=candidate,
-                    objective_details=objective_details,
-                    policy_evaluation=policy_evaluation,
-                    stage_b_result=stage_b_result,
-                    candidate_proposal=candidate_proposal,
-                )
-                if objective_value < self._best_objective:
-                    self._best_objective = objective_value
-                    self._best_candidate = deepcopy(candidate)
-                    controller_logger.info(
-                        f"Iteration {iteration}: New best objective = {objective_value:.6f}"
-                    )
 
         score_admission = reconcile_objective_score_assessment(
             score_assessment,
@@ -1266,6 +1301,32 @@ class _SearchLifecycleOwner:
         )
         if not is_sentinel and self._diversity_tracker is not None:
             self._diversity_tracker.record_iteration(candidate)
+        if not is_sentinel and policy_resolution.status != "invalid":
+            if policy_evaluation is not None and not source_verified:
+                self._record_candidate_only_evaluation(
+                    candidate,
+                    candidate_proposal,
+                    policy_evaluation,
+                    candidate_ref,
+                    evaluation_ref,
+                )
+            if (
+                record.score_status is ObjectiveScoreStatus.AVAILABLE
+                and record.objective_value is not None
+            ):
+                next_best = (
+                    deepcopy(candidate) if record.objective_value < self._best_objective else None
+                )
+                self._update_policy_or_legacy_frontier(
+                    candidate=candidate,
+                    objective_details=objective_details,
+                    policy_evaluation=policy_evaluation,
+                    stage_b_result=stage_b_result,
+                    candidate_proposal=candidate_proposal,
+                )
+                if next_best is not None:
+                    self._best_objective = record.objective_value
+                    self._best_candidate = next_best
         return _EvaluationTransition(
             disposition=(
                 _EvaluationDisposition.SENTINEL if is_sentinel else _EvaluationDisposition.ORDINARY

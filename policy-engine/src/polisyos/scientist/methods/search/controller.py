@@ -74,6 +74,8 @@ from polisyos.scientist.methods.search.lifecycle_support import (
 )
 from polisyos.scientist.methods.search.objective import (
     CompositeObjective,
+    ObjectiveScoreAdmission,
+    ObjectiveScoreAssessment,
     ObjectiveValue,
 )
 from polisyos.scientist.methods.search.run_state import SearchRunState
@@ -1152,10 +1154,13 @@ def _search_prompt_objective_detail(value: Any) -> dict[str, Any]:
             "search_prompt_contains_unsupported_value",
             f"candidate input type {type(value).__name__} has no declared JSON projection",
         )
-    return {
+    projected = {
         objective_field.name: getattr(value, objective_field.name)
         for objective_field in fields(value)
     }
+    if type(value.score_assessment) is ObjectiveScoreAssessment:
+        projected["score_assessment"] = value.score_assessment.to_payload()
+    return projected
 
 
 def _search_prompt_history(history: list[SearchIteration]) -> list[dict[str, Any]]:
@@ -1185,6 +1190,12 @@ def _search_prompt_history(history: list[SearchIteration]) -> list[dict[str, Any
                 record[record_field.name] = [
                     _search_prompt_objective_detail(detail) for detail in value
                 ]
+            elif (
+                record_field.name == "score_assessment" and type(value) is ObjectiveScoreAssessment
+            ) or (
+                record_field.name == "score_admission" and type(value) is ObjectiveScoreAdmission
+            ):
+                record[record_field.name] = value.to_payload()
             else:
                 record[record_field.name] = value
         projected.append(record)

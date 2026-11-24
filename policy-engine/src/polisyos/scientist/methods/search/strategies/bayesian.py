@@ -8,7 +8,8 @@ import math
 from collections.abc import Mapping
 from copy import deepcopy
 from dataclasses import asdict, dataclass
-from typing import Any
+from itertools import chain, product
+from typing import TYPE_CHECKING, Any, Literal
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ArtifactRef
@@ -38,6 +39,7 @@ from polisyos.scientist.methods.search.strategies._deps import (
 from polisyos.scientist.methods.search.strategies.base import BaseSearchStrategy
 from polisyos.scientist.methods.search.strategies.errors import (
     OptionalDependencyUnavailableError,
+    StrategyError,
 )
 from polisyos.scientist.methods.search.strategies.resource_arbiter import (
     ResourceArbiter,
@@ -45,12 +47,17 @@ from polisyos.scientist.methods.search.strategies.resource_arbiter import (
 from polisyos.scientist.methods.search.strategies.runtime import (
     apply_torch_runtime_settings,
 )
+from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import (
     AcquisitionType,
     Evaluation,
+    ParameterType,
     PolicyCandidate,
     StrategyState,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 logger = get_logger(__name__)
 
@@ -113,6 +120,23 @@ class BayesianConfig:
     exploration_switch_threshold: float = 0.3
     refit_interval: int = 5
     warm_start_noise_factor: float = 0.1
+
+
+_PROPOSAL_ATTEMPT_LIMIT = 20
+_COMPLETE_DISCRETE_ACTION_LIMIT = 64
+
+
+class BayesianProposalExhaustedError(StrategyError):
+    """Expose an exhausted proposal search and any valid prefix of a requested batch."""
+
+    def __init__(
+        self,
+        reason: Literal["finite_domain_exhausted", "proposal_search_budget_exhausted"],
+        partial_candidates: tuple[PolicyCandidate, ...] = (),
+    ) -> None:
+        super().__init__(reason)
+        self.reason = reason
+        self.partial_candidates = partial_candidates
 
 
 _WARM_START_ADMISSION_SEAL = object()
@@ -863,6 +887,8 @@ class BayesianOptimizer(BaseSearchStrategy):
 
     def _score_is_admissible(self, evaluation: Evaluation) -> bool:
         """Apply the configured scalar rule, or the generic candidate-only contract."""
+        if evaluation.timestamp is None:
+            return False
         if self._selected_objective_name is None:
             # The generic strategy contract accepts a caller-supplied numeric objective
             # for candidate exploration only; it does not resolve configured semantics.
@@ -900,140 +926,113 @@ class BayesianOptimizer(BaseSearchStrategy):
         *,
         attempted_count: int | None = None,
     ) -> PolicyCandidate:
-        """Suggest using attempts for exploration and admissible scores for GP fitting."""
-        if attempted_count is None:
-            attempted_count = len(evaluations)
-        elif type(attempted_count) is not int or attempted_count < 0:
-            raise ValueError("attempted_count must be a non-negative integer")
-        history_count = max(len(evaluations), attempted_count)
-        self._iteration = history_count
-        pending = pending or []
-        training_corpus = self._effective_training_corpus(evaluations)
-        proposal_index = max(history_count, len(training_corpus), self._sobol_cursor)
-
-        if len(training_corpus) < self._config.n_initial:
-            return self._sobol_candidate(proposal_index, source="sobol_init")
-
-        if not self._botorch_ready:
-            return self._non_duplicate_random(pending, source="random_no_botorch")
-
-        with self._arbiter.acquire("torch"):
-            soft, hard = self._arbiter.enforce_limits()
-            if hard:
-                return self._non_duplicate_random(pending, source="random_hard_limit")
-
-            train_set = self._select_training_subset(training_corpus)
-            if len(train_set) < 3:
-                return self._non_duplicate_random(pending, source="random_insufficient_data")
-
-            try:
-                X, y_bo = self._prepare_training_data(train_set)
-                self._fit_gp(X, y_bo)
-                self._record_fitted_training_corpus(train_set)
-                self._record_acquisition_training_corpus(training_corpus)
-                candidate, _, acquisition_type = self._optimize_acquisition(
-                    y_bo=y_bo,
-                    soft_limit=soft,
-                    evaluations=training_corpus,
-                )
-                result = self._tensor_to_candidate(
-                    candidate.squeeze(0),
-                    source="bayesian_acquisition",
-                    acquisition_type=acquisition_type,
-                )
-                prediction = self.proposal_prediction(
-                    params=result.params,
-                    evaluations=training_corpus,
-                )
-                result.predicted_mean = prediction["predicted_mean"]
-                result.predicted_std = prediction["predicted_std"]
-                result.acquisition_value = prediction["acquisition_value"]
-                result.metadata["acquisition_type"] = prediction["acquisition_type"]
-            except Exception as exc:
-                logger.warning("BayesianOptimizer failed; fallback to random: {}", exc)
-                if not self._config.fallback_on_failure:
-                    raise
-                result = self._non_duplicate_random(pending, source="random_fallback")
-
-        if self._is_duplicate(result, pending):
-            return self._non_duplicate_random(pending, source="random_duplicate_avoidance")
-        return result
+        """Suggest a new action on the current measurement basis."""
+        return self._suggest_proposals(evaluations, pending, attempted_count, batch_size=None)[0]
 
     def suggest_batch(
         self,
         evaluations: list[Evaluation],
         batch_size: int,
         *,
+        pending: list[PolicyCandidate] | None = None,
         attempted_count: int | None = None,
     ) -> list[PolicyCandidate]:
-        """Suggest a batch while keeping attempt and score counts separate."""
+        """Suggest distinct actions, retaining any prefix in a typed exhaustion outcome."""
         if batch_size < 1:
             return []
+        return self._suggest_proposals(evaluations, pending, attempted_count, batch_size=batch_size)
+
+    def _suggest_proposals(
+        self,
+        evaluations: list[Evaluation],
+        pending: list[PolicyCandidate] | None,
+        attempted_count: int | None,
+        *,
+        batch_size: int | None,
+    ) -> list[PolicyCandidate]:
         if attempted_count is None:
             attempted_count = len(evaluations)
         elif type(attempted_count) is not int or attempted_count < 0:
             raise ValueError("attempted_count must be a non-negative integer")
         history_count = max(len(evaluations), attempted_count)
         self._iteration = history_count
-
+        requested = 1 if batch_size is None else batch_size
+        occupied = self._proposal_occupancy(evaluations, pending)
         training_corpus = self._effective_training_corpus(evaluations)
-        proposal_index = max(history_count, len(training_corpus), self._sobol_cursor)
+
         if len(training_corpus) < self._config.n_initial:
-            return [
-                self._sobol_candidate(proposal_index + idx, source="sobol_init")
-                for idx in range(batch_size)
-            ]
+            proposal_index = max(history_count, len(training_corpus), self._sobol_cursor)
+            return self._available_proposals(
+                requested, occupied, source="sobol_init", sobol_index=proposal_index
+            )
 
         if not self._botorch_ready:
-            return [
-                self._non_duplicate_random([], source="random_no_botorch")
-                for _ in range(batch_size)
-            ]
+            return self._available_proposals(requested, occupied, source="random_no_botorch")
 
         with self._arbiter.acquire("torch"):
             soft, hard = self._arbiter.enforce_limits()
             if hard:
-                return [
-                    self._non_duplicate_random([], source="random_hard_limit")
-                    for _ in range(batch_size)
-                ]
+                return self._available_proposals(requested, occupied, source="random_hard_limit")
 
             train_set = self._select_training_subset(training_corpus)
             if len(train_set) < 3:
-                return [
-                    self._non_duplicate_random([], source="random_insufficient_data")
-                    for _ in range(batch_size)
-                ]
+                return self._available_proposals(
+                    requested, occupied, source="random_insufficient_data"
+                )
 
             try:
                 X, y_bo = self._prepare_training_data(train_set)
                 self._fit_gp(X, y_bo)
                 self._record_fitted_training_corpus(train_set)
-                restarts, raw_samples = self._effective_optim_params(soft_limit=soft)
-                best_f = y_bo.max()
-                acq = qExpectedImprovement(model=self._model, best_f=best_f)
-                candidates, _ = optimize_acqf(
-                    acq_function=acq,
-                    bounds=self._space.to_botorch_bounds().to(self._device),
-                    q=batch_size,
-                    num_restarts=restarts,
-                    raw_samples=raw_samples,
+                preferred = self._acquisition_proposals(
+                    y_bo, training_corpus, soft_limit=soft, batch_size=batch_size
                 )
-                output: list[PolicyCandidate] = []
-                for idx in range(batch_size):
-                    output.append(
-                        self._tensor_to_candidate(
-                            candidates[idx],
-                            source="batch_qei",
-                        )
-                    )
-                return output
             except Exception as exc:
-                logger.warning("Bayesian batch optimization failed; random fallback: {}", exc)
-                return [
-                    self._non_duplicate_random([], source="random_batch_fallback")
-                    for _ in range(batch_size)
-                ]
+                logger.warning("Bayesian optimization failed; fallback to random: {}", exc)
+                if batch_size is None and not self._config.fallback_on_failure:
+                    raise
+                source = "random_fallback" if batch_size is None else "random_batch_fallback"
+                return self._available_proposals(requested, occupied, source=source)
+
+        return self._available_proposals(
+            requested, occupied, source="random_duplicate_avoidance", preferred=preferred
+        )
+
+    def _acquisition_proposals(
+        self,
+        y_bo: Any,
+        training_corpus: list[Evaluation],
+        *,
+        soft_limit: bool,
+        batch_size: int | None,
+    ) -> list[PolicyCandidate]:
+        if batch_size is not None:
+            restarts, raw_samples = self._effective_optim_params(soft_limit=soft_limit)
+            acq = qExpectedImprovement(model=self._model, best_f=y_bo.max())
+            candidates, _ = optimize_acqf(
+                acq_function=acq,
+                bounds=self._space.to_botorch_bounds().to(self._device),
+                q=batch_size,
+                num_restarts=restarts,
+                raw_samples=raw_samples,
+            )
+            return [
+                self._tensor_to_candidate(candidate, source="batch_qei") for candidate in candidates
+            ]
+
+        self._record_acquisition_training_corpus(training_corpus)
+        candidate, _, acquisition_type = self._optimize_acquisition(
+            y_bo=y_bo, soft_limit=soft_limit, evaluations=training_corpus
+        )
+        result = self._tensor_to_candidate(
+            candidate.squeeze(0), source="bayesian_acquisition", acquisition_type=acquisition_type
+        )
+        prediction = self.proposal_prediction(params=result.params, evaluations=training_corpus)
+        result.predicted_mean = prediction["predicted_mean"]
+        result.predicted_std = prediction["predicted_std"]
+        result.acquisition_value = prediction["acquisition_value"]
+        result.metadata["acquisition_type"] = prediction["acquisition_type"]
+        return [result]
 
     def get_state(self) -> StrategyState:
         model_state: bytes | None = None
@@ -1209,8 +1208,7 @@ class BayesianOptimizer(BaseSearchStrategy):
     def _effective_training_corpus(self, evaluations: list[Evaluation]) -> list[Evaluation]:
         """Combine compatible warm/current records without double-counting artifacts."""
         corpus: list[Evaluation] = []
-        seen: set[tuple[Any, ...]] = set()
-        for evaluation in [*self._warm_evals, *evaluations]:
+        for evaluation in chain(self._warm_evals, evaluations):
             if not self._score_is_admissible(evaluation):
                 continue
             if not self._has_compatible_params(evaluation):
@@ -1232,12 +1230,8 @@ class BayesianOptimizer(BaseSearchStrategy):
                         and compatibility[-1] != self._warm_context_fingerprint
                     ):
                         continue
-            identity = self._evaluation_identity(evaluation)
-            if identity in seen:
-                continue
-            seen.add(identity)
             corpus.append(evaluation)
-        return corpus
+        return self._unique_observations(corpus)
 
     def _has_compatible_params(self, evaluation: Evaluation) -> bool:
         """Return whether normalized parameters match this space and GP bounds."""
@@ -1333,24 +1327,52 @@ class BayesianOptimizer(BaseSearchStrategy):
         reference = reference.strip()
         return reference or None
 
-    @staticmethod
-    def _evaluation_identity(evaluation: Evaluation) -> tuple[Any, ...]:
-        """Identify one artifact while keeping explicitly independent replicas."""
-        metadata = evaluation.metadata
-        replicate_identity = tuple(
-            (key, repr(metadata[key]))
-            for key in ("replicate_id", "replica_id", "seed")
-            if key in metadata
-        )
-        origin = BayesianOptimizer._origin_ref(evaluation)
-        if origin is not None:
-            return ("origin", origin, replicate_identity)
-        return ("candidate", evaluation.candidate_id, replicate_identity)
+    def _unique_observations(self, evaluations: Iterable[Evaluation]) -> list[Evaluation]:
+        """Reconcile candidate observations by origin, or by action when unbound."""
+        records: dict[tuple[str, Any], tuple[Evaluation, tuple[Any, ...]]] = {}
+        conflicted: set[tuple[str, Any]] = set()
+        sourced_actions: set[tuple[Any, ...]] = set()
+        for evaluation in evaluations:
+            execution = self._effective_execution(evaluation)
+            if execution is None:
+                continue
+            origin = self._origin_ref(evaluation)
+            if origin is None:
+                key = ("action", execution)
+            else:
+                key = ("origin", origin)
+                sourced_actions.add(execution)
+            if key in conflicted:
+                continue
+
+            measurement = (
+                execution,
+                tuple(evaluation.params_normalized),
+                evaluation.scalar_score,
+                evaluation.score_assessment,
+            )
+            prior = records.get(key)
+            if prior is None:
+                records[key] = (evaluation, measurement)
+            elif prior[1] != measurement:
+                del records[key]
+                conflicted.add(key)
+                logger.warning("Conflicting Bayesian observations for one {}", key[0])
+
+        return [
+            evaluation
+            for (kind, identity), (evaluation, _) in records.items()
+            if kind == "origin" or identity not in sourced_actions
+        ]
 
     def _prepare_training_data(self, evaluations: list[Evaluation]):
         if not evaluations or any(not self._score_is_admissible(item) for item in evaluations):
             raise RuntimeError(
                 "GP training requires only selected-rule-reconciled objective scores"
+            )
+        if len(self._unique_observations(evaluations)) != len(evaluations):
+            raise RuntimeError(
+                "GP training requires distinct and consistent observation provenance"
             )
         x_rows = [
             [float(value) for value in evaluation.params_normalized] for evaluation in evaluations
@@ -1563,6 +1585,10 @@ class BayesianOptimizer(BaseSearchStrategy):
             or not self._fitted_model_matches_current_fit()
         ):
             raise ValueError("proposal prediction requires the exact fitted native GP")
+        if len(self._unique_observations(evaluations)) != len(evaluations):
+            raise ValueError(
+                "proposal prediction requires distinct and consistent observation provenance"
+            )
         normalized = self._space.normalize(dict(params))
         point = self._torch.tensor(
             [normalized],
@@ -1598,55 +1624,176 @@ class BayesianOptimizer(BaseSearchStrategy):
             return self._config.num_restarts, self._config.raw_samples
         return max(3, self._config.num_restarts // 2), max(64, self._config.raw_samples // 2)
 
-    def _non_duplicate_random(
-        self,
-        pending: list[PolicyCandidate],
-        source: str,
-        attempts: int = 20,
-    ) -> PolicyCandidate:
-        for _ in range(attempts):
-            candidate = self._random_candidate(source=source)
-            if not self._is_duplicate(candidate, pending):
-                return candidate
-        return self._random_candidate(source=source)
+    def _proposal_occupancy(
+        self, evaluations: list[Evaluation], pending: list[PolicyCandidate] | None
+    ) -> list[PolicyCandidate | Evaluation]:
+        """Bind issued and completed actions independently of their training eligibility."""
+        basis = {
+            "search_space_fingerprint": self._space.sobol_space_fingerprint(),
+            "objective_fingerprint": self._run_objective_fingerprint
+            or self._warm_start_target_objective_fingerprint,
+            "context_fingerprint": self._run_context_fingerprint or self._warm_context_fingerprint,
+        }
+        occupied: list[PolicyCandidate | Evaluation] = list(pending or ())
+        for item in chain(self._warm_evals, evaluations):
+            if item.timestamp is None:
+                continue
+            profile = item.metadata.get(_WARM_COMPATIBILITY_METADATA)
+            if isinstance(profile, Mapping) and any(
+                selected is not None and profile.get(name) is not None and profile[name] != selected
+                for name, selected in basis.items()
+            ):
+                continue
+            occupied.append(item)
+        return occupied
 
-    def _is_duplicate(self, candidate: PolicyCandidate, pending: list[PolicyCandidate]) -> bool:
+    def _available_proposals(
+        self,
+        count: int,
+        occupied: list[PolicyCandidate | Evaluation],
+        *,
+        source: str,
+        preferred: Iterable[PolicyCandidate] = (),
+        sobol_index: int | None = None,
+    ) -> list[PolicyCandidate]:
+        selected: list[PolicyCandidate] = []
+        for candidate in preferred:
+            if self._is_available(candidate, occupied):
+                occupied.append(candidate)
+                selected.append(candidate)
+                if len(selected) == count:
+                    return selected
+
+        remaining_domain: tuple[PolicyCandidate, ...] | None = None
+        for _ in range(count - len(selected)):
+            for _attempt in range(_PROPOSAL_ATTEMPT_LIMIT):
+                proposal = (
+                    self._random_candidate(source=source)
+                    if sobol_index is None
+                    else self._sobol_candidate(max(sobol_index, self._sobol_cursor), source=source)
+                )
+                if self._is_available(proposal, occupied):
+                    break
+            else:
+                if remaining_domain is None:
+                    remaining_domain = self._complete_discrete_domain()
+                if remaining_domain is None:
+                    raise BayesianProposalExhaustedError(
+                        "proposal_search_budget_exhausted", tuple(selected)
+                    )
+                proposal = next(
+                    (item for item in remaining_domain if self._is_available(item, occupied)),
+                    None,
+                )
+                if proposal is None:
+                    raise BayesianProposalExhaustedError("finite_domain_exhausted", tuple(selected))
+            occupied.append(proposal)
+            selected.append(proposal)
+        return selected
+
+    def _complete_discrete_domain(self) -> tuple[PolicyCandidate, ...] | None:
+        """Enumerate a bounded, fully declared discrete domain on the native space."""
+        if type(self._space) is not SearchSpace:
+            return None
+
+        names = []
+        axes: list[tuple[Any, ...] | range] = []
+        size = 1
+        axis: tuple[Any, ...] | range
+        for bound in self._space.bounds:
+            if bound.name in names:
+                return None
+            names.append(bound.name)
+            if bound.dtype is ParameterType.CATEGORICAL and bound.categories is not None:
+                axis = bound.categories
+                size *= len(axis)
+                if size > _COMPLETE_DISCRETE_ACTION_LIMIT or any(
+                    value in axis[:index] for index, value in enumerate(axis)
+                ):
+                    return None
+            elif bound.dtype is ParameterType.INTEGER and not bound.log_scale:
+                lower = bound.lower
+                upper = bound.upper
+                if (
+                    not -(2**53) <= lower <= upper <= 2**53
+                    or int(lower) != lower
+                    or int(upper) != upper
+                ):
+                    return None
+                size *= int(upper) - int(lower) + 1
+                if size > _COMPLETE_DISCRETE_ACTION_LIMIT:
+                    return None
+                axis = range(int(lower), int(upper) + 1)
+            else:
+                return None
+            axes.append(axis)
+
+        candidates: list[PolicyCandidate] = []
+        for values in product(*axes):
+            params = dict(zip(names, values, strict=True))
+            normalized = self._space.normalize(params)
+            if self._space.denormalize(normalized) != params:
+                return None
+            candidates.append(
+                PolicyCandidate(
+                    params=params,
+                    params_normalized=normalized,
+                    source_strategy="discrete_enumeration",
+                )
+            )
+        return tuple(candidates)
+
+    def _is_available(
+        self, candidate: PolicyCandidate, occupied: list[PolicyCandidate | Evaluation]
+    ) -> bool:
+        return self._effective_execution(candidate) is not None and not self._is_duplicate(
+            candidate, occupied
+        )
+
+    def _is_duplicate(
+        self, candidate: PolicyCandidate, occupied: Iterable[PolicyCandidate | Evaluation]
+    ) -> bool:
         candidate_execution = self._effective_execution(candidate)
         if candidate_execution is None:
             return False
-        for other in pending:
-            if not self._same_replicate_scope(candidate, other):
-                continue
-            other_execution = self._effective_execution(other)
-            if other_execution is None:
-                continue
-            if candidate_execution == other_execution:
-                return True
-        return False
+        # Suggestion has no independent-replica admission port. Metadata
+        # cannot authorize another execution of an occupied action.
+        return any(candidate_execution == self._effective_execution(other) for other in occupied)
 
-    def _effective_execution(self, candidate: PolicyCandidate) -> dict[str, Any] | None:
-        """Resolve a proposal to the typed parameters that will actually run."""
-        if candidate.params_normalized is not None:
+    def _effective_execution(
+        self, candidate: PolicyCandidate | Evaluation
+    ) -> tuple[Any, ...] | None:
+        """Compare executed coordinates, preserving continuous and categorical identity."""
+        params = candidate.params
+        if not params and isinstance(candidate, PolicyCandidate) and candidate.params_normalized:
             try:
-                return self._space.denormalize(candidate.params_normalized)
-            except (TypeError, ValueError):
+                params = self._space.denormalize(candidate.params_normalized)
+            except (ArithmeticError, TypeError, ValueError):
                 return None
-        if candidate.params:
-            return dict(candidate.params)
-        return None
-
-    @staticmethod
-    def _same_replicate_scope(left: PolicyCandidate, right: PolicyCandidate) -> bool:
-        """Keep explicit independent replicate identities distinct."""
-        replicate_keys = ("replicate_id", "replica_id", "seed")
-        for key in replicate_keys:
-            left_value = left.metadata.get(key)
-            right_value = right.metadata.get(key)
-            if left_value is None and right_value is None:
-                continue
-            if left_value != right_value:
-                return False
-        return True
+        if params.keys() != {bound.name for bound in self._space.bounds}:
+            return None
+        execution = []
+        for bound in self._space.bounds:
+            value = params[bound.name]
+            if bound.dtype is ParameterType.CATEGORICAL:
+                categories = bound.categories or ()
+                matches = [index for index, category in enumerate(categories) if category == value]
+                if not matches:
+                    return None
+                # Prefer the declared type when equality alone matches two categories.
+                value = next(
+                    (index for index in matches if type(categories[index]) is type(value)),
+                    matches[0],
+                )
+            elif bound.dtype is ParameterType.INTEGER:
+                if type(value) is not int:
+                    return None
+            elif type(value) not in {float, int} or (
+                type(value) is float and not math.isfinite(value)
+            ):
+                return None
+            execution.append(value)
+        return tuple(execution)
 
     def _tensor_to_candidate(
         self,

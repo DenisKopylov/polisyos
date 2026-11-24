@@ -6,10 +6,22 @@ from dataclasses import asdict
 
 import pytest
 
+from polisyos.scientist.methods.search.objective import (
+    _configured_search_metric_profile_fingerprint,
+)
 from polisyos.scientist.methods.search.strategies import bayesian as bayesian_module
 from polisyos.scientist.methods.search.strategies._deps import fit_gpytorch_mll
-from polisyos.scientist.methods.search.strategies.bayesian import BayesianConfig, BayesianOptimizer
+from polisyos.scientist.methods.search.strategies.bayesian import (
+    BayesianConfig,
+    BayesianOptimizer,
+    BayesianProposalExhaustedError,
+)
+from polisyos.scientist.methods.search.strategies.resource_arbiter import (
+    ResourceArbiter,
+    ResourcePolicy,
+)
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
+from polisyos.scientist.methods.search.strategies.transfer import TransferLearningManager
 from polisyos.scientist.methods.search.strategies.types import (
     ParameterBounds,
     ParameterType,
@@ -257,7 +269,7 @@ def _warm_planning_records(simple_space: SearchSpace):
     replica = make_evaluation(
         candidate_id="warm-2-replica", params={"x": -1.5}, score=2.25, space=simple_space
     )
-    replica.provenance_ref = "origin/run-1/evaluation-2"
+    replica.provenance_ref = "origin/run-1/evaluation-2-replica"
     replica.metadata = {
         "replicate_id": "replica-2",
         "seed": 2,
@@ -282,7 +294,7 @@ def _warm_planning_records(simple_space: SearchSpace):
 def test_whole_and_warm_split_use_the_same_permitted_acquisition_plan(
     simple_space: SearchSpace, monkeypatch: pytest.MonkeyPatch, reverse: bool, batch: bool
 ) -> None:
-    """Actual caller/selector/constructor routing; fit and optimization are controlled."""
+    """Observed corpus and routes with a fitted native GP and controlled optimizer draws."""
     warm, current = _warm_planning_records(simple_space)
     if reverse:
         warm.reverse()
@@ -300,20 +312,16 @@ def test_whole_and_warm_split_use_the_same_permitted_acquisition_plan(
     def observe_run(strategy, evaluations):
         observed = {"training": [], "planning": [], "fit": [], "routes": []}
         prepare = strategy._prepare_training_data
+        fit = strategy._fit_gp
         select = strategy._select_acquisition
 
         def observe_prepare(records):
             observed["training"].append([e.candidate_id for e in records])
             return prepare(records)
 
-        def controlled_fit(x, y_bo):
+        def observe_fit(x, y_bo):
             observed["fit"].append((x.tolist(), y_bo.tolist()))
-            strategy._model = bayesian_module.SingleTaskGP(
-                train_X=x,
-                train_Y=y_bo,
-                input_transform=bayesian_module.Normalize(d=x.shape[-1]),
-                outcome_transform=bayesian_module.Standardize(m=1),
-            )
+            fit(x, y_bo)
 
         def observe_select(records, y_bo):
             observed["planning"].append([e.candidate_id for e in records])
@@ -326,7 +334,7 @@ def test_whole_and_warm_split_use_the_same_permitted_acquisition_plan(
             return candidates.reshape(q, 1), strategy._torch.tensor(1.0)
 
         monkeypatch.setattr(strategy, "_prepare_training_data", observe_prepare)
-        monkeypatch.setattr(strategy, "_fit_gp", controlled_fit)
+        monkeypatch.setattr(strategy, "_fit_gp", observe_fit)
         monkeypatch.setattr(strategy, "_select_acquisition", observe_select)
         monkeypatch.setattr(bayesian_module, "optimize_acqf", controlled_optimize)
         result = (
@@ -335,7 +343,7 @@ def test_whole_and_warm_split_use_the_same_permitted_acquisition_plan(
             else [strategy.suggest(evaluations)]
         )
         assert all(c.source_strategy in {"bayesian_acquisition", "batch_qei"} for c in result)
-        assert strategy._iteration == (0 if batch else len(evaluations))
+        assert strategy._iteration == len(evaluations)
         return observed
 
     whole_result = observe_run(whole, [*warm, *current])
@@ -347,7 +355,8 @@ def test_whole_and_warm_split_use_the_same_permitted_acquisition_plan(
         assert whole_result["planning"] == split_result["planning"] == []
         assert whole_result["routes"] == split_result["routes"] == ["qExpectedImprovement"]
     else:
-        assert whole_result["planning"] == split_result["planning"] == [expected_ids]
+        # Optimizing and recomputing the emitted prediction consume the same corpus.
+        assert whole_result["planning"] == split_result["planning"] == [expected_ids, expected_ids]
         expected_route = "UpperConfidenceBound" if reverse else "ExpectedImprovement"
         assert whole_result["routes"] == split_result["routes"] == [expected_route]
 
@@ -378,8 +387,8 @@ def test_whole_and_warm_split_use_the_same_actual_cold_sobol_plan(
     assert [c.params_normalized for c in whole_candidates] == [
         c.params_normalized for c in split_candidates
     ]
-    assert whole._iteration == (0 if batch else 3)
-    assert split._iteration == (0 if batch else 1)
+    assert whole._iteration == 3
+    assert split._iteration == 1
 
 
 def test_duplicate_detection_uses_canonical_integer_and_category_execution() -> None:
@@ -423,7 +432,7 @@ def test_duplicate_detection_uses_canonical_integer_and_category_execution() -> 
     assert not strategy._is_duplicate(different_category, [pending])
 
 
-def test_duplicate_detection_keeps_same_replicate_different_seed_distinct() -> None:
+def test_duplicate_detection_keeps_pending_action_with_relabelled_replica_in_scope() -> None:
     space = SearchSpace(
         bounds=[
             ParameterBounds(name="budget_steps", lower=0, upper=1, dtype=ParameterType.INTEGER),
@@ -449,7 +458,326 @@ def test_duplicate_detection_keeps_same_replicate_different_seed_distinct() -> N
     )
 
     assert proposal.params_normalized != pending.params_normalized
-    assert not strategy._is_duplicate(proposal, [pending])
+    assert strategy._is_duplicate(proposal, [pending])
+
+
+def test_duplicate_detection_does_not_accept_implicit_or_cosmetic_replica() -> None:
+    space = _integer_space(1)
+    strategy = BayesianOptimizer(space)
+    pending = PolicyCandidate(params={"n": 0}, metadata={"seed": 17})
+    proposal = PolicyCandidate(params={"n": 0}, metadata={"seed": 23})
+    assert strategy._is_duplicate(proposal, [pending])
+
+    pending.metadata = {"replicate_id": "original", "seed": 17}
+    proposal.metadata = {"replicate_id": "renamed", "seed": 17}
+    assert strategy._is_duplicate(proposal, [pending])
+
+
+def test_duplicate_detection_uses_unrounded_continuous_execution(
+    simple_space: SearchSpace,
+) -> None:
+    strategy = BayesianOptimizer(simple_space)
+    left = PolicyCandidate(params={"x": 1.0}, params_normalized=(0.6,))
+    right = PolicyCandidate(params={"x": math.nextafter(1.0, math.inf)}, params_normalized=(0.6,))
+    assert not strategy._is_duplicate(right, [left])
+
+
+@pytest.mark.parametrize("completed", [False, True])
+def test_replica_labels_cannot_reissue_occupied_action(
+    monkeypatch: pytest.MonkeyPatch, completed: bool
+) -> None:
+    space = _integer_space(1)
+    optimizer = BayesianOptimizer(space, BayesianConfig(n_initial=0))
+    monkeypatch.setattr(optimizer, "_botorch_ready", False)
+    labels = {"replicate_id": "claimed-1", "seed": 7}
+    prior = make_evaluation(candidate_id="observed", params={"n": 0}, score=1.0, space=space)
+    prior.provenance_ref = "origin/committed-result"
+    prior.metadata = labels
+    occupied = PolicyCandidate(params={"n": 0}, metadata=labels)
+    draws = iter(
+        (
+            PolicyCandidate(params={"n": 0}, metadata={"replica_id": "claimed-2", "seed": 8}),
+            PolicyCandidate(params={"n": 1}),
+        )
+    )
+    monkeypatch.setattr(optimizer, "_random_candidate", lambda *, source: next(draws))
+
+    result = optimizer.suggest(
+        [prior] if completed else [], pending=[] if completed else [occupied]
+    )
+
+    assert result.params == {"n": 1}
+
+
+def test_training_uses_each_committed_origin_once_and_keeps_distinct_replica(
+    simple_space: SearchSpace,
+) -> None:
+    optimizer = BayesianOptimizer(simple_space)
+    rows = [
+        make_evaluation(
+            candidate_id=f"proposal-{i}", params={"x": 1.0}, score=2.0, space=simple_space
+        )
+        for i in range(3)
+    ]
+    first, transport_alias, independent = rows
+    first.provenance_ref = transport_alias.provenance_ref = "origin/physical-run-1"
+    independent.provenance_ref = "origin/physical-run-2"
+    for i, row in enumerate(rows):
+        row.metadata = {"replicate_id": f"label-{i}", "seed": i}
+
+    assert optimizer._effective_training_corpus(rows) == [first, independent]
+    with pytest.raises(RuntimeError, match="observation provenance"):
+        optimizer._prepare_training_data(rows)
+
+
+@pytest.mark.parametrize("change", ["parameters", "score"])
+def test_training_withholds_conflicting_rows_of_same_origin(
+    simple_space: SearchSpace, change: str
+) -> None:
+    optimizer = BayesianOptimizer(simple_space)
+    first = make_evaluation(
+        candidate_id="original", params={"x": 1.0}, score=2.0, space=simple_space
+    )
+    edited = make_evaluation(
+        candidate_id="renamed",
+        params={"x": 2.0 if change == "parameters" else 1.0},
+        score=3.0 if change == "score" else 2.0,
+        space=simple_space,
+    )
+    first.provenance_ref = edited.provenance_ref = "origin/physical-run-1"
+    independent = make_evaluation(
+        candidate_id="independent", params={"x": 3.0}, score=4.0, space=simple_space
+    )
+    independent.provenance_ref = "origin/physical-run-2"
+
+    assert optimizer._effective_training_corpus([first, edited, first, independent]) == [
+        independent
+    ]
+
+
+def test_sparse_provenance_cannot_inflate_generic_corpus_with_cosmetic_ids(
+    simple_space: SearchSpace,
+) -> None:
+    optimizer = BayesianOptimizer(simple_space)
+    first = make_evaluation(candidate_id="a", params={"x": 1.0}, score=2.0, space=simple_space)
+    alias = make_evaluation(candidate_id="b", params={"x": 1.0}, score=2.0, space=simple_space)
+    another_action = make_evaluation(
+        candidate_id="other", params={"x": 2.0}, score=2.0, space=simple_space
+    )
+
+    assert optimizer._effective_training_corpus([first, alias, another_action]) == [
+        first,
+        another_action,
+    ]
+
+
+def test_duplicate_detection_preserves_declared_categorical_value_types() -> None:
+    space = SearchSpace(
+        bounds=[
+            ParameterBounds(name="regime", dtype=ParameterType.CATEGORICAL, categories=(True, 1))
+        ]
+    )
+    strategy = BayesianOptimizer(space)
+    boolean = PolicyCandidate(params=space.denormalize((1.0, 0.0)))
+    integer = PolicyCandidate(params=space.denormalize((0.0, 1.0)))
+
+    assert type(boolean.params["regime"]) is bool
+    assert type(integer.params["regime"]) is int
+    assert not strategy._is_duplicate(integer, [boolean])
+
+
+def _integer_space(upper: int) -> SearchSpace:
+    return SearchSpace(
+        bounds=[ParameterBounds(name="n", lower=0, upper=upper, dtype=ParameterType.INTEGER)]
+    )
+
+
+def test_cold_sobol_excludes_pending_effective_integer_action() -> None:
+    space = _integer_space(1)
+    config = BayesianConfig(seed=13)
+    pending = BayesianOptimizer(space, config).suggest([])
+    optimizer = BayesianOptimizer(space, config)
+
+    candidate = optimizer.suggest([], pending=[pending])
+
+    assert candidate.params == {"n": 1 - pending.params["n"]}
+
+
+def test_binary_batch_retains_only_remaining_candidate_and_reports_exact_exhaustion(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    space = _integer_space(1)
+    optimizer = BayesianOptimizer(space, BayesianConfig(n_initial=1, seed=13))
+    monkeypatch.setattr(optimizer, "_botorch_ready", False)
+    completed = make_evaluation(
+        candidate_id="completed-n0", params={"n": 0}, score=1.0, space=space
+    )
+
+    with pytest.raises(BayesianProposalExhaustedError) as error:
+        optimizer.suggest_batch([completed], batch_size=3)
+
+    assert error.value.reason == "finite_domain_exhausted"
+    assert [item.params for item in error.value.partial_candidates] == [{"n": 1}]
+
+
+def test_bounded_proposal_search_does_not_claim_a_free_action_is_exhausted(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    space = _integer_space(99)
+    optimizer = BayesianOptimizer(space, BayesianConfig(n_initial=1, seed=13))
+    monkeypatch.setattr(optimizer, "_botorch_ready", False)
+    sampled = []
+    completed = [
+        make_evaluation(
+            candidate_id=f"completed-{n}",
+            params={"n": n},
+            score=1.0,
+            space=space,
+            valid=n == 0,
+        )
+        for n in range(99)
+    ]
+
+    def draw_occupied_action() -> float:
+        sampled.append(0)
+        return 0.0
+
+    monkeypatch.setattr(optimizer._rng, "random", draw_occupied_action)
+
+    with pytest.raises(BayesianProposalExhaustedError) as error:
+        optimizer.suggest(completed)
+
+    assert error.value.reason == "proposal_search_budget_exhausted"
+    assert len(sampled) == 20
+    assert not error.value.partial_candidates
+
+
+def test_small_domain_census_finds_a_free_action_after_duplicate_draws(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    space = _integer_space(3)
+    optimizer = BayesianOptimizer(space, BayesianConfig(n_initial=1, seed=13))
+    monkeypatch.setattr(optimizer, "_botorch_ready", False)
+    monkeypatch.setattr(optimizer._rng, "random", lambda: 0.0)
+    completed = [
+        make_evaluation(candidate_id=f"completed-{n}", params={"n": n}, score=1.0, space=space)
+        for n in range(3)
+    ]
+
+    candidate = optimizer.suggest(completed)
+
+    assert candidate.params == {"n": 3}
+    assert candidate.source_strategy == "discrete_enumeration"
+
+
+def test_completed_action_blocks_only_on_the_frozen_measurement_basis(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    space = _integer_space(1)
+    optimizer = BayesianOptimizer(
+        space,
+        BayesianConfig(n_initial=0),
+        objective_name="score",
+        objective_source_direction="minimize",
+        objective_source_unit="unit",
+    )
+    objective = _configured_search_metric_profile_fingerprint("score", "minimize", "unit")
+    assert objective is not None
+    optimizer.set_search_run_profile(
+        context_fingerprint="current-context",
+        objective_fingerprint=objective,
+        objective_unit="unit",
+    )
+    monkeypatch.setattr(optimizer, "_botorch_ready", False)
+    monkeypatch.setattr(optimizer._rng, "random", lambda: 0.0)
+    completed = make_evaluation(
+        candidate_id="n0-without-trainable-score",
+        params={"n": 0},
+        score=1.0,
+        space=space,
+        valid=False,
+    )
+    completed.metadata["warm_start_compatibility"] = {
+        "search_space_fingerprint": space.sobol_space_fingerprint(),
+        "objective_fingerprint": objective,
+        "context_fingerprint": "foreign-context",
+    }
+
+    assert optimizer.suggest([completed]).params == {"n": 0}
+    completed.metadata["warm_start_compatibility"]["context_fingerprint"] = "current-context"
+    assert optimizer.suggest([completed]).params == {"n": 1}
+
+
+def test_historical_time_unknown_cannot_enter_generic_bayesian_training() -> None:
+    space = _integer_space(1)
+    config = BayesianConfig(n_initial=1, seed=13)
+    without_history = BayesianOptimizer(space, config).suggest([], attempted_count=1)
+    current = make_evaluation(
+        candidate_id="new", params=without_history.params, score=3.0, space=space
+    )
+    retained = TransferLearningManager._serialize_evaluation(current)
+    del retained["timestamp"]
+    historical = TransferLearningManager._deserialize_evaluation(retained, "retained-run")
+    optimizer = BayesianOptimizer(space, config)
+
+    assert historical.timestamp is None
+    assert historical.scalar_score == 3.0
+    assert optimizer._effective_training_corpus([historical, current]) == [current]
+    candidate = optimizer.suggest([historical])
+    assert candidate.source_strategy == "sobol_init"
+    assert candidate.params == without_history.params
+
+
+@pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
+def test_hard_limit_batch_preserves_completed_and_pending_actions(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    space = _integer_space(4)
+    arbiter = ResourceArbiter(ResourcePolicy(hard_rss_mb=0, soft_rss_mb=0, enable_cleanup=False))
+    optimizer = BayesianOptimizer(space, BayesianConfig(n_initial=1), resource_arbiter=arbiter)
+    completed = make_evaluation(candidate_id="completed", params={"n": 0}, score=1.0, space=space)
+    pending = PolicyCandidate(params={"n": 1})
+    proposed_draws = iter((0.0, 0.25, 0.5, 0.5, 0.75))
+    monkeypatch.setattr(optimizer._rng, "random", lambda: next(proposed_draws))
+
+    proposals = optimizer.suggest_batch([completed], batch_size=2, pending=[pending])
+
+    assert [p.params for p in proposals] == [{"n": 2}, {"n": 3}]
+    assert [p.source_strategy for p in proposals] == ["random_hard_limit", "random_hard_limit"]
+
+
+@pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
+def test_qei_batch_checks_effective_action_before_accepting_backend_proposals(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    space = _integer_space(7)
+    optimizer = BayesianOptimizer(
+        space, BayesianConfig(n_initial=1, num_restarts=3, raw_samples=32)
+    )
+    completed = [
+        make_evaluation(
+            candidate_id=f"completed-{n}", params={"n": n}, score=float(n**2), space=space
+        )
+        for n in range(3)
+    ]
+
+    def backend_points(*, acq_function, bounds, q, **_: object):
+        assert q == 3
+        assert acq_function.model is optimizer._model
+        return bounds.new_tensor([[0.0], [3.0 / 7], [3.2 / 7]]), None
+
+    monkeypatch.setattr(bayesian_module, "optimize_acqf", backend_points)
+    proposed_draws = iter((0.0, 4.0 / 7, 4.0 / 7, 5.0 / 7))
+    monkeypatch.setattr(optimizer._rng, "random", lambda: next(proposed_draws))
+
+    proposals = optimizer.suggest_batch(completed, batch_size=3)
+
+    assert [p.params for p in proposals] == [{"n": 3}, {"n": 4}, {"n": 5}]
+    assert [p.source_strategy for p in proposals] == [
+        "batch_qei",
+        "random_duplicate_avoidance",
+        "random_duplicate_avoidance",
+    ]
 
 
 @pytest.mark.skipif(fit_gpytorch_mll is None, reason="BoTorch stack not installed")
@@ -526,7 +854,7 @@ def test_bayesian_warm_start_reaches_gp_training_before_initial_threshold(
         score=2.25,
         space=simple_space,
     )
-    independent_replica.provenance_ref = "origin/run-1/evaluation-2"
+    independent_replica.provenance_ref = "origin/run-1/evaluation-2-replica"
     independent_replica.metadata = {
         "replicate_id": "replica-2",
         "seed": 2,

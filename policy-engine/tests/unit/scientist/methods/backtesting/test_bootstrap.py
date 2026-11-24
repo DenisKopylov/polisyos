@@ -65,6 +65,20 @@ class TestBootstrapMetric:
         )
         assert all(type(ci.n_bootstrap) is int for ci in (metric, *scenario.values()))
 
+    @pytest.mark.parametrize("confidence", [0.0, 1.0, np.nan])
+    def test_invalid_confidence_refuses_before_statistic_or_rng(
+        self, monkeypatch: pytest.MonkeyPatch, confidence: float
+    ) -> None:
+        def forbidden(*_args):
+            raise AssertionError("invalid confidence reached numerical work")
+
+        monkeypatch.setattr(np.random, "default_rng", forbidden)
+        with pytest.raises(BootstrapValidationError) as metric_error:
+            bootstrap_metric([1.0, 2.0], statistic=forbidden, confidence_level=confidence)
+        with pytest.raises(BootstrapValidationError) as scenario_error:
+            bootstrap_scenario_metrics([1.0, 2.0], confidence_level=confidence)
+        assert metric_error.value.code == scenario_error.value.code == "invalid_confidence_level"
+
     def test_single_value(self):
         ci = bootstrap_metric([5.0], metric="single", seed=42)
         assert ci.point_estimate == 5.0
@@ -150,6 +164,34 @@ class TestBootstrapMetric:
                 seed=42,
             )
 
+    @pytest.mark.parametrize("invalid_call", [1, 2])
+    def test_vector_statistic_refuses_at_point_or_first_invalid_draw(
+        self, monkeypatch: pytest.MonkeyPatch, invalid_call: int
+    ) -> None:
+        calls = 0
+        rng_constructions = 0
+        actual_rng = np.random.default_rng
+
+        def observed_rng(seed: int | None) -> np.random.Generator:
+            nonlocal rng_constructions
+            rng_constructions += 1
+            return actual_rng(seed)
+
+        def statistic(_values: np.ndarray) -> float:
+            nonlocal calls
+            calls += 1
+            if calls == invalid_call:
+                return np.array([2.0])  # type: ignore[return-value]
+            return 2.0
+
+        with monkeypatch.context() as scoped:
+            scoped.setattr(np.random, "default_rng", observed_rng)
+            with pytest.raises(BootstrapValidationError) as error:
+                bootstrap_metric([1.0, 3.0], statistic=statistic, n_bootstrap=6, seed=42)
+        assert error.value.code == "invalid_statistic_result"
+        assert calls == invalid_call
+        assert rng_constructions == invalid_call - 1
+
     def test_callable_exception_type_is_preserved(self):
         def raising_statistic(_values):
             raise TypeError("caller-owned statistic failure")
@@ -162,7 +204,9 @@ class TestBootstrapMetric:
                 seed=42,
             )
 
-    @pytest.mark.parametrize(("statistic", "expected"), [("mean", 3.0), ("median", 0.0)])
+    @pytest.mark.parametrize(
+        ("statistic", "expected"), [("mean", 3.0), ("median", 0.0), ("std", float(np.sqrt(27)))]
+    )
     def test_executed_named_statistic_survives_consumer_readback(
         self, tmp_path, statistic, expected
     ):
@@ -181,6 +225,42 @@ class TestBootstrapMetric:
         assert reopened.point_estimate == expected
         assert reopened.statistic == statistic
         assert reopened.statistic_identity_basis == "recomputed"
+
+    def test_exchangeable_scalar_protocol_is_conditional(self) -> None:
+        observations = np.random.default_rng(25).normal(size=5)
+        independent = bootstrap_metric(
+            observations, observation_dependence="exchangeable", n_bootstrap=80, seed=42
+        )
+        unspecified = bootstrap_metric(observations, n_bootstrap=80, seed=42)
+        assert independent.n_observations == unspecified.n_observations == 5
+        assert independent.exchangeability_basis == "consumer_asserted"
+        assert unspecified.exchangeability_basis == "not_established"
+        assert (independent.lower, independent.upper) == (unspecified.lower, unspecified.upper)
+        assert independent.statistic_identity_basis == "recomputed"
+        singleton = bootstrap_metric(
+            [5.0], statistic="std", observation_dependence="exchangeable", n_bootstrap=2
+        )
+        assert singleton.point_estimate == singleton.lower == singleton.upper == 0.0
+        assert singleton.n_observations == 1
+
+    def test_known_dependent_series_is_refused_before_callback_or_rng(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        def forbidden(*_args):
+            raise AssertionError("known dependent input reached an iid-resampling callback")
+
+        monkeypatch.setattr(np.random, "default_rng", forbidden)
+        # Three independent cluster draws repeated within each cluster.
+        dependent = [1.0, 1.0, 6.0, 6.0, -2.0, -2.0]
+        with pytest.raises(BootstrapValidationError) as metric_error:
+            bootstrap_metric(dependent, observation_dependence="dependent", statistic=forbidden)
+        with pytest.raises(BootstrapValidationError) as scenario_error:
+            bootstrap_scenario_metrics(dependent, observation_dependence="dependent")
+        assert (
+            metric_error.value.code
+            == scenario_error.value.code
+            == "unsupported_observation_dependence"
+        )
 
     def test_same_named_callables_keep_declared_identity_and_its_limit(self, tmp_path):
         def quantile_statistic(quantile):
@@ -265,11 +345,14 @@ class TestBootstrapScenarioMetrics:
         errors = [0.0, 1.0, 3.0, 9.0]
         seed = 7
         n_bootstrap = 200
-        result = bootstrap_scenario_metrics(
+        results = bootstrap_scenario_metrics(
             errors,
             seed=seed,
             n_bootstrap=n_bootstrap,
-        )["rmse"]
+        )
+        assert results == bootstrap_scenario_metrics(errors, seed=seed, n_bootstrap=n_bootstrap)
+        assert results["mae"].point_estimate == 3.25
+        result = results["rmse"]
 
         rng = np.random.default_rng(seed)
         arr = np.asarray(errors, dtype=float)

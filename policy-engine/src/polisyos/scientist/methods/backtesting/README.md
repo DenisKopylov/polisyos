@@ -126,6 +126,16 @@ production provenance or empirical calibration.
 
 ## Public API
 
+- Forward-chaining CV and scalar bootstrap are public numerical helpers. A
+  consumer can select a CV metric through `CVResult.metric_summary(name)`.
+  It reports requested, evaluated, missing and invalid selected folds, with
+  equal weight per evaluated fold. The original fold values remain available.
+- Scalar bootstrap draws individual observations with replacement. Its
+  intervals are conditional on exchangeability and describe the requested
+  statistic. A caller declaration does not establish effective sample size
+  or empirical coverage. Known temporal or clustered dependence is refused
+  by this profile and needs a study-appropriate block or cluster method.
+  The singleton standard-deviation result of zero is a numerical convention.
 - `HistoricalValidationPlan`, `MaskingStrategy`, `PredictionSource`
 - `BacktestOrchestrator`, `OutcomeMasker`, `PredictionEvaluator`, `TrustScorer`
 - `run_phase_d4_challenge_suites(...)` and adversarial challenge models

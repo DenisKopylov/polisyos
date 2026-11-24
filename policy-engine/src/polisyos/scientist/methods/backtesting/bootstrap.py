@@ -20,6 +20,7 @@ class BootstrapValidationError(PolicyOSError):
 
 
 StatisticFn = Callable[[np.ndarray], float]
+type ObservationDependence = Literal["exchangeable", "dependent"]
 
 
 @dataclass(frozen=True)
@@ -29,6 +30,9 @@ class BootstrapCI:
     ``statistic`` is the resolved builtin selector or a caller-declared identity
     for a custom callable. Arbitrary callable identity remains unestablished
     when no declaration is supplied; declarations do not verify its semantics.
+
+    The interval is conditional on exchangeability of the scalar observation
+    unit. The observed count is not an estimate of effective sample size.
     """
 
     metric: str
@@ -41,6 +45,8 @@ class BootstrapCI:
     statistic_identity_basis: Literal["recomputed", "consumer_asserted", "not_established"] = (
         "not_established"
     )
+    n_observations: int | None = None
+    exchangeability_basis: Literal["consumer_asserted", "not_established"] = "not_established"
 
 
 def bootstrap_metric(
@@ -52,6 +58,7 @@ def bootstrap_metric(
     confidence_level: float = 0.95,
     n_bootstrap: int = 1000,
     seed: int | None = None,
+    observation_dependence: ObservationDependence | None = None,
 ) -> BootstrapCI:
     """Compute bootstrap confidence interval for a statistic.
 
@@ -75,7 +82,15 @@ def bootstrap_metric(
         Positive integer number of resamples.
     seed:
         Random seed for reproducibility.
+    observation_dependence:
+        Caller-declared observation protocol. Known dependence is unsupported
+        by scalar resampling. Omission leaves exchangeability unestablished.
     """
+    if observation_dependence not in (None, "exchangeable"):
+        raise BootstrapValidationError(
+            "scalar bootstrap requires exchangeable observations",
+            code="unsupported_observation_dependence",
+        )
     arr = _prepare_observations(values, entrypoint="bootstrap_metric")
     try:
         draw_count = None if isinstance(n_bootstrap, (bool, np.bool_)) else index(n_bootstrap)
@@ -137,6 +152,10 @@ def bootstrap_metric(
             if callable(statistic)
             else "recomputed"
         ),
+        n_observations=int(arr.size),
+        exchangeability_basis=(
+            "consumer_asserted" if observation_dependence == "exchangeable" else "not_established"
+        ),
     )
 
 
@@ -146,8 +165,9 @@ def bootstrap_scenario_metrics(
     confidence_level: float = 0.95,
     n_bootstrap: int = 1000,
     seed: int | None = None,
+    observation_dependence: ObservationDependence | None = None,
 ) -> dict[str, BootstrapCI]:
-    """Compute bootstrap CIs for RMSE, MAE, and MAPE-like statistics."""
+    """Compute conditional scalar-bootstrap intervals for MAE and RMSE."""
     arr = _prepare_observations(errors, entrypoint="bootstrap_scenario_metrics")
     results: dict[str, BootstrapCI] = {}
 
@@ -158,6 +178,7 @@ def bootstrap_scenario_metrics(
         confidence_level=confidence_level,
         n_bootstrap=n_bootstrap,
         seed=seed,
+        observation_dependence=observation_dependence,
     )
     results["rmse"] = bootstrap_metric(
         arr,
@@ -167,6 +188,7 @@ def bootstrap_scenario_metrics(
         confidence_level=confidence_level,
         n_bootstrap=n_bootstrap,
         seed=seed,
+        observation_dependence=observation_dependence,
     )
 
     return results
@@ -226,6 +248,8 @@ def _evaluate_statistic(stat_fn: StatisticFn, values: np.ndarray) -> float:
     """Evaluate a statistic and reject non-scalar or non-finite results."""
     raw_result = stat_fn(values)
     try:
+        if np.ndim(raw_result) != 0:
+            raise TypeError("bootstrap statistic returned a non-scalar array")
         result = float(raw_result)
     except (OverflowError, TypeError, ValueError) as exc:
         raise BootstrapValidationError(

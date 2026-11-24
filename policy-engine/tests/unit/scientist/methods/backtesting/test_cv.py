@@ -38,6 +38,7 @@ class TestForwardChainingSplits:
         [
             (2, 0, 3),
             (2, -1, 3),
+            (2, 1.5, 3),
             (0, 1, 3),
             (-1, 1, 3),
             (1001, 1, 3),
@@ -82,8 +83,49 @@ class TestForwardChainingSplits:
             (8, [8, 9]),
         ]
 
+    def test_full_training_window_has_no_test_folds(self) -> None:
+        assert forward_chaining_splits(4, min_train_size=4) == []
+
 
 class TestRunForwardChainingCV:
+    def test_metric_summary_counts_only_usable_selected_folds(self) -> None:
+        metrics: dict[str, float] = {}
+
+        def evaluator(_train: np.ndarray, test: np.ndarray) -> dict[str, float]:
+            metrics.clear()
+            if len(test) == 2:
+                metrics.update(mae=3.0, coverage=np.nan, both=2.0)
+            else:
+                metrics.update(coverage=0.8, both=8.0)
+            return metrics
+
+        result = run_forward_chaining_cv(
+            np.arange(5, dtype=float), evaluator, min_train_size=2, step_size=2
+        )
+
+        mae = result.metric_summary("mae")
+        assert (mae.requested_folds, mae.evaluated_folds, mae.missing_folds, mae.invalid_folds) == (
+            2,
+            1,
+            1,
+            0,
+        )
+        assert mae.mean == 3.0
+        coverage = result.metric_summary("coverage")
+        assert (
+            coverage.requested_folds,
+            coverage.evaluated_folds,
+            coverage.missing_folds,
+            coverage.invalid_folds,
+        ) == (2, 1, 0, 1)
+        assert coverage.mean == 0.8
+        assert np.isnan(result.folds[0].metrics["coverage"])
+        assert result.metric_summary("never_emitted").mean is None
+        assert result.metric_summary("never_emitted").missing_folds == 2
+        both = result.metric_summary("both")
+        assert both.weighting == "equal_evaluated_fold"
+        assert both.mean == 5.0  # The second fold has one cell and the first has two.
+
     def test_multivariate_observations_keep_features_and_isolate_folds(self) -> None:
         data = np.arange(12, dtype=float).reshape(6, 2)
         original = data.copy()

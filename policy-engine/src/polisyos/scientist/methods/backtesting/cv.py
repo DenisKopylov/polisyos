@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from math import isfinite
 from operator import index
+from statistics import mean
+from typing import Literal
 
 import numpy as np
 
@@ -20,6 +23,18 @@ class CVFold:
 
 
 @dataclass(frozen=True)
+class CVMetricSummary:
+    """Descriptive metric and denominator for one selected CV metric."""
+
+    requested_folds: int
+    evaluated_folds: int
+    missing_folds: int
+    invalid_folds: int
+    mean: float | None
+    weighting: Literal["equal_evaluated_fold"] = "equal_evaluated_fold"
+
+
+@dataclass(frozen=True)
 class CVResult:
     """Aggregated cross-validation result."""
 
@@ -27,6 +42,30 @@ class CVResult:
     mean_metrics: dict[str, float]
     std_metrics: dict[str, float]
     n_folds: int
+
+    def metric_summary(self, name: str) -> CVMetricSummary:
+        """Summarize finite values for a requested metric and retain its denominator.
+
+        Count each selected fold once. An omitted value is missing and a
+        non-finite value is invalid. This summary is descriptive.
+        """
+        values = []
+        missing = 0
+        invalid = 0
+        for fold in self.folds:
+            if name not in fold.metrics:
+                missing += 1
+            elif isfinite(value := fold.metrics[name]):
+                values.append(float(value))
+            else:
+                invalid += 1
+        return CVMetricSummary(
+            requested_folds=len(self.folds),
+            evaluated_folds=len(values),
+            missing_folds=missing,
+            invalid_folds=invalid,
+            mean=mean(values) if values else None,
+        )
 
 
 def forward_chaining_splits(
@@ -131,7 +170,7 @@ def run_forward_chaining_cv(
     for fold_id, (train_idx, test_idx) in enumerate(splits):
         train_data = arr[train_idx]
         test_data = arr[test_idx]
-        metrics = evaluator(train_data, test_data)
+        metrics = dict(evaluator(train_data, test_data))
         folds.append(
             CVFold(
                 fold_id=fold_id,

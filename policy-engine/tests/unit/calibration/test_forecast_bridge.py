@@ -946,6 +946,7 @@ def test_persisted_backtest_report_readback_produces_neutral_empirical_interval_
     # payload reproducible after the source-binding limitation is recognized.
     former_payload = evidence.model_dump(mode="json")
     former_payload.update(
+        schema_version="1.2",
         evidence_kind="observed_interval_comparisons",
         empirical_observations_available=True,
         usable_for_calibration=True,
@@ -1375,6 +1376,262 @@ def test_nominal_confidence_without_observations_is_not_empirical_evidence(
     assert evidence.floor_passed is False
     assert "zero_observation_denominator" in evidence.failure_codes
     assert "nominal_confidence_only" in evidence.failure_codes
+
+
+def _persist_report_with_metadata(
+    store: FileSystemCAS,
+    report_ref: BacktestReportRef,
+    report: BacktestReport,
+    metadata: Mapping[str, object],
+) -> BacktestReportRef:
+    """Change only report metadata and preserve every selected input edge."""
+    ir_store = _ensure_ir_artifact_store(store)
+    inputs = [
+        InputRef.model_validate(item.model_dump(mode="python"))
+        for item in ir_store.get_manifest(report_ref).inputs
+    ]
+    modified_report = report.model_copy(update={"metadata": dict(metadata)})
+    return persist_backtest_report(ir_store, modified_report, inputs=inputs)
+
+
+_REPORT_METADATA_COUNTERS = (
+    ("calibration_numerator", "numerator"),
+    ("calibration_denominator", "denominator"),
+    ("interval_hit_count", "numerator"),
+    ("interval_evaluated_count", "denominator"),
+)
+
+
+@pytest.mark.parametrize(("field", "side"), _REPORT_METADATA_COUNTERS)
+@pytest.mark.parametrize(
+    ("count", "verdict"),
+    [
+        (2.9, "invalid"),
+        (-0.1, "invalid"),
+        (True, "invalid"),
+        ("2.0", "invalid"),
+        ("2e0", "invalid"),
+        (" +2 ", "invalid"),
+        ("٢", "invalid"),
+        (3, "mismatch"),
+        (0, None),
+        (2, None),
+        (2.0, None),
+        ("02", None),
+    ],
+)
+def test_persisted_metadata_counters_preserve_exact_observed_counts(
+    tmp_path: Path,
+    field: str,
+    side: str,
+    count: object,
+    verdict: str | None,
+) -> None:
+    """Selected CAS metadata reconciles independently counted observations."""
+    observations: tuple[bool | None, ...] = (True, True)
+    if count in (0, -0.1):
+        observations = (False, False) if side == "numerator" else (None, None)
+    store, report_ref, report, refs = _persist_report(
+        tmp_path,
+        label="metadata-count",
+        observations=observations,
+    )
+    selected_ref = _persist_report_with_metadata(
+        store, report_ref, report, {**report.metadata, field: count}
+    )
+    bridge = _bridge()
+
+    evidence = bridge.produce_empirical_calibration_evidence(
+        store, selected_ref, context=_context(refs)
+    )
+
+    hits = sum(item is True for item in observations)
+    evaluated = sum(item is not None for item in observations)
+    assert evidence.context_bound is True
+    assert evidence.recomputed_numerator == evidence.persisted_numerator == hits
+    assert evidence.recomputed_denominator == evidence.persisted_denominator == evaluated
+    assert evidence.floor_passed is False
+    assert evidence.usable_for_calibration is False
+
+    expected = []
+    if verdict == "invalid":
+        expected.append("persisted_metadata_counter_invalid")
+    elif verdict == "mismatch":
+        expected.append(f"persisted_metadata_{side}_mismatch")
+    if not evaluated:
+        expected.extend(("zero_observation_denominator", "nominal_confidence_only"))
+    expected.append("backtest_source_not_established")
+    assert evidence.failure_codes == tuple(expected)
+    if verdict is None:
+        evidence_ref = bridge.persist_empirical_calibration_evidence(store, evidence)
+        assert bridge.load_empirical_calibration_evidence(store, evidence_ref) == evidence
+
+
+class _PretendsToBeCount:
+    def __int__(self) -> int:
+        return 2
+
+
+@pytest.mark.parametrize("field", [field for field, _side in _REPORT_METADATA_COUNTERS])
+@pytest.mark.parametrize("count", [float("nan"), float("inf"), float("-inf"), _PretendsToBeCount()])
+def test_report_reconciliation_refuses_non_json_metadata_counters(
+    tmp_path: Path,
+    field: str,
+    count: object,
+) -> None:
+    """Values outside canonical JSON cannot be accepted by reconciliation."""
+    _store, _ref, report, _refs = _persist_report(
+        tmp_path, label="non-json-count", observations=(True, True)
+    )
+    modified_report = report.model_copy(update={"metadata": {**report.metadata, field: count}})
+
+    numerator, denominator, _, _, _, _, issues = _bridge()._recompute_and_reconcile(modified_report)
+
+    assert (numerator, denominator) == (2, 2)
+    assert issues == ("persisted_metadata_counter_invalid",)
+
+
+@pytest.mark.parametrize(
+    ("present", "missing"),
+    [
+        ("calibration_numerator", "calibration_denominator"),
+        ("calibration_denominator", "calibration_numerator"),
+        ("interval_hit_count", "interval_evaluated_count"),
+        ("interval_evaluated_count", "interval_hit_count"),
+    ],
+)
+@pytest.mark.parametrize("count", [2, 2.9])
+def test_persisted_half_pair_validates_supplied_count(
+    tmp_path: Path,
+    present: str,
+    missing: str,
+    count: int | float,
+) -> None:
+    """A missing counterpart does not conceal a malformed supplied value."""
+    store, report_ref, report, refs = _persist_report(
+        tmp_path, label="metadata-half-pair", observations=(True, True)
+    )
+    metadata = {**report.metadata, present: count}
+    del metadata[missing]
+    selected_ref = _persist_report_with_metadata(store, report_ref, report, metadata)
+
+    evidence = _bridge().produce_empirical_calibration_evidence(
+        store, selected_ref, context=_context(refs)
+    )
+
+    expected = ["persisted_metadata_counter_incomplete"]
+    if count == 2.9:
+        expected.append("persisted_metadata_counter_invalid")
+    assert evidence.failure_codes == (*expected, "backtest_source_not_established")
+    assert (evidence.recomputed_numerator, evidence.recomputed_denominator) == (2, 2)
+    assert evidence.usable_for_calibration is False
+
+
+@pytest.mark.parametrize("legacy_version", ["1.0", "1.1", "1.2"])
+def test_historical_metadata_count_replay_does_not_authorize_new_evidence(
+    tmp_path: Path,
+    legacy_version: str,
+) -> None:
+    """Read a historically accepted report projection under its original rules."""
+    store, source_ref, report, refs = _persist_report(
+        tmp_path, label="metadata-history", observations=(True, True)
+    )
+    report_ref = _persist_report_with_metadata(
+        store,
+        source_ref,
+        report,
+        {**report.metadata, "calibration_numerator": 2.9, "interval_hit_count": " +2 "},
+    )
+    bridge = _bridge()
+    context = _context(refs)
+    baseline = bridge.produce_empirical_calibration_evidence(store, source_ref, context=context)
+    historical_payload = baseline.model_dump(mode="json")
+    historical_payload["schema_version"] = legacy_version
+    historical_payload["report_ref"] = report_ref.model_dump(mode="json")
+    if legacy_version == "1.0":
+        historical_payload.pop("nominal_confidence_level")
+    input_refs = [
+        InputRef(
+            artifact_id=reference["artifact_id"],
+            role=role,
+            manifest_profile_sha256=(
+                reference["manifest_profile_sha256"] if legacy_version == "1.2" else None
+            ),
+        )
+        for role, reference in {
+            "backtest_report": report_ref.model_dump(mode="json"),
+            **refs,
+        }.items()
+    ]
+    ir_store = _ensure_ir_artifact_store(store)
+    legacy_ref = bridge.EmpiricalCalibrationEvidenceRef.model_validate(
+        put_json_artifact(
+            ir_store,
+            historical_payload,
+            kind=bridge.EVIDENCE_KIND,
+            schema_name=bridge.EVIDENCE_SCHEMA_NAME,
+            schema_version=legacy_version,
+            inputs=input_refs,
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+    )
+    assert legacy_ref.manifest_profile_sha256 is not None
+    original_bytes = store.get_bytes(legacy_ref.artifact_id)
+
+    historical = bridge.load_empirical_calibration_evidence(store, legacy_ref)
+
+    assert historical.schema_version == legacy_version
+    assert historical.failure_codes == ("backtest_source_not_established",)
+    assert historical.empirical_observations_available is False
+    assert historical.usable_for_calibration is False
+    assert historical.nominal_confidence_level == (None if legacy_version == "1.0" else 0.95)
+    assert store.get_bytes(legacy_ref.artifact_id) == original_bytes
+    with pytest.raises(
+        ValueError, match="legacy empirical calibration evidence must not be repersisted"
+    ):
+        bridge.persist_empirical_calibration_evidence(store, historical)
+    with pytest.raises(ValueError, match="empirical evidence payload is not reproducible"):
+        bridge.persist_empirical_calibration_evidence(
+            store, historical.model_copy(update={"schema_version": bridge.EVIDENCE_SCHEMA_VERSION})
+        )
+
+    fresh = bridge.produce_empirical_calibration_evidence(store, report_ref, context=context)
+
+    assert fresh.schema_version == "1.3"
+    assert (fresh.recomputed_numerator, fresh.recomputed_denominator) == (2, 2)
+    assert fresh.failure_codes == (
+        "persisted_metadata_counter_invalid",
+        "backtest_source_not_established",
+    )
+    assert fresh.usable_for_calibration is False
+    with pytest.raises(
+        ValueError, match="blocked empirical calibration evidence cannot be persisted"
+    ):
+        bridge.persist_empirical_calibration_evidence(store, fresh)
+
+    if legacy_version == "1.2":
+        stripped_ref = bridge.EmpiricalCalibrationEvidenceRef.model_validate(
+            put_json_artifact(
+                ir_store,
+                historical_payload,
+                kind=bridge.EVIDENCE_KIND,
+                schema_name=bridge.EVIDENCE_SCHEMA_NAME,
+                schema_version="1.2",
+                inputs=[
+                    input_refs[0].model_copy(update={"manifest_profile_sha256": None}),
+                    *input_refs[1:],
+                ],
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
+        )
+        assert stripped_ref.artifact_id == legacy_ref.artifact_id
+        assert stripped_ref.manifest_profile_sha256 != legacy_ref.manifest_profile_sha256
+        with pytest.raises(
+            ValueError, match="empirical evidence manifest input edge/profile binding mismatch"
+        ):
+            bridge.load_empirical_calibration_evidence(store, stripped_ref)
 
 
 def test_persisted_self_attested_projection_cannot_override_observed_bounds(

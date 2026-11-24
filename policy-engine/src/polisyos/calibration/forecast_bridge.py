@@ -90,14 +90,17 @@ EVIDENCE_KIND = "ir.empirical_calibration_evidence"
 EVIDENCE_SCHEMA_NAME = "polisyos.calibration.empirical_calibration_evidence"
 LEGACY_EVIDENCE_SCHEMA_VERSION = "1.0"
 PREVIOUS_EVIDENCE_SCHEMA_VERSION = "1.1"
-EVIDENCE_SCHEMA_VERSION = "1.2"
-_SUPPORTED_EVIDENCE_SCHEMA_VERSIONS = frozenset(
-    {
-        LEGACY_EVIDENCE_SCHEMA_VERSION,
-        PREVIOUS_EVIDENCE_SCHEMA_VERSION,
-        EVIDENCE_SCHEMA_VERSION,
-    }
+EVIDENCE_SCHEMA_VERSION: Literal["1.3"] = "1.3"
+_PROFILELESS_EVIDENCE_SCHEMA_VERSIONS = frozenset(
+    {LEGACY_EVIDENCE_SCHEMA_VERSION, PREVIOUS_EVIDENCE_SCHEMA_VERSION}
 )
+PROFILED_EVIDENCE_SCHEMA_VERSIONS = frozenset({"1.2", "1.3"})
+_LEGACY_EVIDENCE_COUNTER_VERSIONS = _PROFILELESS_EVIDENCE_SCHEMA_VERSIONS | {"1.2"}
+_SUPPORTED_EVIDENCE_SCHEMA_VERSIONS = (
+    _PROFILELESS_EVIDENCE_SCHEMA_VERSIONS | PROFILED_EVIDENCE_SCHEMA_VERSIONS
+)
+
+_EvidenceSchemaVersion = Literal["1.0", "1.1", "1.2", "1.3"]
 
 ReferenceRole = Literal[
     "scope_binding",
@@ -407,7 +410,7 @@ class EmpiricalCalibrationEvidence(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.0", "1.1", "1.2"] = EVIDENCE_SCHEMA_VERSION
+    schema_version: _EvidenceSchemaVersion = EVIDENCE_SCHEMA_VERSION
     report_id: str = Field(min_length=1)
     report_ref: BacktestReportRef
 
@@ -474,7 +477,7 @@ def produce_empirical_calibration_evidence(
     """Read a verified report and produce neutral, reconciled evidence."""
 
     return _produce_empirical_calibration_evidence(
-        store, report_ref, context=context, require_selected_profiles=True
+        store, report_ref, context=context, schema_version=EVIDENCE_SCHEMA_VERSION
     )
 
 
@@ -483,10 +486,11 @@ def _produce_empirical_calibration_evidence(
     report_ref: BacktestReportRef,
     *,
     context: EmpiricalCalibrationContext | None,
-    require_selected_profiles: bool,
+    schema_version: _EvidenceSchemaVersion,
 ) -> EmpiricalCalibrationEvidence:
-    """Recompute evidence under the stored schema's input-lineage semantics."""
+    """Recompute evidence under its versioned input-lineage and count rules."""
 
+    require_selected_profiles = schema_version in PROFILED_EVIDENCE_SCHEMA_VERSIONS
     validated_report_ref, report = _load_verified_report(store, report_ref)
     (
         recomputed_numerator,
@@ -496,7 +500,10 @@ def _produce_empirical_calibration_evidence(
         persisted_numerator,
         persisted_denominator,
         observation_issues,
-    ) = _recompute_and_reconcile(report)
+    ) = _recompute_and_reconcile(
+        report,
+        strict_metadata_counts=schema_version not in _LEGACY_EVIDENCE_COUNTER_VERSIONS,
+    )
 
     # The selected-row join is narrower than source authority. Even an exact
     # row match cannot establish issuer, population, source time, or causality.
@@ -567,6 +574,7 @@ def _produce_empirical_calibration_evidence(
     usable_for_calibration = floor_passed and not failure_codes
 
     return EmpiricalCalibrationEvidence(
+        schema_version=schema_version,
         report_id=report.report_id,
         report_ref=validated_report_ref,
         model_spec_ref=report.model_spec_ref,
@@ -579,7 +587,9 @@ def _produce_empirical_calibration_evidence(
         may_not_use_for=(context.may_not_use_for if context else PREDICTIVE_AUTHORITY_DENIALS),
         evidence_origin=context.evidence_origin if context else None,
         calibration_threshold=context.calibration_threshold if context else None,
-        nominal_confidence_level=nominal_confidence_level,
+        nominal_confidence_level=(
+            None if schema_version == LEGACY_EVIDENCE_SCHEMA_VERSION else nominal_confidence_level
+        ),
         scope_binding_ref=context.scope_binding_ref if context else None,
         calibration_threshold_ref=context.calibration_threshold_ref if context else None,
         observed_outcome_ref=context.observed_outcome_ref if context else None,
@@ -623,8 +633,6 @@ def persist_empirical_calibration_evidence(
     if evidence.schema_version != EVIDENCE_SCHEMA_VERSION:
         raise ValueError("legacy empirical calibration evidence must not be repersisted")
     expected = _reproduce_evidence(store, evidence)
-    if expected.schema_version != EVIDENCE_SCHEMA_VERSION:
-        raise ValueError("new empirical calibration evidence must use schema 1.2")
     if not expected.context_bound or any(
         code not in _PERSISTENCE_ALLOWED_LIMITATIONS for code in expected.failure_codes
     ):
@@ -728,10 +736,7 @@ def _validate_evidence_input_edges(
         ),
     ]
     actual = _manifest_input_edges(store, evidence_ref)
-    if evidence.schema_version in {
-        LEGACY_EVIDENCE_SCHEMA_VERSION,
-        PREVIOUS_EVIDENCE_SCHEMA_VERSION,
-    }:
+    if evidence.schema_version in _PROFILELESS_EVIDENCE_SCHEMA_VERSIONS:
         actual_pairs = [(artifact_id, role) for artifact_id, role, _profile in actual]
         expected_pairs = [(artifact_id, role) for artifact_id, role, _profile in expected]
         matches = sorted(actual_pairs) == sorted(expected_pairs)
@@ -782,17 +787,9 @@ def _reproduce_evidence(
         store,
         evidence.report_ref,
         context=context,
-        require_selected_profiles=evidence.schema_version == EVIDENCE_SCHEMA_VERSION,
+        schema_version=evidence.schema_version,
     )
-    expected_payload = expected.model_dump(mode="json")
-    if evidence.schema_version in {
-        LEGACY_EVIDENCE_SCHEMA_VERSION,
-        PREVIOUS_EVIDENCE_SCHEMA_VERSION,
-    }:
-        expected_payload["schema_version"] = evidence.schema_version
-    if evidence.schema_version == LEGACY_EVIDENCE_SCHEMA_VERSION:
-        expected_payload["nominal_confidence_level"] = None
-    if expected_payload != evidence.model_dump(mode="json"):
+    if expected.model_dump(mode="json") != evidence.model_dump(mode="json"):
         raise ValueError("empirical evidence payload is not reproducible from its report")
     return expected
 
@@ -1670,6 +1667,8 @@ def _nominal_confidence_level(
 
 def _recompute_and_reconcile(
     report: BacktestReport,
+    *,
+    strict_metadata_counts: bool = True,
 ) -> tuple[int, int, int, int, int, int, tuple[str, ...]]:
     """Recompute interval hits and reconcile every persisted projection."""
 
@@ -1767,6 +1766,7 @@ def _recompute_and_reconcile(
         if expected_overall is None or report.overall_coverage_probability != expected_overall:
             issues.append("persisted_overall_coverage_mismatch")
 
+    parse_count = _parse_metadata_count if strict_metadata_counts else _legacy_metadata_count
     for numerator_key, denominator_key in (
         ("calibration_numerator", "calibration_denominator"),
         ("interval_hit_count", "interval_evaluated_count"),
@@ -1775,9 +1775,12 @@ def _recompute_and_reconcile(
         denominator_present = denominator_key in report.metadata
         if numerator_present != denominator_present:
             issues.append("persisted_metadata_counter_incomplete")
+            present_key = numerator_key if numerator_present else denominator_key
+            if strict_metadata_counts and parse_count(report.metadata[present_key]) is None:
+                issues.append("persisted_metadata_counter_invalid")
         if numerator_present and denominator_present:
-            raw_numerator = _coerce_int(report.metadata[numerator_key])
-            raw_denominator = _coerce_int(report.metadata[denominator_key])
+            raw_numerator = parse_count(report.metadata[numerator_key])
+            raw_denominator = parse_count(report.metadata[denominator_key])
             if raw_numerator is None or raw_denominator is None:
                 issues.append("persisted_metadata_counter_invalid")
             else:
@@ -2173,7 +2176,25 @@ def _as_text_sequence(value: object) -> tuple[str, ...]:
     return (str(value).strip(),)
 
 
-def _coerce_int(value: object) -> int | None:
+def _parse_metadata_count(value: object) -> int | None:
+    """Parse exact nonnegative JSON numbers or ASCII decimal digit strings."""
+    if type(value) is int:
+        return value if value >= 0 else None
+    if type(value) is float:
+        if math.isfinite(value) and value >= 0 and value.is_integer():
+            return int(value)
+        return None
+    # Legacy text permits only one or more ASCII digits, including leading zeros.
+    if type(value) is str and value.isascii() and value.isdecimal():
+        try:
+            return int(value)
+        except ValueError:
+            return None
+    return None
+
+
+def _legacy_metadata_count(value: object) -> int | None:
+    """Reproduce the reconciliation of evidence persisted before schema 1.3."""
     if isinstance(value, bool):
         return None
     try:

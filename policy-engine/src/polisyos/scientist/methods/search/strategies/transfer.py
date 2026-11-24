@@ -11,9 +11,9 @@ import logging
 import math
 from collections import OrderedDict
 from collections.abc import Iterator
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from itertools import islice, zip_longest
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr
 
@@ -84,6 +84,21 @@ class RunFingerprint(BaseModel):
     history_ref: ArtifactRef | None = None
 
 
+@dataclass(frozen=True, slots=True)
+class RunDiscoveryResult:
+    """Compatible index hits and the outcome of a bounded discovery request."""
+
+    runs: list[RunFingerprint]
+    status: Literal[
+        "filled",
+        "budget_exhausted",
+        "no_compatible_in_scanned",
+        "partial_in_scanned",
+        "input_unavailable",
+    ]
+    scanned: int
+
+
 class TransferLearningManager:
     """Finds similar past runs and extracts warm-start data.
 
@@ -101,6 +116,7 @@ class TransferLearningManager:
 
     _MAX_HISTORY_CACHE_ENTRIES = 128
     _MAX_HISTORY_CACHE_BYTES = 32 * 1024 * 1024
+    _DEFAULT_DISCOVERY_SCAN_LIMIT = 64
 
     def __init__(self, store: ArtifactStore, index: VectorMemoryStore) -> None:
         self._store = store
@@ -190,38 +206,95 @@ class TransferLearningManager:
         fingerprint: RunFingerprint,
         top_k: int = 5,
     ) -> list[RunFingerprint]:
-        """Find the most similar past runs based on embedding similarity.
+        """Return compatible runs found by bounded embedding discovery."""
+        result = self.discover_similar_runs(fingerprint, top_k=top_k)
+        if result.status != "filled":
+            logger.info(
+                "Transfer discovery for %s: %s (%d scanned)",
+                fingerprint.run_id,
+                result.status,
+                result.scanned,
+            )
+        return result.runs
 
-        Returns up to ``top_k`` fingerprints, sorted by similarity (most
-        similar first).  Only returns runs with the same objective names.
+    def discover_similar_runs(
+        self,
+        fingerprint: RunFingerprint,
+        top_k: int = 5,
+        *,
+        max_scanned: int | None = None,
+    ) -> RunDiscoveryResult:
+        """Find up to ``top_k`` compatible hits across expanding ANN queries.
+
+        Args:
+            fingerprint: Complete target identity and query embedding.
+            top_k: Desired compatible run count.
+            max_scanned: Bound on distinct index keys visited and on a single
+                query depth. The default is 64 or ``top_k``, whichever is larger.
+
+        Returns:
+            Compatible hits in distance order and the outcome within the
+            scanned neighbors. The result carries no global absence claim.
         """
+        if type(top_k) is not int or top_k < 1:
+            raise ValueError("Transfer discovery top_k must be a positive integer")
+        if max_scanned is not None and (type(max_scanned) is not int or max_scanned < 1):
+            raise ValueError("Transfer discovery max_scanned must be a positive integer")
         if not fingerprint.embedding or not self._has_complete_binding_basis(fingerprint):
-            return []
+            return RunDiscoveryResult([], "input_unavailable", 0)
 
-        results = self._index.query(fingerprint.embedding, top_k=top_k * 2)
-        similar: list[RunFingerprint] = []
+        limit = (
+            max_scanned
+            if max_scanned is not None
+            else max(top_k, self._DEFAULT_DISCOVERY_SCAN_LIMIT)
+        )
+        depth = min(limit, 2 * top_k)
+        visited: set[str] = set()
+        matches: list[tuple[float, RunFingerprint]] = []
+        while True:
+            neighbors = self._index.query(fingerprint.embedding, top_k=depth)
+            for key, distance, metadata in islice(neighbors, depth):
+                if len(visited) == limit:
+                    break
+                if key in visited:
+                    continue
+                visited.add(key)
+                source = self._compatible_discovery_source(fingerprint, key, metadata)
+                if source is not None:
+                    matches.append((distance, source))
+                    if len(matches) == top_k:
+                        break
 
-        for key, _, meta in results:
-            if key == fingerprint.run_id:
-                continue
-            history_ref = self._history_ref_from_metadata(meta)
-            if history_ref is None:
-                logger.warning("Skipping run %s without a valid history ArtifactRef", key)
-                continue
-            # Similarity is discovery only; numeric reuse requires the complete
-            # typed index basis and a later payload-header reconciliation.
-            try:
-                source = self._fingerprint_from_index_metadata(key, meta, history_ref)
-            except (TypeError, ValueError) as exc:
-                logger.warning("Skipping run %s with invalid transfer metadata: %s", key, exc)
-                continue
-            if not self._binding_matches(fingerprint, source):
-                continue
-            similar.append(source)
-            if len(similar) >= top_k:
+            if len(matches) == top_k:
+                status = "filled"
                 break
+            if len(visited) == limit or (depth == limit and len(neighbors) >= depth):
+                status = "budget_exhausted"
+                break
+            if len(neighbors) < depth:
+                status = "partial_in_scanned" if matches else "no_compatible_in_scanned"
+                break
+            depth = min(limit, depth * 2)
 
-        return similar
+        matches.sort(key=lambda match: match[0])
+        return RunDiscoveryResult([run for _, run in matches], status, len(visited))
+
+    def _compatible_discovery_source(
+        self, target: RunFingerprint, key: str, metadata: dict[str, Any]
+    ) -> RunFingerprint | None:
+        if key == target.run_id:
+            return None
+        history_ref = self._history_ref_from_metadata(metadata)
+        if history_ref is None:
+            logger.warning("Skipping run %s without a valid history ArtifactRef", key)
+            return None
+        # Numeric reuse separately reconciles the exact selected payload header.
+        try:
+            source = self._fingerprint_from_index_metadata(key, metadata, history_ref)
+        except (TypeError, ValueError) as exc:
+            logger.warning("Skipping run %s with invalid transfer metadata: %s", key, exc)
+            return None
+        return source if self._binding_matches(target, source) else None
 
     def get_warm_start_evaluations(
         self,

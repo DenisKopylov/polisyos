@@ -962,16 +962,17 @@ def test_known_run_without_history_ref_uses_exact_key_not_ann(
         return query(*args, **kwargs)
 
     monkeypatch.setattr(index, "query", observe_query)
-    for top_k in (1, 3):
+    for top_k, expected_depths in ((1, [2]), (3, [6, 12, 24, 48, 64])):
         before = len(calls)
         discovered = manager.find_similar_runs(target, top_k=top_k)
         assert [row.run_id for row in discovered] == ["source"]
-        assert len(calls) == before + 1
+        assert [kwargs["top_k"] for _, kwargs in calls[before:]] == expected_depths
+        after_discovery = len(calls)
         assert [
             value.candidate_id
             for value in manager.get_warm_start_evaluations(discovered, target_fingerprint=target)
         ] == ["candidate"]
-        assert len(calls) == before + 1
+        assert len(calls) == after_discovery
     monkeypatch.setattr(
         index, "query", lambda *_, **__: pytest.fail("known key must not query ANN")
     )

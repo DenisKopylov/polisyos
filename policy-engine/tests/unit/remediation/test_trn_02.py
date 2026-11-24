@@ -15,11 +15,17 @@ from typing import Any
 
 import pytest
 
-from polisyos.core.artifacts import artifact_manifest_profile_sha256, input_ref_from_artifact_ref
+from polisyos.core.artifacts import (
+    ArtifactOwnershipError,
+    VerificationReport,
+    artifact_manifest_profile_sha256,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.scientist.agent import vector_memory as vector_memory_module
 from polisyos.scientist.agent.vector_memory import VectorMemoryStore
 from polisyos.scientist.methods.search.objective import (
@@ -65,6 +71,7 @@ def _stored_eval(candidate_id: str, score: float, run_id: str) -> dict[str, Any]
         "stage_a_passed": True,
         "stage_b_result": source,
         "status": "success",
+        "timestamp": "2001-01-01T00:00:00+00:00",
         "objectives": [
             {
                 "name": objective.name,
@@ -127,6 +134,7 @@ class _CountingStore:
     def __init__(self, store: FileSystemCAS) -> None:
         self.store = store
         self.reads: list[ArtifactID | ArtifactRef | str] = []
+        self.verifications: list[ArtifactID | ArtifactRef | str] = []
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self.store, name)
@@ -134,6 +142,10 @@ class _CountingStore:
     def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
         self.reads.append(artifact_id)
         return self.store.get_bytes(artifact_id)
+
+    def verify(self, artifact_id: ArtifactID | ArtifactRef | str) -> VerificationReport:
+        self.verifications.append(artifact_id)
+        return self.store.verify(artifact_id)
 
 
 def _write_history(
@@ -152,9 +164,20 @@ def _write_history(
 class _DiscoveryIndex:
     dim = 2
 
-    def __init__(self, *, history_ref: ArtifactRef) -> None:
+    def __init__(self, *, history_ref: ArtifactRef, run_id: str = "source-run") -> None:
         self.history_ref = history_ref
+        self.run_id = run_id
         self.query_calls: list[tuple[list[float], int]] = []
+
+    def _metadata(self) -> dict[str, Any]:
+        return {
+            **TransferLearningManager._identity_payload(_fingerprint(self.run_id)),
+            "artifact_id": str(self.history_ref.artifact_id),
+            "manifest_profile_sha256": self.history_ref.manifest_profile_sha256,
+        }
+
+    def lookup_metadata(self, key: str) -> dict[str, Any] | None:
+        return self._metadata() if key == self.run_id else None
 
     def query(
         self,
@@ -166,25 +189,7 @@ class _DiscoveryIndex:
             raise AssertionError(
                 "history loading must use the discovered ArtifactRef, not a second ANN query"
             )
-        return [
-            (
-                "source-run",
-                0.01,
-                {
-                    "space_hash": "space-v1",
-                    "objective_names": ["score"],
-                    "bounds": {"x": [0.0, 1.0]},
-                    "split": "selection",
-                    "units": {"score": "points"},
-                    "origin": "simulator-v1",
-                    "tenant_id": "tenant-a",
-                    "objective_directions": {"score": OptimizationDirection.MINIMIZE.value},
-                    "objective_rule_specs": _fingerprint("source-run").objective_rule_specs,
-                    "artifact_id": str(self.history_ref.artifact_id),
-                    "manifest_profile_sha256": self.history_ref.manifest_profile_sha256,
-                },
-            )
-        ]
+        return [(self.run_id, 0.01, self._metadata())]
 
 
 def test_discovery_preserves_history_ref_and_reads_cas_without_second_ann(tmp_path) -> None:
@@ -213,48 +218,188 @@ def test_discovery_preserves_history_ref_and_reads_cas_without_second_ann(tmp_pa
     assert store.reads == [history_ref]
 
 
+def test_discovery_refills_after_incompatible_neighbors_with_a_reported_bound(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    target = _fingerprint("target")
+    compatible = _fingerprint("compatible")
+    expected_ref = _write_history(store, compatible.run_id, ("present", 0.5))
+    metadata = TransferLearningManager._identity_payload(compatible)
+    ranked = [
+        ("other-tenant", 0.01, {**metadata, "tenant_id": "tenant-b"}),
+        ("other-split", 0.02, {**metadata, "split": "holdout"}),
+        ("compatible", 0.03, metadata),
+    ]
+    ranked = [
+        (
+            key,
+            distance,
+            {
+                **details,
+                "artifact_id": str(expected_ref.artifact_id),
+                "manifest_profile_sha256": expected_ref.manifest_profile_sha256,
+            },
+        )
+        for key, distance, details in ranked
+    ]
+
+    class OrderedIndex:
+        def __init__(self):
+            self.calls = []
+
+        def query(self, embedding, top_k):
+            assert embedding == target.embedding
+            self.calls.append(top_k)
+            return ranked[:top_k]
+
+    index = OrderedIndex()
+    reader = _CountingStore(store)
+    manager = TransferLearningManager(reader, index)
+    assert [item.run_id for item in manager.find_similar_runs(target, top_k=1)] == ["compatible"]
+    assert index.calls == [2, 4]
+    index.calls.clear()
+    limited = manager.discover_similar_runs(target, top_k=1, max_scanned=2)
+    assert limited.runs == [] and limited.status == "budget_exhausted"
+    assert limited.scanned == 2 and index.calls == [2]
+    index.calls.clear()
+    found = manager.discover_similar_runs(target, top_k=1, max_scanned=3)
+    assert found.status == "filled" and found.scanned == 3
+    assert index.calls == [2, 3]
+    [source] = found.runs
+    assert source.history_ref == expected_ref
+    [observation] = manager.get_warm_start_evaluations(found.runs, target_fingerprint=target)
+    assert observation.is_valid and observation.candidate_id == "present"
+    assert index.calls == [2, 3] and reader.reads == [expected_ref]
+
+    ranked.pop()
+    unavailable = manager.discover_similar_runs(target, top_k=1, max_scanned=3)
+    assert unavailable.status == "no_compatible_in_scanned" and unavailable.scanned == 2
+    assert unavailable.runs == []
+
+
 def test_history_cache_is_bound_to_snapshot_and_consumer_sort_is_non_mutating(
     tmp_path,
 ) -> None:
-    """B133: cache identity is the full immutable view, and decoded consumers never alias it."""
-    artifact_store = FileSystemCAS(tmp_path / "cas")
-    old_ref = _write_history(
-        artifact_store,
-        "same-run",
-        ("old-high", 9.0),
-        ("old-low", 1.0),
-    )
-    new_ref = _write_history(artifact_store, "same-run", ("new", 8.0))
+    """B133: immutable snapshots, live access, and the current alias remain distinct."""
+    root = tmp_path / "cas"
+    artifact_store = FileSystemCAS(root).with_ambient_ownership_enforcement()
+    run_id = "same-run"
+    with tenant_scope(None, tenant_id="tenant-a"):
+        old_ref = _write_history(artifact_store, run_id, ("old-high", 9.0), ("old-low", 1.0))
+        new_ref = _write_history(artifact_store, run_id, ("new", 9.0))
     store = _CountingStore(artifact_store)
-    manager = TransferLearningManager(store, _DiscoveryIndex(history_ref=old_ref))
-    old_snapshot = _fingerprint("same-run")
-    old_snapshot.history_ref = old_ref
-    new_snapshot = _fingerprint("same-run")
-    new_snapshot.history_ref = new_ref
+    index = _DiscoveryIndex(history_ref=old_ref, run_id=run_id)
+    manager = TransferLearningManager(store, index)
+    alias = _fingerprint(run_id)
+    old_snapshot = alias.model_copy(update={"history_ref": old_ref})
+    new_snapshot = alias.model_copy(update={"history_ref": new_ref})
+    target = _fingerprint("target")
 
-    first = manager.get_warm_start_evaluations(
-        [old_snapshot], max_evals=1, target_fingerprint=_fingerprint("target")
-    )
+    with tenant_scope(None, tenant_id="tenant-a"):
+        [first] = manager.get_warm_start_evaluations([old_snapshot], 1, target_fingerprint=target)
+        assert first.stage_b_result is not None
+        first.params["nested"]["labels"].append("mutated")
+        first.stage_b_result["metrics"]["score"] = 99.0
+        first.metadata["nested"]["labels"].append("mutated")
+        [second] = manager.get_warm_start_evaluations([new_snapshot], 1, target_fingerprint=target)
+        [old_replay] = manager.get_warm_start_evaluations(
+            [old_snapshot], 1, target_fingerprint=target
+        )
+        index.history_ref = new_ref
+        [current] = manager.get_warm_start_evaluations([alias], 1, target_fingerprint=target)
+        fresh_store = _CountingStore(FileSystemCAS(root).with_ambient_ownership_enforcement())
+        fresh = TransferLearningManager(fresh_store, index)
+        [fresh_current] = fresh.get_warm_start_evaluations([alias], 1, target_fingerprint=target)
 
-    assert [evaluation.candidate_id for evaluation in first] == ["old-low"]
-    assert first[0].stage_b_result is not None
-    first[0].params["nested"]["labels"].append("mutated")
-    first[0].stage_b_result["metrics"]["coverage"].append(99)
-    first[0].metadata["nested"]["labels"].append("mutated")
+    assert [row.scalar_score for row in (first, second, old_replay, current, fresh_current)] == [
+        1.0,
+        9.0,
+        1.0,
+        9.0,
+        9.0,
+    ]
+    assert first.candidate_id == old_replay.candidate_id == "old-low"
+    assert second.candidate_id == current.candidate_id == fresh_current.candidate_id == "new"
+    assert old_replay.params["nested"]["labels"] == ["original"]
+    assert old_replay.stage_b_result == {
+        "metrics": {"score": 1.0},
+        "metric_units": {"score": "points"},
+    }
+    assert old_replay.metadata["nested"]["labels"] == ["original"]
+    assert store.reads == [old_ref, new_ref] and fresh_store.reads == [new_ref]
+    assert store.verifications == [old_ref, new_ref]
+    assert index.query_calls == []
 
-    old_replay = manager.get_warm_start_evaluations(
-        [old_snapshot], max_evals=1, target_fingerprint=_fingerprint("target")
-    )
-    second = manager.get_warm_start_evaluations(
-        [new_snapshot], max_evals=1, target_fingerprint=_fingerprint("target")
-    )
-
-    assert [evaluation.candidate_id for evaluation in old_replay] == ["old-low"]
-    assert old_replay[0].params["nested"]["labels"] == ["original"]
-    assert old_replay[0].stage_b_result == {"metrics": {"coverage": [1, 2]}}
-    assert old_replay[0].metadata["nested"]["labels"] == ["original"]
-    assert [evaluation.candidate_id for evaluation in second] == ["new"]
+    with tenant_scope(None, tenant_id="tenant-b"):
+        with pytest.raises(ArtifactOwnershipError):
+            manager.get_warm_start_evaluations([old_snapshot], 1, target_fingerprint=target)
+        foreign_view = artifact_store.put_json(
+            _history_document(run_id, ("new", 9.0)),
+            PutOptions(
+                kind="search.transfer.history",
+                media_type="application/json",
+                producer=ProducerInfo(component="tests.transfer.foreign", version="1"),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+    assert foreign_view.artifact_id == new_ref.artifact_id and foreign_view != new_ref
+    foreign_snapshot = alias.model_copy(update={"history_ref": foreign_view})
+    with tenant_scope(None, tenant_id="tenant-a"):
+        with pytest.raises(ArtifactOwnershipError):
+            manager.get_warm_start_evaluations([foreign_snapshot], 1, target_fingerprint=target)
+        [still_owned] = manager.get_warm_start_evaluations([alias], 1, target_fingerprint=target)
+    assert still_owned.candidate_id == "new" and index.query_calls == []
     assert store.reads == [old_ref, new_ref]
+    assert store.verifications == [old_ref, new_ref, old_ref, new_ref]
+
+
+def test_history_cache_bounds_actual_selected_payloads(tmp_path: Path) -> None:
+    artifact_store = FileSystemCAS(tmp_path / "cas").with_ambient_ownership_enforcement()
+    target = _fingerprint("target")
+    source = _fingerprint("same-run")
+    with tenant_scope(None, tenant_id="tenant-a"):
+        refs = [
+            _write_history(artifact_store, source.run_id, (f"candidate-{number}", float(number)))
+            for number in range(129)
+        ]
+        first, second = refs[:2]
+        store = _CountingStore(artifact_store)
+        index = _DiscoveryIndex(history_ref=first)
+        manager = TransferLearningManager(store, index)
+        for number, ref in enumerate(refs):
+            snapshot = source.model_copy(update={"history_ref": ref})
+            [row] = manager.get_warm_start_evaluations([snapshot], 1, target_fingerprint=target)
+            assert row.candidate_id == f"candidate-{number}"
+        assert store.reads == refs
+        first_key = manager._history_cache_key(first, source)
+        second_key = manager._history_cache_key(second, source)
+        assert len(manager._eval_cache) == 128
+        assert first_key not in manager._eval_cache and second_key in manager._eval_cache
+        first_snapshot = source.model_copy(update={"history_ref": first})
+        [readback] = manager.get_warm_start_evaluations(
+            [first_snapshot], 1, target_fingerprint=target
+        )
+        assert readback.candidate_id == "candidate-0"
+        assert store.reads[-1] == first and second_key not in manager._eval_cache
+
+        retained = manager._eval_cache_bytes
+        byte_limit = 32 * 1024 * 1024
+        oversized_ref = artifact_store.put_json(
+            {**_history_document(source.run_id, ("oversized", 1.0)), "padding": "p" * byte_limit},
+            PutOptions(kind="search.transfer.history", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        assert artifact_store.get_manifest(oversized_ref).byte_size > byte_limit
+        oversized_snapshot = source.model_copy(update={"history_ref": oversized_ref})
+        [oversized] = manager.get_warm_start_evaluations(
+            [oversized_snapshot], 1, target_fingerprint=target
+        )
+        assert oversized.candidate_id == "oversized" and store.reads[-1] == oversized_ref
+        assert manager._history_cache_key(oversized_ref, source) not in manager._eval_cache
+        assert len(manager._eval_cache) == 128 and manager._eval_cache_bytes == retained
+    assert retained == sum(map(len, manager._eval_cache.values())) <= byte_limit
+    assert index.query_calls == []
 
 
 def test_cached_history_bytes_are_revalidated_before_reuse(tmp_path) -> None:
@@ -291,6 +436,20 @@ def test_cached_history_bytes_are_revalidated_before_reuse(tmp_path) -> None:
         )
     ] == ["candidate"]
     assert store.reads == [history_ref, history_ref]
+
+    blob, _ = artifact_store._paths(history_ref.artifact_id)
+    withdrawn = blob.with_suffix(".withdrawn")
+    blob.replace(withdrawn)
+    try:
+        with pytest.raises(ValueError, match="live CAS verification failed"):
+            manager.get_warm_start_evaluations(
+                [source], 1, target_fingerprint=_fingerprint("target")
+            )
+    finally:
+        withdrawn.replace(blob)
+    assert cache_key not in manager._eval_cache
+    assert store.reads == [history_ref, history_ref]
+    assert store.verifications == [history_ref, history_ref]
 
 
 def test_failed_native_add_does_not_publish_a_second_python_record(tmp_path) -> None:

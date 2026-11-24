@@ -21706,8 +21706,8 @@
       "transition_evidence": [],
       "corrective_windows": [],
       "current_execution": {
-        "status": "ACTIVE. Sixteen packets, 68 original requirements and 68 original test contracts. Ten named local requirements qualify. OPT-01-03/04/05, TRN-03-03 and STP-01-02/03 have partial evidence.",
-        "next": "Resolve the exact source-bound fiscal period profile and the retained Pareto views. Verify CTL-01 interruption and TRN native hints, and qualify independent FUN-02 and STP numerical controls. All local requirements remain in LANE-02. DA-08 and independent G follow their separate acceptance windows.",
+        "status": "ACTIVE. Sixteen packets, 68 original requirements and 68 original test contracts. Eighteen named local requirements qualify. OPT-01-03/05/06, TRN-03-03, FUN-02-03/04 and CTL-03-03 have partial evidence.",
+        "next": "Finish selected two-split fiscal/frontier readback, actual generation and cost gates, and scoped transfer reassessment. Close precise subnormal rounding regression and the verified interval source consumer. DA-08 stays a separate final profile window.",
         "baseline_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4"
       }
     },
@@ -41349,15 +41349,19 @@
       "implementation_status": "IN_PROGRESS",
       "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": "lane2_opt",
+      "assigned_executor": "opt_follow",
       "base_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4",
-      "integrated_commit": "dc4a31d4785b4e67ea0223de3427f0900f6d4a8f",
+      "integrated_commit": "c3c8ac470a4397e7efc914a631e1206024055765",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+        "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
         "policy-engine/src/polisyos/scientist/methods/search/objective.py",
         "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+        "policy-engine/src/polisyos/scientist/policy_design/output.py",
         "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
         "policy-engine/tests/unit/scientist/methods/search/test_objective.py",
+        "policy-engine/tests/unit/scientist/policy_design/test_phase_b_output.py",
         "policy-engine/tests/unit/scientist/search/test_objective_availability.py",
         "policy-engine/tests/unit/scientist/search/test_pareto_registry_serialization.py"
       ],
@@ -41441,6 +41445,13 @@
           "result": "95 tests pass with independent review. Current version 2.0 selects only the direct flow amount and unit. Conflicts within the selected flow, malformed input, missing operands and true zero remain distinct. Earlier direct and default receipts, including an invalid legacy conflict, reproduce byte-for-byte.",
           "source_commit": "dc4a31d4785b4e67ea0223de3427f0900f6d4a8f",
           "guard_sha256": "92f763784d4bddd03588795c038b5a84ae8dd8b05d0593c9d189981d9b5b2f3f"
+        },
+        {
+          "id": "opt01_candidate_projection_hv_versioned",
+          "output": "Primary:policy-engine/_cache/e02/lane02-opt01-candidate-coverage.tDObx7XM/qualification-versioned/",
+          "result": "61 green with three wider exact-baseline cases separately observed. V3.1 report binds typed candidate counts and exact omission, preserves governed map and exact selected old v3.0 bytes. Candidate 2D exact volume 8 and 3D bounding-box upper estimate 1000 vs exact union 28 have distinct identity, declared reference and comparison rules.",
+          "source_commit": "c3c8ac470a4397e7efc914a631e1206024055765",
+          "guard_sha256": "dabd03e7db748c8a8ba9bda846bbd3c653673555287b4cfdb3963bfd4ed39f8e"
         }
       ],
       "blockers": [],
@@ -41508,8 +41519,8 @@
         {
           "requirement_id": "REQ-OPT-01-04",
           "test_id": "TEST-OPT-01-04",
-          "status": "PARTIAL",
-          "basis": "The strict numeric comparator and fresh candidate-only frontier membership are verified. The current public authority assessment correctly withholds ranks on this source, but its overwrite loses the separate analytical partial status and per-candidate omission reason.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Independent strict oracle 7,380 ordered pairs and real fresh registry/report preserve the two tied candidate members among three and exact omitted axis, with zero governed ranks. Valid selected measurement and negative coverage distinguish evidence status, and historical read remains compatible.",
           "criterion_pointer": "04_Трассировка/OPT-01.json#/requirements/3",
           "test_ids": [
             "TEST-OPT-01-04"
@@ -41517,13 +41528,12 @@
           "binding_ids": [
             "E02-I02-B-B03"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
-            "opt01_partial_frontier_probe"
+            "opt01_partial_frontier_probe",
+            "opt01_candidate_projection_hv_versioned"
           ],
-          "remaining_kinds": [
-            "candidate_analytical_partial_status_and_omission_in_retained_consumer"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-OPT-01-05",
@@ -41544,6 +41554,24 @@
           "remaining_kinds": [
             "selected_producer_period_scope_valuation",
             "real_equivalent_representations_to_search_consumer"
+          ]
+        },
+        {
+          "requirement_id": "REQ-OPT-01-06",
+          "test_id": "TEST-OPT-01-06",
+          "status": "PARTIAL",
+          "basis": "Typed algorithms, reference identities and change refusal distinguish exact 2D from 3D bounding-box upper estimate; 2D stock report persists. Product 3D benchmark-report readback remains open.",
+          "criterion_pointer": "04_Трассировка/OPT-01.json#/requirements/5",
+          "test_ids": [
+            "TEST-OPT-01-06"
+          ],
+          "binding_ids": [],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "opt01_candidate_projection_hv_versioned"
+          ],
+          "remaining_kinds": [
+            "registered_benchmark_three_dimensional_report_fresh_reader"
           ]
         }
       ]
@@ -41585,13 +41613,18 @@
       "lane_sequence": 10,
       "track_id": "02-A",
       "track_position": 3,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "assigned_executor": "opt_sequence",
+      "base_commit": "268376e68",
+      "integrated_commit": "acf6fe5fcef3eeb629281732c712599281bb1f27",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+        "policy-engine/tests/unit/scientist/search/strategies/test_space_codec.py",
+        "policy-engine/tests/unit/scientist/search/test_candidate_identity_semantics.py",
+        "policy-engine/tests/unit/scientist/search/test_frontier.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -41608,9 +41641,88 @@
         "TEST-CTL-02-04",
         "TEST-CTL-02-05"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "ctl02_exact_subject_history",
+          "output": "Primary:policy-engine/_cache/e02/lane02-ctl02-identity.m8g0L8ky/final/",
+          "result": "14 pass using isolated exact 7aae05643 production and only two updated tests. Raw date/metadata affects subject; declared typed transport alone does not. Real registry retains both dated tradeoff candidates under active scope; no ranked authority.",
+          "source_commit": "83df3e05f1950fe05438ee2cc2d54477b0cb8aeb",
+          "guard_sha256": "edbfe3773b05f2e3f84e2d53433145ab375f6a89b45103dc3b7f2c40967264f5"
+        },
+        {
+          "id": "ctl02_exact_rng_sobol_compatibility",
+          "output": "Primary:policy-engine/_cache/e02/ctl02-02-03-r1/",
+          "result": "17 actual codec tests and independent review show no mutation or RNG advancement from malformed state. Explicit Sobol incompatibility survives any restore/re-export; genuine fresh and source-compatible resumed streams are distinct.",
+          "source_commit": "acf6fe5fcef3eeb629281732c712599281bb1f27",
+          "guard_sha256": "2420604a21639c9cd8e0d7e74f524e5a107b8546c6a8211e8be11e39024acf46"
+        },
+        {
+          "id": "ctl02_adjacent_bayesian_restore",
+          "output": "Primary:policy-engine/_cache/e02/ctl02-02-bayesian-base-20261124/",
+          "result": "One actual Bayesian state roundtrip passes with compatible base RNG/Sobol state.",
+          "source_commit": "acf6fe5fcef3eeb629281732c712599281bb1f27",
+          "guard_sha256": "d434096aa4f8f894eef2477d22669b87136f6569e50fcbaba29ba65fc313f9f8"
+        }
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-CTL-02-01",
+          "test_id": "TEST-CTL-02-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Raw JSON content including actual date and underscore-like fields changes identity. Declared typed service transport is excluded, forged payload/hash refuses, and two fresh retained dated candidates preserve their two opposite tradeoff axes without governed rank.",
+          "criterion_pointer": "04_Трассировка/CTL-02.json#/requirements/0",
+          "test_ids": [
+            "TEST-CTL-02-01"
+          ],
+          "binding_ids": [
+            "E02-I02-B-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "ctl02_exact_subject_history"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CTL-02-02",
+          "test_id": "TEST-CTL-02-02",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "A malformed native cursor, Gaussian cache or declared basis refuses before atomically replacing strategy state. The preimage and next Python PRNG/cached Gaussian survive unchanged, with compatible native JSON restore verified.",
+          "criterion_pointer": "04_Трассировка/CTL-02.json#/requirements/1",
+          "test_ids": [
+            "TEST-CTL-02-02"
+          ],
+          "binding_ids": [
+            "E02-I02-B-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "ctl02_exact_rng_sobol_compatibility",
+            "ctl02_adjacent_bayesian_restore"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CTL-02-03",
+          "test_id": "TEST-CTL-02-03",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Legacy checkpoints still run their valid Python RNG. An absent Sobol state remains explicitly incompatible across repeated JSON reads/exports and cannot masquerade as a fresh valid empty sequence. A real fresh/compatible Sobol stream works.",
+          "criterion_pointer": "04_Трассировка/CTL-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-CTL-02-03"
+          ],
+          "binding_ids": [
+            "E02-I02-B-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "ctl02_exact_rng_sobol_compatibility"
+          ],
+          "remaining_kinds": []
+        }
+      ]
     },
     {
       "packet_id": "OPT-03",
@@ -41881,13 +41993,16 @@
       "lane_sequence": 10,
       "track_id": "02-B",
       "track_position": 3,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "assigned_executor": "root",
+      "base_commit": "268376e68",
+      "integrated_commit": "77c553afb57366651bd0275cb8f32f4afb7b2d5f",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "policy-engine/tests/unit/scientist/search/test_cost_stopping.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -41904,9 +42019,39 @@
         "TEST-CTL-03-04",
         "TEST-CTL-03-05"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "ctl03_cost_cap_finite",
+          "output": "Primary:policy-engine/_cache/e02/lane02-ctl0303-cost.L2kIi8oJ/owned-green/",
+          "result": "34 tests pass and independent exact review. Zero, negative, invalid cap, nonfinite and unrepresentable cost are distinct. Actual provider two 0.25 settlements and threshold checked through repaired gateway wire fixture separately.",
+          "source_commit": "77c553afb57366651bd0275cb8f32f4afb7b2d5f",
+          "guard_sha256": "cf3f430d6b76ee29e841e74d4389c4ad24d2eaf37e76e9e1b44a557b8b98d595"
+        }
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-CTL-03-03",
+          "test_id": "TEST-CTL-03-03",
+          "status": "PARTIAL",
+          "basis": "Finite positive guard and ordinary source-backed settlement/threshold behavior are verified. Actual owner Decimal 1E-500 was observed to collapse to float 0 before criterion scope. Exact owner versus projection precision must pass on the live handoff.",
+          "criterion_pointer": "04_Трассировка/CTL-03.json#/requirements/2",
+          "test_ids": [
+            "TEST-CTL-03-03"
+          ],
+          "binding_ids": [
+            "E02-I02-A-B03"
+          ],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "ctl03_cost_cap_finite"
+          ],
+          "remaining_kinds": [
+            "exact_unrepresentable_owner_amount_in_stopping_state"
+          ]
+        }
+      ]
     },
     {
       "packet_id": "STP-01",
@@ -41919,13 +42064,15 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "stopping_lane",
       "base_commit": "268376e68",
-      "integrated_commit": "f00189cca21f47a1c21321754ea718f0accb12c8",
+      "integrated_commit": "8b9529fe272372a9369bdc9db720630a1fe65f2c",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
         "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
-        "policy-engine/tests/unit/scientist/search/test_stopping_c49.py",
+        "policy-engine/tests/unit/scientist/agent/test_drafter_convergence_c49.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_c49.py",
         "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py",
-        "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_c49.py"
+        "policy-engine/tests/unit/scientist/search/test_plateau_lifecycle_c49.py",
+        "policy-engine/tests/unit/scientist/search/test_stopping_c49.py"
       ],
       "shared_writer": null,
       "decision_records": [],
@@ -41948,6 +42095,26 @@
           "result": "130 tests pass with independent exact re-run. Biased rounded equality and overflow no longer create false plateau. Cosine is finite for extreme and subnormal admitted vectors or typed unavailable; rejected metrics and stale embeddings leave current stopping basis unchanged.",
           "source_commit": "f00189cca21f47a1c21321754ea718f0accb12c8",
           "guard_sha256": "3f2fdac9948ee5dafdd22b978d299fc191b520ff60e39088d5ab10d17e5fb931"
+        },
+        {
+          "id": "stp_exact_lifecycle_consumer",
+          "output": "Primary:policy-engine/_cache/e02/lane02-stp-numerics.2kZxx5A1/actual-lifecycle/",
+          "result": "Three real source-reconciled controller cases, including four extreme decisions and resource stop with JSON reread. Missing units stay unavailable and ordinary signed plateau is separate.",
+          "source_commit": "8b9529fe272372a9369bdc9db720630a1fe65f2c",
+          "guard_sha256": "61a5b28eadcf75ccaa745f30ae23e5777bdd1c59ad1335fe6203aaa0d8d239f3"
+        },
+        {
+          "id": "stp_exact_drafter_consumer",
+          "output": "Primary:policy-engine/_cache/e02/lane02-stp-numerics.2kZxx5A1/drafter-decision/",
+          "result": "24 real drafter/worker/tool-loop cases with controlled offline transport. Exact current request/response and model drift distinguish two fresh observations vs one physical simulator call plus reuse. Fresh stock consumer rereads result bytes. Independent repeat of the two frozen test files passes 17.",
+          "source_commit": "8b9529fe272372a9369bdc9db720630a1fe65f2c",
+          "guard_sha256": "7cdd3d6092670111fd79d66b222fb0ba276d52b1320204eaf23bd70fa1506045"
+        },
+        {
+          "id": "stp_configured_encoder",
+          "output": "Primary:policy-engine/_cache/e02/lane02-stp-numerics.2kZxx5A1/actual-consumer-probe/",
+          "result": "Actual fitted TFIDF yields bounded 1/0 diagnostic while withheld model identity prevents a compatible production heuristic stop. Complete tracked Python source/tools census has 3470 files and one production typed observer call; no production check_with_text caller.",
+          "source_commit": "8b9529fe272372a9369bdc9db720630a1fe65f2c"
         }
       ],
       "blockers": [],
@@ -41974,38 +42141,56 @@
         {
           "requirement_id": "REQ-STP-01-02",
           "test_id": "TEST-STP-01-02",
-          "status": "PARTIAL",
-          "basis": "The signed finite numerical comparison, exact fallback on overflow or rounded equality and typed diagnostic are verified. Standalone tests compare with an independent Decimal oracle and retain missing basis. The actual controller rollover/readback companion is being reviewed.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "An extreme source-reconciled run preserves the signed comparison, continues four evaluations and ends by declared resource limit with exact readback. Ordinary plateau, missing units, exact comparator and finite/undefined diagnostics remain distinct.",
           "criterion_pointer": "04_Трассировка/STP-01.json#/requirements/1",
           "test_ids": [
             "TEST-STP-01-02"
           ],
           "binding_ids": [],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
-            "stp_numerics_after_scales"
+            "stp_numerics_after_scales",
+            "stp_exact_lifecycle_consumer"
           ],
-          "remaining_kinds": [
-            "actual_controller_source_reconciled_extreme_readback"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-STP-01-03",
           "test_id": "TEST-STP-01-03",
-          "status": "PARTIAL",
-          "basis": "Real math and serialized detector diagnostic preserve finite bounded cosine or explicit unavailable with invalid/zero/mismatched vectors. The configured encoder and actual consumer companion is being reviewed.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Scale-safe actual detector and serialized consumer produce finite diagnostics from extreme and subnormal compatible matrices, or explicit unavailable. The configured fitted TFIDF backend returns bounded diagnostics and declines stop with missing model/version identity.",
           "criterion_pointer": "04_Трассировка/STP-01.json#/requirements/2",
           "test_ids": [
             "TEST-STP-01-03"
           ],
           "binding_ids": [],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
-            "stp_numerics_after_scales"
+            "stp_numerics_after_scales",
+            "stp_configured_encoder"
           ],
-          "remaining_kinds": [
-            "configured_encoder_profile_and_actual_consumer"
-          ]
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-STP-01-04",
+          "test_id": "TEST-STP-01-04",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual traced drafter current observation reaches worker readback. Stable fresh pairs give heuristic-only stop; model drift, reuse, parse failure and resource cap compose separately. Exact response bytes and one physical simulator invocation plus separately attested cache reuse are retained.",
+          "criterion_pointer": "04_Трассировка/STP-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-STP-01-04"
+          ],
+          "binding_ids": [
+            "E02-I02-A-B04"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "stp_exact_drafter_consumer",
+            "stp_exact_lifecycle_consumer",
+            "stp_configured_encoder"
+          ],
+          "remaining_kinds": []
         }
       ]
     },
@@ -42049,13 +42234,15 @@
       "implementation_status": "IN_PROGRESS",
       "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": "lane2_transfer",
+      "assigned_executor": "trn_follow",
       "base_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4",
-      "integrated_commit": "26875aa3ad9424f40bae1abcbfb9079c0b5e78b8",
+      "integrated_commit": "6143b158aac81c50573ca0bd759e31541f211786",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
         "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
         "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+        "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
         "policy-engine/tests/unit/scientist/search/test_calibration_report.py",
         "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py",
         "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
@@ -42130,6 +42317,13 @@
           "output": "Primary:policy-engine/_cache/e02/trn03-calibration-grades.IqFkiVgt/",
           "result": "Adjacent pack 190 pass, 14 fail. The same 14 case identities, first reasons and final locations reproduce in an isolated Git archive. The runtime strategy reader crosses the modified report and stops on its original selected-profile expectation. The combined pack remains red.",
           "source_commit": "ea352e31d"
+        },
+        {
+          "id": "trn03_native_hint_qualified",
+          "output": "Primary:policy-engine/_cache/e02/lane02-trn03-native-hint.yNavycE4/qualified/",
+          "result": "146 tests, exact independent review, authenticated actual Funnel→selected CAS→fresh native SearchController→generator hint, rejected routes no writes, bounded sidecar, exact source withdrawal and same-body alternate manifest. Actual terminal card grade 1.0; 0.9 threshold fixture is separate.",
+          "source_commit": "6143b158aac81c50573ca0bd759e31541f211786",
+          "guard_sha256": "c11c7f56a6164f4345efaaebdfd05796cdbdea510ea28ed1f8710085a21e6851"
         }
       ],
       "blockers": [],
@@ -42194,6 +42388,25 @@
           "remaining_kinds": [
             "actual_source_bound_verified_reassessment"
           ]
+        },
+        {
+          "requirement_id": "REQ-TRN-03-04",
+          "test_id": "TEST-TRN-03-04",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Native producer and fresh generator preserve origin and target, selected source run, stage/tags, trust, after-eligibility quota and old grade/weight. Scope and wrong source refuse without materialization, revocation withholds existing projected hints, and same-byte alternate lacking exact selected parent remains historical only.",
+          "criterion_pointer": "04_Трассировка/TRN-03.json#/requirements/3",
+          "test_ids": [
+            "TEST-TRN-03-04"
+          ],
+          "binding_ids": [
+            "E02-I02-D-B04",
+            "E02-X03-B03"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "trn03_native_hint_qualified"
+          ],
+          "remaining_kinds": []
         }
       ]
     },
@@ -42208,8 +42421,9 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "trn_follow",
       "base_commit": "268376e68",
-      "integrated_commit": "0aa242144c353ae7a58972ceb9927d7459df7e4a",
+      "integrated_commit": "af28151d6330880cbbe5d645c729eb467ac46a9c",
       "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
         "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
         "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
         "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py"
@@ -42242,6 +42456,13 @@
           "result": "48 checks and exact independent review. Real register_run writes selected CAS history and new WarmStartBridge restores 2001 in UTC; genuine false stays infeasible. Malformed flags or naive input reject; absent historical time has no selected training basis. Configured bridge rechecks admitted rule and source.",
           "source_commit": "0aa242144c353ae7a58972ceb9927d7459df7e4a",
           "guard_sha256": "31063092ee04a203f524f0fe24f4eb4ed9a14c9df8dc9fce17840e80910a19ec"
+        },
+        {
+          "id": "trn01_history_two_quotas",
+          "output": "Primary:policy-engine/_cache/e02/lane02-trn01-two-quotas.YLBQsP89/",
+          "result": "49 pass and exact independent review. Actual CAS→WarmStartBridge distinguishes total delivery and eligible bound. MIN/MAX retain direction/diversity and malformed or unknown outcomes stay diagnostics. Independent consumer probe trains its local subset on exactly two source-eligible rows among five; ordinary fitted GP remains separately qualified.",
+          "source_commit": "af28151d6330880cbbe5d645c729eb467ac46a9c",
+          "guard_sha256": "c91fa5d2137a9b2e46fd6c8c645bf9e22fba86beba21de7ee52d954c7420b681"
         }
       ],
       "blockers": [],
@@ -42263,6 +42484,22 @@
           "evidence_refs": [
             "trn01_history_clock_and_bool_red",
             "trn01_history_clock_and_bool_green"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-TRN-01-02",
+          "test_id": "TEST-TRN-01-02",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The explicit additional eligible quota is separate from the old total max and its default ordering. Actual selected CAS and new bridge respect normalized MIN/MAX and refilling without counting malformed/unavailable records as training observations.",
+          "criterion_pointer": "04_Трассировка/TRN-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-TRN-01-02"
+          ],
+          "binding_ids": [],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "trn01_history_two_quotas"
           ],
           "remaining_kinds": []
         }
@@ -42341,10 +42578,14 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "fun_prep",
       "base_commit": "268376e68cbd22f5d586a45e466afd3c5e6eed26",
-      "integrated_commit": "faa21e5310bea27349296b5a2d2e9ce74facb73c",
+      "integrated_commit": "123f14d480eb29fa2a0aa9db5f2d051ca9d278d0",
       "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py",
         "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
-        "policy-engine/tests/unit/remediation/test_fun_02.py"
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_metrics.py",
+        "policy-engine/tests/unit/remediation/test_fun_02.py",
+        "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_metrics.py"
       ],
       "shared_writer": null,
       "decision_records": [],
@@ -42374,6 +42615,13 @@
           "result": "42 tests pass on exact two-file release. Both real stage adapters use the scale-safe helper. Independent Fraction review confirms 1 ULP worst observed over 25,000 finite positive pairs. Typed missing/invalid/effect-invalid and true zero remain distinct.",
           "source_commit": "faa21e5310bea27349296b5a2d2e9ce74facb73c",
           "guard_sha256": "25d5975f48db30d9e07baa315366e9aaa496c3c4497ea288db80b0bf0e6c9854"
+        },
+        {
+          "id": "fun02_verified_proxy_label",
+          "output": "Primary:policy-engine/_cache/e02/lane02-fun-02-04-origin.s0nKXlvB/review-green/",
+          "result": "51 scoped pass. Native 0.12/0.1 becomes historical diagnostic 0.06/0.05 with explicit heuristic producer. Not-instrumented alone is unverified; claimed bootstrap/count without source cannot be measured. Old typed method labels replay.",
+          "source_commit": "123f14d480eb29fa2a0aa9db5f2d051ca9d278d0",
+          "guard_sha256": "1046049780d35e795344c77d15f4cedeb4d4faadbb55cc1ef1da25acf1f488ec"
         }
       ],
       "blockers": [],
@@ -42382,8 +42630,8 @@
         {
           "requirement_id": "REQ-FUN-02-03",
           "test_id": "TEST-FUN-02-03",
-          "status": "CONFIRMED_LOCAL_PROFILE",
-          "basis": "Both actual L3/L4 adapters agree with the exact rational oracle on equal-scale 1e308 and smallest subnormal, ordinary values, synthetic zero and finite clamp controls. Stage holds typed reason and method on valid, missing and invalid branches. Source-owned interval admission remains FUN-02-04.",
+          "status": "PARTIAL",
+          "basis": "Large and equal-scale extreme, zero/missing/invalid cases and both actual adapters pass. Independent review isolated an asymmetric subnormal double-rounding witness with true rounded result 5e-324 versus emitted 1e-323. The precise subnormal branch awaits repair.",
           "criterion_pointer": "04_Трассировка/FUN-02.json#/requirements/2",
           "test_ids": [
             "TEST-FUN-02-03"
@@ -42391,12 +42639,34 @@
           "binding_ids": [
             "E02-I02-C-B03"
           ],
-          "assessment": "selected_profile_qualified",
+          "assessment": "selected_profile_partial",
           "evidence_refs": [
             "fun02_ci_exact_red",
             "fun02_ci_exact_qualified"
           ],
-          "remaining_kinds": []
+          "remaining_kinds": [
+            "exact_rounded_asymmetric_subnormal_boundary"
+          ]
+        },
+        {
+          "requirement_id": "REQ-FUN-02-04",
+          "test_id": "TEST-FUN-02-04",
+          "status": "PARTIAL",
+          "basis": "Verified actual native heuristic projection, legacy compatibility and no promotion of absent/forged provenance. Selected source-owned HTE interval consumer is still open. Numerical job completed once; retained outbox source mismatch is under diagnosis.",
+          "criterion_pointer": "04_Трассировка/FUN-02.json#/requirements/3",
+          "test_ids": [
+            "TEST-FUN-02-04"
+          ],
+          "binding_ids": [
+            "E02-I02-C-B02"
+          ],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "fun02_verified_proxy_label"
+          ],
+          "remaining_kinds": [
+            "selected_interval_package_source_join_and_fresh_reader"
+          ]
         }
       ]
     },

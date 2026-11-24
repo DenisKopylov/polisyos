@@ -870,11 +870,9 @@ class TestOptimizationFlow:
         assert result.iterations_completed == 5
         assert "Maximum iterations" in result.stopping_reason
 
-    def test_repeated_runs_are_fresh_and_returned_snapshots_stay_stable(
-        self,
-        quadratic_objective,
-    ):
+    def test_repeated_runs_are_fresh_and_returned_snapshots_stay_stable(self) -> None:
         """A controller run owns its state and returns a stable result snapshot."""
+        from polisyos.scientist.methods.search.objective import BudgetDeficitObjective
 
         class StaticGenerator:
             def generate(self, history, current_best, context):
@@ -888,28 +886,40 @@ class TestOptimizationFlow:
         def stage_b(candidate, context):
             del context
             return {
-                "simulation_results": {"x": candidate["x"]},
+                "simulation_results": {
+                    "budget_deficit": candidate["x"],
+                    "metric_units": {"budget_deficit": "EUR"},
+                },
                 "feedback": {"verdict": "APPROVE"},
             }
 
-        controller = SearchController(
-            config=SearchConfig(
-                stopping=MaxIterations(1),
-                objective=quadratic_objective,
-                initial_evaluations=[],
-            ),
-            candidate_generator=StaticGenerator(),
-            stage_a_evaluator=stage_a,
-            stage_b_evaluator=stage_b,
-        )
+        def make_controller(
+            *, count: int = 1, warm_rows: list[dict[str, Any]] | None = None
+        ) -> SearchController:
+            return SearchController(
+                config=SearchConfig(
+                    stopping=MaxIterations(count),
+                    objective=CompositeObjective([BudgetDeficitObjective(expected_unit="EUR")]),
+                    initial_evaluations=warm_rows or [],
+                ),
+                candidate_generator=StaticGenerator(),
+                stage_a_evaluator=stage_a,
+                stage_b_evaluator=stage_b,
+            )
 
-        first_candidate = {"x": 1.0, "semantic": {"interventions": []}}
+        controller = make_controller()
+        first_candidate: dict[str, Any] = {"x": 1.0, "semantic": {"interventions": []}}
         first = controller.run({"request": "first"}, initial_candidate=first_candidate)
         first_candidate["x"] = 99.0
+        first_candidate["semantic"]["interventions"].append({"source": "caller mutation"})
 
+        second_candidate = {"x": 2.0, "semantic": {"interventions": []}}
         second = controller.run(
             {"request": "second"},
-            initial_candidate={"x": 2.0, "semantic": {"interventions": []}},
+            initial_candidate=second_candidate,
+        )
+        independently_initialized = make_controller().run(
+            {"request": "second"}, initial_candidate=second_candidate
         )
 
         assert second.search_id != first.search_id
@@ -919,11 +929,18 @@ class TestOptimizationFlow:
         assert second.history[0].candidate["x"] == 2.0
         assert second.best_candidate is not None
         assert second.best_candidate["x"] == 2.0
+        assert second.best_candidate == independently_initialized.best_candidate
+        assert second.best_objective == independently_initialized.best_objective == 2.0
 
         assert len(first.history) == 1
         assert first.history[0].candidate["x"] == 1.0
         assert first.best_candidate is not None
         assert first.best_candidate["x"] == 1.0
+        assert first.best_objective == 1.0
+        assert first.history[0].candidate["semantic"]["interventions"] == []
+        first.history[0].candidate["semantic"]["interventions"].append({"source": "reader"})
+        assert first.best_candidate["semantic"]["interventions"] == []
+        assert second.history[0].candidate["semantic"]["interventions"] == []
         assert first.stage_a_evaluations == 1
         assert first.stage_b_evaluations == 1
 
@@ -944,30 +961,32 @@ class TestOptimizationFlow:
         warm_evaluation = {
             "candidate": {"x": 0.5, "semantic": {"interventions": []}},
             "objective_value": 0.5,
+            "stage_b_result": stage_b({"x": 0.5}, {}),
         }
-        warm_controller = SearchController(
-            config=SearchConfig(
-                stopping=MaxIterations(2),
-                objective=quadratic_objective,
-                initial_evaluations=[warm_evaluation],
-            ),
-            candidate_generator=StaticGenerator(),
-            stage_a_evaluator=stage_a,
-            stage_b_evaluator=stage_b,
-        )
+        warm_controller = make_controller(count=2, warm_rows=[warm_evaluation])
         warm = warm_controller.run(
             {"request": "compatible-warm-start"},
             initial_candidate={"x": 4.0, "semantic": {"interventions": []}},
         )
         warm_evaluation["candidate"]["x"] = 8.0
+        warm_evaluation["stage_b_result"]["simulation_results"]["metric_units"][
+            "budget_deficit"
+        ] = "JPY"
+        refused_warm = warm_controller.run(
+            {"request": "foreign-unit"}, initial_candidate={"x": 4.0}
+        )
 
         assert warm.history[0].iteration == -1
         assert warm.history[0].candidate["x"] == 0.5
+        assert warm.best_objective == 0.5
         assert warm.telemetry["training_evaluations"] == 1
         assert warm.telemetry["history_size"] == 3
         assert warm.telemetry["new_evaluations"] == 2
         assert warm.telemetry["evaluation_count"] == 2
         assert warm.telemetry["scientific_evaluations"] == 2
+        assert refused_warm.telemetry["training_evaluations"] == 0
+        assert refused_warm.history[0].score_status is not ObjectiveScoreStatus.AVAILABLE
+        assert refused_warm.best_objective == 4.0
 
     def test_cost_budget_snapshot_stops_after_owner_spend_and_is_reported(
         self,
@@ -1016,6 +1035,7 @@ class TestOptimizationFlow:
             ("0.25", "0.25", "resolved", 0),
             ("0", "0.50", "resolved", 1),
             ("true", "0.50", "unavailable", 0),
+            ("ledger_small", "0.50", "resolved", 0),
         ],
     )
     def test_durable_provider_owner_controls_search_stopping_and_result(
@@ -1030,6 +1050,7 @@ class TestOptimizationFlow:
         """Wire real provider bytes through settlement, run scope, stopping, and result."""
         import json
         from decimal import Decimal
+        from hashlib import sha256
 
         from polisyos.core.llm.traced_client import TracedLLMClient
         from polisyos.scientist.orchestration.engine.budget import (
@@ -1066,6 +1087,27 @@ class TestOptimizationFlow:
             ),
             ledger=FileBudgetLedger(ledger_path),
         )
+        if wire_cost == "ledger_small":
+            request_digest = sha256(b"retained request").hexdigest()
+            payload_digest = sha256(b"retained payload").hexdigest()
+            with owner.producer_run_binding_scope(binding):
+                owner.begin_producer_event_safe(
+                    "retained-tiny-cost",
+                    request_digest,
+                    key=budget_key,
+                    model="fixture-model",
+                    provider="fixture",
+                )
+                owner.settle_producer_event_safe(
+                    "retained-tiny-cost",
+                    request_digest,
+                    payload_digest,
+                    key=budget_key,
+                    model="fixture-model",
+                    provider="fixture",
+                    amount=Decimal("1e-500"),
+                    cost_origin="reported",
+                )
 
         response_json = json.dumps(
             {
@@ -1081,7 +1123,7 @@ class TestOptimizationFlow:
                 "usage": {
                     "prompt_tokens": 2,
                     "completion_tokens": 1,
-                    "total_cost_usd": json.loads(wire_cost),
+                    "total_cost_usd": json.loads("0" if wire_cost == "ledger_small" else wire_cost),
                 },
             }
         )
@@ -1102,8 +1144,10 @@ class TestOptimizationFlow:
 
         class FakeSession:
             closed = False
+            requests = 0
 
             def post(self, *_args: object, **_kwargs: object) -> FakeContext:
+                self.requests += 1
                 return FakeContext()
 
             async def close(self) -> None:
@@ -1115,7 +1159,8 @@ class TestOptimizationFlow:
             model="fixture-model",
             max_retries=0,
         )
-        gateway._session = FakeSession()
+        session = FakeSession()
+        gateway._session = session
         traced = TracedLLMClient(
             gateway,
             model_name="fixture-model",
@@ -1158,15 +1203,27 @@ class TestOptimizationFlow:
         assert events[0].run_binding == binding
         assert events[0].key == budget_key
         assert events[0].status == ("unknown" if wire_cost == "true" else "committed")
+        assert session.requests == int(wire_cost != "ledger_small")
         assert len(stage_b_calls) == expected_stage_b
         owner_telemetry = result.telemetry["producer_budget_owner"]
         assert owner_telemetry["status"] == expected_owner_status
         if expected_owner_status == "resolved":
             assert owner_telemetry["event_status_counts"] == {"committed": 1}
-            assert Decimal(owner_telemetry["spent"]) == (
-                Decimal(0) if wire_cost == "0" else Decimal("0.25")
-            )
-            assert result.telemetry["budget_available"] is True
+            expected_spent = {
+                "0": Decimal(0),
+                "ledger_small": Decimal("1e-500"),
+            }.get(wire_cost, Decimal("0.25"))
+            assert Decimal(owner_telemetry["spent"]) == expected_spent
+            assert durable.state.spent.get(budget_key, Decimal(0)) == expected_spent
+            if wire_cost == "ledger_small":
+                assert result.telemetry["budget_available"] is False
+                assert result.telemetry["budget_spent"] is None
+                assert (
+                    result.stopping_reason
+                    == "Cost budget unavailable for key 'cumulative_cost_usd'"
+                )
+            else:
+                assert result.telemetry["budget_available"] is True
         else:
             assert owner_telemetry.get("event_status_counts") is None
             assert "valueerror" in owner_telemetry["reason_code"]

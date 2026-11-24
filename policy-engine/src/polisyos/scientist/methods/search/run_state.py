@@ -57,7 +57,7 @@ class SearchRunState:
     empty_generation_retry_deadline: float | None = None
     evaluation_iterations: int = 0
     training_evaluations: int = 0
-    budget_spent: float = 0.0
+    budget_spent: float | None = None
     budget_available: bool = False
     budget_required: bool | None = None
     budget_snapshot: dict[str, float] = field(default_factory=dict)

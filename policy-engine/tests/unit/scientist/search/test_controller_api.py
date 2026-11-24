@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from polisyos.scientist.methods.search.controller import (
     SearchConfig,
     SearchController,
     SearchEvaluatorPorts,
 )
-from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
+from polisyos.scientist.methods.search.objective import BudgetDeficitObjective, CompositeObjective
 from polisyos.scientist.methods.search.stopping import MaxIterations
 
 
@@ -17,31 +19,26 @@ class _NoopGenerator:
         return {"candidate_id": "generated"}
 
 
-class _SingleObjective:
-    def evaluate(self, results):
-        return ObjectiveValue(
-            name="cost",
-            raw_value=float(results["cost"]),
-            direction=OptimizationDirection.MINIMIZE,
-        )
-
-    def evaluate_detailed(self, results):
-        return [self.evaluate(results)]
+def _budget_result(_candidate: dict[str, Any], _context: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "simulation_results": {
+            "budget_deficit": 3.0,
+            "metric_units": {"budget_deficit": "EUR"},
+        },
+        "feedback": {"verdict": "APPROVE"},
+    }
 
 
 def test_search_controller_accepts_evaluator_ports_value_object() -> None:
     controller = SearchController(
         SearchConfig(
             stopping=MaxIterations(1),
-            objective=_SingleObjective(),
+            objective=CompositeObjective([BudgetDeficitObjective(expected_unit="EUR")]),
         ),
         candidate_generator=_NoopGenerator(),
         evaluators=SearchEvaluatorPorts(
             stage_a=lambda candidate, context: (0.0, bool(candidate) and context["ok"]),
-            stage_b=lambda candidate, context: {
-                "simulation_results": {"cost": 3.0},
-                "feedback": {"verdict": "APPROVE"},
-            },
+            stage_b=_budget_result,
         ),
     )
 
@@ -63,9 +60,13 @@ def test_search_controller_uses_facade_default_metrics_binding(monkeypatch) -> N
     controller = SearchController(
         SearchConfig(
             stopping=MaxIterations(1),
-            objective=_SingleObjective(),
+            objective=CompositeObjective([BudgetDeficitObjective(expected_unit="EUR")]),
         ),
         candidate_generator=_NoopGenerator(),
+        evaluators=SearchEvaluatorPorts(
+            stage_a=lambda _candidate, _context: (0.0, True),
+            stage_b=_budget_result,
+        ),
     )
 
     assert controller._metrics is metrics

@@ -64,6 +64,7 @@ from polisyos.scientist.methods.search.objective import (
 )
 from polisyos.scientist.methods.search.run_state import _CANCELLATION_ERRORS, SearchRunState
 from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadata
+from polisyos.scientist.methods.search.stopping import _finite_cost_amount
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -738,6 +739,7 @@ class _SearchLifecycleOwner:
         except BaseException as error:
             self._run_state.budget_snapshot = {}
             self._run_state.budget_available = False
+            self._run_state.budget_spent = None
             # The source owner can still be read independently of the criterion.
             try:
                 self._source_budget_snapshot = self._read_source_budget_snapshot()
@@ -903,38 +905,30 @@ class _SearchLifecycleOwner:
         for key in context_required_keys:
             if self._config.producer_settlement_store is not None and key == "cumulative_cost_usd":
                 continue
-            value = context.get(key)
-            if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool):
-                numeric_value = float(value)
-                if isfinite(numeric_value):
-                    snapshot[key] = numeric_value
+            cost = _finite_cost_amount(context.get(key))
+            if cost is not None:
+                snapshot[key] = cost
 
-        if self._config.producer_settlement_store is not None:
-            self._source_budget_snapshot = self._read_source_budget_snapshot()
-            if self._source_budget_snapshot.get("status") == "resolved":
-                source_spent = self._source_budget_snapshot["spent"]
-                if "cumulative_cost_usd" in required_keys:
-                    snapshot["cumulative_cost_usd"] = float(source_spent)
-                self._run_state.budget_spent = float(source_spent)
-        else:
+        source_available = True
+        if self._config.producer_settlement_store is None:
             self._source_budget_snapshot = {"status": "not_configured"}
+            spent = snapshot.get("cumulative_cost_usd", next(iter(snapshot.values()), None))
+        else:
+            self._source_budget_snapshot = self._read_source_budget_snapshot()
+            spent = (
+                _finite_cost_amount(self._source_budget_snapshot.get("spent"))
+                if self._source_budget_snapshot.get("status") == "resolved"
+                else None
+            )
+            source_available = spent is not None
+            if spent is not None and "cumulative_cost_usd" in required_keys:
+                snapshot["cumulative_cost_usd"] = spent
         self._run_state.budget_snapshot = snapshot
         context_available = all(key in snapshot for key in context_required_keys)
-        source_available = (
-            self._config.producer_settlement_store is None
-            or self._source_budget_snapshot.get("status") == "resolved"
-        )
         self._run_state.budget_available = (
             bool(required_keys) and context_available and source_available
         )
-        if self._config.producer_settlement_store is not None:
-            pass
-        elif "cumulative_cost_usd" in snapshot:
-            self._run_state.budget_spent = snapshot["cumulative_cost_usd"]
-        elif snapshot:
-            self._run_state.budget_spent = next(iter(snapshot.values()))
-        else:
-            self._run_state.budget_spent = 0.0
+        self._run_state.budget_spent = spent if self._run_state.budget_available else None
 
     def _read_source_budget_snapshot(self) -> dict[str, Any]:
         """Read one owner, typed run scope, exact producer events, and remaining budget."""

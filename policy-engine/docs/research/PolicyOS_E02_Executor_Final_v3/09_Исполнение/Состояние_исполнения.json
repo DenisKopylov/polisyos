@@ -21706,8 +21706,8 @@
       "transition_evidence": [],
       "corrective_windows": [],
       "current_execution": {
-        "status": "ACTIVE. Sixteen packets, 68 original requirements and 68 original test contracts. Three named local requirements qualify. OPT-01-03 and TRN-03-03 have partial evidence.",
-        "next": "Verify shared CTL-01/SRV-01 generation/claim handling on the frozen coordinate basis, and address the first remaining OPT and transfer candidate read boundaries.",
+        "status": "ACTIVE. Sixteen packets, 68 original requirements and 68 original test contracts. Six named local requirements qualify. OPT-01-03/04 and TRN-03-03 have partial evidence. The first composed slice passes 200 selected tests.",
+        "next": "Join the registered split/unit and diagnostic partial-frontier routes under OPT-01. Continue CTL-01 interruption finalization and TRN-03 native provenance and verified reassessment on separate owners. Keep the LANE-12 cross-story window and independent G separate.",
         "baseline_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4"
       }
     },
@@ -41351,7 +41351,7 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "lane2_opt",
       "base_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4",
-      "integrated_commit": "7cb2ab63e",
+      "integrated_commit": "f1e200f9cd9c5c27b5179a44b7d5e482c785f361",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
         "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
@@ -41410,6 +41410,20 @@
           "output": "Primary:policy-engine/_cache/e02/lane02-opt01-method-source.hEViVqlj/",
           "result": "Three actual registered MethodJob and fresh source controls preserve measured USD-per-resident and reject EUR, missing applicable unit and foreign/stale exact source edges.",
           "source_commit": "7cb2ab63e"
+        },
+        {
+          "id": "opt01_partial_frontier_probe",
+          "output": "Primary:policy-engine/_cache/e02/lane02-opt01-partial-registry.fJdHmSYb/evidence/",
+          "result": "The actual comparator matches an independent strict-dominance oracle for 7,380 ordered pairs across 1–4 dimensions, three mixed-direction permutations at each dimension and two equal distinct refs. A registered MethodJob produces 0.25 USD per resident and its selected result edge reopens. The real registry, new registry and stock report/CAS reader retain two diagnostic candidate members among three and zero ranks. Candidate-level missing employment is lost from the persisted assessment and report.",
+          "source_commit": "ea352e31d",
+          "guard_sha256": "f69e19d02484c9055d6ffd48ce98a8fe9c099c274ace574c357abf913d9636c8"
+        },
+        {
+          "id": "opt01_registry_serialization_current",
+          "output": "Primary:policy-engine/_cache/e02/lane02-opt01-serialization.3nqsEFDM/verified/",
+          "result": "Four old fixtures failed at candidate admission on the exact lane entry. Only their test inputs and the wire contract check changed. All six real serialization tests now reach the intended required-null, authenticated scope, seed-only and removed-field oracles. Exact independent review. No product code change.",
+          "source_commit": "f1e200f9cd9c5c27b5179a44b7d5e482c785f361",
+          "guard_sha256": "e82898772572ff653731e71a68e6cbbc4457d31c96c10e723b212eadab13dfa8"
         }
       ],
       "blockers": [],
@@ -41472,6 +41486,26 @@
           ],
           "remaining_kinds": [
             "actual_registered_split_unit_frontier_join_and_fresh_consumer"
+          ]
+        },
+        {
+          "requirement_id": "REQ-OPT-01-04",
+          "test_id": "TEST-OPT-01-04",
+          "status": "PARTIAL",
+          "basis": "The strict numeric comparator and fresh candidate-only frontier membership are verified. The current public authority assessment correctly withholds ranks on this source, but its overwrite loses the separate analytical partial status and per-candidate omission reason.",
+          "criterion_pointer": "04_Трассировка/OPT-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-OPT-01-04"
+          ],
+          "binding_ids": [
+            "E02-I02-B-B03"
+          ],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "opt01_partial_frontier_probe"
+          ],
+          "remaining_kinds": [
+            "candidate_analytical_partial_status_and_omission_in_retained_consumer"
           ]
         }
       ]
@@ -41608,14 +41642,19 @@
       "lane_sequence": 10,
       "track_id": "02-B",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "assigned_executor": "lane2_custody",
+      "base_commit": "ea352e31defe775a86229d5e4633da26943190ea",
+      "integrated_commit": "e9fa8b5e40a0be7c700804cd671494322f06b45c",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+        "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/tests/unit/remediation/test_srv_01.py"
+      ],
+      "shared_writer": "lane2_custody",
       "decision_records": [],
       "requirement_ids": [
         "REQ-CTL-01-01",
@@ -41636,10 +41675,52 @@
           "output": "Primary:policy-engine/_cache/e02/lane02-c12-run-affinity.1N5KlU9g/",
           "result": "C12-R02 reproduced. An old driver tell entered the new owner history; a same-adapter refused run discarded a still-live pending answer. The same-session reverse-order control remained correct. Baseline defect evidence, qualification open.",
           "guard_sha256": "2b4e0d1ddc85bc8b1d409bb81bf6cca50d61dd3e4aa1b85dd771c5e2e4e946c2"
+        },
+        {
+          "id": "ctl_srv_generation_claim_red",
+          "output": "Primary:policy-engine/_cache/e02/lane02-c12-c14-owner-red.10iM49lR/",
+          "result": "Five distinguishing tests fail on old source in stale-generation, rejected-new-run, ambiguous raw ID, concurrent duplicate and callback-reentry cases. Reverse completion for distinct IDs remains useful.",
+          "source_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4",
+          "guard_sha256": "9ac4c77bba7a678b94a4363d3ee35fd3927374a9bde87b1bb030e62b6758c229"
+        },
+        {
+          "id": "ctl_srv_generation_claim_qualified",
+          "output": "Primary:policy-engine/_cache/e02/lane02-c12-c14-owner-qualified.VovI46ol/",
+          "result": "All 26 scoped tests pass and an independent reviewer verifies the exact source. The same owner protects admission, generation, single claim and commit. Pre-publication failures retry; incomplete registry publication holds the claim and retains the existing durable snapshot without a second local transition. Run uses actual CAS selected-source removal and typed EUR objective tests.",
+          "source_commit": "e9fa8b5e40a0be7c700804cd671494322f06b45c",
+          "guard_sha256": "5d2d168a33bf7bd252017ee1f5588ffc0cee042a5e17a439daf69d78e6111cb0"
+        },
+        {
+          "id": "ctl_srv_adjacent_scalar_exact_replay",
+          "output": "Primary:policy-engine/_cache/e02/lane02-c12-c14-source-replay.3OOr4C4p/budget-with-architecture/",
+          "result": "Five adjacent scalar best assertions reproduce on the exact predecessor source. Unregistered objective rules withhold best, including the AutoTune objective. The caller path overlaps the touched lifecycle, so this establishes baseline reproduction and does not qualify the larger profile.",
+          "source_commit": "1cb561160",
+          "guard_sha256": "77d8590821c184b34e1cbc2a029ea13f662b2f7d78db191b95e316f317247005"
         }
       ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-CTL-01-01",
+          "test_id": "TEST-CTL-01-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The ordinary owner and issuing adapter hold a monotonic generation after admission. A prior-generation tell leaves replacement history and the detached result untouched; a rejected replacement leaves its pending proposal usable. Distinct current responses may complete in reverse order. Generated routing IDs remain usable across reused adapter runs without changing payloads.",
+          "criterion_pointer": "04_Трассировка/CTL-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-CTL-01-01"
+          ],
+          "binding_ids": [
+            "E02-I02-A-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "ctl_srv_generation_claim_red",
+            "ctl_srv_generation_claim_qualified"
+          ],
+          "remaining_kinds": []
+        }
+      ]
     },
     {
       "packet_id": "SRV-01",
@@ -41647,14 +41728,19 @@
       "lane_sequence": 10,
       "track_id": "02-B",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
-      "shared_writer": null,
+      "assigned_executor": "lane2_custody",
+      "base_commit": "ea352e31defe775a86229d5e4633da26943190ea",
+      "integrated_commit": "e9fa8b5e40a0be7c700804cd671494322f06b45c",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+        "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/tests/unit/remediation/test_srv_01.py"
+      ],
+      "shared_writer": "lane2_custody",
       "decision_records": [],
       "requirement_ids": [
         "REQ-SRV-01-01",
@@ -41668,9 +41754,52 @@
         "TEST-SRV-01-03",
         "TEST-SRV-01-04"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "ctl_srv_generation_claim_red",
+          "output": "Primary:policy-engine/_cache/e02/lane02-c12-c14-owner-red.10iM49lR/",
+          "result": "Five distinguishing tests fail on old source in stale-generation, rejected-new-run, ambiguous raw ID, concurrent duplicate and callback-reentry cases. Reverse completion for distinct IDs remains useful.",
+          "source_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4",
+          "guard_sha256": "9ac4c77bba7a678b94a4363d3ee35fd3927374a9bde87b1bb030e62b6758c229"
+        },
+        {
+          "id": "ctl_srv_generation_claim_qualified",
+          "output": "Primary:policy-engine/_cache/e02/lane02-c12-c14-owner-qualified.VovI46ol/",
+          "result": "All 26 scoped tests pass and an independent reviewer verifies the exact source. The same owner protects admission, generation, single claim and commit. Pre-publication failures retry; incomplete registry publication holds the claim and retains the existing durable snapshot without a second local transition. Run uses actual CAS selected-source removal and typed EUR objective tests.",
+          "source_commit": "e9fa8b5e40a0be7c700804cd671494322f06b45c",
+          "guard_sha256": "5d2d168a33bf7bd252017ee1f5588ffc0cee042a5e17a439daf69d78e6111cb0"
+        },
+        {
+          "id": "ctl_srv_adjacent_scalar_exact_replay",
+          "output": "Primary:policy-engine/_cache/e02/lane02-c12-c14-source-replay.3OOr4C4p/budget-with-architecture/",
+          "result": "Five adjacent scalar best assertions reproduce on the exact predecessor source. Unregistered objective rules withhold best, including the AutoTune objective. The caller path overlaps the touched lifecycle, so this establishes baseline reproduction and does not qualify the larger profile.",
+          "source_commit": "1cb561160",
+          "guard_sha256": "77d8590821c184b34e1cbc2a029ea13f662b2f7d78db191b95e316f317247005"
+        }
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-SRV-01-01",
+          "test_id": "TEST-SRV-01-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "One lifecycle operation and one claim bind the issued response; same-ID concurrent, callback-reentrant and sequential duplicates produce one history/count transition. A pre-publication failure retries; uncertain durable publication is held, and a lost reply after the local commit cannot repeat it.",
+          "criterion_pointer": "04_Трассировка/SRV-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-SRV-01-01"
+          ],
+          "binding_ids": [
+            "E02-I02-A-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "ctl_srv_generation_claim_red",
+            "ctl_srv_generation_claim_qualified"
+          ],
+          "remaining_kinds": []
+        }
+      ]
     },
     {
       "packet_id": "CTL-03",
@@ -41778,12 +41907,15 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "lane2_transfer",
       "base_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4",
-      "integrated_commit": "1cb561160",
+      "integrated_commit": "26875aa3ad9424f40bae1abcbfb9079c0b5e78b8",
       "actual_write_set": [
-        "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+        "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
         "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+        "policy-engine/tests/unit/scientist/search/test_calibration_report.py",
+        "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py",
         "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
-        "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py"
+        "policy-engine/tests/unit/scientist/search/test_lessons.py"
       ],
       "shared_writer": null,
       "decision_records": [],
@@ -41820,6 +41952,40 @@
           "result": "A separate interpreter at exact 1cb561160 source reopens the retained candidate snapshot. The selected card remains 100 days old, 0.5/low_confidence, weight 0.325 and is absent at strict threshold 0.8.",
           "source_commit": "1cb561160",
           "guard_sha256": "dbf41cb2456821ecc253b152203daf29d4bbb121e5ea2a0ab49a502645c65df7"
+        },
+        {
+          "id": "trn03_report_grade_red",
+          "output": "Primary:policy-engine/_cache/e02/trn03-calibration-grades.IqFkiVgt/red-final/",
+          "result": "Four distinguishing failures on original report/pattern behavior: stale current grades, scoped snapshot handling and unlabeled historical Markdown.",
+          "source_commit": "ea352e31d",
+          "guard_sha256": "753d0a825153df8fa983182066fe3020d726c327e672d2382e5d02f91dde343a"
+        },
+        {
+          "id": "trn03_report_grade_qualified",
+          "output": "Primary:policy-engine/_cache/e02/trn03-calibration-grades.IqFkiVgt/final-focal/",
+          "result": "All six exact scoped tests pass with independent review, including age, source scope, report version and Markdown/JSON reread. Guard 7.237 seconds, peak 708771840 bytes.",
+          "source_commit": "26875aa3ad9424f40bae1abcbfb9079c0b5e78b8",
+          "guard_sha256": "4ce9b0a4759293911698b64d2b7ce728354bee65c2cff6ac897ceb6c9ba5994a"
+        },
+        {
+          "id": "trn03_report_fresh_reader",
+          "output": "Primary:policy-engine/_cache/e02/lane02-report-fresh-reader.nOQa4C4Y/result.json",
+          "result": "Separate process opens selected current and historical fixture reports, rebuilds current patterns from the retained registry, sees strict filter empty and refuses same-body wrong version. All 30 retained files remain byte-identical.",
+          "source_commit": "26875aa3ad9424f40bae1abcbfb9079c0b5e78b8",
+          "sha256": "8324659c96f4c069ff753af175ee3bbfd60a7beb5bb76505d26c2c0ba7872110"
+        },
+        {
+          "id": "trn03_old_report_writer_fresh_reader",
+          "output": "Primary:policy-engine/_cache/e02/lane02-report-v1-writer.IypL8rZd/result.json",
+          "result": "Stock predecessor ea352e31d produces and persists v1.0. A different process on repaired source reopens its exact selected ref, labels the old grade historical and retains body bytes.",
+          "source_commit": "26875aa3ad9424f40bae1abcbfb9079c0b5e78b8",
+          "sha256": "0469a846ae5801910838fe3eb11e458610426b682c8a92c953a1220b52ff2fd9"
+        },
+        {
+          "id": "trn03_report_adjacent_exact_replay",
+          "output": "Primary:policy-engine/_cache/e02/trn03-calibration-grades.IqFkiVgt/",
+          "result": "Adjacent pack 190 pass, 14 fail. The same 14 case identities, first reasons and final locations reproduce in an isolated Git archive. The runtime strategy reader crosses the modified report and stops on its original selected-profile expectation. The combined pack remains red.",
+          "source_commit": "ea352e31d"
         }
       ],
       "blockers": [],
@@ -41840,6 +42006,27 @@
           "assessment": "selected_profile_qualified",
           "evidence_refs": [
             "trn03_clock_and_cas"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-TRN-03-02",
+          "test_id": "TEST-TRN-03-02",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "For the exact 100-day card, query, patterns and the current report agree on confidence 0.5 / low_confidence. Historical 0.9 / local remains identified in JSON and Markdown. Raw snapshots without source resolution stay historical; unknown/future time and foreign tenant do not establish current grade. Distinct current and original stock v1.0 report reads preserve selected profiles and bytes.",
+          "criterion_pointer": "04_Трассировка/TRN-03.json#/requirements/1",
+          "test_ids": [
+            "TEST-TRN-03-02"
+          ],
+          "binding_ids": [
+            "E02-I02-D-B04"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "trn03_report_grade_red",
+            "trn03_report_grade_qualified",
+            "trn03_report_fresh_reader",
+            "trn03_old_report_writer_fresh_reader"
           ],
           "remaining_kinds": []
         },

@@ -3,16 +3,20 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 from datetime import UTC, datetime
 from types import SimpleNamespace
+from typing import Any
 
 import pytest
-from pydantic import ValidationError
+from pydantic import TypeAdapter, ValidationError
 
+from polisyos.core.llm.traced_client import TracedLLMClient
 from polisyos.scientist.agent.drafter import LLMDrafterAgent, MultiPassConfig, MultiPassLLMDrafter
 from polisyos.scientist.agent.drafter_models import _ConsolidationPayload, _CritiquePayload
-from polisyos.scientist.agent.protocols import ProblemFrame
+from polisyos.scientist.agent.protocols import DraftResult, ProblemFrame
+from polisyos.scientist.agent.workers import draft_from_payload
 from polisyos.scientist.orchestration.engine.convergence import (
     ConvergenceConfig,
     ConvergenceValidationError,
@@ -79,21 +83,101 @@ def _agent(provider, **profile):
     )
 
 
-def test_configured_real_drafter_consumes_fresh_critique_and_stops_as_candidate():
-    provider = WireProvider([_draft(), '{"findings":[],"confidence_adjustment":0.001}'])
-    result = asyncio.run(_agent(provider).draft_policy(_problem()))
-    assert len(provider.calls) == 2
+@pytest.mark.parametrize("second_version", ["fixture-weights-1", "fixture-weights-2"])
+def test_configured_real_drafter_consumes_fresh_critique_on_one_model_basis(
+    second_version: str,
+) -> None:
+    class VersionedWire(WireProvider):
+        async def generate(self, **kwargs: Any) -> SimpleNamespace:
+            response = await super().generate(**kwargs)
+            if len(self.calls) == 2:
+                response.model_version = second_version
+            return response
+
+    provider = VersionedWire([_draft(), '{"findings":[],"confidence_adjustment":0.001}'])
+    events: list[dict[str, Any]] = []
+    traced = TracedLLMClient(provider, model_name=provider.model_name, call_observer=events.append)
+    drafter = MultiPassLLMDrafter(
+        LLMDrafterAgent(traced),
+        config=MultiPassConfig(
+            max_passes=2,
+            early_exit_confidence=1.0,
+            enable_memory_logging=False,
+            convergence=ConvergenceConfig(),
+        ),
+    )
+    result = asyncio.run(drafter.draft_policy(_problem()))
+    assert len(provider.calls) == len(events) == 2
     assert result.narrative == "Useful candidate"
     state = result.convergence_state
-    assert state.should_stop and state.stop_kind == "heuristic_stability"
+    assert state is not None
+    same_basis = second_version == "fixture-weights-1"
+    assert state.should_stop is same_basis
+    assert state.stop_kind == ("heuristic_stability" if same_basis else "none")
+    assert state.history == ([0.2, 0.201] if same_basis else [0.201])
     assert state.observation_status == "current_candidate_observation"
     assert not state.scientific_converged
-    assert (
-        state.last_checked_observation.producer_event_id
-        == result.confidence_observation.producer_event_id
+    observation = state.last_checked_observation
+    assert observation is not None and observation == result.confidence_observation
+    selected = events[-1]["producer_event"]
+    assert observation.producer_event_id == selected.event_id
+    assert observation.producer_request_ref == selected.request_digest
+    assert observation.source_ref == selected.response_digest
+    assert observation.source_ref == hashlib.sha256(provider.responses[-1].encode()).hexdigest()
+    assert observation.pass_number == 2 and observation.model_version == second_version
+    assert observation.value_derivation == "candidate_after_checks"
+
+    reopened = draft_from_payload(json.loads(TypeAdapter(DraftResult).dump_json(result)))
+    assert reopened == result
+
+
+def test_real_drafter_prompt_cache_reuse_preserves_bytes_without_admitting_a_fresh_pass() -> None:
+    from polisyos.scientist.orchestration.llm.prompt_cache import (
+        CachingLLMClient,
+        InMemoryPromptCache,
     )
-    assert state.last_checked_observation.pass_number == 2
-    assert state.last_checked_observation.value_derivation == "candidate_after_checks"
+    from polisyos.scientist.orchestration.llm.simulated_gateway import SimulatedGatewayLLMClient
+
+    simulator = SimulatedGatewayLLMClient(model="fixture-simulated")
+    cache = InMemoryPromptCache()
+    events: list[dict[str, Any]] = []
+    traced = TracedLLMClient(
+        CachingLLMClient(simulator, cache=cache, model=simulator.model),
+        model_name=simulator.model,
+        call_observer=events.append,
+    )
+    drafter = MultiPassLLMDrafter(
+        LLMDrafterAgent(traced),
+        config=MultiPassConfig(
+            max_passes=1,
+            enable_memory_logging=False,
+            constitution_enabled=False,
+            convergence=ConvergenceConfig(),
+        ),
+    )
+    problem = _problem()
+
+    async def draft_twice() -> tuple[DraftResult, DraftResult]:
+        return await drafter.draft_policy(problem), await drafter.draft_policy(problem)
+
+    first, second = asyncio.run(draft_twice())
+    assert len(simulator.calls) == cache.size == 1
+    [provider_event, reuse_event] = [row["producer_event"] for row in events]
+    assert provider_event.kind == "provider" and reuse_event.kind == "reuse"
+    assert reuse_event.origin_event_id == provider_event.event_id
+    assert second.raw_llm_response == first.raw_llm_response
+    assert second.narrative and second.narrative == first.narrative
+    assert second.confidence_observation is not None
+    assert second.confidence_observation.producer_event_id == reuse_event.event_id
+    assert second.confidence_observation.producer_kind == "reuse"
+    state = second.convergence_state
+    assert state is not None
+    assert state.observation_status == "reused_response_is_not_a_fresh_observation"
+    assert state.history == [] and state.last_checked_observation is None
+    assert state.stop_kind == "none" and not state.scientific_converged
+
+    reopened = draft_from_payload(json.loads(TypeAdapter(DraftResult).dump_json(second)))
+    assert reopened == second
 
 
 @pytest.mark.parametrize(

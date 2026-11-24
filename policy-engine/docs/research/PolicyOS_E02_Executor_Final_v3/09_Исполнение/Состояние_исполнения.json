@@ -21570,11 +21570,11 @@
       "lane_id": "LANE-03",
       "sequence": 9,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
       "capability_acceptance": "NOT_RUN",
       "current_execution": {
-        "status": "ACTIVE. Original eight packets, 61 requirements and 60 tests. Primary lane and E02-I03-A/B/C integration contracts reviewed. FRC-01-01 and the BKT-04 public CV shape/isolation scope verify. A real BKT-01 replay exposes a future-derived feature in the historical binding. EMP-01 numerical custody and source scope audits identify the existing owners.",
-        "next": "Repair the typed BKT-01 as-of feature input and the version-aware EMP-01 value bounds in their canonical owners. Extend exact forecast support references from the existing producer and follow the original readiness sequence. Plan DA-07 only for changed consumers.",
+        "status": "ACTIVE. Original eight packets, 61 requirements and 60 test contracts, with their sealed C28–C35 audit trace. All seven BKT-04 public helper requirements and FRC-01-01 qualify locally. E02-I03-A/B/C shared acceptance remains open. No later lane opened.",
+        "next": "Repair the original C28/C30/C31/C32/C33/C34 product defects and qualify their bounded owners. E02-I03-A/B/C must prove the affected producer-to-consumer scenarios on the common source. DA-07 follows actual consumer impact.",
         "frc01_calibration_summary": {
           "scope": "REQ-FRC-01-01. S10 and G2 preserve descriptive counts while carrying only an admitted compatible floor. 10/10 limited, genuine 95/100 preserved. Removed records, tampered status and a foreign envelope refuse admission. 55 affected tests pass, with a separate exact old-mechanism failure and changed-import pass.",
           "output": "Primary:policy-engine/_cache/e02/frc01-01-envelope-green.rQmKbNmu/",
@@ -21601,6 +21601,42 @@
           "scope": "REQ-EMP-01-01/02/08 actual old ValueOuterSet interval-box producer. Unit-scaled positive proxy refuses, unequal tiny point is accepted at width zero, finite endpoints can emit inf/null width. Historical profile and scope repair remain open.",
           "output": "Primary:policy-engine/_cache/e02/lane03-emp01-width-baseline.W40kHHZs/",
           "guard_sha256": "ddb6f4e626c4561dab628df1f9b8193dd9de792a99ffa110b48c2ec26ac464be"
+        },
+        "original_defects": {
+          "source": "05_Основания/Аудит/01_Реестры/C28_остатки.json through C35_остатки.json and matching packet reports",
+          "audit_base": "20d9009be21097bfbdc38a546a15cc60213b8ace",
+          "closed": [
+            "C29-R01"
+          ],
+          "open": [
+            "C28-R01",
+            "C28-R02",
+            "C30-R01",
+            "C31-R01",
+            "C32-R01",
+            "C32-R02",
+            "C32-R03",
+            "C33-R01",
+            "C34-R01"
+          ],
+          "scope": "The immutable audit records are connected through the original per-packet and integration trace. The source review adds no Lane 03 product finding. FN-BKT-RANGE is a specification correction that preserves useful finite rows with unavailable SSE."
+        },
+        "openai_live_preflight": {
+          "requested_model": "gpt-6-luna",
+          "response_model": "gpt-6-luna",
+          "endpoint": "https://api.openai.com/v1/responses",
+          "timestamp_utc": "2026-11-24T07:13:57.488866+00:00",
+          "http_status": 200,
+          "response_status": "completed",
+          "oracle": "Synthetic request returned the expected text. Storage disabled. No project data sent. Total 27 tokens.",
+          "scope": "Credential and endpoint availability only."
+        },
+        "bkt04_public_qualification": {
+          "source_commit": "6d647ac5863cecf1ffdcd7b3aca244f523f96ff3",
+          "guard_sha256": "8d7d4226145aefdadfc8edd1fa479c37cde9095e5479b9688729bc2f222f0e44",
+          "junit_sha256": "72f5a7f9324fb9fac9b6d6e830ee0fc54794ed51e647d809421e214038ec8257",
+          "output": "Primary:policy-engine/_cache/e02/lane03-bkt04-final.c3eaefnJ/",
+          "scope": "Seven requirements in the public library profile, 57 passes. Four stable source/test hashes. No active Runtime caller found within the bounded census. No empirical coverage claim."
         }
       },
       "transition_evidence": [],
@@ -39214,7 +39250,7 @@
       "lane_sequence": 9,
       "track_id": "03-A",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": null,
@@ -39255,8 +39291,8 @@
       "lane_sequence": 9,
       "track_id": "03-A",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": null,
       "base_commit": null,
@@ -39281,10 +39317,37 @@
         "TEST-FRC-01-05",
         "TEST-FRC-01-06"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "frc01_s10_g2_admitted_floor",
+          "source_commit": "bd97acf609ea3908b980d0bd587c49435dc39ead",
+          "output": "Primary:policy-engine/_cache/e02/frc01-01-envelope-green.rQmKbNmu/",
+          "result": "55 PASS; original counts-only mechanism and intermediate envelope guard fail distinguishing controls."
+        }
+      ],
       "blockers": [],
       "deferred_ids": [
         "DA-07"
+      ],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-FRC-01-01",
+          "test_id": "TEST-FRC-01-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "S10 and G2 jointly retain 10/10 limited versus admitted 95/100; removed support, edited disposition and foreign envelope refuse. Exact scoped producer and consumer tests pass.",
+          "criterion_pointer": "04_Трассировка/FRC-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-FRC-01-01"
+          ],
+          "binding_ids": [
+            "E02-I03-A-B02"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "frc01_s10_g2_admitted_floor"
+          ],
+          "remaining_kinds": []
+        }
       ]
     },
     {
@@ -39293,7 +39356,7 @@
       "lane_sequence": 9,
       "track_id": "03-A",
       "track_position": 3,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": null,
@@ -39330,7 +39393,7 @@
       "lane_sequence": 9,
       "track_id": "03-A",
       "track_position": 4,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": null,
@@ -39371,7 +39434,7 @@
       "lane_sequence": 9,
       "track_id": "03-B",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": null,
@@ -39412,7 +39475,7 @@
       "lane_sequence": 9,
       "track_id": "03-B",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": null,
@@ -39451,7 +39514,7 @@
       "lane_sequence": 9,
       "track_id": "03-B",
       "track_position": 3,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": null,
@@ -39488,15 +39551,30 @@
       "lane_sequence": 9,
       "track_id": "03-C",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "LOCAL_IMPLEMENTATION_COMPLETE",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "base_commit": "581994fbc2f2e9dd8c4d31c646cf56ceada2d0d4",
+      "integrated_commit": "6d647ac5863cecf1ffdcd7b3aca244f523f96ff3",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/cv.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_bootstrap.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_cv.py"
+      ],
       "shared_writer": null,
-      "decision_records": [],
+      "decision_records": [
+        {
+          "id": "DEC-BKT-04-CALLER",
+          "decision": "Supported public-library profile. Runtime activation not established in the named census."
+        },
+        {
+          "id": "DEC-BKT-04-SAMPLING",
+          "decision": "Observed scalar unit with conditional exchangeability. Known dependence refuses in this profile. No effective-n or empirical coverage assertion."
+        }
+      ],
       "requirement_ids": [
         "REQ-BKT-04-01",
         "REQ-BKT-04-02",
@@ -39515,9 +39593,159 @@
         "TEST-BKT-04-06",
         "TEST-BKT-04-07"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "bkt04_public_helpers",
+          "output": "Primary:policy-engine/_cache/e02/lane03-bkt04-final.c3eaefnJ/",
+          "result": "57 PASS, 8.857 s guard, peak 679460864 B, stable source and test pins, independently reviewed. E02-I03-C-B04 public-library variant only.",
+          "guard_sha256": "8d7d4226145aefdadfc8edd1fa479c37cde9095e5479b9688729bc2f222f0e44"
+        },
+        {
+          "id": "bkt04_distinguishing_controls",
+          "output": "Primary:policy-engine/_cache/e02/lane03-bkt04-{semantic-red.rmaetQ0r,callback-red.qBULx3vm}/",
+          "result": "Five pre-change failures include point/sample vector acceptance. Separate callback-alias red records requested/evaluated/missing/invalid 2/0/2/0 instead of 2/1/1/0."
+        }
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-BKT-04-01",
+          "test_id": "TEST-BKT-04-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The real helper selects three folds and materializes only 1504 indexes. Invalid progress refuses before range; NumPy integers and an empty test window preserve their documented behavior.",
+          "criterion_pointer": "04_Трассировка/BKT-04.json#/requirements/0",
+          "test_ids": [
+            "TEST-BKT-04-01",
+            "TEST-BKT-04-02"
+          ],
+          "binding_ids": [
+            "E02-I03-C-B04"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "bkt04_public_helpers",
+            "bkt04_distinguishing_controls"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-BKT-04-02",
+          "test_id": "TEST-BKT-04-02",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Multivariate observations preserve trailing features on the first-axis grid. The two selected callbacks receive isolated arrays and cannot alter earlier folds or the original.",
+          "criterion_pointer": "04_Трассировка/BKT-04.json#/requirements/1",
+          "test_ids": [
+            "TEST-BKT-04-02",
+            "TEST-BKT-04-03"
+          ],
+          "binding_ids": [],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "bkt04_public_helpers",
+            "bkt04_distinguishing_controls"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-BKT-04-03",
+          "test_id": "TEST-BKT-04-03",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Real selected fold results retain denominators for missing and invalid outputs. Reusing one callback dictionary cannot erase an earlier value. Aggregation uses equal eligible-fold weights and carries no measurement authority.",
+          "criterion_pointer": "04_Трассировка/BKT-04.json#/requirements/2",
+          "test_ids": [
+            "TEST-BKT-04-03",
+            "TEST-BKT-04-07"
+          ],
+          "binding_ids": [
+            "E02-I03-C-B04"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "bkt04_public_helpers",
+            "bkt04_distinguishing_controls"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-BKT-04-04",
+          "test_id": "TEST-BKT-04-04",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "A typo refuses before RNG or callback. Named mean, median and std retain distinct selector identity in ordinary JSON transport. Callable declarations are consumer_asserted and anonymous identity remains not_established.",
+          "criterion_pointer": "04_Трассировка/BKT-04.json#/requirements/3",
+          "test_ids": [
+            "TEST-BKT-04-04",
+            "TEST-BKT-04-05"
+          ],
+          "binding_ids": [
+            "E02-I03-C-B04"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "bkt04_public_helpers",
+            "bkt04_distinguishing_controls"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-BKT-04-05",
+          "test_id": "TEST-BKT-04-04",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Both public methods guard sample shape, count and confidence. A vector result at the point or first draw refuses at that call. Seeded direct per-resample RMSE and MAE match the declared numerical protocol.",
+          "criterion_pointer": "04_Трассировка/BKT-04.json#/requirements/4",
+          "test_ids": [
+            "TEST-BKT-04-04",
+            "TEST-BKT-04-06"
+          ],
+          "binding_ids": [
+            "E02-I03-C-B04"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "bkt04_public_helpers",
+            "bkt04_distinguishing_controls"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-BKT-04-06",
+          "test_id": "TEST-BKT-04-06",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The named profile resamples scalar observations. An independent synthetic draw profile provides a numerical control and declared dependent cluster rows refuse before RNG. Effective independent n and empirical coverage are unestablished. Singleton std zero is a convention.",
+          "criterion_pointer": "04_Трассировка/BKT-04.json#/requirements/5",
+          "test_ids": [
+            "TEST-BKT-04-06",
+            "TEST-BKT-04-07"
+          ],
+          "binding_ids": [],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "bkt04_public_helpers",
+            "bkt04_distinguishing_controls"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-BKT-04-07",
+          "test_id": "TEST-BKT-04-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Public-library use selected by a full named-usage census over 4174 tracked Python/config files in the source, tools, architecture and project configuration roots. Runtime activation is unestablished; a synthetic activation hook is unnecessary.",
+          "criterion_pointer": "04_Трассировка/BKT-04.json#/requirements/6",
+          "test_ids": [
+            "TEST-BKT-04-01",
+            "TEST-BKT-04-07"
+          ],
+          "binding_ids": [
+            "E02-I03-C-B04"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "bkt04_public_helpers",
+            "bkt04_distinguishing_controls"
+          ],
+          "remaining_kinds": []
+        }
+      ]
     },
     {
       "packet_id": "OPT-01",

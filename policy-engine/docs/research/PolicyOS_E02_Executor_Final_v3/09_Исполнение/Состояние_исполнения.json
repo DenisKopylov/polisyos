@@ -21573,7 +21573,7 @@
       "local_qualification": "PARTIAL",
       "capability_acceptance": "NOT_RUN",
       "current_execution": {
-        "status": "ACTIVE. Original eight packets, 61 requirements and 60 test contracts, with their sealed C28–C35 audit trace. All seven BKT-04 public helper requirements and FRC-01-01 and FRC-02-01 qualify locally. E02-I03-A/B/C shared acceptance remains open. No later lane opened.",
+        "status": "ACTIVE. Original eight packets, 61 requirements and 60 test contracts, with their sealed C28–C35 audit trace. All seven BKT-04 public helper requirements and FRC-01-01 and FRC-02-01 qualify locally. REQ-BKT-01-01 and REQ-BKT-01-03 qualify in the stock declared-cutoff profile. E02-I03-A/B/C shared acceptance remains open. No later lane opened.",
         "next": "Repair the original C28/C30/C31/C32/C33/C34 product defects and qualify their bounded owners. E02-I03-A/B/C must prove the affected producer-to-consumer scenarios on the common source. DA-07 follows actual consumer impact.",
         "frc01_calibration_summary": {
           "scope": "REQ-FRC-01-01. S10 and G2 preserve descriptive counts while carrying only an admitted compatible floor. 10/10 limited, genuine 95/100 preserved. Removed records, tampered status and a foreign envelope refuse admission. 55 affected tests pass, with a separate exact old-mechanism failure and changed-import pass.",
@@ -21607,15 +21607,15 @@
           "audit_base": "20d9009be21097bfbdc38a546a15cc60213b8ace",
           "closed": [
             "C29-R01",
-            "C31-R01"
+            "C31-R01",
+            "C32-R01",
+            "C32-R02",
+            "C32-R03"
           ],
           "open": [
             "C28-R01",
             "C28-R02",
             "C30-R01",
-            "C32-R01",
-            "C32-R02",
-            "C32-R03",
             "C33-R01",
             "C34-R01"
           ],
@@ -21643,6 +21643,38 @@
           "output": "Primary:policy-engine/_cache/e02/frc02-01-versioned-historic-fixture-green.JGRZcxtB/",
           "guard_sha256": "df07b950a197716c902e8e562c7f0dfec8920d6d286f5002e8e86d897365025e",
           "scope": "Strict current evidence schema 1.3 preserves recomputed counts, refusal for invalid metadata and old schema replay. Exact historical 1.2 bytes reopen in a stock fresh reader; 1.0/1.1 tested with compatibility fixtures. Shared selected outcome relation remains pending."
+        },
+        "bkt01_historical_view_and_metrics": {
+          "source_commit": "1ea7b09c83274bbe6b56ea4e7f4a9e1670814d70",
+          "evidence_refs": [
+            "bkt01_asof_stock_replicas",
+            "bkt01_refusal_and_cutoff",
+            "bkt01_legacy_selected_child",
+            "bkt01_selected_metrics_and_fallback"
+          ],
+          "boundary": "Exact stock ordinary as-of and safe legacy selected child; both selected/default producer inversions corrected. Already-truncated attestation remains partial, and a genuine predictive interval waits on the actual draw owner.",
+          "prerequisite": "REQ-UQP-03-05, prior LANE-10, not a later-lane deferral. Current selected SimulationResult/PropagationReport reader refuses absent success ledger and basis verifier."
+        },
+        "frc02_scientific_screening_source": {
+          "country": "Ukraine",
+          "indicator_name": "Consumer price index (2010 = 100)",
+          "lastupdated_reported": "2026-11-11",
+          "missing_years": [
+            1990,
+            1991
+          ],
+          "observed_years": 33,
+          "provider": "World Bank WDI",
+          "requested_raw_years": [
+            1990,
+            2024
+          ],
+          "response_sha256": "9d2e3a5ac9a931d5c60a71dbd899e915bb9a31a5e2506f837dfdb17dc9918c2b",
+          "retrieved_utc": "2026-11-24T07:47:24.557866+00:00",
+          "source_endpoint": "https://api.worldbank.org/v2/country/UKR/indicator/FP.CPI.TOTL?date=1990:2024&format=json&per_page=100",
+          "sourceid": "2",
+          "output": "Primary:policy-engine/_cache/e02/lane03-frc02-wdi-screen.ChgyBIX0/",
+          "scope": "Retrospective fixed WDI publication, no historic-vintage assumption. Protocol fixed before inspecting values. Forecast run pending."
         }
       },
       "transition_evidence": [],
@@ -39476,12 +39508,19 @@
       "track_id": "03-B",
       "track_position": 1,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "local_qualification": "PARTIAL",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": null,
       "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "integrated_commit": "1ea7b09c83274bbe6b56ea4e7f4a9e1670814d70",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/backtesting/masking.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/plan.py",
+        "policy-engine/tests/integration/scientist/methods/backtesting/test_backtest_foundry_replicas.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+        "policy-engine/tests/unit/scientist/methods/backtesting/test_masking.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -39506,9 +39545,119 @@
         "TEST-BKT-01-08",
         "TEST-BKT-01-09"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "bkt01_asof_stock_replicas",
+          "output": "Primary:policy-engine/_cache/e02/bkt01-as-of-regression-r1.Isp8ZFEl/",
+          "guard_sha256": "8af1a7bb6e723d153e9c2b1eda6eb96c75d4ae484f93ab6e44a90a8c7f8fbd88",
+          "result": "12 PASS including three actual Foundry replicas and fresh CAS reader; two refused pre-dispatch controls."
+        },
+        {
+          "id": "bkt01_refusal_and_cutoff",
+          "output": "Primary:policy-engine/_cache/e02/bkt01-as-of-negative-compat-r2.rLm3Pdf8/",
+          "guard_sha256": "f81b2114702ff9e7f94a74d3977383b66e50243658d16df81e8539d33533930d",
+          "result": "17 PASS, zero physical runs. Extra source path, future position, explicit default and conflicting cutoff refuse."
+        },
+        {
+          "id": "bkt01_legacy_selected_child",
+          "output": "Primary:policy-engine/_cache/e02/bkt01-as-of-legacy-binding-r3.LqoWomAY/",
+          "guard_sha256": "1c1e2bb93f9c29b3360b904ff3ecfff21e09fb3fb2f11cf5ec289c299716c5c1",
+          "result": "1 PASS on stock binder. Legacy parent body and ID retained. Selected foreign child manifest refuses."
+        },
+        {
+          "id": "bkt01_selected_metrics_and_fallback",
+          "output": "Primary:policy-engine/_cache/e02/bkt01-c32-r02-r03-green-r1/",
+          "guard_sha256": "4732e2f07f3e43b210f3bc53f8ae74d0d99f41867c2d346ecefd2cae2b31a002",
+          "result": "5 PASS. Actual selected same-byte profile determines producer. Cohort kept in persisted fallback with one dispatch."
+        }
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-BKT-01-01",
+          "test_id": "TEST-BKT-01-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual ordinary Foundry binding uses exact target prefix [1,2] and verified known-ahead calendar [3,4]. Future-derived and masked/default alternatives refuse before dispatch. Source immutable.",
+          "criterion_pointer": "04_Трассировка/BKT-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-BKT-01-01",
+            "TEST-BKT-01-02"
+          ],
+          "binding_ids": [
+            "E02-I03-C-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "bkt01_asof_stock_replicas",
+            "bkt01_refusal_and_cutoff",
+            "bkt01_legacy_selected_child"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-BKT-01-02",
+          "test_id": "TEST-BKT-01-01",
+          "status": "PARTIAL",
+          "basis": "Declared date/step/pre-period and no-cutoff refusals tested. The already-truncated branch still needs a verified temporal source attestation.",
+          "criterion_pointer": "04_Трассировка/BKT-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-BKT-01-01",
+            "TEST-BKT-01-02"
+          ],
+          "binding_ids": [
+            "E02-I03-C-B01"
+          ],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "bkt01_asof_stock_replicas",
+            "bkt01_refusal_and_cutoff",
+            "bkt01_legacy_selected_child"
+          ],
+          "remaining_kinds": [
+            "already_truncated_provenance"
+          ]
+        },
+        {
+          "requirement_id": "REQ-BKT-01-03",
+          "test_id": "TEST-BKT-01-03",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "One completed replica, semantic fallback, no second dispatch. Cohort reference survives its exact report manifest edge and fresh reader.",
+          "criterion_pointer": "04_Трассировка/BKT-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-BKT-01-03"
+          ],
+          "binding_ids": [
+            "E02-I03-C-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "bkt01_selected_metrics_and_fallback"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-BKT-01-04",
+          "test_id": "TEST-BKT-01-04",
+          "status": "PARTIAL",
+          "basis": "Both profile confusions independently reproduce on old selector and pass on the repaired exact selected ref. Related SimulationResult uncertainty profile cohort remains pending on the common source.",
+          "criterion_pointer": "04_Трассировка/BKT-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-BKT-01-04",
+            "TEST-BKT-01-06"
+          ],
+          "binding_ids": [
+            "E02-I03-C-B01"
+          ],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "bkt01_selected_metrics_and_fallback"
+          ],
+          "remaining_kinds": [
+            "selected_uncertainty_consumer"
+          ]
+        }
+      ]
     },
     {
       "packet_id": "BKT-02",

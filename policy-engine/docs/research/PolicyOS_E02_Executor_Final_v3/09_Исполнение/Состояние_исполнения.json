@@ -21573,7 +21573,7 @@
       "local_qualification": "PARTIAL",
       "capability_acceptance": "NOT_RUN",
       "current_execution": {
-        "status": "ACTIVE. Original eight packets, 61 requirements and 60 test contracts, with their sealed C28–C35 audit trace. All seven BKT-04 public helper requirements and FRC-01-01 and FRC-02-01 qualify locally. REQ-BKT-01-01 and REQ-BKT-01-03 qualify in the stock declared-cutoff profile. E02-I03-A/B/C shared acceptance remains open. No later lane opened.",
+        "status": "ACTIVE. Original eight packets, 61 requirements and 60 test contracts, with their sealed C28–C35 audit trace. All seven BKT-04 public helper requirements and FRC-01-01 and FRC-02-01 qualify locally. REQ-BKT-01-01 and REQ-BKT-01-03 qualify in the stock declared-cutoff profile. All seven PCL-01 requirements qualify in the local dispatcher/calibration profiles. E02-I03-A/B/C shared acceptance remains open. No later lane opened.",
         "next": "Repair the original C28/C30/C31/C32/C33/C34 product defects and qualify their bounded owners. E02-I03-A/B/C must prove the affected producer-to-consumer scenarios on the common source. DA-07 follows actual consumer impact.",
         "frc01_calibration_summary": {
           "scope": "REQ-FRC-01-01. S10 and G2 preserve descriptive counts while carrying only an admitted compatible floor. 10/10 limited, genuine 95/100 preserved. Removed records, tampered status and a foreign envelope refuse admission. 55 affected tests pass, with a separate exact old-mechanism failure and changed-import pass.",
@@ -21610,12 +21610,12 @@
             "C31-R01",
             "C32-R01",
             "C32-R02",
-            "C32-R03"
+            "C32-R03",
+            "C30-R01"
           ],
           "open": [
             "C28-R01",
             "C28-R02",
-            "C30-R01",
             "C33-R01",
             "C34-R01"
           ],
@@ -21675,6 +21675,13 @@
           "sourceid": "2",
           "output": "Primary:policy-engine/_cache/e02/lane03-frc02-wdi-screen.ChgyBIX0/",
           "scope": "Retrospective fixed WDI publication, no historic-vintage assumption. Protocol fixed before inspecting values. Forecast run pending."
+        },
+        "pcl01_stock_dispatcher": {
+          "source_commit": "747b209cef09420da8868124956c1b691a5f023c",
+          "output": "Primary:policy-engine/_cache/e02/lane03-pcl01-published-candidate.F7Xz4hZp/",
+          "guard_sha256": "2d5d516d949cbb67aaaa3f17d268da23aa1e5271a67ea0a7ff12187c5cbec02d",
+          "junit_sha256": "6ae939e83b6cd2471167520363dda1dda6d907548ea4d8d3bd665e8740417590",
+          "scope": "114 PASS with actual registered NumPy dispatch, canonical report CAS readback, binary/multiclass/generic and malformed/foreign report controls, continuous numerical diagnostics and alias identity. No independent empirical or causal authority."
         }
       },
       "transition_evidence": [],
@@ -39394,15 +39401,23 @@
       "lane_sequence": 9,
       "track_id": "03-A",
       "track_position": 3,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "NOT_RUN",
-      "integration_qualification": "NOT_RUN",
+      "implementation_status": "LOCAL_IMPLEMENTATION_COMPLETE",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
+      "integration_qualification": "PARTIAL",
       "assigned_executor": null,
       "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "integrated_commit": "747b209cef09420da8868124956c1b691a5f023c",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+        "policy-engine/tests/unit/foundry/methods/backends/test_dispatch.py"
+      ],
       "shared_writer": null,
-      "decision_records": [],
+      "decision_records": [
+        {
+          "id": "DEC-PCL-01-ALIAS",
+          "decision": "Retain the supported Scientist reexport. Runtime behavior and canonical object identity are verified; retirement remains uncommissioned."
+        }
+      ],
       "requirement_ids": [
         "REQ-PCL-01-01",
         "REQ-PCL-01-02",
@@ -39421,9 +39436,146 @@
         "TEST-PCL-01-06",
         "TEST-PCL-01-07"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "pcl01_stock_dispatch_cas",
+          "source_commit": "747b209cef09420da8868124956c1b691a5f023c",
+          "output": "Primary:policy-engine/_cache/e02/lane03-pcl01-published-candidate.F7Xz4hZp/",
+          "guard_sha256": "2d5d516d949cbb67aaaa3f17d268da23aa1e5271a67ea0a7ff12187c5cbec02d",
+          "junit_sha256": "6ae939e83b6cd2471167520363dda1dda6d907548ea4d8d3bd665e8740417590",
+          "result": "114 passes in 9.875 s guard, 687669248 B peak, stable dispatcher and mirror. Actual NumPy execution, canonical CAS reload and both alias representations. Independent review GO."
+        }
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-PCL-01-01",
+          "test_id": "TEST-PCL-01-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Stock NumPy report computation and a fresh CAS reader retain the same limiting continuous receipt in typed and JSON forms with a positive sidecar.",
+          "criterion_pointer": "04_Трассировка/PCL-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-PCL-01-01",
+            "TEST-PCL-01-05"
+          ],
+          "binding_ids": [
+            "E02-I03-B-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "pcl01_stock_dispatch_cas"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-PCL-01-02",
+          "test_id": "TEST-PCL-01-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Canonical selected output validates supported report version and task/target pairing. Foreign output or artifact aliases cannot supply selected receipt; actual binary/multiclass and generic behavior remains consistent.",
+          "criterion_pointer": "04_Трассировка/PCL-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-PCL-01-01",
+            "TEST-PCL-01-02",
+            "TEST-PCL-01-05"
+          ],
+          "binding_ids": [
+            "E02-I03-B-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "pcl01_stock_dispatch_cas"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-PCL-01-03",
+          "test_id": "TEST-PCL-01-03",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Canonical curve and continuous owner tests verify no-measurement, incomplete denominator, aligned intervals and skipped-level inventory without promoting partial support.",
+          "criterion_pointer": "04_Трассировка/PCL-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-PCL-01-03"
+          ],
+          "binding_ids": [
+            "E02-I03-B-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "pcl01_stock_dispatch_cas"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-PCL-01-04",
+          "test_id": "TEST-PCL-01-04",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Actual continuous and curve producers distinguish observed coverage from nominal level and retain numerical diagnostics under unestablished measurement authority.",
+          "criterion_pointer": "04_Трассировка/PCL-01.json#/requirements/3",
+          "test_ids": [
+            "TEST-PCL-01-04"
+          ],
+          "binding_ids": [
+            "E02-I03-B-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "pcl01_stock_dispatch_cas"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-PCL-01-05",
+          "test_id": "TEST-PCL-01-05",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The actual dispatcher, stock NumPy method, canonical serializer and separate FileSystemCAS reader preserve the selected receipt, report content and telemetry. E02-I03-B shared source binding remains separately qualified.",
+          "criterion_pointer": "04_Трассировка/PCL-01.json#/requirements/4",
+          "test_ids": [
+            "TEST-PCL-01-05"
+          ],
+          "binding_ids": [
+            "E02-I03-B-B01",
+            "E02-X04-B04"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "pcl01_stock_dispatch_cas"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-PCL-01-06",
+          "test_id": "TEST-PCL-01-06",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Installed canonical calibration root, curve implementation and Scientist compatibility alias have identical public objects in the normal import verification.",
+          "criterion_pointer": "04_Трассировка/PCL-01.json#/requirements/5",
+          "test_ids": [
+            "TEST-PCL-01-06"
+          ],
+          "binding_ids": [],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "pcl01_stock_dispatch_cas"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-PCL-01-07",
+          "test_id": "TEST-PCL-01-07",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The supported Scientist alias remains available in the canonical installation. No retirement is claimed while external caller scope remains unestablished.",
+          "criterion_pointer": "04_Трассировка/PCL-01.json#/requirements/6",
+          "test_ids": [
+            "TEST-PCL-01-07"
+          ],
+          "binding_ids": [],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "pcl01_stock_dispatch_cas"
+          ],
+          "remaining_kinds": []
+        }
+      ]
     },
     {
       "packet_id": "FRC-02",

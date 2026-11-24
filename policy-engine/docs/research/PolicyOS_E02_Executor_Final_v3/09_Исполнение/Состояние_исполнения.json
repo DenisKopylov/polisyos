@@ -21581,6 +21581,11 @@
           "receipt_sha256": "b122c22cc3874ad55c48cb87222785cc110b0ee4b56cad2ff95f4bf2d8804867",
           "guard_sha256": "c048d9507fa186978d1668ad9747e6ba72b4cfa3d253f51963a519c5423dff6d",
           "verified_boundary": "Actual Foundry ingests the exact selected historical snapshot, target 1 and 2, and a feature derived from the full target series. Bound income contains 451 and 451 and one stock invocation returns a result. The downstream governed report refuses invocation-source custody. This establishes the historical feature-view defect at the executed boundary."
+        },
+        "emp01_numerical_width_baseline": {
+          "scope": "REQ-EMP-01-01/02/08 actual old ValueOuterSet interval-box producer. Unit-scaled positive proxy refuses, unequal tiny point is accepted at width zero, finite endpoints can emit inf/null width. Historical profile and scope repair remain open.",
+          "output": "Primary:policy-engine/_cache/e02/lane03-emp01-width-baseline.W40kHHZs/",
+          "guard_sha256": "ddb6f4e626c4561dab628df1f9b8193dd9de792a99ffa110b48c2ec26ac464be"
         }
       },
       "transition_evidence": [],

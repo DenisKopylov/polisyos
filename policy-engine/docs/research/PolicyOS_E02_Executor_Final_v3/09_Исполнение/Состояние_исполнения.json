@@ -21573,7 +21573,7 @@
       "local_qualification": "PARTIAL",
       "capability_acceptance": "NOT_RUN",
       "current_execution": {
-        "status": "ACTIVE. Eight packets, 61 requirements and 60 test contracts. All original product defects have local repairs. 43 named local profiles qualify, 12 are partial and 6 lack deciding qualification. Shared E02-I03-A/B/C remain open.",
+        "status": "ACTIVE. Eight packets, 61 requirements and 60 test contracts. All original product defects have local repairs. 50 named local profiles qualify, 8 are partial and 3 lack deciding qualification. Shared E02-I03-A/B/C remain open.",
         "next": "Qualify exact temporal source selection, scope-bound measured observations, declared unit comparability, positive predictive interval and served calibration. Preserve existing owner limits and verify all three common-source scenarios.",
         "frc01_calibration_summary": {
           "scope": "REQ-FRC-01-01. S10 and G2 preserve descriptive counts while carrying only an admitted compatible floor. 10/10 limited, genuine 95/100 preserved. Removed records, tampered status and a foreign envelope refuse admission. 55 affected tests pass, with a separate exact old-mechanism failure and changed-import pass.",
@@ -40047,6 +40047,13 @@
           "result": "PASS. A controlled omitted interval after stock real dispatch makes ForecastOwner refuse at actual full horizon check.",
           "source_commit": "d25b73c1f54b9427e8e3758ad226d51eabd5ff8d",
           "guard_sha256": "e743517cbb7239eced6525b6684f496fb02ea602bc05ce28136a834689c7ea79"
+        },
+        {
+          "id": "frc02_genuine_history_10_11",
+          "output": "Primary:policy-engine/_cache/e02/frc02-06-history-replay-draft.eMIn4s9V/",
+          "result": "Actual earlier writers produced exact v1.0 and v1.1 artifacts. Fresh versioned read preserves old report semantics and absent 1.0 nominal, refuses changed identities, repersist or present S10 authority.",
+          "source_commit": "57523bd49",
+          "guard_sha256": "26f7a636ee4a753319c43397f686e73c008f3d5d9fcc08bd102cddeaaef46491"
         }
       ],
       "blockers": [],
@@ -40161,10 +40168,29 @@
           ]
         },
         {
+          "requirement_id": "REQ-FRC-02-06",
+          "test_id": "TEST-FRC-02-06",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Exact old v1.0 and v1.1 producer bytes keep 1/2 and their original usable/floor meaning. Legacy 1.0 nominal remains absent. Current fresh S10 refuses them as historical-only, repersist or retag refuses, and v1.2/1.3 exact controls pass.",
+          "criterion_pointer": "04_Трассировка/FRC-02.json#/requirements/5",
+          "test_ids": [
+            "TEST-FRC-02-04",
+            "TEST-FRC-02-07"
+          ],
+          "binding_ids": [],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "frc02_genuine_history_10_11",
+            "frc02_legacy_counter_replay",
+            "frc02_versioned_counters"
+          ],
+          "remaining_kinds": []
+        },
+        {
           "requirement_id": "REQ-FRC-02-07",
           "test_id": "TEST-FRC-02-07",
           "status": "PARTIAL",
-          "basis": "Finite retrospective annual CPI study measures predictive intervals with predeclared non-IID sensitivity. Original vintages and higher-level ForecastOwner temporal admission remain unestablished.",
+          "basis": "The fixed revised-vintage annual CPI study measures 11/19 intervals and reports dependence sensitivity. Its response receipt precedes the committed analysis protocol, so the run establishes descriptive retrospective screening. Original vintages and higher-level ForecastOwner chronological admission remain open.",
           "criterion_pointer": "04_Трассировка/FRC-02.json#/requirements/6",
           "test_ids": [
             "TEST-FRC-02-02",
@@ -40279,6 +40305,13 @@
           "result": "PASS. Two actual stock one-step Foundry cases; t2 point 0 USD and exact [0,10] .95 model-conditional interval, verified miss for 900, and unsupported tax point retained with unavailable interval. Fresh exact report and packet, removed selected edge refusal, zero extra physical calls.",
           "source_commit": "6cbdb5644122bb7c581c61f6d1da6de497a56f6c",
           "guard_sha256": "67a3933d35479062f90f62fe1525855e862eb12ec57c6a7e6cb0fc93c5388b7d"
+        },
+        {
+          "id": "bkt01_actual_coordinate_ensemble",
+          "output": "Primary:policy-engine/_cache/e02/bkt01-ensemble-r1.2GDvSNUR/",
+          "result": "Actual n3 by two steps, seeds 12–14, complete-coordinate means 10/3 and 20/3 USD, exact failed cohort without a survivor mean and zero fresh calls.",
+          "source_commit": "bbf226b55",
+          "guard_sha256": "0b1e0be3e3f4f3a7a2db2e0758906d7a356591336a4fc2fe3eed81bd3391672b"
         }
       ],
       "blockers": [],
@@ -40402,6 +40435,25 @@
           "remaining_kinds": []
         },
         {
+          "requirement_id": "REQ-BKT-01-08",
+          "test_id": "TEST-BKT-01-08",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Stock Foundry produces two coordinates for each of three exact replicas. Fresh replay derives 10/3 and 20/3 USD from all results, refuses a same-valued foreign projection, and preserves first-step completion and the full denominator when the middle replica fails.",
+          "criterion_pointer": "04_Трассировка/BKT-01.json#/requirements/7",
+          "test_ids": [
+            "TEST-BKT-01-08",
+            "TEST-BKT-01-09"
+          ],
+          "binding_ids": [
+            "E02-I03-C-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "bkt01_actual_coordinate_ensemble"
+          ],
+          "remaining_kinds": []
+        },
+        {
           "requirement_id": "REQ-BKT-01-09",
           "test_id": "TEST-BKT-01-09",
           "status": "PARTIAL",
@@ -40483,6 +40535,20 @@
           "result": "PASS. Two actual stock one-step Foundry cases; t2 point 0 USD and exact [0,10] .95 model-conditional interval, verified miss for 900, and unsupported tax point retained with unavailable interval. Fresh exact report and packet, removed selected edge refusal, zero extra physical calls.",
           "source_commit": "6cbdb5644122bb7c581c61f6d1da6de497a56f6c",
           "guard_sha256": "67a3933d35479062f90f62fe1525855e862eb12ec57c6a7e6cb0fc93c5388b7d"
+        },
+        {
+          "id": "bkt_c5b_native_selected_report",
+          "output": "Primary:policy-engine/_cache/e02/bkt-native-c5b-cold-r5.G72V84QC/",
+          "result": "Actual retained model-conditional native report flows through stock C5b v1.2 into the full packet. Independent cold source/edge/purpose removal and substitution controls pass, with zero physical work.",
+          "source_commit": "6a465f4ee",
+          "guard_sha256": "cc12fe141a0cce8c6f15bf8be339e367edf306a557af57a72cf418cc25c93ed9"
+        },
+        {
+          "id": "bkt02_prepersisted_pooling_and_scope",
+          "output": "Primary:policy-engine/_cache/e02/lane03-bkt02-mixed-scope-r2.tl64yh5k/",
+          "result": "16 focused tests. Persisted chronological policy, known/unknown and distinct metric default split, exact dimensional conversions, stable micro and separate weighted macro, source-row and foreign identity controls.",
+          "source_commit": "6a465f4ee",
+          "guard_sha256": "ff107e93b77dc5b4ca2c7aee3a04f9227e99156b2b25509162ad13f02d0c8fda"
         }
       ],
       "blockers": [],
@@ -40572,8 +40638,8 @@
         {
           "requirement_id": "REQ-BKT-02-05",
           "test_id": "TEST-BKT-02-05",
-          "status": "PARTIAL",
-          "basis": "Technical partition invariance, separate equal-scenario macro and source-bound fresh recomputation verified.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Technical shards keep the micro sufficient statistics and denominators. The selected report separately retains the equal-scenario and declared weighted macro identities. Actual m/cm conversion gives micro RMSE sqrt(7.5) and weighted macro RMSE 3.0469351369706006.",
           "criterion_pointer": "04_Трассировка/BKT-02.json#/requirements/4",
           "test_ids": [
             "TEST-BKT-02-05",
@@ -40582,20 +40648,35 @@
           "binding_ids": [
             "E02-I03-C-B02"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
             "bkt_range_and_bias_composed",
-            "bkt_native_macro_read"
+            "bkt_native_macro_read",
+            "bkt02_prepersisted_pooling_and_scope"
           ],
-          "remaining_kinds": [
-            "predeclared_weighting"
-          ]
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-BKT-02-06",
+          "test_id": "TEST-BKT-02-06",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The stock runner persists the exact pooling rule before execution. Fresh replay verifies trace order, scope and declared weighting, refuses late and foreign rules, and preserves strata without global statistics for incompatible dimensions, different unbound metrics, and known/unknown jurisdictions.",
+          "criterion_pointer": "04_Трассировка/BKT-02.json#/requirements/5",
+          "test_ids": [
+            "TEST-BKT-02-06"
+          ],
+          "binding_ids": [],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "bkt02_prepersisted_pooling_and_scope"
+          ],
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-BKT-02-07",
           "test_id": "TEST-BKT-02-07",
-          "status": "PARTIAL",
-          "basis": "Actual selected simulation, propagation, evaluator, report and packet preserve an admitted model-conditional interval; numerical-range and selected missing/foreign cases remain limited.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Stock Foundry simulation and propagation produce a selected model-conditional interval. The native evaluator and report, versioned C5b intake and actual decision packet retain it on an independent cold process, with exact selected-edge and source/profile controls.",
           "criterion_pointer": "04_Трассировка/BKT-02.json#/requirements/6",
           "test_ids": [
             "TEST-BKT-02-07",
@@ -40604,20 +40685,19 @@
           "binding_ids": [
             "E02-I03-C-B02"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
+            "bkt_exact_native_model_interval",
             "bkt_range_and_bias_composed",
-            "bkt_exact_native_model_interval"
+            "bkt_c5b_native_selected_report"
           ],
-          "remaining_kinds": [
-            "stock_C5b_intake_and_fresh_selected_bundle"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-BKT-02-08",
           "test_id": "TEST-BKT-02-08",
-          "status": "PARTIAL",
-          "basis": "Fresh arithmetic, row/profile/tamper and legacy limits exercise the numeric read boundary.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Fresh readers reconcile native exact rows, bound profiles, pooling statistics and signed completeness. Arithmetic-coherent foreign or altered rows and forged diagnostic/authority inputs lose qualification. The actual conditional report remains useful as candidate evidence and preserves false trust eligibility.",
           "criterion_pointer": "04_Трассировка/BKT-02.json#/requirements/7",
           "test_ids": [
             "TEST-BKT-02-07",
@@ -40626,14 +40706,13 @@
           "binding_ids": [
             "E02-I03-C-B02"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
             "bkt_range_and_bias_composed",
-            "bkt_native_macro_read"
+            "bkt02_prepersisted_pooling_and_scope",
+            "bkt_c5b_native_selected_report"
           ],
-          "remaining_kinds": [
-            "shared_source_bound_positive"
-          ]
+          "remaining_kinds": []
         }
       ]
     },
@@ -40684,6 +40763,13 @@
           "result": "6 PASS. Controlled invalid/missing backend results traverse stock report producer, exact CAS, and fresh C5b. Descriptive source count, mean, magnitude and sign remain. Statistical identity/p and trust are withheld.",
           "source_commit": "9ec9ccbe6aa2d08241fbd59b26536cea4224e107",
           "guard_sha256": "cd0afe58a9962970e593a79ac492f81261aa0e1d37f63237780d3d89df1e0eee"
+        },
+        {
+          "id": "bkt_c5b_native_selected_report",
+          "output": "Primary:policy-engine/_cache/e02/bkt-native-c5b-cold-r5.G72V84QC/",
+          "result": "Actual retained model-conditional native report flows through stock C5b v1.2 into the full packet. Independent cold source/edge/purpose removal and substitution controls pass, with zero physical work.",
+          "source_commit": "6a465f4ee",
+          "guard_sha256": "cc12fe141a0cce8c6f15bf8be339e367edf306a557af57a72cf418cc25c93ed9"
         }
       ],
       "blockers": [],
@@ -40769,8 +40855,8 @@
         {
           "requirement_id": "REQ-BKT-03-05",
           "test_id": "TEST-BKT-03-05",
-          "status": "PARTIAL",
-          "basis": "Actual report CAS, C5b, reviewer and packet preserve source-bound descriptive and withheld inferential values.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The stock selected report, C5b and full packet preserve verified descriptive bias and explicit inference limits. The source/algorithm/card mutation matrix and whole-packet branch are exercised, with a separate actual cold v1.2 selected native report positive and exact nested-edge withdrawal.",
           "criterion_pointer": "04_Трассировка/BKT-03.json#/requirements/4",
           "test_ids": [
             "TEST-BKT-03-05",
@@ -40779,13 +40865,13 @@
           "binding_ids": [
             "E02-I03-C-B03"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
-            "bkt_range_and_bias_composed"
+            "bkt_range_and_bias_composed",
+            "bkt03_backend_faults_c5b",
+            "bkt_c5b_native_selected_report"
           ],
-          "remaining_kinds": [
-            "positive_shared_E02_I03_C"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-BKT-03-07",

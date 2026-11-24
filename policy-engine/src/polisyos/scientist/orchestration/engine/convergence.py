@@ -23,6 +23,7 @@ Strategies:
 from __future__ import annotations
 
 import math
+from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import Enum
 from hashlib import sha256
@@ -196,16 +197,23 @@ class _EmbeddingRecord:
 # ---------------------------------------------------------------------------
 
 
-def _cosine_similarity(a: list[float], b: list[float]) -> float:
-    """Cosine similarity between two vectors."""
-    if len(a) != len(b):
-        return 0.0
-    dot = sum(x * y for x, y in zip(a, b, strict=False))
-    norm_a = math.sqrt(sum(x * x for x in a))
-    norm_b = math.sqrt(sum(x * x for x in b))
-    if norm_a < 1e-12 or norm_b < 1e-12:
-        return 0.0
-    return dot / (norm_a * norm_b)
+def _cosine_similarity(a: Sequence[float], b: Sequence[float]) -> float | None:
+    """Return finite cosine similarity when both vectors have a defined direction."""
+    if len(a) != len(b) or not a:
+        return None
+    if any(not math.isfinite(value) for value in a) or any(not math.isfinite(value) for value in b):
+        return None
+    scale_a = max(map(abs, a))
+    scale_b = max(map(abs, b))
+    if scale_a == 0.0 or scale_b == 0.0:
+        return None
+    # Both scaled norms are >= 1, so their product cannot underflow.
+    scaled_a = [value / scale_a for value in a]
+    scaled_b = [value / scale_b for value in b]
+    dot = math.fsum(x * y for x, y in zip(scaled_a, scaled_b, strict=True))
+    similarity = dot / (math.hypot(*scaled_a) * math.hypot(*scaled_b))
+    # Cauchy–Schwarz bounds the exact result; correct only floating-point roundoff.
+    return min(1.0, max(-1.0, similarity))
 
 
 def _linear_regression_slope(values: list[float]) -> float:
@@ -265,6 +273,7 @@ class ConvergenceDetector:
         Returns a :class:`ConvergenceState` indicating whether iteration
         should stop (``converged=True``).
         """
+        self._validate_metric_value(metric_value)
         if self._signal_kind != "legacy_numeric":
             self._history.clear()
             self._last_candidate_observation = None
@@ -362,6 +371,7 @@ class ConvergenceDetector:
         ``None``, the text is embedded and stored for cosine-based convergence
         strategies.
         """
+        self._validate_metric_value(metric_value)
         self._signal_kind = "text_embedding"
         self._observation_status = "embedding_not_established"
         self._current_signal_admitted = True
@@ -380,7 +390,14 @@ class ConvergenceDetector:
                         vector=vector,
                     )
                 )
-            except (AttributeError, IndexError, RuntimeError, TypeError, ValueError) as exc:
+            except (
+                AttributeError,
+                IndexError,
+                OverflowError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ) as exc:
                 emit_degraded_path(
                     component="engine.convergence",
                     operation="embed_text",
@@ -449,13 +466,16 @@ class ConvergenceDetector:
     # Internal
     # ------------------------------------------------------------------
 
-    def _do_check(self, metric_value: float) -> ConvergenceState:
+    @staticmethod
+    def _validate_metric_value(metric_value: float) -> None:
         if not math.isfinite(metric_value):
             raise ConvergenceValidationError(
                 "metric_value must be finite",
                 code="metric_not_finite",
                 details={"metric_value": str(metric_value)},
             )
+
+    def _do_check(self, metric_value: float) -> ConvergenceState:
         self._iteration += 1
         self._history.append(metric_value)
 
@@ -478,45 +498,23 @@ class ConvergenceDetector:
         return None
 
     def _evaluate_current_state(self) -> ConvergenceState:
+        raw_similarity, comparable = self._embedding_comparison()
         resource_reason = self._resource_stop_reason()
-        if resource_reason is not None:
-            return self._state(converged=True, reason=resource_reason)
-        if not self._current_signal_admitted:
-            return self._state(converged=False, reason=self._observation_status)
-
-        # Minimum iterations guard
-        if self._iteration < self._config.min_iterations:
-            return self._state(converged=False)
-
-        # Not enough history for window comparison
-        if len(self._history) < self._config.window_size:
-            return self._state(converged=False)
-
-        # Strategy evaluation
-        strategy = self._config.strategy
-        if strategy == ConvergenceStrategy.ABSOLUTE_DELTA:
-            converged = self._check_absolute_delta()
-        elif strategy == ConvergenceStrategy.RELATIVE_DELTA:
-            converged = self._check_relative_delta()
-        elif strategy == ConvergenceStrategy.SEMANTIC_SIMILARITY:
-            converged = self._check_semantic_similarity()
-        elif strategy == ConvergenceStrategy.COMPOSITE:
-            converged = self._check_absolute_delta() and self._check_relative_delta()
-        elif strategy == ConvergenceStrategy.EMBEDDING_COSINE:
-            converged = self._check_embedding_cosine()
-        elif strategy == ConvergenceStrategy.STATISTICAL_PLATEAU:
-            converged = self._check_statistical_plateau()
-        elif strategy == ConvergenceStrategy.BUDGET_PROJECTION:
-            converged = self._check_budget_projection()
-        elif strategy == ConvergenceStrategy.MULTI_SIGNAL:
-            converged = self._check_multi_signal()
-        else:
-            converged = False
-
-        reason = f"converged_{strategy.value}" if converged else ""
-        return self._state(converged=converged, reason=reason)
-
-    def _state(self, *, converged: bool, reason: str = "") -> ConvergenceState:
+        converged = resource_reason is not None
+        reason = resource_reason or ""
+        if not converged:
+            if not self._current_signal_admitted:
+                reason = self._observation_status
+            elif (
+                self._iteration >= self._config.min_iterations
+                and len(self._history) >= self._config.window_size
+            ):
+                converged = self._check_strategy(raw_similarity if comparable else None)
+                if converged:
+                    reason = f"converged_{self._config.strategy.value}"
+        observation_status = self._observation_status
+        if self._signal_kind == "text_embedding" and raw_similarity is None:
+            observation_status = "embedding_similarity_unavailable"
         return ConvergenceState(
             iteration=self._iteration,
             history=list(self._history),
@@ -525,24 +523,46 @@ class ConvergenceDetector:
             should_stop=converged,
             stop_kind=(
                 "resource_limit"
-                if converged and reason in {"max_iterations", "budget_pressure"}
+                if resource_reason is not None
                 else "heuristic_stability"
                 if converged
                 else "none"
             ),
             signal_kind=self._signal_kind,
-            observation_status=self._observation_status,
+            observation_status=observation_status,
             last_checked_observation=self._last_checked_observation,
             profile=self._config.model_copy(deep=True),
-            raw_embedding_similarity=self._raw_embedding_similarity(),
+            raw_embedding_similarity=raw_similarity,
             embedding_identity_status=(
                 "current_compatible"
-                if self._current_embedding_pair() is not None
+                if comparable
                 else "not_established"
                 if self._signal_kind == "text_embedding"
                 else "not_applicable"
             ),
         )
+
+    def _check_strategy(self, embedding_similarity: float | None) -> bool:
+        strategy = self._config.strategy
+        if strategy == ConvergenceStrategy.ABSOLUTE_DELTA:
+            return self._check_absolute_delta()
+        if strategy == ConvergenceStrategy.RELATIVE_DELTA:
+            return self._check_relative_delta()
+        if strategy == ConvergenceStrategy.SEMANTIC_SIMILARITY:
+            return self._check_semantic_similarity()
+        if strategy == ConvergenceStrategy.COMPOSITE:
+            return self._check_absolute_delta() and self._check_relative_delta()
+        if strategy == ConvergenceStrategy.EMBEDDING_COSINE:
+            return (
+                embedding_similarity is not None and embedding_similarity >= self._config.threshold
+            )
+        if strategy == ConvergenceStrategy.STATISTICAL_PLATEAU:
+            return self._check_statistical_plateau()
+        if strategy == ConvergenceStrategy.BUDGET_PROJECTION:
+            return self._check_budget_projection()
+        if strategy == ConvergenceStrategy.MULTI_SIGNAL:
+            return self._check_multi_signal(embedding_similarity)
+        return False
 
     # -- Classic strategies ------------------------------------------------
 
@@ -573,63 +593,26 @@ class ConvergenceDetector:
 
     # -- New strategies (Phase 6 WS6.2) ------------------------------------
 
-    def _check_embedding_cosine(self) -> bool:
-        """Converged when consecutive text embeddings have high similarity."""
-        pair = self._current_embedding_pair()
-        if pair is None:
-            return False
-        previous, current = pair
-        sim = _cosine_similarity(
-            list(current.vector),
-            list(previous.vector),
-        )
-        return sim >= self._config.threshold
-
-    def _current_embedding_pair(self) -> tuple[_EmbeddingRecord, _EmbeddingRecord] | None:
-        """Return the latest compatible pair or ``None`` when it is stale."""
-        if len(self._text_embeddings) < 2:
-            return None
-        previous, current = self._text_embeddings[-2:]
-        if current.iteration != self._iteration or previous.iteration != self._iteration - 1:
-            return None
-        if (
-            not previous.input_ref
-            or not current.input_ref
-            or not previous.model_ref
-            or not current.model_ref
-            or not previous.model_version
-            or not current.model_version
-            or not previous.vector
-            or any(not math.isfinite(value) for value in (*previous.vector, *current.vector))
-            or not any(value != 0.0 for value in previous.vector)
-            or not any(value != 0.0 for value in current.vector)
-        ):
-            return None
-        if (previous.model_ref, previous.model_version) != (
-            current.model_ref,
-            current.model_version,
-        ):
-            return None
-        if previous.dimension != current.dimension:
-            return None
-        return previous, current
-
-    def _raw_embedding_similarity(self) -> float | None:
-        """Expose a bounded diagnostic without laundering unknown model identity."""
+    def _embedding_comparison(self) -> tuple[float | None, bool]:
+        """Compute a current diagnostic and distinguish compatible model provenance."""
         if self._signal_kind != "text_embedding" or len(self._text_embeddings) < 2:
-            return None
+            return None, False
         previous, current = self._text_embeddings[-2:]
         if (
             current.iteration != self._iteration
             or previous.iteration != self._iteration - 1
             or previous.dimension != current.dimension
-            or not previous.vector
-            or any(not math.isfinite(value) for value in (*previous.vector, *current.vector))
-            or not any(value != 0.0 for value in previous.vector)
-            or not any(value != 0.0 for value in current.vector)
         ):
-            return None
-        return _cosine_similarity(list(previous.vector), list(current.vector))
+            return None, False
+        similarity = _cosine_similarity(previous.vector, current.vector)
+        compatible = (
+            similarity is not None
+            and bool(previous.input_ref and current.input_ref)
+            and bool(previous.model_ref and previous.model_version)
+            and (previous.model_ref, previous.model_version)
+            == (current.model_ref, current.model_version)
+        )
+        return similarity, compatible
 
     def _check_statistical_plateau(self) -> bool:
         """Converged when the coefficient of variation in the window is small.
@@ -674,7 +657,7 @@ class ConvergenceDetector:
         projected_improvement = abs(slope) * remaining_iters
         return projected_improvement < self._config.threshold
 
-    def _check_multi_signal(self) -> bool:
+    def _check_multi_signal(self, embedding_similarity: float | None) -> bool:
         """Converged when weighted sum of sub-signals exceeds threshold.
 
         Sub-signals (each in [0, 1]):
@@ -695,22 +678,16 @@ class ConvergenceDetector:
             if remaining is not None and limit is not None and float(limit.max_usd) > 0:
                 budget_signal = 1.0 - float(remaining) / float(limit.max_usd)
 
-        # Semantic signal
-        semantic_signal = 0.0
-        pair = self._current_embedding_pair()
-        if pair is not None:
-            previous, current = pair
-            semantic_signal = max(
-                0.0,
-                _cosine_similarity(
-                    list(current.vector),
-                    list(previous.vector),
-                ),
-            )
-
+        numeric_weight = weights.get("numeric", 0.5)
+        budget_weight = weights.get("budget", 0.3)
+        if embedding_similarity is None and numeric_weight == budget_weight == 0.0:
+            return False
+        semantic_signal = (
+            max(0.0, embedding_similarity) if embedding_similarity is not None else 0.0
+        )
         total = (
-            weights.get("numeric", 0.5) * numeric_signal
-            + weights.get("budget", 0.3) * budget_signal
+            numeric_weight * numeric_signal
+            + budget_weight * budget_signal
             + weights.get("semantic", 0.2) * semantic_signal
         )
         return total >= self._config.threshold

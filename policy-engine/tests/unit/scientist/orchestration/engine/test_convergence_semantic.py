@@ -9,6 +9,7 @@ import pytest
 from polisyos.scientist.orchestration.engine.convergence import (
     ConvergenceConfig,
     ConvergenceDetector,
+    ConvergenceState,
     ConvergenceStrategy,
     _cosine_similarity,
     _linear_regression_slope,
@@ -126,8 +127,9 @@ class TestCosineSimilarity:
     def test_opposite_vectors(self):
         assert _cosine_similarity([1, 0], [-1, 0]) == pytest.approx(-1.0)
 
-    def test_zero_vector(self):
-        assert _cosine_similarity([0, 0], [1, 0]) == pytest.approx(0.0)
+    @pytest.mark.parametrize("vector", [[0.0, 0.0], [math.nan, 0.0], [math.inf, 0.0], [1.0], []])
+    def test_undefined_similarity(self, vector: list[float]) -> None:
+        assert _cosine_similarity(vector, [1.0, 0.0]) is None
 
 
 # ---------------------------------------------------------------------------
@@ -422,3 +424,69 @@ class TestDetectorReset:
         assert d._iteration == 0
         assert len(d._history) == 0
         assert len(d._text_embeddings) == 0
+
+
+class SelectedVectorsEmbedder:
+    """Return the exact selected vectors under one declared embedding model."""
+
+    model_id = "fixture-range"
+    model_version = "v1"
+
+    def __init__(self, selected_vectors: dict[str, list[float]]) -> None:
+        self._selected_vectors = selected_vectors
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        return [self._selected_vectors[text] for text in texts]
+
+
+@pytest.mark.parametrize(
+    "vector,expected",
+    [
+        ([1e200, 0.0], 1.0),
+        ([5e-324, 0.0], 1.0),
+        ([-1e200, 0.0], -1.0),
+        ([0.0, 1e200], 0.0),
+    ],
+)
+def test_current_cosine_keeps_its_value_in_state_and_json(
+    vector: list[float], expected: float
+) -> None:
+    embedder = SelectedVectorsEmbedder({"first": [1e200, 0.0], "second": vector})
+    detector = ConvergenceDetector(
+        ConvergenceConfig(strategy=ConvergenceStrategy.EMBEDDING_COSINE, threshold=0.99),
+        embedder=embedder,
+    )
+
+    assert not detector.check_with_text(10.0, "first").should_stop
+    state = detector.check_with_text(20.0, "second")
+    assert state.raw_embedding_similarity == pytest.approx(expected)
+    assert state.embedding_identity_status == "current_compatible"
+    assert state.should_stop is (expected == 1.0)
+    assert state.stop_kind == ("heuristic_stability" if expected == 1.0 else "none")
+    assert not state.scientific_converged
+    assert ConvergenceState.model_validate_json(state.model_dump_json()) == state
+
+
+@pytest.mark.parametrize("vector", [[0.0, 0.0], [math.nan, 0.0], [math.inf, 0.0], [1.0], []])
+@pytest.mark.parametrize(
+    "strategy", [ConvergenceStrategy.EMBEDDING_COSINE, ConvergenceStrategy.MULTI_SIGNAL]
+)
+def test_current_undefined_cosine_reports_unavailable_without_stopping(
+    vector: list[float], strategy: ConvergenceStrategy
+) -> None:
+    detector = ConvergenceDetector(
+        ConvergenceConfig(
+            strategy=strategy,
+            threshold=0.0,
+            signal_weights={"numeric": 0.0, "budget": 0.0, "semantic": 1.0},
+        ),
+        embedder=SelectedVectorsEmbedder({"first": [1.0, 0.0], "second": vector}),
+    )
+
+    detector.check_with_text(10.0, "first")
+    state = detector.check_with_text(20.0, "second")
+    assert not state.should_stop
+    assert state.raw_embedding_similarity is None
+    assert state.observation_status == "embedding_similarity_unavailable"
+    assert state.embedding_identity_status == "not_established"
+    assert ConvergenceState.model_validate_json(state.model_dump_json()) == state

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import math
 
 import pytest
 
@@ -10,7 +11,9 @@ from polisyos.scientist.orchestration.engine.convergence import (
     ConvergenceConfig,
     ConvergenceDetector,
     ConvergenceObservation,
+    ConvergenceState,
     ConvergenceStrategy,
+    ConvergenceValidationError,
 )
 
 
@@ -145,3 +148,58 @@ def test_profile_is_detached_from_caller_mutations():
     detached = detector.config
     detached.threshold = 0.9
     assert detector.config.threshold == 0.01
+
+
+@pytest.mark.parametrize("rejected", [math.nan, math.inf, -math.inf])
+@pytest.mark.parametrize(
+    "strategy", [ConvergenceStrategy.EMBEDDING_COSINE, ConvergenceStrategy.MULTI_SIGNAL]
+)
+def test_rejected_numeric_input_cannot_publish_a_future_embedding(
+    rejected: float, strategy: ConvergenceStrategy
+) -> None:
+    class RecordingEmbedder:
+        model_id = "fixture-model"
+        model_version = "fixture-weights-1"
+
+        def __init__(self) -> None:
+            self.calls: list[str] = []
+
+        def embed(self, texts: list[str]) -> list[list[float]]:
+            self.calls.extend(texts)
+            return [[1.0, 0.0] for _ in texts]
+
+    embedder = RecordingEmbedder()
+    detector = ConvergenceDetector(
+        ConvergenceConfig(
+            strategy=strategy,
+            threshold=0.99,
+            signal_weights={"numeric": 0.0, "budget": 0.0, "semantic": 1.0},
+        ),
+        embedder=embedder,
+    )
+
+    initial = detector.check_with_text(10.0, "first")
+    assert not initial.should_stop
+    initial_records = tuple(detector._text_embeddings)
+    assert initial_records[0].input_ref == _digest("first")
+    assert initial_records[0].iteration == initial.iteration == 1
+    with pytest.raises(ConvergenceValidationError, match="metric_value must be finite"):
+        detector.check_with_text(rejected, "rejected")
+
+    assert embedder.calls == ["first"]
+    assert tuple(detector._text_embeddings) == initial_records
+    missing = detector.check_with_text(20.0)
+    assert missing.iteration == 2
+    assert missing.history == [10.0, 20.0]
+    assert missing.raw_embedding_similarity is None
+    assert missing.embedding_identity_status == "not_established"
+    assert not missing.should_stop
+    assert not detector.check_with_text(30.0, "current-third").should_stop
+
+    restored = detector.check_with_text(40.0, "current-fourth")
+    assert restored.history == [10.0, 20.0, 30.0, 40.0]
+    assert restored.should_stop and restored.stop_kind == "heuristic_stability"
+    assert not restored.scientific_converged
+    fresh = ConvergenceState.model_validate_json(restored.model_dump_json())
+    assert fresh == restored
+    assert fresh.raw_embedding_similarity == pytest.approx(1.0)

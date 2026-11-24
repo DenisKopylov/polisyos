@@ -7,6 +7,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from decimal import Decimal
+from fractions import Fraction
 from math import isfinite
 from typing import Any, Literal
 
@@ -206,27 +207,40 @@ class ImprovementPlateau(StoppingCriterion):
                 else best_historical - best_recent
             )
             threshold = max(profile.abs_tol, profile.rel_tol * abs(best_historical))
-            if signed_improvement <= threshold:
-                return StoppingCondition(
-                    should_stop=True,
-                    reason=f"Improvement plateau in declared {profile.unit} objective scale",
-                    details={
-                        "best_recent": best_recent,
-                        "best_historical": best_historical,
-                        "signed_gain": signed_improvement,
-                        "threshold": threshold,
-                        "direction": profile.direction,
-                        "unit": profile.unit,
-                        "patience": self._patience,
-                    },
+            details: dict[str, Any] = {
+                "signed_gain": signed_improvement,
+                "threshold": threshold,
+                "direction": profile.direction,
+                "unit": profile.unit,
+            }
+            comparable = isfinite(signed_improvement) and isfinite(threshold)
+            if comparable and signed_improvement != threshold:
+                plateau = signed_improvement < threshold
+            else:
+                # Overflow or rounded equality can conceal the ordering.
+                historical = Fraction(best_historical)
+                recent = Fraction(best_recent)
+                gain = (
+                    recent - historical if profile.direction == "maximize" else historical - recent
                 )
+                limit = max(Fraction(profile.abs_tol), Fraction(profile.rel_tol) * abs(historical))
+                plateau = gain <= limit
+                if comparable and gain != limit:
+                    details.update(signed_gain_exact=str(gain), threshold_exact=str(limit))
+                if not isfinite(signed_improvement):
+                    details.update(signed_gain=None, signed_gain_exact=str(gain))
+                if not isfinite(threshold):
+                    details.update(threshold=None, threshold_exact=str(limit))
+            if not plateau:
+                return StoppingCondition(should_stop=False, details=details)
             return StoppingCondition(
-                should_stop=False,
+                should_stop=True,
+                reason=f"Improvement plateau in declared {profile.unit} objective scale",
                 details={
-                    "signed_gain": signed_improvement,
-                    "threshold": threshold,
-                    "direction": profile.direction,
-                    "unit": profile.unit,
+                    "best_recent": best_recent,
+                    "best_historical": best_historical,
+                    "patience": self._patience,
+                    **details,
                 },
             )
 
@@ -240,20 +254,32 @@ class ImprovementPlateau(StoppingCriterion):
         else:
             improvement = signed_improvement / abs(best_historical)
 
-        if improvement < self._min_improvement:
+        progress: float | Fraction = improvement
+        if not isfinite(improvement):
+            historical = Fraction(best_historical)
+            progress = historical - Fraction(best_recent)
+            if abs(best_historical) >= 1e-10:
+                progress /= abs(historical)
+
+        if progress < self._min_improvement:
+            legacy_details: dict[str, Any] = {
+                "best_recent": best_recent,
+                "best_historical": best_historical,
+                "patience": self._patience,
+            }
+            try:
+                legacy_details["improvement"] = float(progress)
+            except OverflowError:
+                legacy_details.update(improvement=None, improvement_exact=str(progress))
             return StoppingCondition(
                 should_stop=True,
                 reason=(
                     f"Improvement plateau: no improvement above {self._min_improvement:.2%} "
                     f"for {self._patience} iterations"
                 ),
-                details={
-                    "best_recent": best_recent,
-                    "best_historical": best_historical,
-                    "improvement": improvement,
-                    "patience": self._patience,
-                },
+                details=legacy_details,
             )
+
         return StoppingCondition(should_stop=False)
 
 

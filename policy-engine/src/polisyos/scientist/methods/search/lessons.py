@@ -14,8 +14,9 @@ from tempfile import NamedTemporaryFile
 from typing import Any, Literal, cast
 from uuid import uuid4
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
+from polisyos.common.timestamps import ensure_utc, parse_iso_datetime
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
@@ -121,6 +122,11 @@ class LessonQuery(BaseModel):
     min_tag_overlap: int = Field(default=1, ge=0, le=50)
     limit: int = Field(default=10, ge=1, le=100)
     as_of: datetime | None = None
+
+    @field_validator("as_of")
+    @classmethod
+    def _validate_as_of(cls, value: datetime | None) -> datetime | None:
+        return ensure_utc(value) if value is not None else None
 
 
 class LessonIndexEntry(BaseModel):
@@ -281,9 +287,26 @@ def persist_lesson_card(
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
     """Persist a reusable lesson card captured from failures, governance issues, or successful runs."""
+    return _write_lesson_card(store, _prepare_lesson_card_for_write(card), inputs=inputs)
+
+
+def _prepare_lesson_card_for_write(card: LessonCard) -> LessonCard:
+    """Require known evidence and usage instants for new writes."""
     card_data = card.model_dump(mode="python")
     card_data["schema_version"] = "2.0"
     current_card = LessonCard.model_validate(card_data)
+    current_card.created_at = ensure_utc(current_card.created_at)
+    if current_card.last_accessed_at is not None:
+        current_card.last_accessed_at = ensure_utc(current_card.last_accessed_at)
+    return current_card
+
+
+def _write_lesson_card(
+    store: FileSystemCAS,
+    current_card: LessonCard,
+    *,
+    inputs: list[InputRef] | None = None,
+) -> ArtifactRef:
     return store.put_json(
         current_card,
         PutOptions(
@@ -473,8 +496,10 @@ class LessonRegistry:
             # source_run_id describes the source card, not a declared target run.
             fallback_run_id=card.source_run_id if context is None else None,
         )
-        normalized_card = self._normalize_card(card, resolved_context=target)
-        card_ref = persist_lesson_card(self._store, normalized_card)
+        normalized_card = _prepare_lesson_card_for_write(
+            self._normalize_card(card, resolved_context=target)
+        )
+        card_ref = _write_lesson_card(self._store, normalized_card)
         snapshot = self.index_snapshot(context=target)
         signature = _normalized_signature(normalized_card)
         now = normalized_card.created_at
@@ -521,14 +546,15 @@ class LessonRegistry:
             existing.artifact_ref = card_ref
             existing.lesson_id = normalized_card.lesson_id
             existing.occurrence_count += 1
-            existing.last_seen = max(existing.last_seen, now)
+            previous_seen = parse_iso_datetime(existing.last_seen)
+            existing.last_seen = max(previous_seen, now) if previous_seen is not None else now
             existing.last_accessed_at = max(
-                [
+                (
                     stamp
-                    for stamp in (existing.last_accessed_at, normalized_card.last_accessed_at)
-                    if stamp is not None
-                ],
-                default=existing.last_accessed_at,
+                    for value in (existing.last_accessed_at, normalized_card.last_accessed_at)
+                    if (stamp := parse_iso_datetime(value)) is not None
+                ),
+                default=None,
             )
             existing.tags = sorted(set(existing.tags) | set(normalized_card.tags))
             existing.summary = normalized_card.summary or existing.summary
@@ -763,10 +789,13 @@ class LessonRegistry:
                     continue
                 if card is None:
                     continue
+                evidence_anchor = self._evidence_anchor(entry, card)
+                if evidence_anchor is None:
+                    continue
                 weight = compute_provenance_weight(
                     source_context,
                     target_context,
-                    created_at=self._evidence_anchor(entry, card),
+                    created_at=evidence_anchor,
                     policy=active_policy,
                 )
                 if weight <= 0.0:
@@ -834,6 +863,9 @@ class LessonRegistry:
         )
         if effective_card is None:
             return None
+        evidence_anchor = self._evidence_anchor(source_entry, effective_card)
+        if evidence_anchor is None:
+            return None
         # A caller may present an already-demoted candidate; never raise it.
         effective_card = effective_card.model_copy(
             update={
@@ -848,7 +880,7 @@ class LessonRegistry:
         weight = compute_provenance_weight(
             source_context,
             target_context,
-            created_at=self._evidence_anchor(source_entry, effective_card),
+            created_at=evidence_anchor,
             policy=active_policy,
         )
         if weight <= 0.0:
@@ -964,7 +996,11 @@ class LessonRegistry:
             snapshot.entries = [
                 self._demoted_entry(entry, ttl_days=active_ttl, now=now)
                 for entry in snapshot.entries
-                if not entry.invalidated and self._activity_anchor(entry) >= archive_cutoff
+                if not entry.invalidated
+                and (
+                    (activity_anchor := self._activity_anchor(entry)) is None
+                    or activity_anchor >= archive_cutoff
+                )
             ]
             removed += len(previous_entries) - len(snapshot.entries)
             if snapshot.entries != previous_entries:
@@ -1090,18 +1126,7 @@ class LessonRegistry:
                     continue
                 if not self._entry_matches(entry, query):
                     continue
-                candidates.append(
-                    (
-                        (
-                            entry.invalidated,
-                            -float(entry.provenance_weight),
-                            -int(entry.occurrence_count),
-                            -float(entry.last_seen.timestamp()),
-                        ),
-                        entry,
-                        namespace_context,
-                    )
-                )
+                candidates.append((self._entry_priority(entry), entry, namespace_context))
 
         results: list[LessonCard] = []
         seen: set[bytes] = set()
@@ -1281,11 +1306,8 @@ class LessonRegistry:
                 ]
             )
         normalized = self._normalize_card(card, resolved_context=source_context)
-        stamps = (entry.last_seen, normalized.created_at, now)
-        if any(stamp.tzinfo is None or stamp.utcoffset() is None for stamp in stamps):
-            return None
         evidence_anchor = self._evidence_anchor(entry, normalized)
-        if normalized.created_at > now or evidence_anchor > now:
+        if evidence_anchor is None or evidence_anchor > now:
             return None
         age = now - evidence_anchor
         trust_level = normalized.trust_level
@@ -1307,21 +1329,15 @@ class LessonRegistry:
         query: LessonQuery, *, target_context: TransferContext | None = None
     ) -> datetime:
         """Bind one evidence cutoff across routes before reading or writing."""
-        if (
-            target_context is not None
-            and "timestamp" in target_context.model_fields_set
-            and query.as_of is not None
-            and query.as_of != target_context.timestamp
-        ):
-            raise ValueError("Lesson query as-of conflicts with the target context timestamp")
-        now = query.as_of or (
-            target_context.timestamp
+        declared_as_of = ensure_utc(query.as_of) if query.as_of is not None else None
+        target_time = (
+            ensure_utc(target_context.timestamp)
             if target_context is not None and "timestamp" in target_context.model_fields_set
-            else datetime.now(UTC)
+            else None
         )
-        if now.tzinfo is None or now.utcoffset() is None:
-            raise ValueError("Lesson query as-of must include a timezone")
-        return now
+        if declared_as_of is not None and target_time is not None and declared_as_of != target_time:
+            raise ValueError("Lesson query as-of conflicts with the target context timestamp")
+        return declared_as_of or target_time or datetime.now(UTC)
 
     @staticmethod
     def _evidence_identity(card: LessonCard) -> bytes:
@@ -1468,15 +1484,14 @@ class LessonRegistry:
     ) -> LessonIndexEntry:
         card = load_lesson_card(self._store, entry.artifact_ref)
         evidence_anchor = self._evidence_anchor(entry, card)
-        age = max(timedelta(), now - evidence_anchor)
-        if age > timedelta(days=ttl_days):
+        if evidence_anchor is not None and now - evidence_anchor > timedelta(days=ttl_days):
             return entry.model_copy(update={"trust_level": LessonTrustLevel.LOW_CONFIDENCE})
         return entry
 
     @staticmethod
-    def _activity_anchor(entry: LessonIndexEntry) -> datetime:
+    def _activity_anchor(entry: LessonIndexEntry) -> datetime | None:
         """Return the usage clock used only for retention and garbage collection."""
-        return entry.last_accessed_at or entry.last_seen
+        return parse_iso_datetime(entry.last_accessed_at) or parse_iso_datetime(entry.last_seen)
 
     @staticmethod
     def _access_path(index_path: Path, lesson_id: str) -> Path:
@@ -1501,9 +1516,13 @@ class LessonRegistry:
         entry.last_accessed_at = now
 
     @staticmethod
-    def _evidence_anchor(entry: LessonIndexEntry, card: LessonCard) -> datetime:
+    def _evidence_anchor(entry: LessonIndexEntry, card: LessonCard) -> datetime | None:
         """Return the newest producer/evidence timestamp, never an access time."""
-        return max(entry.last_seen, card.created_at)
+        last_seen = parse_iso_datetime(entry.last_seen)
+        created_at = parse_iso_datetime(card.created_at)
+        return (
+            max(last_seen, created_at) if last_seen is not None and created_at is not None else None
+        )
 
     def _index_path_for_context(self, context: TransferContext) -> Path:
         return self._root.joinpath(*transfer_scope_path_parts(context), "index.json")
@@ -1718,16 +1737,17 @@ class LessonRegistry:
         return snapshot
 
     @staticmethod
-    def _sorted_entries(snapshot: LessonIndexSnapshot) -> list[LessonIndexEntry]:
-        return sorted(
-            snapshot.entries,
-            key=lambda item: (
-                item.invalidated,
-                -item.provenance_weight,
-                -item.occurrence_count,
-                -item.last_seen.timestamp(),
-            ),
+    def _entry_priority(entry: LessonIndexEntry) -> tuple[bool, float, int, float]:
+        last_seen = parse_iso_datetime(entry.last_seen)
+        return (
+            entry.invalidated,
+            -entry.provenance_weight,
+            -entry.occurrence_count,
+            -last_seen.timestamp() if last_seen is not None else math.inf,
         )
+
+    def _sorted_entries(self, snapshot: LessonIndexSnapshot) -> list[LessonIndexEntry]:
+        return sorted(snapshot.entries, key=self._entry_priority)
 
 
 __all__ = [

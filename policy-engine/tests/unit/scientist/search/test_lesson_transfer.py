@@ -34,6 +34,7 @@ from polisyos.scientist.methods.search.transfer_context import (
     TransferTenantScopeStatus,
     anonymize_tenant_id,
     build_transfer_hop,
+    compute_provenance_weight,
     resolve_transfer_context,
     tenant_partition,
 )
@@ -290,6 +291,68 @@ def test_transfer_context_reconciles_live_access_scope_and_unknown_state() -> No
     assert (
         malformed_context.value.refusals[0].reason
         is TransferScopeRefusalReason.INVALID_REQUEST_SCOPE
+    )
+
+
+def test_transfer_resolver_normalizes_equal_instants_under_live_scope() -> None:
+    access = AccessScope.for_service(
+        tenant_id="tenant-a", cell_id=None, spiffe_id="spiffe://test/search"
+    )
+    token = set_current_access_scope(access)
+    try:
+        now = datetime(2026, 9, 1, tzinfo=UTC)
+        subject = {"task_family": "discovery", "domain": "education", "run_id": "source"}
+        typed = TransferContext(**subject, timestamp=now)
+        resolved = resolve_transfer_context(
+            context={**subject, "timestamp": "2026-09-01T03:00:00+03:00"},
+            transfer_context=typed,
+        )
+        assert resolved.timestamp == now
+        assert resolved.timestamp.tzinfo is UTC
+        assert resolved.tenant_hash == anonymize_tenant_id("tenant-a")
+        assert resolved.tenant_scope_status is TransferTenantScopeStatus.AUTHENTICATED
+        assert (resolved.task_family, resolved.domain, resolved.run_id) == (
+            "discovery",
+            "education",
+            "source",
+        )
+        from_json = TransferContext.model_validate_json(
+            '{"task_family":"discovery","domain":"education","run_id":"source",'
+            '"timestamp":"2026-09-01T03:00:00+03:00"}'
+        )
+        assert from_json.timestamp.tzinfo is UTC
+        target = resolve_transfer_context(transfer_context=from_json)
+        assert compute_provenance_weight(resolved, target, created_at=now) == 1.0
+        assert (
+            compute_provenance_weight(resolved, target, created_at=now - timedelta(days=100)) == 0.5
+        )
+    finally:
+        reset_current_access_scope(token)
+
+
+def test_transfer_typed_clock_refuses_naive_time_before_aging() -> None:
+    with pytest.raises(ValueError, match="timezone"):
+        TransferContext(timestamp=datetime.fromisoformat("2020-01-01"))
+
+
+def test_transfer_json_clock_refuses_naive_time_before_aging() -> None:
+    with pytest.raises(TransferScopeRefusedError) as refusal:
+        resolve_transfer_context(
+            context={
+                "task_family": "discovery",
+                "domain": "education",
+                "run_id": "reader",
+                "timestamp": "2020-01-01T00:00:00",
+            }
+        )
+    assert refusal.value.refusals[0].reason is TransferScopeRefusalReason.INVALID_REQUEST_SCOPE
+
+
+def test_transfer_legacy_unknown_occurrence_carries_no_age_weight() -> None:
+    context = TransferContext(domain="education", timestamp=datetime(2026, 9, 1, tzinfo=UTC))
+    assert (
+        compute_provenance_weight(context, context, created_at=datetime.fromisoformat("2020-01-01"))
+        == 0.0
     )
 
 

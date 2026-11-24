@@ -11,8 +11,9 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
+from polisyos.common.timestamps import ensure_utc, parse_iso_datetime
 from polisyos.core.security import (
     get_current_access_scope_or_none,
     get_current_tenant_id_or_none,
@@ -69,6 +70,11 @@ class TransferContext(BaseModel):
     tenant_scope_status: TransferTenantScopeStatus = TransferTenantScopeStatus.UNKNOWN
     cross_tenant_opt_in: bool = False
     timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+    @field_validator("timestamp")
+    @classmethod
+    def _validate_timestamp(cls, value: datetime) -> datetime:
+        return ensure_utc(value)
 
     @model_validator(mode="after")
     def _validate_tenant_scope(self) -> TransferContext:
@@ -312,7 +318,7 @@ def compute_provenance_weight(
     created_at: datetime | None = None,
     policy: TransferPolicy | None = None,
 ) -> float:
-    """Weight transferred knowledge by scope distance and age."""
+    """Weight transferred knowledge by scope distance and known evidence age."""
 
     active_policy = policy or TransferPolicy()
     if source.task_family != target.task_family:
@@ -341,7 +347,10 @@ def compute_provenance_weight(
     if created_at is None:
         return base
 
-    age = max(timedelta(), target.timestamp - created_at)
+    evidence_time = parse_iso_datetime(created_at)
+    if evidence_time is None:
+        return 0.0
+    age = max(timedelta(), ensure_utc(target.timestamp) - evidence_time)
     if age > timedelta(days=active_policy.ttl_days * 2):
         return 0.0
     if age > timedelta(days=active_policy.ttl_days):

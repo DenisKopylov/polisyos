@@ -1,10 +1,13 @@
 """Real CAS lesson admission uses evidence time, independently of retention."""
 
-from datetime import UTC, datetime, timedelta
+import json
+from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
 
 from polisyos.core import artifacts
+from polisyos.core.artifacts import PutOptions, SchemaInfo
+from polisyos.core.canon import CanonSpec
 from polisyos.scientist.methods.search.lessons import (
     LessonCard,
     LessonKind,
@@ -12,6 +15,7 @@ from polisyos.scientist.methods.search.lessons import (
     LessonRegistry,
     LessonTrustLevel,
     load_lesson_card,
+    persist_lesson_card,
 )
 from polisyos.scientist.methods.search.transfer_context import TransferContext
 
@@ -136,6 +140,81 @@ def test_query_as_of_round_trip_preserves_explicit_time():
     query = LessonQuery(as_of=AS_OF)
     assert LessonQuery.model_validate_json(query.model_dump_json()).as_of == AS_OF
     assert LessonQuery().as_of is None
+
+
+def test_new_lesson_clocks_require_offsets_before_persistence(tmp_path):
+    registry = _registry(tmp_path)
+    with pytest.raises(ValueError, match="timezone"):
+        registry.record_local(_card(AS_OF.replace(tzinfo=None)), context=_context("source"))
+    with pytest.raises(ValueError, match="timezone"):
+        persist_lesson_card(
+            registry._store,
+            _card().model_copy(update={"last_accessed_at": AS_OF.replace(tzinfo=None)}),
+        )
+    assert registry.snapshot_ref() is None
+    assert list((tmp_path / "lessons").rglob("index.json")) == []
+    assert list((tmp_path / "cas").rglob("*.blob")) == []
+
+    offset = timezone(timedelta(hours=3))
+    card = _card(AS_OF.astimezone(offset))
+    ref = registry.record_local(card, context=_context("source"))
+    loaded = load_lesson_card(_registry(tmp_path)._store, ref)
+    assert loaded.created_at.isoformat() == AS_OF.isoformat()
+    as_of = LessonQuery.model_validate({"as_of": "2020-01-01T03:00:00+03:00"}).as_of
+    assert as_of == AS_OF
+    assert as_of.tzinfo is UTC
+
+
+def test_unknown_historical_lesson_clock_is_inspectable_without_aging(tmp_path):
+    registry = _registry(tmp_path)
+    context = _context("source")
+    old = _card()
+    registry.record_local(old, context=context)
+    payload = old.model_dump(mode="json")
+    naive = "2020-01-01T00:00:00"
+    payload.update(schema_version="1.0", created_at=naive)
+    legacy_ref = registry._store.put_json(
+        payload,
+        PutOptions(
+            kind="scientist.search.lesson_card",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.search.LessonCard", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    index_path = registry._index_path_for_context(context)
+    body = json.loads(index_path.read_text())
+    body["entries"][0].update(
+        artifact_ref=legacy_ref.model_dump(mode="json"),
+        card_refs=[legacy_ref.model_dump(mode="json")],
+        first_seen=naive,
+        last_seen=naive,
+    )
+    index_path.write_text(json.dumps(body))
+    original_index = index_path.read_bytes()
+    original = registry._store.get_bytes(legacy_ref)
+
+    fresh = _registry(tmp_path)
+    assert load_lesson_card(fresh._store, legacy_ref).created_at.tzinfo is None
+    assert fresh.query(LessonQuery(domain="source", tenant_hash=None, as_of=AS_OF)) == []
+    assert (
+        fresh.find_transfer_candidates(
+            LessonQuery(as_of=AS_OF), target_context=_context("target")
+        ).candidates
+        == []
+    )
+    assert fresh.garbage_collect() == 0
+    assert fresh._store.get_bytes(legacy_ref) == original
+    assert index_path.read_bytes() == original_index
+    assert fresh.index_snapshot(context=context).entries[0].last_seen.tzinfo is None
+
+    selected = fresh.record_local(_card(), context=context)
+    current = _registry(tmp_path)
+    found = current.query(LessonQuery(domain="source", tenant_hash=None, as_of=AS_OF))
+    assert [card.lesson_id for card in found] == [
+        load_lesson_card(current._store, selected).lesson_id
+    ]
+    assert current._store.get_bytes(legacy_ref) == original
 
 
 def test_newer_persisted_version_is_not_reinterpreted_as_older_evidence(tmp_path):

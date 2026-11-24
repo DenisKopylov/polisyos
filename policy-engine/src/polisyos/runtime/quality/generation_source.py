@@ -1917,11 +1917,13 @@ class GenerationSourceRepository:
         retained = source.native_retained_candidate_origin
         if retained is None:
             return
+        from polisyos.core.artifacts import load_core_json_artifact
         from polisyos.runtime.quality.generic_simulation_admission import (
             GenericCycleNativeWorldContextHandoffV1,
+            GenericCycleSimulationProfileV1,
         )
         from polisyos.runtime.quality.native_generic_context import (
-            NativeModelInputUseWorldSelection,
+            _read_verified_native_model_input_use_checkpoint,
             resolve_native_selected_program_graph_linkage,
         )
 
@@ -1933,12 +1935,9 @@ class GenerationSourceRepository:
             or source.cycle_substrate_context is None
         ):
             raise ValueError("native_retained_candidate_current_owner_unavailable")
-        selection = owner.resolve_native_model_input_use_world_selection(
-            linkage.native_world_checkpoint_ref
+        checkpoint = _read_verified_native_model_input_use_checkpoint(
+            owner, linkage.native_world_checkpoint_ref
         )
-        if type(selection) is not NativeModelInputUseWorldSelection:
-            raise ValueError("native_retained_candidate_selection_untyped")
-        checkpoint = selection.checkpoint
         if (
             checkpoint.action_job_id,
             checkpoint.run_id,
@@ -1951,15 +1950,17 @@ class GenerationSourceRepository:
             cell_id,
         ):
             raise ValueError("native_retained_candidate_current_scope_mismatch")
-        if (
-            checkpoint.context_job_ref != linkage.context_job_ref
-            or selection.context != source.cycle_substrate_context
-        ):
+        if checkpoint.context_job_ref != linkage.context_job_ref:
             raise ValueError("native_retained_candidate_current_context_mismatch")
+        # Prepare the exact selectors. The current graph owner below replays the
+        # complete selection and verifies the source context against live custody.
+        profile = GenericCycleSimulationProfileV1.model_validate(
+            load_core_json_artifact(owner.store, checkpoint.original_profile_ref)
+        )
         handoff = GenericCycleNativeWorldContextHandoffV1(
             context=source.cycle_substrate_context,
             context_job_ref=linkage.context_job_ref,
-            profile=selection.source_selection.historical_selection.original_profile,
+            profile=profile,
             profile_ref=linkage.profile_ref,
             native_world_checkpoint_ref=linkage.native_world_checkpoint_ref,
             original_generic_input_ref=linkage.original_generic_input_ref,

@@ -1434,6 +1434,215 @@ def test_native_retained_source_refuses_false_positive_or_scope(
         GenerationSourceHandoff.model_validate(payload)
 
 
+def test_native_source_returns_no_ref_when_late_world_profile_is_removed(tmp_path, monkeypatch):
+    """Exercise the real selected checkpoint and the before/after N4 write boundary."""
+    from polisyos.core import artifacts, canon
+    from polisyos.core.registry import load_registry_bundle_content
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.quality import native_generic_context as native
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContextOwnerError,
+        cycle_job_profile_selection_ref,
+    )
+    from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+    from polisyos.runtime.quality.generation_source import SOURCE_KIND, GenerationSourceHandoff
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleNativeWorldContextHandoffV1,
+        GenericCycleSimulationAdmissionOwner,
+        NativeModelInputUseWorldCheckpointV1,
+        NativeModelInputUseWorldSourceRowV1,
+    )
+    from tests.unit.runtime.quality.test_generic_simulation_admission_program_graph import (
+        _linkage_problem,
+        compiled_selection,
+    )
+
+    case = compiled_selection.__wrapped__(tmp_path)
+    store = case.store
+    problem = _linkage_problem()
+    scope = {"job_id": "action", "run_id": "run", "tenant_id": "tenant", "cell_id": "cell"}
+    control = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
+    owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=store)
+    owner.bind_native_world_history(
+        control_store=control,
+        event_log=RuntimeDiagnosticEventLog(store=control, artifact_store=store),
+    )
+    context = owner.context_for_profile(case.profile, problem)
+
+    def ref(kind, label):
+        return store.put_json(
+            {"fixture": label},
+            artifacts.ArtifactWriteOptions(kind=kind, media_type="application/json"),
+            return_selected_profile=True,
+        )
+
+    profile_ref = store.put_json(
+        case.profile.model_dump(mode="json"),
+        owner._profile_write_options(profile=case.profile, **{**scope, "job_id": "source"}),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    context_ref = ref("runtime.quality.cycle_substrate_context_job", "context")
+    input_ref = ref("runtime.quality.generic_cycle_simulation_n5_input", "original-input")
+    phase_ref = ref("runtime.quality.model_input_use_action_phase", "phase")
+    successor_ref = ref("runtime.quality.model_input_successor_selection", "successor")
+    checkpoint = NativeModelInputUseWorldCheckpointV1(
+        predecessor_terminal_ref=ref("runtime_quality.acquisition_route_loop_receipt", "terminal"),
+        historical_native_world_checkpoint_ref=ref(
+            "runtime_quality.acquisition_candidate_world_checkpoint", "original-world"
+        ),
+        historical_native_action_job_id="native-predecessor",
+        native_input_collection_ref=ref(
+            "runtime_quality.native_derivation_input_checkpoint", "A+B"
+        ),
+        native_input_bindings_ref=ref("foundry.input_bindings", "bindings"),
+        model_input_use_phase_ref=phase_ref,
+        model_input_successor_selection_ref=successor_ref,
+        context_job_ref=context_ref,
+        original_generic_input_ref=input_ref,
+        original_profile_ref=profile_ref,
+        world_model_ref=case.profile.world_model_record_ref,
+        source_job_id="source",
+        action_job_id=scope["job_id"],
+        run_id=scope["run_id"],
+        tenant_id=scope["tenant_id"],
+        cell_id=scope["cell_id"],
+        route_id="sha256:" + "a" * 64,
+        current_profile_selection_ref=cycle_job_profile_selection_ref(problem),
+        selected_b_source_node_id="B",
+        source_rows=(
+            NativeModelInputUseWorldSourceRowV1(
+                source_node_id="B",
+                occurrence_ref=ref("catalog.scoped_measurement_occurrence", "B"),
+                source_receipt_ref=ref("epoch.activated_overlay_admission_receipt", "receipt"),
+                source_passport_ref=ref("epoch.acquisition_passport_snapshot", "passport"),
+                observation_id="fixture-B",
+                observation_content_sha256="sha256:" + "b" * 64,
+                canonical_value="1",
+                canonical_unit="dimensionless",
+            ),
+        ),
+    )
+    world_ref = native._persist_use_checkpoint(owner, checkpoint)
+    handoff = GenericCycleNativeWorldContextHandoffV1(
+        context=context,
+        context_job_ref=context_ref,
+        profile=case.profile,
+        profile_ref=profile_ref,
+        native_world_checkpoint_ref=world_ref,
+        original_generic_input_ref=input_ref,
+        current_profile_selection_ref=checkpoint.current_profile_selection_ref,
+        source_job_id=checkpoint.source_job_id,
+        **scope,
+    )
+    registry_ref = case.report.registry_bundle_ref
+    graph = native.NativeSelectedProgramGraphLinkage(
+        handoff=handoff,
+        compile_report_ref=case.profile.n5.compile_report_ref,
+        registry_bundle_ref=registry_ref,
+        registry_bundle_content=load_registry_bundle_content(store, registry_ref),
+        compiled_singleton=True,
+    )
+    linkage = n4.N4SelectedProgramGraphLinkageV2.from_native_selected_owner(graph)
+    origin = n4.NativeRetainedCandidateOrigin(
+        original_generic_input_ref=input_ref,
+        original_generation_source_ref=ref(SOURCE_KIND, "original-source"),
+        original_candidate_id="candidate_" + "a" * 16,
+        original_candidate_atom_hash="sha256:" + "b" * 64,
+        original_proposal_id="retained-proposal",
+        original_execution_scope="contract_testing",
+        synthetic=True,
+        native_world_checkpoint_ref=world_ref,
+        model_input_use_phase_ref=phase_ref,
+        model_input_successor_selection_ref=successor_ref,
+    )
+    result = n4.GenerationUnderAResult(
+        status="generation_unavailable",
+        design_problem_ref=context.design_problem_ref,
+        model_id="synthetic-c2",
+        preflight=n4.ModelProfilePreflight(status="gateway_unavailable", model_id="synthetic-c2"),
+        diversity_report=n4.GenerationDiversityReport(
+            min_required=1,
+            candidate_count=0,
+            unique_diversity_key_count=0,
+        ),
+    )
+    organ = n4.DesignGenerationOrganRun(
+        result=result,
+        cycle_substrate_context=context,
+        selected_program_graph_linkage=linkage,
+        native_retained_candidate_origin=origin,
+    )
+    repository = GenerationSourceRepository(store, native_world_owner=owner)
+
+    # Isolate scientific candidate preparation. The CAS writer, both Native
+    # currentness bookends, and the exact late checkpoint read are stock.
+    def prepared_source(cls, payload):
+        return cls.model_construct(
+            **{
+                **payload,
+                "problem": problem,
+                "generation_result": result,
+                "cycle_substrate_context": context,
+                "selected_program_graph_linkage": linkage,
+                "native_retained_candidate_origin": origin,
+            }
+        )
+
+    monkeypatch.setattr(GenerationSourceHandoff, "model_validate", classmethod(prepared_source))
+    monkeypatch.setattr(repository, "_verify_selected_program_graph_source", lambda *_a, **_k: None)
+    monkeypatch.setattr(repository, "_verify_native_retained_candidate", lambda *_a, **_k: None)
+
+    order, written = [], []
+    put = store.put_bytes
+    live = native.resolve_native_selected_program_graph_linkage
+    replay = native.replay_native_model_input_use_world_selection
+
+    def put_source(data, options, **kwargs):
+        selected = put(data, options, **kwargs)
+        assert options.kind == SOURCE_KIND
+        written.append(selected)
+        order.append("n4_put")
+        return selected
+
+    def observe_live(selected_owner, *, handoff: GenericCycleNativeWorldContextHandoffV1, **kw):
+        assert selected_owner is owner and handoff == graph.handoff
+        order.append("live_graph")
+        return live(selected_owner, handoff=handoff, **kw) if written else graph
+
+    def lose_profile_on_full_replay(selected_owner, *, checkpoint_ref):
+        assert selected_owner is owner and checkpoint_ref == world_ref and written
+        order.append("late_full_replay")
+        store._manifest_path_for_ref(
+            world_ref.artifact_id, world_ref.manifest_profile_sha256
+        ).unlink()
+        assert store.has(world_ref.artifact_id)
+        return replay(selected_owner, checkpoint_ref=checkpoint_ref)
+
+    monkeypatch.setattr(store, "put_bytes", put_source)
+    monkeypatch.setattr(native, "resolve_native_selected_program_graph_linkage", observe_live)
+    monkeypatch.setattr(
+        native, "replay_native_model_input_use_world_selection", lose_profile_on_full_replay
+    )
+    with pytest.raises(CycleSubstrateContextOwnerError, match="checkpoint_history_not_replayed"):
+        repository.persist_ref(
+            run_id="source-run",
+            expected_run_id=scope["run_id"],
+            cycle_index=0,
+            problem=problem,
+            organ=organ,
+            execution_scope="contract_testing",
+            job_id=scope["job_id"],
+            tenant_id=scope["tenant_id"],
+            cell_id=scope["cell_id"],
+            context_job_ref=context_ref,
+            profile_ref=profile_ref,
+        )
+    assert order == ["live_graph", "n4_put", "live_graph", "late_full_replay"]
+    (unreturned_ref,) = written
+    assert store.has(unreturned_ref)
+
+
 def test_native_retained_grounding_trace_replays_real_cg3_cg4_cg5(actual_n4_source):
     """Retained trace replay refuses removal or substitution of owned gate evidence."""
     problem, organ = actual_n4_source

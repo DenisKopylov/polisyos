@@ -312,6 +312,19 @@ class TargetAchieved(StoppingCriterion):
         return StoppingCondition(should_stop=False)
 
 
+def _finite_cost_amount(raw: Any) -> float | None:
+    """Return a finite, nonnegative amount representable on the stopping basis."""
+    if isinstance(raw, bool) or not isinstance(raw, (int, float, Decimal)):
+        return None
+    try:
+        amount = float(raw)
+    except (OverflowError, ValueError, TypeError):
+        return None
+    if not isfinite(amount) or raw < 0 or (amount == 0.0 and raw != 0):
+        return None
+    return amount
+
+
 class CostBudgetStopping(StoppingCriterion):
     """Stop when cumulative cost exceeds a USD budget."""
 
@@ -320,9 +333,10 @@ class CostBudgetStopping(StoppingCriterion):
         max_cost_usd: float,
         cost_key: str = "cumulative_cost_usd",
     ):
-        if max_cost_usd <= 0:
-            raise ValueError("max_cost_usd must be > 0")
-        self._max_cost = max_cost_usd
+        limit = _finite_cost_amount(max_cost_usd)
+        if limit is None or limit == 0.0:
+            raise ValueError("max_cost_usd must be a finite positive amount")
+        self._max_cost = limit
         self._cost_key = cost_key
 
     @property
@@ -331,25 +345,13 @@ class CostBudgetStopping(StoppingCriterion):
 
     def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> StoppingCondition:
         del history
-        raw_cost = state.get(self._cost_key)
-        if not isinstance(raw_cost, (int, float, Decimal)) or isinstance(raw_cost, bool):
+        cost = _finite_cost_amount(state.get(self._cost_key))
+        if cost is None:
             return StoppingCondition(
                 should_stop=True,
                 reason=f"Cost budget unavailable for key {self._cost_key!r}",
                 details={
                     "budget": self._max_cost,
-                    "cost_key": self._cost_key,
-                    "budget_available": False,
-                },
-            )
-        cost = float(raw_cost)
-        if not isfinite(cost):
-            return StoppingCondition(
-                should_stop=True,
-                reason=f"Cost budget unavailable for key {self._cost_key!r}",
-                details={
-                    "budget": self._max_cost,
-                    "cost": raw_cost,
                     "cost_key": self._cost_key,
                     "budget_available": False,
                 },

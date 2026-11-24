@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from decimal import Decimal
+
 import pytest
 
 from polisyos.scientist.methods.search.stopping import (
@@ -47,9 +49,57 @@ class TestCostBudgetStopping:
         result = s.check([], {"my_cost": 5.0})
         assert result.should_stop
 
-    def test_invalid_budget_raises(self):
-        with pytest.raises(ValueError):
-            CostBudgetStopping(max_cost_usd=0.0)
+    @pytest.mark.parametrize(
+        "value",
+        [
+            True,
+            False,
+            "1",
+            None,
+            float("nan"),
+            float("inf"),
+            -float("inf"),
+            Decimal("sNaN"),
+            0,
+            -1,
+            10**400,
+        ],
+        ids=[
+            "true",
+            "false",
+            "string",
+            "null",
+            "nan",
+            "inf",
+            "negative-inf",
+            "decimal-snan",
+            "zero",
+            "negative",
+            "overflow",
+        ],
+    )
+    def test_invalid_budget_raises(self, value) -> None:
+        with pytest.raises(ValueError, match="finite positive"):
+            CostBudgetStopping(max_cost_usd=value)
+
+    @pytest.mark.parametrize(
+        "cost",
+        [-1, float("nan"), float("inf"), 10**400, Decimal("-1e-500"), Decimal("1e-500")],
+        ids=["negative", "nan", "inf", "overflow", "negative-underflow", "positive-underflow"],
+    )
+    def test_unknown_cost_stops_without_an_invalid_numeric_diagnostic(self, cost) -> None:
+        result = CostBudgetStopping(1).check([], {"cumulative_cost_usd": cost})
+
+        assert result.should_stop
+        assert result.details["budget_available"] is False
+        assert "cost" not in result.details
+
+    def test_measured_zero_is_an_available_balance(self) -> None:
+        result = CostBudgetStopping(1).check([], {"cumulative_cost_usd": Decimal(0)})
+
+        assert not result.should_stop
+        assert result.details["budget_available"] is True
+        assert result.details["cost"] == 0
 
     def test_name(self):
         assert CostBudgetStopping(1.0).name == "cost_budget"

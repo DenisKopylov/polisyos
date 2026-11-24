@@ -1878,7 +1878,6 @@ class TestOptimizationFlow:
     def test_durable_spend_crosses_cost_threshold_after_two_traced_calls(
         self,
         tmp_path,
-        quadratic_objective,
     ) -> None:
         """The actual durable owner spend, not caller context, stops later evaluation."""
         import json
@@ -1886,6 +1885,7 @@ class TestOptimizationFlow:
         from decimal import Decimal
 
         from polisyos.core.llm.traced_client import TracedLLMClient
+        from polisyos.scientist.methods.search.objective import BudgetDeficitObjective
         from polisyos.scientist.orchestration.engine.budget import (
             BudgetLimit,
             BudgetState,
@@ -1994,7 +1994,10 @@ class TestOptimizationFlow:
         def stage_b(candidate: dict[str, Any], _context: dict[str, Any]) -> dict[str, Any]:
             stage_b_calls.append(candidate)
             result = {
-                "simulation_results": {"x": candidate["x"]},
+                "simulation_results": {
+                    "budget_deficit": candidate["x"],
+                    "metric_units": {"budget_deficit": "EUR"},
+                },
                 "feedback": {"verdict": "APPROVE"},
             }
             stage_b_results.append(result)
@@ -2003,7 +2006,7 @@ class TestOptimizationFlow:
         controller = SearchController(
             config=SearchConfig(
                 stopping=CostBudgetStopping(max_cost_usd=0.30),
-                objective=quadratic_objective,
+                objective=CompositeObjective([BudgetDeficitObjective(expected_unit="EUR")]),
                 max_iterations_hard_limit=4,
                 producer_settlement_store=owner,
                 producer_run_binding=binding,
@@ -2021,7 +2024,9 @@ class TestOptimizationFlow:
         durable = FileBudgetLedger(ledger_path).snapshot()
         events = list(durable.producer_settlements.values())
         assert session.request_count == 2
-        second_request = session.requests[1]["json"]
+        request_bytes = session.requests[1]["data"]
+        assert isinstance(request_bytes, bytes)
+        second_request = json.loads(request_bytes)
         second_user_prompt = next(
             message["content"]
             for message in second_request["messages"]
@@ -2037,21 +2042,25 @@ class TestOptimizationFlow:
 
         source_candidate = {"x": 1.0, "semantic": {"interventions": []}}
         source_stage_b_result = {
-            "simulation_results": {"x": 1.0},
+            "simulation_results": {
+                "budget_deficit": 1.0,
+                "metric_units": {"budget_deficit": "EUR"},
+            },
             "feedback": {"verdict": "APPROVE"},
         }
-        expected_objective = ObjectiveValue(
-            name="quadratic",
-            raw_value=1.0,
-            direction=OptimizationDirection.MINIMIZE,
-            weight=1.0,
-            is_satisfied=True,
-            threshold=None,
-        )
+        assert len(first_record.objective_details) == 1
+        detail = first_record.objective_details[0]
+        assert detail.score_assessment is not None
+        assert detail.score_assessment.source_unit_bindings == (("budget_deficit", "EUR"),)
+        assert detail.score_assessment.source_values == (("budget_deficit", 1.0),)
         assert first_record.iteration == 0
         assert first_record.candidate == source_candidate
-        assert first_record.objective_value == expected_objective.raw_value
-        assert first_record.objective_details == [expected_objective]
+        assert first_record.objective_value == 1.0
+        assert first_record.score_status is ObjectiveScoreStatus.AVAILABLE
+        assert first_record.score_assessment is not None
+        assert first_record.score_admission is not None
+        assert first_record.score_admission.status is ObjectiveScoreStatus.AVAILABLE
+        assert first_record.score_admission.predicate_status == "recomputed"
         assert first_record.is_promising is True
         assert first_record.stage_a_passed is True
         assert first_record.stage_b_result == source_stage_b_result == stage_b_results[0]
@@ -2062,19 +2071,21 @@ class TestOptimizationFlow:
         assert first_record.policy_evaluation_error is None
 
         expected_objective_detail = {
-            "name": expected_objective.name,
-            "raw_value": expected_objective.raw_value,
-            "direction": expected_objective.direction.value,
-            "weight": expected_objective.weight,
-            "is_satisfied": expected_objective.is_satisfied,
-            "threshold": expected_objective.threshold,
+            "name": "budget_deficit",
+            "raw_value": 1.0,
+            "direction": "minimize",
+            "weight": 1.0,
+            "is_satisfied": True,
+            "threshold": None,
+            "score_status": "available",
+            "score_assessment": detail.score_assessment.to_payload(),
         }
         objective_fields = {field.name for field in fields(ObjectiveValue)}
         assert set(expected_objective_detail) == objective_fields
         expected_history_row = {
             "iteration": first_record.iteration,
             "candidate": source_candidate,
-            "objective_value": expected_objective.raw_value,
+            "objective_value": 1.0,
             "objective_details": [expected_objective_detail],
             "is_promising": True,
             "stage_a_passed": True,
@@ -2084,6 +2095,13 @@ class TestOptimizationFlow:
             "timestamp": first_record.timestamp.isoformat(),
             "policy_evaluation_status": "missing",
             "policy_evaluation_error": None,
+            "score_status": "available",
+            "score_assessment": first_record.score_assessment.to_payload(),
+            "score_admission": first_record.score_admission.to_payload(),
+            "candidate_proposal": None,
+            "candidate_ref": None,
+            "evaluation_ref": None,
+            "current_policy_reevaluation": False,
         }
         expected_history_fields = {field.name for field in fields(SearchIteration)}
         assert set(expected_history_row) == expected_history_fields

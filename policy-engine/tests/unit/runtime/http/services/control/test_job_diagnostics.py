@@ -22,6 +22,7 @@ from polisyos.runtime.http.services import model_input_successor_action as model
 from polisyos.runtime.http.services.acquisition_action_service import AcquisitionActionService
 from polisyos.runtime.http.services.control.job_diagnostics import (
     _closed_native_model_input_use_checkpoint,
+    _failed_native_model_input_use_stage,
     _ModelInputUseJobCompletion,
     _verify_native_model_input_use_completed_work,
 )
@@ -451,23 +452,71 @@ def test_native_closed_checkpoint_reopens_terminal_outbox_and_original_lease(
         _closed_native_model_input_use_checkpoint(case.database, completed)
 
 
+def test_native_failed_stage_requires_the_original_failure_outbox(tmp_path: Path) -> None:
+    case = _model_input_completion_case(tmp_path)
+    stage = model_owner.ModelInputUseActionCheckpoint(
+        phase_ref=case.checkpoint.phase_ref,
+        semantic_successor_ref=case.checkpoint.semantic_successor_ref,
+    )
+    with case.database.job_execution_fence(
+        job_id=case.job.job_id, worker_id=case.worker, attempt=case.attempt
+    ):
+        case.database.fail_job(
+            job_id=case.job.job_id,
+            error_message="test_native_post_effect_readback_failed",
+            progress={"model_input_use": stage.model_dump(mode="json", exclude_none=True)},
+        )
+    failed = case.database.get_job(case.job.job_id)
+    selected, running, failure = _failed_native_model_input_use_stage(
+        case.database, failed, expected_attempt=case.attempt
+    )
+    assert selected == stage
+    assert running.created_at < failure.created_at
+    assert running.payload["lease_owner"] == failure.payload["lease_owner"] == case.worker
+    assert failure.payload["attempt"] == case.attempt
+    outbox = case.database._get_outbox_event_by_key(
+        topic="control.job.failed", event_key=f"{failed.job_id}:job_failed:attempt:{case.attempt}"
+    ) or case.database._get_outbox_event_by_key(
+        topic="control.job.failed", event_key=f"{failed.job_id}:job_failed"
+    )
+    assert outbox is not None
+    case.database._execute(
+        "DELETE FROM control_outbox_events WHERE event_id = ?", (outbox.event_id,)
+    )
+    assert case.database.get_job(failed.job_id) == failed
+    with pytest.raises(
+        model_owner.ModelInputSuccessorActionError,
+        match="native_model_input_use_custody_failed_attempt_not_established",
+    ):
+        _failed_native_model_input_use_stage(case.database, failed, expected_attempt=case.attempt)
+
+
 def test_native_closed_result_reopens_the_same_window_and_one_durable_unit(tmp_path: Path) -> None:
     from polisyos.runtime.quality.joint_simulation_horizon import (
         PhysicalSimulationWorkObservation,
         _physical_invocation_binding,
     )
     from polisyos.scientist.orchestration.engine import (
+        BudgetLedgerInvocationProfile,
         BudgetLimit,
         BudgetMiddleware,
         BudgetState,
         ProducerBudgetObserver,
     )
     from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
-    from tests.unit.scientist.orchestration.engine.test_producer_budget_c49 import _diagnostic_owner
-
-    ledger, settlement, binding, policy, _old_observer = _diagnostic_owner(
-        tmp_path, total=3, protected=1, purpose="standard"
+    from tests.unit.scientist.orchestration.engine.test_producer_budget_c49 import (
+        _diagnostic_owner,
+        _settle,
     )
+
+    ledger, settlement, binding, policy, old_observer = _diagnostic_owner(
+        tmp_path, total=4, protected=1, purpose="standard"
+    )
+    _settle(settlement, binding, "native-failed-cut-original-cost", "0.01")
+    old_operation, old_digest = _physical_invocation_binding("d" * 32, "b" * 64, 42)
+    with old_observer.invocation_purpose_scope_from_selected_owner(policy, purpose="standard"):
+        assert old_observer.reserve_invocation(old_operation, old_digest) is not None
+        old_observer.finish_invocation(old_operation, old_digest, "completed")
     phase_ref = _selected_ref("runtime.quality.model_input_use_action_phase", 8)
     identity = model_owner.ModelInputSuccessorIdentity(
         origin=SimpleNamespace(
@@ -490,6 +539,7 @@ def test_native_closed_result_reopens_the_same_window_and_one_durable_unit(tmp_p
     window = model_owner._resolve_action_budget_window(
         control, selection=identity, phase_ref=phase_ref, open_if_missing=True
     )
+    assert window.baseline_total_usd == Decimal("0.01")
     observer = ProducerBudgetObserver(
         settlement_store=settlement,
         producer_run_binding=binding,
@@ -499,6 +549,7 @@ def test_native_closed_result_reopens_the_same_window_and_one_durable_unit(tmp_p
         invocation_selection_pending=True,
         reentry_budget_scope=window.scope,
     )
+    observer.bind_existing_invocation_policy_from_selected_owner(policy, purpose="standard")
     invocation_id, physical_spec, seed = "a" * 32, "b" * 64, 42
     operation, digest = _physical_invocation_binding(invocation_id, physical_spec, seed)
     started = datetime.now(UTC)
@@ -550,16 +601,27 @@ def test_native_closed_result_reopens_the_same_window_and_one_durable_unit(tmp_p
         control, selection=identity, phase_ref=phase_ref, open_if_missing=False
     )
     assert selected == window
-    _verify_native_model_input_use_completed_work(
-        control,
-        resolved=resolution,
-        input_record=SimpleNamespace(n5=SimpleNamespace(invocation_quota_policy=policy)),
-        window=selected,
-        started_at=started,
-        finished_at=finished,
-    )
+
+    def verify_finished_cut(
+        failed_at: datetime, *, original_work_cut_revision: int | None = None
+    ) -> int:
+        return _verify_native_model_input_use_completed_work(
+            control,
+            resolved=resolution,
+            input_record=SimpleNamespace(n5=SimpleNamespace(invocation_quota_policy=policy)),
+            window=selected,
+            started_at=started,
+            finished_at=failed_at,
+            require_failed_attempt_cut=True,
+            original_work_cut_revision=original_work_cut_revision,
+        )
+
+    original_work_cut_revision = verify_finished_cut(finished)
+    assert original_work_cut_revision == ledger.snapshot().revision
+    with pytest.raises(ValueError, match="custody_cut_not_established"):
+        verify_finished_cut(finished, original_work_cut_revision=original_work_cut_revision + 1)
     assert source.read_bytes() == before
-    assert len(ledger.snapshot().invocation_reservations) == 1
+    assert set(ledger.snapshot().invocation_reservations) == {operation, old_operation}
 
     moved = tmp_path / "same-bytes-different-owner.json"
     moved.write_bytes(before)
@@ -571,6 +633,44 @@ def test_native_closed_result_reopens_the_same_window_and_one_durable_unit(tmp_p
             control, selection=identity, phase_ref=phase_ref, open_if_missing=False
         )
     assert moved.read_bytes() == before == source.read_bytes()
+
+    control._llm_producer_settlement_store = settlement
+    different_run = binding.model_copy(
+        update={"run_id": "independent-run", "control_job_id": "independent-job"}
+    )
+    different_profile = BudgetLedgerInvocationProfile.from_policy(different_run, policy)
+    ledger.configure_invocation_profile(different_profile)
+    unrelated_operation, unrelated_digest = _physical_invocation_binding(
+        "e" * 32, physical_spec, seed
+    )
+    _, created = ledger.reserve_invocation(
+        unrelated_operation, unrelated_digest, profile=different_profile, purpose="standard"
+    )
+    assert created
+    verify_finished_cut(finished)
+
+    # The later reservation is indistinguishable from work of this same
+    # action because only its run identity was retained.
+    another_operation, another_digest = _physical_invocation_binding("c" * 32, physical_spec, seed)
+    with observer.invocation_purpose_scope_from_selected_owner(policy, purpose="standard"):
+        assert observer.reserve_invocation(another_operation, another_digest) is not None
+        pending = source.read_bytes()
+        with pytest.raises(ValueError, match="custody_physical_denominator_not_established"):
+            verify_finished_cut(finished)
+        assert (
+            verify_finished_cut(finished, original_work_cut_revision=original_work_cut_revision)
+            == original_work_cut_revision
+        )
+        assert source.read_bytes() == pending
+        observer.finish_invocation(another_operation, another_digest, "completed")
+    completed = source.read_bytes()
+    with pytest.raises(ValueError, match="custody_physical_denominator_not_established"):
+        verify_finished_cut(finished)
+    assert (
+        verify_finished_cut(finished, original_work_cut_revision=original_work_cut_revision)
+        == original_work_cut_revision
+    )
+    assert source.read_bytes() == completed
 
 
 @pytest.mark.parametrize(

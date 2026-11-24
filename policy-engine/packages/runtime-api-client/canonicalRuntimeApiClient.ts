@@ -1326,6 +1326,12 @@ export type NativeModelInputSuccessorActionRequest =
 export type NativeModelInputTargetProjection =
   RuntimeApiComponents["schemas"]["NativeModelInputTargetProjection"];
 
+export type NativeModelInputUseTerminalCustodyRequest =
+  RuntimeApiComponents["schemas"]["NativeModelInputUseTerminalCustodyRequest"];
+
+export type NativeModelInputUseTerminalCustodyResponse =
+  RuntimeApiComponents["schemas"]["NativeModelInputUseTerminalCustodyResponse"];
+
 export type NativePaidInputAdmissionSelection =
   RuntimeApiComponents["schemas"]["NativePaidInputAdmissionSelection"];
 

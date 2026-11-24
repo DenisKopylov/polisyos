@@ -263,6 +263,10 @@ _MODEL_INPUT_USE_MUTATIONS = (
     ("POST", "/api/v1/runs/{run_id}/model-input-use/decision-request"),
     ("POST", "/api/v1/runs/{run_id}/model-input-use/execute"),
 )
+_NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY = (
+    "POST",
+    "/api/v1/runs/{run_id}/model-input-use/{job_id}/terminal-custody",
+)
 _DEPLOYMENT_ONLY_MUTATING_PERMISSIONS = frozenset(
     {
         RuntimePermission.JOBS_CANCEL,
@@ -314,6 +318,7 @@ _EXPECTED_MUTATING_OPERATIONS = (
     _CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY,
     ("POST", "/api/v1/runs/{run_id}/human-decisions"),
     *_MODEL_INPUT_USE_MUTATIONS,
+    _NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY,
     ("POST", "/api/v1/runs/{run_id}/predictive-calibration"),
     ("POST", "/api/v1/runs/{run_id}/production-approval"),
     ("POST", "/api/v1/runs/{run_id}/public-verification-record"),
@@ -404,6 +409,7 @@ _EXPECTED_MUTATING_PERMISSIONS = {
         "/api/v1/runs/{run_id}/human-decisions",
     ): RuntimePermission.RUNS_HUMAN_DECISIONS_CREATE,
     **dict.fromkeys(_MODEL_INPUT_USE_MUTATIONS, RuntimePermission.RUNS_LAUNCH),
+    _NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY: RuntimePermission.RUNS_LAUNCH,
     (
         "POST",
         "/api/v1/runs/{run_id}/predictive-calibration",
@@ -476,6 +482,7 @@ _MUTATING_OPERATION_CASE_IDS = {
     ("POST", "/api/v1/runs/{run_id}/human-decisions"): ("create-run-human-decision"),
     _MODEL_INPUT_USE_MUTATIONS[0]: "request-run-model-input-use-decision",
     _MODEL_INPUT_USE_MUTATIONS[1]: "execute-run-model-input-use",
+    _NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY: ("settle-run-native-model-input-use-terminal"),
     ("POST", "/api/v1/runs/{run_id}/predictive-calibration"): ("create-run-predictive-calibration"),
     ("POST", "/api/v1/runs/{run_id}/production-approval"): ("create-run-production-approval"),
     ("POST", "/api/v1/runs/{run_id}/public-verification-record"): (
@@ -498,6 +505,7 @@ _HIGH_STAKES_MUTATING_OPERATIONS = (
     _CANDIDATE_MODEL_REVISION_TERMINAL_CUSTODY,
     ("POST", "/api/v1/runs/{run_id}/human-decisions"),
     *_MODEL_INPUT_USE_MUTATIONS,
+    _NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY,
     ("POST", "/api/v1/runs/{run_id}/production-approval"),
 )
 
@@ -510,6 +518,7 @@ def _expected_mutating_step_up_class(operation: tuple[str, str]) -> str | None:
         operation in _MODEL_INPUT_USE_MUTATIONS
         or operation in _CANDIDATE_EXPERIMENT_MUTATIONS
         or operation in _CANDIDATE_EXPERIMENT_REUSE_MUTATIONS
+        or operation == _NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY
     ):
         return "acquisition_approval"
     permission = _EXPECTED_MUTATING_PERMISSIONS[operation]
@@ -1221,6 +1230,7 @@ def _authorized_mutation_request(
     if (
         operation in _CANDIDATE_EXPERIMENT_MUTATIONS
         or operation in _MODEL_INPUT_USE_MUTATIONS
+        or operation == _NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY
         or operation
         in {
             _CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY,
@@ -1232,6 +1242,7 @@ def _authorized_mutation_request(
             AcquisitionExecutionResponse,
             CandidateExperimentTerminalCustodyResponse,
             CandidateModelRevisionTerminalCustodyResponse,
+            NativeModelInputUseTerminalCustodyResponse,
         )
         from polisyos.runtime.http.services.model_input_successor_action import (
             ModelInputSuccessorDecisionResponse,
@@ -1312,6 +1323,42 @@ def _authorized_mutation_request(
                 service,
                 "settle_candidate_model_revision_terminal_custody",
                 lambda **_: response,
+            )
+            return default_path, body
+        if operation == _NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY:
+            job_id = "ds20-job_id"
+            body = {
+                "run_id": run_id,
+                "job_id": job_id,
+                "failed_attempt": 5,
+                "phase_ref": selected_ref("a", "runtime.quality.model_input_use_action_phase"),
+                "semantic_successor_ref": selected_ref(
+                    "b", "runtime.quality.model_input_successor_selection"
+                ),
+                "execution_ref": selected_ref(
+                    "c", "runtime.quality.generic_cycle_simulation_n5_execution"
+                ),
+            }
+            response = NativeModelInputUseTerminalCustodyResponse.model_validate(
+                {
+                    "run_id": run_id,
+                    "job_id": job_id,
+                    "attempt": 5,
+                    "execution_ref": body["execution_ref"],
+                    "result_ref": selected_ref("d", "polisyos.runtime.joint_simulation_result"),
+                }
+            )
+            service_calls: list[dict[str, Any]] = []
+            client.app.state._test_native_model_input_use_terminal_calls = service_calls
+
+            def settle_terminal(**kwargs: Any) -> NativeModelInputUseTerminalCustodyResponse:
+                service_calls.append(kwargs)
+                return response
+
+            monkeypatch.setattr(
+                service,
+                "settle_native_model_input_use_terminal_custody",
+                settle_terminal,
             )
             return default_path, body
         compiled_ref = selected_ref("b", "runtime.compiled_recursive_generation_cycle")
@@ -1771,6 +1818,7 @@ def test_mutating_operation_authorized_request_reaches_handler(
             "get-artifact-batch",
             "get-lineage-batch",
             "create-run-predictive-calibration",
+            "settle-run-native-model-input-use-terminal",
         }:
             observed_calls, observed_operation_id = _observe_actual_route_handler(
                 client,
@@ -1860,6 +1908,14 @@ def test_mutating_operation_authorized_request_reaches_handler(
         assert cancelled.cancellation_disposition == "publication_fenced"
         assert cancelled.physical_stop_status == "not_established"
         assert opa.inputs[0].resource_kind == "runtime.control_job.cancel.ownership_verified"
+    elif case_id == "settle-run-native-model-input-use-terminal":
+        calls = client.app.state._test_native_model_input_use_terminal_calls
+        assert len(calls) == 1
+        assert calls[0]["request"].run_id == runtime_api_env["core_run_id"]
+        assert calls[0]["request"].job_id == "ds20-job_id"
+        assert opa.inputs[0].resource_kind == (
+            "runtime.evidence.model_input.use.terminal_custody.request_bound"
+        )
     assert opa.inputs[0].request_method == method
     assert opa.inputs[0].resource_kind
     assert opa.inputs[0].resource_artifact_id
@@ -1886,6 +1942,63 @@ def test_mutating_operation_authorized_request_reaches_handler(
     else:
         assert event["step_up_class"] == expected_step_up
         assert event["step_up_outcome"] == "verified"
+
+
+@pytest.mark.parametrize("selector", ["run_id", "job_id"])
+def test_native_model_input_use_terminal_custody_denies_path_body_scope_mismatch(
+    selector: str,
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    operation = _NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY
+    case_id = _MUTATING_OPERATION_CASE_IDS[operation]
+    opa = _CaptureOPA()
+    bearer = _fixture_bearer(f"terminal-custody-scope-{selector}")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=opa,
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti=f"jwt-terminal-custody-scope-{selector}",
+            roles=frozenset({PolicyOSRole.ADMIN}),
+        ),
+    )
+
+    with client:
+        _install_authorization_audit_capture(client)
+        request_path, body = _authorized_mutation_request(
+            operation,
+            runtime_api_env,
+            cell_id=cell.cell_id,
+            client=client,
+            monkeypatch=monkeypatch,
+        )
+        assert body is not None
+        body[selector] = f"mismatched-{selector}"
+        response = client.post(
+            request_path,
+            headers={
+                "Authorization": f"Bearer {bearer}",
+                "X-Tenant-ID": runtime_api_env["tenant_a"],
+                "X-PolicyOS-Step-Up": _install_bound_test_step_up(client),
+            },
+            json=body,
+        )
+
+    assert response.status_code == 403, response.text
+    assert response.json()["code"] == "native_model_input_use_terminal_custody_scope_refused"
+    assert len(opa.inputs) == 1
+    assert opa.inputs[0].action_permission == RuntimePermission.RUNS_LAUNCH.value
+    assert opa.inputs[0].resource_kind == (
+        "runtime.evidence.model_input.use.terminal_custody.request_bound"
+    )
+    assert client.app.state._test_native_model_input_use_terminal_calls == []
 
 
 @pytest.mark.parametrize("operation", _high_stakes_mutation_params())
@@ -2053,6 +2166,28 @@ def test_each_mutating_operation_projects_action_permission_extension(
         ) == _expected_mutating_step_up_class(operation)
         if operation in _MODEL_INPUT_USE_MUTATIONS:
             assert resource_binding["resource_kind"] == "runtime.evidence.model_input.use"
+        if operation == _NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY:
+            assert resource_binding["source"] == "request_composite"
+            assert resource_binding["resource_kind"] == (
+                "runtime.evidence.model_input.use.terminal_custody"
+            )
+            selectors = {
+                "run_id",
+                "job_id",
+                "failed_attempt",
+                "phase_ref",
+                "semantic_successor_ref",
+                "execution_ref",
+            }
+            assert set(resource_binding["selector_fields"]) == selectors
+            assert set(resource_binding["required_selector_fields"]) == selectors
+            body = openapi_operation["requestBody"]["content"]["application/json"]["schema"]
+            assert body["$ref"].endswith("/NativeModelInputUseTerminalCustodyRequest")
+            body_contract = schema["components"]["schemas"][
+                "NativeModelInputUseTerminalCustodyRequest"
+            ]
+            assert set(body_contract["required"]) == selectors
+            assert body_contract["additionalProperties"] is False
         if operation == _CANDIDATE_EXPERIMENT_TERMINAL_CUSTODY:
             assert resource_binding["source"] == "request_composite"
             assert resource_binding["resource_kind"] == (

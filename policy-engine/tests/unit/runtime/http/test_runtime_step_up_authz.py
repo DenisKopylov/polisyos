@@ -68,6 +68,10 @@ _HIGH_STAKES_OPERATIONS = {
     ("POST", "/api/v1/runs/{run_id}/model-input-use/execute"): "acquisition_approval",
     (
         "POST",
+        "/api/v1/runs/{run_id}/model-input-use/{job_id}/terminal-custody",
+    ): "acquisition_approval",
+    (
+        "POST",
         "/api/v1/runs/{run_id}/production-approval",
     ): "production_approval",
     ("POST", "/api/v1/runs/{run_id}/human-decisions"): "human_decision",
@@ -478,6 +482,8 @@ def test_live_app_passes_high_stakes_step_up_contract(runtime_api_env) -> None:
     [
         ("runs.launch", "runtime.evidence.model_input.use", True),
         ("runs.launch", "runtime.evidence.model_input.use.other", False),
+        ("runs.launch", "runtime.evidence.model_input.use.terminal_custody", True),
+        ("runs.launch", "runtime.evidence.model_input.use.terminal_custody.other", False),
         ("runs.review", "runtime.evidence.model_input.use", False),
     ],
 )

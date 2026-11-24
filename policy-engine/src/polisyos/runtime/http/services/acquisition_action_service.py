@@ -70,6 +70,10 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     _receipt_verification_scoped,
     _receipt_verification_worker_scoped,
 )
+from polisyos.runtime.quality.model_input_successor_selection import (
+    MODEL_INPUT_SUCCESSOR_SELECTION_KIND,
+    MODEL_INPUT_USE_ACTION_PHASE_KIND,
+)
 from polisyos.runtime.quality.native_settled_draft import (
     NativeSettledDraftRecovery,
     NativeSettledN4Recovery,
@@ -508,6 +512,55 @@ class CandidateModelRevisionTerminalCustodyResponse(CandidateExperimentTerminalC
     """The ordinary model revision terminal selected by this request."""
 
     frontier_revision: int = Field(ge=1)
+
+
+class NativeModelInputUseTerminalCustodyRequest(BaseModel):
+    """Bind the exact failed Native attempt and its retained execution."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    run_id: str = Field(min_length=1)
+    job_id: str = Field(min_length=1)
+    failed_attempt: int = Field(ge=1, strict=True)
+    phase_ref: artifacts.ArtifactRef = Field(
+        json_schema_extra=_selected_custody_ref_schema(MODEL_INPUT_USE_ACTION_PHASE_KIND)
+    )
+    semantic_successor_ref: artifacts.ArtifactRef = Field(
+        json_schema_extra=_selected_custody_ref_schema(MODEL_INPUT_SUCCESSOR_SELECTION_KIND)
+    )
+    execution_ref: artifacts.ArtifactRef = Field(
+        json_schema_extra=_selected_custody_ref_schema(
+            "runtime.quality.generic_cycle_simulation_n5_execution"
+        )
+    )
+
+    @model_validator(mode="after")
+    def _require_selected_profiles(self) -> NativeModelInputUseTerminalCustodyRequest:
+        for ref, kind in (
+            (self.phase_ref, MODEL_INPUT_USE_ACTION_PHASE_KIND),
+            (self.semantic_successor_ref, MODEL_INPUT_SUCCESSOR_SELECTION_KIND),
+            (self.execution_ref, "runtime.quality.generic_cycle_simulation_n5_execution"),
+        ):
+            if (
+                type(ref) is not artifacts.ArtifactRef
+                or ref.kind != kind
+                or ref.media_type != "application/json"
+                or ref.manifest_profile_sha256 is None
+            ):
+                raise ValueError("native_model_input_use_terminal_custody_profile_required")
+        return self
+
+
+class NativeModelInputUseTerminalCustodyResponse(BaseModel):
+    """The execution and candidate result selected for the original attempt."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    run_id: str
+    job_id: str
+    attempt: int = Field(ge=1)
+    execution_ref: artifacts.ArtifactRef
+    result_ref: artifacts.ArtifactRef
 
 
 class CandidateExperimentReuseActionExecutionRequest(BaseModel):
@@ -5497,6 +5550,136 @@ class AcquisitionActionService:
             job_id=request.job_id,
             terminal_ref=prepared.terminal_ref,
             frontier_revision=prepared.frontier_cas.expected_revision + 1,
+        )
+
+    @_receipt_verification_scoped
+    def settle_native_model_input_use_terminal_custody(
+        self,
+        *,
+        request: NativeModelInputUseTerminalCustodyRequest,
+        principal: RuntimePrincipal,
+        bound_permission: BoundActionPermissionVerification,
+        step_up: StepUpAssertionVerification,
+        authorize_effect: Callable[[], int],
+    ) -> NativeModelInputUseTerminalCustodyResponse:
+        """Select a verified prior Native result under fresh same-actor approval."""
+        from polisyos.runtime.http.authorization import BoundActionPermissionVerification
+        from polisyos.runtime.http.services.acquisition_admission_bundle import (
+            require_native_model_input_use_terminal_custody_bound_permission,
+        )
+        from polisyos.runtime.http.services.control.job_diagnostics import (
+            prepare_native_model_input_use_terminal_custody,
+        )
+        from polisyos.runtime.http.step_up import StepUpAssertionVerification, StepUpClass
+        from polisyos.runtime.quality.substrate_registry import run_catalog_source_call
+
+        refused = "native_model_input_use_terminal_custody_scope_refused"
+        if (
+            principal.authenticated is not True
+            or not principal.cell_id
+            or type(bound_permission) is not BoundActionPermissionVerification
+            or type(step_up) is not StepUpAssertionVerification
+        ):
+            raise AcquisitionActionServiceError(refused)
+        try:
+            resource_digest = require_native_model_input_use_terminal_custody_bound_permission(
+                bound_permission, request
+            )
+        except (TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(refused) from exc
+        proof = bound_permission.verification
+        request_body_sha256 = bound_permission.bound_resource.body_sha256
+        if (
+            proof.subject != principal.subject
+            or proof.tenant_id != principal.tenant_id
+            or frozenset(proof.roles) != principal.roles
+            or step_up.context.subject != principal.subject
+            or step_up.context.tenant_id != principal.tenant_id
+            or step_up.context.resource_digest != resource_digest
+            or step_up.context.body_sha256 != request_body_sha256
+            or step_up.context.step_up_class is not StepUpClass.ACQUISITION_APPROVAL
+        ):
+            raise AcquisitionActionServiceError(refused)
+
+        control = self.control_service
+        store = control._control_store
+        job = store.get_job(request.job_id)
+        if (
+            job is None
+            or job.kind != "acquisition"
+            or job.run_id != request.run_id
+            or job.submitted_by != principal.subject
+        ):
+            raise AcquisitionActionServiceError(refused)
+        try:
+            scope, _ = store._reconcile_control_job_creation_envelope(job)
+        except (RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(refused) from exc
+        if (
+            scope.status != "established"
+            or not scope.actor_authenticated
+            or (scope.actor_subject, scope.tenant_id, scope.cell_id)
+            != (principal.subject, principal.tenant_id, principal.cell_id)
+        ):
+            raise AcquisitionActionServiceError(refused)
+        if job.state != "failed" or job.attempt != request.failed_attempt:
+            raise AcquisitionActionServiceError(
+                "native_model_input_use_terminal_custody_failed_attempt_changed"
+            )
+
+        try:
+            prepared = run_catalog_source_call(
+                control.catalog_serving_source,
+                prepare_native_model_input_use_terminal_custody,
+                control,
+                action_service=self,
+                tenant_id=principal.tenant_id,
+                cell_id=principal.cell_id,
+                run_id=request.run_id,
+                action_job_id=request.job_id,
+                failed_attempt=request.failed_attempt,
+                phase_ref=request.phase_ref,
+                semantic_successor_ref=request.semantic_successor_ref,
+                execution_ref=request.execution_ref,
+            )
+            result_ref = prepared.checkpoint.result_ref
+            if (
+                prepared.job != job
+                or prepared.scope != scope
+                or prepared.checkpoint.execution_ref != request.execution_ref
+                or result_ref is None
+            ):
+                raise ValueError("native_model_input_use_terminal_custody_selection_changed")
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(
+                "native_model_input_use_terminal_custody_history_not_established"
+            ) from exc
+
+        expires_at = min(authorize_effect(), step_up.expires_at)
+        assertion_sha256 = hashlib.sha256(step_up.assertion_id.encode("utf-8")).hexdigest()
+        try:
+            store.settle_native_model_input_use_result_custody(
+                expected_job=job,
+                checkpoint=prepared.checkpoint,
+                original_running_event_id=prepared.running.event_id,
+                original_failed_event_id=prepared.failure.event_id,
+                actor_subject=principal.subject,
+                resource_digest=resource_digest,
+                request_body_sha256=request_body_sha256,
+                authority_expires_at=expires_at,
+                step_up_sha256=f"sha256:{assertion_sha256}",
+                verify_precommit=prepared.verify_precommit,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise AcquisitionActionServiceError(
+                "native_model_input_use_terminal_custody_commit_refused"
+            ) from exc
+        return NativeModelInputUseTerminalCustodyResponse(
+            run_id=request.run_id,
+            job_id=request.job_id,
+            attempt=request.failed_attempt,
+            execution_ref=request.execution_ref,
+            result_ref=result_ref,
         )
 
     @_receipt_verification_scoped

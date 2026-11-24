@@ -82,6 +82,32 @@ migration_docs = ["src/polisyos/runtime/http/README.md", "src/polisyos/runtime/q
 runbook_docs = []
 
 [[compatibility_change]]
+id = "lane01-native-model-input-result-custody"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_experimental: Runtime Native model-input result custody POST"
+owner = "team-runtime-quality"
+version_owner = "team-runtime"
+deprecation_window = "2 minor releases"
+release_note = "Select the retained candidate result of the original failed Native attempt under fresh request-bound approval. The existing result GET reopens the paired custody and failure evidence."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["src/polisyos/runtime/http/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "lane01-native-model-input-result-custody-types"
+change_class = "js-package-api"
+impact = "additive"
+surface = "public_experimental: generated Native result custody request and response types"
+owner = "team-frontend"
+version_owner = "team-frontend"
+deprecation_window = "2 minor releases"
+release_note = "Generate strict selected-profile request and result response types for Native result custody."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["src/polisyos/runtime/http/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
 id = "lane01-scientist-gateway-owner-facade"
 change_class = "python-public-api"
 impact = "additive"

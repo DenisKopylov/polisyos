@@ -9079,7 +9079,7 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE. Scientific C revision 4 and fresh API verified. CYC-03-04 completes the local requirement matrix at 64 confirmed, zero partial, and two dependent on the loaded LANE-12 build. Ordinary and CPI retained readers are reconciled on named published versions. Strict paid Native B R10 records one completed standard unit and zero new supplier calls. The stock worker fails after numerical persistence at historical checkpoint replay. Exact result custody and fresh API remain open. Gate B retains separate acceptance.",
+        "status": "ACTIVE. Scientific C revision 4 and fresh API verified. CYC-03-04 completes the local requirement matrix at 64 confirmed, zero partial, and two dependent on the loaded LANE-12 build. Ordinary and CPI retained readers are reconciled on named published versions. Strict paid Native B R10 records one completed standard unit and zero new supplier calls. The stock worker fails after numerical persistence. A later read-only owner replay verifies the saved result at its exact original attempt and work time. Protected result selection and fresh API remain open. Gate B retains separate acceptance.",
         "main_commit": "dc58883bb1f04ec58f66d29293e57a85d4265e83",
         "main_tree": "483e617af6715a2512de54877d81a3110e8be95d",
         "native_memory_r51_r53": {
@@ -21148,6 +21148,13 @@
           "result_artifact_id": "sha256:4fc10436acbe5d032c67112ffdb701a59a7007b4b4ee8f4158a6de9bad6e9b4e",
           "standard_operation_id": "e9172dd383b49d71ee5ca07f4254f097578ce746f4109a00c1728765c514f46c",
           "verified_boundary": "One real standard physical invocation, ledger revision 36 to 38, zero new supplier requests. Both retained trajectories give government.balance outcome 3974834176 and effect -6025165824. Original attempt 1 fails at generic_native_model_input_use_checkpoint_history_not_replayed after numerical persistence and before terminal selection. Guard COMMAND_FAIL in 5320.267 seconds at RSS 1993506816 B. The existing numeric result is the only input to custody verification. Fresh stock API has not selected it."
+        },
+        "native_r10_retained_result_owner_preflight": {
+          "working_source_base": "9de257985f65b5fd56cdb8f0854ad41d7e6b05b9",
+          "output": "Primary:policy-engine/_cache/e02/native-r10-terminal-custody-20261124/case.KYbHQmlg/",
+          "joined_sha256": "c7bc5fa194f8bf29935eade48daea6eacdb0842d51322e7993f21e31226f987b",
+          "guard_sha256": "6b3faaf23aac804fb1c0794701d6982178da006122dd2a564684a93fe81208e0",
+          "verified_boundary": "Actual retained read-only candidate proof resolves the original approval at physical time, complete Native history, selected V3 and V5 and one standard ledger operation. Exact outcome and effect verified in both trajectories. Guard PASS 368.807 seconds at RSS 1524629504 B. Detached replay 285.492 seconds and precommit evidence re-open 2.996 seconds. Exact original/private business bytes preserved. This is working-source preparation for the stock protected POST and a separate fresh API reader."
         },
         "gate_b_v16_stock_selected_supplier_r8": {
           "base_commit": "7dc50b6d70af998b8aa549079815500f8d6ce76b",

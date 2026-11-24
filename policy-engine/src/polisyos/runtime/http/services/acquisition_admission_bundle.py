@@ -27,6 +27,7 @@ from polisyos.runtime.http.permissions import (
     CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND,
     MODEL_INPUT_USE_PERMISSION,
     MODEL_INPUT_USE_RESOURCE_KIND,
+    NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY_RESOURCE_KIND,
     RuntimePermission,
 )
 from polisyos.runtime.http.resource_binding import (
@@ -74,6 +75,7 @@ from .acquisition_action_service import (
     CandidateExperimentRouteMutationRequest,
     CandidateExperimentTerminalCustodyRequest,
     CandidateModelRevisionTerminalCustodyRequest,
+    NativeModelInputUseTerminalCustodyRequest,
 )
 from .model_input_successor_action import (
     ModelInputSuccessorActionRequest,
@@ -100,6 +102,7 @@ type _AcquisitionBindingRequest = (
     | CandidateExperimentTerminalCustodyRequest
     | CandidateExperimentReentryCustodyRequest
     | CandidateModelRevisionTerminalCustodyRequest
+    | NativeModelInputUseTerminalCustodyRequest
 )
 type _AcquisitionRequestBinding = tuple[type[_AcquisitionBindingRequest], str, RuntimePermission]
 _REQUEST_BINDING_BY_KIND: dict[str, _AcquisitionRequestBinding] = {
@@ -708,6 +711,45 @@ def require_candidate_experiment_reuse_bound_permission(
         bound_permission,
         action_kind=CANDIDATE_EXPERIMENT_REUSE_ACTION_KIND,
         request=request,
+    )
+
+
+def require_native_model_input_use_terminal_custody_bound_permission(
+    bound_permission: BoundActionPermissionVerification,
+    request: NativeModelInputUseTerminalCustodyRequest,
+) -> str:
+    """Recompute the exact same-attempt Native custody request seal."""
+    return _recompute_bound_acquisition_request(
+        bound_permission,
+        request=request,
+        selected=(
+            NativeModelInputUseTerminalCustodyRequest,
+            NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY_RESOURCE_KIND,
+            MODEL_INPUT_USE_PERMISSION,
+        ),
+    )
+
+
+def native_model_input_use_terminal_custody_resource_digest(
+    request: NativeModelInputUseTerminalCustodyRequest,
+    *,
+    body_sha256: str,
+) -> str:
+    """Reconstruct the request-bound resource from the original verified body hash."""
+    if type(request) is not NativeModelInputUseTerminalCustodyRequest:
+        raise AcquisitionAdmissionBundleBlocked("acquisition_resource_binding_invalid")
+    return _digest_payload(
+        {
+            "binding_version": "runtime.authorization.resource.v1",
+            "permission": MODEL_INPUT_USE_PERMISSION.value,
+            "resource_kind": NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY_RESOURCE_KIND,
+            "authority": BindingAuthority.REQUEST_BOUND.value,
+            "tenant_id": None,
+            "body_sha256": body_sha256,
+            "query_sha256": _EMPTY_QUERY_SHA256,
+            "selectors": _request_selectors(request),
+            "resolved_context_sha256": None,
+        }
     )
 
 

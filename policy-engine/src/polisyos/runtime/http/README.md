@@ -62,6 +62,25 @@ continue to apply their own authorization and owner checks.
   `services/*`, `container.py`, `dependencies.py`, `execution_policy.py`,
   `mutation_policy.py`, `openapi_contract.py`, `permissions.py`
 
+### Retained Native model-input result
+
+`POST /api/v1/runs/{run_id}/model-input-use/{job_id}/terminal-custody` selects a
+candidate result already produced by the exact failed Native attempt. The
+original authenticated user supplies a fresh one-use acquisition Step-Up under
+`runs.launch`. The request binds the run, job, attempt, and selected phase,
+semantic-successor and execution profiles. The original failed job history
+supplies the physical cutoff. The archived approval, selected execution and
+completed physical reservation must resolve before the transaction records
+custody. The completion retains the original attempt and failure evidence and
+uses only historical checks of the provider and physical work.
+
+`GET /api/v1/runs/{run_id}/model-input-use/{job_id}/n5-result` reopens the
+selected result and both its original execution and custody records through a
+fresh reader. The result remains candidate simulation evidence. The custody
+record seals the ledger revision observed during final verification. An
+ambiguous same-run physical reservation within that cut makes legacy custody
+unavailable. Later ledger revisions preserve the scope of the accepted result.
+
 ## Observational input worker binding
 
 For direct observational method jobs, the worker reconciles the complete

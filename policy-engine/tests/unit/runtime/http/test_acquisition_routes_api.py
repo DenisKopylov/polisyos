@@ -4,6 +4,7 @@ import hashlib
 import json
 import time
 from types import SimpleNamespace
+from typing import TYPE_CHECKING
 
 import pytest
 from _helpers.runtime_http import _runtime_api_request
@@ -21,6 +22,7 @@ from polisyos.runtime.http.dependencies import get_acquisition_action_service
 from polisyos.runtime.http.permissions import (
     CANDIDATE_EXPERIMENT_REUSE_PERMISSION,
     CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND,
+    NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY_RESOURCE_KIND,
     RuntimePermission,
 )
 from polisyos.runtime.http.routes import acquisitions
@@ -35,12 +37,16 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     CandidateExperimentRouteProjection,
     CandidateExperimentRouteReplayPins,
     CandidateModelRevisionTerminalCustodyRequest,
+    NativeModelInputUseTerminalCustodyRequest,
+    NativeModelInputUseTerminalCustodyResponse,
 )
 from polisyos.runtime.http.services.acquisition_admission_bundle import (
     AcquisitionAdmissionBundleBlocked,
+    native_model_input_use_terminal_custody_resource_digest,
     require_acquisition_bound_permission,
     require_candidate_experiment_terminal_custody_bound_permission,
     require_candidate_model_revision_terminal_custody_bound_permission,
+    require_native_model_input_use_terminal_custody_bound_permission,
 )
 from polisyos.runtime.http.step_up import StepUpClass, get_route_step_up_dependency
 from polisyos.runtime.quality.candidate_experiment_reuse import (
@@ -56,6 +62,13 @@ from tests.unit.runtime.http.test_runtime_api_authz import (
     _install_bound_test_step_up,
 )
 
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from polisyos.runtime.http.execution_policy import RuntimePrincipal
+    from polisyos.runtime.http.step_up import StepUpAssertionVerification
+
+_NATIVE_MODEL_INPUT_CUSTODY_PATH = "/api/v1/runs/{run_id}/model-input-use/{job_id}/terminal-custody"
 _ROUTES = {
     ("GET", "/api/v1/runs/{run_id}/acquisition-routes"),
     ("GET", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}"),
@@ -75,6 +88,7 @@ _ROUTES = {
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request"),
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/execute"),
     ("POST", "/api/v1/runs/{run_id}/acquisition-routes/{route_id}/terminal-custody"),
+    ("POST", _NATIVE_MODEL_INPUT_CUSTODY_PATH),
 }
 
 
@@ -1075,6 +1089,174 @@ def test_model_revision_terminal_custody_requires_fresh_exact_user_approval(
         client.close()
 
 
+def test_native_model_input_terminal_custody_requires_fresh_exact_user_approval(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Bind Native custody to the exact failed attempt and one live effect approval."""
+    run_id = "run-native-model-input"
+    job_id = "job-native-model-input"
+    path = _NATIVE_MODEL_INPUT_CUSTODY_PATH.format(run_id=run_id, job_id=job_id)
+    supplied = NativeModelInputUseTerminalCustodyRequest(
+        run_id=run_id,
+        job_id=job_id,
+        failed_attempt=5,
+        phase_ref=ArtifactRef(
+            artifact_id="sha256:" + "a" * 64,
+            kind="runtime.quality.model_input_use_action_phase",
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "b" * 64,
+        ),
+        semantic_successor_ref=ArtifactRef(
+            artifact_id="sha256:" + "c" * 64,
+            kind="runtime.quality.model_input_successor_selection",
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "d" * 64,
+        ),
+        execution_ref=ArtifactRef(
+            artifact_id="sha256:" + "e" * 64,
+            kind="runtime.quality.generic_cycle_simulation_n5_execution",
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "f" * 64,
+        ),
+    )
+    expected_response = NativeModelInputUseTerminalCustodyResponse(
+        run_id=run_id,
+        job_id=job_id,
+        attempt=supplied.failed_attempt,
+        execution_ref=supplied.execution_ref,
+        result_ref=ArtifactRef(
+            artifact_id="sha256:" + "1" * 64,
+            kind="polisyos.runtime.joint_simulation_result",
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "2" * 64,
+        ),
+    )
+    body = supplied.model_dump(mode="json")
+    authorizations: list[int] = []
+    expire_before_effect = False
+
+    def observe_terminal_custody(
+        *,
+        request: NativeModelInputUseTerminalCustodyRequest,
+        principal: RuntimePrincipal,
+        bound_permission: BoundActionPermissionVerification,
+        step_up: StepUpAssertionVerification,
+        authorize_effect: Callable[[], int],
+    ) -> NativeModelInputUseTerminalCustodyResponse:
+        assert type(request) is NativeModelInputUseTerminalCustodyRequest
+        assert request == supplied
+        assert principal.authenticated and principal.subject == claims.sub
+        assert (principal.tenant_id, principal.cell_id) == (claims.tenant_id, claims.cell_id)
+        resource = bound_permission.bound_resource
+        assert bound_permission.verification.requirement.permission is RuntimePermission.RUNS_LAUNCH
+        assert (
+            resource.resource_kind
+            == f"{NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY_RESOURCE_KIND}.request_bound"
+        )
+        assert (
+            require_native_model_input_use_terminal_custody_bound_permission(
+                bound_permission, request
+            )
+            == resource.resource_digest
+        )
+        assert step_up.context.resource_digest == resource.resource_digest
+        assert step_up.context.body_sha256 == resource.body_sha256
+        assert (
+            native_model_input_use_terminal_custody_resource_digest(
+                request, body_sha256=resource.body_sha256
+            )
+            == resource.resource_digest
+        )
+        assert step_up.context.step_up_class is StepUpClass.ACQUISITION_APPROVAL
+        different_profile = request.execution_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "3" * 64}
+        )
+        with pytest.raises(
+            AcquisitionAdmissionBundleBlocked, match="acquisition_resource_binding_invalid"
+        ):
+            require_native_model_input_use_terminal_custody_bound_permission(
+                bound_permission, request.model_copy(update={"execution_ref": different_profile})
+            )
+        if expire_before_effect:
+            with monkeypatch.context() as clock:
+                clock.setattr(acquisitions.time, "time", lambda: step_up.expires_at)
+                authorize_effect()
+            pytest.fail("Native terminal custody accepted an expired effect approval")
+        expires_at = authorize_effect()
+        assert expires_at == step_up.expires_at
+        authorizations.append(expires_at)
+        return expected_response
+
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    bearer = _fixture_bearer("native-model-input-terminal-custody")
+    claims = _claims(
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=cell.cell_id,
+        jti="jwt-native-model-input-terminal-custody",
+        roles=frozenset({PolicyOSRole.ANALYST}),
+    )
+    provider.put_claim(bearer, claims)
+    client.app.dependency_overrides[get_acquisition_action_service] = lambda: SimpleNamespace(
+        settle_native_model_input_use_terminal_custody=observe_terminal_custody
+    )
+    headers = {
+        "Authorization": f"Bearer {bearer}",
+        "X-Tenant-ID": runtime_api_env["tenant_a"],
+    }
+
+    def fresh_headers() -> dict[str, str]:
+        return {**headers, "X-PolicyOS-Step-Up": _install_bound_test_step_up(client)}
+
+    try:
+        missing = client.post(path, headers=headers, json=body)
+        assert missing.status_code == 403, missing.text
+        assert missing.json()["code"] == "step_up_required"
+        assert not authorizations
+
+        signed = fresh_headers()
+        settled = client.post(path, headers=signed, json=body)
+        assert settled.status_code == 200, settled.text
+        assert settled.json() == expected_response.model_dump(mode="json")
+        assert len(authorizations) == 1
+
+        replay = client.post(path, headers=signed, json=body)
+        assert replay.status_code == 403, replay.text
+        assert replay.json()["code"] == "step_up_replayed"
+
+        for foreign_run, foreign_job in (("different-run", job_id), (run_id, "different-job")):
+            foreign = client.post(
+                _NATIVE_MODEL_INPUT_CUSTODY_PATH.format(run_id=foreign_run, job_id=foreign_job),
+                headers=fresh_headers(),
+                json=body,
+            )
+            assert foreign.status_code == 403, foreign.text
+            assert foreign.json()["code"] == "native_model_input_use_terminal_custody_scope_refused"
+
+        for change in (
+            {"execution_ref": {**body["execution_ref"], "manifest_profile_sha256": None}},
+            {"semantic_successor_ref": body["phase_ref"]},
+            {"phase_ref": {**body["phase_ref"], "media_type": "text/plain"}},
+            {"failed_attempt": str(supplied.failed_attempt)},
+            {"result_ref": expected_response.result_ref.model_dump(mode="json")},
+        ):
+            malformed = client.post(path, headers=fresh_headers(), json={**body, **change})
+            assert malformed.status_code == 422, malformed.text
+
+        expire_before_effect = True
+        expired = client.post(path, headers=fresh_headers(), json=body)
+        assert expired.status_code == 403, expired.text
+        assert expired.json()["code"] == "step_up_expired"
+        assert len(authorizations) == 1
+    finally:
+        client.close()
+
+
 def test_candidate_experiment_route_projects_candidate_and_fails_closed(
     runtime_api_env,
 ) -> None:
@@ -1156,6 +1338,9 @@ def test_acquisition_mutations_are_request_bound_and_step_up_protected(
         elif path.endswith("/acquisition-routes/{route_id}/terminal-custody"):
             expected_permission = RuntimePermission.EVIDENCE_ACQUIRE
             expected_kind = CANDIDATE_MODEL_REVISION_TERMINAL_CUSTODY_RESOURCE_KIND
+        elif path == _NATIVE_MODEL_INPUT_CUSTODY_PATH:
+            expected_permission = RuntimePermission.RUNS_LAUNCH
+            expected_kind = NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY_RESOURCE_KIND
         else:
             expected_permission = RuntimePermission.EVIDENCE_ACQUIRE
             expected_kind = (
@@ -1167,6 +1352,19 @@ def test_acquisition_mutations_are_request_bound_and_step_up_protected(
         binding = dependency.requirement.resource_binding
         assert binding.source is ResourceBindingSource.REQUEST_COMPOSITE
         assert binding.resource_kind == expected_kind
+        if path == _NATIVE_MODEL_INPUT_CUSTODY_PATH:
+            assert (
+                binding.selector_fields
+                == binding.required_selector_fields
+                == (
+                    "run_id",
+                    "job_id",
+                    "failed_attempt",
+                    "phase_ref",
+                    "semantic_successor_ref",
+                    "execution_ref",
+                )
+            )
         step_up = get_route_step_up_dependency(route, action_dependency=dependency)
         assert step_up is not None
         assert step_up.requirement.step_up_class is StepUpClass.ACQUISITION_APPROVAL

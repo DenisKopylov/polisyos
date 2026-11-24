@@ -12,13 +12,26 @@ from typing import Any
 
 import pytest
 
+from polisyos.core.artifacts import ArtifactRef, FileSystemCAS, PutOptions
+from polisyos.runtime.http.resource_binding import _sha256
 from polisyos.runtime.http.services import control_plane_store
+from polisyos.runtime.http.services.acquisition_action_service import (
+    NativeModelInputUseTerminalCustodyRequest,
+)
+from polisyos.runtime.http.services.acquisition_admission_bundle import (
+    native_model_input_use_terminal_custody_resource_digest,
+)
 from polisyos.runtime.http.services.control_plane_store import (
     AcquisitionActionHeadRecord,
+    ControlJobExecutionAdmissionError,
     ControlJobExecutionScope,
     ControlJobLeaseLostError,
     ControlJobRecord,
     ControlPlaneStore,
+)
+from polisyos.runtime.http.services.model_input_successor_action import (
+    ModelInputUseActionCheckpoint,
+    model_input_use_terminal_progress,
 )
 from polisyos.runtime.quality.native_settled_draft import (
     NativeSettledDraftRecovery,
@@ -1119,3 +1132,268 @@ def test_strict_custody_outbox_identity_rejects_boolean_integer_grafts(
     assert retained is not None and retained.payload == payload
     assert type(retained.payload["attempt"]) is int
     assert type(retained.payload["metadata"]["recovery_generation"]) is int
+
+
+@pytest.mark.parametrize(
+    "outcome",
+    [
+        "selected",
+        "cold-execution-graft",
+        "changed-stage",
+        "foreign-actor",
+        "old-work-event",
+        "without-step-up",
+        "withdrawn-result",
+        "invalid-work-cut",
+        "existing-completion",
+        "completion-outbox-abort",
+    ],
+)
+def test_native_retained_result_custody_keeps_the_real_execution_attempt(
+    tmp_path: Path,
+    outcome: str,
+) -> None:
+    """Use durable job evidence and complete only the formerly failed attempt."""
+    store = _make_store(tmp_path)
+    artifact_store = FileSystemCAS(tmp_path / "native-custody-cas")
+    path = tmp_path / "control-plane.sqlite3"
+    job = _create_pending_action_job(store, job_id="model-input-use.native-held")
+
+    def selected(kind: str) -> ArtifactRef:
+        return artifact_store.put_json(
+            {"held_artifact": kind},
+            PutOptions(kind=kind, media_type="application/json"),
+            return_selected_profile=True,
+        )
+
+    stage = ModelInputUseActionCheckpoint(
+        phase_ref=selected("runtime.quality.model_input_use_action_phase"),
+        semantic_successor_ref=selected("runtime.quality.model_input_successor_selection"),
+    )
+    result = selected("polisyos.runtime.joint_simulation_result")
+    checkpoint = ModelInputUseActionCheckpoint(
+        phase_ref=stage.phase_ref,
+        semantic_successor_ref=stage.semantic_successor_ref,
+        execution_ref=selected("runtime.quality.generic_cycle_simulation_n5_execution"),
+        result_ref=result,
+    )
+    assert job.run_id is not None
+    worker, attempt = _lease_job(store, job, "real-n5-worker")
+    progress = {
+        "state": "pending",
+        "phase": "job_admission",
+        "model_input_use": stage.model_dump(mode="json", exclude_none=True),
+    }
+    with store.job_execution_fence(job_id=job.job_id, worker_id=worker, attempt=attempt):
+        store.upsert_progress(job_id=job.job_id, progress=progress)
+        store.fail_job(
+            job_id=job.job_id,
+            error_message="generic_native_model_input_use_checkpoint_history_not_replayed",
+        )
+    failed = store.get_job(job.job_id)
+    assert failed is not None and failed.state == "failed" and failed.attempt == attempt
+    running = store._latest_control_job_lifecycle_event_record(
+        job_id=job.job_id, event_type="job_running"
+    )
+    failure = store.get_job_terminal_source_event_record(job.job_id)
+    request = NativeModelInputUseTerminalCustodyRequest(
+        run_id=job.run_id,
+        job_id=job.job_id,
+        failed_attempt=attempt,
+        phase_ref=checkpoint.phase_ref,
+        semantic_successor_ref=checkpoint.semantic_successor_ref,
+        execution_ref=checkpoint.execution_ref,
+    )
+    request_body_sha256 = _sha256(request.model_dump_json().encode("utf-8"))
+    resource_digest = native_model_input_use_terminal_custody_resource_digest(
+        request, body_sha256=request_body_sha256
+    )
+    assertion_id = "held-native-same-subject-confirmation"
+    expires_at = int(time.time()) + 120
+    if outcome != "without-step-up":
+        assert store.consume_step_up_assertion(assertion_id=assertion_id, expires_at=expires_at)
+    if outcome == "existing-completion":
+        store.enqueue_outbox_event(
+            topic="control.job.completed",
+            event_key=f"{job.job_id}:already-completed",
+            job_id=job.job_id,
+            run_id=job.run_id,
+            payload={},
+        )
+    if outcome == "completion-outbox-abort":
+        with sqlite3.connect(path) as connection:
+            connection.execute(
+                "CREATE TRIGGER abort_native_custody BEFORE INSERT ON control_outbox_events "
+                "WHEN NEW.topic = 'control.job.completed' "
+                "BEGIN SELECT RAISE(ABORT, 'native held completion outbox abort'); END"
+            )
+    if outcome == "withdrawn-result":
+        assert artifact_store.verify(result).ok
+        manifest = artifact_store._manifest_path_for_ref(
+            result.artifact_id, result.manifest_profile_sha256
+        )
+        manifest.rename(manifest.with_suffix(".withheld"))
+        assert artifact_store.verify(result.artifact_id).ok
+
+    def snapshot() -> dict[str, list[sqlite3.Row]]:
+        return {
+            table: _rows(path, f"SELECT * FROM {table} WHERE job_id = ?", (job.job_id,))  # noqa: S608
+            for table in (
+                "control_jobs",
+                "control_job_progress",
+                "control_job_events",
+                "control_outbox_events",
+                "control_dead_letter_jobs",
+                "runtime_acquisition_action_heads",
+            )
+        }
+
+    original = snapshot()
+    calls: list[ControlJobRecord | None] = []
+
+    def recheck_selected() -> int:
+        calls.append(store.get_job(job.job_id))
+        if not artifact_store.verify(result).ok:
+            raise ValueError("selected Native result withdrawn")
+        return True if outcome == "invalid-work-cut" else 38
+
+    if outcome == "changed-stage":
+        checkpoint = checkpoint.model_copy(
+            update={
+                "phase_ref": stage.phase_ref.model_copy(
+                    update={"manifest_profile_sha256": _digest("foreign-stage")}
+                )
+            }
+        )
+    params: dict[str, Any] = {
+        "expected_job": failed,
+        "checkpoint": checkpoint,
+        "original_running_event_id": running.event_id + (1 if outcome == "old-work-event" else 0),
+        "original_failed_event_id": failure.event_id,
+        "actor_subject": "another-actor" if outcome == "foreign-actor" else "tester",
+        "resource_digest": resource_digest,
+        "request_body_sha256": request_body_sha256,
+        "authority_expires_at": expires_at,
+        "step_up_sha256": _digest(assertion_id),
+        "verify_precommit": recheck_selected,
+    }
+    if outcome not in {"selected", "cold-execution-graft"}:
+        error, message = {
+            "changed-stage": (ControlJobLeaseLostError, "custody_failed_cut_changed"),
+            "foreign-actor": (ControlJobExecutionAdmissionError, "custody_actor_refused"),
+            "old-work-event": (ValueError, "custody_lifecycle_mismatch"),
+            "without-step-up": (ControlJobExecutionAdmissionError, "custody_step_up_unbound"),
+            "withdrawn-result": (ValueError, "selected Native result withdrawn"),
+            "invalid-work-cut": (ValueError, "custody_work_cut_invalid"),
+            "existing-completion": (ValueError, "custody_terminal_already_selected"),
+            "completion-outbox-abort": (
+                sqlite3.IntegrityError,
+                "native held completion outbox abort",
+            ),
+        }[outcome]
+        with pytest.raises(error, match=message):
+            store.settle_native_model_input_use_result_custody(**params)
+        assert snapshot() == original
+        assert store.get_native_model_input_use_result_custody_event(job.job_id) is None
+        assert calls == (
+            [failed]
+            if outcome in {"withdrawn-result", "invalid-work-cut", "completion-outbox-abort"}
+            else []
+        )
+        return
+
+    completed = store.settle_native_model_input_use_result_custody(**params)
+    assert completed.state == "completed" and completed.attempt == attempt
+    assert completed.lease_owner is None and completed.lease_expires_at is None
+    assert completed.progress["model_input_use"] == checkpoint.model_dump(
+        mode="json", exclude_none=True
+    )
+    assert calls == [failed]
+    reopened = ControlPlaneStore.open_existing_sqlite_for_lease_renewal(path)
+    marker = reopened.get_native_model_input_use_result_custody_event(job.job_id)
+    assert marker is not None and marker.payload["original_worker_id"] == worker
+    assert marker.payload["original_failed_event_id"] == failure.event_id
+    assert marker.payload["original_failed_event_payload_sha256"] == failure.payload_sha256
+    assert marker.payload["created_payload_ref"] == job.payload_ref
+    assert marker.payload["request_body_sha256"] == request_body_sha256
+    assert marker.payload["resource_digest"] == resource_digest
+    assert type(marker.payload["original_work_cut_revision"]) is int
+    assert marker.payload["original_work_cut_revision"] == 38
+    assert (
+        reopened.get_job_lifecycle_event_record(
+            job_id=job.job_id, event_id=failure.event_id, expected_event_type="job_failed"
+        )
+        == failure
+    )
+    after = snapshot()
+    assert after["control_dead_letter_jobs"] == original["control_dead_letter_jobs"]
+    assert (
+        after["runtime_acquisition_action_heads"]
+        == original["runtime_acquisition_action_heads"]
+        == []
+    )
+    assert (
+        after["control_job_events"][: len(original["control_job_events"])]
+        == original["control_job_events"]
+    )
+    assert [row["event_type"] for row in after["control_job_events"][-2:]] == [
+        "native_model_input_use_result_custody_settled",
+        "job_completed",
+    ]
+    assert all(row in after["control_outbox_events"] for row in original["control_outbox_events"])
+    with pytest.raises(ControlJobLeaseLostError, match="custody_failed_cut_changed"):
+        store.settle_native_model_input_use_result_custody(**params)
+    assert snapshot() == after
+    if outcome == "cold-execution-graft":
+        alternate = artifact_store.put_json(
+            {"held_artifact": "another-execution"},
+            PutOptions(
+                kind="runtime.quality.generic_cycle_simulation_n5_execution",
+                media_type="application/json",
+            ),
+            return_selected_profile=True,
+        )
+        altered = checkpoint.model_copy(update={"execution_ref": alternate})
+        altered_marker = {
+            **marker.payload,
+            "checkpoint": altered.model_dump(mode="json", exclude_none=True),
+        }
+        altered_progress = {"state": "completed", **model_input_use_terminal_progress(altered)}
+        completed_outbox = reopened.get_job_completed_outbox_event(job.job_id)
+        assert completed_outbox is not None
+        with sqlite3.connect(path) as connection:
+            connection.execute(
+                "UPDATE control_job_events SET payload_json = ? WHERE event_id = ?",
+                (json.dumps(altered_marker, sort_keys=True), marker.event_id),
+            )
+            connection.execute(
+                "UPDATE control_outbox_events SET payload_json = ? WHERE topic = ? AND job_id = ?",
+                (
+                    json.dumps(altered_marker, sort_keys=True),
+                    "control.job.native_model_input_use_result_custody_settled",
+                    job.job_id,
+                ),
+            )
+            connection.execute(
+                "UPDATE control_job_progress SET progress_json = ? WHERE job_id = ?",
+                (json.dumps(altered_progress, sort_keys=True), job.job_id),
+            )
+            connection.execute(
+                "UPDATE control_outbox_events SET payload_json = ? WHERE event_id = ?",
+                (
+                    json.dumps(
+                        {**completed_outbox.payload, "progress": altered_progress}, sort_keys=True
+                    ),
+                    completed_outbox.event_id,
+                ),
+            )
+        with pytest.raises(ValueError, match="custody_resource_mismatch"):
+            reopened.get_native_model_input_use_result_custody_event(job.job_id)
+        return
+    with sqlite3.connect(path) as connection:
+        connection.execute(
+            "DELETE FROM control_outbox_events WHERE topic = ? AND job_id = ?",
+            ("control.job.native_model_input_use_result_custody_settled", job.job_id),
+        )
+    with pytest.raises(ValueError, match="custody_marker_mismatch"):
+        reopened.get_native_model_input_use_result_custody_event(job.job_id)

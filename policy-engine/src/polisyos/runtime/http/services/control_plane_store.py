@@ -74,6 +74,8 @@ if TYPE_CHECKING:
         AcquisitionRouteLoopReceiptV2,
     )
 
+    from .model_input_successor_action import ModelInputUseActionCheckpoint
+
 from polisyos.runtime.http.services.control.response_shapes import (
     _operator_diagnostic_from_failure_payload,
     _operator_diagnostic_from_quality_payload,
@@ -96,6 +98,10 @@ from polisyos.runtime.quality.evidence_spine_handoff import (
 _NATIVE_CUSTODY_RECOVERY_EVENT = "native_acquisition_custody_recovery_requested"
 _NATIVE_DRAFT_RECOVERY_PURPOSE = "resume_native_from_settled_draft"
 _NATIVE_N4_RECOVERY_PURPOSE = "resume_native_from_settled_n4"
+_NATIVE_MODEL_INPUT_RESULT_CUSTODY_EVENT = "native_model_input_use_result_custody_settled"
+_NATIVE_MODEL_INPUT_RESULT_CUSTODY_FAILURE = (
+    "generic_native_model_input_use_checkpoint_history_not_replayed"
+)
 _CANDIDATE_TERMINAL_CUSTODY_EVENT = "candidate_experiment_terminal_custody_settled"
 _CANDIDATE_REENTRY_CUSTODY_EVENT = "candidate_experiment_reentry_custody_settled"
 _ORDINARY_TERMINAL_CUSTODY_EVENT = "ordinary_acquisition_terminal_custody_settled"
@@ -7421,7 +7427,7 @@ class ControlPlaneStore:
         *,
         job_id: str,
         event_id: int,
-        expected_event_type: Literal["job_running", "job_completed"],
+        expected_event_type: Literal["job_running", "job_completed", "job_failed"],
     ) -> _ControlJobLifecycleSourceEventRecord:
         """Read one exact immutable lifecycle row for historical reconciliation."""
         if type(event_id) is not int or event_id < 1:
@@ -10468,6 +10474,503 @@ class ControlPlaneStore:
                     },
                 )
             return head
+
+    def settle_native_model_input_use_result_custody(
+        self,
+        *,
+        expected_job: ControlJobRecord,
+        checkpoint: ModelInputUseActionCheckpoint,
+        original_running_event_id: int,
+        original_failed_event_id: int,
+        actor_subject: str,
+        resource_digest: str,
+        request_body_sha256: str,
+        authority_expires_at: int,
+        step_up_sha256: str,
+        verify_precommit: Callable[[], int],
+    ) -> ControlJobRecord:
+        """Select a verified Native result without issuing a lease or a new attempt."""
+        if self._job_execution_fence.get() is not None:
+            raise ControlJobExecutionAdmissionError(
+                "native_model_input_use_custody_request_required"
+            )
+        progress, stage = self._native_model_input_use_custody_progress(checkpoint)
+        if (
+            type(expected_job) is not ControlJobRecord
+            or expected_job.kind != "acquisition"
+            or expected_job.state != "failed"
+            or expected_job.error_message != _NATIVE_MODEL_INPUT_RESULT_CUSTODY_FAILURE
+            or expected_job.attempt < 1
+            or expected_job.finished_at is None
+            or not _is_sha256_ref(expected_job.payload_ref)
+            or not expected_job.run_id
+            or type(actor_subject) is not str
+            or not actor_subject.strip()
+            or not _is_sha256_ref(resource_digest)
+            or not _is_sha256_ref(request_body_sha256)
+            or not _is_sha256_ref(step_up_sha256)
+            or not callable(verify_precommit)
+        ):
+            raise ValueError("native_model_input_use_custody_subject_invalid")
+
+        def require_current_authority() -> None:
+            _require_native_model_input_use_step_up_fresh(authority_expires_at)
+
+        require_current_authority()
+        job_id = expected_job.job_id
+        with self._job_transaction(commit_admission=require_current_authority):
+            self._lock_job_state(job_id)
+            job = self.get_job(job_id)
+            if (
+                job is None
+                or job != expected_job
+                or job.lease_owner is not None
+                or job.lease_expires_at is not None
+                or not _json_values_equal_strict(job.progress.get("model_input_use"), stage)
+                or {"terminal_receipt_ref", "receipt_phase"} & job.progress.keys()
+            ):
+                raise ControlJobLeaseLostError("native_model_input_use_custody_failed_cut_changed")
+            scope, _ = self._reconcile_control_job_creation_envelope(job)
+            if (
+                scope.status != "established"
+                or not scope.actor_authenticated
+                or scope.actor_subject != actor_subject
+                or job.submitted_by != actor_subject
+            ):
+                raise ControlJobExecutionAdmissionError(
+                    "native_model_input_use_custody_actor_refused"
+                )
+            if (
+                self._native_model_input_use_custody_resource_digest(
+                    job, checkpoint, request_body_sha256
+                )
+                != resource_digest
+            ):
+                raise ControlJobExecutionAdmissionError(
+                    "native_model_input_use_custody_resource_mismatch"
+                )
+            running, failure, failed_outbox = self._native_model_input_use_custody_failure_source(
+                job=job,
+                running_event_id=original_running_event_id,
+                failed_event_id=original_failed_event_id,
+                original_progress=job.progress,
+            )
+            if self.get_job_terminal_source_event_record(job_id) != failure:
+                raise ControlJobLeaseLostError("native_model_input_use_custody_failed_cut_changed")
+            if (
+                self._fetchone(
+                    "SELECT 1 FROM control_job_events WHERE job_id = ? AND event_type IN (?, ?)",
+                    (job_id, "job_completed", _NATIVE_MODEL_INPUT_RESULT_CUSTODY_EVENT),
+                )
+                is not None
+                or self._fetchone(
+                    "SELECT 1 FROM control_outbox_events WHERE job_id = ? AND topic IN (?, ?)",
+                    (
+                        job_id,
+                        "control.job.completed",
+                        _job_event_topic(_NATIVE_MODEL_INPUT_RESULT_CUSTODY_EVENT),
+                    ),
+                )
+                is not None
+                or self._fetchone(
+                    "SELECT 1 FROM runtime_acquisition_action_heads WHERE job_id = ?", (job_id,)
+                )
+                is not None
+                or self._fetchone(
+                    "SELECT 1 FROM runtime_generic_model_input_evaluation_uses "
+                    "WHERE action_job_id = ?",
+                    (job_id,),
+                )
+                is not None
+            ):
+                raise ValueError("native_model_input_use_custody_terminal_already_selected")
+            dead_letter = self._fetchone(
+                "SELECT * FROM control_dead_letter_jobs WHERE job_id = ?", (job_id,)
+            )
+            if (
+                dead_letter is None
+                or dead_letter["attempt"] != job.attempt
+                or dead_letter["job_kind"] != job.kind
+                or dead_letter["run_id"] != job.run_id
+                or dead_letter["error_message"] != job.error_message
+            ):
+                raise ValueError("native_model_input_use_custody_failure_history_missing")
+            consumed = self._fetchone(
+                "SELECT consumed_at, expires_at FROM runtime_step_up_replays "
+                "WHERE assertion_digest = ?",
+                (step_up_sha256.removeprefix("sha256:"),),
+            )
+            if (
+                consumed is None
+                or not int(failure.created_at.timestamp())
+                <= int(consumed["consumed_at"])
+                <= int(_utc_now().timestamp())
+                or authority_expires_at > int(consumed["expires_at"])
+            ):
+                raise ControlJobExecutionAdmissionError(
+                    "native_model_input_use_custody_step_up_unbound"
+                )
+
+            original_work_cut_revision = verify_precommit()
+            if type(original_work_cut_revision) is not int or original_work_cut_revision <= 0:
+                raise ValueError("native_model_input_use_custody_work_cut_invalid")
+            require_current_authority()
+            marker = self._native_model_input_use_custody_payload(
+                job=job,
+                scope=scope,
+                running=running,
+                failure=failure,
+                failed_outbox=failed_outbox,
+                original_progress=job.progress,
+                checkpoint=checkpoint,
+                original_work_cut_revision=original_work_cut_revision,
+                resource_digest=resource_digest,
+                request_body_sha256=request_body_sha256,
+                step_up_sha256=step_up_sha256,
+                authority_expires_at=authority_expires_at,
+            )
+            self.enqueue_outbox_event(
+                topic=_job_event_topic(_NATIVE_MODEL_INPUT_RESULT_CUSTODY_EVENT),
+                event_key=step_up_sha256,
+                job_id=job_id,
+                run_id=job.run_id,
+                payload=marker,
+                require_new=True,
+            )
+            self.append_event(
+                job_id=job_id, event_type=_NATIVE_MODEL_INPUT_RESULT_CUSTODY_EVENT, payload=marker
+            )
+            marker_event = self._read_native_model_input_use_result_custody_marker(job_id)
+            if marker_event is None or not _json_values_equal_strict(marker_event.payload, marker):
+                raise ValueError("native_model_input_use_custody_marker_changed")
+            changed = self._execute(
+                "UPDATE control_jobs SET state = 'completed', finished_at = ?, error_message = NULL "
+                "WHERE job_id = ? AND state = 'failed' AND attempt = ? AND payload_ref = ? "
+                "AND lease_owner IS NULL AND lease_expires_at IS NULL",
+                (_iso(_utc_now()), job_id, job.attempt, job.payload_ref),
+            )
+            self._require_fenced_write(job_id=job_id, fence=None, affected_rows=changed)
+            self._upsert_progress_unchecked(job_id=job_id, progress=progress)
+            completed = self.get_job(job_id)
+            if (
+                completed is None
+                or completed.state != "completed"
+                or completed.attempt != job.attempt
+            ):
+                raise ControlJobLeaseLostError("native_model_input_use_custody_completion_changed")
+            completion_payload = {
+                "state": "completed",
+                "attempt": job.attempt,
+                "lease_owner": running.payload["lease_owner"],
+                "native_result_custody_event_id": marker_event.event_id,
+            }
+            self.append_event(job_id=job_id, event_type="job_completed", payload=completion_payload)
+            self._emit_job_outbox_event(
+                record=completed,
+                event_type="job_completed",
+                payload={**completion_payload, "progress": progress},
+            )
+            if self.get_native_model_input_use_result_custody_event(job_id) != marker_event:
+                raise ValueError("native_model_input_use_custody_marker_changed")
+            return completed
+
+    @staticmethod
+    def _native_model_input_use_custody_progress(
+        checkpoint: ModelInputUseActionCheckpoint,
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        from .model_input_successor_action import (
+            ModelInputUseActionCheckpoint,
+            model_input_use_terminal_progress,
+        )
+
+        if (
+            type(checkpoint) is not ModelInputUseActionCheckpoint
+            or ModelInputUseActionCheckpoint.model_validate_json(checkpoint.model_dump_json())
+            != checkpoint
+            or checkpoint.schema_version is not None
+            or checkpoint.execution_ref is None
+            or checkpoint.result_ref is None
+            or checkpoint.result_ref.kind != "polisyos.runtime.joint_simulation_result"
+            or checkpoint.result_ref.media_type != "application/json"
+        ):
+            raise ValueError("native_model_input_use_custody_checkpoint_invalid")
+        stage = ModelInputUseActionCheckpoint(
+            phase_ref=checkpoint.phase_ref, semantic_successor_ref=checkpoint.semantic_successor_ref
+        )
+        return (
+            {"state": "completed", **model_input_use_terminal_progress(checkpoint)},
+            stage.model_dump(mode="json", exclude_none=True),
+        )
+
+    def _native_model_input_use_custody_failure_source(
+        self,
+        *,
+        job: ControlJobRecord,
+        running_event_id: int,
+        failed_event_id: int,
+        original_progress: dict[str, Any],
+    ) -> tuple[
+        _ControlJobLifecycleSourceEventRecord,
+        _ControlJobLifecycleSourceEventRecord,
+        ControlOutboxRecord,
+    ]:
+        running = self._latest_control_job_lifecycle_event_record(
+            job_id=job.job_id, event_type="job_running"
+        )
+        failure = self._latest_control_job_lifecycle_event_record(
+            job_id=job.job_id, event_type="job_failed"
+        )
+        worker = running.payload.get("lease_owner")
+        if (
+            type(running_event_id) is not int
+            or type(failed_event_id) is not int
+            or running.event_id != running_event_id
+            or failure.event_id != failed_event_id
+            or running.event_id >= failure.event_id
+            or running.created_at > failure.created_at
+            or type(worker) is not str
+            or not worker
+            or running.payload.get("state") != "running"
+            or not _json_values_equal_strict(running.payload.get("attempt"), job.attempt)
+            or not _json_values_equal_strict(
+                failure.payload,
+                {
+                    "state": "failed",
+                    "lease_owner": worker,
+                    "attempt": job.attempt,
+                    "error_message": _NATIVE_MODEL_INPUT_RESULT_CUSTODY_FAILURE,
+                },
+            )
+        ):
+            raise ValueError("native_model_input_use_custody_lifecycle_mismatch")
+        running_outbox = self._get_outbox_event_by_key(
+            topic="control.job.running", event_key=f"{job.job_id}:job_running:attempt:{job.attempt}"
+        ) or self._get_outbox_event_by_key(
+            topic="control.job.running", event_key=f"{job.job_id}:job_running"
+        )
+        if (
+            running_outbox is None
+            or (running_outbox.job_id, running_outbox.run_id) != (job.job_id, job.run_id)
+            or not _json_values_equal_strict(
+                running_outbox.payload,
+                {**_control_job_outbox_identity_envelope(job), **running.payload},
+            )
+        ):
+            raise ValueError("native_model_input_use_custody_running_outbox_mismatch")
+        outbox = self._get_outbox_event_by_key(
+            topic="control.job.failed", event_key=f"{job.job_id}:job_failed:attempt:{job.attempt}"
+        ) or self._get_outbox_event_by_key(
+            topic="control.job.failed", event_key=f"{job.job_id}:job_failed"
+        )
+        if (
+            outbox is None
+            or (outbox.job_id, outbox.run_id) != (job.job_id, job.run_id)
+            or not _json_values_equal_strict(
+                outbox.payload,
+                {
+                    **_control_job_outbox_identity_envelope(job),
+                    **failure.payload,
+                    "progress": original_progress,
+                },
+            )
+        ):
+            raise ValueError("native_model_input_use_custody_failure_outbox_mismatch")
+        return running, failure, outbox
+
+    @staticmethod
+    def _native_model_input_use_custody_resource_digest(
+        job: ControlJobRecord, checkpoint: ModelInputUseActionCheckpoint, body_sha256: str
+    ) -> str:
+        from .acquisition_action_service import NativeModelInputUseTerminalCustodyRequest
+        from .acquisition_admission_bundle import (
+            native_model_input_use_terminal_custody_resource_digest,
+        )
+
+        if not job.run_id or checkpoint.execution_ref is None:
+            raise ValueError("native_model_input_use_custody_resource_missing")
+        request = NativeModelInputUseTerminalCustodyRequest(
+            run_id=job.run_id,
+            job_id=job.job_id,
+            failed_attempt=job.attempt,
+            phase_ref=checkpoint.phase_ref,
+            semantic_successor_ref=checkpoint.semantic_successor_ref,
+            execution_ref=checkpoint.execution_ref,
+        )
+        return native_model_input_use_terminal_custody_resource_digest(
+            request, body_sha256=body_sha256
+        )
+
+    @staticmethod
+    def _native_model_input_use_custody_payload(
+        *,
+        job: ControlJobRecord,
+        scope: ControlJobExecutionScope,
+        running: _ControlJobLifecycleSourceEventRecord,
+        failure: _ControlJobLifecycleSourceEventRecord,
+        failed_outbox: ControlOutboxRecord,
+        original_progress: dict[str, Any],
+        checkpoint: ModelInputUseActionCheckpoint,
+        original_work_cut_revision: int,
+        resource_digest: str,
+        request_body_sha256: str,
+        step_up_sha256: str,
+        authority_expires_at: int,
+    ) -> dict[str, Any]:
+        return {
+            "schema_version": "native_model_input_use_result_custody.v1",
+            "authority_purpose": "historical_terminal_custody_only",
+            "job_id": job.job_id,
+            "run_id": job.run_id,
+            "tenant_id": scope.tenant_id,
+            "cell_id": scope.cell_id,
+            "actor_subject": scope.actor_subject,
+            "failed_attempt": job.attempt,
+            "original_worker_id": running.payload["lease_owner"],
+            "created_payload_ref": job.payload_ref,
+            "original_running_event_id": running.event_id,
+            "original_running_event_payload_sha256": running.payload_sha256,
+            "original_running_at": running.created_at.isoformat(),
+            "original_failed_event_id": failure.event_id,
+            "original_failed_event_payload_sha256": failure.payload_sha256,
+            "original_failed_at": failure.created_at.isoformat(),
+            "original_failed_outbox_event_id": failed_outbox.event_id,
+            "original_failed_progress": original_progress,
+            "original_work_cut_revision": original_work_cut_revision,
+            "checkpoint": checkpoint.model_dump(mode="json", exclude_none=True),
+            "resource_digest": resource_digest,
+            "request_body_sha256": request_body_sha256,
+            "step_up_sha256": step_up_sha256,
+            "authority_expires_at": authority_expires_at,
+        }
+
+    def _read_native_model_input_use_result_custody_marker(
+        self, job_id: str
+    ) -> _ControlJobLifecycleSourceEventRecord | None:
+        rows = self._fetchall(
+            "SELECT event_id, job_id, event_type, payload_json, created_at "
+            "FROM control_job_events WHERE job_id = ? AND event_type = ? LIMIT 2",
+            (job_id, _NATIVE_MODEL_INPUT_RESULT_CUSTODY_EVENT),
+        )
+        if len(rows) > 1:
+            raise ValueError("native_model_input_use_custody_marker_not_unique")
+        if not rows:
+            return None
+        return self._control_job_lifecycle_event_record_from_row(
+            rows[0],
+            expected_job_id=job_id,
+            expected_event_type=_NATIVE_MODEL_INPUT_RESULT_CUSTODY_EVENT,
+        )
+
+    def get_native_model_input_use_result_custody_event(
+        self, job_id: str
+    ) -> _ControlJobLifecycleSourceEventRecord | None:
+        """Reconcile the custody marker, original failed attempt and selected completion."""
+        from .model_input_successor_action import ModelInputUseActionCheckpoint
+
+        marker = self._read_native_model_input_use_result_custody_marker(job_id)
+        if marker is None:
+            return None
+        job = self.get_job(job_id)
+        payload = marker.payload
+        original_work_cut_revision = payload.get("original_work_cut_revision")
+        resource_digest, request_body_sha256, step_up_sha256, expires_at, original_progress = (
+            payload.get("resource_digest"),
+            payload.get("request_body_sha256"),
+            payload.get("step_up_sha256"),
+            payload.get("authority_expires_at"),
+            payload.get("original_failed_progress"),
+        )
+        if (
+            job is None
+            or job.kind != "acquisition"
+            or job.state != "completed"
+            or job.finished_at is None
+            or job.lease_owner is not None
+            or job.lease_expires_at is not None
+            or type(original_work_cut_revision) is not int
+            or original_work_cut_revision <= 0
+            or not isinstance(resource_digest, str)
+            or not _is_sha256_ref(resource_digest)
+            or not isinstance(request_body_sha256, str)
+            or not _is_sha256_ref(request_body_sha256)
+            or not isinstance(step_up_sha256, str)
+            or not _is_sha256_ref(step_up_sha256)
+            or type(expires_at) is not int
+            or expires_at <= int(marker.created_at.timestamp())
+            or type(original_progress) is not dict
+        ):
+            raise ValueError("native_model_input_use_custody_marker_invalid")
+        scope, _ = self._reconcile_control_job_creation_envelope(job)
+        if scope.status != "established" or not scope.actor_authenticated:
+            raise ValueError("native_model_input_use_custody_marker_invalid")
+        checkpoint = ModelInputUseActionCheckpoint.model_validate(payload.get("checkpoint"))
+        progress, stage = self._native_model_input_use_custody_progress(checkpoint)
+        if (
+            self._native_model_input_use_custody_resource_digest(
+                job, checkpoint, request_body_sha256
+            )
+            != resource_digest
+        ):
+            raise ValueError("native_model_input_use_custody_resource_mismatch")
+        running, failure, failed_outbox = self._native_model_input_use_custody_failure_source(
+            job=job,
+            running_event_id=payload.get("original_running_event_id"),
+            failed_event_id=payload.get("original_failed_event_id"),
+            original_progress=original_progress,
+        )
+        expected_marker = self._native_model_input_use_custody_payload(
+            job=job,
+            scope=scope,
+            running=running,
+            failure=failure,
+            failed_outbox=failed_outbox,
+            original_progress=original_progress,
+            checkpoint=checkpoint,
+            original_work_cut_revision=original_work_cut_revision,
+            resource_digest=resource_digest,
+            request_body_sha256=request_body_sha256,
+            step_up_sha256=step_up_sha256,
+            authority_expires_at=expires_at,
+        )
+        marker_outbox = self._get_outbox_event_by_key(
+            topic=_job_event_topic(marker.event_type), event_key=step_up_sha256
+        )
+        terminal = self.get_job_terminal_source_event_record(job_id)
+        completion_outbox = self.get_job_completed_outbox_event(job_id)
+        expected_terminal = {
+            "state": "completed",
+            "attempt": job.attempt,
+            "lease_owner": running.payload["lease_owner"],
+            "native_result_custody_event_id": marker.event_id,
+        }
+        if (
+            not _json_values_equal_strict(payload, expected_marker)
+            or not _json_values_equal_strict(original_progress.get("model_input_use"), stage)
+            or not _json_values_equal_strict(job.progress, progress)
+            or marker_outbox is None
+            or (marker_outbox.job_id, marker_outbox.run_id) != (job_id, job.run_id)
+            or not _json_values_equal_strict(marker_outbox.payload, payload)
+            or terminal.event_type != "job_completed"
+            or not failure.event_id < marker.event_id < terminal.event_id
+            or not failure.created_at <= marker.created_at <= terminal.created_at
+            or not int(marker.created_at.timestamp())
+            <= int(job.finished_at.timestamp())
+            <= int(terminal.created_at.timestamp())
+            or int(terminal.created_at.timestamp()) >= expires_at
+            or not _json_values_equal_strict(terminal.payload, expected_terminal)
+            or completion_outbox is None
+            or (completion_outbox.job_id, completion_outbox.run_id) != (job_id, job.run_id)
+            or not _json_values_equal_strict(
+                completion_outbox.payload,
+                {
+                    **_control_job_outbox_identity_envelope(job),
+                    **expected_terminal,
+                    "progress": progress,
+                },
+            )
+        ):
+            raise ValueError("native_model_input_use_custody_marker_mismatch")
+        return marker
 
     def request_native_acquisition_custody_recovery(
         self,

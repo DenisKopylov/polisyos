@@ -23,6 +23,7 @@ from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.permissions import (
     CANDIDATE_EXPERIMENT_REUSE_PERMISSION,
     CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND,
+    NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY_RESOURCE_KIND,
     RuntimePermission,
 )
 from polisyos.runtime.http.services.acquisition_action_service import (
@@ -49,6 +50,8 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     CandidateModelRevisionTerminalCustodyResponse,
     NativeDerivationLeafRouteProjection,
     NativeModelInputTargetProjection,
+    NativeModelInputUseTerminalCustodyRequest,
+    NativeModelInputUseTerminalCustodyResponse,
 )
 from polisyos.runtime.http.services.model_input_successor_action import (
     MODEL_INPUT_USE_PERMISSION,
@@ -215,6 +218,18 @@ _MODEL_INPUT_USE_EXECUTION_AUTHZ = require_action_permission(
         required_selector_fields=tuple(ModelInputSuccessorExecutionRequest.model_fields),
     ),
 )
+_NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY_FIELDS = tuple(
+    NativeModelInputUseTerminalCustodyRequest.model_fields
+)
+_NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY_AUTHZ = require_action_permission(
+    MODEL_INPUT_USE_PERMISSION,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.REQUEST_COMPOSITE,
+        resource_kind=NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY_RESOURCE_KIND,
+        selector_fields=_NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY_FIELDS,
+        required_selector_fields=_NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY_FIELDS,
+    ),
+)
 _Service = Annotated[AcquisitionActionService, Depends(get_acquisition_action_service)]
 
 
@@ -336,6 +351,7 @@ def _raise_service_error(exc: AcquisitionActionServiceError) -> None:
         "candidate_model_revision_terminal_custody_scope_refused",
         "candidate_experiment_reuse_source_scope_refused",
         "model_input_use_source_scope_refused",
+        "native_model_input_use_terminal_custody_scope_refused",
     }:
         raise forbidden("The selected candidate result is not accessible", code=code) from exc
     if code in {
@@ -805,6 +821,80 @@ def execute_run_model_input_use(
             request_id=ensure_request_id(request),
             principal=principal,
             native_step_up_expires_at=native_step_up_expires_at,
+        )
+    except AcquisitionActionServiceError as exc:
+        _raise_service_error(exc)
+
+
+@router.post(
+    "/{run_id}/model-input-use/{job_id}/terminal-custody",
+    response_model=NativeModelInputUseTerminalCustodyResponse,
+    operation_id="settle_run_native_model_input_use_terminal",
+    responses={
+        200: {
+            "content": {
+                "application/json": {
+                    "example": NativeModelInputUseTerminalCustodyResponse(
+                        run_id="run-example",
+                        job_id="model-input-use.example",
+                        attempt=1,
+                        execution_ref=ArtifactRef(
+                            artifact_id=ArtifactID("sha256:" + "a" * 64),
+                            kind="runtime.quality.generic_cycle_simulation_n5_execution",
+                            media_type="application/json",
+                            manifest_profile_sha256="sha256:" + "b" * 64,
+                        ),
+                        result_ref=ArtifactRef(
+                            artifact_id=ArtifactID("sha256:" + "c" * 64),
+                            kind="polisyos.runtime.joint_simulation_result",
+                            media_type="application/json",
+                            manifest_profile_sha256="sha256:" + "d" * 64,
+                        ),
+                    ).model_dump(mode="json")
+                }
+            }
+        }
+    },
+)
+def settle_run_native_model_input_use_terminal(
+    run_id: str,
+    job_id: str,
+    body: NativeModelInputUseTerminalCustodyRequest,
+    request: Request,
+    service: _Service,
+    bound_permission: Annotated[
+        BoundActionPermissionVerification,
+        Depends(_NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY_AUTHZ),
+    ],
+    step_up: Annotated[StepUpAssertionVerification, Depends(_MUTATION_STEP_UP)],
+) -> NativeModelInputUseTerminalCustodyResponse:
+    """Select the verified result of one failed Native model-input attempt."""
+    tenant_id, _, principal = _scope(request)
+    set_authz_resource(
+        request, tenant_id=tenant_id, kind=NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY_RESOURCE_KIND
+    )
+    refused = "native_model_input_use_terminal_custody_scope_refused"
+    if (run_id, job_id) != (body.run_id, body.job_id):
+        raise forbidden("The approval is bound to a different run or job", code=refused)
+
+    def authorize_effect() -> int:
+        return _require_live_user_approval(
+            request,
+            principal=principal,
+            bound_permission=bound_permission,
+            step_up=step_up,
+            refusal_code=refused,
+            refusal_message="Terminal custody requires the original user's live bound approval",
+        )
+
+    authorize_effect()
+    try:
+        return service.settle_native_model_input_use_terminal_custody(
+            request=body,
+            principal=principal,
+            bound_permission=bound_permission,
+            step_up=step_up,
+            authorize_effect=authorize_effect,
         )
     except AcquisitionActionServiceError as exc:
         _raise_service_error(exc)

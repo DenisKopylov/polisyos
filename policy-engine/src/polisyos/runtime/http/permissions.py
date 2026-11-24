@@ -58,6 +58,9 @@ class RuntimePermission(StrEnum):
 
 MODEL_INPUT_USE_PERMISSION: Final = RuntimePermission.RUNS_LAUNCH
 MODEL_INPUT_USE_RESOURCE_KIND: Final = "runtime.evidence.model_input.use"
+NATIVE_MODEL_INPUT_USE_TERMINAL_CUSTODY_RESOURCE_KIND: Final = (
+    f"{MODEL_INPUT_USE_RESOURCE_KIND}.terminal_custody"
+)
 CANDIDATE_EXPERIMENT_REUSE_PERMISSION: Final = RuntimePermission.RUNS_LAUNCH
 CANDIDATE_EXPERIMENT_REUSE_RESOURCE_KIND: Final = "runtime.evidence.candidate_experiment.reuse"
 

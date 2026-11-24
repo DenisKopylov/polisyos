@@ -2085,6 +2085,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/runs/{run_id}/model-input-use/{job_id}/terminal-custody": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Settle Run Native Model Input Use Terminal
+         * @description Select the verified result of one failed Native model-input attempt.
+         */
+        post: operations["settle_run_native_model_input_use_terminal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/runs/{run_id}/nodes": {
         parameters: {
             query?: never;
@@ -15048,6 +15068,56 @@ export interface components {
             source_currentness: "not_established";
             /** Tenant Id */
             tenant_id: string;
+        };
+        /**
+         * NativeModelInputUseTerminalCustodyRequest
+         * @description Bind the exact failed Native attempt and its retained execution.
+         */
+        NativeModelInputUseTerminalCustodyRequest: {
+            execution_ref: {
+                /** @constant */
+                kind: "runtime.quality.generic_cycle_simulation_n5_execution";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Input"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            /** Failed Attempt */
+            failed_attempt: number;
+            /** Job Id */
+            job_id: string;
+            phase_ref: {
+                /** @constant */
+                kind: "runtime.quality.model_input_use_action_phase";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Input"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+            /** Run Id */
+            run_id: string;
+            semantic_successor_ref: {
+                /** @constant */
+                kind: "runtime.quality.model_input_successor_selection";
+                manifest_profile_sha256: string;
+                /** @constant */
+                media_type: "application/json";
+                artifact_id: unknown;
+            } & WithRequired<components["schemas"]["ArtifactRef-Input"], "artifact_id" | "kind" | "media_type" | "manifest_profile_sha256">;
+        };
+        /**
+         * NativeModelInputUseTerminalCustodyResponse
+         * @description The execution and candidate result selected for the original attempt.
+         */
+        NativeModelInputUseTerminalCustodyResponse: {
+            /** Attempt */
+            attempt: number;
+            execution_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Job Id */
+            job_id: string;
+            result_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Run Id */
+            run_id: string;
         };
         /**
          * NativePaidInputAdmissionSelection
@@ -35265,6 +35335,116 @@ export interface operations {
             };
             /** @description The selected Core canonical profile is malformed or not byte-conformant. */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    settle_run_native_model_input_use_terminal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NativeModelInputUseTerminalCustodyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "attempt": 1,
+                     *       "execution_ref": {
+                     *         "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                     *         "kind": "runtime.quality.generic_cycle_simulation_n5_execution",
+                     *         "manifest_profile_sha256": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                     *         "media_type": "application/json"
+                     *       },
+                     *       "job_id": "model-input-use.example",
+                     *       "result_ref": {
+                     *         "artifact_id": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                     *         "kind": "polisyos.runtime.joint_simulation_result",
+                     *         "manifest_profile_sha256": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+                     *         "media_type": "application/json"
+                     *       },
+                     *       "run_id": "run-example"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["NativeModelInputUseTerminalCustodyResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
                 headers: {
                     [name: string]: unknown;
                 };

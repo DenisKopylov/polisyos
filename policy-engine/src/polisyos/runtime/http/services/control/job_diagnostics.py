@@ -57,16 +57,25 @@ from .job_attempt_publication import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactRef, ArtifactStore
     from polisyos.core.contracts.runtime import RunModelInputUseN5SuccessorProjection
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationN5InputV1,
         GenericN5ResolvedResult,
     )
-    from polisyos.scientist.orchestration.engine import BudgetLedgerReentryBudgetWindow
+    from polisyos.scientist.orchestration.engine import (
+        BudgetLedgerReentryBudgetWindow,
+        BudgetMiddleware,
+    )
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerInvocationReservation,
+    )
 
     from ..acquisition_action_service import AcquisitionActionService
     from ..control_plane_store import ControlPlaneStore, _ControlJobLifecycleSourceEventRecord
+    from ..human_decisions import _ReservationRecord
     from ..model_input_successor_action import (
+        ModelInputSuccessorIdentity,
         ModelInputUseActionCheckpoint,
         SelectedModelInputSuccessorAction,
     )
@@ -152,7 +161,9 @@ def _verify_native_model_input_use_completed_work(
     window: BudgetLedgerReentryBudgetWindow,
     started_at: datetime,
     finished_at: datetime,
-) -> None:
+    require_failed_attempt_cut: bool = False,
+    original_work_cut_revision: int | None = None,
+) -> int:
     """Reopen one completed standard unit from the original run's ledger."""
     from polisyos.scientist.orchestration.engine import (
         BudgetMiddleware,
@@ -208,6 +219,480 @@ def _verify_native_model_input_use_completed_work(
     )
     if reservation.revision <= window.revision:
         raise ModelInputSuccessorActionError("native_model_input_use_physical_work_before_window")
+    if require_failed_attempt_cut:
+        return _verify_native_model_input_use_failed_work_cut(
+            ledger,
+            window=window,
+            reservation=reservation,
+            settlement_owner=basis.settlement_owner,
+            original_work_cut_revision=original_work_cut_revision,
+        )
+    return reservation.revision
+
+
+def _verify_native_model_input_use_failed_work_cut(
+    ledger: BudgetMiddleware,
+    *,
+    window: BudgetLedgerReentryBudgetWindow,
+    reservation: BudgetLedgerInvocationReservation,
+    settlement_owner: tuple[str, str, str],
+    original_work_cut_revision: int | None,
+) -> int:
+    """Require one physical unit in the retained cut without guessing legacy action identity."""
+    from polisyos.scientist.orchestration.engine.producer_budget import _capacity_store_snapshot
+
+    from ..model_input_successor_action import ModelInputSuccessorActionError
+
+    owner, resource, anchor, snapshot = _capacity_store_snapshot(ledger, require_existing_lock=True)
+    if (
+        owner != settlement_owner
+        or resource != window.resource_identity
+        or snapshot.revision != anchor[0]
+        or snapshot.ledger_id != window.ledger_id
+        or snapshot.reentry_budget_windows.get(window.window_id) != window
+        or snapshot.invocation_reservations.get(reservation.operation_id) != reservation
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_custody_window_changed")
+    cut_revision = (
+        snapshot.revision if original_work_cut_revision is None else original_work_cut_revision
+    )
+    if (
+        type(cut_revision) is not int
+        or not reservation.revision <= cut_revision <= snapshot.revision
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_custody_cut_not_established")
+    # The v1 row has no action selector. An earlier revision excludes this
+    # action because its budget window precedes physical admission. Later
+    # same-run records are ambiguous even after failure: mutation times do
+    # not establish the worker stopped. The protected settlement seals the
+    # verified denominator, excluding new work only on subsequent reads.
+    if any(
+        row.run_id == reservation.run_id
+        and row.operation_id != reservation.operation_id
+        and window.revision < row.revision <= cut_revision
+        for row in snapshot.invocation_reservations.values()
+    ):
+        raise ModelInputSuccessorActionError(
+            "native_model_input_use_custody_physical_denominator_not_established"
+        )
+    return cut_revision
+
+
+@dataclass(frozen=True, slots=True)
+class PreparedNativeModelInputUseTerminalCustody:
+    """Selected failed-attempt evidence for the protected Control Store transition."""
+
+    job: ControlJobRecord
+    scope: ControlJobExecutionScope
+    checkpoint: ModelInputUseActionCheckpoint
+    running: _ControlJobLifecycleSourceEventRecord
+    failure: _ControlJobLifecycleSourceEventRecord
+    verify_precommit: Callable[[], int]
+
+
+def _require_native_model_input_use_cas_refs(
+    store: ArtifactStore, refs: tuple[ArtifactRef, ...]
+) -> None:
+    from polisyos.core.artifacts import artifact_ref_for_manifest, artifact_ref_identity_key
+
+    from ..model_input_successor_action import ModelInputSuccessorActionError
+
+    for ref in {artifact_ref_identity_key(ref): ref for ref in refs}.values():
+        if (
+            ref.manifest_profile_sha256 is None
+            or artifact_ref_for_manifest(store.get_manifest(ref)) != ref
+            or not store.verify(ref).ok
+        ):
+            raise ModelInputSuccessorActionError(
+                "native_model_input_use_custody_artifact_withdrawn"
+            )
+
+
+def _prepare_native_model_input_use_historical_approval(
+    action_service: AcquisitionActionService,
+    *,
+    identity: ModelInputSuccessorIdentity,
+    scope: ControlJobExecutionScope,
+    decision_ref: ArtifactRef,
+    started_at: datetime,
+    completed_at: datetime,
+) -> Callable[[], None]:
+    """Verify original DS9 and PA2 against the actual physical time coordinates."""
+    from polisyos.core.artifacts import artifact_ref_for_manifest, load_core_json_artifact
+    from polisyos.runtime.quality.agent_action_authority import AgentActionAuthorityDecision
+    from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
+        DelegationContract,
+        HumanDecisionRecord,
+    )
+
+    from ..model_input_successor_action import ModelInputSuccessorActionError
+
+    refused = "native_model_input_use_custody_original_approval_not_established"
+    provider = action_service._require_model_input_use_authority_provider()
+    human = provider._human_decisions
+    store = action_service.control_service._artifact_store
+    database = action_service.control_service._control_store
+    # The shared replay has already authenticated this exact allow and creation actor.
+    decision = AgentActionAuthorityDecision.model_validate(
+        load_core_json_artifact(store, decision_ref)
+    )
+    record_ref = decision.human_decision_record_ref
+    if (
+        human is None
+        or record_ref is None
+        or decision.contract_ref is None
+        or decision.human_decision_request is None
+    ):
+        raise ModelInputSuccessorActionError(refused)
+    signed = human._read_record_custody(
+        record_ref, tenant_id=identity.tenant_id, run_id=identity.run_id
+    )
+    record = signed.model
+    if (
+        type(record) is not HumanDecisionRecord
+        or record.source_ref is None
+        or record.recorded_at is None
+        or record.valid_from is None
+        or record.valid_until is None
+        or not (
+            record.valid_from
+            <= record.decided_at
+            <= record.recorded_at
+            <= decision.decided_at
+            <= started_at
+            <= completed_at
+            < record.valid_until
+        )
+        or record.decision_action_exercised != "approve"
+        or not record.active_choice
+        or not record.five_rights_check.all_pass()
+        or record.responsibility_integrity.status != "pass"
+        or record.basis_ref != decision.contract_ref
+        or record.basis_digest != decision.contract_content_hash
+    ):
+        raise ModelInputSuccessorActionError(refused)
+    contract_ref = artifact_ref_for_manifest(store.get_manifest(decision.contract_ref))
+    contract = DelegationContract.model_validate(load_core_json_artifact(store, contract_ref))
+    envelopes = tuple(
+        row for row in contract.action_envelopes if row.envelope_id == decision.envelope_id
+    )
+    if len(envelopes) != 1:
+        raise ModelInputSuccessorActionError(refused)
+    (envelope,) = envelopes
+    adapter = provider._human_adapter(record, record_ref, envelope, decision.operation_id)
+    # Reopen signed source, mandate, reviewer, presentation and exposure at work time.
+    authority = human._revalidate_record_inputs(record, adapter, now=completed_at)
+    source = authority.source
+    if (
+        source.outcome != "refused"
+        or source.refusal_reasons != ("human_decision_missing",)
+        or source.action_kind != decision.action_kind
+        or source.operation_content_hash != decision.operation_content_hash
+        or source.invocation_content_hash != decision.invocation_content_hash
+        or source.intent_content_hash != decision.intent_content_hash
+        or source.permission_snapshot != decision.permission_snapshot
+        or source.admission_bundle_ref != decision.admission_bundle_ref
+        or source.contract_ref != decision.contract_ref
+        or source.envelope_ref != decision.envelope_ref
+        or source.effect_binding_id != decision.effect_binding_id
+        or source.effect_binding_digest != decision.effect_binding_digest
+        or source.human_decision_request != decision.human_decision_request
+        or authority.envelope != envelope
+        or not envelope.valid_from <= started_at <= completed_at < envelope.valid_until
+    ):
+        raise ModelInputSuccessorActionError(refused)
+
+    def read_reservation() -> _ReservationRecord | None:
+        return human._sink.get_reservation_generation(
+            tenant_id=identity.tenant_id,
+            governed_action_key=record.governed_action_key or "",
+            reservation_version=record.reservation_version or 0,
+        )
+
+    reservation = read_reservation()
+    if (
+        reservation is None
+        or reservation.state != "committed"
+        or reservation.reservation_id != record.reservation_id
+        or reservation.record_ref != record_ref
+        or reservation.record_sha256 != record_ref
+        or reservation.binding_sha256 != record.binding_sha256
+        or reservation.durable_event_id != signed.durable_event_id
+        or reservation.committed_at is None
+        or not record.recorded_at <= reservation.committed_at <= started_at
+        or reservation.record_valid_until <= completed_at
+    ):
+        raise ModelInputSuccessorActionError(refused)
+    events = database.list_diagnostic_events(event_id=signed.durable_event_id, limit=2)
+    if len(events) != 1:
+        raise ModelInputSuccessorActionError(refused)
+
+    def verify() -> None:
+        # Reopen the bounded signed DS9 packet at the same original instant,
+        # including each exposure event and the bytes actually delivered.
+        action_service.require_model_input_use_decision_history(
+            identity=identity,
+            decision_ref=str(decision_ref.artifact_id),
+            execution_scope=scope,
+        )
+        if (
+            human._read_record_custody(
+                record_ref, tenant_id=identity.tenant_id, run_id=identity.run_id
+            )
+            != signed
+            or human._revalidate_record_inputs(record, adapter, now=completed_at) != authority
+            or database.list_diagnostic_events(event_id=signed.durable_event_id, limit=2) != events
+            or read_reservation() != reservation
+        ):
+            raise ModelInputSuccessorActionError(refused)
+
+    return verify
+
+
+def _native_model_input_use_history_job(
+    control_service: ControlPlaneService,
+    *,
+    action_service: AcquisitionActionService,
+    tenant_id: str,
+    cell_id: str,
+    run_id: str,
+    action_job_id: str,
+) -> tuple[ControlJobRecord, ControlJobExecutionScope]:
+    from ..acquisition_action_service import AcquisitionActionService
+    from ..model_input_successor_action import ModelInputSuccessorActionError
+    from .run_lifecycle import ControlPlaneService
+
+    if (
+        type(control_service) is not ControlPlaneService
+        or type(action_service) is not AcquisitionActionService
+        or action_service.control_service is not control_service
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_history_owner_missing")
+    database = control_service._control_store
+    job = database.get_job(action_job_id)
+    if (
+        type(job) is not ControlJobRecord
+        or job.job_id != action_job_id
+        or job.run_id != run_id
+        or job.kind != "acquisition"
+        or job.payload_ref is None
+    ):
+        raise KeyError(action_job_id)
+    scope, _ = database._reconcile_control_job_creation_envelope(job)
+    if scope.status != "established" or (scope.tenant_id, scope.cell_id) != (tenant_id, cell_id):
+        raise KeyError(action_job_id)
+    return job, scope
+
+
+def _failed_native_model_input_use_stage(
+    database: ControlPlaneStore,
+    job: ControlJobRecord,
+    *,
+    expected_attempt: int,
+) -> tuple[
+    ModelInputUseActionCheckpoint,
+    _ControlJobLifecycleSourceEventRecord,
+    _ControlJobLifecycleSourceEventRecord,
+]:
+    """Select the original lease and the exact stage preserved by its failure outbox."""
+    from ..control_plane_store import _json_values_equal_strict
+    from ..model_input_successor_action import (
+        ModelInputSuccessorActionError,
+        ModelInputUseActionCheckpoint,
+    )
+
+    refused = "native_model_input_use_custody_failed_attempt_not_established"
+    if (
+        type(expected_attempt) is not int
+        or expected_attempt < 1
+        or job.attempt != expected_attempt
+        or job.state != "failed"
+        or job.finished_at is None
+        or job.lease_owner is not None
+        or job.lease_expires_at is not None
+    ):
+        raise ModelInputSuccessorActionError(refused)
+    running = database._latest_control_job_lifecycle_event_record(
+        job_id=job.job_id, event_type="job_running"
+    )
+    failure = database.get_job_terminal_source_event_record(job.job_id)
+    worker_id = running.payload.get("lease_owner")
+    outbox = database._get_outbox_event_by_key(
+        topic="control.job.failed", event_key=f"{job.job_id}:job_failed:attempt:{expected_attempt}"
+    ) or database._get_outbox_event_by_key(
+        topic="control.job.failed", event_key=f"{job.job_id}:job_failed"
+    )
+    if (
+        running.payload.get("state") != "running"
+        or not isinstance(worker_id, str)
+        or not worker_id
+        or failure.event_type != "job_failed"
+        or failure.payload.get("state") != "failed"
+        or failure.payload.get("lease_owner") != worker_id
+        or failure.payload.get("error_message") != job.error_message
+        or any(
+            type(row.payload.get("attempt")) is not int
+            or row.payload["attempt"] != expected_attempt
+            for row in (running, failure)
+        )
+        or running.event_id >= failure.event_id
+        or running.created_at > failure.created_at
+        or job.finished_at > failure.created_at
+        or outbox is None
+        or (outbox.job_id, outbox.run_id) != (job.job_id, job.run_id)
+        or any(
+            not _json_values_equal_strict(outbox.payload.get(key), value)
+            for key, value in failure.payload.items()
+        )
+        or not _json_values_equal_strict(outbox.payload.get("progress"), job.progress)
+    ):
+        raise ModelInputSuccessorActionError(refused)
+    raw_checkpoint = job.progress.get("model_input_use")
+    checkpoint = ModelInputUseActionCheckpoint.model_validate(raw_checkpoint)
+    if (
+        checkpoint.schema_version is not None
+        or checkpoint.execution_ref is not None
+        or checkpoint.result_ref is not None
+        or not _json_values_equal_strict(
+            raw_checkpoint, checkpoint.model_dump(mode="json", exclude_none=True)
+        )
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_custody_stage_not_established")
+    return checkpoint, running, failure
+
+
+def prepare_native_model_input_use_terminal_custody(
+    control_service: ControlPlaneService,
+    *,
+    action_service: AcquisitionActionService,
+    tenant_id: str,
+    cell_id: str,
+    run_id: str,
+    action_job_id: str,
+    failed_attempt: int,
+    phase_ref: ArtifactRef,
+    semantic_successor_ref: ArtifactRef,
+    execution_ref: ArtifactRef,
+) -> PreparedNativeModelInputUseTerminalCustody:
+    """Verify an explicitly selected completed result inside one original failed attempt."""
+    from polisyos.core.artifacts import ArtifactRef, load_core_json_artifact
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationN5ExecutionV3,
+        parse_generic_cycle_simulation_n5_execution,
+    )
+
+    from ..model_input_successor_action import (
+        ModelInputSuccessorActionError,
+        ModelInputUseActionCheckpoint,
+    )
+
+    job, scope = _native_model_input_use_history_job(
+        control_service,
+        action_service=action_service,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        run_id=run_id,
+        action_job_id=action_job_id,
+    )
+    database = control_service._control_store
+    stage, running, failure = _failed_native_model_input_use_stage(
+        database, job, expected_attempt=failed_attempt
+    )
+    if (
+        not scope.actor_authenticated
+        or not scope.actor_subject
+        or scope.actor_subject != job.submitted_by
+        or stage.phase_ref != phase_ref
+        or stage.semantic_successor_ref != semantic_successor_ref
+        or type(execution_ref) is not ArtifactRef
+        or execution_ref.kind != "runtime.quality.generic_cycle_simulation_n5_execution"
+        or execution_ref.media_type != "application/json"
+        or execution_ref.manifest_profile_sha256 is None
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_custody_selection_mismatch")
+    execution = parse_generic_cycle_simulation_n5_execution(
+        load_core_json_artifact(control_service._artifact_store, execution_ref)
+    )
+    if (
+        type(execution) is not GenericCycleSimulationN5ExecutionV3
+        or execution.status != "joint_simulated"
+        or execution.result_ref is None
+        or (
+            execution.job_id,
+            execution.run_id,
+            execution.tenant_id,
+            execution.cell_id,
+        )
+        != (action_job_id, run_id, tenant_id, cell_id)
+    ):
+        raise ModelInputSuccessorActionError(
+            "native_model_input_use_custody_execution_not_selected"
+        )
+    checkpoint = ModelInputUseActionCheckpoint(
+        phase_ref=phase_ref,
+        semantic_successor_ref=semantic_successor_ref,
+        execution_ref=execution_ref,
+        result_ref=execution.result_ref,
+    )
+    _, verify_precommit = _replay_native_model_input_use_n5_result(
+        control_service,
+        action_service=action_service,
+        job=job,
+        scope=scope,
+        checkpoint=checkpoint,
+        started_at=running.created_at,
+        work_terminal=failure,
+    )
+    if (
+        verify_precommit is None
+        or database.get_job(action_job_id) != job
+        or _failed_native_model_input_use_stage(database, job, expected_attempt=failed_attempt)
+        != (stage, running, failure)
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_history_changed_during_read")
+    return PreparedNativeModelInputUseTerminalCustody(
+        job=job,
+        scope=scope,
+        checkpoint=checkpoint,
+        running=running,
+        failure=failure,
+        verify_precommit=verify_precommit,
+    )
+
+
+def _native_model_input_use_work_terminal(
+    database: ControlPlaneStore,
+    terminal: _ControlJobLifecycleSourceEventRecord,
+    checkpoint: ModelInputUseActionCheckpoint,
+) -> tuple[_ControlJobLifecycleSourceEventRecord, int | None]:
+    """Recover the original failure and owner-sealed ledger revision for cold replay."""
+    from ..control_plane_store import _json_values_equal_strict
+    from ..model_input_successor_action import ModelInputSuccessorActionError
+
+    marker = database.get_native_model_input_use_result_custody_event(terminal.job_id)
+    marker_id = terminal.payload.get("native_result_custody_event_id")
+    if marker is None and marker_id is None:
+        return terminal, None
+    if (
+        marker is None
+        or type(marker_id) is not int
+        or marker.event_id != marker_id
+        or marker.event_id >= terminal.event_id
+        or not _json_values_equal_strict(
+            marker.payload.get("checkpoint"),
+            checkpoint.model_dump(mode="json", exclude_none=True),
+        )
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_custody_marker_mismatch")
+    cut_revision = marker.payload.get("original_work_cut_revision")
+    if type(cut_revision) is not int or cut_revision < 1:
+        raise ModelInputSuccessorActionError("native_model_input_use_custody_cut_not_established")
+    failure = database.get_job_lifecycle_event_record(
+        job_id=terminal.job_id,
+        event_id=marker.payload["original_failed_event_id"],
+        expected_event_type="job_failed",
+    )
+    return failure, cut_revision
 
 
 def read_completed_native_model_input_use_n5_result(
@@ -220,13 +705,68 @@ def read_completed_native_model_input_use_n5_result(
     action_job_id: str,
 ) -> RunModelInputUseN5SuccessorProjection:
     """Read one terminal Native candidate result through its immutable owners."""
-    from polisyos.core.artifacts import artifact_ref_for_manifest, load_core_json_artifact
+    from ..model_input_successor_action import ModelInputSuccessorActionError
+
+    job, scope = _native_model_input_use_history_job(
+        control_service,
+        action_service=action_service,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        run_id=run_id,
+        action_job_id=action_job_id,
+    )
+    database = control_service._control_store
+    checkpoint, terminal, started_at = _closed_native_model_input_use_checkpoint(database, job)
+    work_terminal, cut_revision = _native_model_input_use_work_terminal(
+        database, terminal, checkpoint
+    )
+    projection, _ = _replay_native_model_input_use_n5_result(
+        control_service,
+        action_service=action_service,
+        job=job,
+        scope=scope,
+        checkpoint=checkpoint,
+        started_at=started_at,
+        work_terminal=work_terminal,
+        original_work_cut_revision=cut_revision,
+    )
+    if (
+        database.get_job(action_job_id) != job
+        or _closed_native_model_input_use_checkpoint(database, job)
+        != (checkpoint, terminal, started_at)
+        or _native_model_input_use_work_terminal(database, terminal, checkpoint)
+        != (work_terminal, cut_revision)
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_history_changed_during_read")
+    return projection
+
+
+def _replay_native_model_input_use_n5_result(
+    control_service: ControlPlaneService,
+    *,
+    action_service: AcquisitionActionService,
+    job: ControlJobRecord,
+    scope: ControlJobExecutionScope,
+    checkpoint: ModelInputUseActionCheckpoint,
+    started_at: datetime,
+    work_terminal: _ControlJobLifecycleSourceEventRecord,
+    original_work_cut_revision: int | None = None,
+) -> tuple[RunModelInputUseN5SuccessorProjection, Callable[[], int] | None]:
+    """Reconcile a Native result without requiring or minting a current work grant."""
+    from polisyos.core.artifacts import (
+        artifact_ref_for_manifest,
+        artifact_ref_identity_key,
+        load_core_json_artifact,
+    )
     from polisyos.core.contracts.runtime import (
         RunGenericCycleSimulationN5ResultBody,
         RunModelInputUseBlockedSourceProjection,
         RunModelInputUseN5SuccessorProjection,
     )
     from polisyos.runtime.quality.acquisition_route_loop import AcquisitionRouteLoopReceipt
+    from polisyos.runtime.quality.acquisition_world_growth import (
+        replay_native_derivation_input_collection,
+    )
     from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
     from polisyos.runtime.quality.generation_cycle import _joint_simulation_port_outcome
     from polisyos.runtime.quality.generation_source import NATIVE_REQUALIFIED_SOURCE_SCHEMA
@@ -242,10 +782,12 @@ def read_completed_native_model_input_use_n5_result(
         read_model_input_use_action_phase,
     )
     from polisyos.runtime.quality.native_generic_context import (
+        _use_checkpoint_event_id,
         replay_native_model_input_use_world_selection,
     )
+    from polisyos.runtime.quality.substrate_registry import run_catalog_source_call
+    from polisyos.runtime.quality.world_model_record import world_model_artifact_views
 
-    from ..acquisition_action_service import AcquisitionActionService
     from ..acquisition_n5_projection import (
         n5_numerical_body_payload,
         read_selected_n5_result_manifest,
@@ -258,31 +800,13 @@ def read_completed_native_model_input_use_n5_result(
         resolve_model_input_successor_history,
         unwrap_native_model_input_use_request,
     )
-    from .run_lifecycle import ControlPlaneService
 
-    if (
-        type(control_service) is not ControlPlaneService
-        or type(action_service) is not AcquisitionActionService
-        or action_service.control_service is not control_service
-    ):
-        raise ModelInputSuccessorActionError("native_model_input_use_history_owner_missing")
     database = control_service._control_store
     store = control_service._artifact_store
-    job = database.get_job(action_job_id)
-    if (
-        type(job) is not ControlJobRecord
-        or job.job_id != action_job_id
-        or job.run_id != run_id
-        or job.kind != "acquisition"
-        or job.payload_ref is None
-    ):
-        raise KeyError(action_job_id)
-    scope = database.historical_completed_job_execution_scope(
-        job_id=action_job_id, expected_run_id=run_id
-    )
-    if (scope.tenant_id, scope.cell_id) != (tenant_id, cell_id):
-        raise KeyError(action_job_id)
-    checkpoint, terminal, started_at = _closed_native_model_input_use_checkpoint(database, job)
+    tenant_id, cell_id = scope.tenant_id, scope.cell_id
+    run_id, action_job_id = job.run_id, job.job_id
+    if not tenant_id or not cell_id or not run_id or job.payload_ref is None:
+        raise ModelInputSuccessorActionError("native_model_input_use_history_identity_mismatch")
     execution_ref, result_ref = checkpoint.execution_ref, checkpoint.result_ref
     if execution_ref is None or result_ref is None:
         raise ModelInputSuccessorActionError("native_model_input_use_terminal_checkpoint_missing")
@@ -316,7 +840,7 @@ def read_completed_native_model_input_use_n5_result(
     if (
         selected.schema_version != "polisyos.runtime.ModelInputSuccessorSelection@1.0"
         or selected.action_attempt != job.attempt
-        or selected.action_worker_id != terminal.payload["lease_owner"]
+        or selected.action_worker_id != work_terminal.payload["lease_owner"]
     ):
         raise ModelInputSuccessorActionError("native_model_input_use_history_worker_mismatch")
 
@@ -334,6 +858,7 @@ def read_completed_native_model_input_use_n5_result(
     n5_input = GenericCycleSimulationN5InputV1.model_validate(
         load_core_json_artifact(store, n5_input_ref)
     )
+    n5_profile = n5_input.n5
     world_ref = n5_input.native_world_checkpoint_ref
     if world_ref is None:
         raise ModelInputSuccessorActionError("native_model_input_use_world_checkpoint_missing")
@@ -358,9 +883,9 @@ def read_completed_native_model_input_use_n5_result(
         or n5_input.source_run_id != original.source_run_id
         or n5_input.cycle_index != original.cycle_index
         or n5_input.outcome_variable != original.outcome_variable
-        or type(n5_input.n5) is not GenericCycleN5ProgramGraphRequestProfileV4
-        or n5_input.n5 != original.n5
-        or n5_input.n5.invocation_purpose != "standard"
+        or type(n5_profile) is not GenericCycleN5ProgramGraphRequestProfileV4
+        or n5_profile != original.n5
+        or n5_profile.invocation_purpose != "standard"
         or n4_manifest.artifact_schema is None
         or n4_manifest.artifact_schema.name != NATIVE_REQUALIFIED_SOURCE_SCHEMA
     ):
@@ -449,7 +974,9 @@ def read_completed_native_model_input_use_n5_result(
         input_record=n5_input,
         window=window,
         started_at=started_at,
-        finished_at=terminal.created_at,
+        finished_at=work_terminal.created_at,
+        require_failed_attempt_cut=work_terminal.event_type == "job_failed",
+        original_work_cut_revision=original_work_cut_revision,
     )
     manifest = read_selected_n5_result_manifest(
         store, result_ref, tenant_id=tenant_id, cell_id=cell_id
@@ -469,11 +996,7 @@ def read_completed_native_model_input_use_n5_result(
             request=resolved.request,
         )
     )
-    if database.get_job(action_job_id) != job or _closed_native_model_input_use_checkpoint(
-        database, job
-    ) != (checkpoint, terminal, started_at):
-        raise ModelInputSuccessorActionError("native_model_input_use_history_changed_during_read")
-    return RunModelInputUseN5SuccessorProjection(
+    projection = RunModelInputUseN5SuccessorProjection(
         run_id=run_id,
         action_job_id=action_job_id,
         action_status="completed",
@@ -495,6 +1018,127 @@ def read_completed_native_model_input_use_n5_result(
         result_body=body,
         semantic_input_limitation_codes=limitations,
     )
+    if work_terminal.event_type != "job_failed":
+        return projection, None
+    (physical,) = resolved.result.physical_work_observations
+    verify_approval = _prepare_native_model_input_use_historical_approval(
+        action_service,
+        identity=identity,
+        scope=scope,
+        decision_ref=phase.authority_decision_ref,
+        started_at=physical.started_at,
+        completed_at=physical.completed_at,
+    )
+    exact_refs = (
+        phase.action_payload_ref,
+        checkpoint.phase_ref,
+        checkpoint.semantic_successor_ref,
+        execution_ref,
+        n5_input_ref,
+        result_ref,
+        world_ref,
+        source.checkpoint_ref,
+        source.pending_action_phase_ref,
+        predecessor_ref,
+        n5_input.n4_source_ref,
+        world.checkpoint.context_job_ref,
+        world.checkpoint.original_generic_input_ref,
+        world.checkpoint.original_profile_ref,
+        world.checkpoint.world_model_ref,
+        world.checkpoint.native_input_bindings_ref,
+    )
+    catalog_source = control_service.catalog_serving_source
+    collection_ref = world.checkpoint.native_input_collection_ref
+    selected_collection = world.source_selection.input_collection_replay
+    plans = resolved.request.engine_plan
+    if len(plans) != 1:
+        raise ModelInputSuccessorActionError("native_model_input_use_custody_graph_not_selected")
+    (plan,) = plans
+    if (
+        plan.engine_kind != "program_graph"
+        or plan.program_compilation_ref is None
+        or plan.program_graph_ref is None
+        or plan.exec_plan_ref is None
+    ):
+        raise ModelInputSuccessorActionError("native_model_input_use_custody_graph_not_selected")
+    world_record = source.world_model_record
+    expected_graph = (
+        artifact_ref_identity_key(plan.program_compilation_ref),
+        artifact_ref_identity_key(plan.program_graph_ref),
+        artifact_ref_identity_key(plan.exec_plan_ref),
+        artifact_ref_identity_key(world_model_artifact_views(world_record).registry_bundle_ref),
+    )
+    world_event_id = _use_checkpoint_event_id(world.checkpoint)
+    world_events = database.list_diagnostic_events(event_id=world_event_id, limit=2)
+    if len(world_events) != 1:
+        raise ModelInputSuccessorActionError("native_model_input_use_custody_world_event_missing")
+
+    def verify_precommit() -> int:
+        _require_native_model_input_use_cas_refs(store, exact_refs)
+        if control_service.catalog_serving_source is not catalog_source:
+            raise ModelInputSuccessorActionError("native_model_input_use_custody_catalog_changed")
+        try:
+            replayed_collection = run_catalog_source_call(
+                catalog_source, replay_native_derivation_input_collection, store, collection_ref
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ModelInputSuccessorActionError(
+                "native_model_input_use_custody_collection_withdrawn"
+            ) from exc
+        if replayed_collection != selected_collection:
+            raise ModelInputSuccessorActionError(
+                "native_model_input_use_custody_collection_withdrawn"
+            )
+        try:
+            graph = run_catalog_source_call(
+                catalog_source, owner._read_selected_program_graph, n5_profile, world_record
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ModelInputSuccessorActionError(
+                "native_model_input_use_custody_graph_withdrawn"
+            ) from exc
+        if (
+            tuple(
+                artifact_ref_identity_key(ref)
+                for ref in (
+                    graph.compile_report_ref,
+                    graph.graph_ref,
+                    graph.exec_plan_ref,
+                    graph.registry_bundle_ref,
+                )
+            )
+            != expected_graph
+        ):
+            raise ModelInputSuccessorActionError("native_model_input_use_custody_graph_withdrawn")
+        if (
+            database.list_diagnostic_events(event_id=world_event_id, limit=2) != world_events
+            or database.get_acquisition_action_head_by_receipt(
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+                run_id=run_id,
+                source_job_id=origin.source_job_id,
+                route_id=pending.route_id,
+                action_generation=pending.action_generation,
+                receipt_ref=str(predecessor_ref.artifact_id),
+            )
+            != old_head
+        ):
+            raise ModelInputSuccessorActionError("native_model_input_use_custody_history_withdrawn")
+        verify_approval()
+        budget = control_service._llm_producer_settlement_store
+        if budget is None or budget.resolve_reentry_budget_window_safe(window.scope) != window:
+            raise ModelInputSuccessorActionError("native_model_input_use_custody_window_changed")
+        return _verify_native_model_input_use_completed_work(
+            control_service,
+            resolved=resolved,
+            input_record=n5_input,
+            window=window,
+            started_at=started_at,
+            finished_at=work_terminal.created_at,
+            require_failed_attempt_cut=True,
+        )
+
+    return projection, verify_precommit
 
 
 class _ModelInputUseJobCompletion(dict[str, Any]):

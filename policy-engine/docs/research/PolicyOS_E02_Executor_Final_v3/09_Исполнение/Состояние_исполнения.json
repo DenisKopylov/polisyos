@@ -21573,8 +21573,8 @@
       "local_qualification": "PARTIAL",
       "capability_acceptance": "NOT_RUN",
       "current_execution": {
-        "status": "ACTIVE. Eight packets, 61 requirements and 60 test contracts. All original product defects have local repairs. 58 named local profiles qualify, 2 are partial and 1 lacks deciding qualification. Shared E02-I03-A/B and the affected DA-07 replay qualify. E02-I03-C remains open.",
-        "next": "Complete FRC-02-07 retrospective stock-owner readback and E02-I03-C physical budget and common retained report qualification.",
+        "status": "ACTIVE. Eight packets, 61 requirements and 60 test contracts. All original product defects have local repairs. 59 named local profiles qualify, 1 is partial and 1 lacks deciding qualification. Shared E02-I03-A/B and the affected DA-07 replay qualify. E02-I03-C remains open.",
+        "next": "Complete the BKT-01 physical budget and retained reports on the common E02-I03-C source profile.",
         "frc01_calibration_summary": {
           "scope": "REQ-FRC-01-01. S10 and G2 preserve descriptive counts while carrying only an admitted compatible floor. 10/10 limited, genuine 95/100 preserved. Removed records, tampered status and a foreign envelope refuse admission. 55 affected tests pass, with a separate exact old-mechanism failure and changed-import pass.",
           "output": "Primary:policy-engine/_cache/e02/frc01-01-envelope-green.rQmKbNmu/",
@@ -40026,7 +40026,7 @@
       "track_id": "03-A",
       "track_position": 4,
       "implementation_status": "IN_PROGRESS",
-      "local_qualification": "PARTIAL",
+      "local_qualification": "QUALIFIED_NAMED_PROFILE",
       "integration_qualification": "NOT_RUN",
       "assigned_executor": null,
       "base_commit": null,
@@ -40141,6 +40141,13 @@
           "result": "Exact v7 wire from two actual serves, range/source/authority controls and stock display preserving USD metric and series coverage without a relation. Generated ABI/SDK parity passes separately.",
           "source_commit": "1f7f1920c",
           "guard_sha256": "07012bdd9d4f982910472d1bcb0194dbc746ad4080733b90fc35edfe4afdbaa1"
+        },
+        {
+          "id": "frc02_actual_retrospective_stock_owner",
+          "output": "Primary:policy-engine/_cache/e02/frc02-07-owner-readback-r1/",
+          "result": "19 real stock one-step ForecastOwner calls from fixed captured data, complete 2006–2024 denominator. A different process reopens exact source/manifests, reruns stock WDI normalization and verifies all persisted owner rows. 11 of 19 at .90; no authority upgrade.",
+          "source_commit": "d331fec5f",
+          "guard_sha256": "7e52e3922e5acc988e0287f63644bc538a65fff567566c495726d5884f05f88e"
         }
       ],
       "blockers": [],
@@ -40277,8 +40284,8 @@
         {
           "requirement_id": "REQ-FRC-02-07",
           "test_id": "TEST-FRC-02-07",
-          "status": "PARTIAL",
-          "basis": "The fixed revised-vintage annual CPI study measures 11/19 intervals and reports dependence sensitivity. Its response receipt precedes the committed analysis protocol, so the run establishes descriptive retrospective screening. Original vintages and higher-level ForecastOwner chronological admission remain open.",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The stock owner verifies the exact selected snapshot, normalized projection and captured vintage along all selected manifest edges. The actual 19 one-step historical windows preserve train/holdout, denominator, misses and finite intervals; a fresh process reconciles all source and result rows. Broad coverage validity, effective independent n, measurement error, historical release timing and causality remain unestablished.",
           "criterion_pointer": "04_Трассировка/FRC-02.json#/requirements/6",
           "test_ids": [
             "TEST-FRC-02-02",
@@ -40287,13 +40294,14 @@
           "binding_ids": [
             "E02-I03-B-B02"
           ],
-          "assessment": "selected_profile_partial",
+          "assessment": "selected_profile_qualified",
           "evidence_refs": [
-            "frc02_wdi_annual_cpi_screen"
+            "frc02_wdi_annual_cpi_screen",
+            "frc02_actual_retrospective_stock_owner",
+            "frc02_exact_observed_denominator",
+            "frc02_typed_full_horizon_owner_refusal"
           ],
-          "remaining_kinds": [
-            "retrospective_ForecastOwner_temporal_admission"
-          ]
+          "remaining_kinds": []
         },
         {
           "requirement_id": "REQ-FRC-02-08",

@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from decimal import Decimal
 from unittest.mock import MagicMock
 
 import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
+from polisyos.core.security import AccessScope, reset_current_access_scope, set_current_access_scope
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
@@ -26,6 +29,11 @@ from polisyos.scientist.methods.doe.designs import (
 from polisyos.scientist.methods.doe.stress_report import StressTestReport
 from polisyos.scientist.methods.search.adversarial import run_stress_test
 from polisyos.scientist.methods.search.contracts import EvaluationBundle
+from polisyos.scientist.methods.search.controller import (
+    SearchConfig,
+    SearchController,
+    _search_prompt_value,
+)
 from polisyos.scientist.methods.search.funnel.level0_static import Level0StaticValidator
 from polisyos.scientist.methods.search.funnel.level1_heuristic import Level1CheapHeuristic
 from polisyos.scientist.methods.search.funnel.level2_causal import Level2CausalPlausibility
@@ -45,7 +53,12 @@ from polisyos.scientist.methods.search.funnel.types import (
     TypedFailureCard,
     UncertaintyEnvelope,
 )
-from polisyos.scientist.methods.search.lessons import LessonRegistry
+from polisyos.scientist.methods.search.lessons import (
+    LessonQuery,
+    LessonRegistry,
+    LessonTrustLevel,
+    load_lesson_card,
+)
 from polisyos.scientist.methods.search.objective import (
     BaseObjective,
     CompositeObjective,
@@ -54,6 +67,7 @@ from polisyos.scientist.methods.search.objective import (
     OptimizationDirection,
 )
 from polisyos.scientist.methods.search.stages import StageResult
+from polisyos.scientist.methods.search.stopping import MaxIterations
 from polisyos.scientist.methods.search.transfer_context import TransferContext
 from polisyos.scientist.methods.search.voi_scheduler import PredictiveVOIScheduler
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
@@ -1007,6 +1021,207 @@ class TestFunnelOrchestrator:
         )
         assert outcome.lesson_refs
         assert lesson_registry.top_patterns(limit=5)[0].kind.value == "success"
+
+    def test_persisted_funnel_lesson_reaches_native_generator_with_live_scope(self, tmp_path):
+        store_root = tmp_path / ".polisyos"
+        registry_root = tmp_path / "lessons"
+        store = FileSystemCAS(store_root)
+        registry = LessonRegistry(root=registry_root, store=store)
+        funnel = FunnelOrchestrator([Level0StaticValidator()], lesson_registry=registry)
+        token = set_current_access_scope(
+            AccessScope.for_service(
+                tenant_id="fiscal-team", cell_id=None, spiffe_id="spiffe://test/search"
+            )
+        )
+        try:
+
+            def record_failure(run_id, interventions):
+                context = TransferContext(task_family="policy", domain="fiscal", run_id=run_id)
+                result = funnel.advance(
+                    funnel.submit(
+                        {
+                            "semantic": {
+                                "interventions": [{"type": item} for item in interventions],
+                                "objectives": [{"name": "shared-objective"}],
+                            },
+                        },
+                        {"transfer_context": context},
+                    ),
+                    policy="full",
+                )
+                assert result.final_action == "reject"
+                assert len(result.lesson_refs) == 1
+                return load_lesson_card(store, result.lesson_refs[0])
+
+            source = record_failure("chosen-source", ("carbon_tax", "fossil_subsidy"))
+            other = record_failure("later-source", ("price_cap", "market_deregulation"))
+            assert source.trace_refs and source.candidate_hash != other.candidate_hash
+            assert other.created_at >= source.created_at
+            assert source.confidence == 1.0
+
+            def read_generator_context(target, selector, *, caller_hint=False):
+                observed = []
+
+                class RecordingGenerator:
+                    def generate(self, history, current_best, context):
+                        del history, current_best
+                        observed.append(context)
+                        return {"candidate_id": "next-candidate"}
+
+                controller = SearchController(
+                    SearchConfig(
+                        stopping=MaxIterations(1),
+                        objective=CompositeObjective([GDPGrowthObjective()]),
+                    ),
+                    candidate_generator=RecordingGenerator(),
+                    stage_a_evaluator=lambda _candidate, _context: (0.0, False),
+                    stage_b_evaluator=lambda _candidate, _context: {},
+                )
+                context = {
+                    "transfer_context": target.model_dump(mode="json", exclude_unset=True),
+                    "lesson_registry": LessonRegistry(
+                        root=registry_root, store=FileSystemCAS(store_root)
+                    ),
+                    "lesson_query": selector,
+                }
+                if caller_hint:
+                    context["lesson_hints"] = [{"source_run_id": "caller-forged"}]
+                controller.run(context)
+                assert len(observed) == 1
+                return observed[0]
+
+            def contents(root):
+                return {
+                    path.relative_to(root): path.read_bytes()
+                    for path in root.rglob("*")
+                    if path.is_file()
+                }
+
+            target = TransferContext(task_family="policy", domain="labor", run_id="target-search")
+            selector = LessonQuery(
+                domain="fiscal",
+                stage_name="funnel_L0_static",
+                source_run_id="chosen-source",
+                tags=["shared-objective"],
+                trust_levels=[LessonTrustLevel.TRANSFERRED],
+                min_confidence=0.8,
+                limit=1,
+            )
+            unrestricted = registry.find_transfer_candidates(
+                selector.model_copy(update={"source_run_id": None}), target_context=target
+            )
+            assert [card.source_run_id for card in unrestricted.candidates] == ["later-source"]
+
+            before_reject = contents(store_root), contents(registry_root)
+            for change in (
+                {"source_run_id": "wrong"},
+                {"stage_name": "wrong"},
+                {"tags": ["wrong"]},
+                {"domain": "wrong"},
+                {"trust_levels": ["local"]},
+                {"min_confidence": 2.0},
+            ):
+                declared = {**selector.model_dump(mode="json", exclude_unset=True), **change}
+                rejected = read_generator_context(target, declared, caller_hint=True)
+                assert not rejected.get("lesson_hints")
+                assert (contents(store_root), contents(registry_root)) == before_reject
+
+            received = read_generator_context(target, selector)
+            assert "lesson_registry" not in received and "lesson_query" not in received
+            prompt_context = _search_prompt_value(received)
+            (hint,) = prompt_context["lesson_hints"]
+            assert hint["source_run_id"] == "chosen-source"
+            assert hint["origin_domain"] == "fiscal" and hint["domain"] == "labor"
+            assert hint["stage_name"] == "funnel_L0_static"
+            assert "shared-objective" in hint["tags"]
+            assert hint["confidence"] == 1.0 and hint["trust_level"] == "transferred"
+            assert hint["provenance_weight"] == 0.65
+
+            after_first_cas = contents(store_root)
+            after_first_registry = contents(registry_root)
+            for _ in range(2):
+                repeated = read_generator_context(target, selector)
+                assert repeated["lesson_hints"] == [hint]
+            assert contents(store_root) == after_first_cas
+            after_reads = contents(registry_root)
+            changed = {
+                path
+                for path in after_first_registry.keys() | after_reads.keys()
+                if after_first_registry.get(path) != after_reads.get(path)
+            }
+            assert len(changed) <= 1 and all(path.parent.name == "access" for path in changed)
+
+            stable = contents(store_root), contents(registry_root)
+            wrong_source = selector.model_copy(update={"domain": "labor"})
+            assert not read_generator_context(target, wrong_source).get("lesson_hints")
+            foreign = set_current_access_scope(
+                AccessScope.for_service(
+                    tenant_id="foreign-team", cell_id=None, spiffe_id="spiffe://test/search"
+                )
+            )
+            try:
+                assert not read_generator_context(target, selector).get("lesson_hints")
+            finally:
+                reset_current_access_scope(foreign)
+            assert (contents(store_root), contents(registry_root)) == stable
+
+            snapshot = registry.index_snapshot(context=target)
+            [target_entry] = snapshot.entries
+            selected_ref = target_entry.artifact_ref
+            manifest = store.get_manifest(selected_ref)
+            assert len(manifest.inputs) == 1 and manifest.inputs[0].manifest_profile_sha256
+            assert manifest.inputs[0].role == "lesson_transfer_source"
+            stored = load_lesson_card(store, selected_ref)
+            unbound_ref = store.put_json(
+                stored,
+                PutOptions(
+                    kind=selected_ref.kind,
+                    media_type=selected_ref.media_type,
+                    schema=manifest.artifact_schema,
+                ),
+                canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
+            assert unbound_ref.artifact_id == selected_ref.artifact_id
+            assert unbound_ref.manifest_profile_sha256 != selected_ref.manifest_profile_sha256
+            assert load_lesson_card(store, unbound_ref) == stored
+            [target_index] = [
+                path
+                for path in registry_root.rglob("index.json")
+                if str(selected_ref.artifact_id) in path.read_text(encoding="utf-8")
+            ]
+            selected_bytes = target_index.read_bytes()
+            target_entry.artifact_ref = unbound_ref
+            target_index.write_text(snapshot.model_dump_json(), encoding="utf-8")
+            fresh_registry = LessonRegistry(root=registry_root, store=FileSystemCAS(store_root))
+            assert not fresh_registry.query(LessonQuery(domain="labor", tags=selector.tags))
+            target_index.write_bytes(selected_bytes)
+
+            later = TransferContext(
+                task_family="policy",
+                domain="old-labor",
+                run_id="later-search",
+                timestamp=source.created_at + timedelta(days=100),
+            )
+            assert not read_generator_context(later, selector).get("lesson_hints")
+            aged = read_generator_context(
+                later,
+                selector.model_copy(
+                    update={
+                        "min_confidence": 0.5,
+                        "trust_levels": [LessonTrustLevel.LOW_CONFIDENCE],
+                    }
+                ),
+            )["lesson_hints"][0]
+            assert aged["trust_level"] == "low_confidence" and aged["confidence"] == 0.5
+            assert aged["provenance_weight"] == 0.325
+
+            assert registry.invalidate(source.lesson_id, "withdrawn-source")
+            before_invalidated_read = contents(store_root), contents(registry_root)
+            assert not read_generator_context(target, selector).get("lesson_hints")
+            assert (contents(store_root), contents(registry_root)) == before_invalidated_read
+        finally:
+            reset_current_access_scope(token)
 
     def test_predictive_scheduler_receives_unestablished_score_without_owner_source(self):
         fixture_unit = "fixture-unit"

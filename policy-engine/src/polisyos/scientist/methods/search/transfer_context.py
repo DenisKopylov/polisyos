@@ -367,6 +367,7 @@ def resolve_transfer_context(
     domain: str | None = None,
     run_id: str | None = None,
     fallback_run_id: str | None = None,
+    timestamp: datetime | None = None,
     cross_tenant_opt_in: bool | None = None,
     tenant_hash: str | None = None,
     tenant_hash_is_explicit: bool = False,
@@ -506,6 +507,7 @@ def resolve_transfer_context(
         (task_family, "task_family"),
         (domain, "domain"),
         (run_id, "run_id"),
+        (timestamp, "timestamp"),
     ):
         if value is not None:
             declare(field_name, value)
@@ -644,6 +646,11 @@ def lesson_hint_payload(card: Any) -> dict[str, Any]:
         "provenance_weight": float(getattr(card, "provenance_weight", 1.0) or 0.0),
         "domain": str(getattr(card, "domain", "isolated") or "isolated"),
         "task_family": str(getattr(card, "task_family", "policy") or "policy"),
+        "source_run_id": getattr(card, "source_run_id", None),
+        "origin_domain": getattr(card, "origin_domain", None),
+        "stage_name": getattr(card, "stage_name", None),
+        "tags": list(getattr(card, "tags", ())),
+        "confidence": getattr(card, "confidence", None),
     }
 
 

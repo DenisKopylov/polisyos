@@ -1354,6 +1354,10 @@ class _SearchLifecycleOwner:
         if self._history:
             enriched["last_stage_b_result"] = self._history[-1].stage_b_result
         lesson_hints = self._build_lesson_hints(enriched)
+        if "lesson_registry" in enriched or "lesson_query" in enriched:
+            enriched.pop("lesson_registry", None)
+            enriched.pop("lesson_query", None)
+            enriched.pop("lesson_hints", None)
         if lesson_hints:
             enriched["lesson_hints"] = lesson_hints
         try:
@@ -1394,23 +1398,13 @@ class _SearchLifecycleOwner:
             return []
         try:
             from polisyos.scientist.methods.search.lessons import LessonQuery
-            from polisyos.scientist.methods.search.transfer_context import (
-                lesson_hint_payload,
-                resolve_transfer_context,
-            )
+            from polisyos.scientist.methods.search.transfer_context import lesson_hint_payload
 
-            transfer_context = resolve_transfer_context(context=context)
+            query, transfer_context = LessonQuery.for_search_context(context)
             if hasattr(lesson_registry, "query_with_transfer"):
-                cards = lesson_registry.query_with_transfer(
-                    LessonQuery(
-                        task_family=transfer_context.task_family,
-                        min_confidence=0.5,
-                        limit=3,
-                    ),
-                    target_context=transfer_context,
-                )
+                cards = lesson_registry.query_with_transfer(query, target_context=transfer_context)
                 return [lesson_hint_payload(card) for card in cards]
-            if hasattr(lesson_registry, "top_patterns"):
+            if context.get("lesson_query") is None and hasattr(lesson_registry, "top_patterns"):
                 return [
                     {
                         "summary": pattern.summary,
@@ -1429,7 +1423,7 @@ class _SearchLifecycleOwner:
                     }
                     for pattern in lesson_registry.top_patterns(limit=3)
                 ]
-        except (_IMPORT_ERRORS, _SEARCH_DEGRADED_ERRORS) as exc:
+        except (*_IMPORT_ERRORS, *_SEARCH_DEGRADED_ERRORS) as exc:
             _search_degraded(
                 operation="build_lesson_hints",
                 reason="lesson_hint_generation_failed",

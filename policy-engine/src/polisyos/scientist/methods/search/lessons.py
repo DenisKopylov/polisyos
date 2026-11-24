@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 import os
 import re
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from datetime import UTC, datetime, timedelta
 from enum import Enum
 from hashlib import sha256
@@ -44,6 +44,7 @@ from polisyos.scientist.methods.search.transfer_context import (
 
 _LESSON_CARD_KIND = "scientist.search.lesson_card"
 _LESSON_INDEX_KIND = "scientist.search.lesson_index"
+_LESSON_TRANSFER_SOURCE_ROLE = "lesson_transfer_source"
 _LESSON_CARD_SCHEMA = SchemaInfo(name="polisyos.scientist.search.LessonCard", version="2.0")
 _LESSON_INDEX_SCHEMA = SchemaInfo(
     name="polisyos.scientist.search.LessonIndexSnapshot",
@@ -127,6 +128,27 @@ class LessonQuery(BaseModel):
     @classmethod
     def _validate_as_of(cls, value: datetime | None) -> datetime | None:
         return ensure_utc(value) if value is not None else None
+
+    @classmethod
+    def for_search_context(cls, context: Mapping[str, Any]) -> tuple[LessonQuery, TransferContext]:
+        """Resolve generator selector defaults, scope and a single evidence cutoff.
+
+        Args:
+            context: Search inputs with an optional typed or mapping lesson query.
+
+        Returns:
+            The validated source selector and separately resolved destination.
+        """
+        declaration = context.get("lesson_query")
+        if isinstance(declaration, cls):
+            declaration = declaration.model_dump(mode="python", exclude_unset=True)
+        if declaration is not None and not isinstance(declaration, Mapping):
+            raise TypeError("Search lesson_query requires a typed query or mapping")
+        query = cls.model_validate({"min_confidence": 0.5, "limit": 3, **(declaration or {})})
+        target = resolve_transfer_context(context=context, timestamp=query.as_of)
+        if "task_family" not in query.model_fields_set:
+            query = query.model_copy(update={"task_family": target.task_family})
+        return query, target
 
 
 class LessonIndexEntry(BaseModel):
@@ -369,6 +391,7 @@ def _write_lesson_card(
     current_card: LessonCard,
     *,
     inputs: list[InputRef] | None = None,
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
     return store.put_json(
         current_card,
@@ -379,6 +402,7 @@ def _write_lesson_card(
             inputs=list(inputs or []),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
 
 
@@ -552,6 +576,15 @@ class LessonRegistry:
         *,
         context: TransferContext | None = None,
     ) -> ArtifactRef:
+        return self._record_local(card, context=context)
+
+    def _record_local(
+        self,
+        card: LessonCard,
+        *,
+        context: TransferContext | None = None,
+        inputs: list[InputRef] | None = None,
+    ) -> ArtifactRef:
         target = resolve_transfer_context(
             transfer_context=context,
             task_family=(card.task_family if "task_family" in card.model_fields_set else None),
@@ -562,7 +595,9 @@ class LessonRegistry:
         normalized_card = _prepare_lesson_card_for_write(
             self._normalize_card(card, resolved_context=target)
         )
-        card_ref = _write_lesson_card(self._store, normalized_card)
+        card_ref = _write_lesson_card(
+            self._store, normalized_card, inputs=inputs, return_selected_profile=bool(inputs)
+        )
         snapshot = self.index_snapshot(context=target)
         signature = _normalized_signature(normalized_card)
         now = normalized_card.created_at
@@ -699,7 +734,12 @@ class LessonRegistry:
             )
             return results[: context.limit]
 
-        results = self._query_local(context, target_context=active_target, policy=policy)
+        results = self._query_local(
+            context,
+            target_context=active_target,
+            policy=policy,
+            select_transfer_source_domain=True,
+        )
         if len(results) >= context.limit:
             return results[: context.limit]
 
@@ -981,7 +1021,21 @@ class LessonRegistry:
         )
         if query is not None and not self._matches_materialized_transfer(materialized, query):
             return None
-        self.record_local(materialized, context=target_context)
+        from polisyos.core.artifacts import artifact_ref_for_manifest, read_core_manifest_profile
+
+        source_manifest, _ = read_core_manifest_profile(self._store, source_entry.artifact_ref)
+        source_ref = artifact_ref_for_manifest(source_manifest)
+        self._record_local(
+            materialized,
+            context=target_context,
+            inputs=[
+                InputRef(
+                    artifact_id=source_ref.artifact_id,
+                    manifest_profile_sha256=source_ref.manifest_profile_sha256,
+                    role=_LESSON_TRANSFER_SOURCE_ROLE,
+                )
+            ],
+        )
         return materialized
 
     def top_patterns(
@@ -1175,15 +1229,18 @@ class LessonRegistry:
         *,
         target_context: TransferContext,
         policy: TransferPolicy | None = None,
+        select_transfer_source_domain: bool = False,
     ) -> list[LessonCard]:
         now = self._query_time(query, target_context=target_context)
         accessed_at = datetime.now(UTC)
         snapshot = self.index_snapshot(context=target_context)
+        source_domain = query.domain if select_transfer_source_domain else None
+        card_query = query.model_copy(update={"domain": None}) if source_domain else query
         results: list[LessonCard] = []
         for entry in self._sorted_entries(snapshot):
             if entry.invalidated:
                 continue
-            if not self._entry_matches(entry, query):
+            if not self._entry_matches(entry, card_query):
                 continue
             card = self._materialize_query_card(
                 entry,
@@ -1191,8 +1248,9 @@ class LessonRegistry:
                 source_context=target_context,
                 ttl_days=policy.ttl_days if policy is not None else None,
                 accessed_at=accessed_at,
+                source_domain=source_domain,
             )
-            if card is None or not self._matches_query(card, query):
+            if card is None or not self._matches_query(card, card_query):
                 continue
             results.append(card)
             self._record_access(
@@ -1400,6 +1458,7 @@ class LessonRegistry:
         accessed_at: datetime | None = None,
         for_transfer: bool = False,
         recorded_card: LessonCard | None = None,
+        source_domain: str | None = None,
     ) -> LessonCard | None:
         card = (
             recorded_card
@@ -1425,6 +1484,18 @@ class LessonRegistry:
                 ]
             )
         normalized = self._normalize_card(card, resolved_context=source_context)
+        selected_transfer_source = None
+        if normalized.transfer_chain or normalized.metadata.get("materialized_transfer"):
+            selected_transfer_source = self._active_transfer_parent(entry.artifact_ref, normalized)
+            if selected_transfer_source is None:
+                return None
+        selected_domain = (
+            selected_transfer_source.domain
+            if selected_transfer_source is not None
+            else normalized.domain
+        )
+        if source_domain is not None and source_domain != selected_domain:
+            return None
         evidence_anchor = self._evidence_anchor(entry, normalized)
         if evidence_anchor is None or evidence_anchor > now:
             return None
@@ -1443,6 +1514,94 @@ class LessonRegistry:
                 "provenance_weight": entry.provenance_weight,
             }
         )
+
+    def _active_transfer_parent(self, ref: ArtifactRef, card: LessonCard) -> LessonCard | None:
+        """Reopen every selected transfer hop and require its active source record."""
+        current, current_ref = card, ref
+        direct_parent = None
+        for _ in card.transfer_chain:
+            resolved = self._resolve_transfer_parent(current_ref, current)
+            if resolved is None:
+                return None
+            current, current_ref = resolved
+            if direct_parent is None:
+                direct_parent = current
+        return direct_parent
+
+    def _resolve_transfer_parent(
+        self,
+        ref: ArtifactRef,
+        card: LessonCard,
+    ) -> tuple[LessonCard, ArtifactRef] | None:
+        """Resolve the selected CAS input in its original live index namespace."""
+        from polisyos.core.artifacts import artifact_ref_for_manifest, read_core_manifest_profile
+
+        hop = card.transfer_chain[-1]
+        if (
+            hop.to_task_family != card.task_family
+            or hop.to_domain != card.domain
+            or hop.target_tenant_hash != card.origin_tenant_hash
+            or hop.target_tenant_scope_status is not card.origin_tenant_scope_status
+        ):
+            return None
+        try:
+            manifest, _ = read_core_manifest_profile(self._store, ref)
+            parents = [
+                item for item in manifest.inputs if item.role == _LESSON_TRANSFER_SOURCE_ROLE
+            ]
+            if len(parents) != 1 or parents[0].manifest_profile_sha256 is None:
+                return None
+            edge = parents[0]
+            source = TransferContext(
+                task_family=hop.from_task_family,
+                domain=hop.from_domain,
+                run_id=hop.source_run_id,
+                tenant_hash=hop.source_tenant_hash,
+                tenant_scope_status=hop.source_tenant_scope_status,
+            )
+            parts = transfer_scope_path_parts(source)
+            snapshot = self._load_scoped_index(
+                decode_transfer_scope_path(parts), self._root.joinpath(*parts, "index.json")
+            )
+            entry = next(
+                (
+                    row
+                    for row in snapshot.entries
+                    if not row.invalidated and row.artifact_ref.artifact_id == edge.artifact_id
+                ),
+                None,
+            )
+            if entry is None:
+                return None
+            source_manifest, _ = read_core_manifest_profile(self._store, entry.artifact_ref)
+            source_ref = artifact_ref_for_manifest(source_manifest)
+            if source_ref.manifest_profile_sha256 != edge.manifest_profile_sha256:
+                return None
+            parent = load_lesson_card(self._store, source_ref)
+        except (FileNotFoundError, ValueError, TransferScopeRefusedError):
+            return None
+        if (
+            parent.lesson_id != entry.lesson_id
+            or parent.transfer_chain != card.transfer_chain[:-1]
+            or parent.task_family != source.task_family
+            or parent.domain != source.domain
+            or parent.origin_tenant_hash != source.tenant_hash
+            or parent.origin_tenant_scope_status is not source.tenant_scope_status
+            or card.confidence > parent.confidence
+            or hop.source_run_id != (parent.origin_run_id or parent.source_run_id)
+        ):
+            return None
+        origin_projection = card.model_copy(
+            update={
+                "schema_version": parent.schema_version,
+                "confidence": parent.confidence,
+                "origin_tenant_hash": parent.origin_tenant_hash,
+                "origin_tenant_scope_status": parent.origin_tenant_scope_status,
+            }
+        )
+        if self._evidence_identity(parent) != self._evidence_identity(origin_projection):
+            return None
+        return parent, source_ref
 
     @staticmethod
     def _query_time(

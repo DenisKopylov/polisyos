@@ -24,6 +24,7 @@ from polisyos.runtime.http.services.control.job_diagnostics import (
     _closed_native_model_input_use_checkpoint,
     _failed_native_model_input_use_stage,
     _ModelInputUseJobCompletion,
+    _native_model_input_use_work_terminal,
     _verify_native_model_input_use_completed_work,
 )
 from polisyos.runtime.http.services.control_plane_store import (
@@ -421,6 +422,10 @@ def test_native_closed_checkpoint_reopens_terminal_outbox_and_original_lease(
     assert terminal.payload["attempt"] == case.attempt
     assert started <= terminal.created_at
     assert completed.lease_owner is None
+    assert _native_model_input_use_work_terminal(case.database, terminal, readback) == (
+        terminal,
+        None,
+    )
     outbox = case.database.get_job_completed_outbox_event(case.job.job_id)
     assert (
         case.database.get_generic_model_input_use(key=case.key, action_job_id=case.job.job_id)

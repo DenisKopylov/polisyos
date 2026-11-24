@@ -5,7 +5,7 @@
   "specification_version": "v3",
   "reference_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
   "actual_start_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
-  "active_lane": "LANE-01",
+  "active_lane": "LANE-03",
   "lane_order": [
     "LANE-06",
     "LANE-08",
@@ -9079,7 +9079,7 @@
     {
       "lane_id": "LANE-01",
       "current_execution": {
-        "status": "ACTIVE. Scientific C revision 4 and fresh API verified. CYC-03-04 completes the local requirement matrix at 64 confirmed, zero partial, and two dependent on the loaded LANE-12 build. Ordinary and CPI retained readers are reconciled on named published versions. Strict paid Native B R10 records one completed standard unit and zero new supplier calls. The stock worker fails after numerical persistence. A later read-only owner replay verifies the saved result at its exact original attempt and work time. Protected result selection and fresh API remain open. Gate B retains separate acceptance.",
+        "status": "LOCAL QUALIFICATION COMPLETE. Scientific C revision 4 and fresh API verified. CYC-03-04 completes the local requirement matrix at 64 confirmed, zero partial, and two dependent on the loaded LANE-12 build. Ordinary and CPI retained readers are reconciled on named published versions. Strict Native R10 records one completed standard unit and zero new supplier calls. The stock protected POST selects the saved result on the original attempt. Separate fresh API and the ordinary-completion boundary verify. Original failure and prior generations remain. Gate B retains separate acceptance.",
         "main_commit": "dc58883bb1f04ec58f66d29293e57a85d4265e83",
         "main_tree": "483e617af6715a2512de54877d81a3110e8be95d",
         "native_memory_r51_r53": {
@@ -10764,7 +10764,7 @@
           "repair": "Main 0e003218d, independent review and 58 affected checks pass",
           "full_native": "R15 on 0e003218d, HTTP 504 before new job/fetch/N5 after scoped get_manifest timeout (1.753 s at 1.5 s). Published Main 10f2bc4cd consolidates the single retry policy; 289 affected tests and Runtime API contract PASS. R16 504 at decision request, inventory_snapshot 1.661s at 1.5s. Main 1699733a0 verifies subject-only views; 82 affected tests pass, three actual retained subjects preserve all view identities and improve isolated total wall 231.8ms to 29.8ms. R17 on Main 1699733a0 passes both observed decision requests. RESOURCE_ABORT at the 3 GiB disk floor after 1875.395 s, 2.77 GiB minimum free, 4.31 GiB peak process-tree RSS. Quiescent, no new acquisition job in the isolated SQL store. R18 on cc646d605 returns HTTP 409 at decision request and completes with no new job. Its exact selected typed manifest waited 2.048 s at a 1.5 s guard. Main bfefb6188 extends the existing single retry to raw and typed profile reads. Focused checks and the path-aware docs/API gate pass. R19 loses acknowledgement of a completed payload CAS write (1.903 s). It leaves exact CAS links, without durable event or acquisition job. Main 24d5538e4 adds read-only recovery with 73 tests and docs/API gate PASS. R20 records zero CAS wait timeouts, then HTTP 503 at decision-request after its event lands 49 s beyond the Step-Up deadline. No new acquisition job or N5. R21 resolves the Native route in 264.615 s of 265.480 s total, with no observed CAS wait timeout. The exact mutation selects one node/supplier group and replays all competing profiles within it."
         },
-        "next": "Replay the original R10 acquisition and physical evidence through the historical owner. Select the existing V5 result under fresh same-actor custody, preserving failed attempt 1 and original journals with zero new supplier or N5 work. Confirm the exact selection through a separate fresh API on the published common composition. Then hand off the local LANE-01 profile and begin the prescribed LANE-03 requirements and owner review. Continue the separate Gate B V16, publisher release status, V24 result-use, and 300k profiles within their own admission and evidence scope. DA-06, DA-07, DA-08, comparative X03 and G retain their separate gates.",
+        "next": "Current execution moves to LANE-03. Preserve the qualified LANE-01 profiles and original requirement and binding denominators. Continue the separate Gate B V16, publisher release status, V24 result-use, and 300k profiles within their own admission and evidence scope. DA-06, DA-07, DA-08, comparative X03 and G retain their separate gates.",
         "author_tree": "e00ac2a1489bb929c9fac4829dbb4d27a7a9b6bd",
         "catalog_paths": {
           "status": "independent Source+actualoutputGO;15publishPASS62.821s558202880B;4pipelinePASS4.202s437960704B",
@@ -13580,10 +13580,18 @@
         }
       },
       "sequence": 8,
-      "implementation_status": "IN_PROGRESS",
-      "local_qualification": "COMPONENTS_QUALIFIED_SHARED_ROUTE_PENDING",
+      "implementation_status": "LOCAL_IMPLEMENTATION_COMPLETE_WITH_DECLARED_REMAINDERS",
+      "local_qualification": "QUALIFIED_AVAILABLE_NAMED_PROFILES",
       "capability_acceptance": "NOT_RUN",
-      "transition_evidence": [],
+      "transition_evidence": [
+        {
+          "source_commit": "7277b3d9676f7c280549beaeb704d31096b12b9e",
+          "source_tree": "70ab1d0b9022729fd083a616c292bca3d7980f2d",
+          "basis": "All 64 local requirement profiles and the separate paid Native B exit verify. CYC-05-04/05 retain their LANE-12 dependency. The user authorizes the next sequential lane at local completion.",
+          "g_acceptance": false,
+          "formal_closure": false
+        }
+      ],
       "corrective_windows": [],
       "source_admission": {
         "commit": "c4eafd61439b7e95dec7c09f232b76aa5d7b69cb",
@@ -21156,6 +21164,24 @@
           "guard_sha256": "6b3faaf23aac804fb1c0794701d6982178da006122dd2a564684a93fe81208e0",
           "verified_boundary": "Actual retained read-only candidate proof resolves the original approval at physical time, complete Native history, selected V3 and V5 and one standard ledger operation. Exact outcome and effect verified in both trajectories. Guard PASS 368.807 seconds at RSS 1524629504 B. Detached replay 285.492 seconds and precommit evidence re-open 2.996 seconds. Exact original/private business bytes preserved. This is working-source preparation for the stock protected POST and a separate fresh API reader."
         },
+        "native_r10_original_attempt_protected_settlement": {
+          "source_commit": "7277b3d9676f7c280549beaeb704d31096b12b9e",
+          "source_tree": "70ab1d0b9022729fd083a616c292bca3d7980f2d",
+          "output": "Primary:policy-engine/_cache/e02/native-r10-terminal-custody-20261124/case.hv0oOI3L/",
+          "joined_sha256": "accb9ea2cc2a0a5b942d684f4f36d14c394fdefdea4e4aa672a0bb3cc07c1f0e",
+          "guard_sha256": "a68a1e14f1008660b102b095429d786cb6c30bf0f9174194bcd2f1b1bf66053b",
+          "verified_boundary": "The same authenticated actor's stock POST returns HTTP 200 in 249.505 seconds and selects the existing R10 execution and result in attempt 1. The original job failure event and outbox persist. Custody and completion append events 44 and 45 and seal ledger revision 38. Original journals and business CAS reconcile with zero additional physical work, supplier or worker effects. Guard PASS 338.989 seconds at RSS 1475395584 B. Controlled Step-Up lifetime 600 seconds, Control Store deadline 15 seconds. Separate fresh read remains pending."
+        },
+        "native_r10_published_fresh_selected_result": {
+          "source_commit": "7277b3d9676f7c280549beaeb704d31096b12b9e",
+          "source_tree": "70ab1d0b9022729fd083a616c292bca3d7980f2d",
+          "output": "Primary:policy-engine/_cache/e02/native-r10-terminal-custody-20261124/case.hv0oOI3L/",
+          "joined_sha256": "a692ca8532233ee66a4cab5541e092c403c6d7d547b2469bc7c86770c6483cff",
+          "guard_sha256": "bad9d0548dc5da40ad8d6d91b45c911ca7060af97725341297fb09dbd9b41f17",
+          "ledger_sha256": "a508977b371a7cb968ffca2415341258707e1f7b324729535f798d1297936ccb",
+          "ordinary_native_terminal_guard_sha256": "860a4bad12677533cfbe0fc37ec4cd062d4f9ddd7e67bfda834026fe6a9245d5",
+          "verified_boundary": "Separate fresh stock API gets HTTP 200 on 9582 exact published files. Same execution and result, 3974834176 USD outcome and -6025165824 USD modeled effect for both trajectories. Original earlier jobs, failure and ledger stay intact. No new supplier, worker, physical reservation or N5. Guard PASS 300.513 seconds; RSS 1821294592 B. The shared ordinary-completion branch retains its original terminal and no custody cut in a matched-source SQLite control."
+        },
         "gate_b_v16_stock_selected_supplier_r8": {
           "base_commit": "7dc50b6d70af998b8aa549079815500f8d6ce76b",
           "output": "Primary:policy-engine/_cache/e02/gate-b-v16-stock-route-r8.bEXLgiSv/",
@@ -21528,9 +21554,13 @@
     {
       "lane_id": "LANE-03",
       "sequence": 9,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "capability_acceptance": "NOT_RUN",
+      "current_execution": {
+        "status": "ACTIVE. Original eight packets, 61 requirements and 60 tests. Primary lane and E02-I03-A/B/C integration contracts reviewed. EMP-01 and the independent historical input/CV owners are audited against the current implementation.",
+        "next": "Select a small missing product behavior in an existing owner, qualify its distinguishing negative and useful consumer, then follow the original readiness sequence. Plan DA-07 only for changed consumers."
+      },
       "transition_evidence": [],
       "corrective_windows": []
     },

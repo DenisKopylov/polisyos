@@ -10854,8 +10854,8 @@
             "packets_assessed": 11,
             "requirements_assessed": 66,
             "status_counts": {
-              "CONFIRMED_LOCAL_PROFILE": 60,
-              "PARTIAL": 4,
+              "CONFIRMED_LOCAL_PROFILE": 61,
+              "PARTIAL": 3,
               "BLOCKED_EXTERNAL_INPUT": 2
             },
             "scope": "Requirement-level retained evidence for named local profiles. Original shared scenarios, independent G and the 300k operating profile keep their own acceptance.",
@@ -20929,6 +20929,16 @@
           "guard_sha256": "a093552ede505190acfffa66ddf22cc1c4574842290b5dc0cf9e3df3c9ca581a",
           "verified_boundary": "One signed fresh HTTP 200 after removing only private job_running event 10 for attempt 2. Both original F0 numerical trajectories remain visible at 250000000000 and B history is withheld with the typed integrity limitation despite retained SQL F1. All 21 SQL tables differ by that one row only, CAS by the three GET audit entries only. Original hashes and provider journals match and no work is entered. Raw COMMAND_FAIL in 51.001 seconds is the wrapper's private byte comparison across its own deletion checkpoint."
         },
+        "acq01_04_same_image_before_work_resume_world_snapshot_stop": {
+          "source_commit": "29037fad8180564f2b348c83cbd2bf9ad620406c",
+          "exact_readiness_world_file_sha256": "4ca05f92ab9c7f40f460065c1c60c7e9f147fe9f7689bfc4f4c5d03c954584c8",
+          "output": "Isolated ACQ owner checkout:policy-engine/_cache/e02/acq01-04-ordinary-readiness-source.5341gojh/source/policy-engine/_cache/e02/acq01-04-ordinary-pre-kernel-r2.dPgZMRxu/recovered.json",
+          "sha256": "78eceb25c88343192ae70a3ad7c60f87fcddb331a84048716ad2ac6f9ebf182d",
+          "resume_guard_sha256": "4865f7425e509b822ee09842fbde9fe2fc880aaece587c919d3197fcdab867e5",
+          "fresh_wire_sha256": "476cb95a560a3cd17fde3816883da368f77d9bf58311f77e554728bf5a7960d7",
+          "fresh_guard_sha256": "05a2d52251b3cf83014212a4a3f15920bd5db22c742c345213bf8fdf42a6ec07",
+          "verified_boundary": "Original leased attempt stops after marker fsync with zero physical work. Stock attempt 2 of same job performs exactly one N5/one settled standard unit, protected intact, zero new provider, selected F1 and result 33e55463. Resume PASS 209.673 seconds. Fresh HTTP 200 withholds B and reports integrity limitation. Persisted selected basis is not_established for acquisition_world_native_recipe_mismatch: shared action DuckDB copies both attempts' node rows into the newly named snapshot. Exact attempt-2 transaction time agrees with selected DataSnapshot. Preserve persisted numerical bytes and limitation."
+        },
         "ordinary_signed_acquisition_routes_published": {
           "source_commit": "579e3e96e75a4734da3cc1aab815384ff5bb25f1",
           "source_tree": "a360cc2c57a77d63596d01ee12c9a90d1d0e51d1",
@@ -20985,6 +20995,17 @@
           "wire_sha256": "77fb5fb05a7cfc62fc099234fca5fdb60b77ea78c7258f4401886375e799e34e",
           "guard_sha256": "71779d2385ce0ac3f6d6b04125042ceb60a53bb25beb73a22009df4a5be4723d",
           "verified_boundary": "One fresh signed HTTP 200 selects V5 frontier 1 and exact nested N4, N5 input, execution and result. Both trajectories yield 456.5909729003906 with effect -0.5. No provider/worker/N5 and original SQL/CAS/physical budget owner unchanged. Raw COMMAND_FAIL in 54.516 seconds from top-level historical N4 oracle. The archived reader separately limits effective current candidate run due to its older run-ID comparison; reconcile with the published reader before full closure."
+        },
+        "acq01_05_cpi_fresh_published_comparison_and_complete_local_profile": {
+          "source_commit": "d9a24493d67f53428ba8c7c7c8df23f8077f45f3",
+          "actual_consumer_source_sha256": "90d36c3abe2e6f7f47b6f281d33e5cfc8016a0af8a940f19a75d95976b6e164e",
+          "output": "CPI checkout:policy-engine/_cache/e02/cpi-published-reader-r1/first-reader-cow/receipts/fresh-get-published-r1/receipt.json",
+          "sha256": "fb6e7834ec9c9993376fe2a6bcce5817451fd58d97427ff59d9fcb06fb0b793f",
+          "wire_sha256": "f73844cf3f182d731201e91e8b8739125b5545ef4b1d8c1e4d3d668cef9c32ee",
+          "guard_sha256": "f0c8e37f55ea2f5993fe621c058fe74e3be11ac71a9884aad4d7d7abecb631ac",
+          "producer_reconciliation": "CPI checkout:policy-engine/_cache/e02/cpi-fresh-reader-r5-cow/reports/acq01-05-corrected-wrapper-oracles-r1.json",
+          "producer_reconciliation_sha256": "2e736a3a7579e232be86a4b7ade6026aa936f1047d61b1392b45d2de23385d58",
+          "verified_boundary": "One fresh signed HTTP 200 returns exact selected CPI V5 F1, same nested N4/input/execution/result, both trajectories 456.5909729003906 with effect -0.5, and the verified current candidate projection without a history limitation. Original SQL/CAS/resource-bound ledger unchanged, no N5/provider/worker, joined PASS 74.842 seconds. Candidate-only; currentness and comparison not established. Twelve read-only checks reconcile one unique actual invocation and two physical units, distinct from this stock reader; the old raw producer JUnit stays failed and its final direct dispatch counter was not serialized. Controlled UKR 2024 FP.CPI.TOTL one-row profile rejects a two-row envelope and incompatible metadata before N5. Four declared preparation inputs, one compiler candidate/transport/page/variable/normalized source/N5 input, two real seeds; server pre-delivery 1.138 seconds wall/1.114 CPU."
         },
         "acq01_05_cpi_selected_f1_outer_replication_oracle_stop": {
           "source_commit": "97f9842ea7c8ea82cb8a2eded071b57b19f03d5b",
@@ -37615,14 +37636,15 @@
             "lane01_r33_composed_historical_reader",
             "acq01_04_same_offer_actual_recovered_fresh_r3_wire",
             "acq01_04_bounded_ordinary_marker_and_failed_second_attempt",
-            "acq01_04_same_offer_fresh_attempt_event_withdrawal"
+            "acq01_04_same_offer_fresh_attempt_event_withdrawal",
+            "acq01_04_same_image_before_work_resume_world_snapshot_stop"
           ],
           "basis": "Actual R13 selects B during A's N5, retains A as diagnostics and reopens precise selection through fresh GET with a removal control. A separate same-offer worker takes a genuinely expired lease and selects the already durable B with zero extra N5 or provider requests. A fresh ordinary API returns exact B and the preceding row. The distinct bounded ordinary case proves the durable start marker and unchanged quota through actual attempt 2, which stops at the older Native-only check.",
           "remaining_kinds": [
             "bridge_missing",
             "verification_missing"
           ],
-          "remaining": "Exercise the confirmed ordinary no-work window and genuine lease expiry on one corrected production image, then prove exactly one new N5 and fresh selected API result with protected quota preserved. The old full production image stays pinned; ordinary unmetered replay refuses when no settled result proves the boundary."
+          "remaining": "Isolate candidate-world materializations in the same action workspace and prove the exact snapshots independently. Qualify the same-image cut, actual lease expiry, the sole B N5, preserved quota and fresh selected API on the corrected producer. Preserve the existing contaminated result and its typed limitation."
         },
         {
           "requirement_id": "REQ-ACQ-01-05",
@@ -37637,20 +37659,20 @@
           "binding_ids": [
             "E02-X03-B01"
           ],
-          "status": "PARTIAL",
+          "status": "CONFIRMED_LOCAL_PROFILE",
           "evidence_refs": [
             "acq01_05_current_served_cpi_preflight_timing",
             "acq01_05_retained_cpi_r9_raw_cas_audit",
             "p06_transport_served_reconciliation",
             "gdp_producer_fresh_read_reconciliation",
             "candidate_source_metric_separation_current",
-            "acq01_05_cpi_fresh_selected_result_r8"
+            "acq01_05_cpi_fresh_selected_result_r8",
+            "acq01_05_cpi_fresh_published_comparison_and_complete_local_profile",
+            "acq01_05_cpi_selected_f1_outer_replication_oracle_stop"
           ],
-          "basis": "The current controlled one-row CPI producer and fresh signed stock V5 return the exact selected changed CPI result at frontier 1, with raw, source metadata and N4/N5 identity matched. Pre-N5 controls independently reject incompatible scope and unsupported aggregation. The archived reader still limits the separate current effective candidate front.",
-          "remaining_kinds": [
-            "verification_missing"
-          ],
-          "remaining": "Close the exact current-front reader on the published same-owner comparison and reconcile preparation counts, the accepted scalar source and independent metadata/unsupported multirow controls on the actual CPI case."
+          "basis": "The common owner binds the distinct single-row annual CPI index-level profile and independently rejects changed source/time/unit/scope and unsupported multirow input. The exact raw-to-N4/N5 chain yields a distinct modeled numerical result and the corrected fresh stock V5 selects frontier 1 with a resolved current candidate projection and no new work. Retained preparation inventory and measured server phases are recorded. Comparative X03 portability remains a separate DA-08 acceptance.",
+          "remaining_kinds": [],
+          "remaining": ""
         },
         {
           "requirement_id": "REQ-ACQ-01-06",
@@ -37677,7 +37699,7 @@
           "remaining_kinds": [
             "verification_missing"
           ],
-          "remaining": "Complete the common ACQ-01-04 and ACQ-01-05 prerequisites, then join both real consumer paths to the common requirement contract for LA-046. Preserve candidate-only authority and the original partial wrapper evidence."
+          "remaining": "Complete the remaining common ACQ-01-04 prerequisite and reconcile the applicable CYC-03 sequential readback before joining both actual scoped consumers to LA-046. Preserve candidate-only authority and the original partial wrapper evidence."
         }
       ]
     },

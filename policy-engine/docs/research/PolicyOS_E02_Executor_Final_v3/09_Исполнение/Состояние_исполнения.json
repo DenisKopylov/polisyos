@@ -5,7 +5,7 @@
   "specification_version": "v3",
   "reference_commit": "20d9009be21097bfbdc38a546a15cc60213b8ace",
   "actual_start_commit": "3865c5ca668fb8aa507246f318cdeb7bd98b2d02",
-  "active_lane": "LANE-03",
+  "active_lane": "LANE-02",
   "lane_order": [
     "LANE-06",
     "LANE-08",
@@ -21700,11 +21700,16 @@
     {
       "lane_id": "LANE-02",
       "sequence": 10,
-      "implementation_status": "NOT_STARTED",
+      "implementation_status": "IN_PROGRESS",
       "local_qualification": "NOT_RUN",
       "capability_acceptance": "NOT_RUN",
       "transition_evidence": [],
-      "corrective_windows": []
+      "corrective_windows": [],
+      "current_execution": {
+        "status": "ACTIVE. Sixteen packets, 68 original requirements and 68 original test contracts. Three named local requirements qualify: OPT-01-01/02 and TRN-03-01.",
+        "next": "Verify shared CTL-01/SRV-01 generation/claim handling on the frozen coordinate basis, and address the first remaining OPT and transfer candidate read boundaries.",
+        "baseline_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4"
+      }
     },
     {
       "lane_id": "LANE-11",
@@ -41341,13 +41346,18 @@
       "lane_sequence": 10,
       "track_id": "02-A",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "assigned_executor": "lane2_opt",
+      "base_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4",
+      "integrated_commit": "8a26a90b5",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+        "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+        "policy-engine/tests/unit/scientist/search/test_pareto_registry_serialization.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -41366,9 +41376,71 @@
         "TEST-OPT-01-05",
         "TEST-OPT-01-06"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "opt01_fiscal_stock_flow_baseline",
+          "output": "Primary:policy-engine/_cache/e02/lane02-opt01-fiscal-baseline.ezRP7xcO/",
+          "result": "Actual BudgetDeficitObjective takes a USD period alias of 7, treats stock alone as not established, and reports a conflict when a separate closing stock of -2 accompanies the flow even without declared equivalence. Defect oracle only.",
+          "source_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4",
+          "guard_sha256": "d3cc0c93e1b27ca96581ed617b4a2d4734d0349b5a87c63aaa4fd8a16401ee4e"
+        },
+        {
+          "id": "opt01_coordinate_red_baseline",
+          "output": "Primary:policy-engine/_cache/e02/lane02-opt01-coordinate-red.215Db995/",
+          "result": "Seven distinguishing failures on the entry source. Foreign complete re-opened fronts returned a Boolean, and mutable policy/evaluation/schema aliases changed the basis.",
+          "source_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4",
+          "guard_sha256": "883f054737f319c3eda48726f424594cc33d5a443b9f4e102072d66adda5f64b"
+        },
+        {
+          "id": "opt01_frozen_coordinates_and_registry",
+          "output": "Primary:policy-engine/_cache/e02/lane02-opt01-coordinate-green.yI8RnV1m/",
+          "result": "47 real comparator, schema, alias, historical and file-backed registry controls. Exact independent review of all four paths.",
+          "source_commit": "8a26a90b5",
+          "guard_sha256": "9fbf816027958e2e5d182ec7fae728024f4c9cbd4857c8fe15720576756151c1"
+        }
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-OPT-01-01",
+          "test_id": "TEST-OPT-01-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "A freshly JSON-decoded complete front must match the active typed axis definitions, including metric, split, unit state/unit and direction. Reordered equivalent axes remain valid. A partial front proves an observed witness and withholds unsupported non-dominance.",
+          "criterion_pointer": "04_Трассировка/OPT-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-OPT-01-01"
+          ],
+          "binding_ids": [
+            "E02-I02-B-B03"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "opt01_coordinate_red_baseline",
+            "opt01_frozen_coordinates_and_registry"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-OPT-01-02",
+          "test_id": "TEST-OPT-01-02",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The producer uses one detached axis contract for input, direction and output. Mutating caller policy, source evaluation or a returned schema cannot change the active basis or a separate result. Fresh registry verification preserves two tied entries of the same candidate ref using distinct canonical hashes.",
+          "criterion_pointer": "04_Трассировка/OPT-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-OPT-01-02"
+          ],
+          "binding_ids": [
+            "E02-I02-B-B03"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "opt01_coordinate_red_baseline",
+            "opt01_frozen_coordinates_and_registry"
+          ],
+          "remaining_kinds": []
+        }
+      ]
     },
     {
       "packet_id": "OPT-02",
@@ -41523,7 +41595,15 @@
         "TEST-CTL-01-03",
         "TEST-CTL-01-04"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "ctl01_run_affinity_baseline",
+          "source_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4",
+          "output": "Primary:policy-engine/_cache/e02/lane02-c12-run-affinity.1N5KlU9g/",
+          "result": "C12-R02 reproduced. An old driver tell entered the new owner history; a same-adapter refused run discarded a still-live pending answer. The same-session reverse-order control remained correct. Baseline defect evidence, qualification open.",
+          "guard_sha256": "2b4e0d1ddc85bc8b1d409bb81bf6cca50d61dd3e4aa1b85dd771c5e2e4e946c2"
+        }
+      ],
       "blockers": [],
       "deferred_ids": []
     },
@@ -41659,13 +41739,18 @@
       "lane_sequence": 10,
       "track_id": "02-C",
       "track_position": 1,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "assigned_executor": "lane2_transfer",
+      "base_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4",
+      "integrated_commit": "0c87d1a14",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+        "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+        "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -41680,9 +41765,37 @@
         "TEST-TRN-03-03",
         "TEST-TRN-03-04"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "trn03_clock_and_cas",
+          "output": "Primary:policy-engine/_cache/e02/trn03-aware-clock.IjaAVyWc/",
+          "result": "Six red baseline controls became green; 115 exact scope and lesson tests pass with actual AccessScope and FileSystemCAS. Offset equivalence, naive typed/JSON refusal, exact historical bytes and fresh valid occurrence.",
+          "source_commit": "0c87d1a14",
+          "guard_sha256": "9a798482d5af6e22b6fc01e7a8aeb7d7e7e4677abed27f9526789c43f5c0baf9"
+        }
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-TRN-03-01",
+          "test_id": "TEST-TRN-03-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Equivalent aware offsets normalize to one instant through the real typed and JSON request and active access scope. The native writer rejects naive evidence time before CAS/index effects. Historical v1 naive bytes stay readable, with unknown evidence age withheld from candidate selection and transfer; a later valid occurrence remains available.",
+          "criterion_pointer": "04_Трассировка/TRN-03.json#/requirements/0",
+          "test_ids": [
+            "TEST-TRN-03-01"
+          ],
+          "binding_ids": [
+            "E02-I02-D-B04"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "trn03_clock_and_cas"
+          ],
+          "remaining_kinds": []
+        }
+      ]
     },
     {
       "packet_id": "TRN-01",

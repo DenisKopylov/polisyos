@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import random
 
 import pytest
@@ -70,6 +71,75 @@ def test_legacy_sobol_checkpoint_fails_closed_with_exact_reason(
     restored.set_state(legacy)
     with pytest.raises(ValueError, match="Sobol checkpoint is incompatible"):
         restored._sobol_candidate(0)
+
+    serialized = restored.get_state().to_artifact()
+    assert json.loads(serialized)["rng_state"]["sobol"] is None
+
+    reloaded = RandomSearchStrategy(space=simple_space, seed=999)
+    reloaded.set_state(StrategyState.from_artifact(serialized))
+    with pytest.raises(ValueError, match="Sobol checkpoint is incompatible"):
+        reloaded._sobol_candidate(0)
+
+    # A genuinely new, unused strategy still has a compatible empty stream.
+    fresh = RandomSearchStrategy(space=simple_space, seed=321)
+    fresh_reader = RandomSearchStrategy(space=simple_space, seed=999)
+    fresh_reader.set_state(StrategyState.from_artifact(fresh.get_state().to_artifact()))
+    assert fresh_reader._sobol_candidate(0).params_normalized is not None
+
+
+@pytest.mark.parametrize(
+    ("corruption", "value", "expected_error"),
+    [
+        ("cursor", 625, "Python random state cursor is incompatible"),
+        ("gauss_nan", float("nan"), "Python random gaussian state must be finite or null"),
+        ("gauss_positive_inf", float("inf"), "Python random gaussian state must be finite or null"),
+        (
+            "gauss_negative_inf",
+            float("-inf"),
+            "Python random gaussian state must be finite or null",
+        ),
+        (
+            "gauss_unrepresentable_int",
+            10**400,
+            "Python random gaussian state must be finite or null",
+        ),
+    ],
+)
+def test_malformed_python_rng_restore_is_atomic(
+    simple_space: SearchSpace,
+    corruption: str,
+    value: int | float,
+    expected_error: str,
+) -> None:
+    target = RandomSearchStrategy(space=simple_space, seed=999)
+    target._iteration = 5
+    target._rng.gauss(0.0, 1.0)
+    control = RandomSearchStrategy(space=simple_space, seed=999)
+    control._iteration = 5
+    control._rng.gauss(0.0, 1.0)
+    original_artifact = target.get_state().to_artifact()
+
+    source = RandomSearchStrategy(space=simple_space, seed=123)
+    payload = json.loads(source.get_state().to_artifact())
+    python_state = payload["rng_state"]["python"]
+    if corruption == "cursor":
+        # 625 is a valid uint32 word but not a valid MT state cursor.  The
+        # native setter assigns gauss_next before rejecting this cursor.
+        python_state["state"][-1] = value
+        python_state["gauss_next"] = 777.0
+    else:
+        python_state["gauss_next"] = value
+    payload["iteration"] = 99
+    payload["metadata"]["seed"] = 1234
+    payload["rng_state"]["sobol"]["seed"] = 1234
+    malformed = StrategyState.from_artifact(json.dumps(payload, sort_keys=True).encode("utf-8"))
+
+    with pytest.raises(ValueError, match=expected_error):
+        target.set_state(malformed)
+
+    assert target.get_state().to_artifact() == original_artifact
+    assert target._rng.random() == control._rng.random()
+    assert target._rng.gauss(0.0, 1.0) == control._rng.gauss(0.0, 1.0)
 
 
 def test_sobol_checkpoint_rejects_same_dimension_space_change(

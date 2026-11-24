@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import random
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
@@ -171,10 +172,19 @@ class BaseSearchStrategy(ABC):
                 expected_prefix=cache,
             )
 
-        # All persisted fields and the effective sampler have now been
-        # validated.  The native RNG setter is the only remaining mutating
-        # validator and is expected to accept the strict codec above.
-        self._rng.setstate(decoded_python)
+        # Stage the native state on an isolated RNG.  Random.setstate may
+        # update its Gaussian cache before rejecting a malformed MT cursor, so
+        # applying an unvalidated tuple to the live RNG can partially restore
+        # the strategy even when this method raises.
+        staged_rng = random.Random(0)
+        try:
+            staged_rng.setstate(decoded_python)
+        except (TypeError, ValueError, OverflowError) as exc:
+            raise ValueError("Python random state is incompatible") from exc
+
+        # No validation below this point can fail.  Swap the staged RNG only
+        # after every persisted field and sampler identity has been checked.
+        self._rng = staged_rng
         if checkpoint_seed is not None:
             self._seed = checkpoint_seed
         self._iteration = state.iteration
@@ -253,7 +263,12 @@ class BaseSearchStrategy(ABC):
             source_strategy=source,
         )
 
-    def _sobol_state(self) -> dict[str, Any]:
+    def _sobol_state(self) -> dict[str, Any] | None:
+        if not self._sobol_checkpoint_compatible:
+            # Keep an absent/legacy/incompatible stream absent through every
+            # subsequent export.  Emitting the empty initial checkpoint here
+            # would falsely claim that its history had been restored.
+            return None
         identity = self._sobol_sampler_identity
         version = self._sobol_sampler_version
         if bool(self._sobol_cache) != (identity is not None):
@@ -457,4 +472,14 @@ def _validate_python_random_state(state: Any) -> tuple[int, tuple[int, ...], flo
         isinstance(gauss_next, bool) or not isinstance(gauss_next, (int, float))
     ):
         raise ValueError("Python random gaussian state must be numeric or null")
+    if gauss_next is not None:
+        try:
+            gaussian_is_finite = math.isfinite(gauss_next)
+        except OverflowError:
+            gaussian_is_finite = False
+        if not gaussian_is_finite:
+            raise ValueError("Python random gaussian state must be finite or null")
+    cursor = internal_state[-1]
+    if cursor >= len(internal_state):
+        raise ValueError("Python random state cursor is incompatible")
     return version, internal_state, gauss_next

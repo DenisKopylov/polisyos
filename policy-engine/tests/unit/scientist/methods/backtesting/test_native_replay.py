@@ -110,8 +110,11 @@ def _fixture(
     mechanism="income_tax",
     mechanism_params=None,
     last_income=2.0,
+    tenant: tuple[str, str] | None = None,
 ):
     store = FileSystemCAS(tmp_path / "cas")
+    if tenant is not None:
+        store = store.for_tenant(*tenant)
     registry = build_default_registry_bundle(store, return_selected_profile=True)
     history = {
         "income": [1.0, last_income, *[900.0 + i for i in range(horizon)]],
@@ -465,7 +468,6 @@ def test_native_forecast_survives_persisted_report_readback(tmp_path, monkeypatc
             ArtifactRef.model_validate(report_ref.model_dump(mode="json"))
         ).inputs
     )
-
     # Preserve the authentic source edges while changing only the claimed values.
     forged = forecast.model_copy(update={"values": {"income": [2.0, 2.0]}})
     manifest = fresh_store.get_manifest(forecast_ref)
@@ -948,6 +950,176 @@ def test_native_forecast_survives_persisted_report_readback(tmp_path, monkeypatc
     blob_path.unlink()
     with pytest.raises((FileNotFoundError, ValueError)):
         load_native_forecast(FileSystemCAS(store.root), forecast_ref, request_ref)
+
+
+def test_configured_native_single_replica_accounts_for_each_selected_horizon_step(
+    tmp_path, monkeypatch
+):
+    """One real Native replica consumes one durable unit per selected state step."""
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.contracts import ExecuteRequest, FoundryInputBindings
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.foundry.execute import load_state_snapshot
+    from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+    from polisyos.scientist.methods.backtesting.native_replay import (
+        load_native_backtest_report,
+        load_native_forecast,
+    )
+    from polisyos.scientist.methods.backtesting.replica_budget import (
+        BacktestFoundryInvocationBudget,
+        BacktestFoundryInvocationScopeV1,
+        build_backtest_foundry_horizon_step_id,
+        build_backtest_foundry_invocation_identity,
+    )
+    from polisyos.scientist.orchestration.engine.budget import BudgetState
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetBacktestInvocationQuotaV2,
+        BudgetLedgerBacktestInvocationProfileV2,
+        BudgetLedgerBacktestInvocationReservationV2,
+        BudgetLedgerProducerRunBinding,
+        FileBudgetLedger,
+    )
+
+    tenant_id = "native-backtest-budget-tenant"
+    cell_id = "native-backtest-budget-cell"
+    ledger_path = tmp_path / "native-backtest-budget.json"
+    observed: list[tuple[ExecuteRequest, object]] = []
+    original_execute = DefaultFoundryPort.execute
+
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        store, plan = _fixture(
+            tmp_path,
+            count=1,
+            horizon=2,
+            tenant=(tenant_id, cell_id),
+        )
+        ledger = FileBudgetLedger(ledger_path)
+        ledger.load_or_bootstrap(BudgetState())
+        run_binding = BudgetLedgerProducerRunBinding(
+            run_id="native-backtest-budget-run",
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            profile_id="native-backtest-foundry-profile",
+            control_job_id="native-backtest-control-job",
+        )
+        profile = BudgetLedgerBacktestInvocationProfileV2.from_policy(
+            run_binding,
+            BudgetBacktestInvocationQuotaV2(
+                allocation_id="native-backtest-allocation",
+                total_units=2,
+            ),
+        )
+        ledger.configure_backtest_invocation_profile(profile)
+        budget = BacktestFoundryInvocationBudget(ledger=ledger, profile=profile)
+
+        def observe(port, actual_store, request, *, derived_tenant_context=None):
+            observed.append((request, derived_tenant_context))
+            return original_execute(
+                port,
+                actual_store,
+                request,
+                derived_tenant_context=derived_tenant_context,
+            )
+
+        monkeypatch.setattr(DefaultFoundryPort, "execute", observe)
+        _, report_ref = BacktestOrchestrator(
+            cas=store,
+            foundry_invocation_budget=budget,
+        ).run_with_ref([plan])
+
+        reader = FileSystemCAS(store.root).for_tenant(tenant_id, cell_id)
+        fresh_report = load_native_backtest_report(
+            reader,
+            ArtifactRef.model_validate(report_ref.model_dump(mode="json")),
+        )
+        scenario = fresh_report.scenarios[0]
+        cohort_ref = ArtifactRef.model_validate(scenario.metadata["replica_cohort_ref"])
+        cohort = load_core_json_artifact(reader, cohort_ref)
+        forecast_ref = ArtifactRef.model_validate(scenario.metadata["native_forecast_ref"])
+        native_request_ref = ArtifactRef.model_validate(scenario.metadata["native_request_ref"])
+        forecast, native_request = load_native_forecast(reader, forecast_ref, native_request_ref)
+
+        assert native_request.profile.time_index == ["t2", "t3"]
+        assert scenario.metadata["native_foundry_step_count"] == 2
+        assert len(observed) == len(forecast.execution_bindings_refs) == 2
+        assert len(forecast.simulation_refs) == len(forecast.state_snapshot_refs) == 2
+        assert all(request.exec_config.seed == 12 for request, _context in observed)
+        assert [request.input_bindings_ref for request, _context in observed] == (
+            forecast.execution_bindings_refs
+        )
+        assert (cohort["requested_count"], cohort["started_count"]) == (1, 1)
+        assert (
+            cohort["foundry_execute_count"],
+            cohort["completed_count"],
+            cohort["failed_count"],
+        ) == (1, 1, 0)
+        replica = cohort["replicas"][0]
+        assert replica["seed"] == 12
+        assert replica["run_id"] == native_request.run_id
+
+        step_rows: list[tuple[int, ExecuteRequest, object]] = []
+        for request, context in observed:
+            assert context is not None
+            assert context.tenant_id == tenant_id
+            assert context.cell_id == cell_id
+            bindings_ref = ArtifactRef.model_validate(
+                request.input_bindings_ref.model_dump(mode="json")
+            )
+            bindings = FoundryInputBindings.model_validate(
+                load_core_json_artifact(reader, bindings_ref)
+            )
+            selected_state = load_state_snapshot(
+                reader,
+                snapshot_ref=bindings.bound_state_snapshot_ref,
+            )
+            selected_step = np.asarray(selected_state.step)
+            assert selected_step.size == 1
+            assert np.issubdtype(selected_step.dtype, np.integer)
+            step_rows.append((int(selected_step.item()), request, context))
+        assert [step for step, _request, _context in step_rows] == [0, 1]
+
+        base_scope = BacktestFoundryInvocationScopeV1(
+            backtest_run_id=run_binding.run_id,
+            replica_run_id=replica["run_id"],
+            replica_index=replica["index"],
+            replica_seed=replica["seed"],
+            horizon_step_id="foundry_execute",
+        )
+        expected_reservations: dict[str, str] = {}
+        selected_step_ids: list[str] = []
+        for step, request, context in step_rows:
+            selected_step_id = build_backtest_foundry_horizon_step_id(
+                state_step=step,
+                exec_plan_ref=request.exec_plan_ref,
+            )
+            selected_step_ids.append(selected_step_id)
+            scope = base_scope.model_copy(
+                update={"horizon_step_id": f"{base_scope.horizon_step_id}:{selected_step_id}"}
+            )
+            operation_id, request_digest = build_backtest_foundry_invocation_identity(
+                profile=profile,
+                scope=scope,
+                request=request,
+                derived_tenant_context=context,
+            )
+            expected_reservations[operation_id] = request_digest
+
+        snapshot = FileBudgetLedger(ledger_path).snapshot()
+        reservations = {
+            operation_id: row
+            for operation_id, row in snapshot.invocation_reservations.items()
+            if type(row) is BudgetLedgerBacktestInvocationReservationV2
+        }
+        assert len(set(selected_step_ids)) == 2
+        assert set(reservations) == set(expected_reservations)
+        assert {
+            operation_id: row.request_digest for operation_id, row in reservations.items()
+        } == expected_reservations
+        assert all(row.status == "completed" for row in reservations.values())
+        assert all(row.work_unit == "backtest_foundry_execute" for row in reservations.values())
+        assert profile.price_origin == "unknown"
+        assert snapshot.state.spent == {}
+        assert snapshot.state.reserved == {}
 
 
 def test_native_report_reaches_persisted_reissued_decision_packet(tmp_path):

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from operator import index
 from typing import Literal
 
 import numpy as np
@@ -71,14 +72,18 @@ def bootstrap_metric(
     confidence_level:
         CI level (default 0.95).
     n_bootstrap:
-        Number of resamples.
+        Positive integer number of resamples.
     seed:
         Random seed for reproducibility.
     """
     arr = _prepare_observations(values, entrypoint="bootstrap_metric")
-    if n_bootstrap <= 0:
+    try:
+        draw_count = None if isinstance(n_bootstrap, (bool, np.bool_)) else index(n_bootstrap)
+    except TypeError:
+        draw_count = None
+    if draw_count is None or draw_count <= 0:
         raise BootstrapValidationError(
-            "n_bootstrap must be greater than zero",
+            "n_bootstrap must be an integer greater than zero",
             code="invalid_n_bootstrap",
             details={"n_bootstrap": n_bootstrap},
         )
@@ -103,8 +108,8 @@ def bootstrap_metric(
     point = _evaluate_statistic(stat_fn, arr)
 
     rng = np.random.default_rng(seed)
-    boot_stats = np.empty(n_bootstrap)
-    for i in range(n_bootstrap):
+    boot_stats = np.empty(draw_count)
+    for i in range(draw_count):
         sample = rng.choice(arr, size=arr.size, replace=True)
         boot_stats[i] = _evaluate_statistic(stat_fn, sample)
 
@@ -123,7 +128,7 @@ def bootstrap_metric(
         lower=lower,
         upper=upper,
         confidence_level=confidence_level,
-        n_bootstrap=n_bootstrap,
+        n_bootstrap=draw_count,
         statistic=statistic_id if callable(statistic) else statistic,
         statistic_identity_basis=(
             "consumer_asserted"

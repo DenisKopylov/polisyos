@@ -21570,6 +21570,11 @@
           "output": "Primary:policy-engine/_cache/e02/lane03-bkt04-cv-shape.mmmC04lO/",
           "guard_sha256": "8aada775c5251c9e0a60106e4461bcafae340e20cad6e2fafe4b1351964039f0"
         },
+        "bkt04_bootstrap_draw_count": {
+          "scope": "REQ-BKT-04-05 count boundary. Both public entrypoints reject fractional and Boolean draw counts before calling a statistic or RNG. Positive Python and NumPy integer counts retain seeded results. All 27 affected tests pass; old source reaches the callback in the three invalid-count controls.",
+          "output": "Primary:policy-engine/_cache/e02/lane03-bkt04-bootstrap-green.vUzqSgEx/",
+          "guard_sha256": "72d69f611b15bb7af413be551eb0b1c8e7ba64e86f7fa565abcdc4b24e297046"
+        },
         "bkt01_actual_feature_leak_baseline": {
           "source_commit": "5ed6d689dfd4450cd269efbd0f3a8de855db9786",
           "output": "Primary:policy-engine/_cache/e02/bkt01-actual-feature-leak-r2.1aPUWpwA/",

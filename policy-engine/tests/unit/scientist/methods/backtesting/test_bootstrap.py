@@ -39,6 +39,32 @@ class TestBootstrapMetric:
         with pytest.raises(BootstrapValidationError, match="greater than zero"):
             bootstrap_metric([1.0, 2.0], n_bootstrap=0)
 
+    @pytest.mark.parametrize("n_bootstrap", [2.5, True, np.bool_(True)])
+    def test_non_integer_draw_count_is_refused_before_callback_and_rng(
+        self, monkeypatch: pytest.MonkeyPatch, n_bootstrap
+    ) -> None:
+        def forbidden_statistic(_values: np.ndarray) -> float:
+            raise AssertionError("invalid count reached the statistic")
+
+        def forbidden_rng(*_args):
+            raise AssertionError("invalid count reached RNG construction")
+
+        monkeypatch.setattr(np.random, "default_rng", forbidden_rng)
+        with pytest.raises(BootstrapValidationError) as metric_error:
+            bootstrap_metric([1.0, 2.0], statistic=forbidden_statistic, n_bootstrap=n_bootstrap)
+        with pytest.raises(BootstrapValidationError) as scenario_error:
+            bootstrap_scenario_metrics([1.0, 2.0], n_bootstrap=n_bootstrap)
+        assert metric_error.value.code == scenario_error.value.code == "invalid_n_bootstrap"
+
+    def test_numpy_integer_draw_count(self) -> None:
+        count = np.int64(5)
+        metric = bootstrap_metric([1.0, 2.0], n_bootstrap=count, seed=42)
+        scenario = bootstrap_scenario_metrics([1.0, 2.0], n_bootstrap=count, seed=42)
+        assert (
+            metric.n_bootstrap == scenario["mae"].n_bootstrap == scenario["rmse"].n_bootstrap == 5
+        )
+        assert all(type(ci.n_bootstrap) is int for ci in (metric, *scenario.values()))
+
     def test_single_value(self):
         ci = bootstrap_metric([5.0], metric="single", seed=42)
         assert ci.point_estimate == 5.0

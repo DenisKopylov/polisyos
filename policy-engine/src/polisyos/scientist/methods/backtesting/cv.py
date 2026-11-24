@@ -107,9 +107,11 @@ def run_forward_chaining_cv(
     Parameters
     ----------
     data:
-        1D array of observations (time-ordered).
+        Array with time-ordered observations on its first axis. Each fold
+        preserves any trailing feature dimensions.
     evaluator:
-        Callable(train_data, test_data) -> dict of metric_name -> value.
+        Callable that receives independent train and test arrays for each
+        selected fold and returns a mapping from metric names to values.
     min_train_size:
         Minimum training set size.
     step_size:

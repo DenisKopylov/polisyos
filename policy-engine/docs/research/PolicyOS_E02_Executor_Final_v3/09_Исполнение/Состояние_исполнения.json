@@ -21558,8 +21558,13 @@
       "local_qualification": "NOT_RUN",
       "capability_acceptance": "NOT_RUN",
       "current_execution": {
-        "status": "ACTIVE. Original eight packets, 61 requirements and 60 tests. Primary lane and E02-I03-A/B/C integration contracts reviewed. EMP-01 and the independent historical input/CV owners are audited against the current implementation.",
-        "next": "Select a small missing product behavior in an existing owner, qualify its distinguishing negative and useful consumer, then follow the original readiness sequence. Plan DA-07 only for changed consumers."
+        "status": "ACTIVE. Original eight packets, 61 requirements and 60 tests. Primary lane and E02-I03-A/B/C integration contracts reviewed. The first BKT-04 public helper change declares first-axis observations and verifies multivariate fold isolation. FRC-01-01 and the independent historical-input and empirical owners are in progress.",
+        "next": "Preserve admitted calibration disposition through the S10 and G2 summary owners and qualify the distinguishing negative and positive. Continue the existing historical-input and empirical owners in the original readiness sequence. Plan DA-07 only for changed consumers.",
+        "bkt04_public_cv_shape": {
+          "scope": "REQ-BKT-04-02 first observation axis, preserved trailing features, isolated selected callback arrays. Baseline 41 CV/bootstrap tests and 19 affected CV tests pass. Runtime activation remains unestablished in the named census of 3460 tracked Python files under src and tools.",
+          "output": "Primary:policy-engine/_cache/e02/lane03-bkt04-cv-shape.mmmC04lO/",
+          "guard_sha256": "8aada775c5251c9e0a60106e4461bcafae340e20cad6e2fafe4b1351964039f0"
+        }
       },
       "transition_evidence": [],
       "corrective_windows": []

@@ -84,6 +84,26 @@ class TestForwardChainingSplits:
 
 
 class TestRunForwardChainingCV:
+    def test_multivariate_observations_keep_features_and_isolate_folds(self) -> None:
+        data = np.arange(12, dtype=float).reshape(6, 2)
+        original = data.copy()
+        selected_rows = iter((2, 5))
+
+        def evaluator(train: np.ndarray, test: np.ndarray) -> dict[str, float]:
+            row = next(selected_rows)
+            np.testing.assert_array_equal(train, original[:row])
+            np.testing.assert_array_equal(test, original[row : row + 1])
+            metric = float(test[0, 1])
+            train[:] = -1.0
+            test[:] = -1.0
+            return {"feature_value": metric}
+
+        result = run_forward_chaining_cv(data, evaluator, min_train_size=2, max_folds=2)
+
+        assert result.n_folds == 2
+        assert result.mean_metrics == {"feature_value": 8.0}
+        np.testing.assert_array_equal(data, original)
+
     def test_max_folds_limits_preparation_before_cv_evaluator(self, monkeypatch):
         real_range = builtins.range
         materialized_items = 0

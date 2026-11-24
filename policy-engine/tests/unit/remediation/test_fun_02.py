@@ -10,6 +10,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from polisyos.ir import UncertaintyType
 from polisyos.scientist.methods.search.funnel.level3_medium import Level3MediumFidelity
 from polisyos.scientist.methods.search.funnel.level4_full import Level4FullFidelity
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
@@ -270,6 +271,38 @@ def test_ci_width_ratio_matches_exact_rational_oracle_across_float_scales(
 
     assert abs(estimate.level - expected) <= ulp(expected)
     assert estimate.quantification_method == method
+
+
+@pytest.mark.parametrize("fidelity", ["L3", "L4"])
+@pytest.mark.parametrize(
+    ("width_hex", "effect_hex", "expected_ulps"),
+    [
+        pytest.param("0x1.fffffffffffffp-501", "0x1.5555555555555p+572", 1, id="below-tie"),
+        pytest.param("0x1.ffffffffffffep-501", "0x1.5555555555554p+572", 2, id="tie-to-even"),
+        pytest.param("0x1.ffffffffffffdp-501", "0x1.5555555555553p+572", 2, id="above-tie"),
+        pytest.param("0x0.0000000000001p-1022", "0x1.0p+0", 0, id="tie-to-zero"),
+        pytest.param("0x0.0000000000001p-1022", "0x1.fffffffffffffp+1023", 0, id="underflow"),
+    ],
+)
+def test_ci_width_subnormal_rounds_once(
+    width_hex: str,
+    effect_hex: str,
+    expected_ulps: int,
+    fidelity: str,
+) -> None:
+    # Each anchored midpoint expectation is exact in units of the smallest subnormal.
+    width = float.fromhex(width_hex)
+    effect = float.fromhex(effect_hex)
+    if fidelity == "L3":
+        result = _l3_result(ci_width=width, effect=effect)
+    else:
+        expensive_stage = MagicMock()
+        expensive_stage.evaluate.return_value = _full_stage_result(ci_width=width, effect=effect)
+        result = Level4FullFidelity(expensive_stage=expensive_stage).evaluate({}, {})
+
+    estimate = result.uncertainty_envelope.uncertainties[UncertaintyType.STATISTICAL]
+    assert estimate.level == expected_ulps * ulp(0.0)
+    assert estimate.quantification_method == "ci_width_source_unverified"
 
 
 @pytest.mark.parametrize("fidelity", ["L3", "L4"])

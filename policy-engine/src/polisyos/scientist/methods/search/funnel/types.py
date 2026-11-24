@@ -6,7 +6,9 @@ from abc import abstractmethod
 from collections.abc import Mapping
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
+from fractions import Fraction
 from math import frexp, isfinite, ldexp
+from sys import float_info
 from typing import TYPE_CHECKING, Any, Literal, NoReturn
 
 from pydantic import AwareDatetime, ConfigDict, Field, model_validator
@@ -296,6 +298,9 @@ def statistical_uncertainty_from_ci_width(
         ratio_exponent = width_exponent - effect_exponent - 1
         if ratio_exponent >= 1:
             level = 1.0
+        elif ratio_exponent <= float_info.min_exp - 1:
+            # Subnormal scaling would round an already rounded mantissa quotient.
+            level = float(Fraction.from_float(ci_width) / (2 * Fraction.from_float(effect)))
         else:
             scaled_ratio = ldexp(
                 width_mantissa / effect_mantissa,

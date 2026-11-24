@@ -1843,6 +1843,7 @@ def _candidate_acquisition_history_projection(
         AcquisitionRoutePhaseReceipt,
     )
     from polisyos.runtime.quality.authority_reconciliation import (
+        AuthorityReconciliationError,
         reconcile_authority_ref,
     )
     from polisyos.runtime.quality.candidate_simulation import (
@@ -1879,6 +1880,9 @@ def _candidate_acquisition_history_projection(
     ) -> tuple[Any, bytes, Any, ArtifactRef]:
         expected_producer = {
             "runtime_quality.acquisition_route_loop_receipt": (
+                "polisyos.runtime.acquisition_route_loop"
+            ),
+            "runtime_quality.acquisition_route_phase_receipt": (
                 "polisyos.runtime.acquisition_route_loop"
             ),
             "runtime_quality.acquisition_overlay_reentry_receipt": (
@@ -2156,6 +2160,18 @@ def _candidate_acquisition_history_projection(
                     ):
                         continue
                     raise
+                except AuthorityReconciliationError as exc:
+                    if (
+                        is_v5_experiment_terminal
+                        and exc.code in {"authority_payload_mismatch", "authority_orphan_cas"}
+                        and _retain_latest_v5_unavailability(
+                            head,
+                            "candidate_source_current_v5_latest_terminal_authority_refused:"
+                            + exc.code,
+                        )
+                    ):
+                        continue
+                    raise
                 except ValueError as exc:
                     if str(exc) in {
                         "acquisition_history_artifact_integrity_not_established",
@@ -2176,6 +2192,17 @@ def _candidate_acquisition_history_projection(
                             "candidate_source_current_v5_latest_terminal_profile_missing"
                         )
                         continue
+                    if (
+                        not isinstance(route_payload, dict)
+                        or route_payload.get("schema_version")
+                        != f"AcquisitionCandidateExperimentTerminalReceipt@{route_schema.version}"
+                    ):
+                        if _retain_latest_v5_unavailability(
+                            head,
+                            "candidate_source_current_v5_latest_terminal_schema_mismatch",
+                        ):
+                            continue
+                        raise ValueError("acquisition_history_terminal_schema_mismatch")
                     from polisyos.runtime.quality.acquisition_evaluation_history import (
                         verify_candidate_experiment_terminal_history,
                     )

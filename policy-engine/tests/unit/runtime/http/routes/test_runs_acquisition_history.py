@@ -8,12 +8,12 @@ the served integration oracle separately exercises that complete authority chain
 from __future__ import annotations
 
 import sqlite3
-from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
 import pytest
+from pydantic import ValidationError
 
 from polisyos.core.artifacts import (
     ArtifactRef,
@@ -44,6 +44,7 @@ from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionCandidateExperimentTerminalReceipt,
     AcquisitionCandidateExperimentTerminalReceiptV2,
     AcquisitionCandidateRouteLoopReceipt,
+    AcquisitionRoutePhaseReceipt,
 )
 from polisyos.runtime.quality.authority import GovernanceMetadata
 from tests._helpers.runtime_http import _build_control_service
@@ -426,8 +427,12 @@ def test_selected_experiment_terminal_reaches_run_details_v5(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, epoch: str
 ) -> None:
     case = _case(tmp_path, monkeypatch, epoch=epoch)
-    entries, limitation, _ = _project(case)
-    assert limitation is None
+    entries, limitation, current = _project(case)
+    # This terminal fixture omits the resolved numerical evaluation and origin.
+    assert limitation == "acquisition_action_history_terminal_projection_unavailable"
+    assert current.status == "not_established"
+    assert current.issues == ("candidate_source_current_v5_evaluation_not_established",)
+    assert not current.occurrences and current.fronts is None
     assert len(entries) == 1
     assert type(entries[0]) is RunCandidateSimulationAcquisitionHistoryEntryV5
     assert entries[0].route_receipt_ref == case.selected_ref
@@ -459,21 +464,88 @@ def test_selected_experiment_terminal_reaches_run_details_v5(
 def test_terminal_manifest_family_cannot_fall_back_to_legacy(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, change: dict[str, str]
 ) -> None:
-    case = _case(tmp_path, monkeypatch, **change)
-    entries, limitation, _ = _project(case)
-    assert entries == ()
-    assert limitation == "acquisition_action_history_integrity_not_established"
-    assert case.calls == []
+    earlier = None
+    earlier_entries = ()
+    if change.get("schema_version") == "2.0":
+        earlier = _case(tmp_path, monkeypatch)
+        earlier_entries, _, _ = _project(earlier)
+        assert tuple(row.route_receipt_ref for row in earlier_entries) == (earlier.selected_ref,)
+        earlier.calls.clear()
+    case = _case(tmp_path, monkeypatch, previous=earlier, **change)
+    if earlier is not None:
+        # Both versions are supported, but the exact @2 selector cannot read the @1 body.
+        assert case.store.get_manifest(case.selected_ref).artifact_schema.version == "2.0"
+        assert case.terminal.schema_version == "AcquisitionCandidateExperimentTerminalReceipt@1.0"
+        with pytest.raises(ValidationError) as refusal:
+            _read_verified_acquisition_action_phase(
+                artifact_store=case.store,
+                event_log=case.service._diagnostic_event_log,
+                receipt_ref=case.head.receipt_ref,
+                selected_ref=case.selected_ref,
+            )
+        assert any(
+            error["loc"] == ("schema_version",) and error["type"] == "literal_error"
+            for error in refusal.value.errors(include_input=False)
+        )
+
+    verify = history_owner.verify_candidate_experiment_terminal_history
+    verifier_calls = []
+
+    def record_verifier_call(**kwargs: Any) -> CandidateExperimentTerminalHistory:
+        verifier_calls.append(kwargs["terminal_ref"])
+        return verify(**kwargs)
+
+    monkeypatch.setattr(
+        history_owner, "verify_candidate_experiment_terminal_history", record_verifier_call
+    )
+    entries, limitation, current = _project(case)
+    assert entries == earlier_entries
+    if earlier is None:
+        assert verifier_calls == case.calls == []
+        assert limitation == "acquisition_action_history_integrity_not_established"
+        assert current is None
+    else:
+        assert verifier_calls == case.calls == [earlier.selected_ref]
+        assert limitation == "acquisition_action_history_terminal_projection_unavailable"
+        assert current.status == "not_established"
+        assert current.issues == ("candidate_source_current_v5_latest_terminal_schema_mismatch",)
+        assert not current.occurrences and current.fronts is None
 
 
 @pytest.mark.parametrize(
-    "damage",
-    ["foreign_profile", "missing_profile", "missing_manifest", "missing_blob", "missing_event"],
+    ("damage", "issue"),
+    [
+        (
+            "foreign_profile",
+            "candidate_source_current_v5_latest_terminal_authority_refused:authority_payload_mismatch",
+        ),
+        ("missing_profile", "candidate_source_current_v5_latest_terminal_profile_missing"),
+        ("missing_manifest", None),
+        ("missing_blob", "candidate_source_current_v5_latest_terminal_integrity_not_established"),
+        (
+            "missing_event",
+            "candidate_source_current_v5_latest_terminal_authority_refused:authority_orphan_cas",
+        ),
+    ],
+    ids=["foreign_profile", "missing_profile", "missing_manifest", "missing_blob", "missing_event"],
 )
 def test_terminal_requires_selected_manifest_content_and_event(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, damage: str
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, damage: str, issue: str | None
 ) -> None:
     case = _case(tmp_path, monkeypatch)
+    kept_entries = ()
+    kept_calls = []
+    if damage in {"foreign_profile", "missing_event"}:
+        earlier = case
+        case = _case(tmp_path, monkeypatch, previous=earlier)
+        before, _, _ = _project(case)
+        assert tuple(row.route_receipt_ref for row in before) == (
+            earlier.selected_ref,
+            case.selected_ref,
+        )
+        kept_entries = before[:1]
+        kept_calls = [earlier.selected_ref]
+        case.calls.clear()
     if damage in {"foreign_profile", "missing_profile"}:
         foreign_profile = (
             _write_profile_variant(
@@ -486,13 +558,13 @@ def test_terminal_requires_selected_manifest_content_and_event(
             if damage == "foreign_profile"
             else None
         )
-        changed = replace(
-            case.head,
-            receipt_manifest_profile_sha256=foreign_profile,
-        )
-        monkeypatch.setattr(
-            case.database, "list_acquisition_action_heads_for_source", lambda **_kwargs: (changed,)
-        )
+        with sqlite3.connect(case.service._resolve_control_sqlite_path()) as connection:
+            changed = connection.execute(
+                "UPDATE runtime_acquisition_action_heads SET receipt_manifest_profile_sha256 = ? "
+                "WHERE receipt_ref = ?",
+                (foreign_profile, case.head.receipt_ref),
+            )
+            assert changed.rowcount == 1
     elif damage == "missing_manifest":
         case.store._manifest_path_for_ref(
             case.selected_ref.artifact_id, case.selected_ref.manifest_profile_sha256
@@ -500,16 +572,23 @@ def test_terminal_requires_selected_manifest_content_and_event(
     elif damage == "missing_blob":
         case.store._paths(case.selected_ref.artifact_id)[0].unlink()
     else:
-        # Remove the actual durable event in the disposable fixture DB only.
         with sqlite3.connect(case.service._resolve_control_sqlite_path()) as connection:
-            connection.execute(
+            deleted = connection.execute(
                 "DELETE FROM control_diagnostic_events WHERE event_id = ?",
                 (case.head.durable_event_id,),
             )
-    entries, limitation, _ = _project(case)
-    assert entries == ()
-    assert limitation == "acquisition_action_history_integrity_not_established"
-    assert case.calls == []
+            assert deleted.rowcount == 1
+    entries, limitation, current = _project(case)
+    assert entries == kept_entries
+    assert case.calls == kept_calls
+    if issue is None:
+        assert limitation == "acquisition_action_history_integrity_not_established"
+        assert current is None
+    else:
+        assert limitation == "acquisition_action_history_terminal_projection_unavailable"
+        assert current.status == "not_established"
+        assert current.issues == (issue,)
+        assert not current.occurrences and current.fronts is None
 
 
 @pytest.mark.parametrize("epoch", ["1.0", "2.0"])
@@ -548,6 +627,39 @@ def test_verified_blocked_terminal_preserves_earlier_history_in_run_details(
     assert projection.acquisition_history_limitation_code == limitation
     assert projection.publication_authority is False
     assert all(row.publication_authority is False for row in projection.acquisition_history)
+
+
+def test_verified_ordinary_requested_sibling_preserves_completed_history(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    case = _case(tmp_path, monkeypatch)
+    baseline = _project(case)
+    assert tuple(row.route_receipt_ref for row in baseline[0]) == (case.selected_ref,)
+    job, _worker, _attempt = _create_action_job(case.database, job_id="ordinary-pending")
+    phase = AcquisitionRoutePhaseReceipt(
+        receipt_id=f"{job.job_id}.requested",
+        tenant_id=case.head.tenant_id,
+        cell_id=case.head.cell_id,
+        run_id=case.head.run_id,
+        source_job_id=case.head.source_job_id,
+        route_id=_hash("b"),
+        action_generation=1,
+        job_id=job.job_id,
+        compiled_ref=str(case.compiled_ref.artifact_id),
+        planner_report_hash=_hash("c"),
+        cost_basis_hash=_hash("d"),
+        decision_ref=_hash("e"),
+        coarse_phase="requested",
+        receipt_phase="requested",
+        recovery_state="none",
+        generated_at=case.terminal.generated_at,
+    )
+    assert phase.route_id != case.head.route_id
+    pending = case.service.acquisition_route_sink.persist_phase(phase)
+    assert pending.receipt_phase == "requested"
+
+    assert _project(case) == baseline
+    assert all(row.publication_authority is False for row in baseline[0])
 
 
 def test_legacy_candidate_history_keeps_the_same_v5_projection(

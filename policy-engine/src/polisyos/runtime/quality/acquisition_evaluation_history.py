@@ -45,7 +45,10 @@ from polisyos.runtime.quality.acquisition_route_loop import (
 )
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
 from polisyos.runtime.quality.generation_cycle import GenerationCycleRecord, GenerationCycleRun
-from polisyos.runtime.quality.n5_execution_basis import exact_n5_content_bytes
+from polisyos.runtime.quality.n5_execution_basis import (
+    _exact_native_content,
+    exact_n5_content_bytes,
+)
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import CoreJSONArtifactStore
@@ -3186,6 +3189,42 @@ def verify_retained_route_accumulator(
     )
 
 
+_FIRST_ACQUIRED_BASIS_MISSING = "acquisition_prior_frontier_basis_not_established"
+_CURRENT_DECLARED_IDENTITY_CHANGED = "candidate_n5_current_declared_identity_changed"
+
+
+def _verify_first_acquired_basis_provenance(
+    *,
+    decision: AcquisitionEvaluationDecisionV2,
+    prospective: AcquisitionEvaluationBasisV2,
+    selected: AcquisitionEvaluationBasisV2,
+) -> None:
+    if (
+        prospective.reason_codes != decision.reason_codes[1:]
+        or selected.predicate_provenance != "recomputed"
+        or selected.reason_codes
+    ):
+        raise ValueError("candidate_first_acquired_evaluation_basis_mismatch")
+    if prospective.predicate_provenance == "recomputed":
+        return
+
+    # Both records came from the same action's preparation. The live identity
+    # comparison stopped before producing a full prospective numerical basis.
+    inputs = prospective.preparation_inputs
+    configuration = inputs.n5_execution_configuration
+    if (
+        inputs.preparation_job_id != decision.action_job_id
+        or configuration is None
+        or exact_n5_content_bytes(inputs.model_dump(mode="json"))
+        != exact_n5_content_bytes(selected.preparation_inputs.model_dump(mode="json"))
+        or bytes.fromhex(prospective.effective_native_values_hex)
+        != exact_n5_content_bytes(
+            {"n5_execution_configuration": _exact_native_content(configuration)}
+        )
+    ):
+        raise ValueError("candidate_first_acquired_evaluation_basis_mismatch")
+
+
 def verify_first_acquired_evaluation_history(
     *,
     control_service: ControlPlaneService,
@@ -3196,8 +3235,8 @@ def verify_first_acquired_evaluation_history(
     """Resolve the first acquired evaluation with its original comparison limitation.
 
     The route history owner has already verified the selected terminal and
-    continuation. This replays both acquired bases and the first frontier
-    transaction so the API can display the actual numerical occurrence safely.
+    continuation. This checks the first frontier transaction and replays the
+    selected numerical basis. An unavailable live comparison remains unresolved.
     """
     from polisyos.core.contracts.runtime import RunCandidateSimulationFirstAcquiredEvaluation
     from polisyos.runtime.http.services.control_plane_store import AcquisitionEvaluationFrontierKey
@@ -3218,7 +3257,11 @@ def verify_first_acquired_evaluation_history(
         type(decision) is not AcquisitionEvaluationDecisionV2
         or decision.comparison_result != "not_established"
         or decision.predicate_provenance != "not_established"
-        or decision.reason_codes != ("acquisition_prior_frontier_basis_not_established",)
+        or decision.reason_codes
+        not in (
+            (_FIRST_ACQUIRED_BASIS_MISSING,),
+            (_FIRST_ACQUIRED_BASIS_MISSING, _CURRENT_DECLARED_IDENTITY_CHANGED),
+        )
         or decision.expected_frontier_revision != 0
         or decision.expected_frontier_ref is not None
         or decision.prior_basis_ref is not None
@@ -3293,14 +3336,15 @@ def verify_first_acquired_evaluation_history(
             (basis.tenant_id, basis.cell_id, basis.run_id, basis.source_job_id) != identity
             or basis.design_problem_ref != decision.design_problem_basis_ref
             or basis.candidate_id != evaluation.candidate_id
-            or basis.predicate_provenance != "recomputed"
-            or basis.reason_codes
             or not _same_ref(basis.growth_receipt_ref, decision.growth_receipt_ref)
             or not _same_ref(basis.admitted_source_ref, decision.admitted_source_ref)
         ):
             raise ValueError("candidate_first_acquired_evaluation_basis_mismatch")
     if prospective.evaluation is not None or selected_basis.evaluation != evaluation:
         raise ValueError("candidate_first_acquired_evaluation_basis_role_mismatch")
+    _verify_first_acquired_basis_provenance(
+        decision=decision, prospective=prospective, selected=selected_basis
+    )
 
     snapshot = control_service.acquisition_route_sink.verify_action_head(head)
     if snapshot.latest_receipt != terminal:
@@ -3333,14 +3377,21 @@ def verify_first_acquired_evaluation_history(
         or frontier.selected_evaluation_content_hash != selected.execution.content_hash
     ):
         raise ValueError("candidate_first_acquired_evaluation_frontier_mismatch")
-    for basis, evaluation_owner in ((prospective, previous), (selected_basis, selected)):
+    if prospective.predicate_provenance == "recomputed":
         replay_acquisition_basis_for_history(
             artifact_store=store,
             event_log=events,
             control_store=control,
-            basis=basis,
-            prior_evaluation=evaluation_owner,
+            basis=prospective,
+            prior_evaluation=previous,
         )
+    replay_acquisition_basis_for_history(
+        artifact_store=store,
+        event_log=events,
+        control_store=control,
+        basis=selected_basis,
+        prior_evaluation=selected,
+    )
     return RunCandidateSimulationFirstAcquiredEvaluation(
         evaluation_decision_ref=terminal.evaluation_decision_ref,
         selected_basis_ref=terminal.selected_basis_ref,

@@ -11,8 +11,15 @@ import pytest
 
 from polisyos.core import artifacts, canon
 from polisyos.runtime.http.services.control_plane_store import AcquisitionActionHeadRecord
-from polisyos.runtime.quality.acquisition_evaluation import AcquisitionEvaluationDecisionV2
-from polisyos.runtime.quality.acquisition_evaluation_history import _ordinary_checkpoint_reentry
+from polisyos.runtime.quality.acquisition_evaluation import (
+    AcquisitionBasisPreparationInputs,
+    AcquisitionEvaluationBasisV2,
+    AcquisitionEvaluationDecisionV2,
+)
+from polisyos.runtime.quality.acquisition_evaluation_history import (
+    _ordinary_checkpoint_reentry,
+    _verify_first_acquired_basis_provenance,
+)
 from polisyos.runtime.quality.acquisition_executor import ActivatedSemanticEpochAdmissionReceipt
 from polisyos.runtime.quality.acquisition_world_growth import (
     AcquisitionWorldGrowthBridge,
@@ -23,6 +30,11 @@ from polisyos.runtime.quality.generation_cycle import (
     AcquisitionOverlayReentryReceipt,
     GenerationCycleRun,
     generation_cycle_run_content_hash,
+)
+from polisyos.runtime.quality.joint_simulation_horizon import prepare_joint_simulation_configuration
+from polisyos.runtime.quality.n5_execution_basis import (
+    _exact_native_content,
+    exact_n5_content_bytes,
 )
 from tests._helpers.runtime_http import _build_control_service
 from tests.unit.runtime.quality.test_generation_cycle_model_input_wire import _v3_fixture
@@ -201,3 +213,58 @@ def test_retained_reentry_refuses_conflicting_pointer_and_removed_blob(retained_
     finally:
         blob.write_bytes(evidence)
     assert _ordinary_checkpoint_reentry(**case.kwargs) == case.receipt
+
+
+def test_first_acquired_basis_preserves_typed_unresolved_comparison() -> None:
+    """A historically unknown prospective basis must match the selected preparation."""
+    configuration = prepare_joint_simulation_configuration()
+    inputs = AcquisitionBasisPreparationInputs.model_construct(
+        observation_id="acquired-observation",
+        preparation_job_id="selected-action",
+        n5_execution_configuration=configuration,
+    )
+    missing_prior = ("acquisition_prior_frontier_basis_not_established",)
+    changed_identity = ("candidate_n5_current_declared_identity_changed",)
+    decision = AcquisitionEvaluationDecisionV2.model_construct(
+        action_job_id="selected-action", reason_codes=missing_prior
+    )
+    recomputed = AcquisitionEvaluationBasisV2.model_construct(
+        preparation_inputs=inputs, predicate_provenance="recomputed"
+    )
+    # This covers the historical predicate join; the public history owner
+    # separately reopens and recomputes the exact selected result and frontier.
+    _verify_first_acquired_basis_provenance(
+        decision=decision, prospective=recomputed, selected=recomputed
+    )
+    unresolved_decision = decision.model_copy(
+        update={"reason_codes": missing_prior + changed_identity}
+    )
+    unresolved_basis = recomputed.model_copy(
+        update={
+            "predicate_provenance": "not_established",
+            "reason_codes": changed_identity,
+            "effective_native_values_hex": exact_n5_content_bytes(
+                {"n5_execution_configuration": _exact_native_content(configuration)}
+            ).hex(),
+        }
+    )
+    _verify_first_acquired_basis_provenance(
+        decision=unresolved_decision, prospective=unresolved_basis, selected=recomputed
+    )
+    foreign = recomputed.model_copy(
+        update={
+            "preparation_inputs": inputs.model_copy(update={"observation_id": "other-observation"})
+        }
+    )
+    mismatched_bytes = unresolved_basis.model_copy(update={"effective_native_values_hex": ""})
+    for selected_decision, prospective, selected in (
+        (decision, unresolved_basis, recomputed),
+        (unresolved_decision, recomputed, recomputed),
+        (unresolved_decision, unresolved_basis, unresolved_basis),
+        (unresolved_decision, unresolved_basis, foreign),
+        (unresolved_decision, mismatched_bytes, recomputed),
+    ):
+        with pytest.raises(ValueError, match="candidate_first_acquired_evaluation_basis_mismatch"):
+            _verify_first_acquired_basis_provenance(
+                decision=selected_decision, prospective=prospective, selected=selected
+            )

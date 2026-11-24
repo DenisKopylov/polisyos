@@ -386,6 +386,248 @@ def test_native_retained_model_input_use_refusal_never_dispatches_n5(
     assert middleware._ledger.snapshot() == ledger_before
 
 
+def test_native_n5_preparation_reuses_only_its_own_current_handoff(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Retained preparation saves duplicate reads and keeps fresh N5 admission."""
+    from functools import partial
+
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.quality import native_generic_context as native
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContextArtifactOwner,
+        cycle_job_design_problem_ref,
+        cycle_job_profile_selection_ref,
+    )
+    from polisyos.runtime.quality.design_generation import ShadowGeneratedCandidate
+    from polisyos.runtime.quality.design_problem import DESIGN_PROBLEM_V3_SCHEMA_VERSION
+    from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleNativeWorldContextHandoffV1,
+        GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationN5InputV1,
+    )
+    from tests.unit.runtime.quality.test_generic_simulation_admission_program_graph import (
+        _linkage_problem,
+        compiled_selection,
+    )
+
+    case = compiled_selection.__wrapped__(tmp_path)
+    store = case.store
+    owner = GenericCycleSimulationAdmissionOwner(profiles=(case.profile,), store=store)
+    control_store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite")
+    context_owner = CycleSubstrateContextArtifactOwner(store=store, control_store=control_store)
+    owner.bind_native_world_history(
+        control_store=control_store,
+        event_log=RuntimeDiagnosticEventLog(store=control_store, artifact_store=store),
+    )
+    draft = _linkage_problem().model_dump(mode="python")
+    outcome = "government.balance"
+    draft["outcome_of_interest"]["target_variable"] = outcome
+    problem = DesignProblem.model_validate(
+        {
+            **draft,
+            "schema_version": DESIGN_PROBLEM_V3_SCHEMA_VERSION,
+            "domain": case.world.policy_domain,
+        }
+    )
+    context = owner.context_for_profile(case.profile, problem)
+
+    def put_selected(kind: str, label: str) -> ArtifactRef:
+        return store.put_json(
+            {"fixture": label},
+            ArtifactWriteOptions(kind=kind, media_type="application/json"),
+            return_selected_profile=True,
+        )
+
+    world_kind = "runtime_quality.acquisition_candidate_world_checkpoint"
+    world_ref = put_selected(world_kind, "selected-world")
+    foreign_ref = put_selected(world_kind, "foreign-world")
+    source_ref = put_selected("runtime.generation_source_handoff", "selected-n4")
+    handoff = GenericCycleNativeWorldContextHandoffV1(
+        context=context,
+        context_job_ref=put_selected("runtime.quality.cycle_substrate_context_job", "context"),
+        profile_ref=put_selected("runtime.quality.generic_cycle_simulation_profile", "profile"),
+        profile=case.profile,
+        native_world_checkpoint_ref=world_ref,
+        original_generic_input_ref=put_selected(
+            "runtime.quality.generic_cycle_simulation_n5_input", "original-input"
+        ),
+        current_profile_selection_ref=cycle_job_profile_selection_ref(problem),
+        source_job_id="original-job",
+        job_id="native-job",
+        run_id="native-run",
+        tenant_id="native-tenant",
+        cell_id="native-cell",
+    )
+    candidate = ShadowGeneratedCandidate.model_construct(
+        candidate_id="candidate_0123456789abcdef", atom=case.atom
+    )
+    controller = GenerationCycleController(
+        repo_root=tmp_path,
+        artifact_store=store,
+        authority_scope="contract_testing",
+        cycle_substrate_context=context,
+        candidate_cycle_context_artifact_owner=context_owner,
+        generic_cycle_simulation_admission_owner=owner,
+        generic_cycle_simulation_handoff=handoff,
+        generic_cycle_simulation_currentness_resolver=lambda: True,
+    )
+    controller._begin_source_run("native-source")
+    controller._generic_n4_source_refs_by_cycle[0] = source_ref
+    controller._generic_cycle_simulation_current_problem = problem
+
+    world_reads: list[tuple[ArtifactRef, bool]] = []
+    source_reads: list[ArtifactRef] = []
+    historical_inputs: list[GenericCycleSimulationN5InputV1] = []
+    withdraw_after_n4 = False
+    selected_manifest_path = store._manifest_path_for_ref(
+        world_ref.artifact_id, world_ref.manifest_profile_sha256
+    )
+
+    # Isolate the retained action and N4 fixtures below the actual handoff
+    # entry point. The manifest read, Native N5 input writer and decoder are real.
+    def reopen_world(_owner, *, handoff, problem, context_owner=None, repo_root=None):
+        assert _owner is owner
+        assert problem is controller._generic_cycle_simulation_current_problem
+        assert repo_root == (tmp_path if context_owner is not None else None)
+        world_reads.append((handoff.native_world_checkpoint_ref, context_owner is not None))
+        store.get_manifest(handoff.native_world_checkpoint_ref)
+
+    def load_source(_repository, ref, **_scope):
+        assert store.get_manifest(ref) == store.get_manifest(source_ref)
+        source_reads.append(ref)
+        if withdraw_after_n4:
+            selected_manifest_path.unlink()
+        return SimpleNamespace(
+            problem=problem,
+            cycle_index=0,
+            cycle_substrate_context=context,
+            generation_result=SimpleNamespace(candidates=(candidate,)),
+        )
+
+    def replay_historical_input(_owner, record):
+        assert _owner is owner
+        historical_inputs.append(record)
+
+    monkeypatch.setattr(native, "_resolve_native_world_handoff_selection", reopen_world)
+    monkeypatch.setattr(native, "replay_native_n5_input_sources", replay_historical_input)
+    monkeypatch.setattr(GenerationSourceRepository, "load", load_source)
+
+    prepare = controller._prepare_generic_cycle_simulation_n5_input
+    callback = controller._require_current_generic_cycle_simulation_handoff
+    selected_ref, selected = prepare(candidate=candidate, problem=problem, cycle_index=0)
+    exact_reads = [(world_ref, True), (world_ref, True), (world_ref, False), (world_ref, True)]
+    assert world_reads == exact_reads
+    assert selected.design_problem_ref == cycle_job_design_problem_ref(problem)
+    assert selected.outcome_variable == outcome
+    assert selected.native_world_checkpoint_ref == world_ref
+    assert selected.n4_source_ref == source_ref
+    assert owner.resolve_n5_input(selected_ref, expected=selected) == selected
+
+    world_reads.clear()
+    controller._generic_cycle_simulation_currentness_resolver = partial(callback)
+    assert prepare(candidate=candidate, problem=problem, cycle_index=0) == (selected_ref, selected)
+    assert world_reads == [exact_reads[0], (world_ref, False), *exact_reads[1:]]
+
+    selected_input_manifest = store._manifest_path_for_ref(
+        selected_ref.artifact_id, selected_ref.manifest_profile_sha256
+    )
+    current_profiles: list[GenericCycleSimulationN5InputV1] = []
+    resolved_inputs: list[ArtifactRef] = []
+    resolve_input = owner.resolve_n5_input
+
+    def select_input_world(_owner, input_record, *, current=False):
+        assert _owner is owner and input_record == selected
+        if current:
+            current_profiles.append(input_record)
+            selected_input_manifest.unlink()
+        return SimpleNamespace(
+            original_profile=case.profile,
+            world_model_record_ref=case.profile.world_model_record_ref,
+            world_model_record=case.world,
+        )
+
+    def observe_input(ref, *, expected):
+        resolved_inputs.append(ref)
+        return resolve_input(ref, expected=expected)
+
+    def unexpected_effect(*args, **kwargs):
+        pytest.fail("a stale N5 preparation reached the next admission boundary")
+
+    run = controller._run_generic_cycle_simulation_n5
+    controller._generic_cycle_simulation_currentness_resolver = callback
+    with monkeypatch.context() as drift_patch:
+
+        def replace_bound_port(_owner, record):
+            replay_historical_input(_owner, record)
+            drift_patch.setattr(
+                controller, "_simulation_port", copy.copy(controller._simulation_port)
+            )
+
+        drift_patch.setattr(native, "replay_native_n5_input_sources", replace_bound_port)
+        drift_patch.setattr(native, "_selection_for_input", unexpected_effect)
+        source_reads.clear()
+        drifted = run(
+            candidate=candidate, problem=problem, cycle_index=0, prepare_retained_native_input=True
+        )
+        assert drifted.status == "simulation_blocked"
+        mismatch = "generic_cycle_simulation_n5_job_binding_mismatch"
+        assert drifted.authority_blockers == (mismatch,)
+        assert drifted.diagnostics["reason"] == mismatch
+        assert drifted.diagnostics["detail"] == f"{mismatch}: {mismatch}"
+        assert source_reads == [source_ref, source_ref]
+
+    with monkeypatch.context() as runner_patch:
+        runner_patch.setattr(native, "_selection_for_input", select_input_world)
+        runner_patch.setattr(owner, "resolve_n5_input", observe_input)
+        runner_patch.setattr(
+            JointSimulationPort, "_request_with_bound_program_state", unexpected_effect
+        )
+        source_reads.clear()
+        late = run(
+            candidate=candidate, problem=problem, cycle_index=0, prepare_retained_native_input=True
+        )
+        assert late.status == "simulation_blocked" and late.generic_n5_execution_ref is None
+        assert source_reads == [source_ref, source_ref]
+        assert current_profiles == [selected]
+        assert resolved_inputs == [selected_ref, selected_ref]
+        assert historical_inputs == [selected, selected, selected, selected]
+
+        source_reads.clear()
+        absent = run(
+            candidate=candidate, problem=problem, cycle_index=0, prepared_input_ref=selected_ref
+        )
+        assert absent.status == "simulation_blocked" and absent.generic_n5_execution_ref is None
+        assert source_reads == [source_ref]
+        assert current_profiles == [selected]
+        assert resolved_inputs == [selected_ref, selected_ref]
+
+    world_reads.clear()
+    withdraw_after_n4 = True
+    with pytest.raises(FileNotFoundError):
+        run(candidate=candidate, problem=problem, cycle_index=0, prepare_retained_native_input=True)
+    assert world_reads == [(world_ref, True), (world_ref, True)]
+
+    world_reads.clear()
+    foreign = GenerationCycleController(repo_root=tmp_path)
+    foreign._generic_cycle_simulation_handoff = handoff.model_copy(
+        update={"native_world_checkpoint_ref": foreign_ref}
+    )
+    foreign._generic_cycle_simulation_current_problem = problem
+    foreign._generic_cycle_simulation_admission_owner = owner
+    foreign._candidate_cycle_context_artifact_owner = context_owner
+    foreign._generic_cycle_simulation_upstream_currentness_resolver = lambda: True
+    controller._generic_cycle_simulation_currentness_resolver = (
+        foreign._require_current_generic_cycle_simulation_handoff
+    )
+    with pytest.raises(FileNotFoundError):
+        prepare(candidate=candidate, problem=problem, cycle_index=0)
+    assert world_reads == [(foreign_ref, True), (world_ref, False)]
+    assert historical_inputs == [selected, selected, selected, selected]
+
+
 def test_owner_catalog_prerequisite_is_declared_not_ambient(
     tmp_path: Path,
 ) -> None:

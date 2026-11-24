@@ -20186,17 +20186,14 @@ class GenerationCycleController:
             ):
                 raise GenerationCycleError("native_model_input_use_n5_capacity_unavailable")
 
-        input_ref, _input = self._prepare_generic_cycle_simulation_n5_input(
-            candidate=candidate, problem=problem, cycle_index=cycle_index
-        )
         observation = self._run_generic_cycle_simulation_n5(
             candidate=candidate,
             problem=problem,
             cycle_index=cycle_index,
-            prepared_input_ref=input_ref,
+            prepare_retained_native_input=True,
         )
         if observation.status == "joint_simulated" and (
-            observation.generic_n5_input_ref != input_ref
+            observation.generic_n5_input_ref is None
             or observation.generic_n5_execution_ref is None
             or observation.simulation_result_ref is None
         ):
@@ -20217,6 +20214,7 @@ class GenerationCycleController:
         from polisyos.core.artifacts import load_core_json_artifact
         from polisyos.runtime.quality.cycle_substrate import (
             cycle_job_design_problem_ref,
+            cycle_job_profile_selection_ref,
         )
         from polisyos.runtime.quality.design_generation import ShadowGeneratedCandidate
         from polisyos.runtime.quality.generation_source import (
@@ -20259,15 +20257,38 @@ class GenerationCycleController:
         if source_ref is None:
             raise GenerationCycleError("generic_cycle_simulation_n4_source_not_persisted")
         currentness = self._generic_cycle_simulation_currentness_resolver
+        same_native_current_check = (
+            native
+            and type(self) is GenerationCycleController
+            and type(currentness) is MethodType
+            and currentness.__self__ is self
+            and currentness.__func__
+            is GenerationCycleController._require_current_generic_cycle_simulation_handoff
+            and self._generic_cycle_simulation_current_problem is problem
+            and self._generic_cycle_simulation_admission_owner is owner
+            and self._generic_cycle_simulation_handoff is handoff
+        )
         if currentness is None or currentness() is not True:
             raise GenerationCycleError("generic_cycle_simulation_worker_lease_not_current")
         child_selection = self._generic_cycle_simulation_child_selection
         child_set_ref = self._generic_n4_child_profile_set_ref
-        current_selection_ref = owner.profile_selection_ref_for_handoff(
-            handoff=handoff,
-            problem=problem,
-            child_selection=child_selection,
-        )
+        if (
+            same_native_current_check
+            and self._generic_cycle_simulation_currentness_resolver is currentness
+            and self._generic_cycle_simulation_current_problem is problem
+            and self._generic_cycle_simulation_admission_owner is owner
+            and self._generic_cycle_simulation_handoff is handoff
+            and child_selection is None
+        ):
+            # The stock callback just reopened this exact Native handoff. Derive
+            # its selection key here and keep the later currentness checks live.
+            current_selection_ref = cycle_job_profile_selection_ref(problem)
+        else:
+            current_selection_ref = owner.profile_selection_ref_for_handoff(
+                handoff=handoff,
+                problem=problem,
+                child_selection=child_selection,
+            )
         if (
             current_selection_ref
             != (
@@ -20384,22 +20405,55 @@ class GenerationCycleController:
         problem: DesignProblem,
         cycle_index: int,
         prepared_input_ref: CASArtifactRef | None = None,
+        prepare_retained_native_input: bool = False,
     ) -> SimulationPortObservation:
         """Run N5 only from the canonical actual selected Generic input."""
         from polisyos.core.artifacts import load_core_json_artifact
         from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+
+        retained_input = None
+        if prepare_retained_native_input:
+            if prepared_input_ref is not None:
+                raise GenerationCycleError("generic_cycle_simulation_n5_input_sources_ambiguous")
+            retained_owner = self._generic_cycle_simulation_admission_owner
+            retained_handoff = self._generic_cycle_simulation_handoff
+            retained_port = self._simulation_port
+            # A failure to produce the retained action's fresh input still
+            # aborts the action. The simulation below independently admits it.
+            retained_input = self._prepare_generic_cycle_simulation_n5_input(
+                candidate=candidate, problem=problem, cycle_index=cycle_index
+            )
 
         owner = self._generic_cycle_simulation_admission_owner
         handoff = self._generic_cycle_simulation_handoff
         simulation: SimulationPortObservation | None = None
         input_ref: CASArtifactRef | None = None
         try:
-            input_ref, input_record = self._prepare_generic_cycle_simulation_n5_input(
-                candidate=candidate,
-                problem=problem,
-                cycle_index=cycle_index,
-                existing_input_ref=prepared_input_ref,
-            )
+            if retained_input is None:
+                input_ref, input_record = self._prepare_generic_cycle_simulation_n5_input(
+                    candidate=candidate,
+                    problem=problem,
+                    cycle_index=cycle_index,
+                    existing_input_ref=prepared_input_ref,
+                )
+            else:
+                input_ref, input_record = retained_input
+                source_ref = self._generic_n4_source_refs_by_cycle.get(cycle_index)
+                if (
+                    type(owner) is not GenericCycleSimulationAdmissionOwner
+                    or owner is not retained_owner
+                    or owner.store is not self._artifact_store
+                    or type(handoff) is not GenericCycleNativeWorldContextHandoffV1
+                    or handoff is not retained_handoff
+                    or self._simulation_port is not retained_port
+                    or input_record.source_run_id != self._source_run_id
+                    or input_record.cycle_index != cycle_index
+                    or source_ref is None
+                    or artifact_ref_identity_key(input_record.n4_source_ref)
+                    != artifact_ref_identity_key(source_ref)
+                ):
+                    raise GenerationCycleError("generic_cycle_simulation_n5_job_binding_mismatch")
+                owner._resolve_current_input_profile(input_record)
             source_ref = input_record.n4_source_ref
             child_selection = input_record.child_selection
             child_set_ref = input_record.n4_child_profile_set_ref

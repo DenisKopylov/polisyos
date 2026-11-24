@@ -312,6 +312,138 @@ def test_scipy_unavailability_preserves_metrics_and_withholds_trust(
 
 
 @pytest.mark.parametrize(
+    ("failure", "reason"),
+    [
+        ("missing_method", "scipy_ttest_1samp_missing"),
+        ("nan_p_value", "scipy_ttest_1samp_invalid_result"),
+        ("negative_p_value", "scipy_ttest_1samp_invalid_result"),
+        ("above_one_p_value", "scipy_ttest_1samp_invalid_result"),
+        ("nonfinite_statistic", "scipy_ttest_1samp_invalid_statistic"),
+        ("backend_exception", "scipy_ttest_1samp_error:RuntimeError"),
+    ],
+    ids=[
+        "method-missing",
+        "p-nan",
+        "p-below-zero",
+        "p-above-one",
+        "statistic-nonfinite",
+        "backend-raises",
+    ],
+)
+def test_invalid_scipy_execution_persists_source_bound_residual_only_result(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    failure: str,
+    reason: str,
+) -> None:
+    """Invalid SciPy outcomes retain real residuals and cannot acquire significance."""
+    from types import SimpleNamespace
+    from polisyos.scientist.governance.backtest_matrix import (
+        verify_backtest_diagnostic_projection,
+    )
+
+    imports: list[str] = []
+    calls: list[str] = []
+
+    def _ttest_1samp(
+        _values: np.ndarray,
+        *,
+        popmean: float,
+        alternative: str,
+    ) -> object:
+        assert popmean == 0.0
+        assert alternative == "two-sided"
+        calls.append("ttest_1samp")
+        if failure == "backend_exception":
+            raise RuntimeError("controlled SciPy execution failure")
+        if failure == "nan_p_value":
+            p_value = float("nan")
+        elif failure == "negative_p_value":
+            p_value = -0.01
+        elif failure == "above_one_p_value":
+            p_value = 1.01
+        else:
+            p_value = 0.25
+        statistic = float("inf") if failure == "nonfinite_statistic" else 1.5
+        return SimpleNamespace(statistic=statistic, pvalue=p_value)
+
+    def _controlled_import(module_name: str) -> object:
+        imports.append(module_name)
+        if module_name == "scipy":
+            return SimpleNamespace(__version__="controlled-version")
+        if module_name != "scipy.stats":
+            pytest.fail(f"unexpected import after invalid result: {module_name}")
+        if failure == "missing_method":
+            return SimpleNamespace()
+        return SimpleNamespace(ttest_1samp=_ttest_1samp)
+
+    monkeypatch.setattr(orchestrator_module, "import_module", _controlled_import)
+    report = _run_provided_report(
+        tmp_path,
+        predictions=[0.5, 1.5, 2.5],
+        truths=[0.0, 0.0, 0.0],
+    )
+
+    assert report.cas_artifact_id is not None
+    store = build_ir_artifact_store(tmp_path / ".polisyos")
+    stored_report = BacktestReport.model_validate(
+        get_json_artifact(_ensure_ir_artifact_store(store), report.cas_artifact_id)
+    )
+    fresh_projection = verify_backtest_diagnostic_projection(stored_report)
+
+    expected_imports = ["scipy.stats", "scipy.stats"]
+    if failure == "nonfinite_statistic":
+        expected_imports = ["scipy.stats", "scipy", "scipy.stats", "scipy"]
+    assert imports == expected_imports
+    assert calls == ([] if failure == "missing_method" else ["ttest_1samp", "ttest_1samp"])
+    assert fresh_projection.status == "unavailable"
+    assert fresh_projection.recomputed is False
+    assert fresh_projection.reason == "scipy_ttest_1samp_fresh_backend_unavailable"
+    assert fresh_projection.metric_diagnostics is not None
+    fresh_diagnostic = fresh_projection.metric_diagnostics[0]
+    assert fresh_diagnostic["status"] == "unavailable"
+    assert fresh_diagnostic["reason"] == "scipy_ttest_1samp_fresh_backend_unavailable"
+    assert fresh_diagnostic["mean_residual"] == pytest.approx(1.5)
+    assert fresh_diagnostic["magnitude"] == pytest.approx(1.5)
+    assert fresh_diagnostic["p_value"] is None
+    for observed in (report, stored_report):
+        assert observed.scenarios[0].compared_count == 3
+        assert observed.scenarios[0].mae == pytest.approx(1.5)
+        assert observed.overall_mae == pytest.approx(1.5)
+        assert observed.degraded is True
+        assert observed.overall_bias_direction is BiasDirection.UNKNOWN
+        assert observed.trust_eligible is False
+        assert observed.trust_score is None
+        assert observed.trust_grade is None
+
+        diagnostic = observed.metric_diagnostics[0]
+        assert diagnostic.status == "unavailable"
+        assert diagnostic.reason == reason
+        assert diagnostic.n == 3
+        assert diagnostic.mean_residual == pytest.approx(1.5)
+        assert diagnostic.magnitude == pytest.approx(1.5)
+        assert diagnostic.residual_sign == "positive"
+        assert diagnostic.direction_status == "not_established"
+        assert diagnostic.method_id is None
+        assert diagnostic.backend_id is None
+        assert diagnostic.backend_version is None
+        assert diagnostic.statistic is None
+        assert diagnostic.p_value is None
+        assert diagnostic.unresolved_assumptions == [
+            "residual_independence",
+            "multiplicity_policy",
+            "population_scope",
+            "metric_direction",
+        ]
+
+        assert len(observed.detected_biases) == 1
+        bias = observed.detected_biases[0]
+        assert bias.direction is BiasDirection.UNKNOWN
+        assert bias.magnitude == pytest.approx(1.5)
+        assert bias.p_value is None
+
+
+@pytest.mark.parametrize(
     ("predictions", "truths", "reason"),
     [
         ([0.99, 1.0, 1.01], [1.0, 1.0, 1.0], "scipy_ttest_1samp_error:ModuleNotFoundError"),

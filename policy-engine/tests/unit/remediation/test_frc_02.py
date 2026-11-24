@@ -13,6 +13,7 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.calibration.forecast_bridge import produce_empirical_calibration_evidence
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.ir.analytics.backtest import BacktestReport, load_backtest_report
@@ -100,6 +101,60 @@ def _persisted_report(
         model_spec_ref,
         policy_spec_ref,
     )
+
+
+@pytest.mark.parametrize(
+    ("bounds", "expected_hits", "expected_evaluated"),
+    [
+        (None, 0, 0),
+        ([(1.1, 1.1)], 1, 1),
+        ([(1.1, 1.1), (1.2, 1.25)], 1, 2),
+        ([(1.1, 1.1), (1.15, 1.15)], 2, 2),
+    ],
+    ids=["no-interval", "one-of-two-available", "one-of-two-hits", "two-of-two-hits"],
+)
+def test_observed_interval_denominator_replays_selected_generic_report(
+    tmp_path: Path,
+    bounds: list[tuple[float, float]] | None,
+    expected_hits: int,
+    expected_evaluated: int,
+) -> None:
+    """Measured coverage uses only observed bounds in the selected report."""
+    cas_root = tmp_path / "observed-interval-cas"
+    store = FileSystemCAS(cas_root)
+    plan = _plan(tmp_path, model_spec_ref=None, policy_spec_ref=None)
+    observed = plan.ground_truth_outcomes["metric"]
+    oracle_hits = sum(
+        lower <= actual <= upper
+        for (lower, upper), actual in zip(bounds or [], observed, strict=False)
+    )
+    assert oracle_hits == expected_hits
+
+    for nominal_level in (0.8, 0.95):
+        scoped_plan = plan.model_copy(
+            update={
+                "confidence_level": nominal_level,
+                "prediction_intervals": None if bounds is None else {"metric": bounds},
+            }
+        )
+        _, ref = BacktestOrchestrator(cas=store).run_with_ref(
+            [scoped_plan], report_id=f"frc-observed-interval-{nominal_level}"
+        )
+        assert ref.manifest_profile_sha256 is not None
+        fresh = FileSystemCAS(cas_root)
+        report = load_backtest_report(_ensure_ir_artifact_store(fresh), ref)
+        evidence = produce_empirical_calibration_evidence(fresh, ref)
+        [scenario] = report.scenarios
+        assert scenario.requested_count == len(observed) == 2
+        assert scenario.interval_requested_count == (0 if bounds is None else 2)
+        assert scenario.interval_available_count == expected_evaluated
+        assert evidence.recomputed_numerator == expected_hits
+        assert evidence.recomputed_denominator == expected_evaluated
+        assert evidence.floor_passed is False
+        assert evidence.usable_for_calibration is False
+        if bounds is None:
+            assert "zero_observation_denominator" in evidence.failure_codes
+            assert all(row.within_ci is None for row in scenario.outcome_comparisons)
 
 
 @pytest.mark.parametrize(

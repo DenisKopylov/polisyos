@@ -7,6 +7,7 @@ artifacts that would be needed to persist calibration evidence.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
@@ -22,10 +23,12 @@ from polisyos.core.artifacts import FileSystemCAS, resolve_manifest_by_profile
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.ir.analytics.backtest import (
     load_backtest_report,
     persist_backtest_report,
 )
+from polisyos.ir.analytics.forecasting_uncertainty import ForecastingUncertaintyBundle
 from polisyos.ir.artifacts import InputRef
 from polisyos.scientist.methods.backtesting.forecast_owner import ForecastOwner
 from tests.unit.remediation.test_frc_02_owner import _request, _rule, _source
@@ -44,6 +47,43 @@ _OWNER_SOURCE_ROLE_MAP = {
     "source_lineage": ("candidate_source", "observed_source"),
     "method_lineage": ("method_artifact", "calibration_rule"),
 }
+
+
+def test_forecast_owner_refuses_a_truncated_real_interval_horizon(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A partial backend bundle cannot become a complete owner report."""
+    store = FileSystemCAS(tmp_path / "cas")
+    request = _request(
+        _source(
+            store,
+            training=[10.0 + index for index in range(10)],
+            holdout=[20.0, 21.0, 22.0],
+        ),
+        _rule(store),
+        report_id="frc-owner-bridge-truncated-interval",
+        train_end=10,
+        horizon=3,
+    )
+    dispatch = MethodDispatcher.dispatch
+    observed_horizons: list[int] = []
+
+    def drop_last_interval(self, **kwargs):
+        computed = dispatch(self, **kwargs)
+        output = dict(computed.output)
+        bundle = output["forecasting_uncertainty_bundle"]
+        assert isinstance(bundle, ForecastingUncertaintyBundle)
+        observed_horizons.extend(interval.horizon for interval in bundle.prediction_interval)
+        output["forecasting_uncertainty_bundle"] = bundle.model_copy(
+            update={"prediction_interval": bundle.prediction_interval[:-1]}
+        )
+        return replace(computed, output=output)
+
+    monkeypatch.setattr(MethodDispatcher, "dispatch", drop_last_interval)
+    with pytest.raises(ValueError, match="bundle horizons do not match the explicit holdout"):
+        ForecastOwner(store).run(request)
+    assert observed_horizons == [1, 2, 3]
 
 
 def test_real_forecast_owner_bridge_recomputes_holdout_but_refuses_unbound_persistence(

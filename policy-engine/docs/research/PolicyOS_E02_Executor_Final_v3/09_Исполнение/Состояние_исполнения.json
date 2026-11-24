@@ -21706,8 +21706,8 @@
       "transition_evidence": [],
       "corrective_windows": [],
       "current_execution": {
-        "status": "ACTIVE. Sixteen packets, 68 original requirements and 68 original test contracts. Six named local requirements qualify. OPT-01-03/04 and TRN-03-03 have partial evidence. The first composed slice passes 200 selected tests.",
-        "next": "Join the registered split/unit and diagnostic partial-frontier routes under OPT-01. Continue CTL-01 interruption finalization and TRN-03 native provenance and verified reassessment on separate owners. Keep the LANE-12 cross-story window and independent G separate.",
+        "status": "ACTIVE. Sixteen packets, 68 original requirements and 68 original test contracts. Ten named local requirements qualify. OPT-01-03/04/05, TRN-03-03 and STP-01-02/03 have partial evidence.",
+        "next": "Resolve the exact source-bound fiscal period profile and the retained Pareto views. Verify CTL-01 interruption and TRN native hints, and qualify independent FUN-02 and STP numerical controls. All local requirements remain in LANE-02. DA-08 and independent G follow their separate acceptance windows.",
         "baseline_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4"
       }
     },
@@ -41351,11 +41351,14 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "lane2_opt",
       "base_commit": "326e49a06d8b6cc11e532b3522edf9e764ef3ae4",
-      "integrated_commit": "f1e200f9cd9c5c27b5179a44b7d5e482c785f361",
+      "integrated_commit": "dc4a31d4785b4e67ea0223de3427f0900f6d4a8f",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py",
         "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
         "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+        "policy-engine/tests/unit/scientist/methods/search/test_objective.py",
+        "policy-engine/tests/unit/scientist/search/test_objective_availability.py",
         "policy-engine/tests/unit/scientist/search/test_pareto_registry_serialization.py"
       ],
       "shared_writer": null,
@@ -41424,6 +41427,20 @@
           "result": "Four old fixtures failed at candidate admission on the exact lane entry. Only their test inputs and the wire contract check changed. All six real serialization tests now reach the intended required-null, authenticated scope, seed-only and removed-field oracles. Exact independent review. No product code change.",
           "source_commit": "f1e200f9cd9c5c27b5179a44b7d5e482c785f361",
           "guard_sha256": "e82898772572ff653731e71a68e6cbbc4457d31c96c10e723b212eadab13dfa8"
+        },
+        {
+          "id": "opt01_period_deficit_separate_stock_red",
+          "output": "Primary:policy-engine/_cache/e02/lane02-fiscal-separate.lv3Ywrit/red/",
+          "result": "Four deciding controls fail on the old rule. A separate balance stock or its foreign unit prevents the direct deficit and default scalar from scoring.",
+          "source_commit": "268376e68",
+          "guard_sha256": "9da726dc97118b60adbc8bb63febdf4e4465749e85e669a61acb740514dc3bee"
+        },
+        {
+          "id": "opt01_period_deficit_separate_stock_verified",
+          "output": "Primary:policy-engine/_cache/e02/lane02-fiscal-separate.lv3Ywrit/decision/",
+          "result": "95 tests pass with independent review. Current version 2.0 selects only the direct flow amount and unit. Conflicts within the selected flow, malformed input, missing operands and true zero remain distinct. Earlier direct and default receipts, including an invalid legacy conflict, reproduce byte-for-byte.",
+          "source_commit": "dc4a31d4785b4e67ea0223de3427f0900f6d4a8f",
+          "guard_sha256": "92f763784d4bddd03588795c038b5a84ae8dd8b05d0593c9d189981d9b5b2f3f"
         }
       ],
       "blockers": [],
@@ -41506,6 +41523,27 @@
           ],
           "remaining_kinds": [
             "candidate_analytical_partial_status_and_omission_in_retained_consumer"
+          ]
+        },
+        {
+          "requirement_id": "REQ-OPT-01-05",
+          "test_id": "TEST-OPT-01-05",
+          "status": "PARTIAL",
+          "basis": "The configured fiscal objective and default scalar separate a directly supplied period amount from an independent closing stock. Historical rules replay on their original alias basis. The selected-source period/scope/valuation contract and genuinely equivalent representation pair through the ordinary Search consumer are still open.",
+          "criterion_pointer": "04_Трассировка/OPT-01.json#/requirements/4",
+          "test_ids": [
+            "TEST-OPT-01-05"
+          ],
+          "binding_ids": [],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "opt01_fiscal_stock_flow_baseline",
+            "opt01_period_deficit_separate_stock_red",
+            "opt01_period_deficit_separate_stock_verified"
+          ],
+          "remaining_kinds": [
+            "selected_producer_period_scope_valuation",
+            "real_equivalent_representations_to_search_consumer"
           ]
         }
       ]
@@ -41647,12 +41685,16 @@
       "integration_qualification": "NOT_RUN",
       "assigned_executor": "lane2_custody",
       "base_commit": "ea352e31defe775a86229d5e4633da26943190ea",
-      "integrated_commit": "e9fa8b5e40a0be7c700804cd671494322f06b45c",
+      "integrated_commit": "7aae05643a413cfd8c1e3456c36982806ffabf4e",
       "actual_write_set": [
         "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py",
         "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
         "policy-engine/src/polisyos/scientist/methods/search/service.py",
-        "policy-engine/tests/unit/remediation/test_srv_01.py"
+        "policy-engine/tests/unit/remediation/test_srv_01.py",
+        "policy-engine/tests/unit/remediation/test_srv_03.py",
+        "policy-engine/tests/unit/scientist/search/test_search_loop.py"
       ],
       "shared_writer": "lane2_custody",
       "decision_records": [],
@@ -41696,6 +41738,19 @@
           "result": "Five adjacent scalar best assertions reproduce on the exact predecessor source. Unregistered objective rules withhold best, including the AutoTune objective. The caller path overlaps the touched lifecycle, so this establishes baseline reproduction and does not qualify the larger profile.",
           "source_commit": "1cb561160",
           "guard_sha256": "77d8590821c184b34e1cbc2a029ea13f662b2f7d78db191b95e316f317247005"
+        },
+        {
+          "id": "ctl01_interruption_red",
+          "output": "Primary:policy-engine/_cache/e02/lane02-ctl-interruption.02KaSUy2/red/",
+          "result": "The previous full-run path leaks a RUNNING result after interruption, mishandles typed prior rows in prompt projection and lacks a detached partial committed-history result. Four original failure controls distinguish the old boundary.",
+          "source_commit": "268376e68"
+        },
+        {
+          "id": "ctl01_interruption_qualified",
+          "output": "Primary:policy-engine/_cache/e02/lane02-ctl-interruption.02KaSUy2/qualified/",
+          "result": "33 tests and exact independent review. Completed history, best and frontier survive typed failure/cancellation, including callback/interrupt, malformed late feedback and unreadable budget projection. Two controlled provider calls settle 0.125 each under the existing durable FileBudgetLedger, while pre-dispatch failure adds zero.",
+          "source_commit": "7aae05643a413cfd8c1e3456c36982806ffabf4e",
+          "guard_sha256": "a8f74f4d7d9701039535ad7ceb816f058c3c6cd0b8cf554d619465cde27942ff"
         }
       ],
       "blockers": [],
@@ -41717,6 +41772,25 @@
           "evidence_refs": [
             "ctl_srv_generation_claim_red",
             "ctl_srv_generation_claim_qualified"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-CTL-01-02",
+          "test_id": "TEST-CTL-01-02",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The ordinary SearchController preserves the original exception/cancel and detached completed result with typed terminal status and attempt counters. The real durable owner reports committed spend or explicit unavailable, a refused pre-dispatch adds zero, and a new run does not erase or modify the prior result. Persistent runner restart remains SRV-03.",
+          "criterion_pointer": "04_Трассировка/CTL-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-CTL-01-02"
+          ],
+          "binding_ids": [
+            "E02-I02-A-B02"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "ctl01_interruption_red",
+            "ctl01_interruption_qualified"
           ],
           "remaining_kinds": []
         }
@@ -41840,13 +41914,19 @@
       "lane_sequence": 10,
       "track_id": "02-B",
       "track_position": 4,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "assigned_executor": "stopping_lane",
+      "base_commit": "268376e68",
+      "integrated_commit": "f00189cca21f47a1c21321754ea718f0accb12c8",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+        "policy-engine/tests/unit/scientist/search/test_stopping_c49.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_c49.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -41861,9 +41941,73 @@
         "TEST-STP-01-03",
         "TEST-STP-01-04"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "stp_numerics_after_scales",
+          "output": "Primary:policy-engine/_cache/e02/lane02-stp-numerics.2kZxx5A1/decision/",
+          "result": "130 tests pass with independent exact re-run. Biased rounded equality and overflow no longer create false plateau. Cosine is finite for extreme and subnormal admitted vectors or typed unavailable; rejected metrics and stale embeddings leave current stopping basis unchanged.",
+          "source_commit": "f00189cca21f47a1c21321754ea718f0accb12c8",
+          "guard_sha256": "3f2fdac9948ee5dafdd22b978d299fc191b520ff60e39088d5ab10d17e5fb931"
+        }
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-STP-01-01",
+          "test_id": "TEST-STP-01-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The real detector validates the metric before invoking configured embedding or mutating accepted stops. Rejected and missing observations leave no fresh semantic pair. Valid compatible observations may support heuristic-only stability with the current pair.",
+          "criterion_pointer": "04_Трассировка/STP-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-STP-01-01"
+          ],
+          "binding_ids": [
+            "E02-I02-A-B04"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "stp_numerics_after_scales"
+          ],
+          "remaining_kinds": []
+        },
+        {
+          "requirement_id": "REQ-STP-01-02",
+          "test_id": "TEST-STP-01-02",
+          "status": "PARTIAL",
+          "basis": "The signed finite numerical comparison, exact fallback on overflow or rounded equality and typed diagnostic are verified. Standalone tests compare with an independent Decimal oracle and retain missing basis. The actual controller rollover/readback companion is being reviewed.",
+          "criterion_pointer": "04_Трассировка/STP-01.json#/requirements/1",
+          "test_ids": [
+            "TEST-STP-01-02"
+          ],
+          "binding_ids": [],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "stp_numerics_after_scales"
+          ],
+          "remaining_kinds": [
+            "actual_controller_source_reconciled_extreme_readback"
+          ]
+        },
+        {
+          "requirement_id": "REQ-STP-01-03",
+          "test_id": "TEST-STP-01-03",
+          "status": "PARTIAL",
+          "basis": "Real math and serialized detector diagnostic preserve finite bounded cosine or explicit unavailable with invalid/zero/mismatched vectors. The configured encoder and actual consumer companion is being reviewed.",
+          "criterion_pointer": "04_Трассировка/STP-01.json#/requirements/2",
+          "test_ids": [
+            "TEST-STP-01-03"
+          ],
+          "binding_ids": [],
+          "assessment": "selected_profile_partial",
+          "evidence_refs": [
+            "stp_numerics_after_scales"
+          ],
+          "remaining_kinds": [
+            "configured_encoder_profile_and_actual_consumer"
+          ]
+        }
+      ]
     },
     {
       "packet_id": "SRV-03",
@@ -42059,13 +42203,17 @@
       "lane_sequence": 10,
       "track_id": "02-C",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "assigned_executor": "trn_follow",
+      "base_commit": "268376e68",
+      "integrated_commit": "0aa242144c353ae7a58972ceb9927d7459df7e4a",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+        "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -42080,9 +42228,45 @@
         "TEST-TRN-01-03",
         "TEST-TRN-01-04"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "trn01_history_clock_and_bool_red",
+          "output": "Primary:policy-engine/_cache/e02/lane02-trn01-history-clock.X8uEwFFY/red/",
+          "result": "Exact old path replaces the stored event time with reopen time and uses truthiness of malformed stage-A flags.",
+          "source_commit": "268376e68",
+          "guard_sha256": "83db7abfa32a6bfa02b80b88d506ace6b6b9c3ca571207a3f4d8accad7b77c62"
+        },
+        {
+          "id": "trn01_history_clock_and_bool_green",
+          "output": "Primary:policy-engine/_cache/e02/lane02-trn01-history-clock.X8uEwFFY/clock-green/",
+          "result": "48 checks and exact independent review. Real register_run writes selected CAS history and new WarmStartBridge restores 2001 in UTC; genuine false stays infeasible. Malformed flags or naive input reject; absent historical time has no selected training basis. Configured bridge rechecks admitted rule and source.",
+          "source_commit": "0aa242144c353ae7a58972ceb9927d7459df7e4a",
+          "guard_sha256": "31063092ee04a203f524f0fe24f4eb4ed9a14c9df8dc9fce17840e80910a19ec"
+        }
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-TRN-01-01",
+          "test_id": "TEST-TRN-01-01",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "The actual persisted history and configured warm-start reader retain observation UTC, actual booleans and finite diagnostic values. Invalid rows retain rejection and valid siblings survive. Legacy absence stays historical_time_unknown and has no configured numerical admission. The bare generic optimizer caller is tracked separately as an affected OPT-02 guard.",
+          "criterion_pointer": "04_Трассировка/TRN-01.json#/requirements/0",
+          "test_ids": [
+            "TEST-TRN-01-01"
+          ],
+          "binding_ids": [
+            "E02-I02-D-B01"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "trn01_history_clock_and_bool_red",
+            "trn01_history_clock_and_bool_green"
+          ],
+          "remaining_kinds": []
+        }
+      ]
     },
     {
       "packet_id": "TRN-02",
@@ -42152,13 +42336,16 @@
       "lane_sequence": 10,
       "track_id": "02-D",
       "track_position": 2,
-      "implementation_status": "NOT_STARTED",
-      "local_qualification": "NOT_RUN",
+      "implementation_status": "IN_PROGRESS",
+      "local_qualification": "PARTIAL",
       "integration_qualification": "NOT_RUN",
-      "assigned_executor": null,
-      "base_commit": null,
-      "integrated_commit": null,
-      "actual_write_set": [],
+      "assigned_executor": "fun_prep",
+      "base_commit": "268376e68cbd22f5d586a45e466afd3c5e6eed26",
+      "integrated_commit": "faa21e5310bea27349296b5a2d2e9ce74facb73c",
+      "actual_write_set": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "policy-engine/tests/unit/remediation/test_fun_02.py"
+      ],
       "shared_writer": null,
       "decision_records": [],
       "requirement_ids": [
@@ -42173,9 +42360,45 @@
         "TEST-FUN-02-03",
         "TEST-FUN-02-04"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "id": "fun02_ci_exact_red",
+          "output": "Primary:policy-engine/_cache/e02/lane02-fun0203-red-exact.uXJ7yTk2/budget/",
+          "result": "Four decisive real adapter cases fail against exact original source. Equal widths and effects at 1e308 and max finite produce 0 instead of one half through both L3 and L4. Sixteen other rational cases preserve useful baseline behavior.",
+          "source_commit": "268376e68",
+          "guard_sha256": "965e5df706c35e8584f588565771ba5308ffeacc1b2e756b6851fb5005b9601c"
+        },
+        {
+          "id": "fun02_ci_exact_qualified",
+          "output": "Primary:policy-engine/_build/.tmp/e02/fun-02-03-exact-oracle-r1/",
+          "result": "42 tests pass on exact two-file release. Both real stage adapters use the scale-safe helper. Independent Fraction review confirms 1 ULP worst observed over 25,000 finite positive pairs. Typed missing/invalid/effect-invalid and true zero remain distinct.",
+          "source_commit": "faa21e5310bea27349296b5a2d2e9ce74facb73c",
+          "guard_sha256": "25d5975f48db30d9e07baa315366e9aaa496c3c4497ea288db80b0bf0e6c9854"
+        }
+      ],
       "blockers": [],
-      "deferred_ids": []
+      "deferred_ids": [],
+      "requirement_results": [
+        {
+          "requirement_id": "REQ-FUN-02-03",
+          "test_id": "TEST-FUN-02-03",
+          "status": "CONFIRMED_LOCAL_PROFILE",
+          "basis": "Both actual L3/L4 adapters agree with the exact rational oracle on equal-scale 1e308 and smallest subnormal, ordinary values, synthetic zero and finite clamp controls. Stage holds typed reason and method on valid, missing and invalid branches. Source-owned interval admission remains FUN-02-04.",
+          "criterion_pointer": "04_Трассировка/FUN-02.json#/requirements/2",
+          "test_ids": [
+            "TEST-FUN-02-03"
+          ],
+          "binding_ids": [
+            "E02-I02-C-B03"
+          ],
+          "assessment": "selected_profile_qualified",
+          "evidence_refs": [
+            "fun02_ci_exact_red",
+            "fun02_ci_exact_qualified"
+          ],
+          "remaining_kinds": []
+        }
+      ]
     },
     {
       "packet_id": "FUN-03",

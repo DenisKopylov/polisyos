@@ -16,6 +16,7 @@ import struct
 from dataclasses import asdict, dataclass, fields, replace
 from datetime import UTC, date, datetime
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
@@ -3539,17 +3540,36 @@ def _verify_actual_acquired_native_world(
     world: WorldModelRecord, payload_hash: str, transaction_time: str
 ) -> None:
     """Compare every typed emitted native field with the shared concrete recipe."""
+    ref = world.fabric_world_ref
+    node, facts = _acquired_candidate_fabric_rows(
+        snapshot_id=ref.snapshot_id,
+        payload_hash=payload_hash,
+        transaction_time=transaction_time,
+    )
+    _verify_acquired_fabric_snapshot_rows(
+        Path(ref.snapshot_root), ref.snapshot_id, node=node, facts=facts
+    )
+    if (
+        ref.branch != "candidate"
+        or ref.as_of_tx_time != transaction_time
+        or ref.provenance_manifest_ref != f"cas://{payload_hash.removeprefix('sha256:')}"
+    ):
+        raise DataStateSubstrateError("acquisition_world_native_scope_mismatch")
+
+
+def _verify_acquired_fabric_snapshot_rows(
+    snapshot_root: Path,
+    snapshot_id: str,
+    *,
+    node: WorldSnapshotNodeWrite,
+    facts: tuple[WorldSnapshotFactWrite, ...],
+) -> None:
+    """Verify the complete published Fabric rows for one acquisition snapshot."""
     import polisyos.fabric as fabric
     from polisyos.fabric.world import WorldSnapshotFactWrite, WorldSnapshotNodeWrite
     from polisyos.runtime.quality.world_model_record import _json_scalar
 
-    node, facts = _acquired_candidate_fabric_rows(
-        snapshot_id=world.fabric_world_ref.snapshot_id,
-        payload_hash=payload_hash,
-        transaction_time=transaction_time,
-    )
     with fabric.SimulationDB(db_path=":memory:") as database:
-        actual = []
         for table, model, expected in (
             ("world_nodes", WorldSnapshotNodeWrite, (node,)),
             ("world_facts", WorldSnapshotFactWrite, facts),
@@ -3559,9 +3579,9 @@ def _verify_actual_acquired_native_world(
                 fabric.WorldQueryRequest(
                     table=table,
                     columns=tuple(model.model_fields),
-                    snapshot_root=Path(world.fabric_world_ref.snapshot_root),
-                    snapshot_id=world.fabric_world_ref.snapshot_id,
-                    limit=2,
+                    snapshot_root=snapshot_root,
+                    snapshot_id=snapshot_id,
+                    limit=len(expected) + 1,
                 ),
             )
             rows = []
@@ -3573,14 +3593,6 @@ def _verify_actual_acquired_native_world(
                 rows.append(model.model_validate(values))
             if tuple(rows) != expected:
                 raise DataStateSubstrateError("acquisition_world_native_recipe_mismatch")
-            actual.append(rows)
-    ref = world.fabric_world_ref
-    if (
-        ref.branch != "candidate"
-        or ref.as_of_tx_time != transaction_time
-        or ref.provenance_manifest_ref != f"cas://{payload_hash.removeprefix('sha256:')}"
-    ):
-        raise DataStateSubstrateError("acquisition_world_native_scope_mismatch")
 
 
 def read_acquired_observation_world_semantic_values(
@@ -5255,45 +5267,93 @@ def _write_acquired_candidate_fabric_snapshot(
     as_of_valid_time: str | None,
     source_kind: Literal["native_acquisition", "derived_model_input"] = "native_acquisition",
 ) -> Path:
-    """Use Fabric's snapshot writer with unknown valid time for acquired facts."""
-    from polisyos.fabric.world import (
-        WorldSnapshotWriteRequest,
-        write_world_snapshot,
-    )
+    """Publish one exact acquired world from a private Fabric database."""
+    from polisyos.core.canon import to_canonical_bytes
+    from polisyos.fabric import file_lock
+    from polisyos.fabric.world import WorldSnapshotWriteRequest, write_world_snapshot
+    from polisyos.fabric.world.store import get_world_branch, resolve_world_snapshot
 
-    snapshot_root = workspace_dir / "fabric-world"
-    db_path = workspace_dir / "fabric-world.duckdb"
-    # Materialize the caller-owned job workspace before the file-backed writer.
-    snapshot_root.mkdir(parents=True, exist_ok=True)
-    db_path.parent.mkdir(parents=True, exist_ok=True)
+    if not snapshot_id or snapshot_id in {".", ".."} or Path(snapshot_id).name != snapshot_id:
+        raise DataStateSubstrateError("acquisition_world_snapshot_id_invalid")
     node, facts = _acquired_candidate_fabric_rows(
         snapshot_id=snapshot_id,
         payload_hash=payload_hash,
         transaction_time=transaction_time,
         source_kind=source_kind,
     )
-    write_world_snapshot(
-        db_path,
-        WorldSnapshotWriteRequest(
-            snapshot_root=snapshot_root,
-            snapshot_id=snapshot_id,
-            branch_name="candidate",
-            as_of_valid_time=as_of_valid_time,
-            as_of_tx_time=transaction_time,
-            provenance={
-                "producer": "polisyos.runtime.quality.data_state_substrate",
-                "source_time_status": "not_established",
-                "valid_time_role": "unknown",
-                **(
-                    {"source_kind": "derived_model_input"}
-                    if source_kind == "derived_model_input"
-                    else {}
-                ),
-            },
-            nodes=(node,),
-            facts=facts,
-        ),
+    snapshot_root = workspace_dir / "fabric-world"
+    request = WorldSnapshotWriteRequest(
+        snapshot_root=snapshot_root,
+        snapshot_id=snapshot_id,
+        branch_name="candidate",
+        as_of_valid_time=as_of_valid_time,
+        as_of_tx_time=transaction_time,
+        provenance={
+            "producer": "polisyos.runtime.quality.data_state_substrate",
+            "source_time_status": "not_established",
+            "valid_time_role": "unknown",
+            **(
+                {"source_kind": "derived_model_input"}
+                if source_kind == "derived_model_input"
+                else {}
+            ),
+        },
+        nodes=(node,),
+        facts=facts,
     )
+    identity = hashlib.sha256(
+        to_canonical_bytes(request.model_dump(mode="json", exclude={"snapshot_root"}))
+    ).hexdigest()
+    workspace_dir.mkdir(parents=True, exist_ok=True)
+    workspace = workspace_dir.resolve(strict=True)
+    lock = workspace / "fabric-world.publish.lock"
+    if _require_workspace_output_path(workspace, lock) != lock:
+        raise DataStateSubstrateError("acquisition_world_publish_path_alias", str(lock))
+    with file_lock(lock):
+        retained = workspace / "fabric-world"
+        metadata = retained / "metadata" / f"{snapshot_id}.json"
+        snapshot_file = retained / "snapshots" / f"{snapshot_id}.duckdb"
+        branch = retained / "branches" / "candidate.json"
+        for path in (metadata, snapshot_file, branch):
+            if _require_workspace_output_path(workspace, path) != path:
+                raise DataStateSubstrateError("acquisition_world_publish_path_alias", str(path))
+        if metadata.exists() or snapshot_file.exists():
+            try:
+                saved = resolve_world_snapshot(snapshot_root, snapshot_id=snapshot_id)
+                published_branch = get_world_branch(snapshot_root, request.branch_name)
+            except FileNotFoundError as exc:
+                raise DataStateSubstrateError("acquisition_world_snapshot_incomplete") from exc
+            if (
+                published_branch.branch_name != request.branch_name
+                or published_branch.deleted_at is not None
+                or (
+                    published_branch.head_snapshot_id != snapshot_id
+                    and not any(
+                        event.event_kind in {"branch_created", "branch_head_updated"}
+                        and event.target_branch == request.branch_name
+                        and event.target_snapshot_id == snapshot_id
+                        for event in published_branch.governance_events
+                    )
+                )
+            ):
+                raise DataStateSubstrateError("acquisition_world_snapshot_incomplete")
+            if (
+                saved.snapshot_id != snapshot_id
+                or Path(saved.snapshot_path).resolve() != snapshot_file
+                or saved.branch_name != request.branch_name
+                or saved.as_of_tx_time != request.as_of_tx_time
+                or saved.as_of_valid_time != request.as_of_valid_time
+                or saved.provenance != request.provenance
+            ):
+                raise DataStateSubstrateError("acquisition_world_snapshot_identity_mismatch")
+            _verify_acquired_fabric_snapshot_rows(
+                snapshot_root, snapshot_id, node=node, facts=facts
+            )
+            return snapshot_root
+        # The retained file is a whole-database checkpoint. A fresh private
+        # database has only this request's rows, even when a retry shares its workspace.
+        with TemporaryDirectory(prefix=f".fabric-world-{identity}-", dir=workspace) as staging:
+            write_world_snapshot(Path(staging) / "fabric-world.duckdb", request)
     return snapshot_root
 
 

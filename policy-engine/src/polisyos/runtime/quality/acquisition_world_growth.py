@@ -7987,14 +7987,15 @@ class AcquisitionWorldGrowthBridge:
                         currentness_resolver=currentness_resolver,
                     )
                     controller_kwargs["simulation_port"] = native_context.port
-            self._native_derivation_reentry_readiness(
-                closure=closure,
-                observer=native_budget_observer,
-                coordinator=native_reentry_coordinator,
-                started=started,
-                model_configured=model is not None,
-                draft_recovery=draft_recovery,
-            )
+            if ordinary_budget is None:
+                self._native_derivation_reentry_readiness(
+                    closure=closure,
+                    observer=native_budget_observer,
+                    coordinator=native_reentry_coordinator,
+                    started=started,
+                    model_configured=model is not None,
+                    draft_recovery=draft_recovery,
+                )
             controller = GenerationCycleController(
                 repo_root=self.repo_root,
                 # This bounded ordinary route reissues the existing same-problem

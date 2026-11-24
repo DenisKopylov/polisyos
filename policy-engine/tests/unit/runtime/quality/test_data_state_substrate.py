@@ -16,6 +16,99 @@ from polisyos.runtime.quality.data_state_substrate import (
 from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
 
 
+def test_acquired_fabric_retries_keep_exact_separate_worlds(tmp_path: Path) -> None:
+    """A new transaction must never inherit the previous attempt's native rows."""
+    from polisyos.fabric import resolve_world_snapshot
+
+    workspace = tmp_path / "one-action"
+    first = {
+        "snapshot_id": "acquired-first",
+        "transaction_time": "2026-11-24T01:00:00+00:00",
+        "payload_hash": "sha256:" + "a" * 64,
+    }
+    second = {
+        "snapshot_id": "acquired-retry",
+        "transaction_time": "2026-11-24T01:01:00+00:00",
+        "payload_hash": "sha256:" + "b" * 64,
+    }
+
+    def write(coordinates: dict[str, str]) -> Path:
+        return data_state_substrate_module._write_acquired_candidate_fabric_snapshot(
+            workspace_dir=workspace,
+            snapshot_id=coordinates["snapshot_id"],
+            payload_hash=coordinates["payload_hash"],
+            transaction_time=coordinates["transaction_time"],
+            as_of_valid_time=None,
+        )
+
+    root = write(first)
+    assert root == workspace / "fabric-world"
+    old = root / "snapshots/acquired-first.duckdb"
+    old_bytes = old.read_bytes()
+    branch_path = root / "branches/candidate.json"
+    first_branch = branch_path.read_bytes()
+    assert write(second) == root
+
+    for expected in (first, second):
+        snapshot_id, tx_time, payload = (
+            expected["snapshot_id"],
+            expected["transaction_time"],
+            expected["payload_hash"],
+        )
+        saved = resolve_world_snapshot(root, snapshot_id=snapshot_id)
+        assert (saved.as_of_valid_time, saved.as_of_tx_time) == (None, tx_time)
+        node_id = f"world.acquisition-candidate.{snapshot_id}"
+        with duckdb.connect(saved.snapshot_path, read_only=True) as db:
+            assert db.execute(
+                "SELECT node_id, kind, artifact_id FROM world.world_nodes"
+            ).fetchall() == [(node_id, "candidate_acquired_data_state", payload)]
+            assert db.execute(
+                "SELECT fact_id, subject_id, predicate_id, object_value, valid_time, tx_time "
+                "FROM world.world_facts"
+            ).fetchall() == [
+                (
+                    f"fact:{snapshot_id}:candidate_data_snapshot",
+                    node_id,
+                    "data_state.candidate_snapshot",
+                    payload,
+                    None,
+                    tx_time,
+                )
+            ]
+
+    assert old.read_bytes() == old_bytes
+    assert (
+        resolve_world_snapshot(root, branch_name="candidate").snapshot_id == second["snapshot_id"]
+    )
+    published = {path: path.read_bytes() for path in root.rglob("*") if path.is_file()}
+    assert write(first) == write(second) == root
+    with pytest.raises(
+        DataStateSubstrateError, match="acquisition_world_snapshot_identity_mismatch"
+    ):
+        write({**first, "transaction_time": second["transaction_time"]})
+    assert {path: path.read_bytes() for path in root.rglob("*") if path.is_file()} == published
+
+    # A stopped publish may have copied the database and metadata without
+    # registering the second snapshot on the existing branch.
+    branch_path.write_bytes(first_branch)
+    with pytest.raises(DataStateSubstrateError, match="acquisition_world_snapshot_incomplete"):
+        write(second)
+    assert resolve_world_snapshot(root, branch_name="candidate").snapshot_id == first["snapshot_id"]
+    assert all(
+        path.read_bytes() == value for path, value in published.items() if path != branch_path
+    )
+    branch_path.write_bytes(published[branch_path])
+
+    # A valid-looking metadata selector cannot make modified native rows reusable.
+    with duckdb.connect(str(old)) as db:
+        db.execute("UPDATE world.world_nodes SET label = 'altered native row'")
+    tampered = old.read_bytes()
+    with pytest.raises(DataStateSubstrateError, match="acquisition_world_native_recipe_mismatch"):
+        write(first)
+    assert old.read_bytes() == tampered
+    assert not (workspace / "fabric-world.duckdb").exists()
+
+
 def test_missing_catalog_and_unlisted_variable_have_distinct_owner_outcomes(
     tmp_path: Path,
 ) -> None:

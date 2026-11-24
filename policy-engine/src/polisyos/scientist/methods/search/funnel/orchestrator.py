@@ -496,10 +496,10 @@ class FunnelOrchestrator:
                 != candidate_hash
             ):
                 raise ValueError("funnel_prior_attempt_subject_mismatch")
-        metric_projection_basis = ticket_context.pop("_funnel_method_metric_projection_basis", None)
+        metric_projection_basis = ticket_context.get("_funnel_method_metric_projection_basis")
         cache_context = dict(ticket_context)
         if metric_projection_basis is not None:
-            cache_context["_funnel_method_metric_projection_basis"] = metric_projection_basis
+            ticket_context.pop("_funnel_method_metric_projection_basis")
         if search_uncertainty_owner_context is not None:
             cache_context["search_uncertainty_owner_context"] = (
                 search_uncertainty_owner_context.model_dump(mode="json", exclude_none=False)

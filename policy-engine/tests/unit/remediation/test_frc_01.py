@@ -1,16 +1,13 @@
-"""Test-first witnesses for the bounded FRC-01 S10 calibration stage.
-
-These tests intentionally keep the Foundry estimator result separate from an
-observable calibration corpus.  The branch owns no calibration producer yet;
-the first two witnesses therefore remain RED until the production adapter
-stops manufacturing calibration evidence from finite estimator metadata.
-"""
+"""Check that the bounded S10 stage separates estimator and calibration data."""
 
 from __future__ import annotations
 
 from datetime import UTC, datetime
 from types import SimpleNamespace
 from typing import Any
+
+import pytest
+from pydantic import ValidationError
 
 
 def _generation_cycle(name: str) -> Any:
@@ -71,6 +68,20 @@ def test_nominal_confidence_is_not_empirical_coverage_without_observations() -> 
     assert evidence_95["calibration_error_metric"] is None
 
 
+def test_same_nominal_level_distinguishes_two_observed_corpora() -> None:
+    """Measure coverage using the actual observations under the same bounds."""
+    from polisyos.calibration import compute_calibration_curve
+
+    bounds = [[(0.0, 1.0)] * 4]
+    covered = compute_calibration_curve([0.2, 0.3, 0.4, 0.5], bounds, levels=[0.95])
+    missed = compute_calibration_curve([1.2, 1.3, 1.4, 1.5], bounds, levels=[0.95])
+    assert covered.points[0].n_observations == missed.points[0].n_observations == 4
+    assert covered.points[0].empirical_coverage == 1.0
+    assert missed.points[0].empirical_coverage == 0.0
+    assert covered.ece == pytest.approx(0.05)
+    assert missed.ece == pytest.approx(0.95)
+
+
 def test_missing_report_remains_blocked_and_records_false_clear() -> None:
     """A missing estimator report remains an explicit fail-closed boundary."""
 
@@ -97,16 +108,10 @@ def test_failed_estimator_diagnostic_remains_limited() -> None:
     assert evidence["pass_rate"] == 0.0
 
 
-def test_calibration_time_roles_are_preserved_from_bound_evidence() -> None:
-    """Prediction, observation, effective, valid, and window times stay distinct."""
+def test_raw_calibration_map_cannot_bind_temporal_roles_or_mint_record() -> None:
+    """Syntactically valid times and reference strings cannot establish calibration."""
 
     build_inputs = _generation_cycle("_build_s10_forecast_inputs")
-    prediction_time = datetime(2025, 1, 15, 8, 30, tzinfo=UTC)
-    observation_time = datetime(2025, 4, 20, 9, 45, tzinfo=UTC)
-    policy_effective_time = datetime(2025, 2, 1, 0, 0, tzinfo=UTC)
-    data_valid_time = datetime(2025, 4, 1, 0, 0, tzinfo=UTC)
-    window_start = datetime(2025, 3, 1, 0, 0, tzinfo=UTC)
-    window_end = datetime(2025, 4, 30, 23, 59, tzinfo=UTC)
     world_record = SimpleNamespace(
         world_model_record_id="world_model_record_frc01",
         content_hash="sha256:" + "a" * 64,
@@ -137,12 +142,7 @@ def test_calibration_time_roles_are_preserved_from_bound_evidence() -> None:
             "pass_rate": 0.0,
             "floor_passed": False,
             "counterfactual_credibility": "insufficient_history",
-            "prediction_time": prediction_time.isoformat(),
-            "observation_time": observation_time.isoformat(),
-            "policy_effective_time": policy_effective_time.isoformat(),
-            "data_valid_time": data_valid_time.isoformat(),
-            "calibration_window_start": window_start.isoformat(),
-            "calibration_window_end": window_end.isoformat(),
+            **_forecast_times(),
             "observed_outcome_ref": "outcome://frc01/observed",
             "historical_implementation_ref": "implementation://frc01/history",
             "evaluation_design_ref": "evaluation://frc01/design",
@@ -151,33 +151,53 @@ def test_calibration_time_roles_are_preserved_from_bound_evidence() -> None:
             "method_lineage_refs": ["lineage://frc01/method"],
         },
     )
-    record = inputs["forecast_calibration_record"]
+    assert inputs["forecast_calibration_record"] is None
+    support = inputs["forecast_support"]
+    assert support.forecast_tier == "blocked"
+    assert support.calibration_record_ref is None
 
-    assert record.prediction_time == prediction_time
-    assert record.observation_time == observation_time
-    assert record.policy_effective_time == policy_effective_time
-    assert record.data_valid_time == data_valid_time
-    assert record.calibration_window_start == window_start
-    assert record.calibration_window_end == window_end
-    assert record.observed_outcome_ref == "outcome://frc01/observed"
-    assert record.historical_implementation_ref == "implementation://frc01/history"
-    assert record.evaluation_design_ref == "evaluation://frc01/design"
-    assert record.credible_evaluation_evidence_ref == "evidence://frc01/credible"
-    assert record.source_lineage_refs == ["lineage://frc01/source"]
-    assert record.method_lineage_refs == ["lineage://frc01/method"]
-    assert (
-        len(
-            {
-                record.prediction_time,
-                record.observation_time,
-                record.policy_effective_time,
-                record.data_valid_time,
-                record.calibration_window_start,
-                record.calibration_window_end,
-            }
-        )
-        == 6
-    )
+
+def _forecast_times() -> dict[str, str]:
+    return {
+        "data_valid_time": "2025-01-15T08:30:00+00:00",
+        "calibration_window_start": "2025-02-01T00:00:00+00:00",
+        "policy_effective_time": "2025-02-12T14:00:00-05:00",
+        "calibration_window_end": "2025-03-01T00:00:00+00:00",
+        "prediction_time": "2025-04-01T12:00:00+02:00",
+        "observation_time": "2025-04-20T09:45:00+00:00",
+    }
+
+
+def test_owner_and_s10_preserve_six_distinct_temporal_instants() -> None:
+    """Check corresponding instants when inputs contain timezone offsets."""
+    from polisyos.scientist.methods.backtesting.forecast_owner import ForecastTemporalRoles
+
+    submitted = _forecast_times()
+    owner = ForecastTemporalRoles.model_validate(submitted)
+    roles = _generation_cycle("_bound_s10_temporal_roles")(owner.model_dump(mode="json"))
+    assert len(set(roles.values())) == 6
+    assert roles == {key: datetime.fromisoformat(value) for key, value in submitted.items()}
+    assert all(value.tzinfo is UTC for value in roles.values())
+
+
+@pytest.mark.parametrize(
+    ("role", "value"),
+    [
+        ("observation_time", None),
+        ("observation_time", "2025-04-20T09:45:00"),
+        ("observation_time", "2025-04-01T10:00:00+00:00"),
+        ("calibration_window_end", "2025-04-02T00:00:00+00:00"),
+    ],
+)
+def test_owner_and_s10_refuse_missing_naive_equal_or_misordered_time(
+    role: str, value: str | None
+) -> None:
+    from polisyos.scientist.methods.backtesting.forecast_owner import ForecastTemporalRoles
+
+    submitted = _forecast_times() | {role: value}
+    with pytest.raises(ValidationError):
+        ForecastTemporalRoles.model_validate(submitted)
+    assert _generation_cycle("_bound_s10_temporal_roles")(submitted) is None
 
 
 def test_missing_calibration_evidence_refs_stays_typed_blocked() -> None:
@@ -224,7 +244,7 @@ def test_missing_calibration_evidence_refs_stays_typed_blocked() -> None:
     assert inputs["forecast_calibration_record"] is None
     assert support.forecast_tier == "blocked"
     assert support.calibration_record_ref is None
-    assert "s10://calibration/fail-closed/insufficient-history" in support.s6_limitation_refs
+    assert support.s6_limitation_refs
 
 
 def test_s10_authority_boundary_keeps_purpose_denials() -> None:

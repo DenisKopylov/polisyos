@@ -122,12 +122,16 @@ def _basis_input_edges(basis: gc.ValueOwnerMethodRunBasisV2) -> list[Any]:
     ]
 
 
-def _request_input_edges(request: gc.ValueOwnerMethodRunnerRequestV1) -> list[Any]:
+def _request_input_edges(
+    request: gc.ValueOwnerMethodRunnerRequestV1,
+    selection_ref: gc.ValueArtifactBindingRefV1,
+) -> list[Any]:
     return [
         gc._value_input_ref(request.intent_ref, role="immutable_run_intent"),
         gc._value_input_ref(request.profile_ref, role="selected_owner_profile"),
         gc._value_input_ref(request.assignment_ref, role="owner_assignment"),
         gc._value_input_ref(request.panel_input_ref, role="exact_method_input_bytes"),
+        gc._value_input_ref(selection_ref, role="method_selection_receipt"),
     ]
 
 
@@ -245,10 +249,6 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
     }
     intent_payload["content_hash"] = gc.gy_content_hash(intent_payload)
     intent = gc.ValueOwnerMethodRunIntentV1.model_validate(intent_payload)
-    world = SimpleNamespace(
-        content_hash="sha256:" + "a" * 64,
-        valid_time_scope="controlled-fixture",
-    )
     trust = DataTrust(
         tier="candidate_fixture",
         trust_cap=0.5,
@@ -277,14 +277,22 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
     outer_sets = []
     basis_refs: list[gc.ValueArtifactBindingRefV1] = []
     captured_basis_refs: list[gc.ValueArtifactBindingRefV1] = []
+    captured_producer_arguments: list[dict[str, Any]] = []
+    captured_consumer_arguments: list[dict[str, Any]] = []
     original_producer = producer
 
     def capture_producer(**kwargs: Any) -> gc.ValueArtifactBindingRefV1:
+        captured_producer_arguments.append(dict(kwargs))
         basis_ref = original_producer(**kwargs)
         captured_basis_refs.append(basis_ref)
         return basis_ref
 
+    def capture_consumer(**kwargs: Any) -> Any:
+        captured_consumer_arguments.append(dict(kwargs))
+        return consumer(**kwargs)
+
     monkeypatch.setattr(gc, "_produce_value_owner_method_run_basis", capture_producer)
+    monkeypatch.setattr(gc, "_value_outer_set_from_owner_method_run_basis", capture_consumer)
     from tests.unit.runtime.quality.test_value_gate import (
         _avg_income_candidate,
         _avg_income_problem,
@@ -299,6 +307,21 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
 
         def load_value_method_run_intent(self, **_: Any) -> gc.ValueOwnerMethodRunIntentV1:
             return intent
+
+    def read_basis(
+        basis_ref: gc.ValueArtifactBindingRefV1,
+        *,
+        selection_inputs: dict[str, Any] | None = None,
+    ) -> Any:
+        arguments = {
+            **captured_consumer_arguments[0],
+            "store": ir_store,
+            "run_basis_ref": basis_ref,
+            "data_trust": trust,
+        }
+        if selection_inputs is not None:
+            arguments["selection_inputs"] = selection_inputs
+        return consumer(**arguments)
 
     for method_fqn, params in method_cases:
         if method_fqn == method_cases[0][0]:
@@ -328,14 +351,37 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
             assert observation.value_ref is not None
             assert observation.selected_method_fqn == method_fqn
             assert len(captured_basis_refs) == 1
+            assert len(captured_consumer_arguments) == 1
             basis_ref = captured_basis_refs[-1]
+            selected_inputs = captured_consumer_arguments[0]["selection_inputs"]
         else:
+            selected_inputs = {
+                **captured_consumer_arguments[0]["selection_inputs"],
+                "method_fqn": method_fqn,
+            }
+            registry = captured_consumer_arguments[0]["registry"]
+            registry_report = captured_consumer_arguments[0]["registry_report"]
+            selected = gc._select_value_method(
+                candidate=candidate,
+                problem=gc._selector_problem_for_value_profile(problem, profile),
+                inputs=selected_inputs,
+                registry=registry,
+                registry_report=registry_report,
+            )
+            assert selected["status"] == "selected", selected
+            selection_receipt = gc.MethodSelectionReceipt.model_validate(
+                selected["selection_receipt"]
+            )
+            assert selection_receipt.selected_method_fqn == method_fqn
             basis_ref = producer(
                 store=ir_store,
                 profile=profile,
                 intent=intent,
                 selected_method_fqn=method_fqn,
                 method_parameters=params,
+                registry=registry,
+                selection_receipt=selection_receipt,
+                selection_inputs=selected_inputs,
             )
         basis_refs.append(basis_ref)
         basis = gc.ValueOwnerMethodRunBasisV2.model_validate(
@@ -368,12 +414,7 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
                 runner_request.native_estimand_binding
             ),
         )
-        value_set = consumer(
-            store=ir_store,
-            run_basis_ref=basis_ref,
-            world_record=world,
-            data_trust=trust,
-        )
+        value_set = read_basis(basis_ref, selection_inputs=selected_inputs)
         assert report.status.value == "success"
         assert report.estimand == estimand.estimand_id
         assert projected_interval is not None
@@ -409,6 +450,19 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
     first_request = gc.ValueOwnerMethodRunnerRequestV1.model_validate(
         get_json_artifact(ir_store, first_basis.runner_request_ref.model_dump(mode="python"))
     )
+    request_manifest = ir_store.get_manifest_by_profile(
+        first_basis.runner_request_ref.artifact_id,
+        first_basis.runner_request_ref.manifest_profile_sha256,
+    )
+    selection_edges = [
+        edge for edge in request_manifest.inputs if edge.role == "method_selection_receipt"
+    ]
+    assert len(selection_edges) == 1
+    selection_ref = gc.ValueArtifactBindingRefV1(
+        artifact_id=str(selection_edges[0].artifact_id),
+        kind="runtime.value_owner_method_selection_receipt",
+        manifest_profile_sha256=selection_edges[0].manifest_profile_sha256,
+    )
     changed_parameters = json.loads(first_request.method_parameters_json)
     changed_parameters["confidence_level"] = 0.90
     changed_request_payload = first_request.model_dump(mode="json", exclude={"content_hash"})
@@ -430,7 +484,7 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
         changed_request.model_dump(mode="json"),
         kind="runtime.value_owner_method_runner_request",
         schema="runtime.value_owner_method_runner_request.v1",
-        inputs=_request_input_edges(changed_request),
+        inputs=_request_input_edges(changed_request, selection_ref),
     )
     changed_report_ref_raw = persist_causal_effect_report(
         ir_store,
@@ -460,12 +514,7 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
         ValueError,
         match="value_owner_method_execution_receipt_binding_mismatch",
     ):
-        consumer(
-            store=ir_store,
-            run_basis_ref=changed_parameters_basis_ref,
-            world_record=world,
-            data_trust=trust,
-        )
+        read_basis(changed_parameters_basis_ref)
 
     # A content-valid replacement receipt still cannot make the frozen report
     # agree with the changed confidence request; the consumer checks the output.
@@ -514,12 +563,7 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
         ValueError,
         match="value_owner_method_execution_report_parameters_mismatch",
     ):
-        consumer(
-            store=ir_store,
-            run_basis_ref=parameter_output_mismatch_basis_ref,
-            world_record=world,
-            data_trust=trust,
-        )
+        read_basis(parameter_output_mismatch_basis_ref)
 
     changed_intent_payload = intent.model_dump(mode="json", exclude={"content_hash"})
     changed_intent_payload["seed"] = intent.seed + 1
@@ -580,7 +624,7 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
         changed_seed_request.model_dump(mode="json"),
         kind="runtime.value_owner_method_runner_request",
         schema="runtime.value_owner_method_runner_request.v1",
-        inputs=_request_input_edges(changed_seed_request),
+        inputs=_request_input_edges(changed_seed_request, selection_ref),
     )
     changed_seed_report_ref = gc._value_artifact_ref(
         persist_causal_effect_report(
@@ -616,12 +660,7 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
         ValueError,
         match="value_owner_method_execution_receipt_binding_mismatch",
     ):
-        consumer(
-            store=ir_store,
-            run_basis_ref=changed_seed_basis_ref,
-            world_record=world,
-            data_trust=trust,
-        )
+        read_basis(changed_seed_basis_ref)
 
     first_basis = gc.ValueOwnerMethodRunBasisV2.model_validate(
         get_json_artifact(ir_store, basis_refs[0].model_dump(mode="python"))
@@ -663,23 +702,13 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
         canon_spec=CanonSpec(forbid_floats=True),
     )
     with pytest.raises(ValueError, match="value_owner_method_report_method_mismatch"):
-        consumer(
-            store=ir_store,
-            run_basis_ref=swapped_ref,
-            world_record=world,
-            data_trust=trust,
-        )
+        read_basis(swapped_ref)
 
     missing_basis_ref_payload = basis_refs[0].model_dump(mode="json")
     missing_basis_ref_payload["artifact_id"] = "sha256:" + "f" * 64
     missing_basis_ref = gc.ValueArtifactBindingRefV1.model_validate(missing_basis_ref_payload)
     with pytest.raises((ValueError, OSError, KeyError)):
-        consumer(
-            store=ir_store,
-            run_basis_ref=missing_basis_ref,
-            world_record=world,
-            data_trust=trust,
-        )
+        read_basis(missing_basis_ref)
 
     class _TamperedPanelProfileStore:
         def __init__(self, delegate: Any) -> None:
@@ -715,11 +744,10 @@ def test_two_real_method_reports_share_owner_coordinate_and_fresh_cas_basis(
         profile_context.setattr(numpy_runner.NumpyRunner, "execute", forbidden_runner_call)
         with pytest.raises(ValueError, match="ir_artifact_selected_manifest_changed"):
             producer(
-                store=_TamperedPanelProfileStore(core_store),
-                profile=profile,
-                intent=intent,
-                selected_method_fqn=method_cases[0][0],
-                method_parameters=method_cases[0][1],
+                **{
+                    **captured_producer_arguments[0],
+                    "store": _TamperedPanelProfileStore(core_store),
+                }
             )
 
 

@@ -13,6 +13,7 @@ from polisyos.runtime.quality import generation_cycle as gc
 from polisyos.runtime.quality.candidate_value_method import (
     CandidateValueMethodImplementationError,
     _candidate_method_discovery,
+    _reconcile_selected_outer_set,
     project_candidate_value_method,
 )
 from polisyos.runtime.quality.generation_cycle import (
@@ -295,6 +296,139 @@ def test_completed_projection_roundtrips_derived_outer_width_and_refuses_tamperi
     payload["status"] = "not_established"
     with pytest.raises(ValueError, match="run_candidate_value_method_unverified_output_present"):
         RunCandidateValueMethodProjection.model_validate(payload)
+
+
+def test_selected_outer_replay_binds_numeric_profile_and_physical_content(tmp_path: Path) -> None:
+    """Old and new selected artifacts cannot exchange numerical-profile authority."""
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.core.contracts import DataTrust, ValueOuterSet
+    from polisyos.ir import CanonSpec, put_json_artifact
+
+    core_store = FileSystemCAS(tmp_path / "cas")
+    store = ensure_ir_artifact_store(core_store)
+    spec = CanonSpec(forbid_floats=False)
+    basis = ArtifactRef.model_validate(
+        put_json_artifact(
+            store,
+            {"fixture": "basis"},
+            kind="runtime.value_owner_method_run_basis",
+            schema_name="runtime.value_owner_method_run_basis.v2",
+            schema_version="2.0",
+            canon_spec=spec,
+            return_selected_profile=True,
+        )
+    )
+    foreign_basis = ArtifactRef.model_validate(
+        put_json_artifact(
+            store,
+            {"fixture": "foreign-basis"},
+            kind="runtime.value_owner_method_run_basis",
+            schema_name="runtime.value_owner_method_run_basis.v2",
+            schema_version="2.0",
+            canon_spec=spec,
+            return_selected_profile=True,
+        )
+    )
+    current = ValueOuterSet.interval_box(
+        coordinates=("outcome",),
+        lower=(0.0,),
+        upper=(1e-6,),
+        identification_mode="proxy",
+        assumptions=("test",),
+        assumption_status="externally_supported",
+        calibration_scope={},
+        data_trust=DataTrust(
+            tier="test", trust_cap=1.0, trust_multiplier=1.0, authority_ref="test:trust"
+        ),
+        world_model_record_ref="test:world",
+        epoch="test:epoch",
+        representation_status="certified",
+    )
+    new_payload = current.model_dump(mode="json")
+    old_payload = {key: value for key, value in new_payload.items() if key != "numerical_profile"}
+
+    def persist(payload: object, *, version: str) -> ArtifactRef:
+        return ArtifactRef.model_validate(
+            put_json_artifact(
+                store,
+                payload,
+                kind="runtime.value_outer_set_candidate_fixture",
+                schema_name="runtime.value_outer_set_candidate_fixture",
+                schema_version=version,
+                inputs=[
+                    gc._value_input_ref(
+                        gc._value_artifact_ref(basis), role="owner_method_run_basis"
+                    )
+                ],
+                canon_spec=spec,
+                return_selected_profile=True,
+            )
+        )
+
+    old_ref = persist(old_payload, version="1.0")
+    new_ref = persist(new_payload, version="2.0")
+    old = _reconcile_selected_outer_set(
+        store, value_ref=old_ref, run_basis_ref=basis, recomputed=current
+    )
+    assert old.numerical_profile is None
+    assert old.width == current.width == (1e-6,)
+    assert not old.promotion_decision().promotable
+    assert (
+        _reconcile_selected_outer_set(
+            store, value_ref=new_ref, run_basis_ref=basis, recomputed=current
+        )
+        == current
+    )
+
+    large_fields = current.model_dump(mode="python", exclude={"width"})
+    large_fields["upper"] = (float(2**53),)
+    large = ValueOuterSet.model_validate(large_fields)
+    large_payload = large.model_dump(mode="json")
+    valid_large_ref = persist(large_payload, version="2.0")
+    assert (
+        _reconcile_selected_outer_set(
+            store, value_ref=valid_large_ref, run_basis_ref=basis, recomputed=large
+        )
+        == large
+    )
+    for invalid_width in (2**53 + 1, 10**400):
+        tampered_ref = persist({**large_payload, "width": [invalid_width]}, version="2.0")
+        with pytest.raises(ValueError, match="candidate_value_method_outer_payload_invalid"):
+            _reconcile_selected_outer_set(
+                store, value_ref=tampered_ref, run_basis_ref=basis, recomputed=large
+            )
+
+    for ref in (persist(old_payload, version="2.0"), persist(new_payload, version="1.0")):
+        with pytest.raises(ValueError, match="candidate_value_method_outer_payload_invalid"):
+            _reconcile_selected_outer_set(
+                store, value_ref=ref, run_basis_ref=basis, recomputed=current
+            )
+    # A self-consistent but different bound is still not the method's result.
+    changed = {**new_payload, "upper": [2e-6], "width": [2e-6]}
+    changed_ref = persist(changed, version="2.0")
+    with pytest.raises(ValueError, match="candidate_value_method_outer_reconciliation_mismatch"):
+        _reconcile_selected_outer_set(
+            store, value_ref=changed_ref, run_basis_ref=basis, recomputed=current
+        )
+    with pytest.raises(ValueError, match="candidate_value_method_outer_reconciliation_mismatch"):
+        _reconcile_selected_outer_set(
+            store, value_ref=new_ref, run_basis_ref=foreign_basis, recomputed=current
+        )
+
+    blob = core_store._member_path(new_ref.artifact_id, "blob", None)
+    raw = blob.read_bytes()
+    blob.unlink()
+    with pytest.raises(FileNotFoundError):
+        _reconcile_selected_outer_set(
+            store, value_ref=new_ref, run_basis_ref=basis, recomputed=current
+        )
+    blob.write_bytes(raw)
+    assert (
+        _reconcile_selected_outer_set(
+            store, value_ref=new_ref, run_basis_ref=basis, recomputed=current
+        )
+        == current
+    )
 
 
 def test_source_request_persistence_preserves_native_epoch_selected_lineage(

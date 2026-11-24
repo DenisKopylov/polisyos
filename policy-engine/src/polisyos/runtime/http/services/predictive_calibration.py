@@ -56,6 +56,7 @@ from polisyos.runtime.http.services.run_operation_idempotency import (
     RuntimeOperationIntentKey,
     RuntimeOperationIntentStore,
 )
+from polisyos.runtime.quality.design_axes.outcome_prediction import ForecastIntervalSupport
 from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
 from polisyos.runtime.quality.event_log import DiagnosticEventPayloadPolicy
 from polisyos.runtime.quality.forecast_profile_binding import (
@@ -96,8 +97,20 @@ _PRIOR_ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_association
 _PRIOR_ASSOCIATION_VERSION = "3.0"
 _PREVIOUS_ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_association.v4"
 _PREVIOUS_ASSOCIATION_VERSION = "4.0"
-_ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_association.v5"
-_ASSOCIATION_VERSION = "5.0"
+_V5_ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_association.v5"
+_V5_ASSOCIATION_VERSION = "5.0"
+_ASSOCIATION_SCHEMA = "polisyos.runtime.predictive_calibration_association.v6"
+_ASSOCIATION_VERSION = "6.0"
+_ASSOCIATION_SCHEMA_BY_VERSION = {
+    _LEGACY_ASSOCIATION_VERSION: _LEGACY_ASSOCIATION_SCHEMA,
+    _PRIOR_ASSOCIATION_VERSION: _PRIOR_ASSOCIATION_SCHEMA,
+    _PREVIOUS_ASSOCIATION_VERSION: _PREVIOUS_ASSOCIATION_SCHEMA,
+    _V5_ASSOCIATION_VERSION: _V5_ASSOCIATION_SCHEMA,
+    _ASSOCIATION_VERSION: _ASSOCIATION_SCHEMA,
+}
+_ASSOCIATION_VERSION_BY_SCHEMA = {
+    schema: version for version, schema in _ASSOCIATION_SCHEMA_BY_VERSION.items()
+}
 _N4_OUTCOME_BINDING_LIMITATION_CODE = "n4_outcome_target_binding_not_established"
 _N4_OUTCOME_BINDING_LIMITATION_REF = (
     f"s10://calibration/fail-closed/{_N4_OUTCOME_BINDING_LIMITATION_CODE}"
@@ -257,6 +270,9 @@ class PredictiveCalibrationS10Summary(BaseModel):
     denominator: int | None = Field(default=None, ge=0)
     observed_pass_rate: float | None = Field(default=None, ge=0.0, le=1.0)
     calibration_record_ref: str | None = None
+    interval_support: ForecastIntervalSupport | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     outcome_binding_status: Literal["not_established"] | None = None
     limitation_refs: tuple[str, ...] = ()
     authority_boundary: AuthorityBoundary | None = None
@@ -273,6 +289,7 @@ class PredictiveCalibrationAssociation(BaseModel):
         "polisyos.runtime.predictive_calibration_association.v3",
         "polisyos.runtime.predictive_calibration_association.v4",
         "polisyos.runtime.predictive_calibration_association.v5",
+        "polisyos.runtime.predictive_calibration_association.v6",
     ] = _ASSOCIATION_SCHEMA
     event_id: str = Field(min_length=1)
     intent_id: str = Field(min_length=1, max_length=120)
@@ -319,7 +336,7 @@ class PredictiveCalibrationAssociation(BaseModel):
         observed = (self.observed_numerator, self.observed_denominator, self.observed_hit_rate)
         source_unestablished = "backtest_source_not_established" in self.evidence_reason_codes
         if (
-            self.schema_version == _ASSOCIATION_SCHEMA
+            self.schema_version in {_ASSOCIATION_SCHEMA, _V5_ASSOCIATION_SCHEMA}
             and source_unestablished
             and any(value is not None for value in observed)
         ):
@@ -327,7 +344,7 @@ class PredictiveCalibrationAssociation(BaseModel):
         if any(value is None for value in observed):
             if any(value is not None for value in observed):
                 raise ValueError("predictive_calibration_observations_incomplete")
-            if self.schema_version != _ASSOCIATION_SCHEMA:
+            if self.schema_version not in {_ASSOCIATION_SCHEMA, _V5_ASSOCIATION_SCHEMA}:
                 raise ValueError("predictive_calibration_legacy_observations_missing")
             if not source_unestablished or (
                 "s10://calibration/fail-closed/backtest_source_not_established"
@@ -359,9 +376,29 @@ class PredictiveCalibrationAssociation(BaseModel):
             or self.forecast_profile_member_ref.manifest_profile_sha256 is None
         ):
             raise ValueError("predictive_calibration_profile_member_binding_invalid")
+        interval = self.s10.interval_support
+        if interval is not None and (
+            self.schema_version != _ASSOCIATION_SCHEMA
+            or ArtifactRef.model_validate(interval.bundle_ref) != self.uncertainty_bundle_ref
+            or ArtifactRef.model_validate(interval.observed_source_ref) != self.observed_source_ref
+            or (
+                None
+                if interval.forecast_profile_member_ref is None
+                else ArtifactRef.model_validate(interval.forecast_profile_member_ref)
+            )
+            != self.forecast_profile_member_ref
+            or interval.method_fqn != _METHOD_FQN
+            or interval.nominal_coverage != self.nominal_confidence_level
+        ):
+            raise ValueError("predictive_calibration_s10_interval_binding_mismatch")
         if (
             self.schema_version
-            in {_ASSOCIATION_SCHEMA, _PREVIOUS_ASSOCIATION_SCHEMA, _PRIOR_ASSOCIATION_SCHEMA}
+            in {
+                _ASSOCIATION_SCHEMA,
+                _V5_ASSOCIATION_SCHEMA,
+                _PREVIOUS_ASSOCIATION_SCHEMA,
+                _PRIOR_ASSOCIATION_SCHEMA,
+            }
             or self.candidate_source_ref.kind == "runtime.quality.n4_candidate_scenario_source"
         ) and (
             self.s10.outcome_binding_status != "not_established"
@@ -414,6 +451,7 @@ def _s10_summary_from_owner(
             None if record is None else float(getattr(record, "pass_rate", 0.0) or 0.0)
         ),
         calibration_record_ref=getattr(record, "calibration_ref", None),
+        interval_support=support.interval_support,
         outcome_binding_status="not_established",
         limitation_refs=tuple(
             dict.fromkeys(
@@ -989,24 +1027,7 @@ def load_run_predictive_calibration(
     ):
         raise PredictiveCalibrationError("predictive_calibration_event_scope_mismatch")
     payload = _read_event_payload(store, record)
-    if payload.get("schema_version") not in {
-        _ASSOCIATION_VERSION,
-        _PREVIOUS_ASSOCIATION_VERSION,
-        _LEGACY_ASSOCIATION_VERSION,
-    }:
-        raise PredictiveCalibrationError("predictive_calibration_event_payload_schema_mismatch")
-    raw_association_ref = payload.get("association_ref")
-    try:
-        association_ref = ArtifactRef.model_validate(raw_association_ref)
-    except (TypeError, ValueError) as exc:
-        raise PredictiveCalibrationError("predictive_calibration_association_ref_invalid") from exc
-    if str(association_ref.artifact_id) not in event.artifact_refs:
-        raise PredictiveCalibrationError("predictive_calibration_event_ref_mismatch")
-    association = _load_association(store, association_ref)
-    if _association_event_version(association.schema_version) != payload.get("schema_version"):
-        raise PredictiveCalibrationError(
-            "predictive_calibration_event_association_binding_mismatch"
-        )
+    association_ref, association = _load_association_for_event(store, event, payload)
     expected_event_inputs = {
         str(getattr(association, field).artifact_id)
         for field in (
@@ -1062,14 +1083,8 @@ def _n4_outcome_target_binding_record(
 
 
 def _association_event_version(schema_version: str) -> str:
-    versions = {
-        _ASSOCIATION_SCHEMA: _ASSOCIATION_VERSION,
-        _PREVIOUS_ASSOCIATION_SCHEMA: _PREVIOUS_ASSOCIATION_VERSION,
-        _PRIOR_ASSOCIATION_SCHEMA: _PRIOR_ASSOCIATION_VERSION,
-        _LEGACY_ASSOCIATION_SCHEMA: _LEGACY_ASSOCIATION_VERSION,
-    }
     try:
-        return versions[schema_version]
+        return _ASSOCIATION_VERSION_BY_SCHEMA[schema_version]
     except KeyError as exc:
         raise PredictiveCalibrationError(
             "predictive_calibration_association_manifest_mismatch"
@@ -1220,27 +1235,11 @@ def _load_existing_intent(
     ):
         raise PredictiveCalibrationError("predictive_calibration_intent_event_binding_mismatch")
     payload = _read_event_payload(store, record)
-    if payload.get("schema_version") not in {
-        _ASSOCIATION_VERSION,
-        _PREVIOUS_ASSOCIATION_VERSION,
-        _LEGACY_ASSOCIATION_VERSION,
-    }:
-        raise PredictiveCalibrationError("predictive_calibration_event_payload_schema_mismatch")
     if payload.get("intent_id") != intent_id or payload.get("request_sha256") != request_sha256:
         raise PredictiveCalibrationError("predictive_calibration_intent_conflict")
     if legacy_scope_unverifiable:
         raise PredictiveCalibrationError("predictive_calibration_legacy_intent_scope_unverifiable")
-    try:
-        association_ref = ArtifactRef.model_validate(payload.get("association_ref"))
-    except (TypeError, ValueError) as exc:
-        raise PredictiveCalibrationError("predictive_calibration_association_ref_invalid") from exc
-    if str(association_ref.artifact_id) not in event.artifact_refs:
-        raise PredictiveCalibrationError("predictive_calibration_event_ref_mismatch")
-    association = _load_association(store, association_ref)
-    if _association_event_version(association.schema_version) != payload.get("schema_version"):
-        raise PredictiveCalibrationError(
-            "predictive_calibration_event_association_binding_mismatch"
-        )
+    association_ref, association = _load_association_for_event(store, event, payload)
     control_run_id = _require_event_log_owner(
         event_log,
         store=store,
@@ -1560,24 +1559,37 @@ def _append_association_event(
     )
 
 
+def _load_association_for_event(
+    store: ArtifactStore, event: DiagnosticEvent, payload: Mapping[str, Any]
+) -> tuple[ArtifactRef, PredictiveCalibrationAssociation]:
+    """Resolve the selected association and reconcile its published wire version."""
+    try:
+        association_ref = ArtifactRef.model_validate(payload.get("association_ref"))
+    except (TypeError, ValueError) as exc:
+        raise PredictiveCalibrationError("predictive_calibration_association_ref_invalid") from exc
+    if str(association_ref.artifact_id) not in event.artifact_refs:
+        raise PredictiveCalibrationError("predictive_calibration_event_ref_mismatch")
+    association = _load_association(store, association_ref)
+    if _association_event_version(association.schema_version) != payload.get("schema_version"):
+        raise PredictiveCalibrationError(
+            "predictive_calibration_event_association_binding_mismatch"
+        )
+    return association_ref, association
+
+
 def _load_association(store: ArtifactStore, ref: ArtifactRef) -> PredictiveCalibrationAssociation:
     """Re-open association bytes and verify their exact selected manifest view."""
 
     if ref.manifest_profile_sha256 is None:
         raise PredictiveCalibrationError("predictive_calibration_association_profile_missing")
     manifest = store.get_manifest(ref)
-    schema_contracts = {
-        _ASSOCIATION_VERSION: _ASSOCIATION_SCHEMA,
-        _PREVIOUS_ASSOCIATION_VERSION: _PREVIOUS_ASSOCIATION_SCHEMA,
-        _PRIOR_ASSOCIATION_VERSION: _PRIOR_ASSOCIATION_SCHEMA,
-        _LEGACY_ASSOCIATION_VERSION: _LEGACY_ASSOCIATION_SCHEMA,
-    }
     schema_version = getattr(getattr(manifest, "artifact_schema", None), "version", None)
     schema_name = getattr(getattr(manifest, "artifact_schema", None), "name", None)
     if (
         manifest.kind != _ASSOCIATION_KIND
         or manifest.media_type != "application/json"
-        or schema_contracts.get(schema_version) != schema_name
+        or schema_version not in _ASSOCIATION_SCHEMA_BY_VERSION
+        or _ASSOCIATION_SCHEMA_BY_VERSION[schema_version] != schema_name
         or artifact_manifest_profile_sha256(manifest) != ref.manifest_profile_sha256
     ):
         raise PredictiveCalibrationError("predictive_calibration_association_manifest_mismatch")
@@ -1813,7 +1825,8 @@ def _revalidate_profile_member_binding(
         if association.profile_join_status != "profileless_legacy":
             raise PredictiveCalibrationError("predictive_calibration_profileless_status_mismatch")
         if (
-            association.schema_version in {_ASSOCIATION_SCHEMA, _PREVIOUS_ASSOCIATION_SCHEMA}
+            association.schema_version
+            in {_ASSOCIATION_SCHEMA, _V5_ASSOCIATION_SCHEMA, _PREVIOUS_ASSOCIATION_SCHEMA}
             and report.metadata.get("profile_join_status") != "profileless_legacy"
         ):
             raise PredictiveCalibrationError("predictive_calibration_profileless_report_mismatch")
@@ -2018,7 +2031,7 @@ def _s10_summary_matches(
     association_schema_version: str,
     candidate_source_kind: str,
 ) -> bool:
-    """Compare the complete fresh projection for N4 and retain v2 grade semantics elsewhere."""
+    """Compare the fresh projection under the association's recorded contract."""
     if (
         association_schema_version == _LEGACY_ASSOCIATION_SCHEMA
         and candidate_source_kind != "runtime.quality.n4_candidate_scenario_source"
@@ -2034,6 +2047,19 @@ def _s10_summary_matches(
         )
         return all(
             getattr(stored, field) == getattr(recomputed, field) for field in legacy_grade_fields
+        )
+    if association_schema_version != _ASSOCIATION_SCHEMA:
+        from polisyos.runtime.quality.generation_cycle import _S10_SUPPORT_LIMITATION_PREFIX
+
+        recomputed = recomputed.model_copy(
+            update={
+                "interval_support": None,
+                "limitation_refs": tuple(
+                    ref
+                    for ref in recomputed.limitation_refs
+                    if not ref.startswith(_S10_SUPPORT_LIMITATION_PREFIX)
+                ),
+            }
         )
     return stored == recomputed
 
@@ -2078,6 +2104,7 @@ def _recompute_s10(
     )
     if association.schema_version in {
         _ASSOCIATION_SCHEMA,
+        _V5_ASSOCIATION_SCHEMA,
         _PREVIOUS_ASSOCIATION_SCHEMA,
         _PRIOR_ASSOCIATION_SCHEMA,
     }:
@@ -2139,7 +2166,7 @@ def _read_event_payload(
     store: ArtifactStore,
     record: ControlDiagnosticEventRecord,
 ) -> dict[str, Any]:
-    """Read event payload and verify its append-only payload hash."""
+    """Verify append-only payload integrity and the published association version."""
     from polisyos.core.artifacts import load_core_json_artifact
 
     payload = getattr(record, "payload_inline", None)
@@ -2163,6 +2190,9 @@ def _read_event_payload(
     actual = "sha256:" + hashlib.sha256(payload_bytes).hexdigest()
     if expected != actual or not isinstance(payload, Mapping):
         raise PredictiveCalibrationError("predictive_calibration_event_payload_integrity_failed")
+    version = payload.get("schema_version")
+    if not isinstance(version, str) or version not in _ASSOCIATION_SCHEMA_BY_VERSION:
+        raise PredictiveCalibrationError("predictive_calibration_event_payload_schema_mismatch")
     return dict(payload)
 
 

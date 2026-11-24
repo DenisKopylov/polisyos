@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -402,7 +403,7 @@ def _unverified_v5_association_payload() -> dict[str, Any]:
         ]["association"]
     )
     payload.update(
-        schema_version=predictive_calibration._ASSOCIATION_SCHEMA,
+        schema_version=predictive_calibration._V5_ASSOCIATION_SCHEMA,
         observed_numerator=None,
         observed_denominator=None,
         observed_hit_rate=None,
@@ -440,6 +441,197 @@ def test_v5_candidate_projection_does_not_advertise_diagnostic_rows_as_observed(
     assert wire["s10"]["calibration_record_ref"] is None
     assert wire["s10"]["calibration_status"] == "blocked"
     assert "backtest_source_not_established" in wire["evidence_reason_codes"]
+
+
+def test_v6_replay_keeps_selected_interval_and_v5_replay_keeps_its_original_shape() -> None:
+    """Apply exact interval equality to current rows and preserve v5 absence."""
+    from copy import deepcopy
+
+    from pydantic import ValidationError
+
+    from polisyos.runtime.http.services.predictive_calibration import (
+        _ASSOCIATION_SCHEMA,
+        _METHOD_FQN,
+        _V5_ASSOCIATION_SCHEMA,
+        PredictiveCalibrationAssociation,
+        _association_event_version,
+        _s10_summary_matches,
+    )
+    from polisyos.runtime.quality.generation_cycle import _S10_SUPPORT_LIMITATION_PREFIX
+
+    v5_payload = _unverified_v5_association_payload()
+    old = PredictiveCalibrationAssociation.model_validate(v5_payload)
+    old_bytes = old.model_dump_json()
+    assert "interval_support" not in old.model_dump(mode="json")["s10"]
+
+    v6_payload = deepcopy(v5_payload)
+    v6_payload.update(schema_version=_ASSOCIATION_SCHEMA, nominal_confidence_level=0.80)
+    v6_payload["uncertainty_bundle_ref"]["kind"] = "ir.forecasting_uncertainty_bundle"
+    v6_payload["s10"]["interval_support"] = {
+        "bundle_ref": deepcopy(v6_payload["uncertainty_bundle_ref"]),
+        "observed_source_ref": deepcopy(v6_payload["observed_source_ref"]),
+        "method_fqn": _METHOD_FQN,
+        "target_metric": "metric",
+        "nominal_coverage": 0.80,
+    }
+    v6_payload["s10"]["limitation_refs"].append(
+        f"{_S10_SUPPORT_LIMITATION_PREFIX}prediction_measurement_unit_not_established"
+    )
+    current = PredictiveCalibrationAssociation.model_validate(v6_payload)
+    candidate_source_kind = current.candidate_source_ref.kind
+    assert _association_event_version(old.schema_version) == "5.0"
+    assert _association_event_version(current.schema_version) == "6.0"
+    assert _s10_summary_matches(
+        old.s10,
+        current.s10,
+        association_schema_version=_V5_ASSOCIATION_SCHEMA,
+        candidate_source_kind=candidate_source_kind,
+    )
+    assert old.model_dump_json() == old_bytes
+
+    removed = current.s10.model_copy(update={"interval_support": None})
+    assert not _s10_summary_matches(
+        removed,
+        current.s10,
+        association_schema_version=_ASSOCIATION_SCHEMA,
+        candidate_source_kind=candidate_source_kind,
+    )
+    foreign = deepcopy(v6_payload)
+    foreign["s10"]["interval_support"]["bundle_ref"]["manifest_profile_sha256"] = (
+        "sha256:" + "f" * 64
+    )
+    with pytest.raises(
+        ValidationError, match="predictive_calibration_s10_interval_binding_mismatch"
+    ):
+        PredictiveCalibrationAssociation.model_validate(foreign)
+
+
+def test_stock_v3_event_reopens_exact_association_for_both_lookups(tmp_path: Path) -> None:
+    """Read the historical writer's CAS payload and durable event without promoting its grade."""
+    from polisyos.core.artifacts import ArtifactRef, ensure_ir_artifact_store
+    from polisyos.ir import CanonSpec as IRCanonSpec
+    from polisyos.ir import InputRef, put_json_artifact
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
+    from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+
+    fixture_path = (
+        Path(__file__).resolve().parents[3]
+        / "fixtures/runtime_quality/diagnostic_events/predictive_calibration_v3_association_event.json"
+    )
+    history = json.loads(fixture_path.read_bytes())
+    assert history["writer_revision"] == "791b9c339b286b03e2d9b3bc23e153c61c091202"
+    raw_association = history["association_json"].encode()
+    association = json.loads(raw_association)
+    writer = FileSystemCAS(tmp_path / "cas")
+    edges = []
+    for manifest_role in history["association_input_roles"]:
+        field = (
+            "empirical_evidence"
+            if manifest_role == "empirical_calibration_evidence"
+            else (manifest_role)
+        )
+        expected_ref = ArtifactRef.model_validate(association[f"{field}_ref"])
+        ref = writer.put_bytes(
+            json.dumps({"fixture": "historical-v3", "role": field}, separators=(",", ":")).encode(),
+            ArtifactWriteOptions(
+                kind=expected_ref.kind,
+                media_type=expected_ref.media_type,
+                schema=SchemaInfo(
+                    name="test.predictive_calibration.historical_input", version="1.0"
+                ),
+            ),
+            return_selected_profile=True,
+        )
+        assert ref == expected_ref
+        edges.append(
+            InputRef(
+                artifact_id=ref.artifact_id,
+                role=manifest_role,
+                manifest_profile_sha256=ref.manifest_profile_sha256,
+            )
+        )
+
+    def association_view(schema_name: str) -> ArtifactRef:
+        return ArtifactRef.model_validate(
+            put_json_artifact(
+                ensure_ir_artifact_store(writer),
+                association,
+                kind=predictive_calibration._ASSOCIATION_KIND,
+                schema_name=schema_name,
+                schema_version="3.0",
+                inputs=edges,
+                canon_spec=IRCanonSpec(forbid_floats=False),
+                return_selected_profile=True,
+            )
+        )
+
+    event_payload = history["event_payload"]
+    saved_ref = association_view(association["schema_version"])
+    assert saved_ref == ArtifactRef.model_validate(event_payload["association_ref"])
+    assert writer.get_bytes(saved_ref) == raw_association
+    event = DiagnosticEvent.model_validate(history["event"])
+    store_path = tmp_path / "control.sqlite3"
+    log = RuntimeDiagnosticEventLog(
+        store=ControlPlaneStore(backend="sqlite", sqlite_path=store_path),
+        artifact_store=writer,
+    )
+    saved_event = log.append(event, payload=event_payload)
+    assert saved_event.payload_sha256 == history["event_payload_sha256"]
+
+    reader = FileSystemCAS(writer.root)
+    fresh_log = RuntimeDiagnosticEventLog(
+        store=ControlPlaneStore(backend="sqlite", sqlite_path=store_path),
+        artifact_store=reader,
+    )
+    by_run = fresh_log.list_events(run_id=event.run_id, job_id=event.job_id, limit=1000)
+    by_intent = fresh_log.list_events(event_id=event.event_id, limit=2)
+    assert by_run == by_intent == [saved_event]
+    for opened_event in (*by_run, *by_intent):
+        payload = predictive_calibration._read_event_payload(reader, opened_event)
+        assert payload == event_payload
+        ref, reopened = predictive_calibration._load_association_for_event(
+            reader, opened_event.event, payload
+        )
+        assert ref == saved_ref
+        assert reader.get_bytes(ref) == raw_association
+        assert reopened.schema_version == association["schema_version"]
+        assert reopened.event_id == event.event_id
+        assert reopened.s10.forecast_tier == "blocked"
+        assert reopened.s10.interval_support is None
+        assert reopened.assessment == "limited"
+
+    foreign = association_view("test.foreign_predictive_association")
+    assert foreign.artifact_id == saved_ref.artifact_id
+    assert foreign.manifest_profile_sha256 != saved_ref.manifest_profile_sha256
+    unknown_event = event.model_copy(
+        update={"event_id": "evt-v3-unknown", "dedupe_key": "v3-control-unknown"}
+    )
+    unknown = log.append(unknown_event, payload={**event_payload, "schema_version": "99.0"})
+    with pytest.raises(
+        predictive_calibration.PredictiveCalibrationError,
+        match="predictive_calibration_event_payload_schema_mismatch",
+    ):
+        predictive_calibration._read_event_payload(reader, unknown)
+
+    controls = (
+        (
+            {"schema_version": "6.0"},
+            "predictive_calibration_event_association_binding_mismatch",
+        ),
+        (
+            {"association_ref": foreign.model_dump(mode="json")},
+            "predictive_calibration_association_manifest_mismatch",
+        ),
+    )
+    for index, (patch, expected_code) in enumerate(controls):
+        foreign_event = event.model_copy(
+            update={"event_id": f"evt-v3-control-{index}", "dedupe_key": f"v3-control-{index}"}
+        )
+        rejected = log.append(foreign_event, payload={**event_payload, **patch})
+        payload = predictive_calibration._read_event_payload(reader, rejected)
+        with pytest.raises(predictive_calibration.PredictiveCalibrationError, match=expected_code):
+            predictive_calibration._load_association_for_event(reader, rejected.event, payload)
 
 
 @pytest.mark.parametrize(

@@ -1,9 +1,49 @@
 from __future__ import annotations
 
+import hashlib
+import json
+import math
+
 import pytest
 from pydantic import ValidationError
 
 from polisyos.core.contracts import DataTrust, ValueOuterSet
+
+# Captured from the pre-EMP-01 ValueOuterSet writer, before changing its rules.
+# The historical point used a tolerance; the partial width rounded to zero.
+_LEGACY_TINY_PARTIAL = (
+    '{"representation":"interval_box","lower":[0.0],"upper":[1e-13],'
+    '"statistical_lower":null,"statistical_upper":null,"coordinates":["x"],'
+    '"identification_status":"partial","assumptions":["legacy"],'
+    '"assumption_status":"externally_supported","calibration_scope":{},'
+    '"data_trust":{"tier":"legacy_test","trust_cap":0.6,"trust_multiplier":0.6,'
+    '"min_coverage":null,"max_coverage":null,"promotion_floor":null,'
+    '"authority_ref":"legacy:test"},"world_model_record_ref":"legacy-world",'
+    '"epoch":"legacy-epoch","representation_status":"certified",'
+    '"solver_time_budget_ms":null,"width":[0.0]}'
+)
+_LEGACY_NEAR_POINT = (
+    '{"representation":"interval_box","lower":[0.0],"upper":[1e-10],'
+    '"statistical_lower":null,"statistical_upper":null,"coordinates":["x"],'
+    '"identification_status":"point","assumptions":["legacy"],'
+    '"assumption_status":"externally_supported","calibration_scope":{},'
+    '"data_trust":{"tier":"legacy_test","trust_cap":0.6,"trust_multiplier":0.6,'
+    '"min_coverage":null,"max_coverage":null,"promotion_floor":null,'
+    '"authority_ref":"legacy:test"},"world_model_record_ref":"legacy-world",'
+    '"epoch":"legacy-epoch","representation_status":"certified",'
+    '"solver_time_budget_ms":null,"width":[1e-10]}'
+)
+_LEGACY_PROXY = (
+    '{"representation":"interval_box","lower":[0.1],"upper":[0.4],'
+    '"statistical_lower":null,"statistical_upper":null,"coordinates":["x"],'
+    '"identification_status":"proxy","assumptions":["legacy"],'
+    '"assumption_status":"externally_supported","calibration_scope":{},'
+    '"data_trust":{"tier":"legacy_test","trust_cap":0.6,"trust_multiplier":0.6,'
+    '"min_coverage":null,"max_coverage":null,"promotion_floor":null,'
+    '"authority_ref":"legacy:test"},"world_model_record_ref":"legacy-world",'
+    '"epoch":"legacy-epoch","representation_status":"certified",'
+    '"solver_time_budget_ms":null,"width":[0.3]}'
+)
 
 
 def _trust() -> DataTrust:
@@ -16,6 +56,155 @@ def _trust() -> DataTrust:
         promotion_floor=0.5,
         authority_ref="repo://l5/measurement_registry.json#/trust_tiers/derived_proxy",
     )
+
+
+def _numeric_case(lower: float, upper: float, mode: str = "proxy") -> ValueOuterSet:
+    return ValueOuterSet.interval_box(
+        coordinates=("x",),
+        lower=(lower,),
+        upper=(upper,),
+        identification_mode=mode,
+        assumptions=("declared",),
+        assumption_status="externally_supported",
+        calibration_scope={"measurement_unit": "test-unit"},
+        data_trust=_trust(),
+        world_model_record_ref="world_model_record_test",
+        epoch="epoch",
+        representation_status="certified",
+    )
+
+
+def test_exact_numeric_profile_survives_scaling_and_preserves_distinct_floats() -> None:
+    base = _numeric_case(0.0, 1e-6)
+    scaled = _numeric_case(0.0, 1e-10)
+    tiny = _numeric_case(0.0, 1e-13, "partial")
+    negative = _numeric_case(-1e-10, 0.0)
+
+    assert base.width == (1e-6,)
+    assert scaled.width == (1e-10,)
+    assert math.isclose(scaled.width[0], base.width[0] * 1e-4, rel_tol=1e-15)
+    assert tiny.width == (1e-13,)
+    assert negative.width == (1e-10,)
+    assert base.numerical_profile == "policyos.value_outer_set.numeric.v2"
+    assert ValueOuterSet.from_persisted_payload(scaled.model_dump_json()) == scaled
+    children, metadata = tiny.tree_flatten()
+    assert ValueOuterSet.tree_unflatten(metadata, children) == tiny
+    with pytest.raises(ValueError, match="bounded_identification_requires_nonzero_interval"):
+        _numeric_case(2.0, 2.0)
+
+    next_float = math.nextafter(1.0, math.inf)
+    following_float = math.nextafter(next_float, math.inf)
+    first = _numeric_case(1.0, next_float)
+    second = _numeric_case(next_float, following_float)
+    assert first.width == second.width
+    assert first.canonical_payload() != second.canonical_payload()
+
+
+def test_exact_numeric_profile_rejects_width_overflow_before_persistence() -> None:
+    control = _numeric_case(-1e100, 1e100)
+    assert control.width == (2e100,)
+    assert ValueOuterSet.from_persisted_payload(control.model_dump_json()) == control
+    with pytest.raises(ValueError, match="value_outer_set_width_non_finite"):
+        _numeric_case(-1e308, 1e308)
+
+
+def test_exact_numeric_profile_checks_the_original_width_number() -> None:
+    value_set = _numeric_case(0.0, float(2**53))
+    payload = value_set.model_dump(mode="json")
+    assert ValueOuterSet.from_persisted_payload(payload) == value_set
+    # A JSON integer may have greater precision than a binary64 float.
+    payload["width"] = [2**53]
+    assert ValueOuterSet.from_persisted_payload(payload) == value_set
+    for invalid in (2**53 + 1, 10**400, True, "9007199254740992"):
+        payload["width"] = [invalid]
+        with pytest.raises(ValueError, match="value_outer_set_width_tampered"):
+            ValueOuterSet.from_persisted_payload(payload)
+
+
+def test_historical_width_coercion_remains_readable_and_rejects_overflow() -> None:
+    payload = json.loads(_LEGACY_PROXY)
+    payload["width"] = ["0.3"]
+    assert ValueOuterSet.from_persisted_payload(payload).width == (0.3,)
+    payload["width"] = [10**400]
+    with pytest.raises(ValueError, match="value_outer_set_width_tampered"):
+        ValueOuterSet.from_persisted_payload(payload)
+
+
+@pytest.mark.parametrize(
+    ("payload", "canonical_sha256"),
+    [
+        (_LEGACY_TINY_PARTIAL, "58bf40598508218d41ab7e5f587a77980e1711492beed13c49230cd3df3ff862"),
+        (_LEGACY_NEAR_POINT, "2952c75fee793840144263ebed9c047208a8752ed73de1d3e2af6257ec272019"),
+        (_LEGACY_PROXY, "ba4d2d8964905519cd4ae94bc5b26f68c290a07f48e70b0754e16bcaa46ae490"),
+    ],
+    ids=["tiny-partial", "near-point", "proxy"],
+)
+def test_historical_numeric_profile_replays_exact_bytes_without_current_promotion(
+    payload: str,
+    canonical_sha256: str,
+) -> None:
+    restored = ValueOuterSet.from_persisted_payload(payload)
+    assert restored.numerical_profile is None
+    assert restored.model_dump_json() == payload
+    canonical = json.dumps(restored.canonical_payload(), sort_keys=True, separators=(",", ":"))
+    assert hashlib.sha256(canonical.encode("utf-8")).hexdigest() == canonical_sha256
+    assert restored.promotion_decision().promotable is False
+    assert "historical_numerical_profile" in restored.promotion_decision().reasons
+    children, metadata = restored.tree_flatten()
+    assert ValueOuterSet.tree_unflatten(metadata, children) == restored
+
+    tampered = json.loads(payload)
+    tampered["width"][0] += 1.0
+    with pytest.raises(ValueError, match="value_outer_set_width_tampered"):
+        ValueOuterSet.from_persisted_payload(tampered)
+    tampered = json.loads(payload)
+    tampered["upper"][0] += 1.0
+    with pytest.raises(ValueError, match="value_outer_set_width_tampered"):
+        ValueOuterSet.from_persisted_payload(tampered)
+
+
+def test_numeric_profiles_do_not_fall_back_or_upgrade_historical_point() -> None:
+    legacy = json.loads(_LEGACY_NEAR_POINT)
+    legacy_without_width = {key: value for key, value in legacy.items() if key != "width"}
+    historical = ValueOuterSet.from_historical_fields(legacy_without_width)
+    assert historical.numerical_profile is None
+    assert historical.width == (1e-10,)
+    assert not historical.promotion_decision().promotable
+    with pytest.raises(ValueError, match="point_identified_requires_tight_interval"):
+        ValueOuterSet.model_validate(legacy_without_width)
+
+    new = _numeric_case(0.1, 0.4)
+    tampered = new.model_dump(mode="json")
+    tampered["width"] = [0.3]  # old rounding; v2 must not retry the old rule
+    with pytest.raises(ValueError, match="value_outer_set_width_tampered"):
+        ValueOuterSet.from_persisted_payload(tampered)
+    tampered["numerical_profile"] = "unknown"
+    with pytest.raises(ValueError, match="value_outer_set_numerical_profile_invalid"):
+        ValueOuterSet.from_persisted_payload(tampered)
+
+
+def test_selected_profile_rejects_downgrade_even_when_checksums_match() -> None:
+    new = _numeric_case(0.0, 1e-6)
+    payload = new.model_dump(mode="json")
+    assert (
+        ValueOuterSet.from_persisted_payload(
+            payload,
+            expected_numerical_profile="policyos.value_outer_set.numeric.v2",
+        )
+        == new
+    )
+    downgraded = dict(payload)
+    downgraded.pop("numerical_profile")
+    # Both width algorithms happen to return 1e-6. The selected profile, not
+    # a matching checksum, prevents this wire from masquerading as the v2 one.
+    assert not ValueOuterSet.from_persisted_payload(downgraded).promotion_decision().promotable
+    with pytest.raises(ValueError, match="value_outer_set_numerical_profile_mismatch"):
+        ValueOuterSet.from_persisted_payload(
+            downgraded,
+            expected_numerical_profile="policyos.value_outer_set.numeric.v2",
+        )
+    with pytest.raises(ValueError, match="value_outer_set_numerical_profile_mismatch"):
+        ValueOuterSet.from_persisted_payload(payload, expected_numerical_profile="historical")
 
 
 def test_value_outer_set_interval_box_derives_width_and_l5_identification_status() -> None:
@@ -39,7 +228,7 @@ def test_value_outer_set_interval_box_derives_width_and_l5_identification_status
 
     assert value_set.representation == "interval_box"
     assert value_set.identification_status == "proxy"
-    assert value_set.width == (15.0, 0.3)
+    assert value_set.width == (15.0, 0.4 - 0.1)
     decision = value_set.promotion_decision()
     assert decision.promotable is True
     assert decision.capped_decision_grade == "low"
@@ -65,7 +254,7 @@ def test_value_outer_set_persisted_payload_round_trips_derived_width_checksum() 
     restored = ValueOuterSet.from_persisted_payload(value_set.model_dump_json())
 
     assert restored == value_set
-    assert restored.width == (15.0, 0.3)
+    assert restored.width == (15.0, 0.4 - 0.1)
     children, aux_data = value_set.tree_flatten()
     assert ValueOuterSet.tree_unflatten(aux_data, children) == value_set
 

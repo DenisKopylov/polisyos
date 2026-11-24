@@ -130,6 +130,9 @@ export type ArtifactRefInput =
 export type ArtifactRefOutput =
   RuntimeApiComponents["schemas"]["ArtifactRef-Output"];
 
+export type ArtifactRefModel =
+  RuntimeApiComponents["schemas"]["ArtifactRefModel"];
+
 export type ArtifactSchemaResponse =
   RuntimeApiComponents["schemas"]["ArtifactSchemaResponse"];
 
@@ -969,11 +972,17 @@ export type FiveRightsCheck =
 export type FiveRightsRequirement =
   RuntimeApiComponents["schemas"]["FiveRightsRequirement"];
 
+export type ForecastIntervalSupport =
+  RuntimeApiComponents["schemas"]["ForecastIntervalSupport"];
+
 export type ForecastMethodParams =
   RuntimeApiComponents["schemas"]["ForecastMethodParams"];
 
 export type ForecastTemporalRoles =
   RuntimeApiComponents["schemas"]["ForecastTemporalRoles"];
+
+export type ForecastingUncertaintyBundleRef =
+  RuntimeApiComponents["schemas"]["ForecastingUncertaintyBundleRef"];
 
 export type ForkBRelationCensusPayload =
   RuntimeApiComponents["schemas"]["ForkBRelationCensusPayload"];

@@ -32,6 +32,7 @@ if TYPE_CHECKING:
 
     from polisyos.core.artifacts import ArtifactStore
     from polisyos.foundry.methods import FoundryExtensionRegistryReport, MethodRegistry
+    from polisyos.ir import ArtifactStore as IRArtifactStore
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.generation_cycle import (
@@ -157,6 +158,70 @@ def _selected_ref(ref: object) -> ArtifactRef:
     if result.manifest_profile_sha256 is None:
         raise ValueError("candidate_value_method_selected_profile_missing")
     return result
+
+
+def _reconcile_selected_outer_set(
+    store: IRArtifactStore,
+    *,
+    value_ref: ArtifactRef,
+    run_basis_ref: ArtifactRef,
+    recomputed: ValueOuterSet,
+) -> ValueOuterSet:
+    """Reconcile one selected value against its exact manifest and owner result."""
+    from polisyos.runtime.quality.generation_cycle import (
+        _value_artifact_ref,
+        _value_load_ref_payload,
+        _value_manifest_has_exact_inputs,
+    )
+
+    selected = _value_artifact_ref(
+        value_ref,
+        expected_kind="runtime.value_outer_set_candidate_fixture",
+    )
+    basis = _value_artifact_ref(run_basis_ref, expected_kind="runtime.value_owner_method_run_basis")
+    if selected.manifest_profile_sha256 is None:
+        raise ValueError("candidate_value_method_outer_profile_missing")
+    if not _value_manifest_has_exact_inputs(store, selected, ((basis, "owner_method_run_basis"),)):
+        raise ValueError("candidate_value_method_outer_reconciliation_mismatch")
+
+    get_manifest = getattr(store, "get_manifest_by_profile", None)
+    if not callable(get_manifest):
+        raise ValueError("candidate_value_method_outer_profile_missing")
+    manifest = get_manifest(selected.artifact_id, selected.manifest_profile_sha256)
+    schema = getattr(manifest, "artifact_schema", None)
+    if (
+        str(getattr(manifest, "artifact_id", "")) != selected.artifact_id
+        or getattr(manifest, "kind", None) != selected.kind
+        or getattr(schema, "name", None) != "runtime.value_outer_set_candidate_fixture"
+        or getattr(schema, "version", None) not in {"1.0", "2.0"}
+    ):
+        raise ValueError("candidate_value_method_outer_profile_invalid")
+    expected_profile = (
+        "historical" if schema.version == "1.0" else ValueOuterSet.CURRENT_NUMERICAL_PROFILE
+    )
+    try:
+        persisted = ValueOuterSet.from_persisted_payload(
+            _value_load_ref_payload(store, selected),
+            expected_numerical_profile=expected_profile,
+        )
+    except ValueError as exc:
+        raise ValueError("candidate_value_method_outer_payload_invalid") from exc
+
+    if recomputed.numerical_profile != ValueOuterSet.CURRENT_NUMERICAL_PROFILE:
+        raise ValueError("candidate_value_method_outer_reconciliation_mismatch")
+    if expected_profile == "historical":
+        # The historical checksum has already been checked under its own rule.
+        # Compare the entire owner result, then return the original historical
+        # value rather than silently upgrading its authority or numerical rule.
+        excluded = {"width", "numerical_profile"}
+        matches = persisted.model_dump(mode="json", exclude=excluded) == recomputed.model_dump(
+            mode="json", exclude=excluded
+        )
+    else:
+        matches = persisted == recomputed
+    if not matches:
+        raise ValueError("candidate_value_method_outer_reconciliation_mismatch")
+    return persisted
 
 
 def persist_candidate_value_source_request(
@@ -626,15 +691,12 @@ def project_candidate_value_method(
                 registry_report=report,
                 selection_inputs=selection_inputs,
             )
-        selected_outer = ValueOuterSet.from_persisted_payload(
-            _value_load_ref_payload(ir_store, _value_artifact_ref(record.value_ref))
-        )
-        if selected_outer != outer or not _value_manifest_has_exact_inputs(
+        selected_outer = _reconcile_selected_outer_set(
             ir_store,
-            _value_artifact_ref(record.value_ref),
-            ((_value_artifact_ref(record.run_basis_ref), "owner_method_run_basis"),),
-        ):
-            raise ValueError("candidate_value_method_outer_reconciliation_mismatch")
+            value_ref=record.value_ref,
+            run_basis_ref=record.run_basis_ref,
+            recomputed=outer,
+        )
         basis = _value_load_ref_payload(ir_store, _value_artifact_ref(record.run_basis_ref))
         if not isinstance(basis, Mapping) or (
             basis.get("selected_method_fqn") != record.selected_method_fqn
@@ -675,7 +737,7 @@ def project_candidate_value_method(
             run_basis_ref=record.run_basis_ref,
             value_ref=record.value_ref,
             selected_method_fqn=record.selected_method_fqn,
-            value_outer_set=outer,
+            value_outer_set=selected_outer,
             native_report_ref=report_ref,
             method_selection_receipt_ref=selection_ref,
             measurement_unit=owner_profile.measurement_unit,

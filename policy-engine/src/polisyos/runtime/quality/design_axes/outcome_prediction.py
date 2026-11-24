@@ -7,7 +7,8 @@ from typing import Any, Literal, get_args
 
 from pydantic import AwareDatetime, BaseModel, Field, model_validator
 
-from polisyos.ir import ArtifactRefModel, normalize_artifact_ref
+from polisyos.core.contracts.forecast_profile_member import FORECAST_PROFILE_MEMBER_KIND
+from polisyos.ir import ArtifactRefModel, ForecastingUncertaintyBundleRef, normalize_artifact_ref
 from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
 from polisyos.runtime.quality.design_axes.coupling_composition import (  # noqa: TC001
     ForecastClaimScope,
@@ -96,6 +97,42 @@ _REQUIRED_AUTHORITY_DENIALS = frozenset(
 )
 
 
+class ForecastIntervalSupport(Layer2ReadinessModel):
+    """Selected predictive interval and its observed-series scope."""
+
+    bundle_ref: ForecastingUncertaintyBundleRef
+    observed_source_ref: ArtifactRefModel
+    method_fqn: str = Field(min_length=1, max_length=300)
+    target_metric: str = Field(min_length=1, max_length=200)
+    estimand: Literal["predictive_interval_coverage"] = "predictive_interval_coverage"
+    nominal_coverage: float = Field(gt=0.0, lt=1.0)
+    forecast_profile_member_ref: ArtifactRefModel | None = None
+    measurement_unit: str | None = Field(default=None, min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_selected_interval(self) -> ForecastIntervalSupport:
+        if (
+            self.bundle_ref.manifest_profile_sha256 is None
+            or self.observed_source_ref.manifest_profile_sha256 is None
+            or self.observed_source_ref.kind != "fabric.data_snapshot"
+            or self.observed_source_ref.media_type != "application/json"
+        ):
+            raise ValueError("forecast interval requires selected bundle and observed source views")
+        member_ref = self.forecast_profile_member_ref
+        if (member_ref is None) != (self.measurement_unit is None) or (
+            member_ref is not None
+            and (
+                member_ref.manifest_profile_sha256 is None
+                or member_ref.kind != FORECAST_PROFILE_MEMBER_KIND
+                or member_ref.media_type != "application/json"
+            )
+        ):
+            raise ValueError(
+                "forecast interval measurement unit requires a selected profile member"
+            )
+        return self
+
+
 class ForecastSupport(Layer2ReadinessModel):
     """Replay-visible S10 support record for a bounded forecast posture."""
 
@@ -113,9 +150,9 @@ class ForecastSupport(Layer2ReadinessModel):
     prediction_horizon_ref: str = Field(..., min_length=1, max_length=300)
     target_outcome_refs: list[str] = Field(..., min_length=1, max_length=80)
     jurisdiction_scope_ref: str = Field(..., min_length=1, max_length=300)
-    s5_forecast_support_ref: str = Field(..., min_length=1, max_length=300)
+    s5_forecast_support_ref: str | None = Field(..., min_length=1, max_length=300)
     s5_support_label: SystemEffectSupportLabel
-    s5_base_origin: ForecastSupportBaseOrigin
+    s5_base_origin: ForecastSupportBaseOrigin | None
     s5_claim_scope: ForecastClaimScope
     s6_firewall_status_refs: list[str] = Field(..., min_length=1, max_length=80)
     s6_limitation_refs: list[str] = Field(default_factory=list, max_length=80)
@@ -138,6 +175,9 @@ class ForecastSupport(Layer2ReadinessModel):
     observable_subset_ref: str | None = Field(default=None, max_length=300)
     calibration_record_ref: str | None = Field(default=None, max_length=300)
     uncertainty_interval_refs: list[str] = Field(default_factory=list, max_length=80)
+    interval_support: ForecastIntervalSupport | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     limitation_refs: list[str] = Field(default_factory=list, max_length=80)
     abstention_refs: list[str] = Field(default_factory=list, max_length=80)
     authority_boundary: AuthorityBoundary
@@ -147,12 +187,16 @@ class ForecastSupport(Layer2ReadinessModel):
     @model_validator(mode="after")
     def _validate_support_boundary(self) -> ForecastSupport:
         _assert_prediction_authority_boundary(self.authority_boundary, self.may_not_use_for)
+        if self.forecast_tier not in {"blocked", "simulation_only_advisory"} and (
+            not self.s5_forecast_support_ref or self.s5_base_origin is None
+        ):
+            raise ValueError("S5 forecast authority input is required")
         if self.forecast_tier == "observable_calibrated" and (
             not self.observable_subset_ref or not self.calibration_record_ref
         ):
             raise ValueError("observable calibration requires observable calibration refs")
         if self.forecast_tier in {"observable_calibrated", "transported_limited"} and (
-            not self.uncertainty_interval_refs
+            not self.uncertainty_interval_refs and self.interval_support is None
         ):
             raise ValueError("uncertainty interval refs are required for governed forecast tiers")
         if self.s5_base_origin == "simulation_only" and self.forecast_tier != (
@@ -721,7 +765,10 @@ def _reduce_observable_calibration(
 
 
 def _require_forecast_support_inputs(payload: Mapping[str, object]) -> None:
-    if not payload.get("s5_forecast_support_ref"):
+    if not payload.get("s5_forecast_support_ref") and payload.get("forecast_tier") not in {
+        "blocked",
+        "simulation_only_advisory",
+    }:
         raise ValueError("S5 forecast authority input is required")
     if not _sequence(payload.get("s6_firewall_status_refs")):
         raise ValueError("S6 firewall authority inputs are required")
@@ -990,6 +1037,7 @@ __all__ = [
     "S10_FALSE_CLEAR_FIELDS",
     "ForecastAuthorityDisposition",
     "ForecastCalibrationRecord",
+    "ForecastIntervalSupport",
     "ForecastMethodFamily",
     "ForecastSupport",
     "ForecastSupportIntegrityReport",

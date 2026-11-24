@@ -6,13 +6,14 @@ import hashlib
 import json
 import math
 from collections.abc import Mapping
-from typing import Any, ClassVar, Literal
+from typing import Annotated, Any, ClassVar, Literal
 
 from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
     ValidationInfo,
+    WithJsonSchema,
     computed_field,
     field_validator,
     model_validator,
@@ -37,6 +38,7 @@ ValueOuterSetComparison = Literal["dominates", "incomparable", "unknown"]
 ValuePromotionDecisionGrade = Literal["blocked", "low", "medium", "high"]
 ValuePromotionDecisionReason = Literal[
     "eligible",
+    "historical_numerical_profile",
     "representation_not_certified",
     "assumption_violated",
     "identification_blocked",
@@ -44,6 +46,9 @@ ValuePromotionDecisionReason = Literal[
     "data_trust_below_l5_min_coverage",
     "data_trust_below_promotion_floor",
 ]
+
+_EXACT_NUMERICAL_PROFILE = "policyos.value_outer_set.numeric.v2"
+_HISTORICAL_READ_CONTEXT = object()
 
 
 def _float_tuple_close(
@@ -78,8 +83,15 @@ def _coerce_interval_values(value: Any) -> tuple[float, ...]:
 def _derive_interval_widths(
     lower: tuple[float, ...],
     upper: tuple[float, ...],
+    *,
+    historical: bool = False,
 ) -> tuple[float, ...]:
-    return tuple(max(0.0, round(hi - lo, 12)) for lo, hi in zip(lower, upper, strict=True))
+    if historical:
+        return tuple(max(0.0, round(hi - lo, 12)) for lo, hi in zip(lower, upper, strict=True))
+    widths = tuple(hi - lo for lo, hi in zip(lower, upper, strict=True))
+    if any(not math.isfinite(width) for width in widths):
+        raise ValueError("value_outer_set_width_non_finite")
+    return widths
 
 
 class DataTrust(BaseModel):
@@ -158,6 +170,9 @@ class ValueOuterSet(BaseModel):
     """
 
     model_config = ConfigDict(frozen=True, extra="forbid", strict=True)
+    CURRENT_NUMERICAL_PROFILE: ClassVar[Literal["policyos.value_outer_set.numeric.v2"]] = (
+        _EXACT_NUMERICAL_PROFILE
+    )
 
     representation: ValueOuterSetRepresentation
     lower: tuple[float, ...] = Field(default_factory=tuple)
@@ -186,6 +201,15 @@ class ValueOuterSet(BaseModel):
     epoch: str = Field(min_length=1)
     representation_status: ValueOuterSetRepresentationStatus
     solver_time_budget_ms: int | None = Field(default=None, ge=0)
+    # An absent field is the original, unversioned historical wire. Only the
+    # historical reader may construct that profile; live values use v2.
+    numerical_profile: Annotated[
+        Literal["policyos.value_outer_set.numeric.v2"] | None,
+        WithJsonSchema({"const": _EXACT_NUMERICAL_PROFILE, "type": "string"}),
+    ] = Field(
+        default_factory=lambda: None,
+        exclude_if=lambda value: value is None,
+    )
 
     _POINT_WIDTH_TOLERANCE: ClassVar[float] = 1e-9
     _PROXY_WIDTH_TOLERANCE: ClassVar[float] = 1e-9
@@ -234,15 +258,24 @@ class ValueOuterSet(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _accept_only_derived_width(cls, data: Any) -> Any:
-        if not isinstance(data, Mapping) or "width" not in data:
+    def _accept_only_derived_width(cls, data: Any, info: ValidationInfo) -> Any:
+        if not isinstance(data, Mapping):
             return data
-        raise ValueError("value_outer_set_width_supplied_not_derived")
+        if "width" in data:
+            raise ValueError("value_outer_set_width_supplied_not_derived")
+        if "numerical_profile" not in data:
+            return {**data, "numerical_profile": _EXACT_NUMERICAL_PROFILE}
+        if data["numerical_profile"] is None and info.context is not _HISTORICAL_READ_CONTEXT:
+            raise ValueError("value_outer_set_historical_profile_read_only")
+        return data
 
     @classmethod
     def from_persisted_payload(
         cls,
         payload: Mapping[str, Any] | str | bytes | bytearray,
+        *,
+        expected_numerical_profile: Literal["historical", "policyos.value_outer_set.numeric.v2"]
+        | None = None,
     ) -> ValueOuterSet:
         """Verify and load a persisted value set through the canonical boundary.
 
@@ -250,6 +283,8 @@ class ValueOuterSet(BaseModel):
         checksum. This boundary verifies that checksum exactly, discards it,
         and returns the model constructed through the ordinary derivation path.
         Live callers remain unable to supply ``width`` to normal validation.
+        An enclosing artifact owner can bind the expected profile to its selected
+        manifest. Without that binding an unversioned wire is historical only.
         """
 
         decoded: Any = payload
@@ -259,6 +294,12 @@ class ValueOuterSet(BaseModel):
             decoded = json.loads(decoded)
         if not isinstance(decoded, Mapping):
             raise ValueError("value_outer_set_persisted_payload_not_mapping")
+        historical = "numerical_profile" not in decoded
+        if not historical and decoded["numerical_profile"] != _EXACT_NUMERICAL_PROFILE:
+            raise ValueError("value_outer_set_numerical_profile_invalid")
+        actual_profile = "historical" if historical else _EXACT_NUMERICAL_PROFILE
+        if expected_numerical_profile is not None and actual_profile != expected_numerical_profile:
+            raise ValueError("value_outer_set_numerical_profile_mismatch")
         if "width" not in decoded:
             raise ValueError("value_outer_set_persisted_width_missing")
 
@@ -266,27 +307,61 @@ class ValueOuterSet(BaseModel):
         if not isinstance(persisted_width_raw, (list, tuple)):
             raise ValueError("value_outer_set_width_tampered")
         persisted_width_items = tuple(persisted_width_raw)
-        try:
-            if any(isinstance(value, bool) for value in persisted_width_items):
-                raise ValueError
-            persisted_width = tuple(float(value) for value in persisted_width_items)
-            if any(not math.isfinite(value) for value in persisted_width):
-                raise ValueError
-        except (TypeError, ValueError) as exc:
-            raise ValueError("value_outer_set_width_tampered") from exc
+        if historical:
+            # Keep the original width wire's coercion for historical replay.
+            try:
+                if any(isinstance(value, bool) for value in persisted_width_items):
+                    raise ValueError
+                persisted_width = tuple(float(value) for value in persisted_width_items)
+                if any(not math.isfinite(value) for value in persisted_width):
+                    raise ValueError
+            except (TypeError, ValueError, OverflowError) as exc:
+                raise ValueError("value_outer_set_width_tampered") from exc
+        else:
+            # Compare the original JSON numbers. Casting an integer first would
+            # silently round values outside binary64's exact integer range.
+            if any(type(value) not in (int, float) for value in persisted_width_items):
+                raise ValueError("value_outer_set_width_tampered")
+            persisted_width = persisted_width_items
 
         try:
             persisted_lower = _coerce_interval_values(decoded.get("lower"))
             persisted_upper = _coerce_interval_values(decoded.get("upper"))
-            expected_width = _derive_interval_widths(persisted_lower, persisted_upper)
-        except (TypeError, ValueError) as exc:
+            expected_width = _derive_interval_widths(
+                persisted_lower,
+                persisted_upper,
+                historical=historical,
+            )
+        except (TypeError, ValueError, OverflowError) as exc:
             raise ValueError("value_outer_set_persisted_bounds_invalid") from exc
         if persisted_width != expected_width:
             raise ValueError("value_outer_set_width_tampered")
 
         model_payload = dict(decoded)
         model_payload.pop("width")
-        return cls.model_validate(model_payload)
+        if historical:
+            model_payload["numerical_profile"] = None
+        return cls.model_validate(
+            model_payload,
+            context=_HISTORICAL_READ_CONTEXT if historical else None,
+        )
+
+    @classmethod
+    def from_historical_fields(cls, payload: Mapping[str, Any]) -> ValueOuterSet:
+        """Read the old fields inside an independently verified historical wire.
+
+        Some historical enclosing schemas omitted the computed width. Their
+        owner must verify the enclosing artifact; this method cannot verify a
+        width checksum that the historical schema did not serialize.
+        """
+        if not isinstance(payload, Mapping):
+            raise ValueError("value_outer_set_historical_fields_not_mapping")
+        if "width" in payload or "numerical_profile" in payload:
+            raise ValueError("value_outer_set_historical_fields_unexpected_profile")
+        return cls.model_validate(
+            {**payload, "numerical_profile": None},
+            context=_HISTORICAL_READ_CONTEXT,
+        )
 
     @classmethod
     def identification_status_for_l5_mode(
@@ -373,13 +448,18 @@ class ValueOuterSet(BaseModel):
             ):
                 raise ValueError("statistical_interval_lower_must_be_lte_upper")
         widths = self.width
-        if self.identification_status == "point" and any(
-            width > self._POINT_WIDTH_TOLERANCE for width in widths
-        ):
+        point_is_nonzero = (
+            any(width > self._POINT_WIDTH_TOLERANCE for width in widths)
+            if self.numerical_profile is None
+            else any(lo != hi for lo, hi in zip(self.lower, self.upper, strict=True))
+        )
+        if self.identification_status == "point" and point_is_nonzero:
             raise ValueError("point_identified_requires_tight_interval")
-        if self.identification_status == "proxy" and not any(
-            width > self._PROXY_WIDTH_TOLERANCE for width in widths
-        ):
+        proxy_has_width = any(
+            width > (self._PROXY_WIDTH_TOLERANCE if self.numerical_profile is None else 0.0)
+            for width in widths
+        )
+        if self.identification_status == "proxy" and not proxy_has_width:
             raise ValueError("bounded_identification_requires_nonzero_interval")
         return self
 
@@ -388,7 +468,11 @@ class ValueOuterSet(BaseModel):
     def width(self) -> tuple[float, ...]:
         """Return derived interval widths per coordinate."""
 
-        return _derive_interval_widths(self.lower, self.upper)
+        return _derive_interval_widths(
+            self.lower,
+            self.upper,
+            historical=self.numerical_profile is None,
+        )
 
     def promotion_decision(self) -> ValuePromotionDecision:
         """Return the single content-bound promotion decision for this value set.
@@ -401,6 +485,8 @@ class ValueOuterSet(BaseModel):
         trust_score = self.data_trust.effective_score
         trust_floor = self.data_trust.resolved_promotion_floor
         reasons: list[ValuePromotionDecisionReason] = []
+        if self.numerical_profile is None:
+            reasons.append("historical_numerical_profile")
         if self.representation_status != "certified":
             reasons.append("representation_not_certified")
         if self.assumption_status == "violated":
@@ -482,10 +568,17 @@ class ValueOuterSet(BaseModel):
     def canonical_payload(self) -> dict[str, Any]:
         """Return a stable JSON-compatible payload for content addressing."""
 
+        def canonical_float(value: float) -> str:
+            if self.numerical_profile is None:
+                return f"{value:.12g}"
+            # 17 significant digits preserve every distinct finite float.
+            # Both signed zeroes compare equal and therefore share an identity.
+            return "0" if value == 0.0 else f"{value:.17g}"
+
         payload = {
             "representation": self.representation,
-            "lower": [f"{value:.12g}" for value in self.lower],
-            "upper": [f"{value:.12g}" for value in self.upper],
+            "lower": [canonical_float(value) for value in self.lower],
+            "upper": [canonical_float(value) for value in self.upper],
             "coordinates": list(self.coordinates),
             "identification_status": self.identification_status,
             "assumptions": list(self.assumptions),
@@ -493,13 +586,19 @@ class ValueOuterSet(BaseModel):
             "calibration_scope": self.calibration_scope,
             "data_trust": self.data_trust.model_dump(mode="json"),
             "world_model_record_ref": self.world_model_record_ref,
-            "width": [f"{value:.12g}" for value in self.width],
+            "width": [canonical_float(value) for value in self.width],
             "epoch": self.epoch,
             "representation_status": self.representation_status,
         }
+        if self.numerical_profile is not None:
+            payload["numerical_profile"] = self.numerical_profile
         if self.statistical_lower is not None and self.statistical_upper is not None:
-            payload["statistical_lower"] = [f"{value:.12g}" for value in self.statistical_lower]
-            payload["statistical_upper"] = [f"{value:.12g}" for value in self.statistical_upper]
+            payload["statistical_lower"] = [
+                canonical_float(value) for value in self.statistical_lower
+            ]
+            payload["statistical_upper"] = [
+                canonical_float(value) for value in self.statistical_upper
+            ]
         return payload
 
     def __hash__(self) -> int:

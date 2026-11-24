@@ -135,6 +135,7 @@ if TYPE_CHECKING:
         VerifiedNLJobBudgetScope,
         VerifiedNLJobScope,
     )
+    from polisyos.runtime.quality.design_axes.outcome_prediction import ForecastIntervalSupport
     from polisyos.runtime.quality.design_generation import N4SelectedProgramGraphLinkContext
     from polisyos.runtime.quality.generation_source import _GenerationSourceReadExpectations
     from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
@@ -2646,12 +2647,14 @@ class ValueGateReceipt(_StrictModel):
     @field_validator("value_outer_set", mode="before")
     @classmethod
     def _read_persisted_value_set(cls, value: object) -> object:
-        """Verify the derived-width checksum when reading a persisted value set."""
+        """Read checksummed or historical width-free value sets under their own profile."""
 
         if isinstance(value, ValueOuterSet):
             return value
-        if isinstance(value, Mapping) and "width" in value:
-            return ValueOuterSet.from_persisted_payload(value)
+        if isinstance(value, Mapping):
+            if "width" in value or "numerical_profile" in value:
+                return ValueOuterSet.from_persisted_payload(value)
+            return ValueOuterSet.from_historical_fields(value)
         return value
 
     def decisive_consistency_predicates(
@@ -9113,6 +9116,7 @@ class RealValueOwnerGateway:
             method_result=method_result,
             selected_method_fqn=selected_method_fqn,
             empirical_evidence_resolver=self.empirical_evidence_resolver,
+            artifact_store=self.artifact_store,
         )
 
     def build_transport_inputs(
@@ -10033,7 +10037,7 @@ class FoundryValuePort:
                         outer_set.model_dump(mode="json"),
                         kind="runtime.value_outer_set_candidate_fixture",
                         schema_name="runtime.value_outer_set_candidate_fixture",
-                        schema_version="1.0",
+                        schema_version="2.0",
                         inputs=[_value_input_ref(run_basis_ref, role="owner_method_run_basis")],
                         canon_spec=IRCanonSpec(forbid_floats=False),
                         return_selected_profile=True,
@@ -24321,6 +24325,7 @@ _S10_N4_OUTCOME_BINDING_LIMITATION_CODE = "n4_outcome_target_binding_not_establi
 _S10_N4_OUTCOME_BINDING_LIMITATION_REF = (
     f"s10://calibration/fail-closed/{_S10_N4_OUTCOME_BINDING_LIMITATION_CODE}"
 )
+_S10_SUPPORT_LIMITATION_PREFIX = "s10://forecast-support/limited/"
 
 
 @dataclass(frozen=True)
@@ -24328,7 +24333,9 @@ class _S10ResolvedEmpiricalEvidence:
     """Producer-owned evidence after the injected loader has read it back."""
 
     ref: object
-    projection: Mapping[str, object]
+    projection: Mapping[str, object] | None
+    interval_support: ForecastIntervalSupport | None
+    interval_issue: str | None
 
 
 def _method_result_field(method_result: object, field: str) -> object | None:
@@ -24520,6 +24527,123 @@ def _s10_loader_error_code(raw_ref: object | None, error: BaseException) -> str:
     return "empirical_evidence_ref_unresolved"
 
 
+def _load_s10_interval_support(
+    store: ArtifactStore | None,
+    evidence: object,
+    *,
+    selected_method_fqn: str,
+) -> tuple[ForecastIntervalSupport | None, str | None]:
+    """Read the current ForecastOwner interval from its selected report and role views."""
+
+    from polisyos.calibration.forecast_bridge import (
+        PREDICTIVE_ESTIMAND,
+        PROFILED_EVIDENCE_SCHEMA_VERSIONS,
+        EmpiricalCalibrationEvidence,
+    )
+    from polisyos.core.contracts.forecast_profile_member import ForecastProfileMemberV1
+    from polisyos.ir import (
+        ArtifactRefModel,
+        ForecastingUncertaintyBundleRef,
+        get_json_artifact,
+        load_backtest_report,
+        load_forecasting_uncertainty_bundle,
+    )
+    from polisyos.ir.analytics.forecasting_uncertainty import ForecastIntervalSemantics
+    from polisyos.runtime.quality.design_axes.outcome_prediction import ForecastIntervalSupport
+
+    if (
+        store is None
+        or not isinstance(evidence, EmpiricalCalibrationEvidence)
+        or evidence.schema_version not in PROFILED_EVIDENCE_SCHEMA_VERSIONS
+        or not evidence.context_bound
+        or evidence.estimand != PREDICTIVE_ESTIMAND
+        or evidence.report_ref.manifest_profile_sha256 is None
+        or evidence.prediction_ref is None
+        or evidence.observed_outcome_ref is None
+    ):
+        return None, "prediction_interval_binding_not_established"
+    if set(evidence.failure_codes) & {
+        "backtest_row_source_not_established",
+        "backtest_row_source_mismatch",
+    }:
+        return None, "prediction_interval_source_mismatch"
+
+    ir_store = _ensure_ir_artifact_store(store)
+    try:
+        report = load_backtest_report(ir_store, evidence.report_ref)
+        if report.metadata.get("profile_join_status") not in {
+            "joined_candidate",
+            "profileless_legacy",
+        }:
+            return None, "prediction_interval_binding_not_established"
+        prediction_payload, observed_payload = (
+            get_json_artifact(
+                ir_store,
+                ArtifactRefModel.from_selected_write(
+                    reference.model_dump(
+                        include={"artifact_id", "kind", "media_type", "manifest_profile_sha256"}
+                    )
+                ),
+            )
+            for reference in (evidence.prediction_ref, evidence.observed_outcome_ref)
+        )
+        bundle_payload = _object_get(prediction_payload, "uncertainty_bundle_ref")
+        observed_ref_payload = _object_get(observed_payload, "observed_source_ref")
+        if not isinstance(bundle_payload, Mapping) or not isinstance(observed_ref_payload, Mapping):
+            return None, "prediction_interval_binding_not_established"
+        bundle_ref = ForecastingUncertaintyBundleRef.from_selected_write(bundle_payload)
+        observed_ref = ArtifactRefModel.from_selected_write(observed_ref_payload)
+        if (
+            ForecastingUncertaintyBundleRef.model_validate(
+                report.metadata.get("uncertainty_bundle_ref")
+            )
+            != bundle_ref
+        ):
+            return None, "prediction_interval_profile_mismatch"
+
+        bundle = load_forecasting_uncertainty_bundle(ir_store, bundle_ref)
+        if (
+            bundle.method_fqn != selected_method_fqn
+            or bundle.interval_semantics
+            is not ForecastIntervalSemantics.CONFORMALIZED_PREDICTION_INTERVAL
+            or not bundle.prediction_interval
+            or evidence.nominal_confidence_level is None
+            or not math.isclose(
+                bundle.nominal_coverage,
+                evidence.nominal_confidence_level,
+                rel_tol=0.0,
+                abs_tol=1e-12,
+            )
+        ):
+            return None, "prediction_interval_content_mismatch"
+
+        member_ref = None
+        measurement_unit = None
+        if report.metadata.get("profile_join_status") == "joined_candidate":
+            member_ref = ArtifactRefModel.from_selected_write(
+                report.metadata["forecast_profile_member_ref"]
+            )
+            member = ForecastProfileMemberV1.model_validate(get_json_artifact(ir_store, member_ref))
+            if (
+                member.observed_source_ref != observed_ref
+                or member.target_metric != bundle.target_id
+            ):
+                return None, "prediction_interval_source_mismatch"
+            measurement_unit = member.measurement_unit
+
+        return ForecastIntervalSupport(
+            bundle_ref=bundle_ref,
+            observed_source_ref=observed_ref,
+            method_fqn=bundle.method_fqn,
+            target_metric=bundle.target_id,
+            nominal_coverage=bundle.nominal_coverage,
+            forecast_profile_member_ref=member_ref,
+            measurement_unit=measurement_unit,
+        ), None
+    except (KeyError, OSError, TypeError, ValueError):
+        return None, "prediction_interval_ref_unresolved"
+
+
 def _resolve_s10_empirical_evidence(
     *,
     raw_ref: object | None,
@@ -24527,6 +24651,7 @@ def _resolve_s10_empirical_evidence(
     selected_method_fqn: str,
     expected_rule_version_ref: object | None,
     expected_temporal_roles: object | None,
+    artifact_store: ArtifactStore | None,
 ) -> tuple[_S10ResolvedEmpiricalEvidence | None, str | None]:
     """Read and bind empirical evidence through the injected canonical loader."""
 
@@ -24575,13 +24700,19 @@ def _resolve_s10_empirical_evidence(
         ):
             return None, "empirical_evidence_time_mismatch"
 
+    interval_support, interval_issue = _load_s10_interval_support(
+        artifact_store, evidence, selected_method_fqn=selected_method_fqn
+    )
     projection, projection_error = _s10_empirical_projection(
         evidence_ref=raw_ref,
         evidence=evidence,
     )
-    if projection_error is not None or projection is None:
-        return None, projection_error or "empirical_evidence_projection_invalid"
-    return _S10ResolvedEmpiricalEvidence(raw_ref, projection), None
+    if projection is None and projection_error is None:
+        projection_error = "empirical_evidence_projection_invalid"
+    return (
+        _S10ResolvedEmpiricalEvidence(raw_ref, projection, interval_support, interval_issue),
+        projection_error,
+    )
 
 
 def _build_s10_forecast_inputs(
@@ -24609,8 +24740,9 @@ def _build_s10_forecast_inputs(
     outcome = _value_outcome_variable(candidate, problem) or "value_outcome"
     report = _method_report(method_result)
     evidence = dict(calibration_evidence or {})
-    if empirical_evidence is not None:
+    if empirical_evidence is not None and empirical_evidence.projection is not None:
         evidence = dict(empirical_evidence.projection)
+    interval_support = empirical_evidence.interval_support if empirical_evidence else None
     temporal_roles = _bound_s10_temporal_roles(evidence)
     calibration_refs = _bound_s10_calibration_evidence_refs(evidence)
     calibration_bound = (
@@ -24689,16 +24821,19 @@ def _build_s10_forecast_inputs(
             rule_version_ref="policyos.layer2.s10.outcome_prediction.v1",
             empirical_evidence_ref=empirical_evidence.ref,
         )
-    support_base_origin = (
-        "simulation_only"
-        if effective_forecast_tier == "simulation_only_advisory"
-        else "validated_local_model"
-    )
+    simulation_only = effective_forecast_tier == "simulation_only_advisory"
     support_label = (
-        "simulation_only_system_effect"
-        if effective_forecast_tier == "simulation_only_advisory"
-        else "validated_local_dynamic_model"
+        "simulation_only_system_effect" if simulation_only else "leaf_only_no_system_claim"
     )
+    support_limitations = ["system_effect_support_not_established"] if not simulation_only else []
+    if method_family == "foundry_forecast":
+        if interval_support is None:
+            support_limitations.append(
+                (empirical_evidence.interval_issue if empirical_evidence else None)
+                or "prediction_interval_binding_not_established"
+            )
+        elif interval_support.measurement_unit is None:
+            support_limitations.append("prediction_measurement_unit_not_established")
     support = build_forecast_support(
         support_id=f"n8.forecast-support.{report_ref.removeprefix('sha256:')[:16]}",
         support_ref=f"s10://n8/{report_ref}/forecast-support",
@@ -24713,10 +24848,10 @@ def _build_s10_forecast_inputs(
         prediction_horizon_ref=f"horizon://{world_record.valid_time_scope}",
         target_outcome_refs=[f"outcome://{outcome}"],
         jurisdiction_scope_ref=str(world_record.region_or_jurisdiction),
-        s5_forecast_support_ref=f"s5://{report_ref}",
+        s5_forecast_support_ref=None,
         s5_support_label=support_label,
-        s5_base_origin=support_base_origin,
-        s5_claim_scope="system_effect",
+        s5_base_origin="simulation_only" if simulation_only else None,
+        s5_claim_scope="leaf_only",
         s6_firewall_status_refs=[f"s6://{_candidate_id(candidate)}"],
         s6_limitation_refs=list(
             dict.fromkeys(
@@ -24727,20 +24862,16 @@ def _build_s10_forecast_inputs(
                         empirical_evidence_error=empirical_evidence_error,
                     ),
                     *additional_limitation_refs,
+                    *(
+                        f"{_S10_SUPPORT_LIMITATION_PREFIX}{reason}"
+                        for reason in support_limitations
+                    ),
                 )
             )
         ),
         s8_value_choice_provenance_ref=f"s8://{problem.design_problem_id}/value-choice",
         s8_value_tradeoff_disclosure_ref=f"s8://{problem.design_problem_id}/tradeoff",
-        source_contract_ref=f"source-contract://{world_record.world_model_record_id}/panel",
-        method_validity_ref=f"method-validity://{selected_method_fqn}",
-        sensitivity_analysis_ref=f"sensitivity://{report_ref}",
-        dynamic_equilibrium_check_ref=f"equilibrium-check://{report_ref}",
-        equilibrium_caveat_refs=[],
-        strategic_response_caveat_refs=[],
-        outcome_distribution_refs=[f"distribution://{report_ref}"],
-        welfare_comparison_ref=f"welfare://{problem.design_problem_id}",
-        forecast_tier=effective_forecast_tier,
+        forecast_tier="simulation_only_advisory" if simulation_only else "blocked",
         forecast_authority_disposition_reason=(
             str(
                 evidence.get("forecast_authority_disposition_reason")
@@ -24761,7 +24892,10 @@ def _build_s10_forecast_inputs(
         method_family=method_family,
         observable_subset_ref=f"s10://n8/{outcome}/observable-subset",
         calibration_record_ref=calibration_ref,
-        uncertainty_interval_refs=[f"interval://{report_ref}/95"],
+        uncertainty_interval_refs=(
+            [] if interval_support is None else [str(interval_support.bundle_ref.artifact_id)]
+        ),
+        interval_support=interval_support,
         limitation_refs=list(dict.fromkeys(additional_limitation_refs)),
         abstention_refs=[],
         authority_boundary=authority,
@@ -24785,6 +24919,7 @@ def _build_real_s10_forecast_inputs(
     method_result: object,
     selected_method_fqn: str,
     empirical_evidence_resolver: _S10EmpiricalEvidenceResolver | None = None,
+    artifact_store: ArtifactStore | None = None,
 ) -> Mapping[str, Any]:
     report = _method_report(method_result)
     evidence = _s10_calibration_evidence_from_report(report)
@@ -24804,6 +24939,7 @@ def _build_real_s10_forecast_inputs(
         selected_method_fqn=selected_method_fqn,
         expected_rule_version_ref=expected_rule_version_ref,
         expected_temporal_roles=expected_temporal_roles,
+        artifact_store=artifact_store,
     )
     policy_context_ref = f"policy-context://{world_record.world_model_record_id}"
     return _build_s10_forecast_inputs(

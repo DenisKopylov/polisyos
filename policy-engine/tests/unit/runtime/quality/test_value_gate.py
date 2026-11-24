@@ -7513,7 +7513,7 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     assert outer_ref.manifest_profile_sha256 is not None
     assert outer_manifest.artifact_schema is not None
     assert outer_manifest.artifact_schema.name == "runtime.value_outer_set_candidate_fixture"
-    assert outer_manifest.artifact_schema.version == "1.0"
+    assert outer_manifest.artifact_schema.version == "2.0"
     outer_manifest = ir_store.get_manifest_by_profile(
         outer_ref.artifact_id, outer_ref.manifest_profile_sha256
     )

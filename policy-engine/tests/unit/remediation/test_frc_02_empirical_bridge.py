@@ -20,6 +20,8 @@ from polisyos.calibration.forecast_bridge import (
 )
 from polisyos.core.artifacts import FileSystemCAS, resolve_manifest_by_profile
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.ir.analytics.backtest import (
     load_backtest_report,
     persist_backtest_report,
@@ -227,27 +229,33 @@ def test_bridge_refuses_context_when_report_does_not_bind_temporal_roles(
     assert evidence.floor_passed is False
 
 
+@pytest.mark.parametrize(("nominal_coverage", "foreign_default"), [(0.80, True), (0.95, False)])
 def test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    nominal_coverage: float,
+    foreign_default: bool,
 ) -> None:
     """Supplemental refs compose without replacing owner edges or granting credibility."""
 
     from types import SimpleNamespace
 
     from polisyos.calibration.forecast_bridge import load_empirical_calibration_evidence
+    from polisyos.core.artifacts import ArtifactRef, artifact_manifest_profile_sha256
+    from polisyos.ir import ForecastingUncertaintyBundleRef, load_forecasting_uncertainty_bundle
     from polisyos.runtime.http.services.predictive_calibration import (
         _build_empirical_context,
         _persist_evidence_role_refs,
     )
+    from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
     from tests.unit.remediation.test_frc_02_owner import _spec
     from tests.unit.remediation.test_frc_02_s10 import (
         RULE_VERSION_REF,
         _method_result,
-        _produce_forecast_inputs,
     )
 
     store = FileSystemCAS(tmp_path / "owner-bridge-s10-cas")
-    rule_ref = _rule(store)
+    rule_ref = _rule(store, payload_updates={"nominal_coverage": nominal_coverage})
     model_ref = _spec(store, kind="ir.model_spec", spec_id="owner-bridge-model")
     policy_ref = _spec(store, kind="ir.policy_spec", spec_id="owner-bridge-policy")
     report_id = "frc-owner-bridge-s10-consumer"
@@ -264,7 +272,42 @@ def test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate(
         horizon=3,
     )
 
-    owner_result = ForecastOwner(store).run(request)
+    write_bytes = store.put_bytes
+    alternate_bundle = ArtifactWriteOptions(
+        kind="ir.forecasting_uncertainty_bundle",
+        media_type="application/json",
+        schema=SchemaInfo(name="test.foreign_forecast_interval_schema", version="1.0"),
+    )
+    foreign_ref: ArtifactRef | None = None
+
+    def write_with_foreign_default(
+        data: bytes,
+        opts: ArtifactWriteOptions,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
+        nonlocal foreign_ref
+        if opts.kind == alternate_bundle.kind and foreign_ref is None:
+            foreign_ref = write_bytes(data, alternate_bundle, return_selected_profile=True)
+        return write_bytes(data, opts, return_selected_profile=return_selected_profile)
+
+    with monkeypatch.context() as writes:
+        if foreign_default:
+            writes.setattr(store, "put_bytes", write_with_foreign_default)
+        owner_result = ForecastOwner(store).run(request)
+    owner_bundle_ref = ArtifactRef.model_validate(owner_result.uncertainty_bundle_ref)
+    if foreign_ref is None:
+        foreign_ref = write_bytes(
+            store.get_bytes(owner_bundle_ref), alternate_bundle, return_selected_profile=True
+        )
+    assert foreign_ref.artifact_id == owner_bundle_ref.artifact_id
+    assert foreign_ref.manifest_profile_sha256 != owner_bundle_ref.manifest_profile_sha256
+    assert store.get_bytes(foreign_ref) == store.get_bytes(owner_bundle_ref)
+    default_ref = foreign_ref if foreign_default else owner_bundle_ref
+    assert (
+        artifact_manifest_profile_sha256(store.get_manifest(default_ref.artifact_id))
+        == default_ref.manifest_profile_sha256
+    )
     ir_store = _ensure_ir_artifact_store(store)
     preliminary_report = load_backtest_report(ir_store, owner_result.backtest_report_ref)
     candidate_source_ref = _spec(
@@ -381,8 +424,13 @@ def test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate(
     assert evidence.failure_codes == ("backtest_source_not_established",)
     evidence_ref = persist_empirical_calibration_evidence(store, evidence)
     assert evidence_ref.manifest_profile_sha256 is not None
-    reopened = load_empirical_calibration_evidence(store, evidence_ref)
+    reader_store = FileSystemCAS(store.root)
+    reopened = load_empirical_calibration_evidence(reader_store, evidence_ref)
     assert reopened == evidence
+    times = request.temporal_roles.model_dump(mode="python")
+    assert len(times) == len(set(times.values())) == 6
+    assert report.metadata["temporal_roles"] == request.temporal_roles.model_dump(mode="json")
+    assert {role: getattr(reopened, role) for role in times} == times
 
     # These references are test-authored caller inputs. The role name and
     # same-report content binding do not establish an external issuer fact.
@@ -414,9 +462,28 @@ def test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate(
         report=report,
         expected_rule_version_ref=RULE_VERSION_REF,
     )
-    candidate_projection = _produce_forecast_inputs(
-        store=store,
-        evidence_ref=evidence_ref,
+    gateway = RealValueOwnerGateway(
+        artifact_store=reader_store,
+        empirical_evidence_resolver=lambda ref: load_empirical_calibration_evidence(
+            reader_store, ref
+        ),
+    )
+    scope = {
+        "candidate": SimpleNamespace(candidate_id="frc02-s10-candidate"),
+        "problem": SimpleNamespace(
+            design_problem_id="frc02-s10-problem",
+            outcome_of_interest=SimpleNamespace(target_variable="firm_survival"),
+        ),
+        "world_record": SimpleNamespace(
+            world_model_record_id="world_model_record_frc02_s10",
+            content_hash="sha256:" + "a" * 64,
+            valid_time_scope="2026-Q1",
+            region_or_jurisdiction="UA",
+        ),
+        "selected_method_fqn": request.method_fqn,
+    }
+    candidate_projection = gateway.produce_forecast_inputs(
+        **scope,
         method_result=method_result,
     )
     record = candidate_projection["forecast_calibration_record"]
@@ -427,6 +494,42 @@ def test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate(
     assert (
         "s10://calibration/fail-closed/backtest_source_not_established"
         in support.s6_limitation_refs
+    )
+    interval = support.interval_support
+    assert interval is not None
+    selected_bundle_ref = ForecastingUncertaintyBundleRef.model_validate(
+        owner_result.uncertainty_bundle_ref
+    )
+    assert selected_bundle_ref.manifest_profile_sha256 is not None
+    assert interval.bundle_ref == selected_bundle_ref
+    assert interval.observed_source_ref == owner_result.observed_source_ref
+    assert interval.method_fqn == request.method_fqn
+    assert interval.target_metric == request.target_metric
+    assert interval.estimand == request.estimand
+    assert interval.nominal_coverage == nominal_coverage
+    assert interval.measurement_unit is None
+    bundle = load_forecasting_uncertainty_bundle(
+        _ensure_ir_artifact_store(reader_store), interval.bundle_ref
+    )
+    assert bundle.nominal_coverage == nominal_coverage
+    assert tuple(row.point for row in bundle.prediction_interval) == pytest.approx(
+        owner_result.point_forecast, abs=1e-12
+    )
+    assert tuple((row.lower, row.upper) for row in bundle.prediction_interval) == (
+        owner_result.predictive_intervals
+    )
+    assert support.source_contract_ref is None
+    assert support.method_validity_ref is None
+    assert support.sensitivity_analysis_ref is None
+    assert support.dynamic_equilibrium_check_ref is None
+    assert support.outcome_distribution_refs == []
+    assert support.welfare_comparison_ref is None
+    assert {
+        "s10://forecast-support/limited/system_effect_support_not_established",
+        "s10://forecast-support/limited/prediction_measurement_unit_not_established",
+    } <= set(support.s6_limitation_refs)
+    assert {"causal_effect_authority", "treatment_assignment_authority", "s10_authority"} <= set(
+        support.may_not_use_for
     )
 
     # Keep every selected owner and semantic-role edge, but reverse the actual
@@ -463,9 +566,8 @@ def test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate(
     )
     forged_evidence_ref = persist_empirical_calibration_evidence(store, forged)
     assert load_empirical_calibration_evidence(store, forged_evidence_ref) == forged
-    forged_projection = _produce_forecast_inputs(
-        store=store,
-        evidence_ref=forged_evidence_ref,
+    forged_projection = gateway.produce_forecast_inputs(
+        **scope,
         method_result=_method_result(
             evidence_ref=forged_evidence_ref,
             temporal_roles=temporal_roles,
@@ -476,4 +578,81 @@ def test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate(
     assert forged_projection["forecast_calibration_record"] is None
     forged_support = forged_projection["forecast_support"]
     assert forged_support.forecast_tier == "blocked"
+    assert forged_support.interval_support is None
+    assert (
+        "s10://forecast-support/limited/prediction_interval_source_mismatch"
+        in forged_support.s6_limitation_refs
+    )
     assert "backtest_source_not_established" in forged_support.forecast_authority_disposition_reason
+
+    if not foreign_default:
+        # Keep the actual numeric bytes, nominal level and report rows. Select only
+        # the other manifest profile in both persisted report and prediction role.
+        foreign_roles = _persist_evidence_role_refs(
+            store=store,
+            report_id=report_id,
+            threshold=threshold,
+            model_spec_ref=model_ref,
+            policy_spec_ref=policy_ref,
+            candidate_source_ref=candidate_source_ref,
+            observed_source_ref=owner_result.observed_source_ref,
+            training_slice_ref=owner_result.training_slice_ref,
+            uncertainty_bundle_ref=foreign_ref,
+            method_artifact_ref=owner_result.method_artifact_ref,
+            calibration_rule_ref=owner_result.calibration_rule_ref,
+        )
+        foreign_prediction = foreign_roles["prediction"]
+        foreign_edges = [
+            edge for edge in report_inputs if edge.role not in {"uncertainty_bundle", "prediction"}
+        ]
+        foreign_edges.extend(
+            InputRef(
+                artifact_id=ref.artifact_id,
+                role=role,
+                manifest_profile_sha256=ref.manifest_profile_sha256,
+            )
+            for role, ref in (
+                ("uncertainty_bundle", foreign_ref),
+                ("prediction", foreign_prediction),
+            )
+        )
+        foreign_report = report.model_copy(
+            update={
+                "metadata": {
+                    **report.metadata,
+                    "uncertainty_bundle_ref": foreign_ref.model_dump(mode="json"),
+                }
+            }
+        )
+        foreign_report_ref = persist_backtest_report(ir_store, foreign_report, inputs=foreign_edges)
+        foreign_context = _build_empirical_context(
+            foreign_roles,
+            model_spec_ref=owner_result.model_spec_ref,
+            policy_spec_ref=owner_result.policy_spec_ref,
+            threshold=threshold,
+            temporal_roles=request.temporal_roles,
+        )
+        foreign_evidence = produce_empirical_calibration_evidence(
+            store, foreign_report_ref, context=foreign_context
+        )
+        assert foreign_evidence.context_bound is True
+        assert foreign_evidence.recomputed_numerator == evidence.recomputed_numerator
+        assert foreign_evidence.recomputed_denominator == evidence.recomputed_denominator
+        assert "backtest_row_source_not_established" in foreign_evidence.failure_codes
+        foreign_evidence_ref = persist_empirical_calibration_evidence(store, foreign_evidence)
+        foreign_projection = gateway.produce_forecast_inputs(
+            **scope,
+            method_result=_method_result(
+                evidence_ref=foreign_evidence_ref,
+                temporal_roles=temporal_roles,
+                report=foreign_report,
+                expected_rule_version_ref=RULE_VERSION_REF,
+            ),
+        )
+        foreign_support = foreign_projection["forecast_support"]
+        assert foreign_support.interval_support is None
+        assert foreign_support.uncertainty_interval_refs == []
+        assert (
+            "s10://forecast-support/limited/prediction_interval_source_mismatch"
+            in foreign_support.s6_limitation_refs
+        )

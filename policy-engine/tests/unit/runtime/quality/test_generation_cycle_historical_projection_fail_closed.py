@@ -238,7 +238,7 @@ def _synthetic_child_history_schema(
 
 
 def test_frozen_value_outer_set_computed_width_keeps_v3_wire_omission() -> None:
-    value = ValueOuterSet(
+    current = ValueOuterSet(
         representation="scenario_set",
         identification_status="partial",
         assumption_status="externally_supported",
@@ -252,8 +252,18 @@ def test_frozen_value_outer_set_computed_width_keeps_v3_wire_omission() -> None:
         epoch="2026-10-22",
         representation_status="certified",
     )
-    payload = value.model_dump(mode="json")
+    payload = current.model_dump(mode="json")
     assert payload["width"] == []
+    with pytest.raises(ValueError, match="generation_cycle_history_field_unrepresentable_in_epoch"):
+        generation._historical_generation_cycle_field_tree(current, payload, version="v3")
+
+    historical_fields = {
+        key: item
+        for key, item in current.model_dump(mode="json", exclude_unset=True).items()
+        if key not in {"width", "numerical_profile"}
+    }
+    value = ValueOuterSet.from_historical_fields(historical_fields)
+    payload = value.model_dump(mode="json")
 
     projected = generation._historical_generation_cycle_field_tree(
         value,
@@ -281,6 +291,84 @@ def test_frozen_value_outer_set_computed_width_keeps_v3_wire_omission() -> None:
         expected,
         canonical_spec,
     )
+
+
+def test_frozen_value_receipt_reads_historical_point_without_a_width() -> None:
+    world_hash = "sha256:" + "d" * 64
+    historical_outer = {
+        "representation": "interval_box",
+        "lower": [0.0],
+        "upper": [1e-10],
+        "coordinates": ["outcome"],
+        "identification_status": "point",
+        "assumptions": ["historical"],
+        "assumption_status": "externally_supported",
+        "calibration_scope": {},
+        "data_trust": {
+            "tier": "unit",
+            "trust_cap": 1.0,
+            "trust_multiplier": 1.0,
+            "authority_ref": "unit:value-trust",
+        },
+        "world_model_record_ref": world_hash,
+        "epoch": "2026-10-22",
+        "representation_status": "certified",
+    }
+    receipt = generation.ValueGateReceipt.model_validate(
+        {
+            "candidate_id": "candidate-historical",
+            "evaluation_mode": "simulate_only",
+            "selected_method_fqn": "test.method@1.0.0",
+            "identification_status": "point",
+            "value_outer_set": historical_outer,
+            "transport_receipt": {
+                "status": "direct",
+                "world_model_record_id": "world",
+                "world_model_record_content_hash": world_hash,
+                "transport_result_ref": "test:transport",
+                "transport_status": "identified",
+                "transport_mode": "direct",
+                "identification_engine": "test",
+            },
+            "calibration_receipt": {"status": "pass", "forecast_tier": "test"},
+            "world_model_record_id": "world",
+            "world_model_record_content_hash": world_hash,
+            "value_ref": "sha256:" + "e" * 64,
+            "wall_time_ms": 1.0,
+            "wmr_cache_status": "built",
+            "k_world_ref_before": world_hash,
+            "k_world_ref_after": world_hash,
+        }
+    )
+    historical = receipt.value_outer_set
+    assert historical.numerical_profile is None
+    assert historical.width == (1e-10,)
+    assert not historical.promotion_decision().promotable
+    projected = generation._historical_generation_cycle_field_tree(
+        historical,
+        historical.model_dump(mode="json"),
+        version="v3",
+    )
+    assert projected == historical_outer
+
+    # An explicitly current persisted value must carry its width checksum;
+    # dropping it cannot switch the nested receipt into the live parser.
+    current_outer = {
+        **historical_outer,
+        "upper": [0.0],
+        "numerical_profile": ValueOuterSet.CURRENT_NUMERICAL_PROFILE,
+    }
+    current_receipt = receipt.model_dump(mode="json")
+    current_receipt["value_outer_set"] = {**current_outer, "width": [0.0]}
+    assert (
+        generation.ValueGateReceipt.model_validate(
+            current_receipt
+        ).value_outer_set.numerical_profile
+        == ValueOuterSet.CURRENT_NUMERICAL_PROFILE
+    )
+    current_receipt["value_outer_set"] = current_outer
+    with pytest.raises(ValueError, match="value_outer_set_persisted_width_missing"):
+        generation.ValueGateReceipt.model_validate(current_receipt)
 
 
 @pytest.mark.parametrize(

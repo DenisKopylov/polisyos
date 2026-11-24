@@ -174,7 +174,6 @@ def test_fresh_reader_ignores_later_same_producer_publication_for_other_subject(
     unrelated = _association_event(
         event_id="evt-99",
         subject_suffix=_artifact_id("unrelated"),
-        association_ref=_artifact_id("unrelated"),
     )
 
     result, association_ref = _read(monkeypatch, [original, unrelated])

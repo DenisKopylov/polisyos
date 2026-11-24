@@ -1,0 +1,71 @@
+{
+  "association_input_roles": [
+    "run_manifest",
+    "candidate_source",
+    "observed_source",
+    "model_spec",
+    "policy_spec",
+    "calibration_rule",
+    "backtest_report",
+    "empirical_calibration_evidence",
+    "uncertainty_bundle"
+  ],
+  "association_json": "{\"assessment\":\"limited\",\"authority_scope\":\"predictive_only\",\"backtest_report_ref\":{\"artifact_id\":\"sha256:bf2799c90c77d2b24dce7db7aba8c91592c4fd89e8032942326f5eb0e809cbf8\",\"kind\":\"ir.backtest_report\",\"manifest_profile_sha256\":\"sha256:619e6c4f3ff67816bd81e246aad79912e66d8116ffceeee807e1eec8d1ba7409\",\"media_type\":\"application/json\"},\"calibration_rule_ref\":{\"artifact_id\":\"sha256:84456f39a4ab7ef3fc7920d9e014e3c2cf1fcf620c763d7dd791cc95dab09aa0\",\"kind\":\"ir.forecast_calibration_rule\",\"manifest_profile_sha256\":\"sha256:3fc9c7a81f1b9d172126a40908d1a269968f7e184725b838332f0b7176463601\",\"media_type\":\"application/json\"},\"candidate_source_ref\":{\"artifact_id\":\"sha256:19468dbb0c12d6f57137859d577b459ef5fa0c4a139e4b84cdf043eb847a343c\",\"kind\":\"runtime.quality.n4_candidate_scenario_source\",\"manifest_profile_sha256\":\"sha256:668d4a3417744062e72595e26cc0d0d5185e217c86cbbc04f8b26f60be9ff59c\",\"media_type\":\"application/json\"},\"cell_id\":\"cell-historical-v3\",\"control_run_id\":\"control_historical_v3\",\"counterfactual_credibility_status\":\"not_established\",\"created_at\":\"2026-10-19T19:00:00Z\",\"empirical_evidence_ref\":{\"artifact_id\":\"sha256:1c5d7dfe88604036af4e8770c9f81cb8462038e03044e8f9a2232427d3a1e7e8\",\"kind\":\"ir.empirical_calibration_evidence\",\"manifest_profile_sha256\":\"sha256:b0a4e8d8fb2a6e03102aed24da50e7404a132b2679b1055a97f697d43093cc6b\",\"media_type\":\"application/json\"},\"event_id\":\"evt_predictive_calibration_17a489ac2681a62dad763cde6d40fe56\",\"evidence_reason_codes\":[],\"intent_id\":\"historical-v3\",\"issuer_status\":\"not_established\",\"job_id\":\"job_historical_v3\",\"may_not_use_for\":[\"causal_effect_authority\",\"treatment_assignment_authority\",\"s10_authority\",\"production_recommendation\",\"production_claim_authority\",\"rollout_authority\",\"publication_authority\",\"claim_authority\",\"closeout_authority\",\"approval_authority\",\"scorecard_authority\",\"preference_learning_authority\",\"s11_calibration\",\"s12_envelope_growth\",\"s13_accountability_closure\",\"s14_universality\"],\"model_spec_ref\":{\"artifact_id\":\"sha256:e4d4a092262d57a72270f662f9d21929eb55113d20f587ff13ea8b7e6a92ebc9\",\"kind\":\"ir.model_spec\",\"manifest_profile_sha256\":\"sha256:647b9b9d409fa5ac91ed307ab3a3a0a45e8554aa43217aa39778129e57d36e06\",\"media_type\":\"application/json\"},\"nominal_confidence_level\":{\"_type\":\"float\",\"repr\":\"0.80000000000000004\"},\"observed_denominator\":2,\"observed_hit_rate\":{\"_type\":\"float\",\"repr\":\"0.5\"},\"observed_numerator\":1,\"observed_source_ref\":{\"artifact_id\":\"sha256:5b9d75c96cf31bcbbc5f0afddd365cac0c40614d2c4a5cd27487089d41114198\",\"kind\":\"fabric.data_snapshot\",\"manifest_profile_sha256\":\"sha256:914ee14dcb4a7f16ac00b53a4bc919db296d2ba6fb292a53b0e5f94f7e9e3bb1\",\"media_type\":\"application/json\"},\"owner_suitability\":\"limited\",\"policy_spec_ref\":{\"artifact_id\":\"sha256:54d1b624f5e2ec904cdbc5480ad88a6f494f1acf681f967f9cea4eeab2875bae\",\"kind\":\"ir.policy_spec\",\"manifest_profile_sha256\":\"sha256:cd1dee06da8c827a2a97672f0ece96970f37d375d2fce6f9d9ccfd75ef2e2c3e\",\"media_type\":\"application/json\"},\"population_scope_status\":\"not_established\",\"request_sha256\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"run_id\":\"R_historical_v3\",\"run_manifest_ref\":{\"artifact_id\":\"sha256:0fa07a0f0a3ecea06ce1eb0b159874809a150f8a4a3fec4581f71bc078e8bf59\",\"kind\":\"ir.run_manifest\",\"manifest_profile_sha256\":\"sha256:16e07db41613054d3218dcd7a0d7dd6f8eb69f03fa35fdf0c1f6f98967a0fb62\",\"media_type\":\"application/json\"},\"s10\":{\"authority_boundary\":{\"authoritative_for\":[\"forecast_support_tiering\",\"observable_subset_calibration\"],\"boundary_id\":null,\"decision_grade\":null,\"evidence_basis\":null,\"evidence_kind\":null,\"known_limits\":[],\"may_not_use_for\":[\"causal_effect_authority\",\"treatment_assignment_authority\",\"s10_authority\",\"production_recommendation\",\"production_claim_authority\",\"rollout_authority\",\"publication_authority\",\"claim_authority\",\"closeout_authority\",\"approval_authority\",\"scorecard_authority\",\"preference_learning_authority\",\"s11_calibration\",\"s12_envelope_growth\",\"s13_accountability_closure\",\"s14_universality\"],\"posture\":\"shadow\",\"rule_version_refs\":[\"policyos.layer2.s10.outcome_prediction.v1\"],\"source_authority\":\"deterministic_producer\"},\"calibration_record_ref\":\"s10://historical-v3/calibration\",\"calibration_status\":\"limit\",\"counterfactual_credibility\":\"not_established\",\"denominator\":2,\"forecast_tier\":\"blocked\",\"limitation_refs\":[\"s10://calibration/fail-closed/n4_outcome_target_binding_not_established\"],\"may_not_use_for\":[\"causal_effect_authority\",\"treatment_assignment_authority\",\"s10_authority\",\"production_recommendation\",\"production_claim_authority\",\"rollout_authority\",\"publication_authority\",\"claim_authority\",\"closeout_authority\",\"approval_authority\",\"scorecard_authority\",\"preference_learning_authority\",\"s11_calibration\",\"s12_envelope_growth\",\"s13_accountability_closure\",\"s14_universality\"],\"numerator\":1,\"observed_pass_rate\":{\"_type\":\"float\",\"repr\":\"0.5\"},\"outcome_binding_status\":\"not_established\"},\"schema_version\":\"polisyos.runtime.predictive_calibration_association.v3\",\"source_time_status\":\"not_established\",\"tenant_id\":\"tenant-historical-v3\",\"uncertainty_bundle_ref\":{\"artifact_id\":\"sha256:b72139d264c2812ae754226ad8400cbea6f0fcf60fa3c251f809872465fb5a53\",\"kind\":\"ir.forecasting_uncertainty_bundle\",\"manifest_profile_sha256\":\"sha256:07d55f570baade918799a8f0c9159228347b8e68d3be753369422de13a4c1a70\",\"media_type\":\"application/json\"}}",
+  "event": {
+    "artifact_refs": [
+      "sha256:35f9f65a01244637c7062e925c6cf42c7da2f1a37f1a9ab4fb907e1a5bbd5621"
+    ],
+    "blocking_status": null,
+    "cell_id": "cell-historical-v3",
+    "dedupe_key": "predictive-calibration:evt_predictive_calibration_17a489ac2681a62dad763cde6d40fe56",
+    "duplicate_of": null,
+    "event_id": "evt_predictive_calibration_17a489ac2681a62dad763cde6d40fe56",
+    "event_source": "polisyos.runtime",
+    "event_subject": "run/R_historical_v3/job/job_historical_v3/predictive-calibration/sha256:35f9f65a01244637c7062e925c6cf42c7da2f1a37f1a9ab4fb907e1a5bbd5621",
+    "event_time": "2026-10-19T19:00:00Z",
+    "event_type": "polisyos.runtime.diagnostic.ref_publication.v1",
+    "execution_profile": "candidate",
+    "input_refs": [
+      "sha256:0fa07a0f0a3ecea06ce1eb0b159874809a150f8a4a3fec4581f71bc078e8bf59",
+      "sha256:19468dbb0c12d6f57137859d577b459ef5fa0c4a139e4b84cdf043eb847a343c",
+      "sha256:5b9d75c96cf31bcbbc5f0afddd365cac0c40614d2c4a5cd27487089d41114198",
+      "sha256:e4d4a092262d57a72270f662f9d21929eb55113d20f587ff13ea8b7e6a92ebc9",
+      "sha256:54d1b624f5e2ec904cdbc5480ad88a6f494f1acf681f967f9cea4eeab2875bae",
+      "sha256:84456f39a4ab7ef3fc7920d9e014e3c2cf1fcf620c763d7dd791cc95dab09aa0",
+      "sha256:bf2799c90c77d2b24dce7db7aba8c91592c4fd89e8032942326f5eb0e809cbf8",
+      "sha256:1c5d7dfe88604036af4e8770c9f81cb8462038e03044e8f9a2232427d3a1e7e8",
+      "sha256:b72139d264c2812ae754226ad8400cbea6f0fcf60fa3c251f809872465fb5a53"
+    ],
+    "job_id": "job_historical_v3",
+    "parent_span_id": null,
+    "payload_ref": null,
+    "phase": "predictive_calibration_publication",
+    "producer_component": "polisyos.runtime.http.predictive_calibration",
+    "producer_version": "1.0",
+    "redaction_policy_ref": "redaction-policy/runtime-diagnostics-v1",
+    "run_id": "R_historical_v3",
+    "sampling_decision": "always_record",
+    "sampling_rate": 1.0,
+    "schema_name": "polisyos.runtime.quality.diagnostic_event",
+    "schema_version": "1.0",
+    "span_id": "span_b2a299ebe9ac4832",
+    "state_after": "candidate_diagnostic_persisted",
+    "state_before": null,
+    "tenant_id": "tenant-historical-v3",
+    "trace_id": "evt_predictive_calibration_17a489ac2681a62dad763cde6d40fe56"
+  },
+  "event_payload": {
+    "association_ref": {
+      "artifact_id": "sha256:35f9f65a01244637c7062e925c6cf42c7da2f1a37f1a9ab4fb907e1a5bbd5621",
+      "kind": "runtime.predictive_calibration_association",
+      "manifest_profile_sha256": "sha256:c7946d7b8f7a151014927fe8ca6478b79f5b1d3768b03883636956dce028321f",
+      "media_type": "application/json"
+    },
+    "intent_id": "historical-v3",
+    "request_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "schema_version": "3.0"
+  },
+  "event_payload_sha256": "sha256:36528b58d8e73468162864cb747efd40f968d528144c473d220db8f284609d6e",
+  "writer_revision": "791b9c339b286b03e2d9b3bc23e153c61c091202",
+  "writer_source_sha256": "729eab313d0183c024ba3c5b688cc4da0711d9bb2d3fcdbe04ebec6dfe56fccc"
+}

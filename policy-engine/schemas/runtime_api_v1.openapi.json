@@ -3059,6 +3059,42 @@
         "title": "ArtifactRef",
         "type": "object"
       },
+      "ArtifactRefModel": {
+        "additionalProperties": false,
+        "description": "Provide the common mapping-compatible base contract for artifact refs.",
+        "properties": {
+          "artifact_id": {
+            "$ref": "#/components/schemas/polisyos__ir__artifacts__contracts__ArtifactID"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "kind",
+          "media_type"
+        ],
+        "title": "ArtifactRefModel",
+        "type": "object"
+      },
       "ArtifactSchemaResponse": {
         "additionalProperties": false,
         "description": "Response envelope returned by the artifact schema endpoint.",
@@ -23316,6 +23352,73 @@
         "title": "FiveRightsRequirement",
         "type": "object"
       },
+      "ForecastIntervalSupport": {
+        "additionalProperties": false,
+        "description": "Selected predictive interval and its observed-series scope.",
+        "properties": {
+          "bundle_ref": {
+            "$ref": "#/components/schemas/ForecastingUncertaintyBundleRef"
+          },
+          "estimand": {
+            "const": "predictive_interval_coverage",
+            "default": "predictive_interval_coverage",
+            "title": "Estimand",
+            "type": "string"
+          },
+          "forecast_profile_member_ref": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ArtifactRefModel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "measurement_unit": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measurement Unit"
+          },
+          "method_fqn": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Method Fqn",
+            "type": "string"
+          },
+          "nominal_coverage": {
+            "exclusiveMaximum": 1.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Nominal Coverage",
+            "type": "number"
+          },
+          "observed_source_ref": {
+            "$ref": "#/components/schemas/ArtifactRefModel"
+          },
+          "target_metric": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Target Metric",
+            "type": "string"
+          }
+        },
+        "required": [
+          "bundle_ref",
+          "observed_source_ref",
+          "method_fqn",
+          "target_metric",
+          "nominal_coverage"
+        ],
+        "title": "ForecastIntervalSupport",
+        "type": "object"
+      },
       "ForecastMethodParams": {
         "additionalProperties": false,
         "description": "The exact static/dynamic parameters accepted by the chosen ETS method.",
@@ -23390,6 +23493,44 @@
           "observation_time"
         ],
         "title": "ForecastTemporalRoles",
+        "type": "object"
+      },
+      "ForecastingUncertaintyBundleRef": {
+        "additionalProperties": false,
+        "description": "Stable handle for persisted multi-horizon forecasting uncertainty bundles.",
+        "properties": {
+          "artifact_id": {
+            "$ref": "#/components/schemas/polisyos__ir__artifacts__contracts__ArtifactID"
+          },
+          "kind": {
+            "const": "ir.forecasting_uncertainty_bundle",
+            "default": "ir.forecasting_uncertainty_bundle",
+            "title": "Kind",
+            "type": "string"
+          },
+          "manifest_profile_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Profile Sha256"
+          },
+          "media_type": {
+            "const": "application/json",
+            "default": "application/json",
+            "title": "Media Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_id"
+        ],
+        "title": "ForecastingUncertaintyBundleRef",
         "type": "object"
       },
       "ForkBRelationCensusPayload": {
@@ -36007,12 +36148,13 @@
             "$ref": "#/components/schemas/PredictiveCalibrationS10Summary"
           },
           "schema_version": {
-            "default": "polisyos.runtime.predictive_calibration_association.v5",
+            "default": "polisyos.runtime.predictive_calibration_association.v6",
             "enum": [
               "polisyos.runtime.predictive_calibration_association.v2",
               "polisyos.runtime.predictive_calibration_association.v3",
               "polisyos.runtime.predictive_calibration_association.v4",
-              "polisyos.runtime.predictive_calibration_association.v5"
+              "polisyos.runtime.predictive_calibration_association.v5",
+              "polisyos.runtime.predictive_calibration_association.v6"
             ],
             "title": "Schema Version",
             "type": "string"
@@ -36238,6 +36380,16 @@
             "minLength": 1,
             "title": "Forecast Tier",
             "type": "string"
+          },
+          "interval_support": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ForecastIntervalSupport"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "limitation_refs": {
             "default": [],
@@ -54689,6 +54841,11 @@
             },
             "title": "Lower",
             "type": "array"
+          },
+          "numerical_profile": {
+            "const": "policyos.value_outer_set.numeric.v2",
+            "title": "Numerical Profile",
+            "type": "string"
           },
           "representation": {
             "enum": [
@@ -99895,7 +100052,7 @@
                           "observed_pass_rate": null,
                           "outcome_binding_status": "not_established"
                         },
-                        "schema_version": "polisyos.runtime.predictive_calibration_association.v5",
+                        "schema_version": "polisyos.runtime.predictive_calibration_association.v6",
                         "source_time_status": "not_established",
                         "tenant_id": "tenant-openapi-fixture",
                         "uncertainty_bundle_ref": {
@@ -99907,7 +100064,7 @@
                         "value_data_profile_ref": null
                       },
                       "association_ref": {
-                        "artifact_id": "sha256:3a346978005e9835cea7b118735ee527a7cbf2c1750e0d1a7298f924c86e3fce",
+                        "artifact_id": "sha256:d729cfa620ca0818796f7c44bcf6578c98d942cf18825a2f282ec085004d5be8",
                         "kind": "runtime.predictive_calibration_association",
                         "manifest_profile_sha256": "sha256:b1d0cb814032df92761738032cbb79dba46927f9b56ea2753eba814c1336ef91",
                         "media_type": "application/json"
@@ -100315,7 +100472,7 @@
                           "observed_pass_rate": null,
                           "outcome_binding_status": "not_established"
                         },
-                        "schema_version": "polisyos.runtime.predictive_calibration_association.v5",
+                        "schema_version": "polisyos.runtime.predictive_calibration_association.v6",
                         "source_time_status": "not_established",
                         "tenant_id": "tenant-openapi-fixture",
                         "uncertainty_bundle_ref": {
@@ -100327,7 +100484,7 @@
                         "value_data_profile_ref": null
                       },
                       "association_ref": {
-                        "artifact_id": "sha256:3a346978005e9835cea7b118735ee527a7cbf2c1750e0d1a7298f924c86e3fce",
+                        "artifact_id": "sha256:d729cfa620ca0818796f7c44bcf6578c98d942cf18825a2f282ec085004d5be8",
                         "kind": "runtime.predictive_calibration_association",
                         "manifest_profile_sha256": "sha256:b1d0cb814032df92761738032cbb79dba46927f9b56ea2753eba814c1336ef91",
                         "media_type": "application/json"

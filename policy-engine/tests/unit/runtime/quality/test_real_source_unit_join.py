@@ -10,7 +10,7 @@ from typing import Any, Literal
 
 import pytest
 
-from polisyos.core.artifacts import artifact_ref_for_manifest, ensure_ir_artifact_store
+from polisyos.core.artifacts import ArtifactRef, artifact_ref_for_manifest, ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.value_outer_set import ValueOuterSet
 from polisyos.foundry.methods.catalog.causal.treatment_effects import AIPWEstimator
@@ -289,6 +289,17 @@ def _run_source_case(
     with catalog_serving_source_scope(catalog_source):
         fresh = actual_consumer(**consumer_kwargs)
     assert persisted == produced_outer == fresh
+    from polisyos.runtime.quality.candidate_value_method import _reconcile_selected_outer_set
+
+    assert (
+        _reconcile_selected_outer_set(
+            ir_store,
+            value_ref=ArtifactRef.model_validate(outer_ref.model_dump(mode="json")),
+            run_basis_ref=ArtifactRef.model_validate(basis_ref.model_dump(mode="json")),
+            recomputed=fresh,
+        )
+        == fresh
+    )
     assert fresh.calibration_scope["measurement_unit"] == measurement_unit
     assert fresh.calibration_scope["authority_scope"] == "candidate_fixture_only"
     assert fresh.representation_status == "search_only"

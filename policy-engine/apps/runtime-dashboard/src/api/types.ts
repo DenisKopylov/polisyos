@@ -3642,6 +3642,19 @@ export interface components {
       media_type: string;
     };
     /**
+     * ArtifactRefModel
+     * @description Provide the common mapping-compatible base contract for artifact refs.
+     */
+    ArtifactRefModel: {
+      artifact_id: components["schemas"]["polisyos__ir__artifacts__contracts__ArtifactID"];
+      /** Kind */
+      kind: string;
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
+      /** Media Type */
+      media_type: string;
+    };
+    /**
      * ArtifactSchemaResponse
      * @description Response envelope returned by the artifact schema endpoint.
      */
@@ -12099,6 +12112,31 @@ export interface components {
       schema_version: string;
     };
     /**
+     * ForecastIntervalSupport
+     * @description Selected predictive interval and its observed-series scope.
+     */
+    ForecastIntervalSupport: {
+      bundle_ref: components["schemas"]["ForecastingUncertaintyBundleRef"];
+      /**
+       * Estimand
+       * @default predictive_interval_coverage
+       * @constant
+       */
+      estimand: "predictive_interval_coverage";
+      forecast_profile_member_ref?:
+        | components["schemas"]["ArtifactRefModel"]
+        | null;
+      /** Measurement Unit */
+      measurement_unit?: string | null;
+      /** Method Fqn */
+      method_fqn: string;
+      /** Nominal Coverage */
+      nominal_coverage: number;
+      observed_source_ref: components["schemas"]["ArtifactRefModel"];
+      /** Target Metric */
+      target_metric: string;
+    };
+    /**
      * ForecastMethodParams
      * @description The exact static/dynamic parameters accepted by the chosen ETS method.
      */
@@ -12151,6 +12189,27 @@ export interface components {
        * Format: date-time
        */
       prediction_time: string;
+    };
+    /**
+     * ForecastingUncertaintyBundleRef
+     * @description Stable handle for persisted multi-horizon forecasting uncertainty bundles.
+     */
+    ForecastingUncertaintyBundleRef: {
+      artifact_id: components["schemas"]["polisyos__ir__artifacts__contracts__ArtifactID"];
+      /**
+       * Kind
+       * @default ir.forecasting_uncertainty_bundle
+       * @constant
+       */
+      kind: "ir.forecasting_uncertainty_bundle";
+      /** Manifest Profile Sha256 */
+      manifest_profile_sha256?: string | null;
+      /**
+       * Media Type
+       * @default application/json
+       * @constant
+       */
+      media_type: "application/json";
     };
     /**
      * ForkBRelationCensusPayload
@@ -17857,14 +17916,15 @@ export interface components {
       s10: components["schemas"]["PredictiveCalibrationS10Summary"];
       /**
        * Schema Version
-       * @default polisyos.runtime.predictive_calibration_association.v5
+       * @default polisyos.runtime.predictive_calibration_association.v6
        * @enum {string}
        */
       schema_version:
         | "polisyos.runtime.predictive_calibration_association.v2"
         | "polisyos.runtime.predictive_calibration_association.v3"
         | "polisyos.runtime.predictive_calibration_association.v4"
-        | "polisyos.runtime.predictive_calibration_association.v5";
+        | "polisyos.runtime.predictive_calibration_association.v5"
+        | "polisyos.runtime.predictive_calibration_association.v6";
       /**
        * Source Time Status
        * @default not_established
@@ -17941,6 +18001,9 @@ export interface components {
       denominator?: number | null;
       /** Forecast Tier */
       forecast_tier: string;
+      interval_support?:
+        | components["schemas"]["ForecastIntervalSupport"]
+        | null;
       /**
        * Limitation Refs
        * @default []
@@ -25883,6 +25946,11 @@ export interface components {
       identification_status: "point" | "partial" | "proxy" | "blocked";
       /** Lower */
       lower?: number[];
+      /**
+       * Numerical Profile
+       * @constant
+       */
+      numerical_profile?: "policyos.value_outer_set.numeric.v2";
       /**
        * Representation
        * @enum {string}

@@ -6171,7 +6171,7 @@ async def test_candidate_predictive_calibration_post_event_fresh_get_and_exact_r
     tmp_path,
     request: pytest.FixtureRequest,
 ) -> None:
-    """An actual controlled owned run supports the honest limited v5 candidate surface."""
+    """A controlled run reopens the exact conditional interval on the v6 surface."""
     await _exercise_predictive_calibration_run_surface(
         monkeypatch, tmp_path, request, include_owner_profile=False
     )
@@ -6204,7 +6204,12 @@ async def _exercise_predictive_calibration_run_surface(
     from polisyos.core.contracts.runtime import RunCandidateSimulationProjection
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.data_forge.read_api.catalog import default_acquisition_overlay_path
-    from polisyos.ir import CanonSpec, InputRef, put_json_artifact
+    from polisyos.ir import (
+        CanonSpec,
+        InputRef,
+        load_forecasting_uncertainty_bundle,
+        put_json_artifact,
+    )
     from polisyos.ir.analytics.backtest import BacktestReportRef, load_backtest_report
     from polisyos.runtime.http import dev_identity_middleware
     from polisyos.runtime.http.routes import runs as runs_routes
@@ -6243,6 +6248,13 @@ async def _exercise_predictive_calibration_run_surface(
                 stored_association
             )
             assert reopened_association.evidence_reason_codes == evidence.failure_codes
+            interval = reopened_association.s10.interval_support
+            assert interval is not None
+            bundle = load_forecasting_uncertainty_bundle(ir_store, interval.bundle_ref)
+            assert bundle.method_fqn == interval.method_fqn == calibration_service._METHOD_FQN
+            assert bundle.target_id == interval.target_metric == report.metadata["target_metric"]
+            assert bundle.nominal_coverage == interval.nominal_coverage
+            assert bundle.prediction_interval
 
             assert len("run-bound candidate report ") + len(report.report_id) > 120
             assert evidence.evidence_origin == "run-bound candidate report"
@@ -6692,6 +6704,7 @@ async def _exercise_predictive_calibration_run_surface(
         source_repo_root=None if include_owner_profile else owner_repo_root,
         tenant_id=tenant_id,
         cell_id=cell_id,
+        stage_diagnostic_path=tmp_path / "predictive-calibration-job-stages.jsonl",
     )
     request.addfinalizer(fixture.service.close)
     core_run_id = str(fixture.job.progress["core_run_id"])
@@ -7306,7 +7319,7 @@ async def _exercise_predictive_calibration_run_surface(
         assert association.get("forecast_profile_member_ref") is None
         assert "backtest_source_not_established" in association["evidence_reason_codes"]
         assert association["schema_version"] == (
-            "polisyos.runtime.predictive_calibration_association.v5"
+            "polisyos.runtime.predictive_calibration_association.v6"
         )
         assert association["candidate_source_ref"] == body["candidate_source_ref"]
         assert association["assessment"] == "limited"
@@ -7327,6 +7340,15 @@ async def _exercise_predictive_calibration_run_surface(
         )
         assert len(s10_owner_supports) == 1
         actual_s10_support = s10_owner_supports[0]
+        interval = association["s10"]["interval_support"]
+        assert interval == actual_s10_support.interval_support.model_dump(mode="json")
+        assert interval["bundle_ref"] == association["uncertainty_bundle_ref"]
+        assert interval["observed_source_ref"] == association["observed_source_ref"]
+        assert interval["method_fqn"] == calibration_service._METHOD_FQN
+        assert interval["target_metric"] == body["target_metric"]
+        assert interval["nominal_coverage"] == owner_results[0].nominal_coverage
+        assert interval["measurement_unit"] is None
+        assert interval["forecast_profile_member_ref"] is None
         assert association["s10"]["authority_boundary"] == (
             actual_s10_support.authority_boundary.model_dump(mode="json")
         )
@@ -7419,6 +7441,7 @@ async def _exercise_predictive_calibration_run_surface(
         assert reopened_result["association"]["run_manifest_ref"] == run["manifest_ref"]
         assert len(s10_owner_supports) == 2
         reopened_s10_support = s10_owner_supports[1]
+        assert reopened_s10_support.interval_support == actual_s10_support.interval_support
         assert reopened_result["association"]["s10"]["authority_boundary"] == (
             reopened_s10_support.authority_boundary.model_dump(mode="json")
         )
@@ -7701,7 +7724,17 @@ async def _exercise_predictive_calibration_run_surface(
     )
     assert comparison_reopened_result["association"] == comparison_association
     assert comparison_reopened_result["association"]["s10"] == comparison_association["s10"]
-    assert comparison_reopened_result["association"]["s10"] == reopened_result["association"]["s10"]
+    comparison_interval = comparison_association["s10"]["interval_support"]
+    assert (
+        comparison_interval["observed_source_ref"] == comparison_association["observed_source_ref"]
+    )
+    assert comparison_interval["bundle_ref"] == comparison_association["uncertainty_bundle_ref"]
+    assert comparison_interval != association["s10"]["interval_support"]
+    assert {
+        key: value
+        for key, value in comparison_association["s10"].items()
+        if key != "interval_support"
+    } == {key: value for key, value in association["s10"].items() if key != "interval_support"}
 
     if not include_owner_profile:
         # This proves the ordinary candidate POST/event/fresh-read/retry chain.
@@ -7741,6 +7774,14 @@ async def _exercise_predictive_calibration_run_surface(
             selected_profile_ref.model_dump(mode="json")
         )
         assert profile_association["forecast_profile_member_ref"] is not None
+        profile_interval = profile_association["s10"]["interval_support"]
+        assert (
+            profile_interval["forecast_profile_member_ref"]
+            == (profile_association["forecast_profile_member_ref"])
+        )
+        assert profile_interval["bundle_ref"] == profile_association["uncertainty_bundle_ref"]
+        assert profile_interval["observed_source_ref"] == profile_association["observed_source_ref"]
+        assert profile_interval["measurement_unit"] == value_profile.measurement_unit
         assert profile_association["assessment"] == "limited"
         assert profile_association["authority_scope"] == "predictive_only"
         assert profile_association["source_time_status"] == "not_established"
